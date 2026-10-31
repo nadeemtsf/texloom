@@ -1,0 +1,30 @@
+\NeedsTeXFormat{LaTeX2e}[2022-06-01]
+\ProvidesPackage{studio}[2026/10/30 Texloom movable blocks]
+% Make the default Computer Modern fonts honor arbitrary inspector sizes.
+\RequirePackage{fix-cm}
+% All dimensions passed to StudioBlock are PDF points (bp), measured from
+% the top left of the physical page. Page is the physical page index.
+\newbox\StudioMeasureBox
+\newwrite\StudioMeasureFile
+\AtBeginDocument{\immediate\openout\StudioMeasureFile=\jobname.studio}
+\newcommand{\StudioBlock}[7]{%
+  \AddToHook{shipout/foreground}{%
+    \ifnum\ReadonlyShipoutCounter=#2\relax
+      \begingroup
+      \unitlength=1bp
+      \setbox\StudioMeasureBox=\vbox{%
+        \hsize=#5bp\relax
+        \linewidth=\hsize
+        \columnwidth=\hsize
+        \textwidth=\hsize
+        \parindent=0pt
+        \fontsize{#6bp}{\dimexpr#6bp*6/5\relax}\selectfont
+        #7\par
+      }%
+      \immediate\write\StudioMeasureFile{#1|#2|\the\wd\StudioMeasureBox|\the\ht\StudioMeasureBox|\the\dp\StudioMeasureBox}%
+      \put(#3,-#4){\makebox(0,0)[lt]{\box\StudioMeasureBox}}%
+      \endgroup
+    \fi
+  }%
+}
+\endinput

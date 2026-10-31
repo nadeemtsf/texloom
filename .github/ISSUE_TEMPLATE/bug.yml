@@ -1,0 +1,20 @@
+name: Bug report
+description: Report a reproducible editing or compilation problem.
+body:
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps and expected result
+    validations:
+      required: true
+  - type: textarea
+    id: fixture
+    attributes:
+      label: Small synthetic LaTeX example
+      description: Remove private names, documents and credentials. Include the engine and Texloom version.
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result and compiler diagnostic
+    validations:
+      required: true

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Texloom",
+  "version": "0.3.0",
+  "identifier": "dev.texloom.desktop",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://127.0.0.1:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [{ "label": "main", "title": "Texloom — Source & canvas", "width": 1480, "height": 950, "minWidth": 1024, "minHeight": 680 }],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; worker-src 'self' blob:; connect-src 'self' ipc: http://ipc.localhost; object-src 'none'; base-uri 'none'; frame-src 'none'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "publisher": "Texloom Project",
+    "shortDescription": "LaTeX source and a hands-on PDF canvas.",
+    "icon": ["icons/icon.ico"],
+    "windows": { "webviewInstallMode": { "type": "downloadBootstrapper" }, "minimumWebview2Version": "130.0.0.0" }
+  }
+}

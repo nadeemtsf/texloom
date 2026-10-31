@@ -1,0 +1,14 @@
+/node_modules/
+/dist/
+/target/
+/.tools/
+/web/public/pdfjs/
+/src-tauri/gen/
+*.log
+/artifacts/
+.env
+.env.*
+!.env.example
+*.pfx
+*.p12
+*.key
