@@ -52,3 +52,5 @@ This proves a bounded fixture experiment. Provenance, arbitrary PDF glyph mappin
 P2 needs actual native typing/IME/multi-cursor/context-menu undo and interactive save/reopen checks. Strict TypeScript/generated IPC types, unsupported-encoding viewing and recovery are unfinished. String-buffer performance is unmeasured. See docs/DOCUMENT-SESSION.md.
 
 P1 provenance/parser/coordinate decisions and P3-P8 compilation, selection, editing, verification, recovery and packaging gates remain. No complete signature mouse workflow or new release is certified. The downloadable baseline is older.
+
+The second corpus run also passed 23/24. It exposed a versioned Lua font cache created during the first pass after root discovery. Root discovery now runs after each pass, and discovered files remain hashed and checked before acceptance. Raw report: docs/evidence/build-second-run.json. The next fresh-run corpus remains the gate.

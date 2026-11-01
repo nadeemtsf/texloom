@@ -131,7 +131,6 @@ pub fn build(request: Request<'_>, cancel: &Cancellation) -> Result<Outcome, Str
     }
     args.push(request.main.into());
     receipt.arguments = args.clone();
-    let roots = snapshot::toolchain_roots(&receipt.compiler.path);
     let mut previous = None;
     let mut converged = false;
     let mut success = false;
@@ -185,6 +184,9 @@ pub fn build(request: Request<'_>, cancel: &Cancellation) -> Result<Outcome, Str
             break;
         }
         receipt.verify()?;
+        // Lua/font tools can create their standard versioned cache on first use.
+        // Discover those declared roots after the pass, then hash every input.
+        let roots = snapshot::toolchain_roots(&receipt.compiler.path);
         let discovered =
             receipt.record_inputs(&receipt.directory.join(".out/preview.fls"), &roots)?;
         receipt.verify()?;
