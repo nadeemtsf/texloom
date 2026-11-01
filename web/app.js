@@ -1,5 +1,8 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import 'monaco-editor/esm/vs/editor/contrib/find/browser/findController.js';
+import 'monaco-editor/esm/vs/editor/contrib/contextmenu/browser/contextmenu.js';
+import 'monaco-editor/esm/vs/editor/contrib/multicursor/browser/multicursor.js';
+import 'monaco-editor/esm/vs/editor/contrib/clipboard/browser/clipboard.js';
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import * as pdfjs from 'pdfjs-dist';
 import pdfWorkerURL from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
@@ -40,6 +43,9 @@ const state={
   canUndo:false,canRedo:false,opening:false,mutating:false,composing:false,
   busy:false,pending:false,zoom:0,mode:'select',compileTimer:null,renderSerial:0,renderAbort:null,dialog:null
 };
+// Dedicated keys follow native history even when setValue clears Monaco's stack.
+const undoContext=editor.createContextKey('texloomCanUndo',false);
+const redoContext=editor.createContextKey('texloomCanRedo',false);
 const surfaceElements={pages:$('pages'),scroller:$('preview-scroll'),count:$('page-count'),empty:$('empty')};
 const canvas=new CanvasController({
   getSession:()=>state,
@@ -83,6 +89,7 @@ function updateControls(){
   $('compile').disabled=state.busy;
   $('undo').disabled=!state.canUndo||state.mutating||state.composing||!!state.client?.error;
   $('redo').disabled=!state.canRedo||state.mutating||state.composing||!!state.client?.error;
+  undoContext.set(!$('undo').disabled);redoContext.set(!$('redo').disabled);
   $('compile-state').textContent=state.busy?'Compiling candidate…':'';
   $('pages').classList.toggle('stale',state.revision!==state.compiled||state.busy);
   $('selection-hint').textContent=state.mode==='read'?'Drag over text to highlight and copy it.':
@@ -106,7 +113,7 @@ function renderFiles(){
   for(const name of Object.keys(state.sources).sort()){
     const button=document.createElement('button');button.textContent=name;button.title=name;
     button.classList.toggle('active',name===state.file);
-      button.onclick=async()=>{try{await state.client.flush();state.lastHistory=0;state.file=name;syncEditor();sendSelection()}catch(error){syncFailed(error)}};$('file-list').append(button);
+    button.onclick=async()=>{try{await state.client.flush();state.lastHistory=0;state.file=name;syncEditor();sendSelection()}catch(error){syncFailed(error)}};$('file-list').append(button);
   }
   $('main-file').replaceChildren();
   for(const name of Object.keys(state.sources).filter(n=>n.endsWith('.tex'))){
@@ -177,7 +184,7 @@ function finishJob(){
 }
 async function commitSources(sources,{file=state.file,policy=null,expectedIdentity=sessionIdentity(state)}={}){
   if(!fresh()||sessionIdentity(state)!==expectedIdentity)return toast('Compile the latest source before applying this edit.');
-  const revision=state.revision,client=state.client;let nativeCandidate=null,prepared=null;
+  const client=state.client;let nativeCandidate=null,prepared=null;
   state.busy=true;clearTimeout(state.compileTimer);updateControls();
   try{
     nativeCandidate=await client.prepare(sources);
@@ -379,6 +386,8 @@ editor.onDidChangeModelContent(event=>{
 // Monaco's context-menu and accessibility undo paths reach the model methods.
 // Route those through the same native history as keyboard and toolbar actions.
 model.undo=()=>undo();model.redo=()=>undo(true);
+editor.addAction({id:'texloom.undo',label:'Undo',precondition:'texloomCanUndo',contextMenuGroupId:'1_modification',contextMenuOrder:1,run:()=>undo()});
+editor.addAction({id:'texloom.redo',label:'Redo',precondition:'texloomCanRedo',contextMenuGroupId:'1_modification',contextMenuOrder:2,run:()=>undo(true)});
 editor.getDomNode()?.addEventListener('compositionstart',()=>{state.composing=true;state.lastHistory=0;canvas.clear();updateControls()});
 editor.getDomNode()?.addEventListener('compositionend',()=>{state.composing=false;state.lastHistory=0;scheduleCompile();updateControls()});
 editor.onDidChangeCursorPosition(()=>{const position=editor.getPosition();$('cursor').textContent='Ln '+position.lineNumber+', Col '+position.column});

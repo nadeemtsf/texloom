@@ -7,7 +7,7 @@ Primary repository: https://github.com/nadeemtsf/texloom.
 | --- | --- | --- |
 | P0 baseline | Reconciled | Local checkout matched verified remote commit 1ee59e3 before P2 |
 | P1 mapping/movement | Movement experiment passed; mapping decisions open | 24 positive cases over three engines, six oracle refusals; provenance/parser/extended coordinates pending |
-| P2 source/history | Core and desktop integration implemented; native input acceptance open | 51 core, 5 native service, 30 frontend/PDF tests; production build/sample compile passed; native input blocked by foreground capture |
+| P2 source/history | Core and desktop integration implemented; native input acceptance open | 51 core, 5 native service, 31 frontend/PDF tests; production build/sample compile passed; native input blocked by foreground capture |
 | P3 compilation | Pending | Dependency manifests, convergence, cancellation, diagnostics |
 | P4 selection | Pending native acceptance | Correct-or-refused mapping and complete mouse group selection |
 | P5 text/spacing | Pending | Protected text editing and spacing adapters |

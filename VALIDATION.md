@@ -10,14 +10,14 @@ Branch feature/document-session-core, based on verified P1 commit 1ee59e354c3012
 | --- | --- |
 | cargo test --offline --locked -p texloom-core | 33 existing + 18 document integration tests passed |
 | cargo test --offline --locked -p texloom-desktop --lib | 5 real service tests passed: Serde/UTF-16, BOM/mixed EOL/emoji, simultaneous edits and cursors, guarded candidates, minimal diffs, explicit save/reopen |
-| npm test | 30 frontend/PDF tests passed; transaction tests use an explicit IPC double |
+| npm test | 31 frontend/PDF tests passed; transaction tests use an explicit IPC double |
 | npm run build | Passed; existing large-bundle warning |
 | Windows production build | Passed with cargo build --offline --locked --release --target x86_64-pc-windows-msvc -p texloom-desktop --features tauri/custom-protocol |
-| Native startup | New executable opened; accessibility tree reported one PDF page, pdflatex, 1.79 seconds |
+| Native startup | New executable opened; accessibility tree reported one PDF page, pdflatex, 1.55 seconds |
 | Native input | Unverified: foreground ChatGPT capture persisted after selecting/activating Texloom |
 | Build-Desktop.ps1 | PowerShell syntax parser passed; script and Windows CI now include native service and document integration tests |
 
-Tested executable SHA-256: 4ed55207ff0890ec4005a68f09f80fc4967cf5d23588cd0caa320cf15a231a5d.
+Tested executable SHA-256: 4a2a0fe4ad5904b93c29de5c892db7ec2ab698bfee036160c9309eb7ce1e8348.
 
 The first save test hit a replacement restriction in this session's redirected temporary folder. A separate filesystem probe reproduced it. The same test passed with TEMP/TMP set to writable .tools/test-tmp. Production save behavior was not weakened.
 

@@ -33,7 +33,7 @@ Primary and secondary selections use byte boundaries and project back for undo/r
 
 DocumentClient serializes edits and selection messages against native acknowledgements. Canonical snapshots publish only when the queue drains. flush includes edits added while waiting. Optimistic edits immediately make the canvas stale; acknowledgements reconcile the browser revision.
 
-Rejected source deltas freeze editing and stop dependent deltas while retaining the visible buffer. Refused visual commits do not poison subsequent typing. Keyboard, toolbar and Monaco model undo/redo route to native history. Composition blocks compilation, canvas actions and history until it ends.
+Rejected source deltas freeze editing and stop dependent deltas while retaining the visible buffer. Refused visual commits do not poison subsequent typing. Keyboard, toolbar, explicit editor context-menu actions and Monaco model undo/redo route to native history. Dedicated context keys follow Rust history after Monaco resets; the context-menu, clipboard and standard multi-cursor contributions are loaded explicitly. Composition blocks compilation, canvas actions and history until it ends.
 
 Visual edits prepare sources in Rust, compile, prepare/render and validate the PDF in the frontend, recheck identity, then briefly freeze editing for native commit/publication. Typing invalidates the token. Wrong-revision results are rejected before rendering/publication. Independent runtime PDF verification remains P6.
 

@@ -10,7 +10,9 @@ async function setup(){
  function element(id){if(!elements.has(id))elements.set(id,{value:'',checked:false,disabled:false,open:false,textContent:'',classList:{add(){},remove(){},toggle(){}},setAttribute(){},replaceChildren(){},append(){},addEventListener(){}});return elements.get(id)}
  const model={setValue(){},setEOL(){},getValue:()=>'',getOffsetAt:p=>p.column-1};
  const composition={};
- const editor={onDidChangeModelContent(fn){control.onEdit=fn},onDidChangeCursorPosition(){},onDidChangeCursorSelection(fn){control.onSelection=fn},addCommand(){},hasTextFocus:()=>false,updateOptions(){},getDomNode:()=>({addEventListener(name,fn){composition[name]=fn}})};
+ const editor={onDidChangeModelContent(fn){control.onEdit=fn},onDidChangeCursorPosition(){},onDidChangeCursorSelection(fn){control.onSelection=fn},addCommand(){},
+  createContextKey(name,value){const key={value,set(next){this.value=next}};(control.contextKeys??=new Map()).set(name,key);return key},
+  addAction(action){(control.actions??=[]).push(action)},hasTextFocus:()=>false,updateOptions(){},getDomNode:()=>({addEventListener(name,fn){composition[name]=fn}})};
  const control={compile:async()=>({ok:true,log:'',seconds:0,engine:'test',build_id:'new-pdf',blocks:[],objects:[]}),prepare:async result=>({result,pdf:{destroy:async()=>{}},pageCount:1,objects:new Map(),unclosed:new Set(),pageSizes:new Map()})};
  const {NativeDocumentDouble}=require('./native-document-double.cjs');const native=new NativeDocumentDouble(control);
  const context=vm.createContext({
@@ -105,4 +107,14 @@ test('composition pauses canvas actions, compilation and history until it ends',
  t.composition.compositionstart();assert.equal(t.run('fresh()'),false);
  await t.run('compile()');await t.model.undo();assert.equal(builds,0);
  t.composition.compositionend();assert.equal(t.run('state.composing'),false);
+});
+
+test('context menu history follows native canvas commits after Monaco resets',async()=>{
+ const t=await setup();const undoKey=t.control.contextKeys.get('texloomCanUndo'),redoKey=t.control.contextKeys.get('texloomCanRedo');
+ assert.equal(undoKey.value,false);await t.run("visualTransaction('main.tex','Moved source')");
+ assert.equal(undoKey.value,true);assert.equal(redoKey.value,false);
+ await t.control.actions.find(a=>a.id==='texloom.undo').run();
+ assert.equal(t.native.sources['main.tex'],'Original source');assert.equal(undoKey.value,false);assert.equal(redoKey.value,true);
+ await t.control.actions.find(a=>a.id==='texloom.redo').run();assert.equal(t.native.sources['main.tex'],'Moved source');
+ t.composition.compositionstart();assert.equal(undoKey.value,false);assert.equal(redoKey.value,false);
 });
