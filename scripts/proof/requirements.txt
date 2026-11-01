@@ -1,0 +1,2 @@
+# Development oracle only. Not an application runtime dependency.
+pypdfium2==4.30.0
