@@ -31,24 +31,35 @@ export function checkTranslation(before, after, {text, occurrence, dx, dy, toler
   requireProof([dx, dy, tolerance].every(finite) && tolerance >= 0, 'Invalid movement policy');
   requireProof(JSON.stringify(before.pages) === JSON.stringify(after.pages), 'Page geometry changed');
   requireProof(before.records.length === after.records.length, 'Output record count changed');
-  const target = targetRecords(before.records, text, occurrence);
-  const remaining = new Set(after.records.map((_,i)=>i)), selectedAfter = new Set(), mapping = [];
-  before.records.forEach((old, i) => {
+  const target=targetRecords(before.records,text,occurrence);
+  const remaining=new Set(after.records.map((_,i)=>i)),selectedAfter=new Set(),mapping=[];
+  const equivalent=(a,b)=>a.text===b.text && a.page===b.page &&
+    ['x','y','width','height'].every(k=>finite(a[k])&&finite(b[k])&&Math.abs(a[k]-b[k])<1e-6);
+  before.records.forEach((old,i)=>{
+    if(mapping[i]!==undefined)return;
     const selected=target.has(i);
-    requireProof(['x','y','width','height'].every(k=>finite(old[k])), 'Nonfinite output geometry');
+    requireProof(['x','y','width','height'].every(k=>finite(old[k])),'Nonfinite output geometry');
+    // PDF Unicode extraction can expose several letters of one ligature at the
+    // exact same bounds. Preserve that multiplicity, without choosing between
+    // coincident target and non-target records.
+    const group=before.records.map((r,j)=>({r,j})).filter(({r,j})=>mapping[j]===undefined&&equivalent(r,old)).map(({j})=>j);
+    requireProof(group.every(j=>target.has(j)===selected),'Ambiguous coincident target and neighbor');
     const candidates=[...remaining].filter(j=>{
       const next=after.records[j];
-      if(old.text!==next.text || old.page!==next.page)return false;
+      if(old.text!==next.text||old.page!==next.page)return false;
       return ['x','y','width','height'].every(key=>{
         const delta=selected?(key==='x'?dx:key==='y'?dy:0):0;
-        return finite(next[key]) && Math.abs(next[key]-old[key]-delta)<=tolerance;
+        return finite(next[key])&&Math.abs(next[key]-old[key]-delta)<=tolerance;
       });
     });
-    requireProof(candidates.length===1, (selected?'Target':'Neighbor')+' has '+candidates.length+
-      ' matches at its expected position (record '+i+')');
-    const j=candidates[0];remaining.delete(j);mapping.push(j);if(selected)selectedAfter.add(j);
+    requireProof(candidates.length===group.length,(selected?'Target':'Neighbor')+' has '+candidates.length+
+      ' matches for '+group.length+' records at its expected position (record '+i+')');
+    group.forEach((oldIndex,n)=>{
+      const nextIndex=candidates[n];remaining.delete(nextIndex);mapping[oldIndex]=nextIndex;
+      if(selected)selectedAfter.add(nextIndex);
+    });
   });
-  requireProof(JSON.stringify(before.graphics) === JSON.stringify(after.graphics), 'Non-text object geometry changed');
+  requireProof(JSON.stringify(before.graphics)===JSON.stringify(after.graphics),'Non-text object geometry changed');
   return {before:target,after:selectedAfter,mapping};
 }
 
@@ -96,4 +107,26 @@ export function checkRaster(before, after, a, b, target, {identity = false, padd
     }
   });
   return {unmaskedPixelsChecked: checked};
+}
+
+
+/** The finite fixture displacement is an integer number of pixels at the test scale.
+ * Compare selected ink too; masking it out of the neighbor check is not enough. */
+export function checkTargetRaster(before, after, a, b, target, {dx,dy,padding=1}) {
+  requireProof([dx,dy].every(finite), 'Invalid target raster displacement');
+  for(const i of target.before) {
+    const r=before.records[i],next=after.records[target.mapping[i]],page=r.page-1;
+    const raster=before.rasters[page],other=after.rasters[page];
+    requireProof(r.page===next.page && raster.scale===other.scale,'Target raster page changed');
+    const px=Math.round(dx*raster.scale),py=Math.round(dy*raster.scale);
+    requireProof(Math.abs(px-dx*raster.scale)<1e-6 && Math.abs(py-dy*raster.scale)<1e-6,
+      'Fixture target appearance needs an integer-pixel displacement');
+    const x0=Math.max(0,Math.floor(r.x*raster.scale)-padding),y0=Math.max(0,Math.floor(r.y*raster.scale)-padding);
+    const x1=Math.min(raster.width,Math.ceil((r.x+r.width)*raster.scale)+padding);
+    const y1=Math.min(raster.height,Math.ceil((r.y+r.height)*raster.scale)+padding);
+    requireProof(x0+px>=0 && y0+py>=0 && x1+px<=other.width && y1+py<=other.height,'Target raster leaves page');
+    for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)for(let c=0;c<raster.channels;c++)
+      requireProof(a[page][y*raster.stride+x*raster.channels+c]===
+        b[page][(y+py)*other.stride+(x+px)*other.channels+c],'Target appearance changed');
+  }
 }

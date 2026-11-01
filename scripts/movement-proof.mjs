@@ -4,7 +4,7 @@ import {resolve,join,dirname,delimiter} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
 import {inspectPdfjs} from './proof/pdfjs-inspector.mjs';
-import {checkTranslation,checkRaster,targetRecords} from './proof/layout-check.mjs';
+import {checkTranslation,checkRaster,checkTargetRaster,targetRecords} from './proof/layout-check.mjs';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const output=join(root,'artifacts','proof');
 const python=process.env.PYTHON ?? (process.platform==='win32'?'python':'python3');
@@ -28,7 +28,9 @@ async function inspect(path,label) {
 async function rasterPair(a,b,target,identity) {
   const old=await Promise.all(a.rasters.map(r=>readFile(r.path)));
   const next=await Promise.all(b.rasters.map(r=>readFile(r.path)));
-  return checkRaster(a,b,old,next,target,{identity});
+  const result=checkRaster(a,b,old,next,target,{identity});
+  if(!identity)checkTargetRaster(a,b,old,next,target,{dx:manifest.dx,dy:manifest.dy});
+  return result;
 }
 function attempt(fn) {try{return {status:'pass',result:fn()}}catch(e){return {status:'fail',reason:e.message}}}
 async function regression() {

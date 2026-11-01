@@ -48,3 +48,7 @@ The engine experiment may legitimately fail: its purpose is to find adapter fail
 ## First remote run
 
 Run 41327359752 reproduced source/regression checks and reached all three real engines. Its initial layout oracle failed on overlaps and extraction-order assumptions. The raw report is retained in evidence/proof-first-run.json. A follow-up revision adds position-based correspondence, clear-space fixtures, and an explicit overlap-refusal case. The new test file now contains one additional reordering regression; the last locally executed count remains 16.
+
+## Second remote run
+
+Run 41327935686 passed source and 17 JavaScript tests. Seven positive fixture shapes passed position, zero-offset identity, and unselected-pixel checks on all three engines; cross-page and overlap cases were refused. The formatting fixture exposed multiple Unicode letters sharing one ligature's bounds. The next oracle groups only exactly coincident same-text records with one source role, requires equal multiplicity, refuses mixed target/neighbor roles, and checks translated target pixels too. Full P1 and native UI acceptance remain pending.

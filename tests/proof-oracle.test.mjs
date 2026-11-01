@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {checkTranslation,checkRaster,targetRecords} from '../scripts/proof/layout-check.mjs';
+import {checkTranslation,checkRaster,checkTargetRaster,targetRecords} from '../scripts/proof/layout-check.mjs';
 import {inspectPdfjs} from '../scripts/proof/pdfjs-inspector.mjs';
 
 const record=(text,x,y)=>({text,x,y,width:1,height:1,page:1});
@@ -38,4 +38,21 @@ test('movement correspondence tolerates extraction reordering without losing occ
   const result=checkTranslation(a,b,{text:'A',dx:0,dy:2});
   assert.deepEqual([...result.before],[0]);assert.deepEqual([...result.after],[1]);
   assert.throws(()=>checkTranslation(a,snapshot([record('B',7,7),record('A',1,4)]),{text:'A',dx:0,dy:2}),/Target/);
+});
+
+test('selected pixels retain their appearance after translation',()=>{
+  const rasters=[{width:10,height:10,stride:10,channels:1,scale:1}];
+  const a={...snapshot([record('A',1,1)]),rasters},b={...snapshot([record('A',1,3)]),rasters};
+  const old=Buffer.alloc(100),next=Buffer.alloc(100);old[11]=50;next[31]=50;
+  const correspondence=checkTranslation(a,b,{text:'A',dx:0,dy:2});
+  checkTargetRaster(a,b,[old],[next],correspondence,{dx:0,dy:2});
+  next[31]=51;
+  assert.throws(()=>checkTargetRaster(a,b,[old],[next],correspondence,{dx:0,dy:2}),/appearance/);
+});
+
+test('ligature Unicode multiplicity is preserved without choosing coincident source roles',()=>{
+  const a=snapshot([record('f',1,1),record('f',1,1),record('i',1,1),record('B',7,7)]);
+  const b=snapshot([record('B',7,7),record('i',1,3),record('f',1,3),record('f',1,3)]);
+  assert.equal(checkTranslation(a,b,{text:'ffi',dx:0,dy:2}).after.size,3);
+  assert.throws(()=>checkTranslation(a,a,{text:'f',occurrence:0,dx:0,dy:0}),/Ambiguous coincident/);
 });
