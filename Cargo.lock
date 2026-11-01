@@ -3323,6 +3323,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "texloom-build"
+version = "0.3.0"
+dependencies = [
+ "libc",
+ "serde",
+ "serde_json",
+ "sha2",
+ "windows-sys 0.61.2",
+]
+
+[[package]]
 name = "texloom-core"
 version = "0.3.0"
 
@@ -3335,6 +3346,7 @@ dependencies = [
  "tauri",
  "tauri-build",
  "tauri-plugin-dialog",
+ "texloom-build",
  "texloom-core",
  "uuid",
 ]

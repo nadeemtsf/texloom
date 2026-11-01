@@ -2,6 +2,17 @@
 
 Updated 1 November 2026. Individual checks, not release certification. Approved scope: docs/APPROVED-IMPLEMENTATION-PLAN.md.
 
+## P3 compile-service checkpoint
+
+The owner explicitly authorized P3 before manual P2 input acceptance. Native P2 interaction remains open.
+
+- 51 core, 17 Windows build-infrastructure, 10 native service and 37 frontend/PDF tests passed locally: 115 tests.
+- Real Windows subprocess tests verify argv, full output draining, cancellation/timeout and descendant termination. A cold-start timing failure was corrected by waiting for the child's ready signal before measuring cancellation; the timeout/heartbeat checks remain.
+- Native tests also cover revision/cancellation-gated atomic export, protected source and cache ownership/cleanup.
+- The three-engine corpus is explicitly ignored in the local default run. Its 24 scenarios must pass in CI; no real-engine P3 pass is inferred yet.
+- Frontend build passed; the Windows x64 production build passed. Executable SHA-256: aad46552bd2219df00b3aba906deadca46350d2e01368664d7e5041f3cf4e3a4. Native P3 UI interaction is not verified.
+- See docs/BUILD-SERVICE.md for the exact recipe, input manifest, limits and remaining scope.
+
 ## P2 source/history
 
 Branch feature/document-session-core, based on verified P1 commit 1ee59e354c30128851286f5efb2d50524169717a.
@@ -20,6 +31,8 @@ Branch feature/document-session-core, based on verified P1 commit 1ee59e354c3012
 Tested executable SHA-256: 4a2a0fe4ad5904b93c29de5c892db7ec2ab698bfee036160c9309eb7ce1e8348.
 
 The first save test hit a replacement restriction in this session's redirected temporary folder. A separate filesystem probe reproduced it. The same test passed with TEMP/TMP set to writable .tools/test-tmp. Production save behavior was not weakened.
+
+P2 source commit b8b1c49c792559261f14a1af67deb88ccb208241 passed Windows CI run 41348692350 and movement proof run 41348692351. Manual typing/IME/mouse acceptance is deferred by the owner.
 
 ## Verified P1 experiment
 

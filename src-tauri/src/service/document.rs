@@ -15,6 +15,9 @@ struct Pending {
     build_id: Option<String>,
 }
 impl DocumentSlot {
+    pub(super) fn discard(&mut self, token: &str) {
+        self.pending.remove(token);
+    }
     pub(super) fn new(sources: BTreeMap<String, String>, main: String) -> Result<Self> {
         Ok(Self {
             session: core::Session::new(
@@ -200,6 +203,7 @@ impl Backend {
             .commit(candidate, Origin::Source, group.map(TypingGroup))
             .map_err(fail)?;
         slot.pending.clear();
+        self.scheduler.cancel_project(id);
         Ok(slot.snapshot())
     }
     pub fn document_profile(
@@ -226,6 +230,7 @@ impl Backend {
             .commit(candidate, Origin::Settings, None)
             .map_err(fail)?;
         slot.pending.clear();
+        self.scheduler.cancel_project(id);
         Ok(slot.snapshot())
     }
     pub fn document_history(&self, id: &str, base: u64, redo: bool) -> Result<DocumentSnapshot> {
@@ -240,6 +245,7 @@ impl Backend {
             slot.session.undo().map_err(fail)?;
         }
         slot.pending.clear();
+        self.scheduler.cancel_project(id);
         Ok(slot.snapshot())
     }
     pub fn document_prepare(
@@ -288,7 +294,18 @@ impl Backend {
         id: &str,
         revision: u64,
         token: Option<&str>,
+        purpose: Option<&str>,
+        sequence: u64,
     ) -> Result<CompileResult> {
+        let purpose = if token.is_some() {
+            "visual"
+        } else {
+            purpose.unwrap_or("preview")
+        };
+        if !["preview", "visual", "export"].contains(&purpose) {
+            return Err("Unknown build purpose".into());
+        }
+        let lease = self.scheduler.request_sequence(id, sequence)?.acquire()?;
         let request = {
             let docs = self.documents.lock().map_err(fail)?;
             let slot = docs.get(id).ok_or("Reopen this project")?;
@@ -306,6 +323,7 @@ impl Backend {
                     sources: pending.candidate.sources().clone(),
                     engine: pending.candidate.profile().engine.clone(),
                     revision: pending.candidate.base().0 + u64::from(pending.candidate.changed()),
+                    purpose: purpose.into(),
                 }
             } else {
                 CompileRequest {
@@ -314,18 +332,23 @@ impl Backend {
                     sources: slot.session.sources().clone(),
                     engine: slot.session.profile().engine.clone(),
                     revision: slot.session.revision().0,
+                    purpose: purpose.into(),
                 }
             }
         };
-        let result = self.compile(request)?;
+        let result = self.compile(request, &lease)?;
+        lease.cancel.check()?;
+        let mut docs = self.documents.lock().map_err(fail)?;
+        let slot = docs.get_mut(id).ok_or("Reopen this project")?;
+        if slot.session.revision() != Revision(revision) {
+            return Err("The source changed while compiling".into());
+        }
         if let Some(token) = token {
-            let mut docs = self.documents.lock().map_err(fail)?;
-            let slot = docs.get_mut(id).ok_or("Reopen this project")?;
             let pending = slot
                 .pending
                 .get_mut(token)
                 .ok_or("The source changed while compiling the visual candidate")?;
-            if result.ok {
+            if result.ok && result.verification_eligible {
                 pending.build_id = Some(result.build_id.clone());
             }
         }
@@ -339,6 +362,7 @@ impl Backend {
         token: &str,
         build_id: &str,
     ) -> Result<DocumentSnapshot> {
+        self.verify_build(build_id)?;
         let mut docs = self.documents.lock().map_err(fail)?;
         let slot = docs.get_mut(id).ok_or("Reopen this project")?;
         let pending = slot

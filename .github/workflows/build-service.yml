@@ -1,0 +1,39 @@
+name: Compile service corpus
+on:
+  pull_request:
+    paths:
+      - 'crates/texloom-build/**'
+      - 'Cargo.lock'
+      - '.github/workflows/build-service.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: build-corpus-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  engines:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Run build infrastructure and process tests
+        run: cargo test --locked -p texloom-build
+      - name: Install test-only engines
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends texlive-latex-base texlive-latex-recommended texlive-luatex texlive-xetex
+      - name: Exercise real engine recipes and fault cases
+        env:
+          TEXLOOM_BUILD_REPORT_DIR: ${{ github.workspace }}/artifacts/build-service
+        run: cargo test --locked -p texloom-build --test engine_corpus -- --ignored --nocapture
+      - name: Preserve synthetic build manifests and reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: compile-service-corpus
+          path: artifacts/build-service/
+          retention-days: 14
+          if-no-files-found: warn

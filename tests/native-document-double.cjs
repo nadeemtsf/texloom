@@ -7,6 +7,8 @@ class NativeDocumentDouble {
   can_undo:!!this.history.length,can_redo:!!this.redo.length});}
  record(){this.history.push(this.snapshot());this.redo=[];}
  async invoke(name,args){
+  if(name==='verify_build')return this.control.verify?.(args);
+  if(name==='cancel_compilation')return;
   if(name==='document_selection')return {revision:this.revision,selection:{file:args.file,anchor:args.anchor,head:args.head,secondary:args.secondary}};
   if(name==='document_prepare'){
    if(args.revision!==this.revision)throw new Error('Stale document');

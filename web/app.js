@@ -41,6 +41,7 @@ const state={
   project:null,sources:{},saved:{},file:'',engine:'auto',revision:0,compiled:-1,result:null,pdf:null,view:null,
   selected:null,objectSelection:null,lastHistory:0,typingGroup:0,suppress:false,client:null,
   canUndo:false,canRedo:false,opening:false,mutating:false,composing:false,
+  buildEpoch:0,cancelRequested:false,
   busy:false,pending:false,zoom:0,mode:'select',compileTimer:null,renderSerial:0,renderAbort:null,dialog:null
 };
 // Dedicated keys follow native history even when setValue clears Monaco's stack.
@@ -79,7 +80,7 @@ function syncEditor(){
   model.setEOL(monaco.editor.EndOfLineSequence.LF);state.suppress=false;
   $('active-file').textContent=state.file;renderFiles();
 }
-function fresh(){return !!state.result&&state.revision===state.compiled&&!state.busy&&!state.client?.pending&&!state.client?.error&&!state.mutating&&!state.composing&&!state.opening}
+function fresh(){return !!state.result&&state.result.verification_eligible!==false&&state.revision===state.compiled&&!state.busy&&!state.client?.pending&&!state.client?.error&&!state.mutating&&!state.composing&&!state.opening}
 function updateControls(){
   const ready=fresh(),legacy=ready&&!!state.selected,object=ready&&!!state.objectSelection;
   for(const id of ['add-text','pin'])$(id).disabled=!ready;
@@ -87,6 +88,7 @@ function updateControls(){
   for(const id of ['object-apply','object-edit','object-source'])$(id).disabled=!object;
   $('object-detach').disabled=!object||state.objectSelection?.kind!=='object';
   $('compile').disabled=state.busy;
+  $('cancel-compile').disabled=!state.busy||state.mutating;
   $('undo').disabled=!state.canUndo||state.mutating||state.composing||!!state.client?.error;
   $('redo').disabled=!state.canRedo||state.mutating||state.composing||!!state.client?.error;
   undoContext.set(!$('undo').disabled);redoContext.set(!$('redo').disabled);
@@ -100,12 +102,30 @@ function updateControls(){
 function sourceChanged(revision){
   state.revision=revision??state.revision+1;canvas.clear();state.selected=null;renderInspector();status();scheduleCompile();updateControls();
 }
-function scheduleCompile(){clearTimeout(state.compileTimer);if($('auto').checked)state.compileTimer=setTimeout(()=>compile(),800)}
+function scheduleCompile(){clearTimeout(state.compileTimer);if($('auto').checked)state.compileTimer=setTimeout(()=>compile('auto'),800)}
 function showFailure(error){
-  if(error instanceof StaleCandidate){toast(error.message);state.pending=$('auto').checked;return}
+  if(state.cancelRequested){toast('Compilation cancelled.');return}
+  if(error.name==='CompilationCancelled'){toast(error.message);return}
+  if(error instanceof StaleCandidate){toast(error.message);if(state.pending!=='manual')state.pending=false;scheduleCompile();return}
+  renderDiagnostics(error.diagnostics||[]);
   if(error.log)$('log').textContent=error.log;
   $('banner').textContent=message(error)+' Visual editing is paused until the current source compiles. Read text is still available.';
   $('banner').classList.remove('hidden');
+}
+function renderDiagnostics(diagnostics){
+  $('diagnostics').replaceChildren();
+  for(const d of diagnostics){
+    const el=document.createElement(d.file?'button':'p');
+    el.className='diagnostic '+d.severity;el.textContent=(d.file?d.file+(d.line?':'+d.line:'')+' — ':'')+d.message;
+    if(d.file)el.onclick=async()=>{try{await state.client.flush();if(state.sources[d.file]===undefined)return;
+      state.file=d.file;state.lastHistory=0;syncEditor();editor.setPosition({lineNumber:Math.min(d.line||1,model.getLineCount()),column:1});editor.focus();sendSelection();
+    }catch(error){syncFailed(error)}};
+    $('diagnostics').append(el);
+  }
+}
+async function cancelCompile(){
+  state.cancelRequested=true;state.buildEpoch++;state.pending=false;clearTimeout(state.compileTimer);
+  try{await state.client?.cancel()}catch(error){toast(message(error))}
 }
 function renderFiles(){
   if(!state.project)return;
@@ -129,15 +149,17 @@ async function openProject(path=null){
   try{
     const project=await invoke('open_project',{path});
     const snapshot=await invoke('document_snapshot',{projectId:project.id});
-    state.renderAbort?.abort();canvas.clear();const previous=state.pdf;
+    state.renderAbort?.abort();canvas.clear();const previous=state.pdf,previousProject=state.project?.id;
     Object.assign(state,{project,sources:clone(project.sources),saved:clone(project.sources),file:project.main,
       revision:snapshot.revision,compiled:-1,result:null,pdf:null,view:null,selected:null,lastHistory:0,canUndo:false,canRedo:false});
     const client=new DocumentClient(invoke,project.id,snapshot,{changed:next=>{if(state.client===client)acceptDocument(next)},failed:syncFailed});
     state.client=client;acceptDocument(snapshot);
     $('project-name').textContent=project.name;$('pages').replaceChildren();$('empty').classList.remove('hidden');
     $('banner').classList.add('hidden');$('log-panel').classList.add('hidden');$('log').textContent='';
+    renderDiagnostics([]);
     syncEditor();renderInspector();status();updateControls();
     if(previous)await previous.destroy();
+    if(previousProject)await invoke('close_document',{projectId:previousProject}).catch(error=>toast(message(error)));
     state.opening=false;editorReadOnly();sendSelection();
     await compile();
   }catch(error){toast(message(error))}finally{state.opening=false;editorReadOnly();updateControls()}
@@ -160,36 +182,39 @@ function publishPrepared(prepared,result){
   publishPDFView(prepared,surfaceElements);canvas.bind(prepared);
   $('fit').textContent=state.zoom?Math.round(prepared.scale*100)+'%':'Fit';
   $('log').textContent=result.log;$('banner').classList.add('hidden');
+  renderDiagnostics(result.diagnostics||[]);
+  if(result.verification_eligible===false){$('banner').textContent='PDF compiled with unresolved diagnostics. Resolve them before visual editing or export.';$('banner').classList.remove('hidden')}
   renderOverlays();renderInspector();
   status((dirty()?'Unsaved':'Saved')+' · '+result.seconds.toFixed(2)+'s · '+result.engine);
   if(previous&&previous!==prepared.pdf)previous.destroy().catch(error=>toast(message(error)));
+  state.client.pin(result.build_id).catch(error=>toast(message(error)));
 }
-async function compile(){
+async function compile(reason='manual'){
   if(!state.project)return;clearTimeout(state.compileTimer);
   if(state.composing)return;
-  if(state.busy){state.pending=true;return}
+  if(state.busy){if(reason==='manual'||!state.pending)state.pending=reason;return}
   try{await state.client.flush()}catch(error){return syncFailed(error)}
-  if(state.busy){state.pending=true;return}
-  const identity=sessionIdentity(state),revision=state.revision;state.busy=true;updateControls();
+  if(state.busy){if(reason==='manual'||!state.pending)state.pending=reason;return}
+  const identity=sessionIdentity(state),revision=state.revision;state.busy=true;state.cancelRequested=false;updateControls();
   try{
     const candidate=await stageCandidate({sources:clone(state.sources),revision,identity,getIdentity:()=>sessionIdentity(state),
-      compile:compileCandidate,prepare:prepareResult,policy:null,previousPageCount:state.view?.pageCount});
+        compile:compileCandidate,prepare:prepareResult,policy:null,previousPageCount:state.view?.pageCount,verify:result=>state.client.verify(result.build_id)});
     publishPrepared(candidate.prepared,candidate.result);
   }catch(error){showFailure(error)}
   finally{finishJob()}
 }
 function finishJob(){
   state.busy=false;updateControls();
-  if(state.pending){state.pending=false;setTimeout(()=>compile(),0)}
+  if(state.pending){const reason=state.pending;state.pending=false;if(reason==='manual')setTimeout(()=>compile(),0);else scheduleCompile()}
 }
 async function commitSources(sources,{file=state.file,policy=null,expectedIdentity=sessionIdentity(state)}={}){
   if(!fresh()||sessionIdentity(state)!==expectedIdentity)return toast('Compile the latest source before applying this edit.');
   const client=state.client;let nativeCandidate=null,prepared=null;
-  state.busy=true;clearTimeout(state.compileTimer);updateControls();
+  state.busy=true;state.cancelRequested=false;clearTimeout(state.compileTimer);updateControls();
   try{
-    nativeCandidate=await client.prepare(sources);
+    nativeCandidate=await client.prepare(sources,state.result.build_id);
     const candidate=await stageCandidate({sources,revision:nativeCandidate.revision,identity:expectedIdentity,getIdentity:()=>sessionIdentity(state),
-      compile:()=>client.compile(nativeCandidate.token),prepare:prepareResult,policy,previousPageCount:state.view.pageCount});
+      compile:()=>client.compile(nativeCandidate.token),prepare:prepareResult,policy,previousPageCount:state.view.pageCount,requireVerified:true,verify:result=>client.verify(result.build_id)});
     prepared=candidate.prepared;
     if(sessionIdentity(state)!==expectedIdentity)throw new StaleCandidate();
     state.mutating=true;editorReadOnly();
@@ -421,15 +446,28 @@ $('edit-form').onsubmit=async event=>{
   }
 };
 $('cancel-edit').onclick=()=>$('edit-dialog').close();
-$('compile').onclick=compile;$('save').onclick=saveProject;$('undo').onclick=()=>undo();$('redo').onclick=()=>undo(true);$('pin').onclick=pinSelection;
+$('compile').onclick=()=>compile();$('save').onclick=saveProject;$('undo').onclick=()=>undo();$('redo').onclick=()=>undo(true);$('pin').onclick=pinSelection;
+$('cancel-compile').onclick=cancelCompile;
 $('open').onclick=async()=>{try{const path=await open({multiple:false,filters:[{name:'LaTeX document',extensions:['tex']}]});if(typeof path==='string')await openProject(path)}catch(error){toast(message(error))}};
-$('export').onclick=async()=>{if(!state.result)return toast('Compile a PDF first.');try{
-  const path=await save({defaultPath:'document.pdf',filters:[{name:'PDF document',extensions:['pdf']}]});
-  if(path){await invoke('export_pdf',{buildId:state.result.build_id,path});toast(state.revision===state.compiled?'PDF exported.':'The last successful PDF was exported. Compile to include newer source edits.')}
-}catch(error){toast(message(error))}};
+$('export').onclick=async()=>{
+  if(!state.project||state.busy)return toast('Wait for the current operation before exporting.');
+  let prepared=null,ownsJob=false;
+  try{
+    const path=await save({defaultPath:'document.pdf',filters:[{name:'PDF document',extensions:['pdf']}]});if(!path)return;
+    await state.client.flush();if(state.busy)return toast('Wait for compilation before exporting.');
+    state.busy=true;state.cancelRequested=false;ownsJob=true;clearTimeout(state.compileTimer);updateControls();
+    const identity=sessionIdentity(state),revision=state.revision,client=state.client;
+    const candidate=await stageCandidate({sources:clone(state.sources),revision,identity,getIdentity:()=>sessionIdentity(state),
+      compile:()=>client.compile(null,'export'),prepare:prepareResult,policy:null,requireVerified:true,verify:result=>client.verify(result.build_id)});
+    prepared=candidate.prepared;
+    state.mutating=true;editorReadOnly();updateControls();
+    await invoke('export_document_build',{projectId:state.project.id,revision,buildId:candidate.result.build_id,path});
+    toast('PDF exported from a clean build of this source revision.');
+  }catch(error){showFailure(error)}finally{if(prepared?.pdf)await prepared.pdf.destroy();if(ownsJob){state.mutating=false;editorReadOnly();finishJob()}}
+};
 $('engine').onchange=()=>{if(!state.project)return;state.engine=$('engine').value;state.client.profile(state.project.main,state.engine).catch(()=>{});sourceChanged()};
 $('main-file').onchange=()=>{if(!state.project)return;state.project.main=$('main-file').value;state.client.profile(state.project.main,state.engine).catch(()=>{});sourceChanged()};
-$('auto').onchange=()=>{if($('auto').checked&&state.compiled!==state.revision)compile()};
+$('auto').onchange=()=>{if($('auto').checked&&state.compiled!==state.revision)compile('auto')};
 $('add-text').onclick=()=>{state.dialog={kind:'new'};showEditor('Add a positioned text block','',true)};
 $('edit-block').onclick=()=>editBlock();$('apply-content').onclick=()=>patchBlock({content:$('content').value});$('apply-size').onclick=()=>patchBlock({size:Number($('size').value)});
 $('apply-position').onclick=()=>{const page=Number($('page').value);if(!Number.isInteger(page)||page<1||page>(state.pdf?.numPages||0))return toast('Choose an existing physical page.');patchBlock({x:Number($('x').value),y:Number($('y').value),width:Number($('width').value),page})};

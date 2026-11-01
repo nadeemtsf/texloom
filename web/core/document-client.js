@@ -2,7 +2,7 @@
 export class DocumentClient {
   constructor(invoke,projectId,snapshot,{changed=()=>{},failed=()=>{}}={}) {
     this.invoke=invoke;this.projectId=projectId;this.snapshot=snapshot;
-    this.changed=changed;this.failed=failed;this.pending=0;this.outstanding=0;this.unpublished=false;this.error=null;this.tail=Promise.resolve();
+    this.changed=changed;this.failed=failed;this.pending=0;this.outstanding=0;this.unpublished=false;this.error=null;this.tail=Promise.resolve();this.compileSerial=0;
     this.assertRevision(snapshot.revision);
   }
   assertRevision(revision){if(!Number.isSafeInteger(revision)||revision<0)throw new Error('Invalid document revision');}
@@ -28,8 +28,16 @@ export class DocumentClient {
   profile(main,engine){return this.enqueue('document_profile',{main,engine});}
   history(redo){return this.enqueue('document_history',{redo});}
   selection(file,anchor,head,secondary=[]){return this.enqueue('document_selection',{file,anchor,head,secondary},true,false);}
-  async prepare(sources){await this.flush();return this.invoke('document_prepare',{projectId:this.projectId,revision:this.snapshot.revision,sources});}
-  async compile(token=null){return this.invoke('compile_document',{projectId:this.projectId,revision:this.snapshot.revision,token});}
+  async prepare(sources,baselineBuildId){await this.flush();return this.invoke('document_prepare',{projectId:this.projectId,revision:this.snapshot.revision,sources,baselineBuildId});}
+  async compile(token=null,purpose='preview'){
+    this.activeToken=token;
+    const requestId=++this.compileSerial;this.assertRevision(requestId);
+    try{return await this.invoke('compile_document',{projectId:this.projectId,revision:this.snapshot.revision,token,purpose,requestId});}
+    finally{if(requestId!==this.compileSerial){const error=new Error('Compilation cancelled or superseded.');error.name='CompilationCancelled';throw error;}}
+  }
+  async cancel(){const requestId=this.compileSerial;this.compileSerial++;return this.invoke('cancel_compilation',{projectId:this.projectId,requestId,token:this.activeToken||null});}
+  async verify(buildId){return this.invoke('verify_build',{buildId});}
+  async pin(buildId){return this.invoke('pin_displayed_build',{projectId:this.projectId,buildId});}
   commit(token,buildId){return this.enqueue('document_commit',{token,buildId},false);}
   async discard(token){return this.invoke('document_discard',{projectId:this.projectId,token});}
 }

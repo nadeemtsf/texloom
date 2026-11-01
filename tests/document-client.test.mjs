@@ -4,6 +4,18 @@ import {DocumentClient,editorText} from '../web/core/document-client.js';
 const snapshot=(revision=0)=>({revision,sources:{'main.tex':'A'},main:'main.tex',engine:'auto',can_undo:revision>0,can_redo:false});
 const tick=()=>new Promise(setImmediate);
 
+test('cancel fences the request ID and ignores a compiler that returns success afterward',async()=>{
+  const calls=[];let finish;
+  const client=new DocumentClient(async(name,args)=>{
+    calls.push({name,...args});
+    if(name==='compile_document')return new Promise(r=>finish=r);
+  },'p',snapshot());
+  const compiling=client.compile('candidate');await tick();
+  await client.cancel();finish({ok:true,revision:0});
+  await assert.rejects(compiling,{name:'CompilationCancelled'});
+  assert.equal(calls[0].requestId,1);assert.equal(calls[1].requestId,1);assert.equal(calls[1].token,'candidate');
+});
+
 test('source events are ordered against acknowledged revisions and only publish when drained',async()=>{
   const calls=[],published=[];let finish;
   const client=new DocumentClient(async(name,args)=>{

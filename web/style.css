@@ -18,3 +18,5 @@
 .object-actions{display:grid;gap:8px;margin-top:18px}#object-preview{white-space:pre-wrap;overflow-wrap:anywhere;font:11px/1.8 Consolas,monospace;background:#eff4e8;padding:10px;border-radius:5px;max-height:220px;overflow:auto}
 button:disabled{cursor:default}#selection-hint{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.banner{cursor:pointer}
 @media(max-width:1300px){.files{width:140px}.inspector{width:205px;padding:18px 12px}.source{min-width:280px;width:35%}header{gap:7px;padding:0 14px}#status{max-width:160px;overflow:hidden;white-space:nowrap}#project-name{max-width:130px}.brand{margin-right:6px}}
+
+#diagnostics .diagnostic{display:block;text-align:left;padding:6px 10px;margin:4px 0;white-space:normal}#diagnostics .error{color:#993b25}#diagnostics .warning{color:#805f1c}

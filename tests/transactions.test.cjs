@@ -20,8 +20,8 @@ async function setup(){
   CanvasController:class{clear(){}bind(){}selectObject(){}},
   monaco:{languages:{register(){},setMonarchTokensProvider(){},setLanguageConfiguration(){}},editor:{defineTheme(){},createModel:()=>model,create:()=>editor,EndOfLineSequence:{LF:0}},KeyMod:{CtrlCmd:1,Shift:2},KeyCode:{KeyS:1,Enter:2,KeyZ:3,KeyY:4}},
   pdfjs:{GlobalWorkerOptions:{}},structuredClone,crypto:require('node:crypto').webcrypto,
-  document:{getElementById:element,querySelector:()=>null,querySelectorAll:()=>[],addEventListener(){}},window:{addEventListener(){}},
-  getCurrentWindow:()=>({onCloseRequested(){}}),open:async()=>null,save:async()=>null,confirm:async()=>false,
+  document:{getElementById:element,createElement:()=>element('generated-'+Math.random()),querySelector:()=>null,querySelectorAll:()=>[],addEventListener(){}},window:{addEventListener(){}},
+  getCurrentWindow:()=>({onCloseRequested(){}}),open:async()=>null,save:async()=>control.save?.()??null,confirm:async()=>false,
   invoke:(name,args)=>native.invoke(name,args),
   setTimeout:(fn,ms)=>{const t=setTimeout(fn,ms);t.unref();return t},clearTimeout,console,
   preparePDFView:async(_pdfjs,result)=>control.prepare(result)
@@ -117,4 +117,43 @@ test('context menu history follows native canvas commits after Monaco resets',as
  assert.equal(t.native.sources['main.tex'],'Original source');assert.equal(undoKey.value,false);assert.equal(redoKey.value,true);
  await t.control.actions.find(a=>a.id==='texloom.redo').run();assert.equal(t.native.sources['main.tex'],'Moved source');
  t.composition.compositionstart();assert.equal(undoKey.value,false);assert.equal(redoKey.value,false);
+});
+
+test('dependencies changing during PDF preparation reject the candidate and destroy its view',async()=>{
+ const t=await setup();let destroyed=false;
+ t.control.prepare=async()=>({pageCount:1,pdf:{destroy:async()=>{destroyed=true}}});
+ t.control.verify=async()=>{throw new Error('Build dependency changed')};
+ assert.equal(await t.run("visualTransaction('main.tex','Candidate')"),false);
+ assert.equal(destroyed,true);assert.equal(t.native.history.length,0);assert.equal(t.run('state.result.build_id'),'last-good');
+});
+
+test('unresolved compiler diagnostics cannot commit visual source',async()=>{
+ const t=await setup();t.control.compile=async()=>({ok:true,build_id:'unresolved',verification_eligible:false,log:'Unresolved references',
+  diagnostics:[{code:'unresolved_reference',severity:'error',message:'Reference missing'}]});
+ assert.equal(await t.run("visualTransaction('main.tex','Candidate')"),false);assert.equal(t.native.history.length,0);
+});
+
+test('cancellation after the compiler finishes still prevents PDF/source publication',async()=>{
+ const t=await setup();let finish,destroyed=false;
+ t.control.prepare=()=>new Promise(r=>finish=r);
+ const pending=t.run("visualTransaction('main.tex','Candidate')");await new Promise(setImmediate);
+ await t.run('cancelCompile()');finish({pageCount:1,pdf:{destroy:async()=>{destroyed=true}}});
+ assert.equal(await pending,false);assert.equal(destroyed,true);assert.equal(t.native.history.length,0);
+ assert.equal(t.run('state.pending'),false);assert.equal(t.run('state.result.build_id'),'last-good');
+});
+
+test('dismissing export dialog cannot finish a different compile job',async()=>{
+ const t=await setup();let close;t.control.save=()=>new Promise(r=>close=r);
+ const exporting=t.run("$('export').onclick()");await new Promise(setImmediate);
+ t.run('state.busy=true');close(null);await exporting;assert.equal(t.run('state.busy'),true);
+});
+
+test('superseded auto builds wait for idle typing instead of restarting on each edit',async()=>{
+ const t=await setup();let finish,calls=0;t.control.compile=()=>{calls++;return new Promise(r=>finish=r)};
+ t.run("$('auto').checked=true");
+ const old=t.run("compile('auto')");await new Promise(setImmediate);
+ t.control.onEdit({changes:[{rangeOffset:0,rangeLength:15,text:'New source'}]});await t.run('state.client.flush()');
+ finish({ok:true,build_id:'old-pdf'});await old;await new Promise(r=>setTimeout(r,30));
+ assert.equal(calls,1);assert.equal(t.run('state.busy'),false);assert.equal(t.run('state.result.build_id'),'last-good');
+ t.run("clearTimeout(state.compileTimer);$('auto').checked=false");
 });

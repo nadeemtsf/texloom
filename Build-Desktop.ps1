@@ -57,6 +57,8 @@ try {
     Write-Host 'Running the dependency-free Rust document-model tests...'
     & cargo.exe test --locked -p texloom-core
     Check-NativeExit 'Rust document-model tests'
+    & cargo.exe test --locked -p texloom-build
+    Check-NativeExit 'Build scheduling, snapshots and process-tree cleanup tests'
     if ($CoreOnly) { exit 0 }
 
     if (-not (Get-Command node.exe -ErrorAction SilentlyContinue)) {

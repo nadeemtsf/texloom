@@ -27,6 +27,8 @@ jobs:
         run: cargo test --locked -p texloom-core
       - name: Check frontend transactions and PDF geometry
         run: npm test
+      - name: Check build scheduling, snapshots and process-tree cleanup
+        run: cargo test --locked -p texloom-build
       - name: Check native document protocol
         run: cargo test --locked -p texloom-desktop --lib
       - name: Build unsigned desktop executable
