@@ -9,7 +9,7 @@ The owner explicitly authorized P3 before manual P2 input acceptance. Native P2 
 - 51 core, 17 Windows build-infrastructure, 10 native service and 37 frontend/PDF tests passed locally: 115 tests.
 - Real Windows subprocess tests verify argv, full output draining, cancellation/timeout and descendant termination. A cold-start timing failure was corrected by waiting for the child's ready signal before measuring cancellation; the timeout/heartbeat checks remain.
 - Native tests also cover revision/cancellation-gated atomic export, protected source and cache ownership/cleanup.
-- The three-engine corpus is explicitly ignored in the local default run. Its 24 scenarios must pass in CI; no real-engine P3 pass is inferred yet.
+- The three-engine corpus is explicitly ignored in the local default run. Its 24 scenarios must pass in CI; the first CI run passed 23/24 scenarios. Cold-start LuaLaTeX refused a standard fontconfig path outside the declared roots. That exact root is now declared and still hashed; the rerun must pass. Raw outcome: docs/evidence/build-first-run.json.
 - Frontend build passed; the Windows x64 production build passed. Executable SHA-256: aad46552bd2219df00b3aba906deadca46350d2e01368664d7e5041f3cf4e3a4. Native P3 UI interaction is not verified.
 - See docs/BUILD-SERVICE.md for the exact recipe, input manifest, limits and remaining scope.
 

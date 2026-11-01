@@ -169,6 +169,7 @@ fn real_three_engine_corpus() {
         serde_json::to_vec_pretty(&results).unwrap(),
     )
     .unwrap();
+    println!("TEXLOOM_BUILD_REPORT_BEGIN\n{}\nTEXLOOM_BUILD_REPORT_END",serde_json::to_string_pretty(&results).unwrap());
     assert!(
         !failed,
         "Real engine corpus failed; inspect report.json and manifests"

@@ -459,6 +459,7 @@ pub fn toolchain_roots(compiler: &Path) -> Vec<PathBuf> {
                 "/usr/share/fonts",
                 "/usr/local/share/fonts",
                 "/etc/fonts",
+                "/usr/share/fontconfig",
                 "/var/cache/fontconfig",
             ]
             .map(PathBuf::from),
