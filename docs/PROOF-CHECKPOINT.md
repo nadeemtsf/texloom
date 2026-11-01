@@ -44,3 +44,7 @@ PYTHON selects the Python executable; PROOF_CANDIDATE_BIN selects the fixture CL
 Generated evidence goes under artifacts/proof, ignored by Git. Exit 0 means passed/prepared, 1 failed, 2 blocked. Prepared is not a movement-verification pass.
 
 The engine experiment may legitimately fail: its purpose is to find adapter failures, not certify the current macro. The first inspector refuses rotated/nonzero-crop pages. The fixed two-pass recipe is only for these bibliography-free fixtures, not the production compile scheduler. The Linux CI distribution packages are an exploratory compatibility profile; capture actual versions from the report, and do not call this a hermetic release environment.
+
+## First remote run
+
+Run 41327359752 reproduced source/regression checks and reached all three real engines. Its initial layout oracle failed on overlaps and extraction-order assumptions. The raw report is retained in evidence/proof-first-run.json. A follow-up revision adds position-based correspondence, clear-space fixtures, and an explicit overlap-refusal case. The new test file now contains one additional reordering regression; the last locally executed count remains 16.

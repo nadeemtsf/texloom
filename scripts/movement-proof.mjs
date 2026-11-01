@@ -120,15 +120,19 @@ async function matrix() {
           checkTranslation(baseline[renderer],zero[renderer],{...policy,dx:0,dy:0});
           const target=checkTranslation(baseline[renderer],moved[renderer],{...policy,dx:manifest.dx,dy:manifest.dy});
           if(renderer==='pdfjs') {
-            for(const i of target)if(!moved.pdfjs.records[i].markers.includes('Texloom_proof_'+fixture.id))
+            for(const i of target.after)if(!moved.pdfjs.records[i].markers.includes('Texloom_proof_'+fixture.id))
               throw new Error('The moved PDF target lost its exact object marker');
           } else {
             await rasterPair(baseline.pdfium,zero.pdfium,target,true);
             row.raster=await rasterPair(baseline.pdfium,moved.pdfium,target,false);
           }
         }
+        if(fixture.expect==='overlap-refuse')throw new Error('Expected overlap was not refused');
         row.status='pass';
-      } catch(e) {row.status='fail';row.reason=e.message;}
+      } catch(e) {
+        row.status=fixture.expect==='overlap-refuse' && /Target mask overlaps/u.test(e.message)?'expected-refusal':'fail';
+        row.reason=e.message;
+      }
     }
   }
 }

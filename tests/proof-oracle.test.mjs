@@ -8,7 +8,7 @@ const snapshot=records=>({pages:[{width:10,height:10}],records,graphics:[]});
 test('proof oracle rejects wrong movement, changed neighbors, graphics and ambiguous occurrences',()=>{
   const a=snapshot([record('A',1,1),record('B',7,7)]);
   const b=snapshot([record('A',1,3),record('B',7,7)]);
-  assert.deepEqual([...checkTranslation(a,b,{text:'A',dx:0,dy:2})],[0]);
+  assert.deepEqual([...checkTranslation(a,b,{text:'A',dx:0,dy:2}).before],[0]);
   assert.throws(()=>checkTranslation(a,b,{text:'A',dx:0,dy:1}),/Target/);
   assert.throws(()=>checkTranslation(a,{...b,records:[b.records[0],record('B',7,7.03)]},{text:'A',dx:0,dy:2}),/Neighbor/);
   assert.throws(()=>checkTranslation(a,{...b,graphics:[{type:2}]},{text:'A',dx:0,dy:2}),/Non-text/);
@@ -30,4 +30,12 @@ test('independent proof inspector detects the real direct-literal regression',as
   const a=await inspectPdfjs(new URL('./fixtures/objects/baseline.pdf',import.meta.url));
   const b=await inspectPdfjs(new URL('./fixtures/objects/single-move.pdf',import.meta.url));
   assert.throws(()=>checkTranslation(a,b,{text:'Dr. Example Researcher',dx:0,dy:98,tolerance:0.25}),/Neighbor/);
+});
+
+test('movement correspondence tolerates extraction reordering without losing occurrence identity',()=>{
+  const a=snapshot([record('A',1,1),record('B',7,7)]);
+  const b=snapshot([record('B',7,7),record('A',1,3)]);
+  const result=checkTranslation(a,b,{text:'A',dx:0,dy:2});
+  assert.deepEqual([...result.before],[0]);assert.deepEqual([...result.after],[1]);
+  assert.throws(()=>checkTranslation(a,snapshot([record('B',7,7),record('A',1,4)]),{text:'A',dx:0,dy:2}),/Target/);
 });

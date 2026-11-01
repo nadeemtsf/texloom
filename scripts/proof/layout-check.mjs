@@ -32,20 +32,24 @@ export function checkTranslation(before, after, {text, occurrence, dx, dy, toler
   requireProof(JSON.stringify(before.pages) === JSON.stringify(after.pages), 'Page geometry changed');
   requireProof(before.records.length === after.records.length, 'Output record count changed');
   const target = targetRecords(before.records, text, occurrence);
-  const candidateTarget = targetRecords(after.records, text, occurrence);
-  requireProof([...target].join() === [...candidateTarget].join(), 'Target identity/order changed');
+  const remaining = new Set(after.records.map((_,i)=>i)), selectedAfter = new Set(), mapping = [];
   before.records.forEach((old, i) => {
-    const next = after.records[i], selected = target.has(i);
-    requireProof(old.text === next.text && old.page === next.page, 'Output text or page changed');
-    for (const key of ['x', 'y', 'width', 'height']) {
-      const delta = selected ? (key === 'x' ? dx : key === 'y' ? dy : 0) : 0;
-      requireProof(finite(old[key]) && finite(next[key]), 'Nonfinite output geometry');
-      requireProof(Math.abs(next[key] - old[key] - delta) <= tolerance,
-        (selected ? 'Target' : 'Neighbor')+' '+key+' changed unexpectedly (record '+i+')');
-    }
+    const selected=target.has(i);
+    requireProof(['x','y','width','height'].every(k=>finite(old[k])), 'Nonfinite output geometry');
+    const candidates=[...remaining].filter(j=>{
+      const next=after.records[j];
+      if(old.text!==next.text || old.page!==next.page)return false;
+      return ['x','y','width','height'].every(key=>{
+        const delta=selected?(key==='x'?dx:key==='y'?dy:0):0;
+        return finite(next[key]) && Math.abs(next[key]-old[key]-delta)<=tolerance;
+      });
+    });
+    requireProof(candidates.length===1, (selected?'Target':'Neighbor')+' has '+candidates.length+
+      ' matches at its expected position (record '+i+')');
+    const j=candidates[0];remaining.delete(j);mapping.push(j);if(selected)selectedAfter.add(j);
   });
   requireProof(JSON.stringify(before.graphics) === JSON.stringify(after.graphics), 'Non-text object geometry changed');
-  return target;
+  return {before:target,after:selectedAfter,mapping};
 }
 
 export function checkRaster(before, after, a, b, target, {identity = false, padding = 1} = {}) {
@@ -58,7 +62,9 @@ export function checkRaster(before, after, a, b, target, {identity = false, padd
     requireProof(a[page].length === old.stride * old.height && b[page].length === a[page].length, 'Truncated raster');
     const mask = new Uint8Array(old.width * old.height);
     if (!identity) {
-      for (const snapshot of [before, after]) for (const i of target) {
+      for (const [phase,snapshot] of [before, after].entries()) {
+        const selected=target instanceof Set?target:(phase===0?target.before:target.after);
+        for (const i of selected) {
         const r = snapshot.records[i];
         if (r.page !== page + 1) continue;
         const x0 = Math.max(0, Math.floor(r.x * old.scale) - padding);
@@ -66,7 +72,7 @@ export function checkRaster(before, after, a, b, target, {identity = false, padd
         const y0 = Math.max(0, Math.floor(r.y * old.scale) - padding);
         const y1 = Math.min(old.height, Math.ceil((r.y + r.height) * old.scale) + padding);
         for (let j = 0; j < snapshot.records.length; j++) {
-          if (target.has(j)) continue;
+          if (selected.has(j)) continue;
           const n = snapshot.records[j];
           if (n.page === r.page && n.x * old.scale < x1 && (n.x + n.width) * old.scale > x0 &&
             n.y * old.scale < y1 && (n.y + n.height) * old.scale > y0)
@@ -78,6 +84,7 @@ export function checkRaster(before, after, a, b, target, {identity = false, padd
             throw new ProofFailure('Target mask overlaps a non-text object');
         }
         for (let y = y0; y < y1; y++) mask.fill(1, y * old.width + x0, y * old.width + x1);
+        }
       }
     }
     for (let y = 0; y < old.height; y++) for (let x = 0; x < old.width; x++) {

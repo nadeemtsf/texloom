@@ -74,6 +74,13 @@
       "targetFile": "main.tex",
       "text": "Linked text",
       "expect": "refuse"
+    },
+    {
+      "id": "signature-overlap",
+      "main": "main.tex",
+      "targetFile": "main.tex",
+      "text": "Dr. Example ResearcherHead of the Example DepartmentExample University",
+      "expect": "overlap-refuse"
     }
   ]
 }

@@ -1,35 +1,31 @@
-# Desktop prototype verification
+# Validation record
 
-Date: 30 October 2026.
+Updated 1 November 2026. This records observed checks, not a release certification.
+Approved implementation: docs/APPROVED-IMPLEMENTATION-PLAN.md.
+Working experiment: spike/visual-editing-proof, draft PR https://github.com/nadeemtsf/texloom/pull/1.
 
-## Build failure corrected
+## Reproduced locally
 
-The first user-run build installed Rust and dependencies and passed all twelve core tests, but native compilation stopped with E0282 in service.rs. The project source map now has the explicit type `BTreeMap<String, String>`, resolving an ambiguous string conversion. Cargo.lock and package-lock.json retain the dependency resolution used for the corrected build.
+- 33 Rust core tests passed with cargo test --offline --locked -p texloom-core.
+- 16 frontend/PDF/oracle tests passed with npm test.
+- npm run build passed; the existing Vite large-bundle warning remains.
+- Windows x64 production compilation passed with cargo build --offline --locked --release --target x86_64-pc-windows-msvc -p texloom-desktop --features tauri/custom-protocol.
+- The Rust fixture CLI built successfully.
+- Nine source wrap/unwrap round trips preserved every original byte; linked text was refused.
+- PDF.js and independent PDFium both rejected the known unsafe direct-literal PDF.
 
-## Completed checks
+## Reproduced remotely
 
-- All twelve dependency-free Rust model tests compiled and passed locally with the Windows MSVC toolchain.
-- All four frontend transaction tests passed: failed visual edits preserve the previous document; successful edits commit after compilation; newer typing wins over older candidate builds; stale asynchronous PDF parsing is discarded. These tests use explicit native/rendering test doubles.
-- npm run build completed with Monaco, PDF.js, and Tauri dependencies. Vite reported a large-bundle warning, not a compilation failure.
-- cargo build --offline --locked --release --target x86_64-pc-windows-msvc -p texloom-desktop completed successfully.
-- The production command `tauri build --target x86_64-pc-windows-msvc --no-bundle --ci -- --offline --locked` completed successfully, embedding production assets and using the custom application protocol.
-- The executable was launched on Windows. Its native window opened, and the startup project compiled with the installed MiKTeX pdfLaTeX engine. The UI reported success and displayed a real one-page PDF, its text layer, the Monaco editor, and movable-block controls.
-- A copied portable executable also compiled and rendered the sample PDF. Its native Open dialog was opened and cancelled.
-- The changed PowerShell script passed its syntax parser. The portable build mode uses the same no-bundle Tauri build command without CI/offline flags.
-- Packaging checks validate manifests, resources, icon, and HTML control identifiers. Source archives exclude build caches and installed dependencies.
+The initial proof workflow on commit 3d8558076509b92d6885d8ed48c8b806f996ff83 passed source tests, 16 JavaScript tests, source round trips, and both existing-PDF regressions. It compiled all 27 initial fixture/engine combinations with the TeX Live 2023/Debian profile. Three cross-page cases were correctly identified; remaining comparisons failed at the initial oracle or overlap checks. Their raw outcomes are retained in docs/evidence/proof-first-run.json.
 
-## Native UI checks still pending
+The first comparison did not establish the corrected movement macro's acceptance. The revised fixture/oracle experiment needs its own result. No whole-project test pass is inferred from a successful compile.
 
-Dragging, resizing, text replacement, source editing with automatic recompilation, failed-edit rollback, undo/redo, opening a chosen external project, explicit source save, and PDF export still need a complete verified round trip in this Rust executable. Startup and a rendered PDF do not establish that all editing controls work.
+## Environment limits
 
-Windows automation encountered inconsistent modal focus, a concurrent-input guard, and then a foreground-window error during the mouse test. Those attempted actions are not recorded as passes. Existing user edits were not discarded to continue testing. The earlier Python app's browser tests do not count as native Rust interaction tests.
+MiKTeX command-line invocation could not access configuration registry keys. The built-in compiler failed to start. The Windows execution environment then disconnected. GitHub preserves the experiment branch; local and remote changes must be reconciled safely after reconnecting.
 
-## Release work still pending
+## Outstanding release checks
 
-- No NSIS installer, clean-machine installation, Microsoft Store submission, certification, or code signing has been performed.
-- The initial npm install reported one high-severity audit finding without naming the affected package in the supplied log. It has not been assessed or resolved here; no clean dependency audit is claimed.
-- Cache cleanup, external-editor conflict detection, complex layouts, Arabic/RTL projects, bibliography orchestration, and clean-machine prerequisites remain open release concerns.
+Native click/group/drag/edit/undo/save/reopen; correct-engine and PDF appearance verification; runtime independent validation; external-editor conflicts; crash recovery; actual installer and clean-machine setup; signing; current dependency audit; Store certification.
 
-## Toolchain provenance
-
-The initial session could not download Rust because its permission request was rejected. The user subsequently ran Build-Desktop.cmd outside that restriction, installing the official toolchain and dependencies. Verification used that existing local toolchain and copies of its cached dependencies with offline Cargo builds. No alternate download or permission workaround was used.
+The existing application and downloadable baseline remain development prototypes. No new release or installer certification is claimed.
