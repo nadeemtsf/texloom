@@ -29,7 +29,7 @@ export class CanvasController {
     this.drawFrame();this.onSelected(this.selection);
   }
   position(el,r,scale){Object.assign(el.style,{left:r.x*scale+'px',top:r.y*scale+'px',width:Math.max(3,r.width*scale)+'px',height:Math.max(8,r.height*scale)+'px'})}
-  fresh(){const s=this.getSession();return !!this.view&&!s.busy&&s.revision===s.compiled}
+  fresh(){const s=this.getSession();return !!this.view&&!s.busy&&s.revision===s.compiled&&!s.client?.pending&&!s.client?.error&&!s.mutating&&!s.composing&&!s.opening}
   async selectHits(hits,page,edit=false){
     if(!this.fresh())return this.notify('Compile the current source before selecting layout objects. Read text remains available.');
     hits=[...new Map(hits.filter(h=>h.page===page).map(h=>[h.id,h])).values()];

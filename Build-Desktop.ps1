@@ -55,9 +55,7 @@ try {
         Check-NativeExit 'Preparing the Windows MSVC Rust target'
     }
     Write-Host 'Running the dependency-free Rust document-model tests...'
-    & rustc.exe --edition=2021 --target x86_64-pc-windows-msvc --test 'crates\texloom-core\src\lib.rs' -o '.tools\core-tests.exe'
-    Check-NativeExit 'Compiling the Rust tests'
-    & '.\.tools\core-tests.exe'
+    & cargo.exe test --locked -p texloom-core
     Check-NativeExit 'Rust document-model tests'
     if ($CoreOnly) { exit 0 }
 
@@ -74,6 +72,8 @@ try {
     Check-NativeExit 'Installing frontend dependencies'
     & npm.cmd test
     Check-NativeExit 'Frontend transaction and PDF geometry tests'
+    & cargo.exe test --locked -p texloom-desktop --lib
+    Check-NativeExit 'Native document protocol tests'
     if ($Portable) {
         Write-Host 'Building the portable Windows desktop app...'
         & npm.cmd run desktop:build -- --target x86_64-pc-windows-msvc --no-bundle

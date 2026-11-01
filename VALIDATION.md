@@ -1,31 +1,41 @@
 # Validation record
 
-Updated 1 November 2026. This records observed checks, not a release certification.
-Approved implementation: docs/APPROVED-IMPLEMENTATION-PLAN.md.
-Working experiment: spike/visual-editing-proof, draft PR https://github.com/nadeemtsf/texloom/pull/1.
+Updated 1 November 2026. Individual checks, not release certification. Approved scope: docs/APPROVED-IMPLEMENTATION-PLAN.md.
 
-## Reproduced locally
+## P2 source/history
 
-- 33 Rust core tests passed with cargo test --offline --locked -p texloom-core.
-- 16 frontend/PDF/oracle tests passed with npm test.
-- npm run build passed; the existing Vite large-bundle warning remains.
-- Windows x64 production compilation passed with cargo build --offline --locked --release --target x86_64-pc-windows-msvc -p texloom-desktop --features tauri/custom-protocol.
-- The Rust fixture CLI built successfully.
-- Nine source wrap/unwrap round trips preserved every original byte; linked text was refused.
-- PDF.js and independent PDFium both rejected the known unsafe direct-literal PDF.
+Branch feature/document-session-core, based on verified P1 commit 1ee59e354c30128851286f5efb2d50524169717a.
 
-## Reproduced remotely
+| Check | Observed result |
+| --- | --- |
+| cargo test --offline --locked -p texloom-core | 33 existing + 18 document integration tests passed |
+| cargo test --offline --locked -p texloom-desktop --lib | 5 real service tests passed: Serde/UTF-16, BOM/mixed EOL/emoji, simultaneous edits and cursors, guarded candidates, minimal diffs, explicit save/reopen |
+| npm test | 30 frontend/PDF tests passed; transaction tests use an explicit IPC double |
+| npm run build | Passed; existing large-bundle warning |
+| Windows production build | Passed with cargo build --offline --locked --release --target x86_64-pc-windows-msvc -p texloom-desktop --features tauri/custom-protocol |
+| Native startup | New executable opened; accessibility tree reported one PDF page, pdflatex, 1.79 seconds |
+| Native input | Unverified: foreground ChatGPT capture persisted after selecting/activating Texloom |
+| Build-Desktop.ps1 | PowerShell syntax parser passed; script and Windows CI now include native service and document integration tests |
 
-The initial proof workflow on commit 3d8558076509b92d6885d8ed48c8b806f996ff83 passed source tests, 16 JavaScript tests, source round trips, and both existing-PDF regressions. It compiled all 27 initial fixture/engine combinations with the TeX Live 2023/Debian profile. Three cross-page cases were correctly identified; remaining comparisons failed at the initial oracle or overlap checks. Their raw outcomes are retained in docs/evidence/proof-first-run.json.
+Tested executable SHA-256: 4ed55207ff0890ec4005a68f09f80fc4967cf5d23588cd0caa320cf15a231a5d.
 
-The first comparison did not establish the corrected movement macro's acceptance. The revised fixture/oracle experiment needs its own result. No whole-project test pass is inferred from a successful compile.
+The first save test hit a replacement restriction in this session's redirected temporary folder. A separate filesystem probe reproduced it. The same test passed with TEMP/TMP set to writable .tools/test-tmp. Production save behavior was not weakened.
 
-## Environment limits
+## Verified P1 experiment
 
-MiKTeX command-line invocation could not access configuration registry keys. The built-in compiler failed to start. The Windows execution environment then disconnected. GitHub preserves the experiment branch; local and remote changes must be reconciled safely after reconnecting.
+Commit 1ee59e354c30128851286f5efb2d50524169717a, draft PR https://github.com/nadeemtsf/texloom/pull/1.
 
-## Outstanding release checks
+- Proof run 41328375751 passed: 24 positive movement cases across pdfLaTeX/LuaLaTeX/XeLaTeX; six expected cross-page/overlap refusals by the fixture oracle.
+- TeX Live 2023/Debian; eleven fixtures, ten exact wrap/unwrap round trips and one linked-text planner refusal.
+- Zero-offset pixel identity, translation/appearance, unchanged neighbors/non-text/pixels checked. PDF.js and independent PDFium reject the retained unsafe direct-literal PDF.
+- Windows CI run 41328375757 succeeded at the same commit, confirmed after reconnecting.
+- Full successful report remains permanently in PR #1's description; earlier failed reports remain under docs/evidence.
+- The checkout was safely reconciled to that exact verified remote tip before P2.
 
-Native click/group/drag/edit/undo/save/reopen; correct-engine and PDF appearance verification; runtime independent validation; external-editor conflicts; crash recovery; actual installer and clean-machine setup; signing; current dependency audit; Store certification.
+This proves a bounded fixture experiment. Provenance, arbitrary PDF glyph mapping, extended page coordinates and runtime independent verification remain open.
 
-The existing application and downloadable baseline remain development prototypes. No new release or installer certification is claimed.
+## Remaining acceptance
+
+P2 needs actual native typing/IME/multi-cursor/context-menu undo and interactive save/reopen checks. Strict TypeScript/generated IPC types, unsupported-encoding viewing and recovery are unfinished. String-buffer performance is unmeasured. See docs/DOCUMENT-SESSION.md.
+
+P1 provenance/parser/coordinate decisions and P3-P8 compilation, selection, editing, verification, recovery and packaging gates remain. No complete signature mouse workflow or new release is certified. The downloadable baseline is older.

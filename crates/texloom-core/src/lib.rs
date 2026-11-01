@@ -2,6 +2,7 @@
 use std::ops::Range;
 mod objects;
 pub use objects::*;
+pub mod document;
 
 pub type Result<T> = std::result::Result<T, String>;
 

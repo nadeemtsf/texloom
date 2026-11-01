@@ -1,20 +1,20 @@
 # Implementation status
 
-Owner approval: 1 November 2026. The active plan is APPROVED-IMPLEMENTATION-PLAN.md.
-The primary repository is https://github.com/nadeemtsf/texloom. Publication is complete; a release is not.
+Updated 1 November 2026. Owner-approved scope: APPROVED-IMPLEMENTATION-PLAN.md.
+Primary repository: https://github.com/nadeemtsf/texloom.
 
-| Stage | Status | Evidence |
+| Stage | Status | Evidence / remaining gate |
 | --- | --- | --- |
-| P0 baseline | Source checks and native build reproduced | 33 Rust tests, 16 frontend/PDF tests, frontend build and local Windows x64 production build passed |
-| P1 mapping/movement | In progress | 11 fixtures; both PDF.js and PDFium reject the known broken PDF; real-engine experiment running in CI |
-| P2 source/history | Pending | Existing protections are retained; Rust-owned session/history not yet implemented |
-| P3 compilation | Pending | Production still uses fixed two passes; experiment uses a limited fixture recipe |
-| P4 selection | Pending native acceptance | Complete group-selection mouse workflow unverified |
-| P5 text/spacing | Pending | No new visual editor claimed |
-| P6 displacement | Pending | Corrected adapter still needs full acceptance and runtime validation |
-| P7 hardening | Pending | Recovery, conflicts, performance and compatibility |
-| P8 release | Pending | Installer, clean-machine verification and release artifact |
+| P0 baseline | Reconciled | Local checkout matched verified remote commit 1ee59e3 before P2 |
+| P1 mapping/movement | Movement experiment passed; mapping decisions open | 24 positive cases over three engines, six oracle refusals; provenance/parser/extended coordinates pending |
+| P2 source/history | Core and desktop integration implemented; native input acceptance open | 51 core, 5 native service, 30 frontend/PDF tests; production build/sample compile passed; native input blocked by foreground capture |
+| P3 compilation | Pending | Dependency manifests, convergence, cancellation, diagnostics |
+| P4 selection | Pending native acceptance | Correct-or-refused mapping and complete mouse group selection |
+| P5 text/spacing | Pending | Protected text editing and spacing adapters |
+| P6 displacement | Pending | Independent runtime verification and complete native signature workflow |
+| P7 hardening | Pending | Recovery, external conflicts, performance and compatibility |
+| P8 release | Pending | Exact installer and clean-machine acceptance |
 
-Read PROOF-CHECKPOINT.md before resuming local work: the Windows environment disconnected with uncommitted changes. Compare it with the experiment branch before integrating. The remote checkpoint includes review corrections that are not yet in that local tree.
+P2 owns source bytes and transactional history independently of unfinished P1 provenance. It does not interpret TeX or map arbitrary PDF glyphs. See DOCUMENT-SESSION.md and ../VALIDATION.md.
 
-The first real-engine run's raw outcome is in evidence/proof-first-run.json. It exposed overlaps in the initial fixture positions and an oracle assumption that PDF extraction order is stable. The revised oracle checks unique expected-position correspondence and keeps an explicit overlap-refusal case. These changes must be validated; they do not lower movement tolerances or authorize ambiguous matches.
+The disconnected checkout was safely reconciled before this work. No new release is certified; the previous downloadable ZIP is older.

@@ -5,6 +5,8 @@ use texloom_core::{Block, Change, NewBlock};
 use uuid::Uuid;
 #[cfg(windows)] use std::os::windows::process::CommandExt;
 mod visual;
+mod document;
+pub use document::{DocumentSnapshot, EditorChange, EditorRange, PreparedReply, SelectionReply};
 pub use visual::{ObjectEditRequest, ObjectPlan, SelectionPoint, ResolvedSelection};
 pub use visual::plan_object_edit as visual_plan;
 
@@ -97,7 +99,8 @@ pub fn transform(request: TransformRequest) -> Result<String> {
         }
         texloom_core::patch_block(&request.source, &request.id, &changes)
     } else if request.action == "insert" {
-        let selection = request.selection.map(|[a, b]| Ok::<_, String>(texloom_core::utf16_to_byte(&request.source, a)?..texloom_core::utf16_to_byte(&request.source, b)?)).transpose()?;
+        let projection=texloom_core::document::projection::EditorProjection::new(&request.source);
+        let selection = request.selection.map(|[a, b]| Ok::<_, String>(projection.source_offset(a).map_err(fail)?..projection.source_offset(b).map_err(fail)?)).transpose()?;
         let content = if request.plain { texloom_core::escape_text(&request.content) } else { request.content };
         let block = NewBlock { id: request.id, page: request.page, x: request.x, y: request.y, width: request.width, size: request.size, content };
         texloom_core::insert_block(&request.source, &block, selection)
@@ -109,6 +112,7 @@ struct Build { directory: PathBuf, compiler: PathBuf, project_id: String, main: 
 
 pub struct Backend {
     root: PathBuf, projects: Mutex<HashMap<String, PathBuf>>, builds: Mutex<HashMap<String, Build>>, compiling: AtomicBool,
+    documents: Mutex<HashMap<String, document::DocumentSlot>>,
 }
 
 struct CompileGuard<'a>(&'a AtomicBool);
@@ -116,7 +120,7 @@ impl Drop for CompileGuard<'_> { fn drop(&mut self) { self.0.store(false, Orderi
 
 impl Backend {
     pub fn new(root: PathBuf) -> Self {
-        Self { root, projects: Mutex::new(HashMap::new()), builds: Mutex::new(HashMap::new()), compiling: AtomicBool::new(false) }
+        Self { root, projects: Mutex::new(HashMap::new()), builds: Mutex::new(HashMap::new()), compiling: AtomicBool::new(false), documents: Mutex::new(HashMap::new()) }
     }
     pub fn open_project(&self, path: Option<String>) -> Result<Project> {
         let (root, preferred) = if let Some(path) = path {
@@ -137,12 +141,13 @@ impl Backend {
                 let path = root.join(&file);
                 if fs::metadata(&path).map_err(fail)?.len() > 4_000_000 { return Err("A source file exceeds 4 MB".into()); }
                 let source = fs::read_to_string(path).map_err(|e| format!("{} must be UTF-8: {e}", file.display()))?;
-                sources.insert(file.to_string_lossy().replace('\\', "/"), source.trim_start_matches('\u{feff}').into());
+                sources.insert(file.to_string_lossy().replace('\\', "/"), source);
             }
         }
         let candidates: Vec<String> = sources.iter().filter(|(name, text)| name.ends_with(".tex") && text.contains("\\documentclass")).map(|(name, _)| name.clone()).collect();
         let main = preferred.or_else(|| candidates.iter().find(|n| n.as_str() == "main.tex").cloned()).or_else(|| candidates.first().cloned()).ok_or("No main LaTeX document found")?;
         let id = Uuid::new_v4().simple().to_string();
+        self.documents.lock().map_err(fail)?.insert(id.clone(), document::DocumentSlot::new(sources.clone(),main.clone())?);
         self.projects.lock().map_err(fail)?.insert(id.clone(), root.clone());
         Ok(Project { id, name: root.file_name().unwrap_or_default().to_string_lossy().into(), main, sources })
     }

@@ -29,6 +29,7 @@ export async function stageCandidate({sources,revision,identity,getIdentity,comp
     const result=await compile(structuredClone(sources),revision);
     if(getIdentity()!==identity)throw new StaleCandidate();
     if(!result.ok)throw new CompilationFailure(result.log);
+    if(result.revision!==revision)throw new StaleCandidate();
     prepared=await prepare(result);
     if(getIdentity()!==identity)throw new StaleCandidate();
     validateObjectLayout(prepared,policy,previousPageCount);

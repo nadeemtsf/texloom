@@ -1,7 +1,7 @@
 mod service;
 use std::{collections::BTreeMap, sync::Arc};
 use tauri::{Manager, State};
-use service::{Backend, CompileRequest, CompileResult, Project, SourceLocation, SourceRectangle, TransformRequest, ObjectEditRequest, ObjectPlan, SelectionPoint, ResolvedSelection};
+use service::{Backend, CompileResult, Project, SourceLocation, SourceRectangle, TransformRequest, ObjectEditRequest, ObjectPlan, SelectionPoint, ResolvedSelection, DocumentSnapshot, EditorChange, EditorRange, PreparedReply, SelectionReply};
 
 #[tauri::command]
 fn open_project(state: State<'_, Arc<Backend>>, path: Option<String>) -> Result<Project, String> {
@@ -9,15 +9,44 @@ fn open_project(state: State<'_, Arc<Backend>>, path: Option<String>) -> Result<
 }
 
 #[tauri::command]
-fn save_project(state: State<'_, Arc<Backend>>, project_id: String, sources: BTreeMap<String, String>) -> Result<(), String> {
-    state.save_project(&project_id, &sources)
+fn save_document(state: State<'_, Arc<Backend>>, project_id: String, revision: u64) -> Result<(), String> {
+    state.save_document(&project_id, revision)
 }
 
 #[tauri::command]
-async fn compile_project(state: State<'_, Arc<Backend>>, request: CompileRequest) -> Result<CompileResult, String> {
+async fn compile_document(state: State<'_, Arc<Backend>>, project_id: String, revision:u64, token: Option<String>) -> Result<CompileResult, String> {
     let backend = state.inner().clone();
-    tauri::async_runtime::spawn_blocking(move || backend.compile(request)).await.map_err(|e| e.to_string())?
+    tauri::async_runtime::spawn_blocking(move || backend.compile_document(&project_id, revision, token.as_deref())).await.map_err(|e| e.to_string())?
 }
+
+#[tauri::command]
+fn document_snapshot(state: State<'_, Arc<Backend>>, project_id:String)->Result<DocumentSnapshot,String> {state.document_snapshot(&project_id)}
+#[tauri::command]
+fn document_selection(state: State<'_, Arc<Backend>>,project_id:String,revision:u64,file:String,anchor:usize,head:usize,secondary:Vec<EditorRange>)->Result<SelectionReply,String> {
+    state.document_selection(&project_id,revision,file,anchor,head,secondary)
+}
+#[tauri::command]
+fn document_edit(state: State<'_, Arc<Backend>>,project_id:String,revision:u64,file:String,changes:Vec<EditorChange>,group:Option<u64>)->Result<DocumentSnapshot,String> {
+    state.document_edit(&project_id,revision,&file,changes,group)
+}
+#[tauri::command]
+fn document_profile(state: State<'_, Arc<Backend>>,project_id:String,revision:u64,main:String,engine:String)->Result<DocumentSnapshot,String> {
+    state.document_profile(&project_id,revision,main,engine)
+}
+#[tauri::command]
+fn document_history(state: State<'_, Arc<Backend>>,project_id:String,revision:u64,redo:bool)->Result<DocumentSnapshot,String> {
+    state.document_history(&project_id,revision,redo)
+}
+#[tauri::command]
+fn document_prepare(state: State<'_, Arc<Backend>>,project_id:String,revision:u64,sources:BTreeMap<String,String>)->Result<PreparedReply,String> {
+    state.document_prepare(&project_id,revision,sources)
+}
+#[tauri::command]
+fn document_commit(state: State<'_, Arc<Backend>>,project_id:String,token:String,build_id:String)->Result<DocumentSnapshot,String> {
+    state.document_commit(&project_id,&token,&build_id)
+}
+#[tauri::command]
+fn document_discard(state: State<'_, Arc<Backend>>,project_id:String,token:String)->Result<(),String> {state.document_discard(&project_id,&token)}
 
 #[tauri::command]
 fn transform(request: TransformRequest) -> Result<String, String> { service::transform(request) }
@@ -57,7 +86,7 @@ pub fn run() {
             app.manage(Arc::new(Backend::new(root)));
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![open_project, save_project, compile_project, transform, source_from_pdf, pdf_from_source, export_pdf, plan_text_object, resolve_text_selection])
+        .invoke_handler(tauri::generate_handler![open_project, save_document, compile_document, document_snapshot, document_selection, document_edit, document_profile, document_history, document_prepare, document_commit, document_discard, transform, source_from_pdf, pdf_from_source, export_pdf, plan_text_object, resolve_text_selection])
         .run(tauri::generate_context!())
         .expect("Texloom could not start its desktop window");
 }

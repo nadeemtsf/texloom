@@ -1,5 +1,7 @@
 # P0/P1 checkpoint — 1 November 2026
 
+Historical disconnection record. The checkout was subsequently reconciled to verified commit 1ee59e354c30128851286f5efb2d50524169717a before P2. The third proof run passed, and Windows CI succeeded. Current results and open gates are in ../VALIDATION.md and IMPLEMENTATION-STATUS.md; the chronological notes below retain earlier failures.
+
 The owner approved docs/APPROVED-IMPLEMENTATION-PLAN.md and authorized implementation.
 
 ## Observed locally before the Windows workspace disconnected

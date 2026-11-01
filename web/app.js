@@ -10,6 +10,7 @@ import {preparePDFView,prepareLoadedPDF,publishPDFView} from './core/pdf-surface
 import {CanvasController} from './core/canvas-controller.js';
 import {stageCandidate,sessionIdentity,StaleCandidate,CompilationFailure,compileDiagnostic} from './core/transactions.js';
 import {inside,intersects} from './core/geometry.js';
+import {DocumentClient,editorText} from './core/document-client.js';
 
 self.MonacoEnvironment={getWorker:()=>new EditorWorker()};
 pdfjs.GlobalWorkerOptions.workerSrc=pdfWorkerURL;
@@ -35,7 +36,8 @@ const editor=monaco.editor.create($('editor'),{model,theme:'texloom',automaticLa
   unicodeHighlight:{ambiguousCharacters:false},accessibilitySupport:'auto'});
 const state={
   project:null,sources:{},saved:{},file:'',engine:'auto',revision:0,compiled:-1,result:null,pdf:null,view:null,
-  selected:null,objectSelection:null,history:[],redo:[],lastHistory:0,suppress:false,
+  selected:null,objectSelection:null,lastHistory:0,typingGroup:0,suppress:false,client:null,
+  canUndo:false,canRedo:false,opening:false,mutating:false,composing:false,
   busy:false,pending:false,zoom:0,mode:'select',compileTimer:null,renderSerial:0,renderAbort:null,dialog:null
 };
 const surfaceElements={pages:$('pages'),scroller:$('preview-scroll'),count:$('page-count'),empty:$('empty')};
@@ -52,20 +54,26 @@ function toast(text){
   $('toast').textContent=text;$('toast').classList.remove('hidden');clearTimeout(toast.timer);
   toast.timer=setTimeout(()=>$('toast').classList.add('hidden'),5500);
 }
-function dirty(){return JSON.stringify(state.sources)!==JSON.stringify(state.saved)}
+function dirty(){return !!state.client?.pending||!!state.client?.error||JSON.stringify(state.sources)!==JSON.stringify(state.saved)}
 function status(text){$('status').textContent=text||(dirty()?'Unsaved changes':'All changes saved')}
-function snapshot(){return {sources:clone(state.sources),file:state.file,main:state.project.main,engine:state.engine}}
-function history(force=false){
-  if(force||Date.now()-state.lastHistory>650){
-    state.history.push(snapshot());if(state.history.length>120)state.history.shift();
-  }
-  state.lastHistory=Date.now();state.redo=[];
+function acceptDocument(snapshot){
+  state.sources=clone(snapshot.sources);state.revision=snapshot.revision;
+  state.project.main=snapshot.main;state.engine=snapshot.engine;
+  state.canUndo=snapshot.can_undo;state.canRedo=snapshot.can_redo;
+  status();updateControls();
+}
+function editorReadOnly(){editor.updateOptions({readOnly:state.opening||state.mutating||!!state.client?.error});}
+function syncFailed(error){
+  editorReadOnly();
+  $('banner').textContent='Source synchronization paused. Your editor text is retained; copy it before reopening the project. '+message(error);
+  $('banner').classList.remove('hidden');updateControls();
 }
 function syncEditor(){
-  state.suppress=true;model.setValue(state.sources[state.file]||'');state.suppress=false;
+  state.suppress=true;model.setValue(editorText(state.sources[state.file]||''));
+  model.setEOL(monaco.editor.EndOfLineSequence.LF);state.suppress=false;
   $('active-file').textContent=state.file;renderFiles();
 }
-function fresh(){return !!state.result&&state.revision===state.compiled&&!state.busy}
+function fresh(){return !!state.result&&state.revision===state.compiled&&!state.busy&&!state.client?.pending&&!state.client?.error&&!state.mutating&&!state.composing&&!state.opening}
 function updateControls(){
   const ready=fresh(),legacy=ready&&!!state.selected,object=ready&&!!state.objectSelection;
   for(const id of ['add-text','pin'])$(id).disabled=!ready;
@@ -73,6 +81,8 @@ function updateControls(){
   for(const id of ['object-apply','object-edit','object-source'])$(id).disabled=!object;
   $('object-detach').disabled=!object||state.objectSelection?.kind!=='object';
   $('compile').disabled=state.busy;
+  $('undo').disabled=!state.canUndo||state.mutating||state.composing||!!state.client?.error;
+  $('redo').disabled=!state.canRedo||state.mutating||state.composing||!!state.client?.error;
   $('compile-state').textContent=state.busy?'Compiling candidate…':'';
   $('pages').classList.toggle('stale',state.revision!==state.compiled||state.busy);
   $('selection-hint').textContent=state.mode==='read'?'Drag over text to highlight and copy it.':
@@ -80,8 +90,8 @@ function updateControls(){
       'Click text to select it. Shift-click or draw a box for a group.':
       'Select text or an object. Drag its frame; double-click to edit.';
 }
-function sourceChanged(){
-  state.revision++;canvas.clear();state.selected=null;renderInspector();status();scheduleCompile();updateControls();
+function sourceChanged(revision){
+  state.revision=revision??state.revision+1;canvas.clear();state.selected=null;renderInspector();status();scheduleCompile();updateControls();
 }
 function scheduleCompile(){clearTimeout(state.compileTimer);if($('auto').checked)state.compileTimer=setTimeout(()=>compile(),800)}
 function showFailure(error){
@@ -96,7 +106,7 @@ function renderFiles(){
   for(const name of Object.keys(state.sources).sort()){
     const button=document.createElement('button');button.textContent=name;button.title=name;
     button.classList.toggle('active',name===state.file);
-    button.onclick=()=>{state.file=name;syncEditor()};$('file-list').append(button);
+      button.onclick=async()=>{try{await state.client.flush();state.lastHistory=0;state.file=name;syncEditor();sendSelection()}catch(error){syncFailed(error)}};$('file-list').append(button);
   }
   $('main-file').replaceChildren();
   for(const name of Object.keys(state.sources).filter(n=>n.endsWith('.tex'))){
@@ -105,30 +115,33 @@ function renderFiles(){
   $('main-file').value=state.project.main;$('engine').value=state.engine;
 }
 async function openProject(path=null){
-  if(state.busy)return toast('Wait for the current compilation before opening another project.');
+  if(state.busy||state.opening)return toast('Wait for the current operation before opening another project.');
+  if(state.client&&!state.client.error)await state.client.flush();
   if(state.project&&dirty()&&!await confirm('Discard the current unsaved edits before opening another project?',{title:'Unsaved source',kind:'warning'}))return;
+  state.opening=true;editorReadOnly();
   try{
     const project=await invoke('open_project',{path});
+    const snapshot=await invoke('document_snapshot',{projectId:project.id});
     state.renderAbort?.abort();canvas.clear();const previous=state.pdf;
     Object.assign(state,{project,sources:clone(project.sources),saved:clone(project.sources),file:project.main,
-      revision:0,compiled:-1,result:null,pdf:null,view:null,selected:null,history:[],redo:[],lastHistory:0});
+      revision:snapshot.revision,compiled:-1,result:null,pdf:null,view:null,selected:null,lastHistory:0,canUndo:false,canRedo:false});
+    const client=new DocumentClient(invoke,project.id,snapshot,{changed:next=>{if(state.client===client)acceptDocument(next)},failed:syncFailed});
+    state.client=client;acceptDocument(snapshot);
     $('project-name').textContent=project.name;$('pages').replaceChildren();$('empty').classList.remove('hidden');
     $('banner').classList.add('hidden');$('log-panel').classList.add('hidden');$('log').textContent='';
     syncEditor();renderInspector();status();updateControls();
     if(previous)await previous.destroy();
+    state.opening=false;editorReadOnly();sendSelection();
     await compile();
-  }catch(error){toast(message(error))}
+  }catch(error){toast(message(error))}finally{state.opening=false;editorReadOnly();updateControls()}
 }
 async function saveProject(){
   if(!state.project)return;
-  const sources=clone(state.sources);
-  try{await invoke('save_project',{projectId:state.project.id,sources});state.saved=sources;status();toast('Project source saved.')}
+  try{await state.client.flush();const sources=clone(state.sources);
+    await invoke('save_document',{projectId:state.project.id,revision:state.revision});state.saved=sources;status();toast('Project source saved.')}
   catch(error){toast(message(error))}
 }
-function compileCandidate(sources,revision){
-  return invoke('compile_project',{request:{project_id:state.project.id,main:state.project.main,
-    sources,engine:state.engine,revision}});
-}
+function compileCandidate(){return state.client.compile();}
 function prepareResult(result){
   return preparePDFView(pdfjs,result,{width:$('preview-scroll').clientWidth,zoom:state.zoom,mode:state.mode});
 }
@@ -146,6 +159,9 @@ function publishPrepared(prepared,result){
 }
 async function compile(){
   if(!state.project)return;clearTimeout(state.compileTimer);
+  if(state.composing)return;
+  if(state.busy){state.pending=true;return}
+  try{await state.client.flush()}catch(error){return syncFailed(error)}
   if(state.busy){state.pending=true;return}
   const identity=sessionIdentity(state),revision=state.revision;state.busy=true;updateControls();
   try{
@@ -161,15 +177,24 @@ function finishJob(){
 }
 async function commitSources(sources,{file=state.file,policy=null,expectedIdentity=sessionIdentity(state)}={}){
   if(!fresh()||sessionIdentity(state)!==expectedIdentity)return toast('Compile the latest source before applying this edit.');
-  const revision=state.revision;state.busy=true;clearTimeout(state.compileTimer);updateControls();
+  const revision=state.revision,client=state.client;let nativeCandidate=null,prepared=null;
+  state.busy=true;clearTimeout(state.compileTimer);updateControls();
   try{
-    const candidate=await stageCandidate({sources,revision:revision+1,identity:expectedIdentity,getIdentity:()=>sessionIdentity(state),
-      compile:compileCandidate,prepare:prepareResult,policy,previousPageCount:state.view.pageCount});
-    history(true);state.sources=clone(candidate.sources);state.revision++;state.file=file;
-    syncEditor();publishPrepared(candidate.prepared,candidate.result);
+    nativeCandidate=await client.prepare(sources);
+    const candidate=await stageCandidate({sources,revision:nativeCandidate.revision,identity:expectedIdentity,getIdentity:()=>sessionIdentity(state),
+      compile:()=>client.compile(nativeCandidate.token),prepare:prepareResult,policy,previousPageCount:state.view.pageCount});
+    prepared=candidate.prepared;
+    if(sessionIdentity(state)!==expectedIdentity)throw new StaleCandidate();
+    state.mutating=true;editorReadOnly();
+    await client.commit(nativeCandidate.token,candidate.result.build_id);
+    state.file=file;state.lastHistory=0;syncEditor();publishPrepared(prepared,candidate.result);prepared=null;
     return true;
   }catch(error){showFailure(error);return false}
-  finally{finishJob()}
+  finally{
+    if(prepared?.pdf)await prepared.pdf.destroy();
+    if(nativeCandidate)await client.discard(nativeCandidate.token).catch(()=>{});
+    state.mutating=false;editorReadOnly();finishJob();
+  }
 }
 function visualTransaction(file,source){
   const candidate=clone(state.sources);candidate[file]=source;return commitSources(candidate,{file});
@@ -314,11 +339,24 @@ async function pinSelection(){
   }catch(error){toast(message(error))}
 }
 async function undo(redo=false){
-  if(state.busy)return toast('Wait for compilation before undoing.');
-  const from=redo?state.redo:state.history,to=redo?state.history:state.redo;if(!from.length)return;
-  to.push(snapshot());const item=from.pop();
-  Object.assign(state,{sources:item.sources,file:item.file,engine:item.engine||'auto',lastHistory:0,selected:null});
-  state.project.main=item.main;syncEditor();sourceChanged();renderInspector();
+  if(!state.client||state.mutating||state.composing||state.client.error)return;
+  state.mutating=true;editorReadOnly();updateControls();
+  try{
+    await state.client.flush();if(!(redo?state.canRedo:state.canUndo))return;
+    const before=clone(state.sources),snapshot=await state.client.history(redo);
+    const changed=Object.keys(snapshot.sources).find(name=>snapshot.sources[name]!==before[name]);
+    state.file=snapshot.selection?.file||changed|| (snapshot.sources[state.file]!==undefined?state.file:snapshot.main);
+    state.lastHistory=0;state.selected=null;syncEditor();sourceChanged(snapshot.revision);renderInspector();
+    if(snapshot.selection){
+      const selections=[snapshot.selection,...(snapshot.selection.secondary||[])].map(range=>{
+        const anchor=model.getPositionAt(range.anchor),head=model.getPositionAt(range.head);
+        return {selectionStartLineNumber:anchor.lineNumber,selectionStartColumn:anchor.column,
+          positionLineNumber:head.lineNumber,positionColumn:head.column};
+      });
+      state.suppress=true;editor.setSelections(selections);state.suppress=false;
+      editor.revealPositionInCenter(model.getPositionAt(snapshot.selection.head));
+    }
+  }catch(error){syncFailed(error)}finally{state.mutating=false;editorReadOnly();updateControls()}
 }
 function escapeLatex(text){
   const map={'\\':'\\textbackslash{}','{':'\\{','}':'\\}','%':'\\%','&':'\\&','#':'\\#','_':'\\_','$':'\\$','~':'\\textasciitilde{}','^':'\\textasciicircum{}'};
@@ -331,8 +369,31 @@ function setMode(value){
   updateControls();
 }
 
-editor.onDidChangeModelContent(()=>{if(state.suppress||!state.project)return;history();state.sources[state.file]=model.getValue();sourceChanged()});
+editor.onDidChangeModelContent(event=>{
+  if(state.suppress||!state.project)return;
+  if(Date.now()-state.lastHistory>650)state.typingGroup++;
+  state.lastHistory=Date.now();
+  const changes=event.changes.map(c=>({offset:c.rangeOffset,length:c.rangeLength,text:c.text}));
+  state.client.edit(state.file,changes,state.typingGroup).catch(()=>{});sourceChanged();
+});
+// Monaco's context-menu and accessibility undo paths reach the model methods.
+// Route those through the same native history as keyboard and toolbar actions.
+model.undo=()=>undo();model.redo=()=>undo(true);
+editor.getDomNode()?.addEventListener('compositionstart',()=>{state.composing=true;state.lastHistory=0;canvas.clear();updateControls()});
+editor.getDomNode()?.addEventListener('compositionend',()=>{state.composing=false;state.lastHistory=0;scheduleCompile();updateControls()});
 editor.onDidChangeCursorPosition(()=>{const position=editor.getPosition();$('cursor').textContent='Ln '+position.lineNumber+', Col '+position.column});
+function sendSelection(selections=editor.getSelections()){
+  if(state.suppress||!state.client||state.opening||state.mutating||state.client.error)return;
+  const ranges=(selections||[]).map(s=>({
+    anchor:model.getOffsetAt({lineNumber:s.selectionStartLineNumber,column:s.selectionStartColumn}),
+    head:model.getOffsetAt({lineNumber:s.positionLineNumber,column:s.positionColumn})}));
+  if(ranges.length)state.client.selection(state.file,ranges[0].anchor,ranges[0].head,ranges.slice(1)).catch(()=>{});
+}
+editor.onDidChangeCursorSelection(event=>{
+  // Explicit cursor movement breaks a typing group; content-driven movement does not.
+  if(event.reason===3)state.lastHistory=0;
+  sendSelection([event.selection,...event.secondarySelections]);
+});
 editor.addCommand(monaco.KeyMod.CtrlCmd|monaco.KeyCode.KeyS,()=>saveProject());
 editor.addCommand(monaco.KeyMod.CtrlCmd|monaco.KeyCode.Enter,()=>compile());
 editor.addCommand(monaco.KeyMod.CtrlCmd|monaco.KeyCode.KeyZ,()=>undo());
@@ -357,8 +418,8 @@ $('export').onclick=async()=>{if(!state.result)return toast('Compile a PDF first
   const path=await save({defaultPath:'document.pdf',filters:[{name:'PDF document',extensions:['pdf']}]});
   if(path){await invoke('export_pdf',{buildId:state.result.build_id,path});toast(state.revision===state.compiled?'PDF exported.':'The last successful PDF was exported. Compile to include newer source edits.')}
 }catch(error){toast(message(error))}};
-$('engine').onchange=()=>{history(true);state.engine=$('engine').value;sourceChanged()};
-$('main-file').onchange=()=>{if(!state.project)return;history(true);state.project.main=$('main-file').value;state.selected=null;sourceChanged()};
+$('engine').onchange=()=>{if(!state.project)return;state.engine=$('engine').value;state.client.profile(state.project.main,state.engine).catch(()=>{});sourceChanged()};
+$('main-file').onchange=()=>{if(!state.project)return;state.project.main=$('main-file').value;state.client.profile(state.project.main,state.engine).catch(()=>{});sourceChanged()};
 $('auto').onchange=()=>{if($('auto').checked&&state.compiled!==state.revision)compile()};
 $('add-text').onclick=()=>{state.dialog={kind:'new'};showEditor('Add a positioned text block','',true)};
 $('edit-block').onclick=()=>editBlock();$('apply-content').onclick=()=>patchBlock({content:$('content').value});$('apply-size').onclick=()=>patchBlock({size:Number($('size').value)});
