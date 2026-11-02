@@ -100,6 +100,7 @@ pub struct Verified {
     pub glyphs: usize,
     pub target_glyphs: usize,
     pub pixels: usize,
+    pub max_geometry_error_bp: f64,
 }
 fn require(ok: bool, reason: &'static str) -> Result<()> {
     if ok {
@@ -204,13 +205,7 @@ fn groups(view: &Inspection) -> BTreeMap<Key<'_>, Vec<usize>> {
     }
     groups
 }
-fn match_glyphs(
-    a: &Inspection,
-    b: &Inspection,
-    dx: f64,
-    dy: f64,
-    identity: bool,
-) -> Result<Vec<usize>> {
+fn match_glyphs(a: &Inspection, b: &Inspection, dx: f64, dy: f64, identity: bool) -> Result<f64> {
     require(a.glyphs.len() == b.glyphs.len(), "Glyph count changed")?;
     let old = groups(a);
     let new = groups(b);
@@ -219,7 +214,7 @@ fn match_glyphs(
         old.keys().eq(new.keys()),
         "Text, page or target identity changed",
     )?;
-    let mut mapping = vec![0; a.glyphs.len()];
+    let mut max_error = 0.0f64;
     for (key, before) in &old {
         let after = &new[key];
         require(before.len() == after.len(), "Glyph multiplicity changed")?;
@@ -241,7 +236,7 @@ fn match_glyphs(
                 g.bounds
             };
             let tolerance = if identity {
-                EPSILON
+                NEIGHBOR_TOLERANCE
             } else if g.target {
                 TARGET_TOLERANCE
             } else {
@@ -261,11 +256,19 @@ fn match_glyphs(
                     .all(|n| b.glyphs[*n].bounds.near(b.glyphs[j].bounds, EPSILON)),
                 "Ambiguous glyph correspondence",
             )?;
-            mapping[i] = j;
+            let next = b.glyphs[j].bounds;
+            for delta in [
+                next.x - expected.x,
+                next.y - expected.y,
+                next.width - expected.width,
+                next.height - expected.height,
+            ] {
+                max_error = max_error.max(delta.abs());
+            }
             remaining.retain(|n| *n != j);
         }
     }
-    Ok(mapping)
+    Ok(max_error)
 }
 fn match_graphics(a: &Inspection, b: &Inspection) -> Result<()> {
     require(
@@ -380,7 +383,7 @@ pub fn compare(a: &Inspection, b: &Inspection, operation: Operation) -> Result<V
             "Target crosses physical pages",
         )?;
     }
-    let _mapping = match_glyphs(a, b, dx, dy, identity)?;
+    let max_geometry_error_bp = match_glyphs(a, b, dx, dy, identity)?;
     match_graphics(a, b)?;
     let object_count = a.glyphs.len() + b.glyphs.len() + a.graphics.len() + b.graphics.len();
     require(
@@ -473,5 +476,6 @@ pub fn compare(a: &Inspection, b: &Inspection, operation: Operation) -> Result<V
         glyphs: a.glyphs.len(),
         target_glyphs: targets.len(),
         pixels,
+        max_geometry_error_bp,
     })
 }

@@ -203,7 +203,7 @@ fn main() -> std::result::Result<(), Error> {
     let result = v::compare(&a, &b, policy)?;
     println!(
         "{}",
-        serde_json::json!({"status":"pass","glyphs":result.glyphs,"target_glyphs":result.target_glyphs,"pixels":result.pixels})
+        serde_json::json!({"status":"pass","glyphs":result.glyphs,"target_glyphs":result.target_glyphs,"pixels":result.pixels,"max_geometry_error_bp":result.max_geometry_error_bp})
     );
     Ok(())
 }

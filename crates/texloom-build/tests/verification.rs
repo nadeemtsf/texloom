@@ -96,6 +96,19 @@ fn identity_checks_every_pixel_even_inside_selected_glyphs() {
     assert!(compare(&a, &b, Operation::Identity).is_err());
 }
 #[test]
+fn identity_allows_bounded_float_noise_but_requires_exact_pixels() {
+    let a = baseline();
+    let mut b = a.clone();
+    b.glyphs[0].bounds.x += 0.00005;
+    let proof = compare(&a, &b, Operation::Identity).unwrap();
+    assert!((proof.max_geometry_error_bp - 0.00005).abs() < 1e-8);
+    b.rasters[0].pixels[20 * 640 + 20 * 4] = 255;
+    assert!(compare(&a, &b, Operation::Identity).is_err());
+    b = a.clone();
+    b.glyphs[0].bounds.x += 0.021;
+    assert!(compare(&a, &b, Operation::Identity).is_err());
+}
+#[test]
 fn a_mask_cannot_hide_duplicate_ink_in_the_vacated_position() {
     let a = baseline();
     let mut b = moved(&a, 3.0, 8.0);

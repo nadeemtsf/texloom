@@ -1,0 +1,519 @@
+{
+  "schema": 1,
+  "createdAt": "2026-11-02T17:37:25.362Z",
+  "status": "fail",
+  "baselineCommit": "e7b6d1eb334c879a4aa28c4f22b984fb3c17532b",
+  "sourceChecks": [
+    {
+      "id": "signature",
+      "status": "pass",
+      "sourceSha256": "817da48f1571b83c01665ad28503e39b90c733a2c6f378d7fe20d469b307d202"
+    },
+    {
+      "id": "paragraph",
+      "status": "pass",
+      "sourceSha256": "3aaa5d2f21f8d9ead2a5e05150fc519ceb5a3b0ba48f2138ea3e4e257b7efe02"
+    },
+    {
+      "id": "formatting",
+      "status": "pass",
+      "sourceSha256": "d9021ee398f7488176c304e613bc7315c59424f54d910fb2bb7a86763f464fd1"
+    },
+    {
+      "id": "repeated",
+      "status": "pass",
+      "sourceSha256": "cc8c59ee47220b7aab04ea072667e7b0046c0a8c217c8575a83bd8b9afbff3eb"
+    },
+    {
+      "id": "macro",
+      "status": "pass",
+      "sourceSha256": "0685294205ef9e8af2819e0ba494f7ddeade93edd8215c7df030453e50dd8e71"
+    },
+    {
+      "id": "minipage",
+      "status": "pass",
+      "sourceSha256": "fc39c665d24eed31a998fb235363fe4e75b8dbcbe49a6186abd397da466f9e20"
+    },
+    {
+      "id": "columns",
+      "status": "pass",
+      "sourceSha256": "f51d48a73db8d8e890f7c240ff88b19eb1422e8ace75c7c70c0ebb110302a36d"
+    },
+    {
+      "id": "page-boundary",
+      "status": "pass",
+      "sourceSha256": "79edf6dabb024db0521602fa11e5fa5702bb0a111fe200a53b9a75f95d990192"
+    },
+    {
+      "id": "included",
+      "status": "pass",
+      "sourceSha256": "7d979ce64526ecb1f9977e0784428227108f6f58b115128ed22503b52c54a8e9"
+    },
+    {
+      "id": "linked",
+      "status": "refused",
+      "reason": "\\href needs source editing or a dedicated layout adapter\n"
+    },
+    {
+      "id": "signature-overlap",
+      "status": "pass",
+      "sourceSha256": "8d9db8e0fd3bdf23d7d9bf284d13e5cf3bd1ad71c777693dc90398e5691a0d56"
+    }
+  ],
+  "engines": [
+    {
+      "name": "pdflatex",
+      "status": "ready",
+      "version": "pdfTeX 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian)\nkpathsea version 6.3.5\nCopyright 2023 Han The Thanh (pdfTeX) et al.\nThere is NO warranty.  Redistribution of this software is\ncovered by the terms of both the pdfTeX copyright and\nthe Lesser GNU General Public License.\nFor more information about these matters, see the file\nnamed COPYING and the pdfTeX source.\nPrimary author of pdfTeX: Han The Thanh (pdfTeX) et al.\nCompiled with libpng 1.6.43; using libpng 1.6.43\nCompiled with zlib 1.3; using zlib 1.3\nCompiled with xpdf version 4.04\n",
+      "miktex": false
+    },
+    {
+      "name": "lualatex",
+      "status": "ready",
+      "version": "This is LuaHBTeX, Version 1.17.0 (TeX Live 2023/Debian)\nDevelopment id: 7581\n\nExecute  'luahbtex --credits'  for credits and version details.\n\nThere is NO warranty. Redistribution of this software is covered by\nthe terms of the GNU General Public License, version 2 or (at your option)\nany later version. For more information about these matters, see the file\nnamed COPYING and the LuaTeX source.\n\nLuaTeX is Copyright 2022 Taco Hoekwater and the LuaTeX Team.\n\n",
+      "miktex": false
+    },
+    {
+      "name": "xelatex",
+      "status": "ready",
+      "version": "XeTeX 3.141592653-2.6-0.999995 (TeX Live 2023/Debian)\nkpathsea version 6.3.5\nCopyright 2023 SIL International, Jonathan Kew and Khaled Hosny.\nThere is NO warranty.  Redistribution of this software is\ncovered by the terms of both the XeTeX copyright and\nthe Lesser GNU General Public License.\nFor more information about these matters, see the file\nnamed COPYING and the XeTeX source.\nPrimary author of XeTeX: Jonathan Kew.\nCompiled with ICU version 74.2; using 74.2\nCompiled with zlib version 1.3; using 1.3\nCompiled with FreeType2 version 2.13.2; using 2.13.2\nCompiled with Graphite2 version 1.3.14; using 1.3.14\nCompiled with HarfBuzz version 8.3.0; using 8.3.0\nCompiled with libpng version 1.6.43; using 1.6.43\nCompiled with pplib version v2.05 less toxic i hope\nCompiled with fontconfig version 2.15.0; using 2.15.0\n",
+      "miktex": false
+    }
+  ],
+  "comparisons": [
+    {
+      "engine": "pdflatex",
+      "fixture": "signature",
+      "status": "fail",
+      "reason": "Error: \"Target or neighbor has no match at its expected position\"\n"
+    },
+    {
+      "engine": "pdflatex",
+      "fixture": "paragraph",
+      "status": "fail",
+      "reason": "Error: \"Target or neighbor has no match at its expected position\"\n"
+    },
+    {
+      "engine": "pdflatex",
+      "fixture": "formatting",
+      "status": "fail",
+      "reason": "Error: \"Target or neighbor has no match at its expected position\"\n"
+    },
+    {
+      "engine": "pdflatex",
+      "fixture": "repeated",
+      "status": "fail",
+      "reason": "Error: \"Target or neighbor has no match at its expected position\"\n"
+    },
+    {
+      "engine": "pdflatex",
+      "fixture": "macro",
+      "status": "fail",
+      "reason": "Error: \"Target or neighbor has no match at its expected position\"\n"
+    },
+    {
+      "engine": "pdflatex",
+      "fixture": "minipage",
+      "status": "fail",
+      "reason": "Error: \"Target or neighbor has no match at its expected position\"\n"
+    },
+    {
+      "engine": "pdflatex",
+      "fixture": "columns",
+      "status": "fail",
+      "reason": "Error: \"Target or neighbor has no match at its expected position\"\n"
+    },
+    {
+      "engine": "pdflatex",
+      "fixture": "page-boundary",
+      "status": "expected-refusal",
+      "rust_movement": {
+        "status": "expected-refusal",
+        "reason": "Error: \"Target crosses physical pages\"\n"
+      },
+      "reason": "Target occupies multiple pages"
+    },
+    {
+      "engine": "pdflatex",
+      "fixture": "included",
+      "status": "fail",
+      "reason": "Error: \"Target or neighbor has no match at its expected position\"\n"
+    },
+    {
+      "engine": "pdflatex",
+      "fixture": "signature-overlap",
+      "status": "fail",
+      "reason": "Error: \"Target or neighbor has no match at its expected position\"\n"
+    },
+    {
+      "engine": "lualatex",
+      "fixture": "signature",
+      "status": "pass",
+      "rust_identity": {
+        "glyphs": 157,
+        "pixels": 1938816,
+        "status": "pass",
+        "target_glyphs": 63
+      },
+      "rust_movement": {
+        "glyphs": 157,
+        "pixels": 1938816,
+        "status": "pass",
+        "target_glyphs": 63
+      },
+      "raster": {
+        "unmaskedPixelsChecked": 1919279
+      }
+    },
+    {
+      "engine": "lualatex",
+      "fixture": "paragraph",
+      "status": "pass",
+      "rust_identity": {
+        "glyphs": 718,
+        "pixels": 1938816,
+        "status": "pass",
+        "target_glyphs": 624
+      },
+      "rust_movement": {
+        "glyphs": 718,
+        "pixels": 1938816,
+        "status": "pass",
+        "target_glyphs": 624
+      },
+      "raster": {
+        "unmaskedPixelsChecked": 1795639
+      }
+    },
+    {
+      "engine": "lualatex",
+      "fixture": "formatting",
+      "status": "pass",
+      "rust_identity": {
+        "glyphs": 126,
+        "pixels": 1938816,
+        "status": "pass",
+        "target_glyphs": 32
+      },
+      "rust_movement": {
+        "glyphs": 126,
+        "pixels": 1938816,
+        "status": "pass",
+        "target_glyphs": 32
+      },
+      "raster": {
+        "unmaskedPixelsChecked": 1929080
+      }
+    },
+    {
+      "engine": "lualatex",
+      "fixture": "repeated",
+      "status": "pass",
+      "rust_identity": {
+        "glyphs": 154,
+        "pixels": 1938816,
+        "status": "pass",
+        "target_glyphs": 20
+      },
+      "rust_movement": {
+        "glyphs": 154,
+        "pixels": 1938816,
+        "status": "pass",
+        "target_glyphs": 20
+      },
+      "raster": {
+        "unmaskedPixelsChecked": 1932310
+      }
+    },
+    {
+      "engine": "lualatex",
+      "fixture": "macro",
+      "status": "pass",
+      "rust_identity": {
+        "glyphs": 114,
+        "pixels": 1938816,
+        "status": "pass",
+        "target_glyphs": 20
+      },
+      "rust_movement": {
+        "glyphs": 114,
+        "pixels": 1938816,
+        "status": "pass",
+        "target_glyphs": 20
+      },
+      "raster": {
+        "unmaskedPixelsChecked": 1931260
+      }
+    },
+    {
+      "engine": "lualatex",
+      "fixture": "minipage",
+      "status": "pass",
+      "rust_identity": {
+        "glyphs": 169,
+        "pixels": 1938816,
+        "status": "pass",
+        "target_glyphs": 63
+      },
+      "rust_movement": {
+        "glyphs": 169,
+        "pixels": 1938816,
+        "status": "pass",
+        "target_glyphs": 63
+      },
+      "raster": {
+        "unmaskedPixelsChecked": 1919313
+      }
+    },
+    {
+      "engine": "lualatex",
+      "fixture": "columns",
+      "status": "pass",
+      "rust_identity": {
+        "glyphs": 130,
+        "pixels": 1938816,
+        "status": "pass",
+        "target_glyphs": 36
+      },
+      "rust_movement": {
+        "glyphs": 130,
+        "pixels": 1938816,
+        "status": "pass",
+        "target_glyphs": 36
+      },
+      "raster": {
+        "unmaskedPixelsChecked": 1927512
+      }
+    },
+    {
+      "engine": "lualatex",
+      "fixture": "page-boundary",
+      "status": "expected-refusal",
+      "rust_movement": {
+        "status": "expected-refusal",
+        "reason": "Error: \"Target crosses physical pages\"\n"
+      },
+      "reason": "Target occupies multiple pages"
+    },
+    {
+      "engine": "lualatex",
+      "fixture": "included",
+      "status": "pass",
+      "rust_identity": {
+        "glyphs": 157,
+        "pixels": 1938816,
+        "status": "pass",
+        "target_glyphs": 63
+      },
+      "rust_movement": {
+        "glyphs": 157,
+        "pixels": 1938816,
+        "status": "pass",
+        "target_glyphs": 63
+      },
+      "raster": {
+        "unmaskedPixelsChecked": 1919130
+      }
+    },
+    {
+      "engine": "lualatex",
+      "fixture": "signature-overlap",
+      "status": "expected-refusal",
+      "rust_identity": {
+        "glyphs": 157,
+        "pixels": 1938816,
+        "status": "pass",
+        "target_glyphs": 63
+      },
+      "rust_movement": {
+        "status": "expected-refusal",
+        "reason": "Error: \"Target raster overlaps unselected text\"\n"
+      },
+      "reason": "Target mask overlaps unselected text"
+    },
+    {
+      "engine": "xelatex",
+      "fixture": "signature",
+      "status": "pass",
+      "rust_identity": {
+        "glyphs": 157,
+        "pixels": 1938816,
+        "status": "pass",
+        "target_glyphs": 63
+      },
+      "rust_movement": {
+        "glyphs": 157,
+        "pixels": 1938816,
+        "status": "pass",
+        "target_glyphs": 63
+      },
+      "raster": {
+        "unmaskedPixelsChecked": 1919279
+      }
+    },
+    {
+      "engine": "xelatex",
+      "fixture": "paragraph",
+      "status": "fail",
+      "reason": "Error: \"Target or neighbor has no match at its expected position\"\n"
+    },
+    {
+      "engine": "xelatex",
+      "fixture": "formatting",
+      "status": "fail",
+      "reason": "Error: \"Target or neighbor has no match at its expected position\"\n"
+    },
+    {
+      "engine": "xelatex",
+      "fixture": "repeated",
+      "status": "pass",
+      "rust_identity": {
+        "glyphs": 154,
+        "pixels": 1938816,
+        "status": "pass",
+        "target_glyphs": 20
+      },
+      "rust_movement": {
+        "glyphs": 154,
+        "pixels": 1938816,
+        "status": "pass",
+        "target_glyphs": 20
+      },
+      "raster": {
+        "unmaskedPixelsChecked": 1932310
+      }
+    },
+    {
+      "engine": "xelatex",
+      "fixture": "macro",
+      "status": "pass",
+      "rust_identity": {
+        "glyphs": 114,
+        "pixels": 1938816,
+        "status": "pass",
+        "target_glyphs": 20
+      },
+      "rust_movement": {
+        "glyphs": 114,
+        "pixels": 1938816,
+        "status": "pass",
+        "target_glyphs": 20
+      },
+      "raster": {
+        "unmaskedPixelsChecked": 1931260
+      }
+    },
+    {
+      "engine": "xelatex",
+      "fixture": "minipage",
+      "status": "pass",
+      "rust_identity": {
+        "glyphs": 169,
+        "pixels": 1938816,
+        "status": "pass",
+        "target_glyphs": 63
+      },
+      "rust_movement": {
+        "glyphs": 169,
+        "pixels": 1938816,
+        "status": "pass",
+        "target_glyphs": 63
+      },
+      "raster": {
+        "unmaskedPixelsChecked": 1919313
+      }
+    },
+    {
+      "engine": "xelatex",
+      "fixture": "columns",
+      "status": "pass",
+      "rust_identity": {
+        "glyphs": 130,
+        "pixels": 1938816,
+        "status": "pass",
+        "target_glyphs": 36
+      },
+      "rust_movement": {
+        "glyphs": 130,
+        "pixels": 1938816,
+        "status": "pass",
+        "target_glyphs": 36
+      },
+      "raster": {
+        "unmaskedPixelsChecked": 1927512
+      }
+    },
+    {
+      "engine": "xelatex",
+      "fixture": "page-boundary",
+      "status": "expected-refusal",
+      "rust_movement": {
+        "status": "expected-refusal",
+        "reason": "Error: \"Target crosses physical pages\"\n"
+      },
+      "reason": "Target occupies multiple pages"
+    },
+    {
+      "engine": "xelatex",
+      "fixture": "included",
+      "status": "pass",
+      "rust_identity": {
+        "glyphs": 157,
+        "pixels": 1938816,
+        "status": "pass",
+        "target_glyphs": 63
+      },
+      "rust_movement": {
+        "glyphs": 157,
+        "pixels": 1938816,
+        "status": "pass",
+        "target_glyphs": 63
+      },
+      "raster": {
+        "unmaskedPixelsChecked": 1919130
+      }
+    },
+    {
+      "engine": "xelatex",
+      "fixture": "signature-overlap",
+      "status": "expected-refusal",
+      "rust_identity": {
+        "glyphs": 157,
+        "pixels": 1938816,
+        "status": "pass",
+        "target_glyphs": 63
+      },
+      "rust_movement": {
+        "status": "expected-refusal",
+        "reason": "Error: \"Target raster overlaps unselected text\"\n"
+      },
+      "reason": "Target mask overlaps unselected text"
+    }
+  ],
+  "limitations": [
+    "Fixture oracle, not live operation authorization.",
+    "Crop/rotation/UserUnit and arbitrary graphics appearance need stronger inspection.",
+    "Independent character/ink bounds are compared within each renderer, not across renderers."
+  ],
+  "rust_identity_smoke": {
+    "glyphs": 204,
+    "pixels": 1938816,
+    "status": "pass",
+    "target_glyphs": 20
+  },
+  "regression": {
+    "pdfjs": {
+      "status": "fail",
+      "reason": "Neighbor has 0 matches for 1 records at its expected position (record 4)"
+    },
+    "pdfium": {
+      "status": "fail",
+      "reason": "Neighbor has 0 matches for 1 records at its expected position (record 109)"
+    },
+    "rust": {
+      "status": "fail",
+      "reason": "Error: \"Target or neighbor has no match at its expected position\"\n"
+    },
+    "rejected": true
+  }
+}
