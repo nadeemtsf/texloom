@@ -2,8 +2,8 @@
 //!
 //! Evidence must come from a trusted inspector. In particular `target` is a
 //! provenance assertion, not a client-supplied selection rectangle. This module
-//! is not yet wired to native document_commit: the packaged inspector and its
-//! build/revision binding are separate acceptance gates.
+//! is supplied by the native document gate from a checked isolated inspector;
+//! a bare comparison result is not itself document-commit authorization.
 use std::collections::BTreeMap;
 
 pub type Result<T> = std::result::Result<T, &'static str>;

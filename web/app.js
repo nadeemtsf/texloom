@@ -254,12 +254,12 @@ function finishJob(){
   state.busy=false;updateControls();
   if(state.pending){const reason=state.pending;state.pending=false;if(reason==='manual')setTimeout(()=>compile(),0);else scheduleCompile()}
 }
-async function commitSources(sources,{file=state.file,policy=null,expectedIdentity=sessionIdentity(state)}={}){
+async function commitSources(sources,{file=state.file,policy=null,operation=null,expectedIdentity=sessionIdentity(state)}={}){
   if(!fresh()||sessionIdentity(state)!==expectedIdentity)return toast('Compile the latest source before applying this edit.');
   const client=state.client;let nativeCandidate=null,prepared=null;
   state.busy=true;state.cancelRequested=false;clearTimeout(state.compileTimer);updateControls();
   try{
-    nativeCandidate=await client.prepare(sources,state.result.build_id);
+    nativeCandidate=await client.prepare(sources,state.result.build_id,operation);
     const candidate=await stageCandidate({sources,revision:nativeCandidate.revision,identity:expectedIdentity,getIdentity:()=>sessionIdentity(state),
       compile:()=>client.compile(nativeCandidate.token),prepare:prepareResult,policy,previousPageCount:state.view.pageCount,requireVerified:true,verify:result=>client.verify(result.build_id)});
     prepared=candidate.prepared;
@@ -275,8 +275,9 @@ async function commitSources(sources,{file=state.file,policy=null,expectedIdenti
     state.mutating=false;editorReadOnly();finishJob();
   }
 }
-function visualTransaction(file,source){
-  const candidate=clone(state.sources);candidate[file]=source;return commitSources(candidate,{file});
+function visualTransaction(file,source,request){
+  const candidate=clone(state.sources);candidate[file]=source;
+  return commitSources(candidate,{file,operation:{kind:'legacy',file,request}});
 }
 async function textOperation(selection,{dx,dy,content,literalEdits,spacingEdits,plain=false,detach=false}={}){
   if(!fresh())return toast('Compile the current source before changing the canvas.');
@@ -286,16 +287,18 @@ async function textOperation(selection,{dx,dy,content,literalEdits,spacingEdits,
   const isEdit=content!==undefined||literalEdits!==undefined||spacingEdits!==undefined;
   const action=detach?'detach':selection.kind==='source'?'wrap':isEdit?'edit':'move';
   try{
-    const plan=await invoke('plan_text_object',{request:{sources:clone(state.sources),main:state.project.main,file:selection.file,
+    const request={sources:clone(state.sources),main:state.project.main,file:selection.file,
       action,id,selection:selection.kind==='source'?[selection.start,selection.end]:null,
       expected:selection.content,
-      dx:dx??selection.dx??0,dy:dy??selection.dy??0,content:content??null,literal_edits:literalEdits??null,spacing_edits:spacingEdits??null,plain}});
+      dx:dx??selection.dx??0,dy:dy??selection.dy??0,content:content??null,literal_edits:literalEdits??null,spacing_edits:spacingEdits??null,plain};
+    const plan=await invoke('plan_text_object',{request});
     if(sessionIdentity(state)!==identity)return toast('The source changed. Select the text again.');
     const kind=detach?'detach':spacingEdits?.length?'spacing':isEdit?'edit':'move';
     const selectedRuns=new Set(selection.kind==='object'?state.view.objects.get(id)?.runs:
       selection.baselineRuns||canvas.hits.flatMap(line=>line.runs));
     const unchangedRuns=state.view.pages.flatMap(page=>page.runs).filter(run=>!selectedRuns.has(run));
     const ok=await commitSources(plan.sources,{file:plan.file,expectedIdentity:identity,
+      operation:{kind:'text',request},
       policy:{id,kind,unchangedRuns:kind==='move'?unchangedRuns:null}});
     if(ok&&!detach)canvas.selectObject(id);
     return ok;
@@ -376,8 +379,9 @@ async function patchBlock(changes,block=state.selected){
   if(!block||!fresh())return;
   const identity=sessionIdentity(state);
   try{
-    const source=await invoke('transform',{request:{source:state.sources[block.file],action:'patch',id:block.id,changes}});
-    if(identity===sessionIdentity(state))await visualTransaction(block.file,source);
+    const request={source:state.sources[block.file],action:'patch',id:block.id,changes};
+    const source=await invoke('transform',{request});
+    if(identity===sessionIdentity(state))await visualTransaction(block.file,source,request);
   }catch(error){toast(message(error));renderInspector()}
 }
 function selectBlock(block){canvas.clear();state.selected={...block};renderInspector();document.querySelectorAll('.block').forEach(el=>el.classList.toggle('selected',el.dataset.id===block.id&&el.dataset.file===block.file));updateControls()}
@@ -437,9 +441,10 @@ function editBlock(block=state.selected){
 function currentPage(){const top=$('preview-scroll').getBoundingClientRect().top;return Number([...document.querySelectorAll('.pdf-page')].find(p=>p.getBoundingClientRect().bottom>top+50)?.dataset.page||1)}
 async function insertBlock({content='',plain=false,selection=null,page=currentPage(),x=62,y=100,width=270,size=12}={}){
   const id='block-'+crypto.randomUUID().slice(0,8),file=state.project.main,identity=sessionIdentity(state);
-  try{const source=await invoke('transform',{request:{source:state.sources[file],action:'insert',id,content,plain,selection,page,x,y,width,size}});
+  try{const request={source:state.sources[file],action:'insert',id,content,plain,selection,page,x,y,width,size};
+    const source=await invoke('transform',{request});
     if(identity!==sessionIdentity(state))return toast('The source changed. Retry the insertion.');
-    if(await visualTransaction(file,source)){const block=state.result.blocks.find(b=>b.id===id);if(block)selectBlock(block)}
+    if(await visualTransaction(file,source,request)){const block=state.result.blocks.find(b=>b.id===id);if(block)selectBlock(block)}
   }catch(error){toast(message(error))}
 }
 async function pinSelection(){
@@ -564,8 +569,11 @@ $('auto').onchange=()=>{if($('auto').checked&&state.compiled!==state.revision)co
 $('add-text').onclick=()=>{state.dialog={kind:'new'};showEditor('Add a positioned text block','',true)};
 $('edit-block').onclick=()=>editBlock();$('apply-content').onclick=()=>patchBlock({content:$('content').value});$('apply-size').onclick=()=>patchBlock({size:Number($('size').value)});
 $('apply-position').onclick=()=>{const page=Number($('page').value);if(!Number.isInteger(page)||page<1||page>(state.pdf?.numPages||0))return toast('Choose an existing physical page.');patchBlock({x:Number($('x').value),y:Number($('y').value),width:Number($('width').value),page})};
-$('delete-block').onclick=async()=>{const block=state.selected;if(!block)return;const source=state.sources[block.file];
-  if(await visualTransaction(block.file,source.slice(0,block.start)+source.slice(block.end))){state.selected=null;renderInspector()}};
+$('delete-block').onclick=async()=>{const block=state.selected;if(!block||!fresh())return;
+  const identity=sessionIdentity(state),request={source:state.sources[block.file],action:'delete',id:block.id};
+  try{const source=await invoke('transform',{request});
+    if(identity===sessionIdentity(state)&&await visualTransaction(block.file,source,request)){state.selected=null;renderInspector()}
+  }catch(error){toast(message(error))}};
 $('object-edit').onclick=()=>editText();
 $('object-source').onclick=()=>showSource(state.objectSelection);
 $('object-detach').onclick=()=>textOperation(state.objectSelection,{detach:true});

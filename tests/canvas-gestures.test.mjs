@@ -24,10 +24,10 @@ function setup({scale=1,mode='select',revision=0}={}){
  const event={button:0,pointerId:7,clientX:10,clientY:20,preventDefault(){},stopPropagation(){}};
  return {c,state,frame,selection,event,operations,generated,notifications};
 }
-test('pointer movement renders a ghost and release invokes exactly one edit',async()=>{
+test('pointer movement renders only an outline and release invokes exactly one edit',async()=>{
  const t=setup();t.c.drag(t.event,t.frame,t.selection);assert.equal(t.frame.capture,7);
  for(let n=0;n<20;n++)t.frame.events.get('pointermove')({clientX:30+n,clientY:40,altKey:false});
- assert.equal(t.operations.length,0);assert.equal(t.generated.length,2);
+ assert.equal(t.operations.length,0);assert.equal(t.generated.length,0);assert.notEqual(t.frame.style.transform,'');
  const up=t.frame.events.get('pointerup');await up();assert.equal(t.operations.length,1);assert.equal(t.operations[0][0],t.selection);
  assert.equal(t.frame.events.size,0);assert.equal(t.frame.style.transform,'');assert.ok(t.generated.every(e=>e.removed));
 });
@@ -42,6 +42,11 @@ test('Escape clears the gesture and restores its visual state without an edit',(
 test('pointer cancellation never executes the pending movement',()=>{
  const t=setup();t.c.drag(t.event,t.frame,t.selection);t.frame.events.get('pointermove')({clientX:45,clientY:65,altKey:false});t.frame.events.get('pointercancel')();
  assert.equal(t.operations.length,0);assert.equal(t.frame.events.size,0);assert.ok(t.generated.every(e=>e.removed));
+});
+
+test('losing pointer capture cancels the outline without editing source',()=>{
+ const t=setup();t.c.drag(t.event,t.frame,t.selection);t.frame.events.get('pointermove')({clientX:45,clientY:65,altKey:false});
+ t.frame.events.get('lostpointercapture')();assert.equal(t.operations.length,0);assert.equal(t.frame.events.size,0);assert.equal(t.frame.style.transform,'');
 });
 test('zoom and free movement preserve PDF-point deltas',async()=>{
  const t=setup({scale:2});t.c.drag(t.event,t.frame,t.selection);t.frame.events.get('pointermove')({clientX:31,clientY:45,altKey:true});

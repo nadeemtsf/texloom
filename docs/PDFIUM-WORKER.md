@@ -1,6 +1,6 @@
 # P6 native inspection experiment
 
-The Windows x64 `pdfium_worker` binary inspects PDFs in a separate Rust process. It does not require Python to run. It is not connected to the app's document commit path yet, and this checkpoint does not certify P6 or an installer.
+The Windows x64 `pdfium_worker` binary inspects PDFs in a separate Rust process. It does not require Python to run. Its checked parent is now connected to supported document transactions; see NATIVE-LAYOUT-GATE.md. Native interaction, broader compatibility and installer acceptance remain open.
 
 The worker loads one development PDFium DLL by absolute path with restricted Windows library search flags. It verifies the DLL SHA-256 before loading and holds a read handle that disallows writes/deletion. The ABI surface is explicit and bound to that exact binary. PDFium handles close before the library unloads. The application process never loads PDFium through this code.
 
@@ -16,8 +16,8 @@ The initial worker checkpoint at 10357ff passed all three CI workflows: Windows 
 
 The parent-side `inspection_worker::Worker` now supervises the process and reads only checked evidence. It pins executable/DLL/PDF inputs, binds response and JSON to the exact request, checks every raster checksum/length, confines expected output names to an owned workspace, and rejects incomplete or unexpected targets. It checks cancellation around work and releases derived files when the checked inspection is dropped. Cleanup is flat and never descends into unexpected directories. Configuration is native-only; this API is not exposed through frontend IPC.
 
-The parent checkpoint passes 194 local checks (64 core, 44 build/comparison/worker, 19 native service, 67 frontend). Eight new receipt tests cover replay, corruption, paths, target claims, resource bounds, cancellation and cleanup. Four normally-ignored headless worker tests were separately executed, including a real parent/worker receipt round trip. Linux CI additionally checks symlink refusal. CI for this parent checkpoint is pending.
+The parent checkpoint passes 194 local checks (64 core, 44 build/comparison/worker, 19 native service, 67 frontend). Eight new receipt tests cover replay, corruption, paths, target claims, resource bounds, cancellation and cleanup. Four normally-ignored headless worker tests were separately executed, including a real parent/worker receipt round trip. Linux CI additionally checks symlink refusal. At b47fc0d, Windows CI 41500732419, engine proof 41500732666 and build corpus 41500732377 all passed.
 
-Next: trusted source-plan and marker binding to project/revision/build/operation, comparison of original/private-zero/candidate PDFs, support for ordinary fractional drag deltas, packaged runtime integration and the complete native signature workflow. Do not treat a frontend boolean, fixture-supplied target IDs or a bare worker `inspected` response as commit authority.
+The native layout gate now owns source-plan and project/revision/build/operation binding, original/private-zero/candidate comparisons and packaged resource identities. Ordinary fractional drag deltas, broader real-engine marker coverage, dependency release review and the complete native signature workflow remain open. A frontend boolean, fixture-supplied target ID or bare worker `inspected` response is never commit authority.
 
 API provenance: the explicit ABI matches the pinned pypdfium2 binding and PDFium's [chromium/6462 edit API](https://github.com/chromium/pdfium/blob/chromium/6462/public/fpdf_edit.h) and [implementation](https://github.com/chromium/pdfium/blob/chromium/6462/fpdfsdk/fpdf_editpage.cpp). The handle/attribution behavior above is additionally tested against the pinned DLL.

@@ -4,6 +4,14 @@ import {DocumentClient,editorText} from '../web/core/document-client.js';
 const snapshot=(revision=0)=>({revision,sources:{'main.tex':'A'},main:'main.tex',engine:'auto',can_undo:revision>0,can_redo:false});
 const tick=()=>new Promise(setImmediate);
 
+test('visual preparation sends a typed operation while private probes carry no commit authority',async()=>{
+ const calls=[];const client=new DocumentClient(async(name,args)=>{calls.push({name,...args});return {token:'probe',revision:1}},'p',snapshot());
+ const sources={'main.tex':'B'},operation={kind:'text',request:{action:'move',id:'sig'}};
+ await client.prepare(sources,'baseline',operation);await client.prepare(sources,'baseline');
+ assert.deepEqual(calls[0].operation,operation);assert.equal(calls[0].baselineBuildId,'baseline');
+ assert.equal(calls[0].revision,0);assert.equal(calls[1].operation,null);assert.equal(client.snapshot.revision,0);
+});
+
 test('cancel fences the request ID and ignores a compiler that returns success afterward',async()=>{
   const calls=[];let finish;
   const client=new DocumentClient(async(name,args)=>{

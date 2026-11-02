@@ -12,7 +12,9 @@ use texloom_core::{Block, Change, NewBlock};
 use uuid::Uuid;
 mod build_cache;
 mod document;
+mod layout_gate;
 mod visual;
+pub use layout_gate::VisualOperation;
 pub use document::{DocumentSnapshot, EditorChange, EditorRange, PreparedReply, SelectionReply};
 pub use visual::plan_object_edit as visual_plan;
 pub use visual::{
@@ -135,7 +137,7 @@ pub struct CompileResult {
     pub job_id: u64,
 }
 
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 pub struct TransformRequest {
     pub source: String,
     pub action: String,
@@ -200,6 +202,13 @@ pub fn transform(request: TransformRequest) -> Result<String> {
             });
         }
         texloom_core::patch_block(&request.source, &request.id, &changes)
+    } else if request.action == "delete" {
+        let matches: Vec<_> = texloom_core::blocks(&request.source).into_iter()
+            .filter(|b| b.id == request.id).collect();
+        if matches.len() != 1 { return Err("Select one unique positioned block".into()); }
+        let mut source = request.source;
+        source.replace_range(matches[0].range.clone(), "");
+        Ok(source)
     } else if request.action == "insert" {
         let projection = texloom_core::document::projection::EditorProjection::new(&request.source);
         let selection = request
@@ -254,6 +263,7 @@ pub struct Backend {
     documents: Mutex<HashMap<String, document::DocumentSlot>>,
     displayed: Mutex<HashMap<String, String>>,
     cache: std::sync::OnceLock<Result<build_cache::SessionCache>>,
+    verifier: Option<Result<texloom_build::inspection_worker::Worker>>,
 }
 
 impl Backend {
@@ -266,6 +276,7 @@ impl Backend {
             documents: Mutex::new(HashMap::new()),
             displayed: Mutex::new(HashMap::new()),
             cache: Default::default(),
+            verifier: None,
         }
     }
     pub fn open_project(&self, path: Option<String>) -> Result<Project> {

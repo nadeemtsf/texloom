@@ -94,29 +94,21 @@ export class CanvasController {
   drag(event,frame,selection){
     if(event.button!==0||!this.fresh()||this.getSession().mode==='read')return;
     event.preventDefault();event.stopPropagation();frame.setPointerCapture(event.pointerId);
-    const origin={x:event.clientX,y:event.clientY};let delta=null,ghost=null,mask=null;
-    const page=frame.closest('.pdf-page'),canvas=page.querySelector('canvas'),factor=this.view.scale;
-    const preview=()=>{
-      if(ghost)return;
-      mask=document.createElement('div');mask.className='drag-mask';this.position(mask,selection,factor);
-      ghost=document.createElement('canvas');ghost.className='drag-ghost';this.position(ghost,selection,factor);
-      const ratio=canvas.width/parseFloat(canvas.style.width);
-      ghost.width=Math.ceil(selection.width*factor*ratio);ghost.height=Math.ceil(selection.height*factor*ratio);
-      ghost.getContext('2d').drawImage(canvas,selection.x*factor*ratio,selection.y*factor*ratio,ghost.width,ghost.height,0,0,ghost.width,ghost.height);
-      page.append(mask,ghost);
-    };
+    const origin={x:event.clientX,y:event.clientY};let delta=null;
+    const factor=this.view.scale;
     const move=e=>{
       const snap=v=>e.altKey?Math.round(v*100)/100:Math.round(v/2)*2;
       if(Math.hypot(e.clientX-origin.x,e.clientY-origin.y)<3&&!delta)return;
-      delta={x:snap((e.clientX-origin.x)/factor),y:snap((e.clientY-origin.y)/factor)};preview();
+      delta={x:snap((e.clientX-origin.x)/factor),y:snap((e.clientY-origin.y)/factor)};
       frame.style.transform=`translate(${delta.x*this.view.scale}px,${delta.y*this.view.scale}px)`;
-      ghost.style.transform=frame.style.transform;
       frame.classList.add('dragging');
     };
-    const clean=()=>{ghost?.remove();mask?.remove();frame.style.transform='';frame.classList.remove('dragging');this.cancelGesture=null};
-    const unbind=()=>{frame.removeEventListener('pointermove',move);frame.removeEventListener('pointerup',up);frame.removeEventListener('pointercancel',cancel)};
+    // A moving outline is honest feedback until target-only paint is proven.
+    // Cropping the page would copy background ink; masking would erase it.
+    const clean=()=>{frame.style.transform='';frame.classList.remove('dragging');this.cancelGesture=null};
+    const unbind=()=>{frame.removeEventListener('pointermove',move);frame.removeEventListener('pointerup',up);frame.removeEventListener('pointercancel',cancel);frame.removeEventListener('lostpointercapture',cancel)};
     const cancel=()=>{unbind();clean()};const up=async()=>{unbind();this.lastClick=null;try{if(delta&&(delta.x||delta.y))await this.move(selection,delta.x,delta.y)}finally{clean()}};
-    this.cancelGesture=cancel;frame.addEventListener('pointermove',move);frame.addEventListener('pointerup',up);frame.addEventListener('pointercancel',cancel);
+    this.cancelGesture=cancel;frame.addEventListener('pointermove',move);frame.addEventListener('pointerup',up);frame.addEventListener('pointercancel',cancel);frame.addEventListener('lostpointercapture',cancel);
   }
   marquee(event,shell,lines,page){
     if(event.button!==0||event.target.closest('button,.block,.text-object-frame')||!this.fresh()||this.getSession().mode==='read')return;

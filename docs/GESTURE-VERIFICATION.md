@@ -1,6 +1,6 @@
 # P6 gesture verification checkpoint
 
-Six focused tests execute the production CanvasController against an explicit event/DOM boundary. They verify that repeated pointer movement produces only a transient ghost, release dispatches exactly one movement, click jitter dispatches none, Escape and pointer-cancel restore the preview without an edit, zoom/free movement retains PDF-point deltas, and stale/read surfaces do not start a drag.
+Seven focused tests execute the production CanvasController against an explicit event/DOM boundary. Repeated pointer movement produces a transient outline, release dispatches exactly one movement, and click jitter dispatches none. Escape, pointer-cancel and lost pointer capture restore the preview without an edit. Zoom/free movement retains PDF-point deltas, and stale/read surfaces do not start a drag. The verified PDF stays visible; a page crop/white mask is not used as a drag image.
 
 The complete frontend suite passes 64 tests. Combined with the already passing 58 core, 17 native and 17 build-infrastructure checks, this is 156 local checks. No production executable code changed in this checkpoint; the P5 executable hash remains the recorded build.
 

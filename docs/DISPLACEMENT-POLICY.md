@@ -1,6 +1,6 @@
 # P6 independent comparison checkpoint
 
-`texloom-build::verification` implements a UI-independent comparison over trusted PDF inspection evidence. It is deliberately not a native commit authorization API. The existing application still uses its previous PDF.js validation; packaged PDFium inspection and receipt-bound native authorization remain open.
+`texloom-build::verification` implements a UI-independent comparison over trusted PDF inspection evidence. The native transaction service now uses it with packaged inspection and receipt-bound operation plans, alongside PDF.js preparation; see NATIVE-LAYOUT-GATE.md. A bare comparison result is not a native commit authorization.
 
 The comparison checks every physical page, exact text multiplicities, target membership, uniquely matched glyph geometry, unchanged non-text object geometry and every rendered pixel. It compares bounds within the same renderer. Target tolerance is 0.25 bp; unaffected and identity glyph tolerance is 0.02 bp; non-text geometry uses 0.000001 bp. Identity still requires exact pixels. The frontend cannot change these tolerances. Extraction order may change, but ambiguous correspondence is refused. Successful results report their maximum geometry error.
 
@@ -14,6 +14,6 @@ The first engine run (41492602048 at e71c283) failed the proposed 0.000001 bp id
 
 The development `displacement_check` bridge consumes the pinned PDFium 126.0.6462.0 / pypdfium2 4.30.0 fixture output. It checks PDF and raster SHA-256 receipts, bounds file reads, and confines raster paths to their evidence directory. Its target record IDs come from the explicit fixture oracle, never application users. This old development pin is not a decision to ship it as a runtime dependency. CI runs it alongside the existing JavaScript oracle on the three-engine movement corpus and requires it to reject the retained broken-literal PDF for a geometry/appearance reason. A real-PDF identity smoke check must pass first, so an absent executable or bad receipt cannot count as successful regression rejection.
 
-Before connecting this to `document_commit`, P6 still needs a packaged isolated worker, independently established target provenance, complete text/paint/annotation coverage, build/project/revision/operation binding, cancellation and failure handling, support for ordinary drag deltas, and the actual native signature select/move/edit/undo/save/reopen scenario. Native typing/IME/mouse access is currently denied. P7-P9 acceptance gates remain open.
+The native gate now connects checked worker receipts and source plans to `document_commit`. P6 still needs broader real-engine target/paint/coordinate coverage, ordinary fractional drag deltas and the actual native signature select/move/edit/undo/save/reopen scenario. Native typing/IME/mouse acceptance is unverified after desktop control was denied. P7-P9 acceptance gates remain open.
 
 A standalone Windows Rust inspection experiment now exists; see PDFIUM-WORKER.md. Its headless tests do not close the native application gates above.

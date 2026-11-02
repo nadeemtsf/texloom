@@ -332,7 +332,14 @@ impl Worker {
             &CommandSpec {
                 program: &self.program,
                 args: &[path.to_string_lossy().into_owned()],
-                directory: &workspace.root,
+                // CreateProcessW can reject an over-MAX_PATH current directory
+                // even when Rust can read the absolute evidence paths. The
+                // worker uses absolute paths only; keep cwd at its trusted
+                // program directory instead of a nested evidence workspace.
+                directory: self
+                    .program
+                    .parent()
+                    .ok_or("Missing worker program directory")?,
                 env: &BTreeMap::new(),
                 timeout: Duration::from_secs(10),
                 memory_bytes: 512 * 1024 * 1024,

@@ -380,9 +380,20 @@ fn parent_supervisor_checks_receipts_and_cleans_only_derived_evidence() {
     assert_eq!(fs::read_dir(&cache).unwrap().count(), 1);
     drop(result);
     assert_eq!(fs::read_dir(&cache).unwrap().count(), 0);
-    let refused=worker.inspect(&pdf,&sha,Some("Texloom_missing"),&Cancellation::default()).err().unwrap();
-    assert!(refused.starts_with("Independent inspection refused the PDF:"),"{refused}");
-    assert_eq!(fs::read_dir(&cache).unwrap().count(),0);
+    let refused = worker
+        .inspect(
+            &pdf,
+            &sha,
+            Some("Texloom_missing"),
+            &Cancellation::default(),
+        )
+        .err()
+        .unwrap();
+    assert!(
+        refused.starts_with("Independent inspection refused the PDF:"),
+        "{refused}"
+    );
+    assert_eq!(fs::read_dir(&cache).unwrap().count(), 0);
     assert!(worker
         .inspect(&pdf, &"0".repeat(64), None, &Cancellation::default())
         .is_err());

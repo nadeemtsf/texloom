@@ -52,6 +52,13 @@ jobs:
         run: node scripts/selection-proof.mjs
       - name: Compile protected text edits under three engines
         run: node scripts/protected-text-proof.mjs
+      - name: Preserve compiled PDFs for Windows native inspection
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: native-engine-pdfs
+          path: artifacts/proof/compiled/**/*.pdf
+          retention-days: 7
+          if-no-files-found: error
       - name: Preserve experiment evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
@@ -63,3 +70,29 @@ jobs:
             artifacts/protected-text/
           retention-days: 7
           if-no-files-found: warn
+  windows-native-inspection:
+    needs: source-and-pdf
+    runs-on: windows-2022
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          name: native-engine-pdfs
+          path: .tools/engine-proof
+      - name: Prepare pinned Windows PDFium
+        shell: pwsh
+        run: |
+          python -m pip download --disable-pip-version-check --only-binary=:all: --no-deps --platform win_amd64 --dest .tools/pdfium-wheels pypdfium2==4.30.0
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python scripts/proof/prepare_pdfium.py .tools/pdfium-wheels/pypdfium2-4.30.0-py3-none-win_amd64.whl .tools/native-pdfium
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Inspect actual three-engine output with native mark identity
+        shell: pwsh
+        run: |
+          $env:TEXLOOM_NATIVE_CORPUS = Join-Path (Get-Location) '.tools/engine-proof'
+          $env:TEXLOOM_PDFIUM_TEST_DLL = Join-Path (Get-Location) '.tools/native-pdfium/pdfium.dll'
+          cargo test --locked -p texloom-build --test engine_worker_corpus -- --ignored --nocapture
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

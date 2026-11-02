@@ -8,11 +8,12 @@ use texloom_core::document::{
 
 pub(super) struct DocumentSlot {
     session: core::Session,
-    pending: HashMap<String, Pending>,
+    pub(super) pending: HashMap<String, Pending>,
 }
-struct Pending {
+pub(super) struct Pending {
     candidate: core::Prepared,
-    build_id: Option<String>,
+    pub(super) plan: Option<Arc<layout_gate::Plan>>,
+    pub(super) approval: Option<layout_gate::Approval>,
 }
 impl DocumentSlot {
     pub(super) fn discard(&mut self, token: &str) {
@@ -263,11 +264,32 @@ impl Backend {
         }
         Ok(slot.snapshot())
     }
+    #[cfg(test)]
     pub fn document_prepare(
         &self,
         id: &str,
         base: u64,
         sources: BTreeMap<String, String>,
+    ) -> Result<PreparedReply> {
+        self.prepare_candidate(id, base, sources, None)
+    }
+    pub fn document_prepare_visual(
+        &self,
+        id: &str,
+        base: u64,
+        sources: BTreeMap<String, String>,
+        baseline: &str,
+        operation: Option<VisualOperation>,
+    ) -> Result<PreparedReply> {
+        self.verify_project_build(id, base, baseline, true)?;
+        self.prepare_candidate(id, base, sources, operation.map(|op| (baseline, op)))
+    }
+    fn prepare_candidate(
+        &self,
+        id: &str,
+        base: u64,
+        sources: BTreeMap<String, String>,
+        operation: Option<(&str, VisualOperation)>,
     ) -> Result<PreparedReply> {
         for (name, text) in &sources {
             if !text_file(&relative(name)?) || text.len() > 4_000_000 {
@@ -281,6 +303,23 @@ impl Backend {
         }
         let mut docs = self.documents.lock().map_err(fail)?;
         let slot = docs.get_mut(id).ok_or("Reopen this project")?;
+        if slot.session.revision() != Revision(base) {
+            return Err("The source revision changed".into());
+        }
+        let plan = operation
+            .map(|(baseline, op)| {
+                self.plan_visual(
+                    id,
+                    base,
+                    baseline,
+                    slot.session.sources(),
+                    &slot.session.profile().main,
+                    &sources,
+                    op,
+                )
+                .map(Arc::new)
+            })
+            .transpose()?;
         let files = diff_sources(slot.session.sources(), &sources);
         let candidate = slot
             .session
@@ -299,7 +338,8 @@ impl Backend {
             token.clone(),
             Pending {
                 candidate,
-                build_id: None,
+                plan,
+                approval: None,
             },
         );
         Ok(PreparedReply { token, revision })
@@ -321,37 +361,52 @@ impl Backend {
             return Err("Unknown build purpose".into());
         }
         let lease = self.scheduler.request_sequence(id, sequence)?.acquire()?;
-        let request = {
-            let docs = self.documents.lock().map_err(fail)?;
-            let slot = docs.get(id).ok_or("Reopen this project")?;
+        let (request, plan) = {
+            let mut docs = self.documents.lock().map_err(fail)?;
+            let slot = docs.get_mut(id).ok_or("Reopen this project")?;
             if slot.session.revision() != Revision(revision) {
                 return Err("The source changed before compilation started".into());
             }
             if let Some(token) = token {
                 let pending = slot
                     .pending
-                    .get(token)
+                    .get_mut(token)
                     .ok_or("The visual candidate is no longer current")?;
-                CompileRequest {
-                    project_id: id.into(),
-                    main: pending.candidate.profile().main.clone(),
-                    sources: pending.candidate.sources().clone(),
-                    engine: pending.candidate.profile().engine.clone(),
-                    revision: pending.candidate.base().0 + u64::from(pending.candidate.changed()),
-                    purpose: purpose.into(),
-                }
+                pending.approval = None;
+                (
+                    CompileRequest {
+                        project_id: id.into(),
+                        main: pending.candidate.profile().main.clone(),
+                        sources: pending.candidate.sources().clone(),
+                        engine: pending.candidate.profile().engine.clone(),
+                        revision: pending.candidate.base().0
+                            + u64::from(pending.candidate.changed()),
+                        purpose: purpose.into(),
+                    },
+                    pending.plan.clone(),
+                )
             } else {
-                CompileRequest {
-                    project_id: id.into(),
-                    main: slot.session.profile().main.clone(),
-                    sources: slot.session.sources().clone(),
-                    engine: slot.session.profile().engine.clone(),
-                    revision: slot.session.revision().0,
-                    purpose: purpose.into(),
-                }
+                (
+                    CompileRequest {
+                        project_id: id.into(),
+                        main: slot.session.profile().main.clone(),
+                        sources: slot.session.sources().clone(),
+                        engine: slot.session.profile().engine.clone(),
+                        revision: slot.session.revision().0,
+                        purpose: purpose.into(),
+                    },
+                    None,
+                )
             }
         };
-        let result = self.compile(request, &lease)?;
+        let result = self.compile(request.clone(), &lease)?;
+        let approval = if result.ok && result.verification_eligible {
+            plan.as_ref()
+                .map(|p| self.approve_layout(p, &request, &result, &lease))
+                .transpose()?
+        } else {
+            None
+        };
         lease.cancel.check()?;
         let mut docs = self.documents.lock().map_err(fail)?;
         let slot = docs.get_mut(id).ok_or("Reopen this project")?;
@@ -363,32 +418,32 @@ impl Backend {
                 .pending
                 .get_mut(token)
                 .ok_or("The source changed while compiling the visual candidate")?;
-            if result.ok && result.verification_eligible {
-                pending.build_id = Some(result.build_id.clone());
-            }
+            pending.approval = approval;
         }
         Ok(result)
     }
-    /// The frontend calls this only after PDF preparation and layout validation.
-    /// Runtime independent PDF verification remains a separate P6 gate.
+    /// Requires native source-plan/build approval as well as the UI's completed
+    /// PDF preparation. A private selection probe can never be committed.
     pub fn document_commit(
         &self,
         id: &str,
         token: &str,
         build_id: &str,
     ) -> Result<DocumentSnapshot> {
-        self.verify_build(build_id)?;
         let mut docs = self.documents.lock().map_err(fail)?;
         let slot = docs.get_mut(id).ok_or("Reopen this project")?;
         let pending = slot
             .pending
             .get(token)
             .ok_or("The visual candidate is no longer current")?;
-        if pending.build_id.as_deref() != Some(build_id) {
-            return Err(
-                "Candidate must finish its own successful native compilation before commit".into(),
-            );
+        let approval = pending
+            .approval
+            .as_ref()
+            .ok_or("This candidate has no native visual-operation approval")?;
+        if pending.candidate.base() != slot.session.revision() {
+            return Err("The source revision changed".into());
         }
+        approval.check(id, slot.session.revision().0, build_id)?;
         if pending.candidate.changed() {
             self.mark_cache_unclean()?;
         }

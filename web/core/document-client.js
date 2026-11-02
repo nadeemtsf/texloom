@@ -28,7 +28,7 @@ export class DocumentClient {
   profile(main,engine){return this.enqueue('document_profile',{main,engine});}
   history(redo){return this.enqueue('document_history',{redo});}
   selection(file,anchor,head,secondary=[]){return this.enqueue('document_selection',{file,anchor,head,secondary},true,false);}
-  async prepare(sources,baselineBuildId){await this.flush();return this.invoke('document_prepare',{projectId:this.projectId,revision:this.snapshot.revision,sources,baselineBuildId});}
+  async prepare(sources,baselineBuildId,operation=null){await this.flush();return this.invoke('document_prepare',{projectId:this.projectId,revision:this.snapshot.revision,sources,baselineBuildId,operation});}
   async compile(token=null,purpose='preview'){
     this.activeToken=token;
     const requestId=++this.compileSerial;this.assertRevision(requestId);

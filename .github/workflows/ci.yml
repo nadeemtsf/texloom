@@ -50,6 +50,16 @@ jobs:
           cargo test --locked -p texloom-build --test pdfium_worker -- --ignored
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           cargo build --locked --release -p texloom-build --bin pdfium_worker
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Check native document approval with the actual isolated renderer
+        shell: pwsh
+        run: |
+          node scripts/prepare-native-verifier.mjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $env:TEXLOOM_PDFIUM_TEST_DLL = Join-Path (Get-Location) 'src-tauri/resources/verification/pdfium.dll'
+          $env:TEXLOOM_PDFIUM_TEST_WORKER = Join-Path (Get-Location) 'src-tauri/resources/verification/pdfium_worker.exe'
+          cargo test --locked -p texloom-desktop --lib -- --ignored
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Build unsigned desktop executable
         run: npm run desktop:build -- --no-bundle --target x86_64-pc-windows-msvc
       - name: Package portable build with notices

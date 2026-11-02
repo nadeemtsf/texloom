@@ -2,7 +2,7 @@ mod service;
 use service::{
     Backend, CompileResult, DocumentSnapshot, EditorChange, EditorRange, ObjectEditRequest,
     ObjectPlan, PreparedReply, Project, ResolvedSelection, SelectionPoint, SelectionReply,
-    SourceLocation, SourceRectangle, TransformRequest,
+    SourceLocation, SourceRectangle, TransformRequest, VisualOperation,
 };
 use std::{collections::BTreeMap, sync::Arc};
 use tauri::{Manager, State};
@@ -167,11 +167,11 @@ async fn document_prepare(
     revision: u64,
     sources: BTreeMap<String, String>,
     baseline_build_id: String,
+    operation: Option<VisualOperation>,
 ) -> Result<PreparedReply, String> {
     let backend = state.inner().clone();
     tauri::async_runtime::spawn_blocking(move || {
-        backend.verify_project_build(&project_id, revision, &baseline_build_id, true)?;
-        backend.document_prepare(&project_id, revision, sources)
+        backend.document_prepare_visual(&project_id, revision, sources, &baseline_build_id, operation)
     })
     .await
     .map_err(|e| e.to_string())?
@@ -259,7 +259,8 @@ pub fn run() {
         .setup(|app| {
             let root = app.path().app_data_dir()?;
             std::fs::create_dir_all(&root)?;
-            app.manage(Arc::new(Backend::new(root)));
+            let resources = app.path().resource_dir()?;
+            app.manage(Arc::new(Backend::new(root).with_verification_resources(resources)));
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![

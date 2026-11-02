@@ -129,7 +129,7 @@ mod tests {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 pub struct ObjectEditRequest {
     pub sources: BTreeMap<String, String>,
     pub main: String,
@@ -154,7 +154,7 @@ pub struct ObjectEditRequest {
     pub spacing_edits: Option<Vec<SpacingEditRequest>>,
 }
 
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 pub struct SpacingEditRequest {
     pub id: usize,
     pub value: String,
@@ -168,7 +168,7 @@ pub struct SpacingView {
     pub reason: Option<String>,
 }
 
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 pub struct LiteralEditRequest {
     pub id: usize,
     pub text: String,
