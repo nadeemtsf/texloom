@@ -55,7 +55,7 @@ fn digest(bytes: &[u8]) -> String {
 }
 fn request(library: &Path) -> Value {
     let pdf = root().join("tests/fixtures/objects/baseline.pdf");
-    json!({"schema":1,"library":library,"pdf":pdf,"pdf_sha256":digest(&fs::read(&pdf).unwrap())})
+    json!({"schema":texloom_build::inspection_worker::PROTOCOL,"request_id":digest(b"synthetic native worker request"),"library":library,"pdf":pdf,"pdf_sha256":digest(&fs::read(&pdf).unwrap())})
 }
 fn run(path: &Path) -> process::Output {
     process::run(
@@ -77,7 +77,7 @@ fn bad_schema_unknown_fields_receipts_and_large_requests_fail_before_loading() {
         let dir = Directory::new();
         let mut value = request(Path::new("not-a-library.dll"));
         match case {
-            0 => value["schema"] = json!(2),
+            0 => value["schema"] = json!(3),
             1 => value["unrecognized"] = json!(true),
             2 => value["pdf_sha256"] = json!("changed"),
             _ => value["padding"] = json!("x".repeat(64_001)),
@@ -354,4 +354,41 @@ fn independent_marker_inspection_passes_exact_movement_and_rejects_neighbor_drif
         Operation::Displace { dx: 3.0, dy: 8.0 }
     )
     .is_err());
+}
+
+#[test]
+#[ignore = "requires explicitly prepared pinned Windows PDFium"]
+fn parent_supervisor_checks_receipts_and_cleans_only_derived_evidence() {
+    use texloom_build::inspection_worker::Worker;
+    let library = PathBuf::from(
+        std::env::var_os("TEXLOOM_PDFIUM_TEST_DLL").expect("Set the pinned DLL path"),
+    );
+    let program = PathBuf::from(env!("CARGO_BIN_EXE_pdfium_worker"));
+    let program_sha = digest(&fs::read(&program).unwrap());
+    let dir = Directory::new();
+    let cache = dir.0.join("receipts-\u{1f600}");
+    let worker = Worker::new(program, program_sha, library, cache.clone()).unwrap();
+    let pdf = root().join("tests/fixtures/objects/baseline.pdf");
+    let original = fs::read(&pdf).unwrap();
+    let sha = digest(&original);
+    let result = worker
+        .inspect(&pdf, &sha, None, &Cancellation::default())
+        .unwrap();
+    assert_eq!(result.pdf_sha256, sha);
+    assert_eq!(result.view.glyphs.len(), 204);
+    assert_eq!(result.view.pages.len(), 1);
+    assert_eq!(fs::read_dir(&cache).unwrap().count(), 1);
+    drop(result);
+    assert_eq!(fs::read_dir(&cache).unwrap().count(), 0);
+    let refused=worker.inspect(&pdf,&sha,Some("Texloom_missing"),&Cancellation::default()).err().unwrap();
+    assert!(refused.starts_with("Independent inspection refused the PDF:"),"{refused}");
+    assert_eq!(fs::read_dir(&cache).unwrap().count(),0);
+    assert!(worker
+        .inspect(&pdf, &"0".repeat(64), None, &Cancellation::default())
+        .is_err());
+    let cancelled = Cancellation::default();
+    cancelled.cancel();
+    assert!(worker.inspect(&pdf, &sha, None, &cancelled).is_err());
+    assert_eq!(fs::read_dir(&cache).unwrap().count(), 0);
+    assert_eq!(fs::read(&pdf).unwrap(), original);
 }

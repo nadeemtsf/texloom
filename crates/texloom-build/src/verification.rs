@@ -116,7 +116,7 @@ fn inside(r: Rect, p: &Page) -> bool {
         && r.x + r.width <= p.width + EPSILON
         && r.y + r.height <= p.height + EPSILON
 }
-fn validate(view: &Inspection) -> Result<usize> {
+pub(crate) fn validate(view: &Inspection) -> Result<usize> {
     require(
         !view.pages.is_empty() && view.pages.len() <= 20 && view.rasters.len() == view.pages.len(),
         "Invalid page/raster count",

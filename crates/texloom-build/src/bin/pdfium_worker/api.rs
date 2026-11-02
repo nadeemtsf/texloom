@@ -18,7 +18,7 @@ use windows_sys::Win32::{
 };
 pub type Handle = *mut c_void;
 pub type Result<T> = std::result::Result<T, String>;
-pub const DLL_SHA256: &str = "b2c15cd4537d8efaf23b85b3353abe7a0b863e9c52b2f017dd87bb86a55f9c72";
+pub use texloom_build::inspection_worker::DLL_SHA256;
 struct Library {
     module: HMODULE,
     _file: File,

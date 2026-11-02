@@ -14,6 +14,7 @@ use std::{
 #[serde(deny_unknown_fields)]
 struct Request {
     schema: u32,
+    request_id: String,
     library: PathBuf,
     pdf: PathBuf,
     pdf_sha256: String,
@@ -246,7 +247,7 @@ fn inspect(request: &Request, prefix: &Path) -> Result<Value> {
         check(target_glyphs > 0, "Target marker has no visible glyphs")?;
     }
     Ok(
-        json!({"schema":1,"renderer":"pdfium","pdfium":"126.0.6462.0","binding":"rust-worker-v1",
+        json!({"schema":texloom_build::inspection_worker::PROTOCOL,"renderer":"pdfium","pdfium":"126.0.6462.0","binding":"rust-worker-v1",
         "librarySha256":api::DLL_SHA256,"pdfSha256":request.pdf_sha256,
             "pages":pages,"records":records,"graphics":graphics,"rasters":rasters,
             "target":request.target_marker.as_ref().map(|name|json!({"marker":name,"instances":instances.len(),"glyphs":target_glyphs})),
@@ -255,15 +256,26 @@ fn inspect(request: &Request, prefix: &Path) -> Result<Value> {
 }
 pub fn run() -> Result<()> {
     check(
-        cfg!(target_pointer_width = "64"),
+        cfg!(target_arch = "x86_64"),
         "This development PDFium pin requires Windows x64",
     )?;
     let args: Vec<_> = std::env::args_os().collect();
     check(args.len() == 2, "usage: pdfium_worker REQUEST.json")?;
     let path = fs::canonicalize(&args[1]).map_err(|e| e.to_string())?;
-    let request: Request =
-        serde_json::from_slice(&read(&path, 64_000)?).map_err(|e| e.to_string())?;
-    check(request.schema == 1, "Unsupported worker protocol")?;
+    let request_bytes = read(&path, 64_000)?;
+    let request: Request = serde_json::from_slice(&request_bytes).map_err(|e| e.to_string())?;
+    check(
+        request.schema == texloom_build::inspection_worker::PROTOCOL,
+        "Unsupported worker protocol",
+    )?;
+    check(
+        request.request_id.len() == 64
+            && request
+                .request_id
+                .bytes()
+                .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b)),
+        "Invalid inspection request identity",
+    )?;
     if let Some(marker) = &request.target_marker {
         check(
             marker.starts_with("Texloom_")
@@ -281,12 +293,14 @@ pub fn run() -> Result<()> {
         !prefix.exists(),
         "Independent inspection output already exists",
     )?;
-    let result = inspect(&request, &prefix)?;
+    let mut result = inspect(&request, &prefix)?;
+    result["requestId"] = json!(request.request_id);
+    result["requestSha256"] = json!(digest(&request_bytes));
     let bytes = serde_json::to_vec(&result).map_err(|e| e.to_string())?;
     create(&prefix, &bytes)?;
     println!(
         "{}",
-        json!({"schema":1,"status":"inspected","inspection":prefix,"sha256":digest(&bytes)})
+        json!({"schema":texloom_build::inspection_worker::PROTOCOL,"status":"inspected","request_id":request.request_id,"request_sha256":digest(&request_bytes),"inspection":prefix,"sha256":digest(&bytes)})
     );
     Ok(())
 }
