@@ -32,6 +32,7 @@ jobs:
           cargo test --locked -p texloom-core
           cargo build --locked -p texloom-core --example proof_candidate
           cargo build --locked -p texloom-core --example selection_hint
+          cargo build --locked -p texloom-core --example literal_candidate
       - name: Install independent development PDF inspector
         run: python3 -m pip install --disable-pip-version-check -r scripts/proof/requirements.txt
       - name: Run JavaScript and real-PDF regression checks
@@ -46,6 +47,8 @@ jobs:
         run: node scripts/movement-proof.mjs
       - name: Verify real PDF selection and SyncTeX hints
         run: node scripts/selection-proof.mjs
+      - name: Compile protected text edits under three engines
+        run: node scripts/protected-text-proof.mjs
       - name: Preserve experiment evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
@@ -54,5 +57,6 @@ jobs:
           path: |
             artifacts/proof/
             artifacts/selection/
+            artifacts/protected-text/
           retention-days: 7
           if-no-files-found: warn

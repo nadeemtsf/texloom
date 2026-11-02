@@ -278,18 +278,20 @@ async function commitSources(sources,{file=state.file,policy=null,expectedIdenti
 function visualTransaction(file,source){
   const candidate=clone(state.sources);candidate[file]=source;return commitSources(candidate,{file});
 }
-async function textOperation(selection,{dx,dy,content,plain=false,detach=false}={}){
+async function textOperation(selection,{dx,dy,content,literalEdits,plain=false,detach=false}={}){
   if(!fresh())return toast('Compile the current source before changing the canvas.');
   if(selection.kind==='source'&&state.sources[selection.file]!==selection.expected_source)return toast('That source selection changed. Select it again.');
   const identity=sessionIdentity(state),id=selection.kind==='object'?selection.id:'text-'+crypto.randomUUID().slice(0,8);
-  const action=detach?'detach':selection.kind==='source'?'wrap':content!==undefined?'edit':'move';
+  if(literalEdits&&literalEdits.length===0)return true;
+  const isEdit=content!==undefined||literalEdits!==undefined;
+  const action=detach?'detach':selection.kind==='source'?'wrap':isEdit?'edit':'move';
   try{
     const plan=await invoke('plan_text_object',{request:{sources:clone(state.sources),main:state.project.main,file:selection.file,
       action,id,selection:selection.kind==='source'?[selection.start,selection.end]:null,
-      expected:selection.kind==='source'?selection.content:null,
-      dx:dx??selection.dx??0,dy:dy??selection.dy??0,content:content??null,plain}});
+      expected:selection.content,
+      dx:dx??selection.dx??0,dy:dy??selection.dy??0,content:content??null,literal_edits:literalEdits??null,plain}});
     if(sessionIdentity(state)!==identity)return toast('The source changed. Select the text again.');
-    const kind=detach?'detach':content!==undefined?'edit':'move';
+    const kind=detach?'detach':isEdit?'edit':'move';
     const selectedRuns=new Set(selection.kind==='object'?state.view.objects.get(id)?.runs:
       selection.baselineRuns||canvas.hits.flatMap(line=>line.runs));
     const unchangedRuns=state.view.pages.flatMap(page=>page.runs).filter(run=>!selectedRuns.has(run));
@@ -305,12 +307,28 @@ function moveText(selection,dx,dy){
   if(!inside(proposed,state.view.pageSizes.get(selection.page)))return toast('Keep the selected text inside the page.');
   return textOperation(selection,{dx:(selection.dx||0)+dx,dy:(selection.dy||0)+dy});
 }
-function editText(selection=state.objectSelection){
+async function editText(selection=state.objectSelection){
   if(!selection||!fresh())return;
-  state.dialog={kind:'text-object',selection:clone(selection),identity:sessionIdentity(state)};
+  const identity=sessionIdentity(state);let textModel=null;
+  try{textModel=await invoke('describe_text_edit',{content:selection.content,document:state.sources[state.project.main]})}catch{}
+  if(identity!==sessionIdentity(state)||!fresh())return;
+  state.dialog={kind:'text-object',selection:clone(selection),identity,literalInputs:[]};
   const simple=typeof selection.plain_text==='string';
   showEditor('Edit selected text',simple?selection.plain_text:selection.content,simple,!simple);
+  if(!simple&&textModel?.runs?.length){
+    state.dialog.literalMode=true;
+    for(const run of textModel.runs){
+      const label=document.createElement('label'),title=document.createElement('span'),input=document.createElement('textarea');
+      title.textContent=run.styles.length?run.styles.join(' / '):'Text';input.value=run.text;input.rows=2;
+      input.setAttribute('aria-label',title.textContent+' '+(run.id+1));label.className='literal-run-field';label.append(title,input);$('literal-fields').append(label);
+      state.dialog.literalInputs.push({id:run.id,initial:run.text,input});
+    }
+    $('literal-fields').classList.remove('hidden');$('edit-text').classList.add('hidden');$('plain-label').classList.add('hidden');$('edit-latex').classList.remove('hidden');
+    $('edit-help').textContent='Formatting, macros and line breaks stay unchanged. Wording changes may reflow the document.';
+    state.dialog.literalInputs[0].input.focus();
+  }
 }
+function literalChanges(context){return context.literalInputs.filter(run=>run.input.value!==run.initial).map(run=>({id:run.id,text:run.input.value}))}
 function showObjectInspector(selection){
   state.objectSelection=selection;
   $('object-selection').classList.toggle('hidden',!selection);
@@ -395,7 +413,11 @@ function startBlockDrag(event,block,el,page){
   const up=()=>{clean();if(changes)patchBlock(changes,block)},cancel=()=>{clean();renderOverlays()};
   el.addEventListener('pointermove',move);el.addEventListener('pointerup',up);el.addEventListener('pointercancel',cancel);
 }
-function showEditor(title,value,plain,locked=false){$('edit-title').textContent=title;$('edit-text').value=value;$('plain').checked=plain;$('plain').disabled=locked;$('edit-dialog').showModal();$('edit-text').focus()}
+function showEditor(title,value,plain,locked=false){
+  $('literal-fields').replaceChildren();$('literal-fields').classList.add('hidden');$('edit-latex').classList.add('hidden');$('edit-text').classList.remove('hidden');$('plain-label').classList.remove('hidden');
+  $('edit-help').textContent='Formatted content opens as LaTeX so its commands are preserved.';
+  $('edit-title').textContent=title;$('edit-text').value=value;$('plain').checked=plain;$('plain').disabled=locked;$('edit-dialog').showModal();$('edit-text').focus();
+}
 function editBlock(block=state.selected){
   if(!block)return;state.dialog={kind:'block',block:{...block},original:state.sources[block.file]};
   const simple=!/[\\{}%]/.test(block.content);showEditor('Edit '+block.id,block.content,simple,!simple);
@@ -481,10 +503,12 @@ editor.addCommand(monaco.KeyMod.CtrlCmd|monaco.KeyCode.KeyZ,()=>undo());
 editor.addCommand(monaco.KeyMod.CtrlCmd|monaco.KeyMod.Shift|monaco.KeyCode.KeyZ,()=>undo(true));
 editor.addCommand(monaco.KeyMod.CtrlCmd|monaco.KeyCode.KeyY,()=>undo(true));
 $('edit-form').onsubmit=async event=>{
-  event.preventDefault();const context=state.dialog,text=$('edit-text').value,plain=$('plain').checked;$('edit-dialog').close();
+  event.preventDefault();const context=state.dialog;if(context?.switching)return;
+  const text=$('edit-text').value,plain=$('plain').checked;$('edit-dialog').close();
   if(context?.kind==='new')return insertBlock({content:text,plain});
   if(context?.kind==='text-object'){
     if(context.identity!==sessionIdentity(state))return toast('The source changed. Reopen the text editor.');
+    if(context.literalMode)return textOperation(context.selection,{literalEdits:literalChanges(context)});
     return textOperation(context.selection,{content:text,plain});
   }
   if(context?.kind==='block'){
@@ -493,6 +517,16 @@ $('edit-form').onsubmit=async event=>{
   }
 };
 $('cancel-edit').onclick=()=>$('edit-dialog').close();
+$('edit-latex').onclick=async()=>{
+  const context=state.dialog;if(!context?.literalMode)return;$('edit-latex').disabled=true;
+  context.switching=true;for(const run of context.literalInputs)run.input.disabled=true;
+  try{
+    const content=await invoke('preview_text_edit',{content:context.selection.content,document:state.sources[state.project.main],edits:literalChanges(context)});
+    if(context!==state.dialog||context.identity!==sessionIdentity(state))throw new StaleCandidate();
+    context.literalMode=false;$('edit-text').value=content;$('edit-text').classList.remove('hidden');$('literal-fields').classList.add('hidden');$('edit-latex').classList.add('hidden');
+    $('plain-label').classList.remove('hidden');$('plain').checked=false;$('plain').disabled=true;$('edit-help').textContent='LaTeX mode: edit commands carefully. Changes are compiled before acceptance.';$('edit-text').focus();
+  }catch(error){toast(message(error))}finally{context.switching=false;for(const run of context.literalInputs)run.input.disabled=false;$('edit-latex').disabled=false}
+};
 $('compile').onclick=()=>compile();$('save').onclick=saveProject;$('undo').onclick=()=>undo();$('redo').onclick=()=>undo(true);$('pin').onclick=pinSelection;
 $('cancel-compile').onclick=cancelCompile;
 $('open').onclick=async()=>{try{const path=await open({multiple:false,filters:[{name:'LaTeX document',extensions:['tex']}]});if(typeof path==='string')await openProject(path)}catch(error){toast(message(error))}};

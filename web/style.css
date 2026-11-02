@@ -20,3 +20,5 @@ button:disabled{cursor:default}#selection-hint{overflow:hidden;text-overflow:ell
 @media(max-width:1300px){.files{width:140px}.inspector{width:205px;padding:18px 12px}.source{min-width:280px;width:35%}header{gap:7px;padding:0 14px}#status{max-width:160px;overflow:hidden;white-space:nowrap}#project-name{max-width:130px}.brand{margin-right:6px}}
 
 #diagnostics .diagnostic{display:block;text-align:left;padding:6px 10px;margin:4px 0;white-space:normal}#diagnostics .error{color:#993b25}#diagnostics .warning{color:#805f1c}
+
+#literal-fields{border:0;padding:0;max-height:50vh;overflow:auto}.literal-run-field{display:block;margin:14px 0}.literal-run-field span{display:block;font-size:11px;margin-bottom:5px}.literal-run-field textarea{display:block;width:100%;min-height:55px;resize:vertical;font:14px/1.5 Segoe UI,sans-serif}#edit-latex{margin-top:10px}

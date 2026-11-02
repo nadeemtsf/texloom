@@ -30,6 +30,38 @@ pub struct ResolvedSelection {
 mod tests {
     use super::*;
     #[test]
+    fn protected_object_edits_preserve_every_command_and_unrelated_source_byte() {
+        let source="\\documentclass{article}\r\n\\usepackage{texloom-objects}\r\n\\begin{document}\r\nBefore\r\n\\TexloomObject{name}{0}{0}{A \\textbf{B} C\n}\r\nAfter\r\n\\end{document}";
+        let request: ObjectEditRequest=serde_json::from_value(json!({"sources":{"main.tex":source},"main":"main.tex","file":"main.tex","action":"edit","id":"name","expected":"A \\textbf{B} C\n","literal_edits":[{"id":1,"text":"D&E"}]})).unwrap();
+        let plan = plan_object_edit(request).unwrap();
+        assert_eq!(
+            plan.sources["main.tex"],
+            source.replace("\\textbf{B}", "\\textbf{D\\&E}")
+        );
+    }
+    #[test]
+    fn protected_models_refuse_stale_content_and_keep_macro_calls_locked() {
+        let document="\\documentclass{article}\n\\newcommand{\\Person}{Name}\n\\begin{document}Text\\end{document}";
+        let model = describe_text_edit("Hello \\Person \\textbf{world}", document).unwrap();
+        assert_eq!(model.runs.len(), 2);
+        assert!(model.protected.contains(&"\\Person".to_string()));
+        assert_eq!(
+            preview_text_edit(
+                "A \\textbf{B}",
+                document,
+                &[LiteralEditRequest {
+                    id: 1,
+                    text: "C".into()
+                }]
+            )
+            .unwrap(),
+            "A \\textbf{C}"
+        );
+        let source = format!("{document}\\TexloomObject{{name}}{{0}}{{0}}{{A}}");
+        let request: ObjectEditRequest=serde_json::from_value(json!({"sources":{"main.tex":source},"main":"main.tex","file":"main.tex","action":"edit","id":"name","expected":"old","literal_edits":[{"id":0,"text":"B"}]})).unwrap();
+        assert!(plan_object_edit(request).err().unwrap().contains("changed"));
+    }
+    #[test]
     fn visual_ranges_use_the_editor_projection_without_rewriting_windows_source() {
         let source="\u{feff}\\documentclass{article}\r\n\\begin{document}\r\nBefore.\r\n\r\nDr. Example\\\\[2pt]\r\nDepartment\r\n\\end{document}\r\n";
         let projection = texloom_core::document::projection::EditorProjection::new(source);
@@ -50,6 +82,7 @@ mod tests {
             dy: Some(0.0),
             content: None,
             plain: false,
+            literal_edits: None,
         };
         let plan = plan_object_edit(request).unwrap();
         let result = &plan.sources["main.tex"];
@@ -84,6 +117,57 @@ pub struct ObjectEditRequest {
     pub content: Option<String>,
     #[serde(default)]
     pub plain: bool,
+    #[serde(default)]
+    pub literal_edits: Option<Vec<LiteralEditRequest>>,
+}
+
+#[derive(Deserialize)]
+pub struct LiteralEditRequest {
+    pub id: usize,
+    pub text: String,
+}
+#[derive(Serialize)]
+pub struct LiteralRunView {
+    pub id: usize,
+    pub text: String,
+    pub styles: Vec<String>,
+}
+#[derive(Serialize)]
+pub struct TextEditModel {
+    pub runs: Vec<LiteralRunView>,
+    pub protected: Vec<String>,
+}
+pub fn describe_text_edit(content: &str, document: &str) -> Result<TextEditModel> {
+    let model = texloom_core::literal_text::describe(content, document)?;
+    Ok(TextEditModel {
+        runs: model
+            .runs
+            .into_iter()
+            .enumerate()
+            .map(|(id, run)| LiteralRunView {
+                id,
+                text: run.text,
+                styles: run.styles,
+            })
+            .collect(),
+        protected: model.protected,
+    })
+}
+fn literal_edits(edits: &[LiteralEditRequest]) -> Vec<texloom_core::literal_text::LiteralEdit> {
+    edits
+        .iter()
+        .map(|e| texloom_core::literal_text::LiteralEdit {
+            id: e.id,
+            text: e.text.clone(),
+        })
+        .collect()
+}
+pub fn preview_text_edit(
+    content: &str,
+    document: &str,
+    edits: &[LiteralEditRequest],
+) -> Result<String> {
+    texloom_core::literal_text::apply(content, content, document, &literal_edits(edits))
 }
 
 #[derive(Serialize)]
@@ -125,7 +209,26 @@ pub fn plan_object_edit(mut request: ObjectEditRequest) -> Result<ObjectPlan> {
                 request.dy.unwrap_or(0.0),
                 document,
             )?;
-            if let Some(value) = request.content.as_deref() {
+            if let Some(edits) = request.literal_edits.as_deref() {
+                let content = request
+                    .expected
+                    .as_deref()
+                    .ok_or("Missing expected content")?;
+                let updated = texloom_core::literal_text::apply(
+                    content,
+                    content,
+                    document,
+                    &literal_edits(edits),
+                )?;
+                texloom_core::update_text_object(
+                    &wrapped,
+                    &request.id,
+                    None,
+                    None,
+                    Some(&updated),
+                    document,
+                )?
+            } else if let Some(value) = request.content.as_deref() {
                 let object = texloom_core::text_objects(&wrapped)?
                     .into_iter()
                     .find(|o| o.id == request.id)
@@ -156,27 +259,46 @@ pub fn plan_object_edit(mut request: ObjectEditRequest) -> Result<ObjectPlan> {
             document,
         )?,
         "edit" => {
-            let value = request
-                .content
-                .as_deref()
-                .ok_or("Enter the object's text")?;
-            let content = if request.plain {
+            if let Some(edits) = request.literal_edits.as_deref() {
                 let object = texloom_core::text_objects(source)?
                     .into_iter()
                     .find(|o| o.id == request.id)
                     .ok_or("Object is missing")?;
-                texloom_core::replace_plain_text(&object.content, value, document)?
+                let updated = texloom_core::literal_text::apply(
+                    &object.content,
+                    request
+                        .expected
+                        .as_deref()
+                        .ok_or("Missing expected content")?,
+                    document,
+                    &literal_edits(edits),
+                )?;
+                let mut source = source.clone();
+                source.replace_range(object.arguments[3].clone(), &updated);
+                source
             } else {
-                value.into()
-            };
-            texloom_core::update_text_object(
-                source,
-                &request.id,
-                None,
-                None,
-                Some(&content),
-                document,
-            )?
+                let value = request
+                    .content
+                    .as_deref()
+                    .ok_or("Enter the object's text")?;
+                let content = if request.plain {
+                    let object = texloom_core::text_objects(source)?
+                        .into_iter()
+                        .find(|o| o.id == request.id)
+                        .ok_or("Object is missing")?;
+                    texloom_core::replace_plain_text(&object.content, value, document)?
+                } else {
+                    value.into()
+                };
+                texloom_core::update_text_object(
+                    source,
+                    &request.id,
+                    None,
+                    None,
+                    Some(&content),
+                    document,
+                )?
+            }
         }
         "detach" => texloom_core::unwrap_text_object(source, &request.id)?,
         _ => return Err("Unsupported text-object operation".into()),

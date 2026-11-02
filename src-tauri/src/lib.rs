@@ -8,6 +8,19 @@ use std::{collections::BTreeMap, sync::Arc};
 use tauri::{Manager, State};
 
 #[tauri::command]
+fn describe_text_edit(content: String, document: String) -> Result<service::TextEditModel, String> {
+    service::describe_text_edit(&content, &document)
+}
+#[tauri::command]
+fn preview_text_edit(
+    content: String,
+    document: String,
+    edits: Vec<service::LiteralEditRequest>,
+) -> Result<String, String> {
+    service::preview_text_edit(&content, &document, &edits)
+}
+
+#[tauri::command]
 fn open_project(state: State<'_, Arc<Backend>>, path: Option<String>) -> Result<Project, String> {
     state.open_project(path)
 }
@@ -264,6 +277,8 @@ pub fn run() {
             source_from_pdf,
             pdf_from_source,
             plan_text_object,
+            describe_text_edit,
+            preview_text_edit,
             resolve_text_selection
         ])
         .run(tauri::generate_context!())

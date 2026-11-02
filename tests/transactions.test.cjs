@@ -8,7 +8,7 @@ async function setup(){
  const selectionProof=await import('../web/core/selection-proof.js');
  const {DocumentClient,editorText}=await import('../web/core/document-client.js');
  const elements=new Map();
- function element(id){if(!elements.has(id))elements.set(id,{value:'',checked:false,disabled:false,open:false,textContent:'',classList:{add(){},remove(){},toggle(){}},setAttribute(){},replaceChildren(){},append(){},addEventListener(){}});return elements.get(id)}
+ function element(id){if(!elements.has(id))elements.set(id,{value:'',checked:false,disabled:false,open:false,textContent:'',classList:{add(){},remove(){},toggle(){}},setAttribute(){},replaceChildren(){},append(){},addEventListener(){},focus(){},showModal(){this.open=true},close(){this.open=false}});return elements.get(id)}
  const model={setValue(){},setEOL(){},getValue:()=>'',getOffsetAt:p=>p.column-1};
  const composition={};
  const editor={onDidChangeModelContent(fn){control.onEdit=fn},onDidChangeCursorPosition(){},onDidChangeCursorSelection(fn){control.onSelection=fn},addCommand(){},
@@ -207,4 +207,31 @@ test('an unsupported first SyncTeX hint retries bounded samples before granting 
 test('duplicate failed source hints do not trigger repeated private builds',async()=>{
  const t=await probeSetup();let builds=0;t.control.compile=async()=>{builds++;return {ok:true,build_id:'probe'}};t.control.prove=()=>{throw new Error('Pixel identity failed')};
  await assert.rejects(t.run("resolveSourceSelection({buildId:'last-good',page:1,points:[],hits:[]})"),/Pixel identity failed/);assert.equal(builds,1);assert.equal(t.native.pending.size,0);
+});
+
+async function literalSetup(){
+ const t=await setup();t.control.describeText=async()=>({runs:[{id:0,text:'An',styles:[]},{id:1,text:'office',styles:['Bold']}],protected:['\\textbf']});
+ await t.run("editText({kind:'source',file:'main.tex',content:'An \\\\textbf{office}',plain_text:null,start:0,end:18})");return t;
+}
+test('the protected editor submits only changed run IDs and plain text',async()=>{
+ const t=await literalSetup();assert.equal(t.run('state.dialog.literalMode'),true);
+ t.run("state.dialog.literalInputs[1].input.value='archive & files';textOperation=async(_selection,options)=>{self.literalSubmission=options;return true}");
+ await t.run("$('edit-form').onsubmit({preventDefault(){}})");
+ const value=t.run('self.literalSubmission');assert.equal(value.literalEdits.length,1);assert.equal(value.literalEdits[0].id,1);assert.equal(value.literalEdits[0].text,'archive & files');assert.equal(value.content,undefined);
+});
+test('switching to LaTeX retains protected field edits through the native preview',async()=>{
+ const t=await literalSetup();let edits;t.control.previewText=async args=>{edits=args.edits;return 'An \\textbf{archive}'};
+ t.run("state.dialog.literalInputs[1].input.value='archive'");await t.run("$('edit-latex').onclick()");
+ assert.equal(edits[0].id,1);assert.equal(t.run('state.dialog.literalMode'),false);assert.equal(t.run("$('edit-text').value"),'An \\textbf{archive}');
+});
+test('a stale text model cannot open a dialog against a newer revision',async()=>{
+ const t=await setup();let finish;t.control.describeText=()=>new Promise(r=>finish=r);
+ const pending=t.run("editText({kind:'source',file:'main.tex',content:'Original source',plain_text:null})");await new Promise(setImmediate);t.run('state.revision++');finish({runs:[]});await pending;
+ assert.equal(t.run('state.dialog'),null);
+});
+test('mode switching blocks submission until edits are transferred',async()=>{
+ const t=await literalSetup();let finish;t.control.previewText=()=>new Promise(r=>finish=r);const pending=t.run("$('edit-latex').onclick()");await new Promise(setImmediate);
+ assert.equal(t.run('state.dialog.switching'),true);assert.equal(t.run('state.dialog.literalInputs[0].input.disabled'),true);
+ await t.run("$('edit-form').onsubmit({preventDefault(){}})");assert.equal(t.run("$('edit-dialog').open"),true);
+ finish('An \\textbf{office}');await pending;assert.equal(t.run('state.dialog.switching'),false);
 });
