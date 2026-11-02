@@ -7,6 +7,8 @@ class NativeDocumentDouble {
   can_undo:!!this.history.length,can_redo:!!this.redo.length});}
  record(){this.history.push(this.snapshot());this.redo=[];}
  async invoke(name,args){
+  if(name==='resolve_text_selection')return this.control.resolve(args);
+  if(name==='plan_text_object')return this.control.plan(args.request);
   if(name==='mark_clean_exit'){this.control.cleanExits=(this.control.cleanExits??0)+1;return;}
   if(name==='verify_build')return this.control.verify?.(args);
   if(name==='cancel_compilation')return;

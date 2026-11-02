@@ -1,4 +1,4 @@
-import {intersects,normalizedRectangle,union,linesForSourceRectangles} from './geometry.js';
+import {intersects,normalizedRectangle} from './geometry.js';
 
 /** DOM gestures are isolated from source edits and compilation. */
 export class CanvasController {
@@ -11,7 +11,7 @@ export class CanvasController {
   }
   clear(){this.cancelGesture?.();this.pending++;this.selection=null;this.hits=[];this.drawFrame();this.onSelected(null)}
   bind(view) {
-    this.cancelGesture?.();const sameBuild=this.view?.result.build_id===view.result.build_id;this.view=view;this.pending++;
+    this.cancelGesture?.();this.view=view;this.pending++;this.hits=[];
     for(const {shell,lines,number} of view.pages){
       for(const line of lines){
         const hit=document.createElement('button');hit.type='button';hit.className='line-hit';hit.tabIndex=-1;
@@ -25,27 +25,28 @@ export class CanvasController {
     if(this.selection?.kind==='object'){
       const object=(view.result.objects||[]).find(o=>o.id===this.selection.id),bounds=view.objects.get(this.selection.id);
       this.selection=object&&bounds?{...object,...bounds,kind:'object'}:null;
-    }else if(!sameBuild)this.selection=null;
+    }else this.selection=null;
     this.drawFrame();this.onSelected(this.selection);
   }
   position(el,r,scale){Object.assign(el.style,{left:r.x*scale+'px',top:r.y*scale+'px',width:Math.max(3,r.width*scale)+'px',height:Math.max(8,r.height*scale)+'px'})}
   fresh(){const s=this.getSession();return !!this.view&&s.result?.verification_eligible!==false&&!s.busy&&s.revision===s.compiled&&!s.client?.pending&&!s.client?.error&&!s.mutating&&!s.composing&&!s.opening}
   async selectHits(hits,page,edit=false){
+    if(this.getSession().mode==='read')return;
     if(!this.fresh())return this.notify('Compile the current source before selecting layout objects. Read text remains available.');
+    const reason=this.view.pages.find(p=>p.number===page)?.selectionReason;if(reason)return this.notify(reason);
     hits=[...new Map(hits.filter(h=>h.page===page).map(h=>[h.id,h])).values()];
     if(!hits.length||hits.length>64)return this.notify('Select between one and 64 adjacent text lines.');
     const serial=++this.pending,session=this.getSession(),buildId=session.result.build_id,revision=session.revision;
     this.notify('Mapping selected text to its source…');
     try{
-      const resolved=await this.resolve({buildId,page,points:hits.map(h=>({x:h.x+Math.min(h.width/2,15),y:h.baseline-h.height*0.35}))});
+      const resolved=await this.resolve({buildId,page,hits,points:hits.map(h=>({x:h.x+Math.min(h.width/2,15),y:h.baseline-h.height*0.35}))});
       const now=this.getSession();
-      if(serial!==this.pending||revision!==now.revision||now.result?.build_id!==buildId)return;
+      if(serial!==this.pending||revision!==now.revision||now.result?.build_id!==buildId||now.mode==='read')return;
       if(now.sources[resolved.file]!==resolved.expected_source)throw new Error('The source changed. Select the text again.');
-      const pageLines=this.view.pages.find(p=>p.number===page)?.lines||[];
-      const mapped=linesForSourceRectangles(pageLines,resolved.rectangles,page);
-      if(!mapped.length)throw new Error('The complete source unit could not be matched to visible text. Select it in the source editor.');
-      const bounds=union(mapped);
-      this.hits=mapped;this.selection={...resolved,...bounds,page,kind:'source',unitKind:resolved.kind};
+      const proof=resolved.proof;
+      if(proof?.schema!==1||proof.build_id!==buildId||proof.page!==page)throw new Error('This selection has no current layout proof.');
+      const mapped=proof.lines;
+      this.hits=mapped;this.selection={...resolved,x:proof.x,y:proof.y,width:proof.width,height:proof.height,baselineRuns:proof.runs,page,kind:'source',unitKind:resolved.kind};
       this.drawFrame();this.onSelected(this.selection);
       this.notify(`Selected ${resolved.kind}${mapped.length>1?' · '+mapped.length+' visible lines':''}. Drag its frame or double-click to edit.`);
       if(edit)this.edit(this.selection);
@@ -53,14 +54,16 @@ export class CanvasController {
   }
   selectObject(id){
     const object=(this.view?.result.objects||[]).find(o=>o.id===id),bounds=this.view?.objects.get(id);
-    if(!object||!bounds)return;
+    if(!object||!bounds||!this.fresh()||this.getSession().mode==='read')return;
+    const reason=this.view.pages.find(p=>p.number===bounds.page)?.selectionReason;if(reason)return this.notify(reason);
+    if(bounds.instances!==1||bounds.pages.size!==1)return this.notify('This source object has multiple PDF instances. Use source editing.');
     this.pending++;this.hits=[];this.selection={...object,...bounds,kind:'object'};this.drawFrame();this.onSelected(this.selection);
   }
   drawFrame(){
     document.querySelectorAll('.source-selection-frame').forEach(el=>el.remove());
     if(!this.view)return;
     for(const [id,bounds] of this.view.objects){
-      const page=this.view.pages.find(p=>p.number===bounds.page);if(!page||bounds.pages.size!==1)continue;
+      const page=this.view.pages.find(p=>p.number===bounds.page);if(!page||bounds.pages.size!==1||bounds.instances!==1||page.selectionReason)continue;
       let hit=[...page.shell.querySelectorAll('.text-object-hit')].find(el=>el.dataset.object===id);
       if(!hit){hit=document.createElement('button');hit.type='button';hit.dataset.object=id;page.shell.append(hit)}
       hit.className='text-object-hit';hit.replaceChildren();

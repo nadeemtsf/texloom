@@ -8,8 +8,8 @@ Primary repository: https://github.com/nadeemtsf/texloom.
 | P0 baseline | Reconciled | Local checkout matched verified remote commit 1ee59e3 before P2 |
 | P1 mapping/movement | Movement experiment passed; mapping decisions open | 24 positive cases over three engines, six oracle refusals; provenance/parser/extended coordinates pending |
 | P2 source/history | Core and desktop integration implemented; native input acceptance open | 51 core, 5 native service, 31 frontend/PDF tests; production build/sample compile passed; native input blocked by foreground capture |
-| P3 compilation | Build service implemented; automated acceptance passed | 120 local tests; all 24 expected three-engine corpus outcomes passed at 3e40b99; Windows packaging and movement proof passed there; final revision CI recorded in PR #3; limited direct recipe, native P3 UI unverified |
-| P4 selection | Pending native acceptance | Correct-or-refused mapping and complete mouse group selection |
+| P3 compilation | Build service implemented; automated acceptance passed | 120 local tests; all 24 expected three-engine corpus outcomes, Windows packaging and movement proof passed at 1ae8c75; exact CI recorded in PR #3; limited direct recipe, native P3 UI unverified |
+| P4 selection | Private zero-offset probe implemented; real-engine and native acceptance open | 51 core, 15 native and 52 frontend tests passed; source/receipt guards, actual glyph frame, repeated-instance refusal and whole-page identity checks; see LAYOUT-SELECTION.md |
 | P5 text/spacing | Pending | Protected text editing and spacing adapters |
 | P6 displacement | Pending | Independent runtime verification and complete native signature workflow |
 | P7 hardening | Pending | Recovery, external conflicts, performance and compatibility |

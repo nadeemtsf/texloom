@@ -14,6 +14,7 @@ import {CanvasController} from './core/canvas-controller.js';
 import {stageCandidate,sessionIdentity,StaleCandidate,CompilationFailure,compileDiagnostic} from './core/transactions.js';
 import {inside,intersects} from './core/geometry.js';
 import {DocumentClient,editorText} from './core/document-client.js';
+import {validateSelectionProbe} from './core/selection-proof.js';
 
 self.MonacoEnvironment={getWorker:()=>new EditorWorker()};
 pdfjs.GlobalWorkerOptions.workerSrc=pdfWorkerURL;
@@ -50,7 +51,7 @@ const redoContext=editor.createContextKey('texloomCanRedo',false);
 const surfaceElements={pages:$('pages'),scroller:$('preview-scroll'),count:$('page-count'),empty:$('empty')};
 const canvas=new CanvasController({
   getSession:()=>state,
-  resolve:args=>invoke('resolve_text_selection',args),
+  resolve:args=>resolveSourceSelection(args),
   move:(selection,dx,dy)=>moveText(selection,dx,dy),
   edit:selection=>editText(selection),
   selected:selection=>showObjectInspector(selection),
@@ -171,6 +172,44 @@ async function saveProject(){
   catch(error){toast(message(error))}
 }
 function compileCandidate(){return state.client.compile();}
+const selectionProofs=new WeakMap();
+async function resolveSourceSelection({buildId,page,points,hits}){
+  if(!fresh()||buildId!==state.result.build_id)throw new StaleCandidate();
+  const identity=sessionIdentity(state),baseline=state.view,client=state.client;
+  let token=null,prepared=null;
+  state.busy=true;state.cancelRequested=false;clearTimeout(state.compileTimer);updateControls();
+  try{
+    const resolved=await invoke('resolve_text_selection',{projectId:state.project.id,revision:state.revision,buildId,page,points});
+    if(resolved.schema!==1||resolved.build_id!==buildId||resolved.revision!==state.revision)throw new StaleCandidate();
+    if(sessionIdentity(state)!==identity||state.view!==baseline)throw new StaleCandidate();
+    const key=JSON.stringify([resolved.file,resolved.start,resolved.end]);
+    const cached=selectionProofs.get(baseline)?.get(key);
+    if(cached&&hits.every(h=>h.runs.every(r=>cached.runs.includes(r)))){
+      await client.verify(buildId);
+      if(sessionIdentity(state)!==identity||state.view!==baseline)throw new StaleCandidate();
+      return {...resolved,proof:cached};
+    }
+    const id='selection-'+crypto.randomUUID().slice(0,8);
+    const plan=await invoke('plan_text_object',{request:{sources:clone(state.sources),main:state.project.main,file:resolved.file,
+      action:'wrap',id,selection:[resolved.start,resolved.end],expected:resolved.content,dx:0,dy:0}});
+    if(sessionIdentity(state)!==identity)throw new StaleCandidate();
+    const candidate=await client.prepare(plan.sources,buildId);token=candidate.token;
+    const staged=await stageCandidate({sources:plan.sources,revision:candidate.revision,identity,getIdentity:()=>sessionIdentity(state),
+      compile:()=>client.compile(token),prepare:result=>preparePDFView(pdfjs,result,{width:$('preview-scroll').clientWidth,zoom:baseline.scale,mode:state.mode}),
+      requireVerified:true,verify:result=>client.verify(result.build_id)});
+    prepared=staged.prepared;
+    const proof=validateSelectionProbe(baseline,prepared,id,hits,page);
+    await client.verify(buildId);
+    if(sessionIdentity(state)!==identity||state.view!==baseline)throw new StaleCandidate();
+    let cache=selectionProofs.get(baseline);if(!cache){cache=new Map();selectionProofs.set(baseline,cache)}
+    if(cache.size>=64)cache.delete(cache.keys().next().value);cache.set(key,proof);
+    return {...resolved,proof};
+  }finally{
+    if(prepared?.pdf)await prepared.pdf.destroy().catch(()=>{});
+    if(token)await client.discard(token).catch(()=>{});
+    finishJob();
+  }
+}
 function prepareResult(result){
   return preparePDFView(pdfjs,result,{width:$('preview-scroll').clientWidth,zoom:state.zoom,mode:state.mode});
 }
@@ -244,7 +283,7 @@ async function textOperation(selection,{dx,dy,content,plain=false,detach=false}=
     if(sessionIdentity(state)!==identity)return toast('The source changed. Select the text again.');
     const kind=detach?'detach':content!==undefined?'edit':'move';
     const selectedRuns=new Set(selection.kind==='object'?state.view.objects.get(id)?.runs:
-      canvas.hits.flatMap(line=>line.runs));
+      selection.baselineRuns||canvas.hits.flatMap(line=>line.runs));
     const unchangedRuns=state.view.pages.flatMap(page=>page.runs).filter(run=>!selectedRuns.has(run));
     const ok=await commitSources(plan.sources,{file:plan.file,expectedIdentity:identity,
       policy:{id,kind,unchangedRuns:kind==='move'?unchangedRuns:null}});

@@ -34,10 +34,12 @@ export async function prepareLoadedPDF(pdfjs,pdf,result,{width,zoom=0,mode='sele
     for(const id of geometry.unclosed)unclosed.add(id);
     for(const [id,bounds] of geometry.objects){
       const existing=objects.get(id);
-      if(existing){existing.pages.add(n);Object.assign(existing,union([existing,bounds]));existing.runs.push(...bounds.runs)}
+      if(existing){existing.pages.add(n);Object.assign(existing,union([existing,bounds]));existing.runs.push(...bounds.runs);existing.instances+=bounds.instances}
       else objects.set(id,{...bounds,pages:new Set([n])});
     }
-    pages.push({number:n,shell,lines:geometry.lines,runs:geometry.runs});fragment.append(shell);
+    const selectionReason=base.rotation!==0||page.view[0]!==0||page.view[1]!==0||page.userUnit!==1?
+      'Visual selection for rotated, cropped or scaled PDF pages is not verified. Read text and source editing remain available.':null;
+    pages.push({number:n,shell,lines:geometry.lines,runs:geometry.runs,selectionReason});fragment.append(shell);
   }
   if(signal?.aborted)throw new Error('PDF rendering was superseded.');
   return {pdf,result,fragment,pages,objects,unclosed,pageSizes,pageCount:pdf.numPages,scale,mode};

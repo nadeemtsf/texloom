@@ -31,6 +31,7 @@ jobs:
         run: |
           cargo test --locked -p texloom-core
           cargo build --locked -p texloom-core --example proof_candidate
+          cargo build --locked -p texloom-core --example selection_hint
       - name: Install independent development PDF inspector
         run: python3 -m pip install --disable-pip-version-check -r scripts/proof/requirements.txt
       - name: Run JavaScript and real-PDF regression checks
@@ -43,11 +44,15 @@ jobs:
           sudo apt-get install -y --no-install-recommends texlive-latex-base texlive-latex-recommended texlive-luatex texlive-xetex
       - name: Run real-engine experiment
         run: node scripts/movement-proof.mjs
+      - name: Verify real PDF selection and SyncTeX hints
+        run: node scripts/selection-proof.mjs
       - name: Preserve experiment evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: visual-editing-proof
-          path: artifacts/proof/
+          path: |
+            artifacts/proof/
+            artifacts/selection/
           retention-days: 7
           if-no-files-found: warn

@@ -192,13 +192,15 @@ fn plan_text_object(request: ObjectEditRequest) -> Result<ObjectPlan, String> {
 #[tauri::command]
 async fn resolve_text_selection(
     state: State<'_, Arc<Backend>>,
+    project_id: String,
+    revision: u64,
     build_id: String,
     page: usize,
     points: Vec<SelectionPoint>,
 ) -> Result<ResolvedSelection, String> {
     let backend = state.inner().clone();
     tauri::async_runtime::spawn_blocking(move || {
-        backend.resolve_text_selection(&build_id, page, points)
+        backend.resolve_text_selection(&project_id, revision, &build_id, page, points)
     })
     .await
     .map_err(|e| e.to_string())?

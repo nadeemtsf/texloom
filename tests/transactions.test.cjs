@@ -5,6 +5,7 @@ const vm=require('node:vm');
 
 async function setup(){
  const transactions=await import('../web/core/transactions.js');
+ const selectionProof=await import('../web/core/selection-proof.js');
  const {DocumentClient,editorText}=await import('../web/core/document-client.js');
  const elements=new Map();
  function element(id){if(!elements.has(id))elements.set(id,{value:'',checked:false,disabled:false,open:false,textContent:'',classList:{add(){},remove(){},toggle(){}},setAttribute(){},replaceChildren(){},append(){},addEventListener(){}});return elements.get(id)}
@@ -16,7 +17,7 @@ async function setup(){
  const control={compile:async()=>({ok:true,log:'',seconds:0,engine:'test',build_id:'new-pdf',blocks:[],objects:[]}),prepare:async result=>({result,pdf:{destroy:async()=>{}},pageCount:1,objects:new Map(),unclosed:new Set(),pageSizes:new Map()})};
  const {NativeDocumentDouble}=require('./native-document-double.cjs');const native=new NativeDocumentDouble(control);
  const context=vm.createContext({
-  ...transactions,DocumentClient,editorText,initialSnapshot:native.snapshot(),inside:()=>true,self:{},EditorWorker:class{},pdfWorkerURL:'test-worker',
+  ...transactions,...selectionProof,validateSelectionProbe:(...args)=>control.prove?control.prove(...args):selectionProof.validateSelectionProbe(...args),DocumentClient,editorText,initialSnapshot:native.snapshot(),inside:()=>true,self:{},EditorWorker:class{},pdfWorkerURL:'test-worker',
   CanvasController:class{clear(){}bind(){}selectObject(){}},
   monaco:{languages:{register(){},setMonarchTokensProvider(){},setLanguageConfiguration(){}},editor:{defineTheme(){},createModel:()=>model,create:()=>editor,EndOfLineSequence:{LF:0}},KeyMod:{CtrlCmd:1,Shift:2},KeyCode:{KeyS:1,Enter:2,KeyZ:3,KeyY:4}},
   pdfjs:{GlobalWorkerOptions:{}},structuredClone,crypto:require('node:crypto').webcrypto,
@@ -165,4 +166,36 @@ test('superseded auto builds wait for idle typing instead of restarting on each 
  finish({ok:true,build_id:'old-pdf'});await old;await new Promise(r=>setTimeout(r,30));
  assert.equal(calls,1);assert.equal(t.run('state.busy'),false);assert.equal(t.run('state.result.build_id'),'last-good');
  t.run("clearTimeout(state.compileTimer);$('auto').checked=false");
+});
+
+async function probeSetup(){
+ const t=await setup();t.control.resolve=async()=>({schema:1,build_id:'last-good',revision:0,file:'main.tex',expected_source:'Original source',content:'Original source',start:0,end:15,kind:'paragraph'});
+ t.control.plan=async()=>({sources:{'main.tex':'Private probe','studio.sty':'Style source'},file:'main.tex'});
+ t.control.prove=()=>({schema:1,build_id:'last-good',page:1,x:20,y:30,width:100,height:12,runs:[],lines:[]});
+ return t;
+}
+test('selection probing never commits canonical source, history or the displayed PDF',async()=>{
+ const t=await probeSetup();let finish,destroyed=false;t.control.prepare=()=>new Promise(r=>finish=r);
+ const pending=t.run("resolveSourceSelection({buildId:'last-good',page:1,points:[],hits:[]})");await new Promise(setImmediate);
+ assert.equal(t.run("state.sources['main.tex']"),'Original source');assert.equal(t.native.history.length,0);assert.equal(t.run('state.result.build_id'),'last-good');
+ finish({pdf:{destroy:async()=>{destroyed=true}}});const result=await pending;
+ assert.equal(result.proof.schema,1);assert.equal(destroyed,true);assert.equal(t.native.pending.size,0);assert.equal(t.native.history.length,0);assert.equal(t.run('state.busy'),false);
+});
+test('a selection proof failure destroys the private PDF and discards its source token',async()=>{
+ const t=await probeSetup();let destroyed=false;t.control.prepare=async()=>({pdf:{destroy:async()=>{destroyed=true}}});t.control.prove=()=>{throw new Error('Wrong source occurrence')};
+ await assert.rejects(t.run("resolveSourceSelection({buildId:'last-good',page:1,points:[],hits:[]})"),/Wrong source occurrence/);
+ assert.equal(destroyed,true);assert.equal(t.native.pending.size,0);assert.equal(t.native.history.length,0);assert.equal(t.run('state.result.build_id'),'last-good');
+});
+test('cancelling while the selection PDF is prepared cannot grant a selection',async()=>{
+ const t=await probeSetup();let finish,destroyed=false;t.control.prepare=()=>new Promise(r=>finish=r);
+ const pending=t.run("resolveSourceSelection({buildId:'last-good',page:1,points:[],hits:[]})");await new Promise(setImmediate);await t.run('cancelCompile()');
+ finish({pdf:{destroy:async()=>{destroyed=true}}});await assert.rejects(pending,/source changed/);
+ assert.equal(destroyed,true);assert.equal(t.native.pending.size,0);assert.equal(t.native.history.length,0);
+});
+test('a cached selection proof still checks baseline dependencies and avoids another compiler',async()=>{
+ const t=await probeSetup();let builds=0;t.control.compile=async()=>{builds++;return {ok:true,build_id:'probe'}};
+ await t.run("resolveSourceSelection({buildId:'last-good',page:1,points:[],hits:[]})");
+ await t.run("resolveSourceSelection({buildId:'last-good',page:1,points:[],hits:[]})");assert.equal(builds,1);
+ t.control.verify=async()=>{throw new Error('Changed asset')};
+ await assert.rejects(t.run("resolveSourceSelection({buildId:'last-good',page:1,points:[],hits:[]})"),/Changed asset/);assert.equal(builds,1);
 });
