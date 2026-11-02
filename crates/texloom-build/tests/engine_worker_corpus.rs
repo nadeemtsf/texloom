@@ -54,7 +54,7 @@ fn marked_content_corpus_from_real_tex_engines() {
             let inspect = |variant: &str, marker: Option<&str>| {
                 let pdf = base.join(variant).join("main.pdf");
                 let sha = Fingerprint::file(&pdf).unwrap().sha256;
-                worker.inspect(&pdf, &sha, marker, &cancel)
+                worker.inspect(&pdf, &sha, marker, &cancel).map_err(|reason|format!("{engine}/{id}/{variant}: {reason}"))
             };
             let original = inspect("baseline", None).unwrap();
             let zero = inspect("zero", None).unwrap();
