@@ -199,3 +199,12 @@ test('a cached selection proof still checks baseline dependencies and avoids ano
  t.control.verify=async()=>{throw new Error('Changed asset')};
  await assert.rejects(t.run("resolveSourceSelection({buildId:'last-good',page:1,points:[],hits:[]})"),/Changed asset/);assert.equal(builds,1);
 });
+
+test('an unsupported first SyncTeX hint retries bounded samples before granting a proof',async()=>{
+ const t=await probeSetup();let hints=0;t.control.resolve=async()=>{if(++hints===1)throw new Error('Structural source');return {schema:1,build_id:'last-good',revision:0,file:'main.tex',expected_source:'Original source',content:'Original source',start:0,end:15,kind:'paragraph'}};
+ const result=await t.run("resolveSourceSelection({buildId:'last-good',page:1,points:[],hits:[]})");assert.equal(result.proof.schema,1);assert.equal(hints,2);assert.equal(t.native.history.length,0);
+});
+test('duplicate failed source hints do not trigger repeated private builds',async()=>{
+ const t=await probeSetup();let builds=0;t.control.compile=async()=>{builds++;return {ok:true,build_id:'probe'}};t.control.prove=()=>{throw new Error('Pixel identity failed')};
+ await assert.rejects(t.run("resolveSourceSelection({buildId:'last-good',page:1,points:[],hits:[]})"),/Pixel identity failed/);assert.equal(builds,1);assert.equal(t.native.pending.size,0);
+});

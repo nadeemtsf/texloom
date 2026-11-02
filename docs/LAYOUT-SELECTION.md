@@ -2,7 +2,7 @@
 
 Source remains authoritative. A SyncTeX hit is a proposal, not permission to move text. Selection now follows this protocol:
 
-1. Native code checks the project, acknowledged revision, eligible build and dependency receipt before and after mapping. It resolves compatible contiguous source units and projects byte ranges through the same BOM/CRLF/UTF-16 mapping as Monaco.
+1. Native code checks the project, acknowledged revision, eligible build and dependency receipt before and after mapping. It tries at most three bounded positions within the clicked glyph lines and resolves compatible contiguous source units and projects byte ranges through the same BOM/CRLF/UTF-16 mapping as Monaco.
 2. A private candidate wraps that source with a new movement marker at zero displacement. No canonical source, history or displayed PDF is changed.
 3. The candidate compiles to convergence and renders offscreen. The runtime compares every page's text/geometry and every canvas pixel with the baseline at the same scale. It checks page geometry, exact marker occurrence count, complete single-page output and coverage of all clicked text.
 4. Only then does the app show the frame using actual tagged glyph bounds. A whole paragraph may expand a clicked visual line. A source fragment rendered more than once, overlapping duplicate glyphs, wrong occurrence, changed appearance, page crossing or missing identity is refused.
@@ -14,4 +14,6 @@ The first selection of a unit needs a full private build. This trades latency fo
 
 Rotated pages, nonzero crop origins and non-default UserUnit remain explicitly unavailable for visual selection. Reading/source editing remains available. Independent runtime PDFium verification remains P6; the probe's pixel comparison uses PDF.js only. A successful selection does not certify a subsequent displacement or replacement.
 
-Local checks: 51 core, 15 native service and 52 frontend/PDF tests passed. The unchanged 17 build-infrastructure tests passed at the parent checkpoint. The new real-engine selection corpus runs after the movement experiment in CI, combining actual SyncTeX hits, the real Rust unit resolver, PDF markers and PDF.js pixels. Native mouse/IME acceptance remains open. Local MiKTeX CLI execution is blocked by this session's registry permissions; no local engine pass is inferred.
+Local checks: 51 core, 15 native service and 54 frontend/PDF tests passed. The unchanged 17 build-infrastructure tests passed at the parent checkpoint. The new real-engine selection corpus runs after the movement experiment in CI, combining actual SyncTeX hits, the real Rust unit resolver, PDF markers and PDF.js pixels. Native mouse/IME acceptance remains open. Local MiKTeX CLI execution is blocked by this session's registry permissions; no local engine pass is inferred.
+
+The first real-engine selection run passed 30/33 expected outcomes. Included-file hints under pdfLaTeX/XeLaTeX need alternate hit samples. The pdfLaTeX mixed-format fixture changes PDF.js raster output under the zero wrapper despite stable text geometry and a passing PDFium movement experiment; this profile remains refused by the unchanged strict runtime check. The corpus records this measured capability limit explicitly, rather than relaxing pixel equality. Raw first run: docs/evidence/selection-first-run.json.
