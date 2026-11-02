@@ -462,6 +462,35 @@ impl Backend {
         }
         Ok(())
     }
+    pub fn project_recoveries(&self, id:&str) -> Result<Vec<texloom_build::persistence::PendingSave>> {
+        texloom_build::persistence::pending(&self.project_root(id)?)
+    }
+    pub fn recover_document(&self,id:&str,base:u64,transaction:&str,finish:bool)->Result<Project> {
+        let (root,profile) = {
+            let documents=self.documents.lock().map_err(fail)?;
+            let slot=documents.get(id).ok_or("Reopen this project")?;
+            if slot.session.revision()!=Revision(base){return Err("The editor changed before save recovery; try again".into());}
+            let root=self.project_root(id)?;
+            texloom_build::persistence::recover(&root,transaction,finish)?;
+            (root,slot.session.profile().clone())
+        };
+        let preferred=root.join(relative(&profile.main)?);
+        let opened=self.open_project(Some(if preferred.is_file(){preferred}else{root}.to_string_lossy().into_owned()))?;
+        if self.document_snapshot(id)?.revision!=base {
+            self.close_document(&opened.id)?;
+            return Err("Files were recovered, but newer editor changes were preserved. Save a copy before reopening.".into());
+        }
+        self.document_profile(&opened.id,0,opened.main.clone(),profile.engine)?;
+        Ok(opened)
+    }
+    pub fn discard_document_recovery(&self,id:&str,base:u64,transaction:&str)->Result<Vec<texloom_build::persistence::PendingSave>> {
+        let documents=self.documents.lock().map_err(fail)?;
+        let slot=documents.get(id).ok_or("Reopen this project")?;
+        if slot.session.revision()!=Revision(base){return Err("The editor changed before discarding recovery data".into());}
+        let root=self.project_root(id)?;
+        texloom_build::persistence::discard_recovery(&root,transaction)?;
+        texloom_build::persistence::pending(&root)
+    }
     pub fn copy_document(&self, id: &str, base: u64, parent: &str) -> Result<String> {
         let documents = self.documents.lock().map_err(fail)?;
         let slot = documents.get(id).ok_or("Reopen this project")?;
@@ -472,6 +501,9 @@ impl Backend {
         let mut sources = slot.session.sources().clone();
         if !sources.contains_key("studio.sty") && sources.values().any(|s|s.contains("\\StudioBlock")||s.contains("\\usepackage{studio}")) {
             sources.insert("studio.sty".into(),STYLE.into());
+        }
+        if !sources.contains_key("texloom-objects.sty") && sources.values().any(|s|s.contains("\\TexloomObject")||s.contains("\\usepackage{texloom-objects}")) {
+            sources.insert("texloom-objects.sty".into(),OBJECT_STYLE.into());
         }
         texloom_build::persistence::copy_project(&root,&sources,Path::new(parent))
             .map(|path|path.to_string_lossy().into_owned())
@@ -818,6 +850,35 @@ mod tests {
         assert!(backend.save_document(&project.id,0).is_err());
         assert_eq!(fs::read(root.join("project/studio.sty")).unwrap(),b"EXTERNAL STYLE");
         assert_eq!(backend.document_snapshot(&project.id).unwrap().revision,0);
+        drop(backend);fs::remove_dir_all(root).unwrap();
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn native_recovery_reopens_checked_files_and_discard_never_changes_editor_source() {
+        use std::os::windows::fs::OpenOptionsExt;
+        let source="\\documentclass{article}\n\\usepackage{studio}\n\\begin{document}\\StudioBlock{sig}{1}{10}{20}{100}{12}{Before}\\end{document}";
+        let (backend,project,root)=saved_project_fixture(source);
+        let edited=backend.document_edit(&project.id,0,"main.tex",vec![EditorChange{offset:source.find("Before").unwrap(),length:6,text:"Local".into()}],None).unwrap();
+        let lock=fs::OpenOptions::new().read(true).share_mode(1).open(root.join("project/main.tex")).unwrap();
+        assert!(backend.save_document(&project.id,edited.revision).is_err());drop(lock);
+        let drafts=backend.project_recoveries(&project.id).unwrap();assert_eq!(drafts.len(),1);
+        assert!(backend.recover_document(&project.id,0,&drafts[0].id,true).is_err());
+        assert_eq!(fs::read(root.join("project/main.tex")).unwrap(),source.as_bytes());
+        let reopened=backend.recover_document(&project.id,edited.revision,&drafts[0].id,true).unwrap();
+        assert!(reopened.recoveries.is_empty());
+        assert_eq!(reopened.sources["main.tex"],edited.sources["main.tex"]);
+        assert_eq!(fs::read_to_string(root.join("project/studio.sty")).unwrap(),STYLE);
+        assert_eq!(backend.document_snapshot(&project.id).unwrap().sources,edited.sources);
+        assert!(backend.project_recoveries(&reopened.id).unwrap().is_empty());
+        let loaded=backend.document_snapshot(&reopened.id).unwrap();
+        let later=backend.document_edit(&reopened.id,loaded.revision,"main.tex",vec![EditorChange{offset:loaded.sources["main.tex"].find("Local").unwrap(),length:5,text:"Later".into()}],None).unwrap();
+        let lock=fs::OpenOptions::new().read(true).share_mode(1).open(root.join("project/main.tex")).unwrap();
+        assert!(backend.save_document(&reopened.id,later.revision).is_err());drop(lock);
+        let draft=backend.project_recoveries(&reopened.id).unwrap().remove(0);
+        assert!(backend.discard_document_recovery(&reopened.id,later.revision,&draft.id).unwrap().is_empty());
+        assert_eq!(backend.document_snapshot(&reopened.id).unwrap().sources,later.sources);
+        assert_eq!(fs::read_to_string(root.join("project/main.tex")).unwrap(),loaded.sources["main.tex"]);
         drop(backend);fs::remove_dir_all(root).unwrap();
     }
 

@@ -56,6 +56,22 @@ async fn copy_document(
 }
 
 #[tauri::command]
+async fn project_recoveries(state:State<'_,Arc<Backend>>,project_id:String)->Result<Vec<texloom_build::persistence::PendingSave>,String>{
+    let backend=state.inner().clone();
+    tauri::async_runtime::spawn_blocking(move||backend.project_recoveries(&project_id)).await.map_err(|e|e.to_string())?
+}
+#[tauri::command]
+async fn recover_document(state:State<'_,Arc<Backend>>,project_id:String,revision:u64,transaction_id:String,finish:bool)->Result<Project,String>{
+    let backend=state.inner().clone();
+    tauri::async_runtime::spawn_blocking(move||backend.recover_document(&project_id,revision,&transaction_id,finish)).await.map_err(|e|e.to_string())?
+}
+#[tauri::command]
+async fn discard_document_recovery(state:State<'_,Arc<Backend>>,project_id:String,revision:u64,transaction_id:String)->Result<Vec<texloom_build::persistence::PendingSave>,String>{
+    let backend=state.inner().clone();
+    tauri::async_runtime::spawn_blocking(move||backend.discard_document_recovery(&project_id,revision,&transaction_id)).await.map_err(|e|e.to_string())?
+}
+
+#[tauri::command]
 async fn compile_document(
     state: State<'_, Arc<Backend>>,
     project_id: String,
@@ -281,6 +297,9 @@ pub fn run() {
             open_project,
             save_document,
             copy_document,
+            project_recoveries,
+            recover_document,
+            discard_document_recovery,
             compile_document,
             cancel_compilation,
             pin_displayed_build,

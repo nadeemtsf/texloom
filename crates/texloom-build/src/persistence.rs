@@ -155,7 +155,7 @@ fn project_lock(base:&Path)->Result<File> {
 #[derive(Clone,Copy,Debug,PartialEq,Eq,Serialize,Deserialize)]
 #[serde(rename_all="snake_case")]
 pub enum SaveState { Preparing, Prepared, Committing, Complete, RolledBack }
-#[derive(Serialize)]
+#[derive(Clone,Serialize,Deserialize)]
 pub struct PendingSave { pub id:String, pub state:SaveState, pub files:Vec<String> }
 #[derive(Serialize,Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -245,6 +245,22 @@ impl Journal {
         for i in 0..self.manifest.entries.len(){for kind in ["old","new","replace"]{allowed.insert(format!("{i:04}.{kind}"));}}
         let Ok(entries)=fs::read_dir(&self.directory)else{return;};let entries=entries.flatten().collect::<Vec<_>>();
         if entries.iter().any(|e|!allowed.contains(&e.file_name().to_string_lossy().to_string())||!e.file_type().is_ok_and(|k|k.is_file())||no_reparse(&e.path()).is_err()){return;}
+        for e in &entries {
+            let name=e.file_name().to_string_lossy().to_string();
+            if name=="manifest.json" {
+                let Ok(data)=serde_json::to_vec(&self.manifest)else{return;};
+                let Ok(manifest)=serde_json::from_slice(&data)else{return;};
+                let Ok(expected)=serde_json::to_vec(&Envelope{sha256:Fingerprint::bytes(&data).sha256,data:manifest})else{return;};
+                if read(&e.path(),1_000_000).ok().as_ref()!=Some(&expected){return;}
+            } else {
+                let Some((index,kind))=name.split_once('.')else{return;};
+                let Ok(index)=index.parse::<usize>()else{return;};
+                let Some(record)=self.manifest.entries.get(index)else{return;};
+                let Ok(bytes)=read(&e.path(),MAX_FILE)else{return;};let actual=Some(Fingerprint::bytes(&bytes));
+                let known=match kind{"old"=>actual==record.before,"new"=>actual==record.after,"replace"=>actual==record.before||actual==record.after,_=>false};
+                if !known{return;}
+            }
+        }
         for e in entries{let _=fs::remove_file(e.path());}let _=fs::remove_dir(&self.directory);
     }
 }
@@ -268,6 +284,14 @@ pub fn recover(path:&Path,id:&str,finish:bool)->Result<()> {
     else {journal.rollback()}
 }
 
+
+/// Discard only checked derived recovery files. It never edits project files.
+pub fn discard_recovery(path:&Path,id:&str)->Result<()> {
+    let project=root(path)?;let base=journal_base(&project)?;let _lock=project_lock(&base)?;
+    let journal=Journal::open(&project,id)?;
+    journal.cleanup();
+    require(!journal.directory.exists(),"Recovery data contains unexpected files; it was left in place")
+}
 /// Save the canonical editor version to a new project directory. The original
 /// text files are deliberately not re-read: a copy is also the conflict escape.
 pub fn copy_project(project:&Path,sources:&Sources,parent:&Path)->Result<PathBuf> {

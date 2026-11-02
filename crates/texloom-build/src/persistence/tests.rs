@@ -180,3 +180,29 @@ fn every_file_replacement_boundary_can_roll_back_and_recover_all_intended_action
         recover(&f.root,&id(&f.root),true).unwrap();f.assert_sources(&after);assert!(!f.root.join("part.tex").exists());
     }}
 }
+
+#[test]
+fn discarding_a_recovery_draft_keeps_all_current_project_files_unchanged() {
+    let f=Fixture::new();let transaction=crash(&f);
+    let main=fs::read(f.root.join("main.tex")).unwrap();let part=fs::read(f.root.join("part.tex")).unwrap();
+    discard_recovery(&f.root,&transaction).unwrap();
+    assert_eq!(fs::read(f.root.join("main.tex")).unwrap(),main);
+    assert_eq!(fs::read(f.root.join("part.tex")).unwrap(),part);
+    assert!(pending(&f.root).unwrap().is_empty());
+}
+#[test]
+fn cleanup_refuses_unexpected_bytes_even_under_a_recognized_backup_filename() {
+    let f=Fixture::new();let mut disk=f.disk();let mut directory=None;
+    assert!(matches!(disk.save_with(&f.after(),|stage|{
+        if matches!(stage,Stage::Complete) {
+            let path=f.root.join(DIRECTORY).join(id(&f.root));
+            fs::write(path.join("0000.old"),b"UNKNOWN FILE CONTENT").unwrap();directory=Some(path);
+        }Ok(())
+    }).unwrap(),SaveOutcome::Saved));
+    let directory=directory.unwrap();
+    assert_eq!(fs::read(directory.join("0000.old")).unwrap(),b"UNKNOWN FILE CONTENT");
+    let transaction=directory.file_name().unwrap().to_string_lossy().to_string();
+    assert!(discard_recovery(&f.root,&transaction).is_err());
+    assert_eq!(fs::read(directory.join("0000.old")).unwrap(),b"UNKNOWN FILE CONTENT");
+    f.assert_sources(&f.after());
+}

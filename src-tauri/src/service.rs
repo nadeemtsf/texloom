@@ -108,6 +108,10 @@ pub struct Project {
     pub name: String,
     pub main: String,
     pub sources: BTreeMap<String, String>,
+    #[serde(default)]
+    pub recoveries: Vec<texloom_build::persistence::PendingSave>,
+    #[serde(default)]
+    pub recovery_error: Option<String>,
 }
 
 #[derive(Clone, Deserialize)]
@@ -339,6 +343,7 @@ impl Backend {
             })
             .or_else(|| candidates.first().cloned())
             .ok_or("No main LaTeX document found")?;
+        let (recoveries,recovery_error)=match texloom_build::persistence::pending(&root){Ok(saves)=>(saves,None),Err(error)=>(Vec::new(),Some(error))};
         let disk = texloom_build::persistence::DiskSnapshot::capture(&root, &sources)?;
         let id = Uuid::new_v4().simple().to_string();
         self.documents.lock().map_err(fail)?.insert(
@@ -359,6 +364,8 @@ impl Backend {
                 .into(),
             main,
             sources,
+            recoveries,
+            recovery_error,
         })
     }
     fn project_root(&self, id: &str) -> Result<PathBuf> {

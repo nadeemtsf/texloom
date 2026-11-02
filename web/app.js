@@ -146,13 +146,13 @@ function renderFiles(){
   }
   $('main-file').value=state.project.main;$('engine').value=state.engine;
 }
-async function openProject(path=null){
-  if(state.busy||state.opening||state.saving)return toast('Wait for the current operation before opening another project.');
+async function openProject(path=null,supplied=null){
+  if((state.busy||state.opening||state.saving)&&!supplied)return toast('Wait for the current operation before opening another project.');
   if(state.client&&!state.client.error)await state.client.flush();
-  if(state.project&&dirty()&&!await confirm('Discard the current unsaved edits before opening another project?',{title:'Unsaved source',kind:'warning'}))return;
+  if(!supplied&&state.project&&dirty()&&!await confirm('Discard the current unsaved edits before opening another project?',{title:'Unsaved source',kind:'warning'}))return;
   state.opening=true;editorReadOnly();
   try{
-    const project=await invoke('open_project',{path});
+    const project=supplied||await invoke('open_project',{path});
     const snapshot=await invoke('document_snapshot',{projectId:project.id});
     state.renderAbort?.abort();canvas.clear();const previous=state.pdf,previousProject=state.project?.id;
     Object.assign(state,{project,sources:clone(project.sources),saved:clone(project.sources),file:project.main,
@@ -166,6 +166,10 @@ async function openProject(path=null){
     if(previous)await previous.destroy();
     if(previousProject)await invoke('close_document',{projectId:previousProject}).catch(error=>toast(message(error)));
     state.opening=false;editorReadOnly();sendSelection();
+    renderSaveRecoveries();
+    if(!supplied&&(project.recoveries?.length||project.recovery_error)){
+      $('save-copy').classList.remove('hidden');await showSaveRecovery();return;
+    }
     await compile();
   }catch(error){toast(message(error))}finally{state.opening=false;editorReadOnly();updateControls()}
 }
@@ -175,7 +179,7 @@ async function saveProject(){
   state.saving=true;editorReadOnly();updateControls();
   try{await state.client.flush();const sources=clone(state.sources);
     await invoke('save_document',{projectId:state.project.id,revision:state.revision});state.saved=sources;status();toast('Project source saved.')}
-  catch(error){toast(message(error));$('save-copy').classList.remove('hidden')}
+  catch(error){toast(message(error));$('save-copy').classList.remove('hidden');await refreshSaveRecoveries().catch(()=>{})}
   finally{state.saving=false;editorReadOnly();updateControls()}
 }
 async function saveProjectCopy(){
@@ -188,6 +192,69 @@ async function saveProjectCopy(){
     if(!parent)return;
     const path=await invoke('copy_document',{projectId:state.project.id,revision:state.revision,parent});
     toast('Project copy saved to '+path+'. The original project remains open.');
+  }catch(error){toast(message(error))}
+  finally{state.saving=false;editorReadOnly();updateControls()}
+}
+function renderSaveRecoveries(){
+  const saves=state.project?.recoveries||[];
+  $('recover-save').classList.toggle('hidden',!saves.length&&!state.project?.recovery_error);
+  $('recovery-choice').replaceChildren();
+  saves.forEach((draft,index)=>{const option=document.createElement('option');option.value=draft.id;
+    option.textContent='Save draft '+(index+1)+' · '+draft.files.length+' file'+(draft.files.length===1?'':'s');$('recovery-choice').append(option)});
+  renderRecoveryFiles();
+}
+function renderRecoveryFiles(){
+  const draft=state.project?.recoveries?.find(item=>item.id===$('recovery-choice').value);
+  $('recovery-files').textContent=draft?.files.join('\n')||'';
+  $('recovery-warning').textContent=dirty()?
+    'Recovery reopens files from disk. Save a project copy first if you want to retain the current unsaved editor version.':
+    'Choose whether to finish the previous Save or restore its earlier files. Your project will reopen afterward.';
+}
+async function refreshSaveRecoveries(){
+  if(!state.project)return [];
+  const client=state.client,project=state.project;
+  try{
+    const saves=await invoke('project_recoveries',{projectId:project.id});
+    if(state.client!==client)return [];
+    project.recoveries=saves;project.recovery_error=null;renderSaveRecoveries();return saves;
+  }catch(error){
+    if(state.client===client){project.recovery_error=message(error);renderSaveRecoveries();$('save-copy').classList.remove('hidden')}
+    throw error;
+  }
+}
+async function showSaveRecovery(){
+  if(!state.project||state.saving)return;
+  try{
+    await state.client.flush();const saves=await refreshSaveRecoveries();
+    if(!saves.length)return toast('No interrupted Save needs recovery.');
+    renderRecoveryFiles();if(!$('recovery-dialog').open)$('recovery-dialog').showModal();
+  }catch(error){toast('Save recovery could not be read. Your editor text is retained. '+message(error))}
+}
+async function applySaveRecovery(finish){
+  const draft=state.project?.recoveries?.find(item=>item.id===$('recovery-choice').value);
+  if(!draft||state.saving)return;
+  if(dirty()&&!await confirm('Recovery will reopen files from disk and discard the current unsaved editor version. Save a project copy first to retain it. Continue?',{title:'Reopen recovered files',kind:'warning'}))return;
+  const client=state.client;let adopted=false;state.saving=true;editorReadOnly();updateControls();
+  try{
+    await client.flush();
+    const project=await invoke('recover_document',{projectId:state.project.id,revision:state.revision,transactionId:draft.id,finish});
+    if(state.client!==client){await invoke('close_document',{projectId:project.id});return}
+    $('recovery-dialog').close();await openProject(null,project);adopted=true;
+    toast(finish?'The interrupted Save was completed.':'Earlier files restored. The recovery draft is retained until you discard it.');
+  }catch(error){toast(message(error))}
+  finally{state.saving=false;editorReadOnly();updateControls()}
+  if(adopted)await compile();
+}
+async function discardSaveRecovery(){
+  const draft=state.project?.recoveries?.find(item=>item.id===$('recovery-choice').value);
+  if(!draft||state.saving)return;
+  if(!await confirm('Keep the current project files and discard this recovery draft? Edits stored only in the draft will be removed.',{title:'Discard save draft',kind:'warning'}))return;
+  state.saving=true;editorReadOnly();updateControls();
+  try{
+    await state.client.flush();
+    state.project.recoveries=await invoke('discard_document_recovery',{projectId:state.project.id,revision:state.revision,transactionId:draft.id});
+    renderSaveRecoveries();if(!state.project.recoveries.length)$('recovery-dialog').close();
+    toast('Save recovery draft discarded. Project files were kept.');
   }catch(error){toast(message(error))}
   finally{state.saving=false;editorReadOnly();updateControls()}
 }
@@ -564,7 +631,7 @@ $('edit-latex').onclick=async()=>{
     $('plain-label').classList.remove('hidden');$('plain').checked=false;$('plain').disabled=true;$('edit-help').textContent='LaTeX mode: edit commands carefully. Changes are compiled before acceptance.';$('edit-text').focus();
   }catch(error){toast(message(error))}finally{context.switching=false;for(const run of editInputs(context))run.input.disabled=false;$('edit-latex').disabled=false}
 };
-$('compile').onclick=()=>compile();$('save').onclick=saveProject;$('save-copy').onclick=saveProjectCopy;$('undo').onclick=()=>undo();$('redo').onclick=()=>undo(true);$('pin').onclick=pinSelection;
+$('compile').onclick=()=>compile();$('save').onclick=saveProject;$('save-copy').onclick=saveProjectCopy;$('recover-save').onclick=showSaveRecovery;$('undo').onclick=()=>undo();$('redo').onclick=()=>undo(true);$('pin').onclick=pinSelection;
 $('cancel-compile').onclick=cancelCompile;
 $('open').onclick=async()=>{try{const path=await open({multiple:false,filters:[{name:'LaTeX document',extensions:['tex']}]});if(typeof path==='string')await openProject(path)}catch(error){toast(message(error))}};
 $('export').onclick=async()=>{
@@ -607,11 +674,12 @@ let resizeTimer;window.addEventListener('resize',()=>{clearTimeout(resizeTimer);
 $('log-toggle').onclick=()=>$('log-panel').classList.toggle('hidden');$('close-log').onclick=()=>$('log-panel').classList.add('hidden');
 $('banner').onclick=()=>$('log-panel').classList.remove('hidden');
 let quitting=false;getCurrentWindow().onCloseRequested(async event=>{
+  if(state.saving){event.preventDefault();toast('Wait for Save or recovery to finish before closing.');return}
   if(quitting||!dirty()){await invoke('mark_clean_exit').catch(()=>{});return}event.preventDefault();
   if(await confirm('Close Texloom and discard unsaved source edits?',{title:'Unsaved source',kind:'warning'})){quitting=true;await getCurrentWindow().close()}
 });
 document.addEventListener('keydown',event=>{
-  if(editor.hasTextFocus()||$('edit-dialog').open||event.target.closest('input,textarea,select'))return;
+  if(editor.hasTextFocus()||$('edit-dialog').open||$('recovery-dialog').open||event.target.closest('input,textarea,select'))return;
   if(event.ctrlKey||event.metaKey){
     if(event.key.toLowerCase()==='s'){event.preventDefault();saveProject()}
     else if(event.key==='Enter'){event.preventDefault();compile()}
@@ -619,5 +687,12 @@ document.addEventListener('keydown',event=>{
     else if(event.key.toLowerCase()==='y'){event.preventDefault();undo(true)}
   }
 });
+$('recovery-choice').onchange=renderRecoveryFiles;
+$('recovery-finish').onclick=()=>applySaveRecovery(true);
+$('recovery-rollback').onclick=()=>applySaveRecovery(false);
+$('recovery-copy').onclick=saveProjectCopy;
+$('recovery-discard').onclick=discardSaveRecovery;
+$('recovery-close').onclick=()=>{if(!state.saving)$('recovery-dialog').close()};
+$('recovery-dialog').addEventListener('cancel',event=>{if(state.saving)event.preventDefault()});
 setMode('select');
 openProject();
