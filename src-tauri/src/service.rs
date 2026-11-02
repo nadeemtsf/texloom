@@ -15,7 +15,10 @@ mod document;
 mod visual;
 pub use document::{DocumentSnapshot, EditorChange, EditorRange, PreparedReply, SelectionReply};
 pub use visual::plan_object_edit as visual_plan;
-pub use visual::{describe_text_edit, preview_text_edit, LiteralEditRequest, TextEditModel};
+pub use visual::{
+    describe_text_edit, preview_edit_parameters, LiteralEditRequest, SpacingEditRequest,
+    TextEditModel,
+};
 pub use visual::{ObjectEditRequest, ObjectPlan, ResolvedSelection, SelectionPoint};
 
 const STYLE: &str = include_str!("../../resources/studio.sty");

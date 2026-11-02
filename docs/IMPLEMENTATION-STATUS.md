@@ -10,7 +10,7 @@ Primary repository: https://github.com/nadeemtsf/texloom.
 | P2 source/history | Core and desktop integration implemented; native input acceptance open | 51 core, 5 native service, 31 frontend/PDF tests; production build/sample compile passed; native input blocked by foreground capture |
 | P3 compilation | Build service implemented; automated acceptance passed | 120 local tests; all 24 expected three-engine corpus outcomes, Windows packaging and movement proof passed at 1ae8c75; exact CI recorded in PR #3; limited direct recipe, native P3 UI unverified |
 | P4 selection | Probe and three-engine corpus passed; native mouse acceptance open | 26 positive selections and seven explicit refusals across three engines at ab9eedc; bounded alternate hints resolve included sources; one measured pdfLaTeX mixed-format raster refusal; see LAYOUT-SELECTION.md |
-| P5 text/spacing | Protected literal editor implemented; spacing adapters and native acceptance open | Guarded run edits preserve command scaffolds, colours, macros, comments, Unicode and line endings; LaTeX fallback retains edits; three real-engine protected-edit compile cases passed at 6eb2b5a |
+| P5 text/spacing | Protected literal editor and explicit line-gap adapter implemented; native acceptance open | Numeric-only existing line-gap edits preserve units and surrounding bytes; text/spacing can be edited together; new three-engine spacing evidence pending CI; broader spacing adapters open; see PROTECTED-TEXT.md |
 | P6 displacement | Gesture boundary checks passed; runtime/native gate open | Six controller tests prove dispatch/cancellation/zoom behavior; independent runtime worker and complete native signature workflow remain pending |
 | P7 hardening | Pending | Recovery, external conflicts, performance and compatibility |
 | P8 release | Pending | Exact installer and clean-machine acceptance |
@@ -23,3 +23,5 @@ The disconnected checkout was safely reconciled before this work. No new release
 The owner deferred manual P2 input acceptance and explicitly authorized P3. See BUILD-SERVICE.md; that authorization does not mark the P2 checks passed.
 
 P5 protected editing is tracked in PROTECTED-TEXT.md; unfinished gates remain explicit.
+
+Latest local spacing checkpoint: 64 core, 19 native service and 67 frontend tests passed. Desktop control explicitly denied the test executable, so native typing/IME/mouse checks cannot be signed off. The account usage endpoint also fails; unavailable allowance is not treated as unused allowance.

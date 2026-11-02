@@ -4,6 +4,8 @@ Updated 2 November 2026. Individual checks, not release certification. Approved 
 
 ## P4/P5 working checkpoints
 
+P5 explicit-gap adapter checkpoint: 64 core, 19 native service and 67 frontend checks passed locally. Existing numeric line-break lengths can change without rewriting their unit or surrounding bytes; unsupported expressions stay read-only. The new engine corpus checks three spacing outcomes in addition to the three protected-text outcomes; CI results are pending. Native interaction remains unverified after desktop-control access to texloom-p5 was explicitly denied. See docs/PROTECTED-TEXT.md.
+
 P4 source ab9eedc3b3e58a64a7e89446d4fb8ca61eabc5a3 passed all 33 declared selection outcomes: 26 positive selections and seven explicit refusals. This includes a measured pdfLaTeX mixed-format appearance refusal; strict runtime pixels remain required. Alternate samples resolve included-file mapping under pdfLaTeX/XeLaTeX. Raw report: docs/evidence/selection-verified-run.json. Engine workflow: 41400437651; exact Windows packaging results are tracked in PR #4.
 
 P5 protected literal editing: 58 core, 17 native and 58 frontend/PDF tests passed locally. The unchanged 17 build-infrastructure tests passed at P3 (150 combined tests). Frontend and Windows x64 production builds passed. Local executable SHA-256: b928107f04a29211fe69211f5fbfe4d2b1fd10c4c2b308c44bc469269b62a2e9. Three-engine protected edits passed at 6eb2b5a in workflow 41402245293; the movement and selection suites passed at the same source. Raw edit report: docs/evidence/protected-text-verified-run.json. Exact Windows CI is recorded in PR #5. See docs/PROTECTED-TEXT.md for exact behavior and remaining spacing/native gates.

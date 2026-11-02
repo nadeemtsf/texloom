@@ -278,20 +278,20 @@ async function commitSources(sources,{file=state.file,policy=null,expectedIdenti
 function visualTransaction(file,source){
   const candidate=clone(state.sources);candidate[file]=source;return commitSources(candidate,{file});
 }
-async function textOperation(selection,{dx,dy,content,literalEdits,plain=false,detach=false}={}){
+async function textOperation(selection,{dx,dy,content,literalEdits,spacingEdits,plain=false,detach=false}={}){
   if(!fresh())return toast('Compile the current source before changing the canvas.');
   if(selection.kind==='source'&&state.sources[selection.file]!==selection.expected_source)return toast('That source selection changed. Select it again.');
   const identity=sessionIdentity(state),id=selection.kind==='object'?selection.id:'text-'+crypto.randomUUID().slice(0,8);
-  if(literalEdits&&literalEdits.length===0)return true;
-  const isEdit=content!==undefined||literalEdits!==undefined;
+  if((literalEdits||spacingEdits)&&!literalEdits?.length&&!spacingEdits?.length)return true;
+  const isEdit=content!==undefined||literalEdits!==undefined||spacingEdits!==undefined;
   const action=detach?'detach':selection.kind==='source'?'wrap':isEdit?'edit':'move';
   try{
     const plan=await invoke('plan_text_object',{request:{sources:clone(state.sources),main:state.project.main,file:selection.file,
       action,id,selection:selection.kind==='source'?[selection.start,selection.end]:null,
       expected:selection.content,
-      dx:dx??selection.dx??0,dy:dy??selection.dy??0,content:content??null,literal_edits:literalEdits??null,plain}});
+      dx:dx??selection.dx??0,dy:dy??selection.dy??0,content:content??null,literal_edits:literalEdits??null,spacing_edits:spacingEdits??null,plain}});
     if(sessionIdentity(state)!==identity)return toast('The source changed. Select the text again.');
-    const kind=detach?'detach':isEdit?'edit':'move';
+    const kind=detach?'detach':spacingEdits?.length?'spacing':isEdit?'edit':'move';
     const selectedRuns=new Set(selection.kind==='object'?state.view.objects.get(id)?.runs:
       selection.baselineRuns||canvas.hits.flatMap(line=>line.runs));
     const unchangedRuns=state.view.pages.flatMap(page=>page.runs).filter(run=>!selectedRuns.has(run));
@@ -312,10 +312,10 @@ async function editText(selection=state.objectSelection){
   const identity=sessionIdentity(state);let textModel=null;
   try{textModel=await invoke('describe_text_edit',{content:selection.content,document:state.sources[state.project.main]})}catch{}
   if(identity!==sessionIdentity(state)||!fresh())return;
-  state.dialog={kind:'text-object',selection:clone(selection),identity,literalInputs:[]};
+  state.dialog={kind:'text-object',selection:clone(selection),identity,literalInputs:[],spacingInputs:[]};
   const simple=typeof selection.plain_text==='string';
   showEditor('Edit selected text',simple?selection.plain_text:selection.content,simple,!simple);
-  if(!simple&&textModel?.runs?.length){
+  if(textModel&&((!simple&&textModel.runs?.length)||textModel.spacing?.length)){
     state.dialog.literalMode=true;
     for(const run of textModel.runs){
       const label=document.createElement('label'),title=document.createElement('span'),input=document.createElement('textarea');
@@ -323,12 +323,23 @@ async function editText(selection=state.objectSelection){
       input.setAttribute('aria-label',title.textContent+' '+(run.id+1));label.className='literal-run-field';label.append(title,input);$('literal-fields').append(label);
       state.dialog.literalInputs.push({id:run.id,initial:run.text,input});
     }
+    for(const gap of textModel.spacing||[]){
+      const label=document.createElement('label'),title=document.createElement('span'),input=document.createElement('input');
+      title.textContent='Extra line gap '+(gap.id+1)+(gap.value!==null?' ('+gap.unit+')':'');
+      input.type=gap.value===null?'text':'number';input.step='any';input.value=gap.value===null?gap.source:String(gap.value);input.disabled=gap.value===null;
+      input.setAttribute('aria-label',title.textContent);if(gap.reason)input.title=gap.reason;
+      label.className='literal-run-field';label.append(title,input);$('spacing-fields').append(label);
+      if(gap.value!==null)state.dialog.spacingInputs.push({id:gap.id,initial:String(gap.value),input});
+    }
+    $('spacing-fields').classList.toggle('hidden',!textModel.spacing?.length);
     $('literal-fields').classList.remove('hidden');$('edit-text').classList.add('hidden');$('plain-label').classList.add('hidden');$('edit-latex').classList.remove('hidden');
-    $('edit-help').textContent='Formatting, macros and line breaks stay unchanged. Wording changes may reflow the document.';
-    state.dialog.literalInputs[0].input.focus();
+    $('edit-help').textContent='Formatting and macros stay unchanged. Line-gap changes adjust existing spacing and may reflow following content.';
+    (state.dialog.literalInputs[0]||state.dialog.spacingInputs[0])?.input.focus();
   }
 }
 function literalChanges(context){return context.literalInputs.filter(run=>run.input.value!==run.initial).map(run=>({id:run.id,text:run.input.value}))}
+function spacingChanges(context){return (context.spacingInputs||[]).filter(run=>!run.input.value.trim()||Number(run.input.value)!==Number(run.initial)).map(run=>({id:run.id,value:run.input.value}))}
+function editInputs(context){return [...context.literalInputs,...context.spacingInputs||[]]}
 function showObjectInspector(selection){
   state.objectSelection=selection;
   $('object-selection').classList.toggle('hidden',!selection);
@@ -414,6 +425,7 @@ function startBlockDrag(event,block,el,page){
   el.addEventListener('pointermove',move);el.addEventListener('pointerup',up);el.addEventListener('pointercancel',cancel);
 }
 function showEditor(title,value,plain,locked=false){
+  $('spacing-fields').replaceChildren();$('spacing-fields').classList.add('hidden');
   $('literal-fields').replaceChildren();$('literal-fields').classList.add('hidden');$('edit-latex').classList.add('hidden');$('edit-text').classList.remove('hidden');$('plain-label').classList.remove('hidden');
   $('edit-help').textContent='Formatted content opens as LaTeX so its commands are preserved.';
   $('edit-title').textContent=title;$('edit-text').value=value;$('plain').checked=plain;$('plain').disabled=locked;$('edit-dialog').showModal();$('edit-text').focus();
@@ -508,7 +520,7 @@ $('edit-form').onsubmit=async event=>{
   if(context?.kind==='new')return insertBlock({content:text,plain});
   if(context?.kind==='text-object'){
     if(context.identity!==sessionIdentity(state))return toast('The source changed. Reopen the text editor.');
-    if(context.literalMode)return textOperation(context.selection,{literalEdits:literalChanges(context)});
+    if(context.literalMode)return textOperation(context.selection,{literalEdits:literalChanges(context),spacingEdits:spacingChanges(context)});
     return textOperation(context.selection,{content:text,plain});
   }
   if(context?.kind==='block'){
@@ -519,13 +531,13 @@ $('edit-form').onsubmit=async event=>{
 $('cancel-edit').onclick=()=>$('edit-dialog').close();
 $('edit-latex').onclick=async()=>{
   const context=state.dialog;if(!context?.literalMode)return;$('edit-latex').disabled=true;
-  context.switching=true;for(const run of context.literalInputs)run.input.disabled=true;
+  context.switching=true;for(const run of editInputs(context))run.input.disabled=true;
   try{
-    const content=await invoke('preview_text_edit',{content:context.selection.content,document:state.sources[state.project.main],edits:literalChanges(context)});
+    const content=await invoke('preview_text_edit',{content:context.selection.content,document:state.sources[state.project.main],edits:literalChanges(context),spacingEdits:spacingChanges(context)});
     if(context!==state.dialog||context.identity!==sessionIdentity(state))throw new StaleCandidate();
-    context.literalMode=false;$('edit-text').value=content;$('edit-text').classList.remove('hidden');$('literal-fields').classList.add('hidden');$('edit-latex').classList.add('hidden');
+    context.literalMode=false;$('edit-text').value=content;$('edit-text').classList.remove('hidden');$('literal-fields').classList.add('hidden');$('spacing-fields').classList.add('hidden');$('edit-latex').classList.add('hidden');
     $('plain-label').classList.remove('hidden');$('plain').checked=false;$('plain').disabled=true;$('edit-help').textContent='LaTeX mode: edit commands carefully. Changes are compiled before acceptance.';$('edit-text').focus();
-  }catch(error){toast(message(error))}finally{context.switching=false;for(const run of context.literalInputs)run.input.disabled=false;$('edit-latex').disabled=false}
+  }catch(error){toast(message(error))}finally{context.switching=false;for(const run of editInputs(context))run.input.disabled=false;$('edit-latex').disabled=false}
 };
 $('compile').onclick=()=>compile();$('save').onclick=saveProject;$('undo').onclick=()=>undo();$('redo').onclick=()=>undo(true);$('pin').onclick=pinSelection;
 $('cancel-compile').onclick=cancelCompile;

@@ -108,11 +108,12 @@ fn scan(
                 while s.as_bytes().get(i) == Some(&b'{') {
                     i = argument(s, i)?.1;
                 }
-                if cmd == "\\\\" && s.as_bytes().get(i) == Some(&b'[') {
-                    i = s[i..]
-                        .find(']')
-                        .map(|n| i + n + 1)
-                        .ok_or("Unclosed line spacing")?;
+                if cmd == "\\\\" {
+                    if let Some((_, after)) = crate::spacing::break_argument(s, end)? {
+                        i = after;
+                    } else if s.as_bytes().get(i) == Some(&b'*') {
+                        i += 1;
+                    }
                 }
             }
             start = i;

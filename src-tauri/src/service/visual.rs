@@ -30,6 +30,36 @@ pub struct ResolvedSelection {
 mod tests {
     use super::*;
     #[test]
+    fn spacing_model_and_object_edit_change_only_the_explicit_length() {
+        let content = "\\textbf{Name}\\\\[2pt]\r\nDepartment\\\\[3mm]\r\nUniversity\n";
+        let model = describe_text_edit(content, content).unwrap();
+        assert_eq!(model.spacing.len(), 2);
+        assert_eq!(model.spacing[0].value, Some(2.0));
+        let source=format!("\\documentclass{{article}}\n\\usepackage{{texloom-objects}}\n\\begin{{document}}\nBefore\n\\TexloomObject{{sig}}{{0}}{{0}}{{{content}}}\nAfter\n\\end{{document}}");
+        let request:ObjectEditRequest=serde_json::from_value(json!({"sources":{"main.tex":source},"main":"main.tex","file":"main.tex","id":"sig","action":"edit","expected":content,"spacing_edits":[{"id":0,"value":"6"}]})).unwrap();
+        assert_eq!(
+            plan_object_edit(request).unwrap().sources["main.tex"],
+            source.replacen("[2pt]", "[6pt]", 1)
+        );
+    }
+    #[test]
+    fn combined_text_and_spacing_keep_parameter_identity_and_refuse_stale_input() {
+        let content = "A \\textbf{B}\\\\[2pt]C";
+        let text = [LiteralEditRequest {
+            id: 1,
+            text: "D&E".into(),
+        }];
+        let gap = [SpacingEditRequest {
+            id: 0,
+            value: "5".into(),
+        }];
+        assert_eq!(
+            preview_edit_parameters(content, content, content, &text, &gap).unwrap(),
+            "A \\textbf{D\\&E}\\\\[5pt]C"
+        );
+        assert!(preview_edit_parameters(content, "old", content, &text, &gap).is_err());
+    }
+    #[test]
     fn protected_object_edits_preserve_every_command_and_unrelated_source_byte() {
         let source="\\documentclass{article}\r\n\\usepackage{texloom-objects}\r\n\\begin{document}\r\nBefore\r\n\\TexloomObject{name}{0}{0}{A \\textbf{B} C\n}\r\nAfter\r\n\\end{document}";
         let request: ObjectEditRequest=serde_json::from_value(json!({"sources":{"main.tex":source},"main":"main.tex","file":"main.tex","action":"edit","id":"name","expected":"A \\textbf{B} C\n","literal_edits":[{"id":1,"text":"D&E"}]})).unwrap();
@@ -83,6 +113,7 @@ mod tests {
             content: None,
             plain: false,
             literal_edits: None,
+            spacing_edits: None,
         };
         let plan = plan_object_edit(request).unwrap();
         let result = &plan.sources["main.tex"];
@@ -119,6 +150,22 @@ pub struct ObjectEditRequest {
     pub plain: bool,
     #[serde(default)]
     pub literal_edits: Option<Vec<LiteralEditRequest>>,
+    #[serde(default)]
+    pub spacing_edits: Option<Vec<SpacingEditRequest>>,
+}
+
+#[derive(Deserialize)]
+pub struct SpacingEditRequest {
+    pub id: usize,
+    pub value: String,
+}
+#[derive(Serialize)]
+pub struct SpacingView {
+    pub id: usize,
+    pub value: Option<f64>,
+    pub unit: String,
+    pub source: String,
+    pub reason: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -136,6 +183,7 @@ pub struct LiteralRunView {
 pub struct TextEditModel {
     pub runs: Vec<LiteralRunView>,
     pub protected: Vec<String>,
+    pub spacing: Vec<SpacingView>,
 }
 pub fn describe_text_edit(content: &str, document: &str) -> Result<TextEditModel> {
     let model = texloom_core::literal_text::describe(content, document)?;
@@ -151,6 +199,17 @@ pub fn describe_text_edit(content: &str, document: &str) -> Result<TextEditModel
             })
             .collect(),
         protected: model.protected,
+        spacing: texloom_core::spacing::describe(content, document)?
+            .into_iter()
+            .enumerate()
+            .map(|(id, p)| SpacingView {
+                id,
+                value: p.value,
+                unit: p.unit,
+                source: p.source,
+                reason: p.reason,
+            })
+            .collect(),
     })
 }
 fn literal_edits(edits: &[LiteralEditRequest]) -> Vec<texloom_core::literal_text::LiteralEdit> {
@@ -162,12 +221,31 @@ fn literal_edits(edits: &[LiteralEditRequest]) -> Vec<texloom_core::literal_text
         })
         .collect()
 }
-pub fn preview_text_edit(
+#[cfg(test)]
+fn preview_text_edit(
     content: &str,
     document: &str,
     edits: &[LiteralEditRequest],
 ) -> Result<String> {
-    texloom_core::literal_text::apply(content, content, document, &literal_edits(edits))
+    preview_edit_parameters(content, content, document, edits, &[])
+}
+pub fn preview_edit_parameters(
+    content: &str,
+    expected: &str,
+    document: &str,
+    edits: &[LiteralEditRequest],
+    spacing: &[SpacingEditRequest],
+) -> Result<String> {
+    let text =
+        texloom_core::literal_text::apply(content, expected, document, &literal_edits(edits))?;
+    let changes = spacing
+        .iter()
+        .map(|e| texloom_core::spacing::Edit {
+            id: e.id,
+            value: e.value.clone(),
+        })
+        .collect::<Vec<_>>();
+    texloom_core::spacing::apply(&text, &text, document, &changes)
 }
 
 #[derive(Serialize)]
@@ -209,16 +287,17 @@ pub fn plan_object_edit(mut request: ObjectEditRequest) -> Result<ObjectPlan> {
                 request.dy.unwrap_or(0.0),
                 document,
             )?;
-            if let Some(edits) = request.literal_edits.as_deref() {
+            if request.literal_edits.is_some() || request.spacing_edits.is_some() {
                 let content = request
                     .expected
                     .as_deref()
                     .ok_or("Missing expected content")?;
-                let updated = texloom_core::literal_text::apply(
+                let updated = preview_edit_parameters(
                     content,
                     content,
                     document,
-                    &literal_edits(edits),
+                    request.literal_edits.as_deref().unwrap_or(&[]),
+                    request.spacing_edits.as_deref().unwrap_or(&[]),
                 )?;
                 texloom_core::update_text_object(
                     &wrapped,
@@ -259,19 +338,20 @@ pub fn plan_object_edit(mut request: ObjectEditRequest) -> Result<ObjectPlan> {
             document,
         )?,
         "edit" => {
-            if let Some(edits) = request.literal_edits.as_deref() {
+            if request.literal_edits.is_some() || request.spacing_edits.is_some() {
                 let object = texloom_core::text_objects(source)?
                     .into_iter()
                     .find(|o| o.id == request.id)
                     .ok_or("Object is missing")?;
-                let updated = texloom_core::literal_text::apply(
+                let updated = preview_edit_parameters(
                     &object.content,
                     request
                         .expected
                         .as_deref()
                         .ok_or("Missing expected content")?,
                     document,
-                    &literal_edits(edits),
+                    request.literal_edits.as_deref().unwrap_or(&[]),
+                    request.spacing_edits.as_deref().unwrap_or(&[]),
                 )?;
                 let mut source = source.clone();
                 source.replace_range(object.arguments[3].clone(), &updated);

@@ -16,8 +16,15 @@ fn preview_text_edit(
     content: String,
     document: String,
     edits: Vec<service::LiteralEditRequest>,
+    spacing_edits: Option<Vec<service::SpacingEditRequest>>,
 ) -> Result<String, String> {
-    service::preview_text_edit(&content, &document, &edits)
+    service::preview_edit_parameters(
+        &content,
+        &content,
+        &document,
+        &edits,
+        &spacing_edits.unwrap_or_default(),
+    )
 }
 
 #[tauri::command]

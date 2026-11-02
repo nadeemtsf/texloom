@@ -4,6 +4,7 @@ mod objects;
 pub use objects::*;
 pub mod document;
 pub mod literal_text;
+pub mod spacing;
 
 pub type Result<T> = std::result::Result<T, String>;
 

@@ -235,3 +235,23 @@ test('mode switching blocks submission until edits are transferred',async()=>{
  await t.run("$('edit-form').onsubmit({preventDefault(){}})");assert.equal(t.run("$('edit-dialog').open"),true);
  finish('An \\textbf{office}');await pending;assert.equal(t.run('state.dialog.switching'),false);
 });
+
+async function spacingSetup(){
+ const t=await setup();t.control.describeText=async()=>({runs:[{id:0,text:'Name',styles:['Bold']}],protected:[],spacing:[{id:0,value:2,unit:'pt',source:'2pt',reason:null},{id:1,value:null,unit:'em',source:'1em',reason:'Use source editing'}]});
+ await t.run("editText({kind:'source',file:'main.tex',content:'Name',plain_text:'Name',start:0,end:4})");return t;
+}
+test('explicit spacing has numeric controls even for a simple text template',async()=>{
+ const t=await spacingSetup();assert.equal(t.run('state.dialog.literalMode'),true);assert.equal(t.run('state.dialog.spacingInputs.length'),1);
+ t.run("state.dialog.spacingInputs[0].input.value='5';textOperation=async(_selection,options)=>{self.spacingSubmission=options;return true}");await t.run("$('edit-form').onsubmit({preventDefault(){}})");
+ const value=t.run('self.spacingSubmission');assert.equal(value.spacingEdits[0].id,0);assert.equal(value.spacingEdits[0].value,'5');assert.equal(value.literalEdits.length,0);
+});
+test('spacing survives the switch to LaTeX mode and is locked during transfer',async()=>{
+ const t=await spacingSetup();let finish,args;t.control.previewText=value=>{args=value;return new Promise(r=>finish=r)};
+ t.run("state.dialog.spacingInputs[0].input.value='6'");const pending=t.run("$('edit-latex').onclick()");await new Promise(setImmediate);
+ assert.equal(t.run('state.dialog.spacingInputs[0].input.disabled'),true);assert.equal(args.spacingEdits[0].value,'6');
+ finish('Name\\\\[6pt]');await pending;assert.equal(t.run("$('edit-text').value"),'Name\\\\[6pt]');assert.equal(t.run('state.dialog.literalMode'),false);
+});
+test('unchanged numeric spelling is a no-op while empty spacing is submitted for validation',async()=>{
+ const t=await spacingSetup();t.run("state.dialog.spacingInputs[0].input.value='2.0'");assert.equal(t.run('spacingChanges(state.dialog).length'),0);
+ t.run("state.dialog.spacingInputs[0].input.value=''");assert.equal(t.run('spacingChanges(state.dialog).length'),1);
+});
