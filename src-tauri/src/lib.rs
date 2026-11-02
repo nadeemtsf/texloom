@@ -65,6 +65,10 @@ fn close_document(state: State<'_, Arc<Backend>>, project_id: String) -> Result<
     state.close_document(&project_id)
 }
 #[tauri::command]
+fn mark_clean_exit(state: State<'_, Arc<Backend>>) -> Result<(), String> {
+    state.mark_clean_exit()
+}
+#[tauri::command]
 async fn verify_build(state: State<'_, Arc<Backend>>, build_id: String) -> Result<(), String> {
     let backend = state.inner().clone();
     tauri::async_runtime::spawn_blocking(move || backend.verify_build(&build_id))
@@ -243,6 +247,7 @@ pub fn run() {
             cancel_compilation,
             pin_displayed_build,
             close_document,
+            mark_clean_exit,
             verify_build,
             export_document_build,
             document_snapshot,

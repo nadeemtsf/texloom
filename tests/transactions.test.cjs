@@ -21,7 +21,7 @@ async function setup(){
   monaco:{languages:{register(){},setMonarchTokensProvider(){},setLanguageConfiguration(){}},editor:{defineTheme(){},createModel:()=>model,create:()=>editor,EndOfLineSequence:{LF:0}},KeyMod:{CtrlCmd:1,Shift:2},KeyCode:{KeyS:1,Enter:2,KeyZ:3,KeyY:4}},
   pdfjs:{GlobalWorkerOptions:{}},structuredClone,crypto:require('node:crypto').webcrypto,
   document:{getElementById:element,createElement:()=>element('generated-'+Math.random()),querySelector:()=>null,querySelectorAll:()=>[],addEventListener(){}},window:{addEventListener(){}},
-  getCurrentWindow:()=>({onCloseRequested(){}}),open:async()=>null,save:async()=>control.save?.()??null,confirm:async()=>false,
+  getCurrentWindow:()=>({onCloseRequested(fn){control.onClose=fn}}),open:async()=>null,save:async()=>control.save?.()??null,confirm:async()=>false,
   invoke:(name,args)=>native.invoke(name,args),
   setTimeout:(fn,ms)=>{const t=setTimeout(fn,ms);t.unref();return t},clearTimeout,console,
   preparePDFView:async(_pdfjs,result)=>control.prepare(result)
@@ -33,6 +33,15 @@ async function setup(){
  run("state.client=new DocumentClient(invoke,'test',initialSnapshot,{changed:acceptDocument,failed:syncFailed});");
  return {run,control,native,model,composition};
 }
+
+test('clean close marks the cache while refusing a dirty close preserves its recovery copies',async()=>{
+ const t=await setup();let prevented=false;
+ await t.control.onClose({preventDefault(){prevented=true}});
+ assert.equal(t.control.cleanExits,1);assert.equal(prevented,false);
+ t.run("state.sources['main.tex']='Unsaved edit'");
+ await t.control.onClose({preventDefault(){prevented=true}});
+ assert.equal(prevented,true);assert.equal(t.control.cleanExits,1);
+});
 
 test('compiler failure leaves source, history, revision and last good PDF intact',async()=>{
  const t=await setup();t.control.compile=async()=>({ok:false,log:'main.tex:8: Undefined control sequence.'});

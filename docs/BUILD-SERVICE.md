@@ -6,7 +6,7 @@ The owner authorized P3 while deferring P2's native typing/IME/mouse acceptance 
 
 The new texloom-build crate owns source/asset snapshots, dependency receipts, direct engine recipes, diagnostics, process lifetime and newest-request scheduling. It does not parse PDF layout or modify canonical document history. The Tauri service binds each job to a project, acknowledged revision, purpose and private candidate token.
 
-One compiler runs at a time. A newer request cancels the active request and supersedes older waiting requests. Request-ID cancellation fences also reject a request that reaches the worker after Cancel. Source edits, profile changes and history invalidate running work. The frontend keeps the idle typing debounce; cancellation does not trigger a new compiler for every keystroke.
+One compiler runs at a time. A newer request cancels the active request and supersedes older waiting requests. Request-ID cancellation fences also reject a request that reaches the worker after Cancel. Source edits, profile changes and history invalidate running work when they advance the canonical revision; no-op edits do not cancel a valid job. The frontend keeps the idle typing debounce; cancellation does not trigger a new compiler for every keystroke.
 
 ## Inputs and receipts
 
@@ -22,7 +22,7 @@ This is a recorded build profile, not a hermetic OS image. Recorder coverage doe
 
 Direct pdfLaTeX, LuaLaTeX and XeLaTeX jobs use file/line errors, SyncTeX, the dependency recorder, nonstop mode, halt-on-error and no shell escape. MiKTeX is identified by its version output and receives its disable-installer flag.
 
-A build needs at least two passes, unchanged auxiliary/generated-input fingerprints, no new discovered dependencies and no rerun request. Limits: six passes, 120 seconds per build (at most 90 per engine pass), 2 GiB per process job. Exceeding limits, nonconvergence or compiler errors rejects the result.
+A build needs at least two passes, unchanged auxiliary/generated-input fingerprints, no new discovered dependencies and no rerun request. Limits: six passes, 120 seconds per build (at most 90 per engine pass), 2 GiB per process job. Exceeding limits, nonconvergence or compiler errors rejects the result. The total deadline is checked before acceptance; filesystem validation and cleanup may add return latency.
 
 BibTeX/Biber orchestration is not implemented in this limited direct recipe. Bibliography-tool requirements are reported explicitly. Prebuilt bibliography fragments included as project inputs can be compiled. This does not claim support for every journal toolchain.
 
@@ -47,10 +47,10 @@ PDF preparation and dependency validation precede publication. Cancelling while 
 
 Export has a separate clean job and empty auxiliary state. The resulting PDF is prepared offscreen and checked for compilation eligibility; final export uses a brief edit barrier, rechecks revision/inputs and atomically renames a temporary output. It refuses to overwrite a PDF actually used as an input. Failure/cancellation preserves an existing destination and does not save source.
 
-Displayed artifacts and in-flight SyncTeX/export readers are retained. Unpinned results are evicted toward twelve entries and 512 MiB; live pins/borrows take precedence. Failed/cancelled private workspaces are cleaned when safe. Each P3 process has a locked cache session. A subsequent process reaps only recognized abandoned P3 sessions; another live instance, unknown folders and historical P2 caches are untouched. Failed filesystem cleanup is best effort, not an OS disk quota. There is no auxiliary-state reuse cache yet.
+Displayed artifacts and in-flight SyncTeX/export readers are retained. Unpinned results are evicted toward twelve entries and 512 MiB; live pins/borrows take precedence. Failed/cancelled private workspaces are cleaned when safe. Each P3 process has a locked cache session. A subsequent process reaps only recognized, unlocked P3 sessions with an explicit clean-close marker. Interrupted sessions are retained because snapshots can contain unsaved source copies. The window close path marks a clean exit only after the existing unsaved-source decision; later canonical mutations remove that marker before committing. Another live instance, unknown folders and historical P2 caches are untouched. This preserves available copies, not a complete recovery journal or recovery UI. Failed filesystem cleanup is best effort, not an OS disk quota. There is no auxiliary-state reuse cache yet.
 
 ## Acceptance
 
-Local automated suites: 51 core, 17 Windows build-infrastructure, 10 native service and 37 frontend/PDF tests passed (115 total). The real-engine corpus is an explicit ignored test locally, not an inferred pass. CI runs eight scenarios on each of three engines: portable visual adapter compilation, references/TOC/includes, spaces in filenames, a real PDF asset, unresolved references, compile errors, deliberate nonconvergence and a required bibliography tool. It preserves synthetic receipts and reports.
+Local automated suites: 51 core, 17 Windows build-infrastructure, 14 native service and 38 frontend/PDF tests passed (120 total). The real-engine corpus is an explicit ignored test locally. A fresh CI run at 3e40b99 passed all 24 expected outcomes (12 eligible builds, six readable/ineligible PDFs and six expected failures). Evidence is in docs/evidence/build-verified-run.json. CI runs eight scenarios on each of three engines: portable visual adapter compilation, references/TOC/includes, spaces in filenames, a real PDF asset, unresolved references, compile errors, deliberate nonconvergence and a required bibliography tool. It preserves synthetic receipts and reports.
 
 P3's real-engine CI and production packaging status must be read in VALIDATION.md. Native app input acceptance remains deferred; the old P2 test executable remains unchanged. Broad engine/package coverage, fully hermetic toolchains, project trust/isolation, runtime independent PDF verification, source conflicts, crash recovery, strict frontend types and installer acceptance are not claimed by this checkpoint.

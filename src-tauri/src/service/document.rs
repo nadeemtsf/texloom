@@ -199,11 +199,16 @@ impl Backend {
                 profile: None,
             })
             .map_err(fail)?;
+        if candidate.changed() {
+            self.mark_cache_unclean()?;
+        }
         slot.session
             .commit(candidate, Origin::Source, group.map(TypingGroup))
             .map_err(fail)?;
-        slot.pending.clear();
-        self.scheduler.cancel_project(id);
+        if slot.session.revision() != Revision(base) {
+            slot.pending.clear();
+            self.scheduler.cancel_project(id);
+        }
         Ok(slot.snapshot())
     }
     pub fn document_profile(
@@ -226,11 +231,16 @@ impl Backend {
                 }),
             })
             .map_err(fail)?;
+        if candidate.changed() {
+            self.mark_cache_unclean()?;
+        }
         slot.session
             .commit(candidate, Origin::Settings, None)
             .map_err(fail)?;
-        slot.pending.clear();
-        self.scheduler.cancel_project(id);
+        if slot.session.revision() != Revision(base) {
+            slot.pending.clear();
+            self.scheduler.cancel_project(id);
+        }
         Ok(slot.snapshot())
     }
     pub fn document_history(&self, id: &str, base: u64, redo: bool) -> Result<DocumentSnapshot> {
@@ -239,13 +249,18 @@ impl Backend {
         if slot.session.revision() != Revision(base) {
             return Err("The source revision changed".into());
         }
+        if (redo && slot.session.can_redo()) || (!redo && slot.session.can_undo()) {
+            self.mark_cache_unclean()?;
+        }
         if redo {
             slot.session.redo().map_err(fail)?;
         } else {
             slot.session.undo().map_err(fail)?;
         }
-        slot.pending.clear();
-        self.scheduler.cancel_project(id);
+        if slot.session.revision() != Revision(base) {
+            slot.pending.clear();
+            self.scheduler.cancel_project(id);
+        }
         Ok(slot.snapshot())
     }
     pub fn document_prepare(
@@ -374,6 +389,9 @@ impl Backend {
                 "Candidate must finish its own successful native compilation before commit".into(),
             );
         }
+        if pending.candidate.changed() {
+            self.mark_cache_unclean()?;
+        }
         let pending = slot
             .pending
             .remove(token)
@@ -457,6 +475,54 @@ fn diff_sources(
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn no_op_source_profile_and_history_keep_the_current_job_and_candidate() {
+        let b = backend("A");
+        let lease = b
+            .scheduler
+            .request_sequence("test", 1)
+            .unwrap()
+            .acquire()
+            .unwrap();
+        let p = b
+            .document_prepare("test", 0, BTreeMap::from([("main.tex".into(), "B".into())]))
+            .unwrap();
+        b.document_edit(
+            "test",
+            0,
+            "main.tex",
+            vec![EditorChange {
+                offset: 0,
+                length: 1,
+                text: "A".into(),
+            }],
+            None,
+        )
+        .unwrap();
+        b.document_profile("test", 0, "main.tex".into(), "auto".into())
+            .unwrap();
+        b.document_history("test", 0, false).unwrap();
+        assert!(!lease.cancel.cancelled());
+        assert!(b.documents.lock().unwrap()["test"]
+            .pending
+            .contains_key(&p.token));
+        b.document_edit(
+            "test",
+            0,
+            "main.tex",
+            vec![EditorChange {
+                offset: 0,
+                length: 1,
+                text: "C".into(),
+            }],
+            None,
+        )
+        .unwrap();
+        assert!(lease.cancel.cancelled());
+        assert!(!b.documents.lock().unwrap()["test"]
+            .pending
+            .contains_key(&p.token));
+    }
     #[test]
     fn native_multi_cursor_history_projects_every_caret() {
         let b = backend("\u{feff}A\r\n\u{1f600}B\r\n");

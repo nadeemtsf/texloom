@@ -486,7 +486,7 @@ let resizeTimer;window.addEventListener('resize',()=>{clearTimeout(resizeTimer);
 $('log-toggle').onclick=()=>$('log-panel').classList.toggle('hidden');$('close-log').onclick=()=>$('log-panel').classList.add('hidden');
 $('banner').onclick=()=>$('log-panel').classList.remove('hidden');
 let quitting=false;getCurrentWindow().onCloseRequested(async event=>{
-  if(quitting||!dirty())return;event.preventDefault();
+  if(quitting||!dirty()){await invoke('mark_clean_exit').catch(()=>{});return}event.preventDefault();
   if(await confirm('Close Texloom and discard unsaved source edits?',{title:'Unsaved source',kind:'warning'})){quitting=true;await getCurrentWindow().close()}
 });
 document.addEventListener('keydown',event=>{

@@ -249,6 +249,9 @@ pub fn build(request: Request<'_>, cancel: &Cancellation) -> Result<Outcome, Str
     receipt.seal_outputs()?;
     receipt.persist()?;
     cancel.check()?;
+    if started.elapsed() >= MAX_TIME {
+        return Err("Compilation exceeded its 120-second budget".into());
+    }
     Ok(Outcome {
         ok: success,
         eligible,

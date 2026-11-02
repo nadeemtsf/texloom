@@ -1,16 +1,16 @@
 # Validation record
 
-Updated 1 November 2026. Individual checks, not release certification. Approved scope: docs/APPROVED-IMPLEMENTATION-PLAN.md.
+Updated 2 November 2026. Individual checks, not release certification. Approved scope: docs/APPROVED-IMPLEMENTATION-PLAN.md.
 
 ## P3 compile-service checkpoint
 
 The owner explicitly authorized P3 before manual P2 input acceptance. Native P2 interaction remains open.
 
-- 51 core, 17 Windows build-infrastructure, 10 native service and 37 frontend/PDF tests passed locally: 115 tests.
+- 51 core, 17 Windows build-infrastructure, 14 native service and 38 frontend/PDF tests passed locally: 120 tests.
 - Real Windows subprocess tests verify argv, full output draining, cancellation/timeout and descendant termination. A cold-start timing failure was corrected by waiting for the child's ready signal before measuring cancellation; the timeout/heartbeat checks remain.
-- Native tests also cover revision/cancellation-gated atomic export, protected source and cache ownership/cleanup.
-- The three-engine corpus is explicitly ignored in the local default run. Its 24 scenarios must pass in CI; the first CI run passed 23/24 scenarios. Cold-start LuaLaTeX refused a standard fontconfig path outside the declared roots. That exact root is now declared and still hashed; the rerun must pass. Raw outcome: docs/evidence/build-first-run.json.
-- Frontend build passed; the Windows x64 production build passed. Executable SHA-256: aad46552bd2219df00b3aba906deadca46350d2e01368664d7e5041f3cf4e3a4. Native P3 UI interaction is not verified.
+- Native tests also cover revision/cancellation-gated atomic export, protected source, closed-project pin refusal, no-op job preservation, cache ownership/cleanup and retention of interrupted sessions.
+- The three-engine corpus is explicitly ignored in the local default run. Fresh CI run 41356053455 at source 3e40b997881cbbb3366c78775898f93a4bf33f1e passed all 24 expected outcomes: 12 eligible builds, six readable/ineligible PDFs and six expected failures. Engines: pdfTeX 1.40.25, LuaHBTeX 1.17.0 and XeTeX 0.999995, TeX Live 2023/Debian. Raw outcomes and exact versions: docs/evidence/build-verified-run.json.
+- Frontend build passed. Final Windows x64 production build passed with cargo build --offline --locked --release --target x86_64-pc-windows-msvc -p texloom-desktop --features tauri/custom-protocol. Executable SHA-256: c6db652427410bd049ca518202be2eb06f949f47a9b001866349e8fe65e45e89. Native P3 UI interaction is not verified. Windows CI run 41356053441 and movement proof run 41356053490 passed at source 3e40b99; final revision CI is recorded in PR #3.
 - See docs/BUILD-SERVICE.md for the exact recipe, input manifest, limits and remaining scope.
 
 ## P2 source/history
@@ -51,6 +51,6 @@ This proves a bounded fixture experiment. Provenance, arbitrary PDF glyph mappin
 
 P2 needs actual native typing/IME/multi-cursor/context-menu undo and interactive save/reopen checks. Strict TypeScript/generated IPC types, unsupported-encoding viewing and recovery are unfinished. String-buffer performance is unmeasured. See docs/DOCUMENT-SESSION.md.
 
-P1 provenance/parser/coordinate decisions and P3-P8 compilation, selection, editing, verification, recovery and packaging gates remain. No complete signature mouse workflow or new release is certified. The downloadable baseline is older.
+P1 provenance/parser/coordinate decisions, native P2/P3 acceptance and P4-P8 selection, editing, verification, recovery and packaging gates remain. No complete signature mouse workflow or new release is certified. The downloadable baseline is older.
 
-The second corpus run also passed 23/24. It exposed a versioned Lua font cache created during the first pass after root discovery. Root discovery now runs after each pass, and discovered files remain hashed and checked before acceptance. Raw report: docs/evidence/build-second-run.json. The next fresh-run corpus remains the gate.
+The first two corpus runs each passed 23/24. They exposed standard fontconfig input and a versioned Lua font cache created during the first pass. Exact standard roots are declared, discovery runs after each pass and discovered files remain hashed and checked before acceptance. Reports are retained in docs/evidence/build-first-run.json and build-second-run.json; the third fresh run passed 24/24. This corpus does not establish arbitrary package support or full hermeticity.

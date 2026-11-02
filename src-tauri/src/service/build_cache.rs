@@ -1,5 +1,6 @@
 use super::*;
 const OWNER: &[u8] = b"Texloom P3 cache owner\n";
+const CLEAN: &[u8] = b"Texloom P3 clean exit\n";
 pub(super) struct SessionCache {
     pub root: PathBuf,
     _owner: fs::File,
@@ -12,8 +13,8 @@ impl SessionCache {
     pub fn new(base: &Path) -> Result<Self> {
         fs::create_dir_all(base).map_err(fail)?;
         let base = base.canonicalize().map_err(fail)?;
-        // Recognized, unlocked P3 sessions belong to exited processes. Other
-        // instances and historical/unrecognized directories are untouched.
+        // Only explicitly cleanly closed sessions may be reaped. Interrupted
+        // sessions can contain the only surviving copy of unsaved source.
         for e in fs::read_dir(&base).map_err(fail)?.flatten() {
             let path = e.path();
             if !session_name(&e.file_name().to_string_lossy()) {
@@ -41,6 +42,17 @@ impl SessionCache {
             {
                 continue;
             }
+            let Ok(mut clean) = fs::File::open(path.join("closed.clean")) else {
+                continue;
+            };
+            let mut marker = vec![0; CLEAN.len()];
+            if clean.metadata().map_err(fail)?.len() != CLEAN.len() as u64
+                || std::io::Read::read_exact(&mut clean, &mut marker).is_err()
+                || marker != CLEAN
+            {
+                continue;
+            }
+            drop(clean);
             if inspect(&base, &path).is_err() {
                 continue;
             }
@@ -56,6 +68,18 @@ impl SessionCache {
             root,
             _owner: owner,
         })
+    }
+    fn mark_clean(&self) -> Result<()> {
+        let mut marker = fs::File::create(self.root.join("closed.clean")).map_err(fail)?;
+        std::io::Write::write_all(&mut marker, CLEAN).map_err(fail)?;
+        marker.sync_all().map_err(fail)
+    }
+    fn mark_unclean(&self) -> Result<()> {
+        match fs::remove_file(self.root.join("closed.clean")) {
+            Ok(()) => Ok(()),
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(()),
+            Err(e) => Err(fail(e)),
+        }
     }
 }
 /// Only private, generated, direct children of the build root can be retired.
@@ -145,6 +169,21 @@ fn remove(root: &Path, directory: &Path) -> Result<()> {
     fs::remove_dir_all(resolved).map_err(fail)
 }
 impl Backend {
+    pub fn mark_clean_exit(&self) -> Result<()> {
+        // Serialize the close hint with canonical mutations. This is not a
+        // Drop hook: unwinding or a crash must never imply a clean close.
+        let _documents = self.documents.lock().map_err(fail)?;
+        if let Some(Ok(cache)) = self.cache.get() {
+            cache.mark_clean()?;
+        }
+        Ok(())
+    }
+    pub(super) fn mark_cache_unclean(&self) -> Result<()> {
+        if let Some(Ok(cache)) = self.cache.get() {
+            cache.mark_unclean()?;
+        }
+        Ok(())
+    }
     pub(super) fn build_root(&self) -> Result<PathBuf> {
         self.cache
             .get_or_init(|| SessionCache::new(&self.root.join("builds")))
@@ -153,6 +192,12 @@ impl Backend {
             .map_err(Clone::clone)
     }
     pub fn pin_displayed_build(&self, project: &str, id: &str) -> Result<()> {
+        // Hold project membership through the pin update so a delayed UI
+        // acknowledgement cannot resurrect a pin after project closure.
+        let projects = self.projects.lock().map_err(fail)?;
+        if !projects.contains_key(project) {
+            return Err("Project has closed".into());
+        }
         let builds = self.builds.lock().map_err(fail)?;
         let build = builds.get(id).ok_or("Build expired")?;
         if build.project_id != project {
@@ -219,10 +264,12 @@ impl Backend {
 mod tests {
     use super::*;
     #[test]
-    fn exited_cache_sessions_are_reaped_without_touching_live_instances_or_unknown_folders() {
+    fn cleanly_closed_cache_sessions_are_reaped_without_touching_live_instances_or_unknown_folders()
+    {
         let base = std::env::temp_dir().join(format!("texloom-cache-lock-test-{}", Uuid::new_v4()));
         let a = SessionCache::new(&base).unwrap();
         let a_path = a.root.clone();
+        a.mark_clean().unwrap();
         fs::create_dir_all(base.join("keep-user-folder")).unwrap();
         fs::write(base.join("keep-user-folder/file"), "KEEP").unwrap();
         let b = SessionCache::new(&base).unwrap();
@@ -235,6 +282,41 @@ mod tests {
         drop(b);
         drop(c);
         fs::remove_dir_all(base).unwrap();
+    }
+    #[test]
+    fn interrupted_cache_sessions_preserve_their_unsaved_source_copies() {
+        let base =
+            std::env::temp_dir().join(format!("texloom-cache-recovery-test-{}", Uuid::new_v4()));
+        let a = SessionCache::new(&base).unwrap();
+        let source = a.root.join("unsaved.tex");
+        fs::write(&source, "UNSAVED SOURCE").unwrap();
+        drop(a);
+        let b = SessionCache::new(&base).unwrap();
+        assert_eq!(fs::read_to_string(source).unwrap(), "UNSAVED SOURCE");
+        drop(b);
+        fs::remove_dir_all(base).unwrap();
+    }
+    #[test]
+    fn a_new_source_mutation_removes_the_clean_close_hint() {
+        let (b, temp, id) = export_fixture();
+        let root = b.build_root().unwrap();
+        b.mark_clean_exit().unwrap();
+        assert!(root.join("closed.clean").is_file());
+        b.document_edit(
+            &id,
+            0,
+            "main.tex",
+            vec![EditorChange {
+                offset: 0,
+                length: 0,
+                text: "% unsaved edit\n".into(),
+            }],
+            None,
+        )
+        .unwrap();
+        assert!(!root.join("closed.clean").exists());
+        drop(b);
+        fs::remove_dir_all(temp).unwrap();
     }
     fn export_fixture() -> (Backend, PathBuf, String) {
         let temp = std::env::temp_dir().join(format!("texloom-export-test-{}", Uuid::new_v4()));
@@ -333,6 +415,14 @@ mod tests {
             assert_eq!(fs::read(&target).unwrap(), b"OLD");
             fs::remove_dir_all(temp).unwrap();
         }
+    }
+    #[test]
+    fn a_delayed_display_acknowledgement_cannot_repin_a_closed_project() {
+        let (b, temp, id) = export_fixture();
+        b.close_document(&id).unwrap();
+        assert!(b.pin_displayed_build(&id, "export").is_err());
+        assert!(b.displayed.lock().unwrap().is_empty());
+        fs::remove_dir_all(temp).unwrap();
     }
     #[test]
     fn failed_workspace_cleanup_never_deletes_outside_the_build_root() {
