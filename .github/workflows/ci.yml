@@ -31,6 +31,25 @@ jobs:
         run: cargo test --locked -p texloom-build
       - name: Check native document protocol
         run: cargo test --locked -p texloom-desktop --lib
+      - name: Prepare pinned development PDFium and independent reference
+        shell: pwsh
+        run: |
+          python -m pip download --disable-pip-version-check --only-binary=:all: --no-deps --platform win_amd64 --dest .tools/pdfium-wheels pypdfium2==4.30.0
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python scripts/proof/prepare_pdfium.py .tools/pdfium-wheels/pypdfium2-4.30.0-py3-none-win_amd64.whl .tools/native-pdfium
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m pip install --disable-pip-version-check --target .tools/proof-python -r scripts/proof/requirements.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $env:PYTHONPATH = Join-Path (Get-Location) '.tools/proof-python'
+          python scripts/proof/inspect_pdf.py tests/fixtures/objects/baseline.pdf .tools/pdfium-reference/baseline.json
+      - name: Check isolated native PDF inspection against reference
+        shell: pwsh
+        run: |
+          $env:TEXLOOM_PDFIUM_TEST_DLL = Join-Path (Get-Location) '.tools/native-pdfium/pdfium.dll'
+          $env:TEXLOOM_PDFIUM_REFERENCE = Join-Path (Get-Location) '.tools/pdfium-reference/baseline.json'
+          cargo test --locked -p texloom-build --test pdfium_worker -- --ignored
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cargo build --locked --release -p texloom-build --bin pdfium_worker
       - name: Build unsigned desktop executable
         run: npm run desktop:build -- --no-bundle --target x86_64-pc-windows-msvc
       - name: Package portable build with notices
