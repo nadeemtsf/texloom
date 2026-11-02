@@ -1,0 +1,26 @@
+{
+  "sourceCommit": "6eb2b5a26684714a25609bd67157677e3ce882ec",
+  "run": "https://github.com/nadeemtsf/texloom/actions/runs/41402245293",
+  "schema": 1,
+  "status": "pass",
+  "cases": [
+    {
+      "engine": "pdflatex",
+      "status": "pass",
+      "source_scaffold_preserved": true
+    },
+    {
+      "engine": "lualatex",
+      "status": "pass",
+      "source_scaffold_preserved": true
+    },
+    {
+      "engine": "xelatex",
+      "status": "pass",
+      "source_scaffold_preserved": true
+    }
+  ],
+  "limitations": [
+    "Three synthetic direct-engine compile cases; native edit/reflow acceptance remains open."
+  ]
+}

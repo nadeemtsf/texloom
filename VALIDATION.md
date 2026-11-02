@@ -6,7 +6,7 @@ Updated 2 November 2026. Individual checks, not release certification. Approved 
 
 P4 source ab9eedc3b3e58a64a7e89446d4fb8ca61eabc5a3 passed all 33 declared selection outcomes: 26 positive selections and seven explicit refusals. This includes a measured pdfLaTeX mixed-format appearance refusal; strict runtime pixels remain required. Alternate samples resolve included-file mapping under pdfLaTeX/XeLaTeX. Raw report: docs/evidence/selection-verified-run.json. Engine workflow: 41400437651; exact Windows packaging results are tracked in PR #4.
 
-P5 protected literal editing: 58 core, 17 native and 58 frontend/PDF tests passed locally. The unchanged 17 build-infrastructure tests passed at P3 (150 combined tests). Frontend and Windows x64 production builds passed. Local executable SHA-256: b928107f04a29211fe69211f5fbfe4d2b1fd10c4c2b308c44bc469269b62a2e9. Three-engine protected-edit CI is pending and recorded in PR #5. See docs/PROTECTED-TEXT.md for exact behavior and remaining spacing/native gates.
+P5 protected literal editing: 58 core, 17 native and 58 frontend/PDF tests passed locally. The unchanged 17 build-infrastructure tests passed at P3 (150 combined tests). Frontend and Windows x64 production builds passed. Local executable SHA-256: b928107f04a29211fe69211f5fbfe4d2b1fd10c4c2b308c44bc469269b62a2e9. Three-engine protected edits passed at 6eb2b5a in workflow 41402245293; the movement and selection suites passed at the same source. Raw edit report: docs/evidence/protected-text-verified-run.json. Exact Windows CI is recorded in PR #5. See docs/PROTECTED-TEXT.md for exact behavior and remaining spacing/native gates.
 
 Native P2 input, complete P4/P5 mouse/edit/reflow acceptance and P6-P9 gates remain open. No new release is certified.
 
@@ -62,3 +62,5 @@ P2 needs actual native typing/IME/multi-cursor/context-menu undo and interactive
 P1 provenance/parser/coordinate decisions, native P2/P3 acceptance and P4-P8 selection, editing, verification, recovery and packaging gates remain. No complete signature mouse workflow or new release is certified. The downloadable baseline is older.
 
 The first two corpus runs each passed 23/24. They exposed standard fontconfig input and a versioned Lua font cache created during the first pass. Exact standard roots are declared, discovery runs after each pass and discovered files remain hashed and checked before acceptance. Reports are retained in docs/evidence/build-first-run.json and build-second-run.json; the third fresh run passed 24/24. This corpus does not establish arbitrary package support or full hermeticity.
+
+P6 gesture boundary checkpoint: six tests execute the real controller with a DOM/event boundary; the frontend suite passes 64 tests (156 combined local checks). Pointermove makes no edit dispatch; release dispatches one; Escape/cancel and stale/read modes dispatch none. Native Windows interaction and independent runtime verification remain open. See docs/GESTURE-VERIFICATION.md.
