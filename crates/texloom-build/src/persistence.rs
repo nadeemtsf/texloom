@@ -105,7 +105,7 @@ impl DiskSnapshot {
         journal.persist()?;
         // Backups and all intended bytes exist and are flushed before originals
         // are replaced. A failed preparation never touches the originals.
-        let result=(||{
+        let result:Result<()>=(||{
         for (index,e) in journal.manifest.entries.iter().enumerate() {
             if let Some(expected)=&e.before {
                 let bytes=read(&destination(&self.root,&e.file,false)?,MAX_FILE)?;
