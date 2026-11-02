@@ -23,7 +23,16 @@ async function inspect(path,label) {
   const json=join(output,label+'.json');
   const env={...process.env,PYTHONPATH:[join(root,'.tools/proof-python'),process.env.PYTHONPATH].filter(Boolean).join(delimiter)};
   run(python,[join(root,'scripts/proof/inspect_pdf.py'),path,json],{env});
-  return JSON.parse(await readFile(json,'utf8'));
+  return {...JSON.parse(await readFile(json,'utf8')),evidencePath:json};
+}
+let policySequence=0;
+async function rustPolicy(before,after,beforePdf,afterPdf,fixture,operation) {
+  const request=join(output,'policy-'+(++policySequence)+'.json');
+  await writeFile(request,JSON.stringify({before:before.evidencePath,after:after.evidencePath,before_pdf:beforePdf,after_pdf:afterPdf,
+    before_target:[...targetRecords(before.records,fixture.text,fixture.occurrence)],
+    after_target:[...targetRecords(after.records,fixture.text,fixture.occurrence)],operation}));
+  const exe=join(root,'target/debug/examples/displacement_check'+(process.platform==='win32'?'.exe':''));
+  return JSON.parse(run(exe,[request]));
 }
 async function rasterPair(a,b,target,identity) {
   const old=await Promise.all(a.rasters.map(r=>readFile(r.path)));
@@ -38,11 +47,14 @@ async function regression() {
   const policy={text:'Dr. Example Researcher',dx:0,dy:98,tolerance:0.25};
   const a=await inspectPdfjs(before),b=await inspectPdfjs(after);
   const pdfjs=attempt(()=>checkTranslation(a,b,policy));
-  let pdfium;
+  let pdfium,rust;
   try {const x=await inspect(before,'regression-baseline'),y=await inspect(after,'regression-broken');
+    report.rust_identity_smoke=await rustPolicy(x,x,before,before,policy,{kind:'identity'});
     pdfium=attempt(()=>checkTranslation(x,y,policy));
-  } catch(e) {pdfium={status:'blocked',reason:e.message};}
-  report.regression={pdfjs,pdfium,rejected:pdfjs.status==='fail'};
+    try {rust=await rustPolicy(x,y,before,after,policy,{kind:'displace',dx:0,dy:98})}
+    catch(e){rust={status:/Target or neighbor has no match|Raster appearance changed beyond/u.test(e.message)?'fail':'blocked',reason:e.message}}
+  } catch(e) {pdfium={status:'blocked',reason:e.message};rust={status:'blocked',reason:e.message};}
+  report.regression={pdfjs,pdfium,rust,rejected:pdfjs.status==='fail'&&rust.status==='fail'};
   if(!report.regression.rejected) throw new Error('Known broken PDF was accepted by the comparison pipeline');
 }
 function selection(source) {
@@ -107,16 +119,22 @@ async function matrix() {
           const prepared=join(output,fixture.id,variant),dir=join(output,'compiled',name,fixture.id,variant);
           await mkdir(dir,{recursive:true});await cp(prepared,dir,{recursive:true});
           const pdf=await compile(engine,dir);
-          variants[variant]={pdfjs:await inspectPdfjs(pdf),pdfium:await inspect(pdf,name+'-'+fixture.id+'-'+variant)};
+          variants[variant]={pdf,pdfjs:await inspectPdfjs(pdf),pdfium:await inspect(pdf,name+'-'+fixture.id+'-'+variant)};
           if(variant==='baseline' && fixture.expect==='cross-page') {
             const ids=targetRecords(variants.baseline.pdfium.records,fixture.text);
             const pages=new Set([...ids].map(i=>variants.baseline.pdfium.records[i].page));
             if(pages.size<2)throw new Error('Cross-page fixture did not actually cross pages');
+            try {await rustPolicy(variants.baseline.pdfium,variants.baseline.pdfium,pdf,pdf,fixture,{kind:'displace',dx:manifest.dx,dy:manifest.dy});throw new Error('Rust accepted a cross-page target')}
+            catch(e){if(!/Target crosses physical pages/u.test(e.message))throw e;row.rust_movement={status:'expected-refusal',reason:e.message}}
             row.status='expected-refusal';row.reason='Target occupies multiple pages';break;
           }
         }
         if(row.status==='expected-refusal')continue;
         const baseline=variants.baseline,zero=variants.zero,moved=variants.moved;
+        row.rust_identity=await rustPolicy(baseline.pdfium,zero.pdfium,baseline.pdf,zero.pdf,fixture,{kind:'identity'});
+        try {row.rust_movement=await rustPolicy(baseline.pdfium,moved.pdfium,baseline.pdf,moved.pdf,fixture,{kind:'displace',dx:manifest.dx,dy:manifest.dy})}
+        catch(e){if(fixture.expect!=='overlap-refuse'||!/Target raster overlaps/u.test(e.message))throw e;row.rust_movement={status:'expected-refusal',reason:e.message}}
+        if(fixture.expect==='overlap-refuse'&&row.rust_movement.status!=='expected-refusal')throw new Error('Rust accepted target overlap');
         for(const renderer of ['pdfjs','pdfium']) {
           const policy={text:fixture.text,occurrence:fixture.occurrence,tolerance:manifest.toleranceBp};
           checkTranslation(baseline[renderer],zero[renderer],{...policy,dx:0,dy:0});

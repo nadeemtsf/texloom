@@ -24,7 +24,9 @@ def inspect_pdf(source, output):
                 crop = page.get_cropbox()
                 if page.get_rotation() != 0 or abs(crop[0]) > 1e-5 or abs(crop[1]) > 1e-5:
                     raise ValueError("Nonzero crop origin or rotation needs the coordinate adapter")
-                result["pages"].append({"width": width, "height": height, "crop": list(crop)})
+                result["pages"].append({"width": width, "height": height, "crop": list(crop),
+                                        "rotation": page.get_rotation(),
+                                        "annotations": raw.FPDFPage_GetAnnotCount(page)})
                 with closing(page.get_textpage()) as text:
                     for index in range(text.count_chars()):
                         value = text.get_text_range(index, 1)

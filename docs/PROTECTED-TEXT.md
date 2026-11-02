@@ -18,6 +18,8 @@ The structured editor also exposes existing `\\[length]` and `\\*[length]` gaps.
 
 Literal text and spacing edits can be submitted together against the same expected fragment. Switching to LaTeX mode transfers both through the native planner. Spacing uses the reflow policy rather than displacement's unchanged-neighbor policy.
 
-The expanded local suites pass 64 core, 19 native service and 67 frontend tests. The engine workflow adds three explicit-gap cases through the real Rust adapter: only `[2pt]` becomes `[14pt]`, the preceding line stays fixed, and the following signature lines move by 12 TeX points. Real-engine results for this new checkpoint are pending CI; these fixtures do not certify native reflow acceptance.
+The expanded local suites pass 64 core, 19 native service, 67 frontend and 17 build-infrastructure tests (167 combined). The engine workflow adds three explicit-gap cases through the real Rust adapter: only `[2pt]` becomes `[14pt]`, the preceding line stays fixed, and the following signature lines move by 12 TeX points (11.955 bp measured). All six literal/spacing cases and the existing movement/selection corpus passed at source 3900ac5 in workflow 41490191030. Raw outcomes: docs/evidence/spacing-verified-run.json. These fixtures do not certify native reflow acceptance.
+
+The spacing frontend and Windows x64 production builds passed. Executable SHA-256: df0b9080389585d46685fcd532845b9eaa6533405e9f7edd88ec84cdc5d54a37. This is a local development artifact, not a certified release.
 
 Remaining P5 work includes broader spacing adapters and editing/reflow fixtures. P6 independent runtime inspection, P7 recovery/conflict/performance hardening, P8 installed-artifact acceptance and P9 richer adapters remain open. Native mouse/typing/IME acceptance remains blocked: desktop control rejected the test app with "Computer Use was not approved to use texloom-p5." No full application release is certified by this checkpoint.

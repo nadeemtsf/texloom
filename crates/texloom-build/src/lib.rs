@@ -3,3 +3,4 @@ pub mod engine;
 pub mod process;
 pub mod scheduler;
 pub mod snapshot;
+pub mod verification;

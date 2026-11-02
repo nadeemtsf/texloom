@@ -34,6 +34,8 @@ jobs:
           cargo build --locked -p texloom-core --example selection_hint
           cargo build --locked -p texloom-core --example literal_candidate
           cargo build --locked -p texloom-core --example spacing_candidate
+          cargo test --locked -p texloom-build --test verification
+          cargo build --locked -p texloom-build --example displacement_check
       - name: Install independent development PDF inspector
         run: python3 -m pip install --disable-pip-version-check -r scripts/proof/requirements.txt
       - name: Run JavaScript and real-PDF regression checks
