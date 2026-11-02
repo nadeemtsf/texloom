@@ -28,7 +28,10 @@ fn root(path:&Path)->Result<PathBuf> {
     require(path.is_dir(),"Project root is not a directory")?;Ok(path)
 }
 fn destination(root:&Path,name:&str,create:bool)->Result<PathBuf> {
-    let relative=file_name(name)?;let mut parent=root.to_path_buf();
+    checked_destination(root,file_name(name)?,create)
+}
+fn checked_destination(root:&Path,relative:PathBuf,create:bool)->Result<PathBuf> {
+    let mut parent=root.to_path_buf();
     let parts=relative.components().collect::<Vec<_>>();
     for part in &parts[..parts.len()-1] {
         parent.push(part);
@@ -263,6 +266,53 @@ pub fn recover(path:&Path,id:&str,finish:bool)->Result<()> {
     let mut journal=Journal::open(&project,id)?;
     if finish {journal.apply(true,&mut |_|Ok(()))?;journal.manifest.state=SaveState::Complete;journal.persist()?;journal.cleanup();Ok(())}
     else {journal.rollback()}
+}
+
+/// Save the canonical editor version to a new project directory. The original
+/// text files are deliberately not re-read: a copy is also the conflict escape.
+pub fn copy_project(project:&Path,sources:&Sources,parent:&Path)->Result<PathBuf> {
+    validate_sources(sources)?;
+    let project=root(project)?;let parent=root(parent)?;
+    require(!parent.starts_with(&project),"Choose a copy folder outside the original project")?;
+    let mut assets=Vec::new();let mut total=sources.values().map(String::len).sum::<usize>();
+    fn visit(base:&Path,dir:&Path,depth:usize,assets:&mut Vec<(String,Vec<u8>,Fingerprint)>,total:&mut usize,count:usize)->Result<()> {
+        require(depth<=20,"Project copy nesting exceeds its limit")?;
+        for e in fs::read_dir(dir).map_err(fail)? {
+            let e=e.map_err(fail)?;let name=e.file_name().to_string_lossy().to_string();
+            if name.starts_with('.')||matches!(name.as_str(),"node_modules"|"target"|"builds"){continue;}
+            no_reparse(&e.path())?;let kind=e.file_type().map_err(fail)?;
+            if kind.is_dir(){visit(base,&e.path(),depth+1,assets,total,count)?;}
+            else if kind.is_file()&&crate::snapshot::is_asset(&e.path()) {
+                let bytes=read(&e.path(),60*1024*1024)?;
+                *total=total.checked_add(bytes.len()).ok_or("Project copy size overflow")?;
+                require(*total<=60*1024*1024&&assets.len()+count<600,"Project copy exceeds file/byte limits")?;
+                let fingerprint=Fingerprint::bytes(&bytes);
+                require(Fingerprint::file(&e.path())?==fingerprint,"An asset changed during project copy")?;
+                let name=e.path().strip_prefix(base).map_err(fail)?.to_string_lossy().replace('\\',"/");
+                assets.push((name,bytes,fingerprint));
+            }
+        }Ok(())
+    }
+    visit(&project,&project,0,&mut assets,&mut total,sources.len())?;
+    let directory=parent.join(format!("Texloom-copy-{}",&identity()[..12]));
+    fs::create_dir(&directory).map_err(fail)?;let directory=directory.canonicalize().map_err(fail)?;
+    require(directory.parent()==Some(parent.as_path()),"Copy destination escaped its selected folder")?;
+    let marker=directory.join(".texloom-copy-pending");write_new(&marker,b"Texloom incomplete project copy v1\n")?;
+    let result:Result<()>=(||{
+        for (name,text) in sources {write_new(&destination(&directory,name,true)?,text.as_bytes())?;}
+        for (name,bytes,expected) in &assets {
+            // Assets use the same strict relative-path grammar, with a separate
+            // extension check; source destination() intentionally only accepts text.
+            let relative=relative(name)?;require(crate::snapshot::is_asset(&relative),"Invalid copied asset")?;
+            let target=checked_destination(&directory,relative.clone(),true)?;
+            write_new(&target,bytes)?;
+            let original=project.join(&relative);no_reparse(&original)?;
+            require(Fingerprint::file(&original)?==*expected,"An asset changed during project copy")?;
+        }
+        fs::remove_file(&marker).map_err(fail)?;Ok(())
+    })();
+    result.map_err(|e|format!("Project copy was not completed at {}: {e}",directory.display()))?;
+    Ok(directory)
 }
 
 #[cfg(test)]

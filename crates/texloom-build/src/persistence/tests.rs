@@ -147,3 +147,36 @@ fn symlinked_destinations_and_parents_cannot_escape_the_project() {
     let mut after=f.after();after.insert("link/main.tex".into(),"OVERWRITE".into());
     assert!(disk.save(&after).is_err());outside.assert_sources(&outside.before);
 }
+
+#[test]
+fn project_copy_uses_editor_sources_and_keeps_original_external_edits_and_assets() {
+    let original=Fixture::new();let parent=Fixture::new();let after=original.after();
+    fs::write(original.root.join("main.tex"),b"EXTERNAL VERSION").unwrap();
+    fs::write(original.root.join("image.png"),b"PNG BYTES").unwrap();
+    let copy=copy_project(&original.root,&after,&parent.root).unwrap();
+    for (name,text) in &after {assert_eq!(fs::read(copy.join(name)).unwrap(),text.as_bytes());}
+    assert_eq!(fs::read(copy.join("image.png")).unwrap(),b"PNG BYTES");
+    assert_eq!(fs::read(original.root.join("main.tex")).unwrap(),b"EXTERNAL VERSION");
+    assert!(!copy.join(".texloom-copy-pending").exists());parent.assert_sources(&parent.before);
+}
+#[test]
+fn project_copy_refuses_self_nesting_and_invalid_sources_before_creating_a_copy() {
+    let original=Fixture::new();let parent=Fixture::new();let before=fs::read_dir(&parent.root).unwrap().count();
+    assert!(copy_project(&original.root,&original.after(),&original.root).is_err());
+    let mut invalid=original.after();invalid.insert("../escape.tex".into(),"BAD".into());
+    assert!(copy_project(&original.root,&invalid,&parent.root).is_err());
+    assert_eq!(fs::read_dir(&parent.root).unwrap().count(),before);original.assert_sources(&original.before);
+}
+#[test]
+fn every_file_replacement_boundary_can_roll_back_and_recover_all_intended_actions() {
+    for index in 0..3 {for after_replace in [false,true] {
+        let f=Fixture::new();let mut disk=f.disk();let mut after=f.after();after.remove("part.tex");
+        let failed=disk.save_with(&after,|stage|{
+            let inject=if after_replace {matches!(stage,Stage::AfterReplace(i)if i==index)}
+                else {matches!(stage,Stage::BeforeReplace(i)if i==index)};
+            if inject {Err("injected replacement failure".into())} else {Ok(())}
+        });
+        assert!(failed.is_err());f.assert_sources(&f.before);assert!(!f.root.join("texloom-objects.sty").exists());
+        recover(&f.root,&id(&f.root),true).unwrap();f.assert_sources(&after);assert!(!f.root.join("part.tex").exists());
+    }}
+}

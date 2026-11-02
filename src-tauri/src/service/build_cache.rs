@@ -217,6 +217,7 @@ impl Backend {
         self.scheduler.cancel_project(project);
         self.documents.lock().map_err(fail)?.remove(project);
         self.projects.lock().map_err(fail)?.remove(project);
+        self.disk_snapshots.lock().map_err(fail)?.remove(project);
         self.displayed.lock().map_err(fail)?.remove(project);
         self.prune_builds("");
         Ok(())

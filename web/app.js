@@ -70,7 +70,7 @@ function acceptDocument(snapshot){
   state.canUndo=snapshot.can_undo;state.canRedo=snapshot.can_redo;
   status();updateControls();
 }
-function editorReadOnly(){editor.updateOptions({readOnly:state.opening||state.mutating||!!state.client?.error});}
+function editorReadOnly(){editor.updateOptions({readOnly:state.opening||state.mutating||state.saving||!!state.client?.error});}
 function syncFailed(error){
   editorReadOnly();
   $('banner').textContent='Source synchronization paused. Your editor text is retained; copy it before reopening the project. '+message(error);
@@ -81,17 +81,21 @@ function syncEditor(){
   model.setEOL(monaco.editor.EndOfLineSequence.LF);state.suppress=false;
   $('active-file').textContent=state.file;renderFiles();
 }
-function fresh(){return !!state.result&&state.result.verification_eligible!==false&&state.revision===state.compiled&&!state.busy&&!state.client?.pending&&!state.client?.error&&!state.mutating&&!state.composing&&!state.opening}
+function fresh(){return !!state.result&&state.result.verification_eligible!==false&&state.revision===state.compiled&&!state.busy&&!state.client?.pending&&!state.client?.error&&!state.mutating&&!state.saving&&!state.composing&&!state.opening}
 function updateControls(){
   const ready=fresh(),legacy=ready&&!!state.selected,object=ready&&!!state.objectSelection;
   for(const id of ['add-text','pin'])$(id).disabled=!ready;
   for(const id of ['apply-position','apply-size','apply-content','edit-block','delete-block'])$(id).disabled=!legacy;
   for(const id of ['object-apply','object-edit','object-source'])$(id).disabled=!object;
   $('object-detach').disabled=!object||state.objectSelection?.kind!=='object';
-  $('compile').disabled=state.busy;
+  $('compile').disabled=state.busy||!!state.saving;
+  $('save').disabled=!!state.saving||state.busy||state.composing;
+  $('open').disabled=!!state.saving;
+  $('engine').disabled=!!state.saving;
+  $('main-file').disabled=!!state.saving;
   $('cancel-compile').disabled=!state.busy||state.mutating;
-  $('undo').disabled=!state.canUndo||state.mutating||state.composing||!!state.client?.error;
-  $('redo').disabled=!state.canRedo||state.mutating||state.composing||!!state.client?.error;
+  $('undo').disabled=!state.canUndo||state.mutating||state.saving||state.composing||!!state.client?.error;
+  $('redo').disabled=!state.canRedo||state.mutating||state.saving||state.composing||!!state.client?.error;
   undoContext.set(!$('undo').disabled);redoContext.set(!$('redo').disabled);
   $('compile-state').textContent=state.busy?'Compiling candidate…':'';
   $('pages').classList.toggle('stale',state.revision!==state.compiled||state.busy);
@@ -143,7 +147,7 @@ function renderFiles(){
   $('main-file').value=state.project.main;$('engine').value=state.engine;
 }
 async function openProject(path=null){
-  if(state.busy||state.opening)return toast('Wait for the current operation before opening another project.');
+  if(state.busy||state.opening||state.saving)return toast('Wait for the current operation before opening another project.');
   if(state.client&&!state.client.error)await state.client.flush();
   if(state.project&&dirty()&&!await confirm('Discard the current unsaved edits before opening another project?',{title:'Unsaved source',kind:'warning'}))return;
   state.opening=true;editorReadOnly();
@@ -166,10 +170,26 @@ async function openProject(path=null){
   }catch(error){toast(message(error))}finally{state.opening=false;editorReadOnly();updateControls()}
 }
 async function saveProject(){
-  if(!state.project)return;
+  if(!state.project||state.saving||state.opening||state.mutating||state.composing)return;
+  if(state.busy)return toast('Wait for the current compilation before saving.');
+  state.saving=true;editorReadOnly();updateControls();
   try{await state.client.flush();const sources=clone(state.sources);
     await invoke('save_document',{projectId:state.project.id,revision:state.revision});state.saved=sources;status();toast('Project source saved.')}
-  catch(error){toast(message(error))}
+  catch(error){toast(message(error));$('save-copy').classList.remove('hidden')}
+  finally{state.saving=false;editorReadOnly();updateControls()}
+}
+async function saveProjectCopy(){
+  if(!state.project||state.saving||state.opening||state.mutating||state.composing)return;
+  if(state.busy)return toast('Wait for the current compilation before saving a copy.');
+  state.saving=true;editorReadOnly();updateControls();
+  try{
+    await state.client.flush();
+    const parent=await open({directory:true,multiple:false,title:'Choose a folder outside this project for its copy'});
+    if(!parent)return;
+    const path=await invoke('copy_document',{projectId:state.project.id,revision:state.revision,parent});
+    toast('Project copy saved to '+path+'. The original project remains open.');
+  }catch(error){toast(message(error))}
+  finally{state.saving=false;editorReadOnly();updateControls()}
 }
 function compileCandidate(){return state.client.compile();}
 const selectionProofs=new WeakMap();
@@ -238,7 +258,7 @@ function publishPrepared(prepared,result){
 }
 async function compile(reason='manual'){
   if(!state.project)return;clearTimeout(state.compileTimer);
-  if(state.composing)return;
+  if(state.composing||state.saving)return;
   if(state.busy){if(reason==='manual'||!state.pending)state.pending=reason;return}
   try{await state.client.flush()}catch(error){return syncFailed(error)}
   if(state.busy){if(reason==='manual'||!state.pending)state.pending=reason;return}
@@ -457,7 +477,7 @@ async function pinSelection(){
   }catch(error){toast(message(error))}
 }
 async function undo(redo=false){
-  if(!state.client||state.mutating||state.composing||state.client.error)return;
+  if(!state.client||state.mutating||state.saving||state.composing||state.client.error)return;
   state.mutating=true;editorReadOnly();updateControls();
   try{
     await state.client.flush();if(!(redo?state.canRedo:state.canUndo))return;
@@ -544,7 +564,7 @@ $('edit-latex').onclick=async()=>{
     $('plain-label').classList.remove('hidden');$('plain').checked=false;$('plain').disabled=true;$('edit-help').textContent='LaTeX mode: edit commands carefully. Changes are compiled before acceptance.';$('edit-text').focus();
   }catch(error){toast(message(error))}finally{context.switching=false;for(const run of editInputs(context))run.input.disabled=false;$('edit-latex').disabled=false}
 };
-$('compile').onclick=()=>compile();$('save').onclick=saveProject;$('undo').onclick=()=>undo();$('redo').onclick=()=>undo(true);$('pin').onclick=pinSelection;
+$('compile').onclick=()=>compile();$('save').onclick=saveProject;$('save-copy').onclick=saveProjectCopy;$('undo').onclick=()=>undo();$('redo').onclick=()=>undo(true);$('pin').onclick=pinSelection;
 $('cancel-compile').onclick=cancelCompile;
 $('open').onclick=async()=>{try{const path=await open({multiple:false,filters:[{name:'LaTeX document',extensions:['tex']}]});if(typeof path==='string')await openProject(path)}catch(error){toast(message(error))}};
 $('export').onclick=async()=>{

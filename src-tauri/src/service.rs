@@ -261,6 +261,7 @@ pub struct Backend {
     builds: Mutex<HashMap<String, Arc<Build>>>,
     scheduler: texloom_build::scheduler::Scheduler,
     documents: Mutex<HashMap<String, document::DocumentSlot>>,
+    disk_snapshots: Mutex<HashMap<String, texloom_build::persistence::DiskSnapshot>>,
     displayed: Mutex<HashMap<String, String>>,
     cache: std::sync::OnceLock<Result<build_cache::SessionCache>>,
     verifier: Option<Result<texloom_build::inspection_worker::Worker>>,
@@ -274,6 +275,7 @@ impl Backend {
             builds: Mutex::new(HashMap::new()),
             scheduler: Default::default(),
             documents: Mutex::new(HashMap::new()),
+            disk_snapshots: Mutex::new(HashMap::new()),
             displayed: Mutex::new(HashMap::new()),
             cache: Default::default(),
             verifier: None,
@@ -337,6 +339,7 @@ impl Backend {
             })
             .or_else(|| candidates.first().cloned())
             .ok_or("No main LaTeX document found")?;
+        let disk = texloom_build::persistence::DiskSnapshot::capture(&root, &sources)?;
         let id = Uuid::new_v4().simple().to_string();
         self.documents.lock().map_err(fail)?.insert(
             id.clone(),
@@ -346,6 +349,7 @@ impl Backend {
             .lock()
             .map_err(fail)?
             .insert(id.clone(), root.clone());
+        self.disk_snapshots.lock().map_err(fail)?.insert(id.clone(), disk);
         Ok(Project {
             id,
             name: root
@@ -366,25 +370,26 @@ impl Backend {
             .ok_or_else(|| "Reopen this project before continuing".into())
     }
     pub fn save_project(&self, id: &str, sources: &BTreeMap<String, String>) -> Result<()> {
-        let root = self.project_root(id)?;
-        for (name, text) in sources {
-            let path = relative(name)?;
-            if !text_file(&path) || text.len() > 4_000_000 {
-                return Err("Invalid source file".into());
-            }
-            let destination = root.join(path);
-            fs::create_dir_all(destination.parent().ok_or("Missing parent")?).map_err(fail)?;
-            // Originals are replaced only by the user's explicit Save action.
-            let temp = destination.with_extension("texloom-saving");
-            fs::write(&temp, text).map_err(fail)?;
-            fs::rename(temp, destination).map_err(fail)?;
-        }
-        if sources.values().any(|s| s.contains("\\StudioBlock"))
-            && !root.join("studio.sty").exists()
+        let root = self.project_root(id)?.canonicalize().map_err(fail)?;
+        let mut snapshots = self.disk_snapshots.lock().map_err(fail)?;
+        let disk = snapshots.get_mut(id).ok_or("Reopen this project before Save")?;
+        if disk.root != root { return Err("The project directory changed".into()); }
+        let mut desired = sources.clone();
+        // Preserve the existing isolated StudioBlock compatibility dependency.
+        // Normal text-object dependencies already belong to canonical source.
+        if !desired.contains_key("studio.sty")
+            && (sources.values().any(|s|s.contains("\\StudioBlock"))
+                || disk.files.get("studio.sty").is_some_and(Option::is_some))
         {
-            fs::write(root.join("studio.sty"), STYLE).map_err(fail)?;
+            desired.insert("studio.sty".into(), STYLE.into());
         }
-        Ok(())
+        match disk.save(&desired)? {
+            texloom_build::persistence::SaveOutcome::Saved => Ok(()),
+            texloom_build::persistence::SaveOutcome::Conflicts(conflicts) => {
+                let files = conflicts.iter().take(8).map(|c|format!("{} ({})",c.file,c.kind)).collect::<Vec<_>>().join(", ");
+                Err(format!("Save conflict: {files}. Your editor changes are preserved. Reload the disk version or save a project copy."))
+            }
+        }
     }
     pub fn compile(
         &self,

@@ -33,12 +33,26 @@ fn open_project(state: State<'_, Arc<Backend>>, path: Option<String>) -> Result<
 }
 
 #[tauri::command]
-fn save_document(
+async fn save_document(
     state: State<'_, Arc<Backend>>,
     project_id: String,
     revision: u64,
 ) -> Result<(), String> {
-    state.save_document(&project_id, revision)
+    let backend = state.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || backend.save_document(&project_id, revision))
+        .await.map_err(|e|e.to_string())?
+}
+
+#[tauri::command]
+async fn copy_document(
+    state: State<'_, Arc<Backend>>,
+    project_id: String,
+    revision: u64,
+    parent: String,
+) -> Result<String, String> {
+    let backend = state.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || backend.copy_document(&project_id, revision, &parent))
+        .await.map_err(|e|e.to_string())?
 }
 
 #[tauri::command]
@@ -266,6 +280,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             open_project,
             save_document,
+            copy_document,
             compile_document,
             cancel_compilation,
             pin_displayed_build,

@@ -462,12 +462,29 @@ impl Backend {
         }
         Ok(())
     }
+    pub fn copy_document(&self, id: &str, base: u64, parent: &str) -> Result<String> {
+        let documents = self.documents.lock().map_err(fail)?;
+        let slot = documents.get(id).ok_or("Reopen this project")?;
+        if slot.session.revision() != Revision(base) {
+            return Err("The source changed before the project copy; try again".into());
+        }
+        let root = self.project_root(id)?;
+        let mut sources = slot.session.sources().clone();
+        if !sources.contains_key("studio.sty") && sources.values().any(|s|s.contains("\\StudioBlock")||s.contains("\\usepackage{studio}")) {
+            sources.insert("studio.sty".into(),STYLE.into());
+        }
+        texloom_build::persistence::copy_project(&root,&sources,Path::new(parent))
+            .map(|path|path.to_string_lossy().into_owned())
+    }
     pub fn save_document(&self, id: &str, base: u64) -> Result<()> {
-        let snapshot = self.document_snapshot(id)?;
-        if snapshot.revision != base {
+        // Serialize the full explicit save with edits/history/closure. No later
+        // source revision can be written under an earlier Save acknowledgement.
+        let documents = self.documents.lock().map_err(fail)?;
+        let slot = documents.get(id).ok_or("Reopen this project")?;
+        if slot.session.revision() != Revision(base) {
             return Err("The source changed before Save; try again".into());
         }
-        self.save_project(id, &snapshot.sources)
+        self.save_project(id, slot.session.sources())
     }
 }
 
@@ -753,4 +770,55 @@ mod tests {
         s.undo().unwrap();
         assert_eq!(s.sources(), &before);
     }
+    fn saved_project_fixture(source:&str)->(Backend,Project,PathBuf) {
+        let root=std::env::temp_dir().join(format!("texloom-native-save-{}",Uuid::new_v4().simple()));
+        let project=root.join("project");fs::create_dir_all(&project).unwrap();
+        fs::write(project.join("main.tex"),source).unwrap();
+        let backend=Backend::new(root.join("app"));
+        let opened=backend.open_project(Some(project.join("main.tex").to_string_lossy().into_owned())).unwrap();
+        (backend,opened,root)
+    }
+    #[test]
+    fn explicit_save_refuses_external_changes_without_losing_editor_bytes_or_history() {
+        let source="\\documentclass{article}\n\\begin{document}Before\\end{document}";
+        let (backend,project,root)=saved_project_fixture(source);
+        let offset=source.find("Before").unwrap();
+        let edited=backend.document_edit(&project.id,0,"main.tex",vec![EditorChange{offset,length:6,text:"Local".into()}],None).unwrap();
+        fs::write(root.join("project/main.tex"),b"EXTERNAL SOURCE").unwrap();
+        let error=backend.save_document(&project.id,edited.revision).unwrap_err();
+        assert!(error.contains("Save conflict"),"{error}");
+        assert_eq!(fs::read(root.join("project/main.tex")).unwrap(),b"EXTERNAL SOURCE");
+        let current=backend.document_snapshot(&project.id).unwrap();
+        assert_eq!(current.sources,edited.sources);assert_eq!(current.revision,edited.revision);assert!(current.can_undo);
+        assert_eq!(backend.document_history(&project.id,edited.revision,false).unwrap().sources,project.sources);
+        drop(backend);fs::remove_dir_all(root).unwrap();
+    }
+    #[test]
+    fn stale_save_and_copy_requests_cannot_write_a_newer_revision() {
+        let source="\\documentclass{article}\n\\begin{document}Before\\end{document}";
+        let (backend,project,root)=saved_project_fixture(source);
+        backend.document_edit(&project.id,0,"main.tex",vec![EditorChange{offset:source.find("Before").unwrap(),length:6,text:"Local".into()}],None).unwrap();
+        assert!(backend.save_document(&project.id,0).is_err());
+        assert!(backend.copy_document(&project.id,0,&root.to_string_lossy()).is_err());
+        assert_eq!(fs::read(root.join("project/main.tex")).unwrap(),source.as_bytes());
+        let copy=PathBuf::from(backend.copy_document(&project.id,1,&root.to_string_lossy()).unwrap());
+        assert!(fs::read_to_string(copy.join("main.tex")).unwrap().contains("Local"));
+        assert_eq!(fs::read(root.join("project/main.tex")).unwrap(),source.as_bytes());
+        backend.save_document(&project.id,1).unwrap();
+        assert_eq!(fs::read(root.join("project/main.tex")).unwrap(),backend.document_snapshot(&project.id).unwrap().sources["main.tex"].as_bytes());
+        drop(backend);fs::remove_dir_all(root).unwrap();
+    }
+    #[test]
+    fn legacy_support_save_is_checked_and_external_style_changes_are_preserved() {
+        let source="\\documentclass{article}\n\\usepackage{studio}\n\\begin{document}\\StudioBlock{sig}{1}{10}{20}{100}{12}{Name}\\end{document}";
+        let (backend,project,root)=saved_project_fixture(source);
+        backend.save_document(&project.id,0).unwrap();backend.save_document(&project.id,0).unwrap();
+        assert_eq!(fs::read_to_string(root.join("project/studio.sty")).unwrap(),STYLE);
+        fs::write(root.join("project/studio.sty"),b"EXTERNAL STYLE").unwrap();
+        assert!(backend.save_document(&project.id,0).is_err());
+        assert_eq!(fs::read(root.join("project/studio.sty")).unwrap(),b"EXTERNAL STYLE");
+        assert_eq!(backend.document_snapshot(&project.id).unwrap().revision,0);
+        drop(backend);fs::remove_dir_all(root).unwrap();
+    }
+
 }
