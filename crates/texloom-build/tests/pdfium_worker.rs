@@ -169,9 +169,12 @@ fn native_inspector_matches_reference_and_refuses_overwrite_and_malformed_pdf() 
 }
 
 fn simple_pdf(stream: &str) -> Vec<u8> {
+    simple_pdf_boxes(stream, "/MediaBox [0 0 300 200]", "")
+}
+fn simple_pdf_boxes(stream: &str, page_box: &str, parent_box: &str) -> Vec<u8> {
     let objects=vec!["<< /Type /Catalog /Pages 2 0 R >>".into(),
-        "<< /Type /Pages /Kids [3 0 R] /Count 1 >>".into(),
-        "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 300 200] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>".into(),
+        format!("<< /Type /Pages /Kids [3 0 R] /Count 1 {parent_box} >>"),
+        format!("<< /Type /Page /Parent 2 0 R {page_box} /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>"),
         "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>".into(),
         format!("<< /Length {} >>\nstream\n{stream}\nendstream",stream.len())];
     let mut pdf = b"%PDF-1.4\n".to_vec();
@@ -402,4 +405,31 @@ fn parent_supervisor_checks_receipts_and_cleans_only_derived_evidence() {
     assert!(worker.inspect(&pdf, &sha, None, &cancelled).is_err());
     assert_eq!(fs::read_dir(&cache).unwrap().count(), 0);
     assert_eq!(fs::read(&pdf).unwrap(), original);
+}
+
+#[test]
+#[ignore = "requires explicitly prepared pinned Windows PDFium"]
+fn inherited_page_boxes_match_direct_boxes_and_keep_crop_rotation_refusals() {
+    let library=PathBuf::from(std::env::var_os("TEXLOOM_PDFIUM_TEST_DLL").expect("Set pinned DLL"));
+    let stream="BT /F1 12 Tf 20 150 Td (Inherited page box) Tj ET";
+    let mut direct=None;
+    for (page_box,parent_box,refused) in [
+        ("/MediaBox [0 0 300 200]","",false),
+        ("","/MediaBox [0 0 300 200]",false),
+        ("","/MediaBox [0 0 300 200] /CropBox [10 0 300 200]",true),
+        ("","/MediaBox [0 0 300 200] /Rotate 90",true),
+    ] {
+        let dir=Directory::new();let pdf=dir.0.join("page-boxes.pdf");
+        let bytes=simple_pdf_boxes(stream,page_box,parent_box);fs::write(&pdf,&bytes).unwrap();
+        let mut value=request(&library);value["pdf"]=json!(pdf);value["pdf_sha256"]=json!(digest(&bytes));
+        let path=dir.request(value);let output=run(&path);
+        if refused {
+            assert!(!output.success&&output.text.contains("Crop/rotation needs a coordinate adapter"),"{}",output.text);
+        } else {
+            assert!(output.success,"{}",output.text);
+            let view:Value=serde_json::from_slice(&fs::read(path.with_extension("inspection.json")).unwrap()).unwrap();
+            let comparable=json!({"pages":view["pages"],"records":view["records"],"raster_sha256":view["rasters"][0]["sha256"]});
+            if let Some(reference)=&direct {assert_eq!(reference,&comparable);}else{direct=Some(comparable);}
+        }
+    }
 }

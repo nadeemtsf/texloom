@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "source": "f9afe4d8d5016236b1c496b2dc9e8bf5653a3a17",
+  "workflow": 41526030394,
+  "job": 125556008572,
+  "status": "failed",
+  "stage": "baseline page-box inspection after all pdfLaTeX/LuaLaTeX cases",
+  "error": "The PDF has no usable page box",
+  "last_observed_case": "lualatex/signature-overlap",
+  "next_case_from_manifest_order": "xelatex/signature",
+  "follow_up": "Use pinned FPDF_GetPageBoundingBox for the effective inherited media/crop intersection; retain zero-origin and rotation refusals. Add direct/inherited equivalence and inherited crop/rotation regression tests.",
+  "primary_sources": [
+    "https://github.com/chromium/pdfium/blob/chromium/6462/public/fpdfview.h",
+    "https://github.com/chromium/pdfium/blob/chromium/6462/fpdfsdk/fpdf_view.cpp",
+    "https://github.com/chromium/pdfium/blob/chromium/6462/core/fpdfapi/page/cpdf_page.cpp"
+  ]
+}

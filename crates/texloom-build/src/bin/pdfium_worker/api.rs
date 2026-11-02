@@ -17,6 +17,9 @@ use windows_sys::Win32::{
     },
 };
 pub type Handle = *mut c_void;
+#[repr(C)]
+#[derive(Default)]
+pub struct PageRect { pub left: f32, pub top: f32, pub right: f32, pub bottom: f32 }
 pub type Result<T> = std::result::Result<T, String>;
 pub use texloom_build::inspection_worker::DLL_SHA256;
 struct Library {
@@ -105,8 +108,7 @@ api! {
     FPDF_ClosePage(Handle)->();
     FPDF_GetPageWidthF(Handle)->f32;
     FPDF_GetPageHeightF(Handle)->f32;
-    FPDFPage_GetCropBox(Handle,*mut f32,*mut f32,*mut f32,*mut f32)->i32;
-    FPDFPage_GetMediaBox(Handle,*mut f32,*mut f32,*mut f32,*mut f32)->i32;
+    FPDF_GetPageBoundingBox(Handle,*mut PageRect)->i32;
     FPDFPage_GetRotation(Handle)->i32;
     FPDFPage_GetAnnotCount(Handle)->i32;
     FPDFText_LoadPage(Handle)->Handle;

@@ -103,18 +103,14 @@ fn inspect(request: &Request, prefix: &Path) -> Result<Value> {
                 && height <= 14_400.0,
             "Invalid PDF page dimensions",
         )?;
-        let mut crop = [0f32; 4];
-        let p = crop.as_mut_ptr();
-        let crop_ok =
-            unsafe { (api.FPDFPage_GetCropBox)(page.raw, p, p.add(1), p.add(2), p.add(3)) };
-        if crop_ok == 0 {
-            check(
-                unsafe { (api.FPDFPage_GetMediaBox)(page.raw, p, p.add(1), p.add(2), p.add(3)) }
-                    != 0,
-                "The PDF has no usable page box",
-            )?;
-        }
-        let crop = crop.map(f64::from);
+        // Use the page's effective box, including inherited MediaBox/CropBox
+        // and their intersection, exactly as the pinned renderer does.
+        let mut bounds = api::PageRect::default();
+        check(
+            unsafe { (api.FPDF_GetPageBoundingBox)(page.raw, &mut bounds) } != 0,
+            "The PDF has no usable page box",
+        )?;
+        let crop = [bounds.left, bounds.bottom, bounds.right, bounds.top].map(f64::from);
         rectangle(crop)?;
         let rotation = unsafe { (api.FPDFPage_GetRotation)(page.raw) };
         check(
