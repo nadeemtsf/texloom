@@ -63,7 +63,16 @@ fn marked_content_corpus_from_real_tex_engines() {
             drop(zero);
             let marker = format!("Texloom_proof_{id}");
             let zero = inspect("zero", Some(&marker)).unwrap();
-            let moved = inspect("moved", Some(&marker)).unwrap();
+            println!("Checking {engine}/{id}: candidate marker attribution");
+            let moved = match inspect("moved", Some(&marker)) {
+                Ok(view) => view,
+                Err(reason) if fixture["expect"] == "overlap-refuse"
+                    && reason.contains("Glyph attribution crosses target and neighbor objects") => {
+                    rows.push(json!({"engine":engine,"fixture":id,"status":"expected-refusal","reason":reason}));
+                    continue;
+                }
+                Err(reason) => panic!("{engine}/{id}/moved: {reason}"),
+            };
             let checked = compare(
                 &zero.view,
                 &moved.view,

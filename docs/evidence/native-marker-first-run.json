@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "source": "4b31c5a1a81c7d7ffa0991532309dfad14ec620b",
+  "workflow": 41524175882,
+  "job": 125549600840,
+  "status": "failed",
+  "stage": "Windows native candidate marker inspection",
+  "error": "Glyph attribution crosses target and neighbor objects",
+  "case": "not printed by the original test; follow-up adds case context",
+  "linux_source_and_pdf": "passed",
+  "build_corpus": "passed",
+  "follow_up": "Recognize this conservative worker refusal only for a fixture already declared overlap-refuse; all positive fixtures must still pass. Await fresh CI."
+}
