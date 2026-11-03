@@ -109,8 +109,24 @@ pub fn build(request: Request<'_>, cancel: &Cancellation) -> Result<Outcome, Str
     )
     .map_err(|e| format!("Compiler preflight failed: {e}"))?;
     cancel.check()?;
-    if !version.success {
-        return Err(format!("Compiler preflight failed: {}", version.text));
+    if !version.success || version.timed_out || version.truncated {
+        // Configuration failures are build results, not giant IPC exception
+        // messages. Retain captured output while withholding every PDF receipt.
+        let diagnostic = preflight_diagnostic(&version);
+        receipt.arguments = version_args;
+        receipt.verify()?;
+        receipt.persist()?;
+        cancel.check()?;
+        return Ok(Outcome {
+            ok: false,
+            eligible: false,
+            receipt,
+            diagnostics: vec![diagnostic],
+            log: version.text,
+            pdf: Vec::new(),
+            seconds: started.elapsed().as_secs_f64(),
+            converged: false,
+        });
     }
     receipt.engine_version = version.text.lines().take(3).collect::<Vec<_>>().join("\n");
     let miktex = version.text.to_ascii_lowercase().contains("miktex");
@@ -263,6 +279,29 @@ pub fn build(request: Request<'_>, cancel: &Cancellation) -> Result<Outcome, Str
         converged,
     })
 }
+fn preflight_diagnostic(output: &process::Output) -> Diagnostic {
+    let lower = output.text.to_ascii_lowercase();
+    let (code, message) = if output.timed_out {
+        (
+            "compiler_preflight_timeout",
+            "Compiler version check timed out. Open Compiler output for details.",
+        )
+    } else if output.truncated {
+        (
+            "compiler_preflight_output_truncated",
+            "Compiler version output exceeded its limit. Open Compiler output for details.",
+        )
+    } else if lower.contains("access is denied") || lower.contains("permission denied") {
+        ("compiler_preflight_access_denied", "The compiler could not initialize because access was denied. Open Compiler output for details.")
+    } else {
+        (
+            "compiler_preflight_failed",
+            "The compiler could not initialize. Open Compiler output for details.",
+        )
+    };
+    Diagnostic::new(code, Severity::Error, message)
+}
+
 fn auxiliary_state(root: &Path) -> Result<BTreeMap<PathBuf, Fingerprint>, String> {
     fn visit(
         root: &Path,
@@ -374,6 +413,35 @@ pub fn parse_diagnostics(log: &str, sources: &BTreeMap<String, String>) -> Vec<D
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn preflight_failures_use_bounded_messages_and_preserve_timeout_priority() {
+        let mut output = process::Output {
+            success: false,
+            cancelled: false,
+            timed_out: false,
+            truncated: false,
+            text: "unrecognized initialization failure".repeat(1000),
+        };
+        assert_eq!(
+            preflight_diagnostic(&output).code,
+            "compiler_preflight_failed"
+        );
+        assert!(preflight_diagnostic(&output).message.len() < 200);
+        output.text = "Access is denied. Permission denied.".into();
+        assert_eq!(
+            preflight_diagnostic(&output).code,
+            "compiler_preflight_access_denied"
+        );
+        output.truncated = true;
+        assert_eq!(
+            preflight_diagnostic(&output).code,
+            "compiler_preflight_output_truncated"
+        );
+        output.timed_out = true;
+        let diagnostic = preflight_diagnostic(&output);
+        assert_eq!(diagnostic.code, "compiler_preflight_timeout");
+        assert_eq!(diagnostic.severity, Severity::Error);
+    }
     #[test]
     fn errors_have_source_locations_and_ordinary_warnings_are_not_errors() {
         let sources = BTreeMap::from([("chapter one.tex".into(), "".into())]);

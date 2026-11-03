@@ -4,7 +4,10 @@ export class StaleCandidate extends Error {
   constructor(){super('The source changed during this operation. The newer source was preserved.');this.name='StaleCandidate'}
 }
 export class CompilationFailure extends Error {
-  constructor(log,diagnostics=[]){super(compileDiagnostic(log));this.name='CompilationFailure';this.log=log;this.diagnostics=diagnostics}
+  constructor(log,diagnostics=[]){
+    const preflight=diagnostics.find(d=>d.severity==='error'&&typeof d.code==='string'&&d.code.startsWith('compiler_preflight_')&&typeof d.message==='string');
+    super(preflight?.message||compileDiagnostic(log));this.name='CompilationFailure';this.log=log;this.diagnostics=diagnostics;
+  }
 }
 export function compileDiagnostic(log='') {
   const lines=String(log).split(/\r?\n/);

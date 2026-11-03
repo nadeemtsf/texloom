@@ -6,7 +6,7 @@ Primary project: nadeemtsf/texloom, Rust/Tauri Windows. Approved scope is APPROV
 
 Local commands work again. Exact remote history was reconciled to feature/project-durability at e1caf7ce9649a6e7e9aa6c19d890480ae0ecc5e0 with Git object/ancestry/connectivity checks. All 151 working file byte snapshots were preserved; ignored backups are in .tools/reconcile-git. Do not reset or discard user work.
 
-Current development branch: feature/desktop-startup, based on that durability tip. Main remains the older verified baseline. PR #11 (native-layout-gate) and PR #12 (project-durability) are drafts in the primary repository. Command-line Git authentication fails in its Windows credential helper; the connected GitHub service works.
+Current development branch: feature/compiler-preflight, based on startup source c773a9045868d10e843134693bd9f64c582c8cd3. Main remains the older verified baseline. PR #11 (native-layout-gate) and PR #12 (project-durability) are drafts in the primary repository. Command-line Git authentication fails in its Windows credential helper; the connected GitHub service works.
 
 ## Verified implementation checkpoints
 
@@ -23,9 +23,15 @@ Launching the existing .tools/p5-ui-test/Texloom-P5.exe succeeded. This pre-fix 
 
 Source inspection found a startup failure: app.js assigns a handler and state to cancel-compile, but the HTML lacks that element. Initialization throws before openProject runs. The correction adds the visible, initially disabled Cancel compile control. Initial project-open errors now receive a persistent explanation and leave Open project available.
 
-Four new tests execute the complete production shell against IDs from shipped HTML, retaining real DocumentClient and transaction code with mock native/Monaco/DOM boundaries. They cover source opening, reproducing the missing-element failure, wired cancellation and failed initial open. They are shell integration tests, not native input tests. All 81 frontend and required 64 core checks passed after the correction; the Windows executable rebuilt successfully. Combined unchanged-Rust and updated-frontend coverage is 237 checks. Exact source/artifact hashes: evidence/desktop-startup-local.json. New CI is recorded separately when available.
+Four new tests execute the complete production shell against IDs from shipped HTML, retaining real DocumentClient and transaction code with mock native/Monaco/DOM boundaries. They cover source opening, reproducing the missing-element failure, wired cancellation and failed initial open. They are shell integration tests, not native input tests. All 81 frontend and required 64 core checks passed after the correction; the Windows executable rebuilt successfully. Combined unchanged-Rust and updated-frontend coverage is 237 checks. Exact source/artifact hashes: evidence/desktop-startup-local.json. Startup source c773a90 passed Windows 41583936566 and proof 41583936685, including Windows mark inspection: 156 Rust and 81 frontend checks. Raw CI evidence is in evidence/desktop-startup-ci.json; draft PR #13.
 
-The running P5 test app predates the correction. The new target/release executable contains it but has not been interactively tested. Never label the running test app, an old portable ZIP or prior CI artifact as this fixed build.
+The running P5 test app predates the startup correction. The target/release executable contains that correction but has not been interactively tested. The compiler follow-up uses the explicit target/x86_64-pc-windows-msvc/release executable and the portable artifact; exact hashes belong to its separate evidence. Never label an older executable or ZIP as the current build.
+
+## Compiler preflight follow-up
+
+All three installed MiKTeX engines were explicitly exercised through the real service. All 24 local outcomes failed their version preflight with access-denied errors in registry/configuration access; no document was compiled. Evidence: evidence/windows-engine-first-local.json, with raw report/log hashes. Do not call these expected passes or change configuration/permissions to bypass the restriction.
+
+The follow-up returns short structured initialization diagnostics while retaining captured traces, refuses failed/timed-out/truncated version evidence, rechecks inputs and emits no PDF/output receipts for a failed preflight. Tests include a nonzero version check that leaves an untrusted PDF and a zero-exit version check with truncated output. The frontend rejects these results before PDF preparation. Validation passed: 152 default Rust, five explicit worker, two explicit native-gate and 83 frontend checks (242 combined), including the final untrusted-PDF guard. The Windows executable and portable package built; ZIP CRC and all packaged executable/verifier receipts were checked. Exact hashes and logs: evidence/compiler-preflight-local.json. New remote CI is tracked separately. Native input and local installed-engine acceptance remain open.
 
 ## Open gates and next work
 

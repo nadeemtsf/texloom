@@ -25,7 +25,7 @@ Primary and secondary selections use byte boundaries and project back for undo/r
 | document_selection | Update all cursors through the ordered queue |
 | document_profile | Change main/engine through history |
 | document_history | Shared undo/redo |
-| document_prepare | Derive minimal byte replacements; retain private visual candidate |
+| document_prepare_visual | Replan a typed source operation; retain a private receipt-bound candidate or a discard-only selection probe |
 | compile_document | Compile immutable current or candidate sources |
 | document_commit | Require the candidate's own successful native build ID |
 | document_discard | Drop abandoned candidate |
@@ -35,14 +35,16 @@ DocumentClient serializes edits and selection messages against native acknowledg
 
 Rejected source deltas freeze editing and stop dependent deltas while retaining the visible buffer. Refused visual commits do not poison subsequent typing. Keyboard, toolbar, explicit editor context-menu actions and Monaco model undo/redo route to native history. Dedicated context keys follow Rust history after Monaco resets; the context-menu, clipboard and standard multi-cursor contributions are loaded explicitly. Composition blocks compilation, canvas actions and history until it ends.
 
-Visual edits prepare sources in Rust, compile, prepare/render and validate the PDF in the frontend, recheck identity, then briefly freeze editing for native commit/publication. Typing invalidates the token. Wrong-revision results are rejected before rendering/publication. Independent runtime PDF verification remains P6.
+Visual edits are replanned in Rust from a typed operation and exact baseline receipt. A candidate compiles privately, receives operation-specific inspection from the isolated PDFium worker and is prepared/rendered by the frontend before native commit/publication. Native one-shot approval binds the exact source revision, build, toolchain and cancellation lease. Selection probes cannot commit. Typing invalidates the token, and wrong-revision results cannot publish. See NATIVE-LAYOUT-GATE.md for implemented policies and remaining fractional/paint/native-acceptance limits.
 
 ## Evidence and limits
 
 Core tests cover exhaustive Unicode range/replacement round trips, multi-file atomicity, byte preservation, stale/foreign candidates, support-file/profile undo, EOL/BOM and selections. Native tests use the real service/Serde boundary and save/reopen. Frontend tests use named doubles for delayed IPC, failed/stale candidates, cursor forwarding, composition gates and undo routing.
 
-Production startup/sample compile passed. Native typing, actual IME, multi-cursor and context-menu acceptance are unverified because foreground capture prevented reliable input testing. P2 is not complete.
+Earlier prototype startup/sample observations do not certify the current executable. On 3 November a fresh native launch exposed a missing Cancel compile element that aborted initialization. The correction passes full-shell integration tests and builds a new executable; those tests use mock native/Monaco/DOM boundaries. Native input was rejected with "Computer Use was not approved to use texloom-p5." Native typing, actual IME, multi-cursor and context-menu acceptance remain unverified. P2 is not complete.
 
 The frontend remains JavaScript; strict TypeScript/generated IPC types remain planned. Unsupported encodings produce a UTF-8 error; read-only viewing/conversion is unfinished. Failed optimistic buffers remain in the window without a durable journal. String storage is dependency-free; performance, rope/index optimization and session/build cleanup need measurement.
 
-Save is not yet multi-file atomic or conflict-aware. Core removals do not constitute completed filesystem file management. Compilation still copies disk dependencies and runs two fixed passes; P3 must make dependency snapshots reproducible. Main/engine choices have session history but no persisted project profile yet.
+Explicit Save now checks loaded disk fingerprints and the canonical revision, uses staged recoverable replacements, and offers conflict-preserving project copies and explicit interrupted-Save recovery. Multiple replacements are recoverable, not globally atomic against all third-party writes. Core removals still do not constitute completed filesystem file management. See PROJECT-DURABILITY.md.
+
+Compilation uses immutable copied source/asset snapshots and checked compiler/dependency receipts, two to six convergence passes, cancellation, resource limits and guarded export. The direct-engine recipe does not orchestrate bibliography tools; see BUILD-SERVICE.md. Main/engine choices have session history but no persisted project profile yet. Recovery of never-saved typing and its history remains P7 work; explicit-Save journals and retained interrupted build caches are not a substitute.
