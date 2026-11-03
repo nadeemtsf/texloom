@@ -6,14 +6,32 @@ export class DocumentClient {
     this.assertRevision(snapshot.revision);
   }
   assertRevision(revision){if(!Number.isSafeInteger(revision)||revision<0)throw new Error('Invalid document revision');}
+  accept(name,args,next) {
+    this.assertRevision(next.revision);
+    const previous=this.snapshot;
+    if(next.revision<previous.revision)throw new Error('Document acknowledgement moved backward');
+    if(next.kind===undefined)return {snapshot:{...previous,...next},sourceChanged:!!next.sources};
+    const invalid=()=>{throw new Error('Invalid source edit acknowledgement; source synchronization stopped');};
+    if(name!=='document_edit'||next.kind!=='source_delta'||next.base_revision!==previous.revision)invalid();
+    if(next.revision!==previous.revision&&next.revision!==previous.revision+1)invalid();
+    if(next.main!==previous.main||next.engine!==previous.engine||typeof next.can_undo!=='boolean'||typeof next.can_redo!=='boolean')invalid();
+    if(!next.sources||typeof next.sources!=='object'||Array.isArray(next.sources))invalid();
+    const files=Object.keys(next.sources),changed=next.revision!==previous.revision;
+    if(changed?files.length!==1||files[0]!==args.file:files.length!==0)invalid();
+    if(changed&&(!Object.prototype.hasOwnProperty.call(previous.sources,args.file)||typeof next.sources[args.file]!=='string'||next.sources[args.file]===previous.sources[args.file]))invalid();
+    const range=s=>s&&Number.isSafeInteger(s.anchor)&&s.anchor>=0&&Number.isSafeInteger(s.head)&&s.head>=0;
+    if(next.selection!==null&&(!range(next.selection)||!Object.prototype.hasOwnProperty.call(previous.sources,next.selection.file)||!Array.isArray(next.selection.secondary)||!next.selection.secondary.every(range)))invalid();
+    const {kind,base_revision,sources,...metadata}=next;
+    // A no-op must still reconcile the shell's optimistic editor revision.
+    return {snapshot:{...previous,...metadata,sources:changed?{...previous.sources,...sources}:previous.sources},sourceChanged:true};
+  }
   enqueue(name,args={},fatal=true,mutating=true) {
     this.outstanding++;if(mutating)this.pending++;
     const job=this.tail.then(async()=>{
       if(this.error)throw this.error;
       const next=await this.invoke(name,{projectId:this.projectId,revision:this.snapshot.revision,...args});
-      this.assertRevision(next.revision);
-      if(next.revision<this.snapshot.revision)throw new Error('Document acknowledgement moved backward');
-      this.snapshot={...this.snapshot,...next};if(next.sources)this.unpublished=true;return this.snapshot;
+      const accepted=this.accept(name,args,next);
+      this.snapshot=accepted.snapshot;if(accepted.sourceChanged)this.unpublished=true;return this.snapshot;
     }).catch(error=>{if(fatal&&!this.error){this.error=error;this.failed(error);}throw error;}).finally(()=>{
       this.outstanding--;if(mutating)this.pending--;
       if(!this.outstanding&&!this.error&&this.unpublished){this.unpublished=false;this.changed(this.snapshot);}
@@ -43,3 +61,11 @@ export class DocumentClient {
 }
 
 export function editorText(source){return source.replace(/^\uFEFF/u,'').replace(/\r\n?|\n/gu,'\n');}
+
+// Buffers contain immutable strings. Compare exact bytes without allocating a
+// second JSON representation of the entire project or depending on key order.
+export function sameSources(left,right){
+  if(left===right)return true;
+  const files=Object.keys(left);
+  return files.length===Object.keys(right).length&&files.every(file=>Object.prototype.hasOwnProperty.call(right,file)&&left[file]===right[file]);
+}

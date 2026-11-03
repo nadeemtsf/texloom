@@ -21,7 +21,8 @@ fn distribution(mut values: Vec<f64>) -> Value {
 
 fn source(bytes: usize) -> String {
     let mut text = "\u{feff}% Native source editing fixture\r\n".to_string();
-    let line = "% Unicode \u{03b1} \u{1f600} and Windows line endings; source remains authoritative.\r\n";
+    let line =
+        "% Unicode \u{03b1} \u{1f600} and Windows line endings; source remains authoritative.\r\n";
     while text.len() + line.len() < bytes {
         text.push_str(line);
     }
@@ -31,8 +32,13 @@ fn source(bytes: usize) -> String {
     text
 }
 
-fn measure(base: &Path, files: usize, bytes: usize) -> Value {
-    let root = base.join(format!("files-{files}-bytes-{bytes}"));
+fn measure(base: &Path, files: usize, bytes: usize, delta: bool) -> Value {
+    let mode = if delta {
+        "changed_file"
+    } else {
+        "full_snapshot"
+    };
+    let root = base.join(format!("{mode}-files-{files}-bytes-{bytes}"));
     fs::create_dir(&root).unwrap();
     let project_root = root.join("project");
     fs::create_dir(&project_root).unwrap();
@@ -68,15 +74,37 @@ fn measure(base: &Path, files: usize, bytes: usize) -> Value {
             text: if index % 2 == 0 { "x" } else { "y" }.into(),
         };
         let started = Instant::now();
-        let snapshot = backend
-            .document_edit(&project.id, revision, "main.tex", vec![change], Some(1))
-            .unwrap();
-        let edited = started.elapsed().as_secs_f64() * 1000.0;
-        assert_eq!(snapshot.revision, revision + 1);
-        revision = snapshot.revision;
-        let serialization = Instant::now();
-        let payload = serde_json::to_vec(&snapshot).unwrap();
-        let encoded = serialization.elapsed().as_secs_f64() * 1000.0;
+        let (next_revision, payload, edited, encoded) = if delta {
+            let reply = backend
+                .document_edit_delta(&project.id, revision, "main.tex", vec![change], Some(1))
+                .unwrap();
+            let edited = started.elapsed().as_secs_f64() * 1000.0;
+            assert_eq!(reply.sources.len(), 1);
+            assert_eq!(reply.base_revision, revision);
+            let serialization = Instant::now();
+            let payload = serde_json::to_vec(&reply).unwrap();
+            (
+                reply.revision,
+                payload,
+                edited,
+                serialization.elapsed().as_secs_f64() * 1000.0,
+            )
+        } else {
+            let snapshot = backend
+                .document_edit(&project.id, revision, "main.tex", vec![change], Some(1))
+                .unwrap();
+            let edited = started.elapsed().as_secs_f64() * 1000.0;
+            let serialization = Instant::now();
+            let payload = serde_json::to_vec(&snapshot).unwrap();
+            (
+                snapshot.revision,
+                payload,
+                edited,
+                serialization.elapsed().as_secs_f64() * 1000.0,
+            )
+        };
+        assert_eq!(next_revision, revision + 1);
+        revision = next_revision;
         response_bytes = black_box(payload.len());
         let total = started.elapsed().as_secs_f64() * 1000.0;
         if index >= WARMUP {
@@ -106,10 +134,11 @@ fn measure(base: &Path, files: usize, bytes: usize) -> Value {
     assert_eq!(disk_before, disk_after, "Typing must not save to disk");
     backend.close_document(&project.id).unwrap();
     json!({
+        "response_mode": mode, "production_ipc": delta,
         "files": files, "bytes_per_file": bytes, "project_source_bytes": files * bytes,
         "warmup_edits": WARMUP, "measured_edits": SAMPLES, "response_bytes": response_bytes,
-        "native_edit_and_snapshot": distribution(editing),
-        "snapshot_json_encoding": distribution(encoding),
+        "native_edit_and_reply": distribution(editing),
+        "reply_json_encoding": distribution(encoding),
         "native_edit_through_response_encoding": distribution(combined),
         "coalesced_undo_redo_exact": true, "original_disk_bytes_unchanged": true
     })
@@ -131,18 +160,18 @@ fn main() {
         (128, 256 * 1024),
     ]
     .into_iter()
-    .map(|(files, bytes)| measure(&base, files, bytes))
+    .flat_map(|(files, bytes)| [false, true].map(|delta| measure(&base, files, bytes, delta)))
     .collect::<Vec<_>>();
     let report = json!({
-        "schema": 1,
+        "schema": 2,
         "os": std::env::consts::OS,
         "architecture": std::env::consts::ARCH,
         "logical_processors_seen": std::thread::available_parallelism().map(|n| n.get()).ok(),
         "profile": "release",
-        "implementation_base": "2f3d393a0350cc2c0d626e319486f6b621b12bcc",
+        "implementation_base": "c83dda1ece80758bbfdaddf89a78021857bae7cf",
         "github_sha_at_run": std::env::var("GITHUB_SHA").ok(),
         "github_ref_at_run": std::env::var("GITHUB_REF").ok(),
-        "measured_api": "Production Backend::document_edit and production DocumentSnapshot serialization",
+        "measured_api": "Shared native edit authority: full DocumentSnapshot reference vs production changed-file SourceEditReply",
         "cases": cases,
         "limitations": [
             "Synthetic source projects; one run with uncontrolled background load",

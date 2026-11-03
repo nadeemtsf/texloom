@@ -13,7 +13,7 @@ import {preparePDFView,prepareLoadedPDF,publishPDFView} from './core/pdf-surface
 import {CanvasController} from './core/canvas-controller.js';
 import {stageCandidate,sessionIdentity,StaleCandidate,CompilationFailure,compileDiagnostic} from './core/transactions.js';
 import {inside,intersects} from './core/geometry.js';
-import {DocumentClient,editorText} from './core/document-client.js';
+import {DocumentClient,editorText,sameSources} from './core/document-client.js';
 import {validateSelectionProbe} from './core/selection-proof.js';
 
 self.MonacoEnvironment={getWorker:()=>new EditorWorker()};
@@ -62,10 +62,10 @@ function toast(text){
   $('toast').textContent=text;$('toast').classList.remove('hidden');clearTimeout(toast.timer);
   toast.timer=setTimeout(()=>$('toast').classList.add('hidden'),5500);
 }
-function dirty(){return !!state.client?.pending||!!state.client?.error||JSON.stringify(state.sources)!==JSON.stringify(state.saved)}
+function dirty(){return !!state.client?.pending||!!state.client?.error||!sameSources(state.sources,state.saved)}
 function status(text){$('status').textContent=text||(dirty()?'Unsaved changes':'All changes saved')}
 function acceptDocument(snapshot){
-  state.sources=clone(snapshot.sources);state.revision=snapshot.revision;
+  state.sources={...snapshot.sources};state.revision=snapshot.revision;
   state.project.main=snapshot.main;state.engine=snapshot.engine;
   state.canUndo=snapshot.can_undo;state.canRedo=snapshot.can_redo;
   status();updateControls();
@@ -155,7 +155,7 @@ async function openProject(path=null,supplied=null){
     const project=supplied||await invoke('open_project',{path});
     const snapshot=await invoke('document_snapshot',{projectId:project.id});
     state.renderAbort?.abort();canvas.clear();const previous=state.pdf,previousProject=state.project?.id;
-    Object.assign(state,{project,sources:clone(project.sources),saved:clone(project.sources),file:project.main,
+    Object.assign(state,{project,sources:{...project.sources},saved:{...project.sources},file:project.main,
       revision:snapshot.revision,compiled:-1,result:null,pdf:null,view:null,selected:null,lastHistory:0,canUndo:false,canRedo:false});
     const client=new DocumentClient(invoke,project.id,snapshot,{changed:next=>{if(state.client===client)acceptDocument(next)},failed:syncFailed});
     state.client=client;acceptDocument(snapshot);
@@ -184,7 +184,7 @@ async function saveProject(){
   if(!state.project||state.saving||state.opening||state.mutating||state.composing)return;
   if(state.busy)return toast('Wait for the current compilation before saving.');
   state.saving=true;editorReadOnly();updateControls();
-  try{await state.client.flush();const sources=clone(state.sources);
+  try{await state.client.flush();const sources={...state.sources};
     await invoke('save_document',{projectId:state.project.id,revision:state.revision});state.saved=sources;status();toast('Project source saved.')}
   catch(error){toast(message(error));$('save-copy').classList.remove('hidden');await refreshSaveRecoveries().catch(()=>{})}
   finally{state.saving=false;editorReadOnly();updateControls()}

@@ -36,9 +36,11 @@ class NativeDocumentDouble {
   if(name==='document_discard'){this.pending.delete(args.token);return;}
   if(name==='document_edit'){
    if(args.revision!==this.revision)throw new Error('Stale source');
-   this.record();let source=this.sources[args.file];
+   const base_revision=this.revision;let source=this.sources[args.file];
    for(const c of [...args.changes].sort((a,b)=>b.offset-a.offset))source=source.slice(0,c.offset)+c.text+source.slice(c.offset+c.length);
-   this.sources[args.file]=source;this.revision++;this.pending.clear();return this.snapshot();
+   const changed=source!==this.sources[args.file];
+   if(changed){this.record();this.sources[args.file]=source;this.revision++;this.pending.clear();}
+   return {...this.snapshot(),kind:'source_delta',base_revision,sources:changed?{[args.file]:source}:{},selection:null};
   }
   if(name==='document_history'){
    if(args.revision!==this.revision)throw new Error('Stale history');

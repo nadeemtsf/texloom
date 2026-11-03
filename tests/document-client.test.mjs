@@ -1,8 +1,65 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {DocumentClient,editorText} from '../web/core/document-client.js';
+import {DocumentClient,editorText,sameSources} from '../web/core/document-client.js';
 const snapshot=(revision=0)=>({revision,sources:{'main.tex':'A'},main:'main.tex',engine:'auto',can_undo:revision>0,can_redo:false});
 const tick=()=>new Promise(setImmediate);
+const delta=(base,file,source)=>({...snapshot(base+1),kind:'source_delta',base_revision:base,sources:{[file]:source},selection:null});
+
+test('saved-buffer comparison ignores file order but preserves BOM, line endings and the exact file set',()=>{
+ const saved={'main.tex':'\ufeffName\r\n','empty.sty':''};
+ assert.equal(sameSources(saved,{'empty.sty':'','main.tex':'\ufeffName\r\n'}),true);
+ for(const source of ['Name\r\n','\ufeffName\n','\ufeffName\r\n '])assert.equal(sameSources(saved,{...saved,'main.tex':source}),false);
+ assert.equal(sameSources(saved,{'main.tex':saved['main.tex'],'different.sty':''}),false);
+ assert.equal(sameSources(saved,{...saved,'added.sty':''}),false);
+});
+
+test('changed-file acknowledgements preserve other files, old snapshots and queued revision ordering',async()=>{
+ const initial={...snapshot(),sources:{'main.tex':'A','chapter.tex':'Chapter','objects.sty':'Style'}};
+ const published=[],calls=[];
+ const client=new DocumentClient(async(_name,args)=>{calls.push(args);return delta(args.revision,args.file,args.changes[0].text);},'p',initial,{changed:s=>published.push(s)});
+ const first=client.edit('main.tex',[{text:'B'}],1),second=client.edit('chapter.tex',[{text:'New chapter'}],1);
+ const [one,two]=await Promise.all([first,second]);
+ assert.deepEqual(calls.map(c=>c.revision),[0,1]);
+ assert.deepEqual(one.sources,{'main.tex':'B','chapter.tex':'Chapter','objects.sty':'Style'});
+ assert.deepEqual(two.sources,{'main.tex':'B','chapter.tex':'New chapter','objects.sty':'Style'});
+ assert.deepEqual(initial.sources,{'main.tex':'A','chapter.tex':'Chapter','objects.sty':'Style'});
+ assert.equal(published.length,1);assert.equal(published[0],two);assert.equal('kind' in two,false);assert.equal('base_revision' in two,false);
+});
+
+test('a no-op delta keeps source identity and publishes the authoritative revision',async()=>{
+ const initial=snapshot();let published=0;
+ const client=new DocumentClient(async()=>({...delta(0,'main.tex','A'),revision:0,sources:{},can_undo:false}),'p',initial,{changed:()=>published++});
+ await client.edit('main.tex',[],1);assert.equal(client.snapshot.sources,initial.sources);assert.equal(published,1);assert.equal(client.snapshot.revision,0);
+});
+
+test('full history and visual acknowledgements can replace the file set after source deltas',async()=>{
+ const client=new DocumentClient(async(name,args)=>name==='document_edit'?delta(args.revision,args.file,'B'):
+  {...snapshot(args.revision+1),sources:{'main.tex':'Restored','new.sty':'New style'}},'p',snapshot());
+ await client.edit('main.tex',[],1);await client.history(false);
+ assert.deepEqual(client.snapshot.sources,{'main.tex':'Restored','new.sty':'New style'});
+ await client.commit('candidate','build');assert.equal(client.snapshot.revision,3);
+});
+
+for(const [reason,alter] of [
+ ['wrong base',r=>({...r,base_revision:1})],
+ ['skipped revision',r=>({...r,revision:2})],
+ ['unknown kind',r=>({...r,kind:'other_delta'})],
+ ['different file',r=>({...r,sources:{'chapter.tex':'B'}})],
+ ['extra file',r=>({...r,sources:{...r.sources,'extra.sty':'Unexpected'}})],
+ ['non-string source',r=>({...r,sources:{'main.tex':42}})],
+ ['missing changed source',r=>({...r,sources:{}})],
+ ['changed source without revision',r=>({...r,revision:0})],
+ ['unchanged source with new revision',r=>({...r,sources:{'main.tex':'A'}})],
+ ['profile change',r=>({...r,engine:'xelatex'})],
+ ['invalid history flag',r=>({...r,can_undo:1})],
+ ['invalid selection',r=>({...r,selection:{file:'main.tex',anchor:-1,head:0,secondary:[]}})],
+])test(`invalid delta (${reason}) leaves the last acknowledged sources and stops dependent edits`,async()=>{
+ const initial=snapshot();let calls=0,failures=0;
+ const client=new DocumentClient(async()=>{calls++;return alter(delta(0,'main.tex','B'));},'p',initial,{failed:()=>failures++});
+ const results=await Promise.allSettled([client.edit('main.tex',[],1),client.edit('main.tex',[],1)]);
+ assert.ok(results.every(r=>r.status==='rejected'));assert.equal(calls,1);assert.equal(failures,1);assert.equal(client.snapshot,initial);
+ await assert.rejects(client.flush());
+});
 
 test('visual preparation sends a typed operation while private probes carry no commit authority',async()=>{
  const calls=[];const client=new DocumentClient(async(name,args)=>{calls.push({name,...args});return {token:'probe',revision:1}},'p',snapshot());

@@ -37,7 +37,7 @@ function setup({failure=null,parent='COPY-PARENT',busy=false,drafts=[],confirmed
 }
 test('Save marks only acknowledged source as saved and releases editor locking',async()=>{
   const t=setup();await t.context.saveProject();
-  assert.deepEqual(t.state.saved,t.state.sources);assert.notEqual(t.state.saved,t.state.sources);
+  assert.deepEqual({...t.state.saved},t.state.sources);assert.notEqual(t.state.saved,t.state.sources);
   assert.equal(t.state.saving,false);assert.equal(t.events.filter(e=>Array.isArray(e)&&e[0]==='save_document').length,1);
   assert.deepEqual(t.events.filter(e=>Array.isArray(e)&&e[0]==='readonly'),[['readonly',true],['readonly',false]]);
 });

@@ -15,7 +15,9 @@ mod document;
 mod layout_gate;
 mod visual;
 pub use layout_gate::VisualOperation;
-pub use document::{DocumentSnapshot, EditorChange, EditorRange, PreparedReply, SelectionReply};
+pub use document::{
+    DocumentSnapshot, EditorChange, EditorRange, PreparedReply, SelectionReply, SourceEditReply,
+};
 pub use visual::plan_object_edit as visual_plan;
 pub use visual::{
     describe_text_edit, preview_edit_parameters, LiteralEditRequest, SpacingEditRequest,

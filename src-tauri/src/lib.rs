@@ -3,12 +3,12 @@ mod service;
 /// Development-only Rust harness access; adds no IPC commands or app controls.
 #[cfg(feature = "benchmark")]
 pub mod benchmark {
-    pub use crate::service::{Backend, DocumentSnapshot, EditorChange};
+    pub use crate::service::{Backend, DocumentSnapshot, EditorChange, SourceEditReply};
 }
 use service::{
     Backend, CompileResult, DocumentSnapshot, EditorChange, EditorRange, ObjectEditRequest,
     ObjectPlan, PreparedReply, Project, ResolvedSelection, SelectionPoint, SelectionReply,
-    SourceLocation, SourceRectangle, TransformRequest, VisualOperation,
+    SourceEditReply, SourceLocation, SourceRectangle, TransformRequest, VisualOperation,
 };
 use std::{collections::BTreeMap, sync::Arc};
 use tauri::{Manager, State};
@@ -174,8 +174,8 @@ fn document_edit(
     file: String,
     changes: Vec<EditorChange>,
     group: Option<u64>,
-) -> Result<DocumentSnapshot, String> {
-    state.document_edit(&project_id, revision, &file, changes, group)
+) -> Result<SourceEditReply, String> {
+    state.document_edit_delta(&project_id, revision, &file, changes, group)
 }
 #[tauri::command]
 fn document_profile(

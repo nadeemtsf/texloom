@@ -43,6 +43,23 @@ impl DocumentSlot {
             selection: self.editor_selection(),
         }
     }
+    fn source_reply(&self, base: u64, file: &str) -> SourceEditReply {
+        SourceEditReply {
+            kind: "source_delta",
+            base_revision: base,
+            revision: self.session.revision().0,
+            sources: if self.session.revision() != Revision(base) {
+                BTreeMap::from([(file.to_string(), self.session.sources()[file].clone())])
+            } else {
+                BTreeMap::new()
+            },
+            main: self.session.profile().main.clone(),
+            engine: self.session.profile().engine.clone(),
+            can_undo: self.session.can_undo(),
+            can_redo: self.session.can_redo(),
+            selection: self.editor_selection(),
+        }
+    }
     fn editor_selection(&self) -> Option<EditorSelection> {
         let s = self.session.selection()?;
         let p = EditorProjection::new(self.session.sources().get(&s.file)?);
@@ -66,6 +83,20 @@ impl DocumentSlot {
 }
 #[derive(Clone, Serialize)]
 pub struct DocumentSnapshot {
+    pub revision: u64,
+    pub sources: BTreeMap<String, String>,
+    pub main: String,
+    pub engine: String,
+    pub can_undo: bool,
+    pub can_redo: bool,
+    pub selection: Option<EditorSelection>,
+}
+/// A source edit cannot create/delete files or change the project profile.
+/// Send only its changed file; opening, history and visual commits send full snapshots.
+#[derive(Clone, Serialize)]
+pub struct SourceEditReply {
+    pub kind: &'static str,
+    pub base_revision: u64,
     pub revision: u64,
     pub sources: BTreeMap<String, String>,
     pub main: String,
@@ -164,6 +195,29 @@ impl Backend {
         changes: Vec<EditorChange>,
         group: Option<u64>,
     ) -> Result<DocumentSnapshot> {
+        self.edit_source_with(id, base, file, changes, group, DocumentSlot::snapshot)
+    }
+    pub fn document_edit_delta(
+        &self,
+        id: &str,
+        base: u64,
+        file: &str,
+        changes: Vec<EditorChange>,
+        group: Option<u64>,
+    ) -> Result<SourceEditReply> {
+        self.edit_source_with(id, base, file, changes, group, |slot| {
+            slot.source_reply(base, file)
+        })
+    }
+    fn edit_source_with<R>(
+        &self,
+        id: &str,
+        base: u64,
+        file: &str,
+        changes: Vec<EditorChange>,
+        group: Option<u64>,
+        reply: impl FnOnce(&DocumentSlot) -> R,
+    ) -> Result<R> {
         if changes.len() > 10_000 || changes.iter().map(|c| c.text.len()).sum::<usize>() > 4_000_000
         {
             return Err("Edit exceeds source limits".into());
@@ -210,7 +264,7 @@ impl Backend {
             slot.pending.clear();
             self.scheduler.cancel_project(id);
         }
-        Ok(slot.snapshot())
+        Ok(reply(slot))
     }
     pub fn document_profile(
         &self,
@@ -579,6 +633,101 @@ fn diff_sources(
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn source_delta_preserves_other_files_and_the_full_shared_history() {
+        let original = "\u{feff}A\r\n\u{1f600}B\r\n";
+        let b = Backend::new(PathBuf::from("."));
+        let sources = BTreeMap::from([
+            ("main.tex".into(), original.into()),
+            ("chapter.tex".into(), "Untouched chapter\r\n".into()),
+        ]);
+        b.documents.lock().unwrap().insert(
+            "test".into(),
+            DocumentSlot::new(sources.clone(), "main.tex".into()).unwrap(),
+        );
+        b.document_selection("test", 0, "main.tex".into(), 4, 5, vec![])
+            .unwrap();
+        let reply = b
+            .document_edit_delta(
+                "test",
+                0,
+                "main.tex",
+                vec![EditorChange {
+                    offset: 4,
+                    length: 1,
+                    text: "New\nName".into(),
+                }],
+                Some(1),
+            )
+            .unwrap();
+        assert_eq!(reply.kind, "source_delta");
+        assert_eq!((reply.base_revision, reply.revision), (0, 1));
+        assert_eq!(
+            reply.sources,
+            BTreeMap::from([(
+                "main.tex".into(),
+                "\u{feff}A\r\n\u{1f600}New\r\nName\r\n".into()
+            )])
+        );
+        assert!(reply.can_undo && !reply.can_redo);
+        assert_eq!(
+            serde_json::to_value(&reply).unwrap()["kind"],
+            "source_delta"
+        );
+        let full = b.document_snapshot("test").unwrap();
+        assert_eq!(full.sources.len(), 2);
+        assert_eq!(full.sources["chapter.tex"], sources["chapter.tex"]);
+        let undone = b.document_history("test", 1, false).unwrap();
+        assert_eq!(undone.sources, sources);
+        assert_eq!(undone.selection.unwrap().anchor, 4);
+        assert_eq!(
+            b.document_history("test", 2, true).unwrap().sources,
+            full.sources
+        );
+    }
+    #[test]
+    fn source_delta_no_op_is_empty_and_stale_or_invalid_edits_change_nothing() {
+        let b = backend("A");
+        let same = b
+            .document_edit_delta(
+                "test",
+                0,
+                "main.tex",
+                vec![EditorChange {
+                    offset: 0,
+                    length: 1,
+                    text: "A".into(),
+                }],
+                Some(1),
+            )
+            .unwrap();
+        assert_eq!((same.base_revision, same.revision), (0, 0));
+        assert!(same.sources.is_empty());
+        assert!(!same.can_undo);
+        assert!(b
+            .document_edit_delta("test", 1, "main.tex", vec![], None)
+            .is_err());
+        assert!(b
+            .document_edit_delta("test", 0, "missing.tex", vec![], None)
+            .is_err());
+        assert!(b
+            .document_edit_delta(
+                "test",
+                0,
+                "main.tex",
+                vec![EditorChange {
+                    offset: 2,
+                    length: 0,
+                    text: "B".into(),
+                }],
+                None
+            )
+            .is_err());
+        let current = b.document_snapshot("test").unwrap();
+        assert_eq!(current.revision, 0);
+        assert_eq!(current.sources["main.tex"], "A");
+        assert!(!current.can_undo);
+    }
     #[test]
     fn no_op_source_profile_and_history_keep_the_current_job_and_candidate() {
         let b = backend("A");

@@ -6,7 +6,7 @@ const vm=require('node:vm');
 async function setup(){
  const transactions=await import('../web/core/transactions.js');
  const selectionProof=await import('../web/core/selection-proof.js');
- const {DocumentClient,editorText}=await import('../web/core/document-client.js');
+ const {DocumentClient,editorText,sameSources}=await import('../web/core/document-client.js');
  const elements=new Map();
  function element(id){if(!elements.has(id))elements.set(id,{value:'',checked:false,disabled:false,open:false,textContent:'',classList:{add(){},remove(){},toggle(){}},setAttribute(){},replaceChildren(){},append(){},addEventListener(){},focus(){},showModal(){this.open=true},close(){this.open=false}});return elements.get(id)}
  const model={setValue(){},setEOL(){},getValue:()=>'',getOffsetAt:p=>p.column-1};
@@ -17,7 +17,7 @@ async function setup(){
  const control={compile:async()=>({ok:true,log:'',seconds:0,engine:'test',build_id:'new-pdf',blocks:[],objects:[]}),prepare:async result=>({result,pdf:{destroy:async()=>{}},pageCount:1,objects:new Map(),unclosed:new Set(),pageSizes:new Map()})};
  const {NativeDocumentDouble}=require('./native-document-double.cjs');const native=new NativeDocumentDouble(control);
  const context=vm.createContext({
-  ...transactions,...selectionProof,validateSelectionProbe:(...args)=>control.prove?control.prove(...args):selectionProof.validateSelectionProbe(...args),DocumentClient,editorText,initialSnapshot:native.snapshot(),inside:()=>true,self:{},EditorWorker:class{},pdfWorkerURL:'test-worker',
+  ...transactions,...selectionProof,validateSelectionProbe:(...args)=>control.prove?control.prove(...args):selectionProof.validateSelectionProbe(...args),DocumentClient,editorText,sameSources,initialSnapshot:native.snapshot(),inside:()=>true,self:{},EditorWorker:class{},pdfWorkerURL:'test-worker',
   CanvasController:class{clear(){}bind(){}selectObject(){}},
   monaco:{languages:{register(){},setMonarchTokensProvider(){},setLanguageConfiguration(){}},editor:{defineTheme(){},createModel:()=>model,create:()=>editor,EndOfLineSequence:{LF:0}},KeyMod:{CtrlCmd:1,Shift:2},KeyCode:{KeyS:1,Enter:2,KeyZ:3,KeyY:4}},
   pdfjs:{GlobalWorkerOptions:{}},structuredClone,crypto:require('node:crypto').webcrypto,
@@ -96,6 +96,13 @@ test('Monaco source events and model undo/redo reach the same native history',as
  await t.model.undo();assert.equal(t.native.sources['main.tex'],'Original source');
  await t.model.redo();assert.equal(t.native.sources['main.tex'],'Typed source');
  assert.equal(t.run('state.revision'),3);
+});
+
+test('an editor no-op reconciles its optimistic revision without losing unrelated buffers',async()=>{
+ const t=await setup();t.control.onEdit({changes:[]});
+ await t.run('state.client.flush()');
+ assert.equal(t.native.revision,0);assert.equal(t.run('state.revision'),0);
+ assert.equal(t.run("state.sources['studio.sty']"),'Style source');assert.equal(t.native.history.length,0);
 });
 
 test('a successful compiler result for the wrong revision cannot publish or commit',async()=>{
