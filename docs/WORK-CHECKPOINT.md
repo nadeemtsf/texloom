@@ -6,7 +6,7 @@ Primary project: nadeemtsf/texloom, Rust/Tauri Windows. Approved scope is APPROV
 
 Local commands work. Exact remote history through source-acknowledgements at eb2108d9dbcd9a4e3e380e444942450482f4b6c4 was reconciled with matching Git trees/commit objects and connectivity checks. Earlier backups and the original untracked work-in-progress/source_benchmark.rs are preserved. Do not reset or discard user work.
 
-Current development branch: feature/source-edit-plans, based on 30cf0f9b6e4ab653a7d7779e52c12a0b4b4d63ec (draft PR #19). Main remains the older verified baseline; development uses the existing draft stack in the primary repository. Command-line Git authentication fails in its Windows credential helper; the connected GitHub service works. App-control tests remain explicitly deferred.
+Current development branch: feature/portable-package-isolation, based on ffab26183eaa4b5565caaf1ab843986bd299fb89 (draft PR #20). Main remains the older verified baseline; development uses the existing draft stack in the primary repository. Command-line Git authentication fails in its Windows credential helper; the connected GitHub service works. App-control tests remain explicitly deferred.
 
 ## Verified implementation checkpoints
 
@@ -96,3 +96,13 @@ Eight new core tests include allocation identity, atomic history failure and an 
 The fifteen-case schema-4 release benchmark isolates old project-snapshot planning versus single-file planning with identical changed-file replies and durable source recovery in the same run. At 32 MiB, p95 native edit through encoding measured 23.74 ms versus 16.09 ms, with the same 269,459-byte reply. Every acknowledgement was protected; coalesced undo/redo and original disk fingerprints were exact. These synthetic backend results exclude cursor flushes, checkpoint rotation/replay, IPC/paint and native typing. SOURCE-PERFORMANCE.md preserves all limitations and earlier raw measurements.
 
 Next work: finish remaining earlier-phase typing/IPC and retention/long-document items, repair portable packaging so old staging contents cannot enter a new archive, then continue gated adapter/release implementation. Strict/generated IPC, unsupported encodings, bibliography recipes, parser/provenance, fractional movement, richer adapters and native/installed release gates remain open. Preserve the original WIP draft. Native app-control checks stay deferred; no phase or release is declared complete.
+
+## Portable package isolation and receipts
+
+Source-plan implementation ffab26183eaa4b5565caaf1ab843986bd299fb89 is published as draft PR #20. Its compile corpus 41674162284 and proof 41674162254 passed; Windows 41674162228 was still running at last observation and is not yet marked passed. Local history was reconciled exactly with the published tree/commit, preserving the original WIP bytes.
+
+The packager no longer reuses the fixed staging directory or recursively zips its contents. Every run uses fresh staging, fixed input paths, source/copy checks, per-file receipts, exclusive CreateNew output and exact ZIP reinspection. Previous output is preserved under its original name; new output gets a unique name when needed. Build-Desktop and CI use the returned archive path. There are no recursive move/delete operations.
+
+Local npm test passed 123 cases with zero failures and one explicit skip: this host cannot create the junction fixture (Win32 AccessDenied), so link-refusal execution remains unverified here. Five new filesystem cases passed, and a real thirteen-file package passed independent Python ZIP CRC/exact-entry/hash checks. Windows PowerShell 5 -File execution was denied by AuthorizationManager; PowerShell 7, matching CI, passed without changing policy. Earlier failures remain in local logs, not relabeled as passes. Exact final artifact/source/log receipts are in evidence/portable-packaging-local.json.
+
+This builds a portable development package of the already-tested single-file source-plan executable; it does not launch it or close native input, installer/clean-machine, signing or PDFium dependency review gates. Source/history/renderer checks from the unchanged ffab261 implementation remain the baseline. Continue the open earlier-phase strict/generated IPC, unsupported-encoding, parser/provenance, bibliography, fractional movement, longer-document/performance and richer-adapter work; all native GUI cases remain deferred through implementation. No all-phase or release completion is claimed.

@@ -1,0 +1,19 @@
+# Verified development portable packaging
+
+The former script reused artifacts/Texloom-Desktop-Windows-x64 and recursively compressed everything in it. A previous extracted app or project could therefore add unrelated files to a new package. The replacement creates a unique staging parent for every run, copies only the executable, three project documents, four verifier resources and three public example sources, and generates notices plus a receipt. Old staging folders and archives are never reused, overwritten, moved or deleted.
+
+The first build may use artifacts/Texloom-Desktop-Windows-x64.zip. If it already exists, the script chooses a timestamp/UUID filename and prints that actual path. Build-Desktop.ps1 displays the returned location, and CI uploads that exact result. The reusable archive helper uses CreateNew as a final overwrite guard. Failed staging and partial output remain available for inspection; they are not reported as a successful package.
+
+Source files are checked before and after copying, and the staged copy must match. Native verifier inputs retain the pinned DLL and manifest/worker/notice checks. Reparse points in source ancestry, staging or dependency-cache traversal are refused. Every staged file, including hidden files, must have an expected receipt. Compression takes explicit paths instead of recursively enumerating a folder. Entry bytes are checked while their input handle denies writes, then the ZIP is flushed, reopened and checked for exact names, counts, uncompressed sizes and SHA-256. An unexpected file appearing after staging enumeration cannot become an archive entry.
+
+ARTIFACT-RECEIPT.json schema 2 lists the twelve other files with byte lengths and hashes and explicitly excludes itself. The outer ZIP verification also checks the receipt's own bytes. This is content provenance for a development build, not a code signature or dependency-security approval. The notice bundle still aggregates cached dependency licenses; a production dependency/license audit remains open. The DLL pin is still a development dependency.
+
+Run from the repository in PowerShell 7 with the locked Windows build and verifier resources prepared:
+
+    ./scripts/package-portable.ps1
+
+Optional CargoSourceRoot selects the Cargo registry used for notices. Optional ArtifactRoot selects an existing plain parent location for new output; it is also used by filesystem checks. End users do not need Node, Python or PowerShell to run an extracted app. Windows tests prefer pwsh.exe when installed and otherwise use system Windows PowerShell. No test or package script changes execution policy. Legacy Windows PowerShell 5 execution could not be validated in the current managed host; the production script has not been accepted there.
+
+Five local filesystem cases pass: preserve old ZIP/project bytes and exact Unicode/BOM/CRLF contents, refuse an unreceipted hidden file before ZIP creation, refuse altered staged contents, preserve an archive appearing after name selection, and reject escaping/duplicate/missing receipts. The junction case is enabled but reports an explicit skip when the host denies creating the fixture with AccessDenied/privilege-not-held. Unexpected fixture errors still fail. Local results: 123 frontend/filesystem checks passed, one skipped. These tests exercise the production helper without needing a compiled executable or renderer, so CI runs them before its build.
+
+The real package additionally passes independent Python ZIP CRC, exact thirteen-entry and all per-file receipt checks. See evidence/portable-packaging-local.json for exact source, log and artifact hashes and preserved earlier failures. The test does not launch the app, exercise an installer or establish a clean-machine/signing/Store/release gate. Native GUI acceptance remains owner-deferred.

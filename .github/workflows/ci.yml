@@ -66,11 +66,14 @@ jobs:
         run: npm run desktop:build -- --no-bundle --target x86_64-pc-windows-msvc
       - name: Package portable build with notices
         shell: pwsh
-        run: ./scripts/package-portable.ps1
+        id: portable
+        run: |
+          $package = & ./scripts/package-portable.ps1
+          "archive=$($package.ArchivePath)" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: Texloom-Windows-x64-development
-          path: artifacts/Texloom-Desktop-Windows-x64.zip
+          path: ${{ steps.portable.outputs.archive }}
           if-no-files-found: error
           retention-days: 14
       - name: Measure native source editing and snapshot encoding
