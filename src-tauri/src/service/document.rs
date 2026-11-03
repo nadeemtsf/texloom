@@ -144,6 +144,63 @@ pub struct PreparedReply {
     pub revision: u64,
 }
 
+// Typing replaces only its existing file. Visual/settings plans still own full
+// immutable project snapshots. The old planner is compiled only for measurement
+// and shares projection, recovery, cancellation and reply handling below.
+enum SourcePlan {
+    File(core::PreparedSourceEdit),
+    #[cfg(feature = "benchmark")]
+    Project(core::Prepared),
+}
+impl SourcePlan {
+    fn file(
+        session: &core::Session,
+        base: Revision,
+        file: &str,
+        edits: Vec<Replacement>,
+    ) -> core::EditResult<Self> {
+        session.prepare_source_edit(base, file, edits).map(Self::File)
+    }
+    #[cfg(feature = "benchmark")]
+    fn project(
+        session: &core::Session,
+        base: Revision,
+        file: &str,
+        edits: Vec<Replacement>,
+    ) -> core::EditResult<Self> {
+        session.prepare(Patch {
+            base,
+            files: vec![FileChange::Edit { file: file.into(), edits }],
+            profile: None,
+        }).map(Self::Project)
+    }
+    fn changed(&self) -> bool {
+        match self {
+            Self::File(plan) => plan.changed(),
+            #[cfg(feature = "benchmark")]
+            Self::Project(plan) => plan.changed(),
+        }
+    }
+    fn recovery_patch(&self) -> Patch {
+        match self {
+            Self::File(plan) => plan.recovery_patch(),
+            #[cfg(feature = "benchmark")]
+            Self::Project(plan) => plan.recovery_patch(),
+        }
+    }
+    fn commit(
+        self,
+        session: &mut core::Session,
+        group: Option<TypingGroup>,
+    ) -> core::EditResult<Revision> {
+        match self {
+            Self::File(plan) => session.commit_source_edit(plan, group),
+            #[cfg(feature = "benchmark")]
+            Self::Project(plan) => session.commit(plan, Origin::Source, group),
+        }
+    }
+}
+
 impl Backend {
     pub fn document_selection(
         &self,
@@ -210,7 +267,9 @@ impl Backend {
         changes: Vec<EditorChange>,
         group: Option<u64>,
     ) -> Result<DocumentSnapshot> {
-        self.edit_source_with(id, base, file, changes, group, DocumentSlot::snapshot)
+        self.edit_source_with(
+            id, base, file, changes, group, SourcePlan::file, DocumentSlot::snapshot,
+        )
     }
     pub fn document_edit_delta(
         &self,
@@ -220,7 +279,20 @@ impl Backend {
         changes: Vec<EditorChange>,
         group: Option<u64>,
     ) -> Result<SourceEditReply> {
-        self.edit_source_with(id, base, file, changes, group, |slot| {
+        self.edit_source_with(id, base, file, changes, group, SourcePlan::file, |slot| {
+            slot.source_reply(base, file)
+        })
+    }
+    #[cfg(feature = "benchmark")]
+    pub fn benchmark_project_source_plan(
+        &self,
+        id: &str,
+        base: u64,
+        file: &str,
+        changes: Vec<EditorChange>,
+        group: Option<u64>,
+    ) -> Result<SourceEditReply> {
+        self.edit_source_with(id, base, file, changes, group, SourcePlan::project, |slot| {
             slot.source_reply(base, file)
         })
     }
@@ -231,6 +303,7 @@ impl Backend {
         file: &str,
         changes: Vec<EditorChange>,
         group: Option<u64>,
+        plan: impl FnOnce(&core::Session, Revision, &str, Vec<Replacement>) -> core::EditResult<SourcePlan>,
         reply: impl FnOnce(&DocumentSlot) -> R,
     ) -> Result<R> {
         if changes.len() > 10_000 || changes.iter().map(|c| c.text.len()).sum::<usize>() > 4_000_000
@@ -258,26 +331,14 @@ impl Backend {
                 projection.replacement(c.offset, end, &c.text).map_err(fail)
             })
             .collect::<Result<Vec<_>>>()?;
-        let candidate = slot
-            .session
-            .prepare(Patch {
-                base: Revision(base),
-                files: vec![FileChange::Edit {
-                    file: file.into(),
-                    edits,
-                }],
-                profile: None,
-            })
-            .map_err(fail)?;
+        let candidate = plan(&slot.session, Revision(base), file, edits).map_err(fail)?;
         if candidate.changed() {
             self.mark_cache_unclean()?;
         }
         let mutation = candidate.changed().then(|| texloom_build::recovery::Mutation::Patch {
             patch: candidate.recovery_patch(), origin: Origin::Source, group: group.map(TypingGroup),
         });
-        slot.session
-            .commit(candidate, Origin::Source, group.map(TypingGroup))
-            .map_err(fail)?;
+        candidate.commit(&mut slot.session, group.map(TypingGroup)).map_err(fail)?;
         if slot.session.revision() != Revision(base) {
             slot.pending.clear();
             self.scheduler.cancel_project(id);

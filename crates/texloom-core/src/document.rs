@@ -8,6 +8,8 @@ use std::{
 };
 pub mod projection;
 pub mod recovery;
+mod source_edit;
+pub use source_edit::PreparedSourceEdit;
 
 pub type Sources = BTreeMap<String, String>;
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -263,12 +265,35 @@ impl Session {
             return Ok(self.revision);
         }
         let revision = self.next_revision()?;
-        let before_selection = self.selection.clone();
         let after_selection = self
             .selection
             .clone()
             .filter(|s| validate_selection(&prepared.sources, s).is_ok());
-        let bytes = change_bytes(&prepared.forward) + change_bytes(&prepared.inverse);
+        self.record_history(
+            prepared.forward,
+            prepared.inverse,
+            origin,
+            group,
+            revision,
+            after_selection.clone(),
+        );
+        self.sources = prepared.sources;
+        self.profile = prepared.profile;
+        self.revision = revision;
+        self.selection = after_selection;
+        Ok(revision)
+    }
+    fn record_history(
+        &mut self,
+        forward: Changes,
+        inverse: Changes,
+        origin: Origin,
+        group: Option<TypingGroup>,
+        revision: Revision,
+        after_selection: Option<Selection>,
+    ) {
+        let before_selection = self.selection.clone();
+        let bytes = change_bytes(&forward) + change_bytes(&inverse);
         let coalesce = origin == Origin::Source
             && group.is_some()
             && self.cursor == self.history.len()
@@ -279,21 +304,21 @@ impl Session {
                     && last
                         .forwards
                         .last()
-                        .is_some_and(|c| same_files(c, &prepared.forward))
+                        .is_some_and(|c| same_files(c, &forward))
             });
         self.history.truncate(self.cursor);
         if coalesce {
             if let Some(last) = self.history.last_mut() {
-                last.forwards.push(prepared.forward);
-                last.inverses.push(prepared.inverse);
+                last.forwards.push(forward);
+                last.inverses.push(inverse);
                 last.bytes += bytes;
                 last.after_selection = after_selection.clone();
                 last.last_revision = revision;
             }
         } else {
             self.history.push(HistoryEntry {
-                forwards: vec![prepared.forward],
-                inverses: vec![prepared.inverse],
+                forwards: vec![forward],
+                inverses: vec![inverse],
                 origin,
                 group,
                 bytes,
@@ -306,17 +331,12 @@ impl Session {
             }
         }
         self.cursor = self.history.len();
-        self.sources = prepared.sources;
-        self.profile = prepared.profile;
-        self.revision = revision;
-        self.selection = after_selection;
         while self.history.len() > 1
             && self.history.iter().map(|e| e.bytes).sum::<usize>() > 32 * 1024 * 1024
         {
             self.history.remove(0);
             self.cursor -= 1;
         }
-        Ok(revision)
     }
 
     /// Undo is a new revision. An outstanding visual candidate remains stale even
@@ -333,7 +353,7 @@ impl Session {
         let mut sources = self.sources.clone();
         let mut profile = self.profile.clone();
         for inverse in entry.inverses.iter().rev() {
-            (sources, profile, _) = apply_changes(&sources, &profile, inverse)?;
+            (sources, profile, _) = apply_owned_changes(sources, &profile, inverse)?;
         }
         self.selection = entry.before_selection.clone();
         self.sources = sources;
@@ -350,7 +370,7 @@ impl Session {
         let mut sources = self.sources.clone();
         let mut profile = self.profile.clone();
         for forward in &entry.forwards {
-            (sources, profile, _) = apply_changes(&sources, &profile, forward)?;
+            (sources, profile, _) = apply_owned_changes(sources, &profile, forward)?;
         }
         self.selection = entry.after_selection.clone();
         self.sources = sources;
@@ -372,6 +392,9 @@ fn validate_selection(sources: &Sources, selection: &Selection) -> EditResult<()
     let source = sources
         .get(&selection.file)
         .ok_or_else(|| EditError::MissingFile(selection.file.clone()))?;
+    validate_selection_text(source, selection)
+}
+fn validate_selection_text(source: &str, selection: &Selection) -> EditResult<()> {
     if selection.secondary.len() > 9999 {
         return Err(EditError::LimitExceeded);
     }
@@ -404,7 +427,15 @@ fn apply_changes(
     profile: &Profile,
     changes: &Changes,
 ) -> EditResult<(Sources, Profile, Changes)> {
-    let mut candidate = sources.clone();
+    apply_owned_changes(sources.clone(), profile, changes)
+}
+// A history operation works on one private project copy. Applying additional
+// coalesced steps consumes that copy instead of recopying untouched files.
+fn apply_owned_changes(
+    mut candidate: Sources,
+    profile: &Profile,
+    changes: &Changes,
+) -> EditResult<(Sources, Profile, Changes)> {
     let mut seen = BTreeSet::new();
     let mut inverses = Vec::new();
     for change in &changes.files {

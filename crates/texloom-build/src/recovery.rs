@@ -15,7 +15,7 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 use texloom_core::document::{
-    recovery::Checkpoint, Origin, Patch, Revision, Selection, Session, TypingGroup,
+    recovery::Checkpoint, FileChange, Origin, Patch, Revision, Selection, Session, TypingGroup,
 };
 
 type Result<T> = std::result::Result<T, String>;
@@ -820,9 +820,21 @@ fn apply(record: Record, session: &mut Session, disk: &mut DiskSnapshot) -> Resu
                 patch.base == Revision(record.base),
                 "Recovery patch base mismatch",
             )?;
-            let candidate = session.prepare(patch).map_err(fail)?;
-            require(candidate.changed(), "Unexpected no-op recovery patch")?;
-            session.commit(candidate, origin, group).map_err(fail)?;
+            if let (Origin::Source, None, [FileChange::Edit { file, edits }]) =
+                (origin, &patch.profile, patch.files.as_slice())
+            {
+                // The journal carries data, not prepared authority. Revalidate
+                // expected bytes, limits and the current replay owner/base.
+                let candidate = session
+                    .prepare_source_edit(patch.base, file, edits.clone())
+                    .map_err(fail)?;
+                require(candidate.changed(), "Unexpected no-op recovery patch")?;
+                session.commit_source_edit(candidate, group).map_err(fail)?;
+            } else {
+                let candidate = session.prepare(patch).map_err(fail)?;
+                require(candidate.changed(), "Unexpected no-op recovery patch")?;
+                session.commit(candidate, origin, group).map_err(fail)?;
+            }
             true
         }
         Mutation::Undo => {

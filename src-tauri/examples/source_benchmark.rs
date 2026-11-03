@@ -8,6 +8,22 @@ use texloom_desktop_lib::benchmark::{Backend, EditorChange};
 const WARMUP: usize = 10;
 const SAMPLES: usize = 100;
 
+#[derive(Clone, Copy)]
+enum Mode {
+    ProjectPlan,
+    FilePlan,
+    FullReply,
+}
+impl Mode {
+    fn name(self) -> &'static str {
+        match self {
+            Self::ProjectPlan => "project_plan_changed_file",
+            Self::FilePlan => "file_plan_changed_file",
+            Self::FullReply => "file_plan_full_snapshot",
+        }
+    }
+}
+
 fn distribution(mut values: Vec<f64>) -> Value {
     values.sort_by(f64::total_cmp);
     let count = values.len();
@@ -32,13 +48,8 @@ fn source(bytes: usize) -> String {
     text
 }
 
-fn measure(base: &Path, files: usize, bytes: usize, delta: bool) -> Value {
-    let mode = if delta {
-        "changed_file"
-    } else {
-        "full_snapshot"
-    };
-    let root = base.join(format!("{mode}-files-{files}-bytes-{bytes}"));
+fn measure(base: &Path, files: usize, bytes: usize, mode: Mode) -> Value {
+    let root = base.join(format!("{}-files-{files}-bytes-{bytes}", mode.name()));
     fs::create_dir(&root).unwrap();
     let project_root = root.join("project");
     fs::create_dir(&project_root).unwrap();
@@ -74,10 +85,25 @@ fn measure(base: &Path, files: usize, bytes: usize, delta: bool) -> Value {
             text: if index % 2 == 0 { "x" } else { "y" }.into(),
         };
         let started = Instant::now();
-        let (next_revision, payload, edited, encoded, total) = if delta {
-            let reply = backend
-                .document_edit_delta(&project.id, revision, "main.tex", vec![change], Some(1))
-                .unwrap();
+        let (next_revision, payload, edited, encoded, total) = if !matches!(mode, Mode::FullReply) {
+            let reply = if matches!(mode, Mode::ProjectPlan) {
+                backend.benchmark_project_source_plan(
+                    &project.id,
+                    revision,
+                    "main.tex",
+                    vec![change],
+                    Some(1),
+                )
+            } else {
+                backend.document_edit_delta(
+                    &project.id,
+                    revision,
+                    "main.tex",
+                    vec![change],
+                    Some(1),
+                )
+            }
+            .unwrap();
             let edited = started.elapsed().as_secs_f64() * 1000.0;
             assert_eq!(reply.sources.len(), 1);
             assert_eq!(reply.base_revision, revision);
@@ -134,7 +160,10 @@ fn measure(base: &Path, files: usize, bytes: usize, delta: bool) -> Value {
     assert_eq!(disk_before, disk_after, "Typing must not save to disk");
     backend.close_document(&project.id).unwrap();
     json!({
-        "response_mode": mode, "production_ipc": delta,
+        "mode": mode.name(),
+        "plan_mode": if matches!(mode, Mode::ProjectPlan) { "project_snapshot" } else { "single_existing_file" },
+        "response_mode": if matches!(mode, Mode::FullReply) { "full_snapshot" } else { "changed_file" },
+        "production_ipc": matches!(mode, Mode::FilePlan),
         "files": files, "bytes_per_file": bytes, "project_source_bytes": files * bytes,
         "warmup_edits": WARMUP, "measured_edits": SAMPLES, "response_bytes": response_bytes,
         "native_edit_and_reply": distribution(editing),
@@ -160,18 +189,21 @@ fn main() {
         (128, 256 * 1024),
     ]
     .into_iter()
-    .flat_map(|(files, bytes)| [false, true].map(|delta| measure(&base, files, bytes, delta)))
+    .flat_map(|(files, bytes)| {
+        [Mode::ProjectPlan, Mode::FilePlan, Mode::FullReply]
+            .map(|mode| measure(&base, files, bytes, mode))
+    })
     .collect::<Vec<_>>();
     let report = json!({
-        "schema": 3,
+        "schema": 4,
         "os": std::env::consts::OS,
         "architecture": std::env::consts::ARCH,
         "logical_processors_seen": std::thread::available_parallelism().map(|n| n.get()).ok(),
         "profile": "release",
-        "implementation_base": "eb2108d9dbcd9a4e3e380e444942450482f4b6c4",
+        "implementation_base": "30cf0f9b6e4ab653a7d7779e52c12a0b4b4d63ec",
         "github_sha_at_run": std::env::var("GITHUB_SHA").ok(),
         "github_ref_at_run": std::env::var("GITHUB_REF").ok(),
-        "measured_api": "Shared native edit authority: full DocumentSnapshot reference vs production changed-file SourceEditReply",
+        "measured_api": "Shared native source authority, recovery, and changed-file reply: project-snapshot reference planner vs production single-file planner; full reply retained as a separate response comparison",
         "durable_recovery_journal": true,
         "cases": cases,
         "limitations": [
