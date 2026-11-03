@@ -25,6 +25,8 @@ jobs:
         run: npm ci
       - name: Check Rust source model
         run: cargo test --locked -p texloom-core
+      - name: Check optional recovery checkpoint codec
+        run: cargo test --locked -p texloom-core --features recovery-serde
       - name: Check frontend transactions and PDF geometry
         run: npm test
       - name: Check build scheduling, snapshots and process-tree cleanup

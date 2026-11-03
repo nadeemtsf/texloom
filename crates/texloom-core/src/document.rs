@@ -7,9 +7,11 @@ use std::{
     sync::Arc,
 };
 pub mod projection;
+pub mod recovery;
 
 pub type Sources = BTreeMap<String, String>;
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[cfg_attr(feature = "recovery-serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Revision(pub u64);
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -27,6 +29,7 @@ pub enum EditError {
     InvalidProfile,
     LimitExceeded,
     InvalidEditorOffset,
+    InvalidRecoveryCheckpoint,
 }
 impl fmt::Display for EditError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -37,12 +40,15 @@ impl std::error::Error for EditError {}
 pub type EditResult<T> = std::result::Result<T, EditError>;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "recovery-serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "recovery-serde", serde(deny_unknown_fields))]
 pub struct Replacement {
     pub range: Range<usize>,
     pub expected: String,
     pub text: String,
 }
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "recovery-serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum FileChange {
     Edit {
         file: String,
@@ -65,30 +71,40 @@ impl FileChange {
     }
 }
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "recovery-serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "recovery-serde", serde(deny_unknown_fields))]
 pub struct Profile {
     pub main: String,
     pub engine: String,
 }
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "recovery-serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "recovery-serde", serde(deny_unknown_fields))]
 pub struct ProfileChange {
     pub expected: Profile,
     pub replacement: Profile,
 }
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "recovery-serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "recovery-serde", serde(deny_unknown_fields))]
 pub struct Patch {
     pub base: Revision,
     pub files: Vec<FileChange>,
     pub profile: Option<ProfileChange>,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "recovery-serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Origin {
     Source,
     Canvas,
     Settings,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "recovery-serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct TypingGroup(pub u64);
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "recovery-serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "recovery-serde", serde(deny_unknown_fields))]
 pub struct Selection {
     pub file: String,
     pub anchor: usize,
@@ -97,16 +113,21 @@ pub struct Selection {
 }
 
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "recovery-serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "recovery-serde", serde(deny_unknown_fields))]
 struct Changes {
     files: Vec<FileChange>,
     profile: Option<ProfileChange>,
 }
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "recovery-serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "recovery-serde", serde(deny_unknown_fields))]
 struct HistoryEntry {
     forwards: Vec<Changes>,
     inverses: Vec<Changes>,
     origin: Origin,
     group: Option<TypingGroup>,
+    #[cfg_attr(feature = "recovery-serde", serde(skip))]
     bytes: usize,
     before_selection: Option<Selection>,
     after_selection: Option<Selection>,
