@@ -22,7 +22,7 @@ if (diagnostics.length) {
   }));
   process.exit(1);
 }
-const names = ['document-client.js', 'document-protocol.js'];
+const names = ['document-client.js', 'document-protocol.js', 'build-protocol.js'];
 if (outputs.size !== names.length || names.some(name => !outputs.has(name))) throw Error('Unexpected protocol compiler output');
 for (const name of names) {
   const output = '// Generated from frontend/protocol/' + name.replace(/\.js$/, '.ts') + '. Run npm run protocol:emit; do not edit.\n' + outputs.get(name);

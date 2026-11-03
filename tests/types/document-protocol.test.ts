@@ -1,6 +1,8 @@
 import {DocumentClient} from '../../frontend/protocol/document-client.js';
 import type {DocumentRequests, DocumentReplies} from '../../web/generated/document-ipc.js';
 import type {NativeInvoke} from '../../frontend/protocol/document-protocol.js';
+import type {BuildRequests, CompileResult} from '../../web/generated/document-ipc.js';
+import {requestBuild} from '../../frontend/protocol/build-protocol.js';
 declare const invoke: NativeInvoke;
 declare const snapshot: unknown;
 const client = new DocumentClient(invoke, 'project', snapshot);
@@ -21,3 +23,21 @@ void client.enqueue('document_history', {revision: 9, redo: false});
 // @ts-expect-error Rust serializes revisions as numbers, not bigint.
 const revision: DocumentReplies['document_edit']['revision'] = 1n;
 void revision;
+void client.compile(null, 'export').then((result: CompileResult) => result.pdf);
+void client.forward('build', 'main.tex', 1);
+// @ts-expect-error Build purposes come from the native enum.
+void client.compile(null, 'publsh');
+// @ts-expect-error Navigation uses numeric source lines.
+void client.forward('build', 'main.tex', '1');
+// @ts-expect-error The compiler request must carry its cancellation sequence.
+const compileRequest: BuildRequests['compile_document'] = {projectId:'p', revision:0, token:null, purpose:'preview'};
+void compileRequest;
+// @ts-expect-error Build identities are opaque strings, not revisions.
+void client.verify(1);
+// @ts-expect-error A forward mapping request requires a source file.
+void requestBuild(invoke, 'pdf_from_source', {buildId:'build', line:1});
+// @ts-expect-error Native diagnostics require the serialized nullable source fields.
+const diagnostic: CompileResult['diagnostics'][number] = {code:'error', severity:'error', message:'Failed'};
+void diagnostic;
+// @ts-expect-error Selection samples contain numeric PDF coordinates.
+void client.resolve('build', 1, [{x:'12', y:24}]);

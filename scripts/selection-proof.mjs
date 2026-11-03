@@ -5,6 +5,7 @@ import {resolve,join,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createRequire} from 'node:module';
 import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
+import {loadPDFDocument} from '../web/core/pdf-document.js';
 import {extractTextGeometry,union} from '../web/core/geometry.js';
 import {validateSelectionProbe} from '../web/core/selection-proof.js';
 const require=createRequire(import.meta.url);
@@ -18,12 +19,12 @@ const hint=join(root,'target/debug/examples/selection_hint'+(process.platform===
 const report={schema:1,createdAt:new Date().toISOString(),status:'pending',cases:[],limitations:['Synthetic source/SyncTeX/probe corpus; native mouse acceptance remains open.','Rotated/cropped/UserUnit pages, arbitrary TeX and independent runtime inspection are not certified.']};
 function run(exe,args,cwd=root){const r=spawnSync(exe,args,{cwd,encoding:'utf8',windowsHide:true,timeout:90_000,maxBuffer:8*1024*1024});if(r.error||r.status!==0)throw new Error(r.error?.message||(r.stderr+r.stdout).slice(-1500));return r.stdout}
 async function view(path,id){
- const pdf=await pdfjs.getDocument({data:new Uint8Array(await readFile(path)),isEvalSupported:false}).promise;
+ const pdf=await loadPDFDocument(pdfjs,{data:new Uint8Array(await readFile(path))});
  const prepared={result:{build_id:id},pageCount:pdf.numPages,pages:[],pageSizes:new Map(),objects:new Map(),unclosed:new Set()};
  try{
   for(let n=1;n<=pdf.numPages;n++){
    const page=await pdf.getPage(n),viewport=page.getViewport({scale:1}),canvas=createCanvas(Math.ceil(viewport.width),Math.ceil(viewport.height));
-   await page.render({canvasContext:canvas.getContext('2d'),viewport}).promise;
+   await page.render({canvas,canvasContext:canvas.getContext('2d'),viewport}).promise;
    const text=await page.getTextContent({includeMarkedContent:true}),g=extractTextGeometry(text.items,text.styles,n,viewport.height);
    prepared.pages.push({number:n,runs:g.runs,lines:g.lines,shell:{querySelector:()=>canvas}});prepared.pageSizes.set(n,{width:viewport.width,height:viewport.height});
    for(const id of g.unclosed)prepared.unclosed.add(id);

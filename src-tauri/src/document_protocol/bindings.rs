@@ -1,8 +1,10 @@
 //! ts-rs declarations and Serde fixtures for the source/history IPC slice.
 use super::*;
+use crate::build_protocol::*;
 use crate::service::{
     CloseReply, DocumentSnapshot, EditorSelection, PreparedReply, RecoveryReply, RecoveryStatus,
-    SelectionReply, SourceEditReply,
+    SelectionReply, SourceEditReply, CompileResult, PositionedBlock, MappedTextObject,
+    SourceLocation, SourceRectangle, SelectionPoint, ResolvedSelection,
 };
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
@@ -29,7 +31,26 @@ pub fn declarations() -> String {
         SelectionRequest,
         ProfileRequest,
         HistoryRequest,
-        CommitRequest
+        CommitRequest,
+        texloom_build::engine::Severity,
+        texloom_build::engine::Diagnostic,
+        PositionedBlock,
+        MappedTextObject,
+        CompileResult,
+        SourceLocation,
+        SourceRectangle,
+        BuildPurpose,
+        CompileDocumentRequest,
+        CancelCompilationRequest,
+        BuildIdRequest,
+        ProjectBuildRequest,
+        DiscardCandidateRequest,
+        ExportBuildRequest,
+        ForwardMappingRequest,
+        InverseMappingRequest,
+        SelectionPoint,
+        ResolvedSelection,
+        ResolveSelectionRequest
     );
     text.push_str("export interface DocumentRequests {\n");
     macro_rules! commands {
@@ -48,6 +69,26 @@ pub fn declarations() -> String {
         document_commit: CommitRequest => DocumentSnapshot,
         save_document: RevisionRequest => RecoveryReply,
         retry_typing_recovery: RevisionRequest => RecoveryReply,
+    );
+    text.push_str("}\n\nexport interface BuildRequests {\n");
+    macro_rules! build_commands {
+        ($($name:ident: $request:ty => $reply:ty),+ $(,)?) => {
+            $(let _ = crate::$name;
+              text.push_str(&format!("  {}: {};\n", stringify!($name), <$request>::ident()));)+
+            text.push_str("}\n\nexport interface BuildReplies {\n");
+            $(text.push_str(&format!("  {}: {};\n", stringify!($name), <$reply>::inline()));)+
+        };
+    }
+    build_commands!(
+        compile_document: CompileDocumentRequest => CompileResult,
+        cancel_compilation: CancelCompilationRequest => (),
+        verify_build: BuildIdRequest => (),
+        pin_displayed_build: ProjectBuildRequest => (),
+        document_discard: DiscardCandidateRequest => (),
+        export_document_build: ExportBuildRequest => (),
+        source_from_pdf: InverseMappingRequest => SourceLocation,
+        pdf_from_source: ForwardMappingRequest => SourceRectangle,
+        resolve_text_selection: ResolveSelectionRequest => ResolvedSelection,
     );
     text.push_str("}\n");
     text
@@ -82,6 +123,28 @@ pub fn fixtures() -> Value {
         "recovery_reply": RecoveryReply { revision: 8, recovery: protection(8) },
         "prepared_reply": PreparedReply { token: "b".repeat(32), revision: 9 },
         "close_reply": CloseReply { warning: None },
+        "compile_request": CompileDocumentRequest { project_id: "project".into(), revision: 7,
+            token: None, purpose: Some(BuildPurpose::Export), request_id: 1 },
+        "compile_success": CompileResult { ok: true, build_id: "c".repeat(32), revision: 7,
+            pdf: b"%PDF-1.7\n".to_vec(),
+            blocks: vec![PositionedBlock { id: "legacy".into(), file: "main.tex".into(), page: 1,
+                x: 12.0, y: 24.0, width: 100.0, size: 12.0, height: 15.0,
+                content: "A".into(), start: 0, end: 1, line: 1 }],
+            objects: vec![MappedTextObject { id: "signature".into(), file: "main.tex".into(),
+                dx: 0.0, dy: 12.0, plain_text: Some("A".into()), content: "A".into(), line: 1, start: 0, end: 1 }],
+            log: "Fixture only; not a renderable PDF".into(), engine: "pdflatex".into(), seconds: 0.25,
+            verification_eligible: true, passes: 2, diagnostics: vec![], job_id: 42 },
+        "compile_failure": CompileResult { ok: false, build_id: "d".repeat(32), revision: 7,
+            pdf: vec![], blocks: vec![], objects: vec![], log: "Compiler initialization failed".into(),
+            engine: "pdflatex".into(), seconds: 0.1, verification_eligible: false, passes: 0,
+            diagnostics: vec![texloom_build::engine::Diagnostic { code: "compiler_preflight_failed".into(),
+                severity: texloom_build::engine::Severity::Error, message: "Compiler unavailable".into(), file: None, line: None }],
+            job_id: 43 },
+        "source_location": SourceLocation { file: "main.tex".into(), line: 2 },
+        "source_rectangle": SourceRectangle { page: 1, x: 12.0, y: -3.0, width: 1.25, height: 8.0 },
+        "resolved_selection": ResolvedSelection { schema: 1, unit_id: "fixture:main.tex:3:4".into(),
+            build_id: "c".repeat(32), revision: 7, file: "main.tex".into(), expected_source: "\u{feff}A\r\n\u{1f600}\r\n".into(),
+            start: 0, end: 1, first_line: 1, last_line: 1, kind: "line".into(), content: "A".into(), plain_text: Some("A".into()), rectangles: vec![] },
     })
 }
 

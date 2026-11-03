@@ -1,5 +1,6 @@
 mod service;
 mod document_protocol;
+mod build_protocol;
 #[cfg(feature = "typegen")]
 pub use document_protocol::bindings as protocol_bindings;
 
@@ -88,17 +89,18 @@ async fn compile_document(
     project_id: String,
     revision: u64,
     token: Option<String>,
-    purpose: Option<String>,
+    purpose: Option<build_protocol::BuildPurpose>,
     request_id: u64,
 ) -> Result<CompileResult, String> {
+    let request = build_protocol::CompileDocumentRequest { project_id, revision, token, purpose, request_id };
     let backend = state.inner().clone();
     tauri::async_runtime::spawn_blocking(move || {
         backend.compile_document(
-            &project_id,
-            revision,
-            token.as_deref(),
-            purpose.as_deref(),
-            request_id,
+            &request.project_id,
+            request.revision,
+            request.token.as_deref(),
+            request.purpose.as_ref().map(build_protocol::BuildPurpose::as_str),
+            request.request_id,
         )
     })
     .await
@@ -111,7 +113,8 @@ fn cancel_compilation(
     request_id: u64,
     token: Option<String>,
 ) {
-    state.cancel_compilation(&project_id, request_id, token.as_deref())
+    let request = build_protocol::CancelCompilationRequest { project_id, request_id, token };
+    state.cancel_compilation(&request.project_id, request.request_id, request.token.as_deref())
 }
 #[tauri::command]
 fn pin_displayed_build(
@@ -119,7 +122,8 @@ fn pin_displayed_build(
     project_id: String,
     build_id: String,
 ) -> Result<(), String> {
-    state.pin_displayed_build(&project_id, &build_id)
+    let request = build_protocol::ProjectBuildRequest { project_id, build_id };
+    state.pin_displayed_build(&request.project_id, &request.build_id)
 }
 #[tauri::command]
 async fn close_document(state: State<'_, Arc<Backend>>, project_id: String, revision: Option<u64>, discard_recovery: Option<bool>) -> Result<CloseReply, String> {
@@ -159,8 +163,9 @@ async fn retry_typing_recovery(state: State<'_, Arc<Backend>>, project_id: Strin
 }
 #[tauri::command]
 async fn verify_build(state: State<'_, Arc<Backend>>, build_id: String) -> Result<(), String> {
+    let request = build_protocol::BuildIdRequest { build_id };
     let backend = state.inner().clone();
-    tauri::async_runtime::spawn_blocking(move || backend.verify_build(&build_id))
+    tauri::async_runtime::spawn_blocking(move || backend.verify_build(&request.build_id))
         .await
         .map_err(|e| e.to_string())?
 }
@@ -172,9 +177,10 @@ async fn export_document_build(
     build_id: String,
     path: String,
 ) -> Result<(), String> {
+    let request = build_protocol::ExportBuildRequest { project_id, revision, build_id, path };
     let backend = state.inner().clone();
     tauri::async_runtime::spawn_blocking(move || {
-        backend.export_document_build(&project_id, revision, &build_id, &path)
+        backend.export_document_build(&request.project_id, request.revision, &request.build_id, &request.path)
     })
     .await
     .map_err(|e| e.to_string())?
@@ -274,7 +280,8 @@ fn document_discard(
     project_id: String,
     token: String,
 ) -> Result<(), String> {
-    state.document_discard(&project_id, &token)
+    let request = build_protocol::DiscardCandidateRequest { project_id, token };
+    state.document_discard(&request.project_id, &request.token)
 }
 
 #[tauri::command]
@@ -296,9 +303,10 @@ async fn resolve_text_selection(
     page: usize,
     points: Vec<SelectionPoint>,
 ) -> Result<ResolvedSelection, String> {
+    let request = build_protocol::ResolveSelectionRequest { project_id, revision, build_id, page, points };
     let backend = state.inner().clone();
     tauri::async_runtime::spawn_blocking(move || {
-        backend.resolve_text_selection(&project_id, revision, &build_id, page, points)
+        backend.resolve_text_selection(&request.project_id, request.revision, &request.build_id, request.page, request.points)
     })
     .await
     .map_err(|e| e.to_string())?
@@ -312,8 +320,9 @@ async fn source_from_pdf(
     x: f64,
     y: f64,
 ) -> Result<SourceLocation, String> {
+    let request = build_protocol::InverseMappingRequest { build_id, page, x, y };
     let backend = state.inner().clone();
-    tauri::async_runtime::spawn_blocking(move || backend.inverse(&build_id, page, x, y))
+    tauri::async_runtime::spawn_blocking(move || backend.inverse(&request.build_id, request.page, request.x, request.y))
         .await
         .map_err(|e| e.to_string())?
 }
@@ -325,8 +334,9 @@ async fn pdf_from_source(
     file: String,
     line: usize,
 ) -> Result<SourceRectangle, String> {
+    let request = build_protocol::ForwardMappingRequest { build_id, file, line };
     let backend = state.inner().clone();
-    tauri::async_runtime::spawn_blocking(move || backend.forward(&build_id, &file, line))
+    tauri::async_runtime::spawn_blocking(move || backend.forward(&request.build_id, &request.file, request.line))
         .await
         .map_err(|e| e.to_string())?
 }

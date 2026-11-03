@@ -10,7 +10,7 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 
 [features]
 benchmark = []
-typegen = ["dep:ts-rs"]
+typegen = ["dep:ts-rs", "texloom-build/typegen"]
 
 [[example]]
 name = "source_benchmark"

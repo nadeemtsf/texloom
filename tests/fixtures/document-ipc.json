@@ -2,6 +2,88 @@
   "close_reply": {
     "warning": null
   },
+  "compile_failure": {
+    "blocks": [],
+    "build_id": "dddddddddddddddddddddddddddddddd",
+    "diagnostics": [
+      {
+        "code": "compiler_preflight_failed",
+        "file": null,
+        "line": null,
+        "message": "Compiler unavailable",
+        "severity": "error"
+      }
+    ],
+    "engine": "pdflatex",
+    "job_id": 43,
+    "log": "Compiler initialization failed",
+    "objects": [],
+    "ok": false,
+    "passes": 0,
+    "pdf": [],
+    "revision": 7,
+    "seconds": 0.1,
+    "verification_eligible": false
+  },
+  "compile_request": {
+    "projectId": "project",
+    "purpose": "export",
+    "requestId": 1,
+    "revision": 7,
+    "token": null
+  },
+  "compile_success": {
+    "blocks": [
+      {
+        "content": "A",
+        "end": 1,
+        "file": "main.tex",
+        "height": 15.0,
+        "id": "legacy",
+        "line": 1,
+        "page": 1,
+        "size": 12.0,
+        "start": 0,
+        "width": 100.0,
+        "x": 12.0,
+        "y": 24.0
+      }
+    ],
+    "build_id": "cccccccccccccccccccccccccccccccc",
+    "diagnostics": [],
+    "engine": "pdflatex",
+    "job_id": 42,
+    "log": "Fixture only; not a renderable PDF",
+    "objects": [
+      {
+        "content": "A",
+        "dx": 0.0,
+        "dy": 12.0,
+        "end": 1,
+        "file": "main.tex",
+        "id": "signature",
+        "line": 1,
+        "plain_text": "A",
+        "start": 0
+      }
+    ],
+    "ok": true,
+    "passes": 2,
+    "pdf": [
+      37,
+      80,
+      68,
+      70,
+      45,
+      49,
+      46,
+      55,
+      10
+    ],
+    "revision": 7,
+    "seconds": 0.25,
+    "verification_eligible": true
+  },
   "edit_request": {
     "changes": [
       {
@@ -26,6 +108,22 @@
       "protected_revision": 8
     },
     "revision": 8
+  },
+  "resolved_selection": {
+    "build_id": "cccccccccccccccccccccccccccccccc",
+    "content": "A",
+    "end": 1,
+    "expected_source": "﻿A\r\n😀\r\n",
+    "file": "main.tex",
+    "first_line": 1,
+    "kind": "line",
+    "last_line": 1,
+    "plain_text": "A",
+    "rectangles": [],
+    "revision": 7,
+    "schema": 1,
+    "start": 0,
+    "unit_id": "fixture:main.tex:3:4"
   },
   "selection_reply": {
     "recovery": {
@@ -100,5 +198,16 @@
     "sources": {
       "main.tex": "﻿B\r\n😀\r\n"
     }
+  },
+  "source_location": {
+    "file": "main.tex",
+    "line": 2
+  },
+  "source_rectangle": {
+    "height": 8.0,
+    "page": 1,
+    "width": 1.25,
+    "x": 12.0,
+    "y": -3.0
   }
 }

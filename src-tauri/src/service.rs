@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
+use serde_json::Value;
+#[cfg(test)]
+use serde_json::json;
 use std::{
     collections::{BTreeMap, HashMap},
     fs,
@@ -136,19 +138,53 @@ pub struct CompileRequest {
 }
 
 #[derive(Serialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct PositionedBlock {
+    pub id: String,
+    pub file: String,
+    pub page: usize,
+    pub x: f64,
+    pub y: f64,
+    pub width: f64,
+    pub size: f64,
+    pub content: String,
+    pub height: f64,
+    pub start: usize,
+    pub end: usize,
+    pub line: usize,
+}
+
+#[derive(Serialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct MappedTextObject {
+    pub id: String,
+    pub file: String,
+    pub dx: f64,
+    pub dy: f64,
+    pub plain_text: Option<String>,
+    pub content: String,
+    pub line: usize,
+    pub start: usize,
+    pub end: usize,
+}
+
+#[derive(Serialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
 pub struct CompileResult {
     pub ok: bool,
     pub build_id: String,
+    #[cfg_attr(feature = "typegen", ts(type = "number"))]
     pub revision: u64,
     pub pdf: Vec<u8>,
-    pub blocks: Vec<Value>,
-    pub objects: Vec<Value>,
+    pub blocks: Vec<PositionedBlock>,
+    pub objects: Vec<MappedTextObject>,
     pub log: String,
     pub engine: String,
     pub seconds: f64,
     pub verification_eligible: bool,
     pub passes: usize,
     pub diagnostics: Vec<texloom_build::engine::Diagnostic>,
+    #[cfg_attr(feature = "typegen", ts(type = "number"))]
     pub job_id: u64,
 }
 
@@ -469,10 +505,17 @@ impl Backend {
                     }
                     let projection =
                         texloom_core::document::projection::EditorProjection::new(source);
-                    objects.push(json!({"id":object.id,"file":name,"dx":object.dx,"dy":object.dy,
-                        "plain_text":texloom_core::plain_text_preview(&object.content,request.sources.get(&request.main).unwrap_or(source)),
-                        "content":object.content,"line":object.line,"start":projection.editor_offset(object.range.start).map_err(fail)?,
-                        "end":projection.editor_offset(object.range.end).map_err(fail)?}));
+                    objects.push(MappedTextObject {
+                        id: object.id,
+                        file: name.clone(),
+                        dx: object.dx,
+                        dy: object.dy,
+                        plain_text: texloom_core::plain_text_preview(&object.content, request.sources.get(&request.main).unwrap_or(source)),
+                        content: object.content,
+                        line: object.line,
+                        start: projection.editor_offset(object.range.start).map_err(fail)?,
+                        end: projection.editor_offset(object.range.end).map_err(fail)?,
+                    });
                 }
             }
             lease.cancel.check()?;
@@ -704,12 +747,14 @@ impl Backend {
 }
 
 #[derive(Serialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
 pub struct SourceLocation {
     pub file: String,
     pub line: usize,
 }
 
 #[derive(Clone, Serialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
 pub struct SourceRectangle {
     pub page: usize,
     pub x: f64,
@@ -723,14 +768,15 @@ fn ui_block(
     file: &str,
     source: &str,
     metrics: &HashMap<(String, usize), f64>,
-) -> Result<Value> {
-    Ok(
-        json!({ "id": block.id, "file": file, "page": block.page, "x": block.x, "y": block.y,
-        "width": block.width, "size": block.size, "content": block.content,
-        "height": metrics.get(&(block.id.clone(), block.page)).copied().unwrap_or(block.size * 1.3),
-        "start": texloom_core::document::projection::EditorProjection::new(source).editor_offset(block.range.start).map_err(fail)?,
-        "end": texloom_core::document::projection::EditorProjection::new(source).editor_offset(block.range.end).map_err(fail)?, "line": block.line }),
-    )
+) -> Result<PositionedBlock> {
+    let projection = texloom_core::document::projection::EditorProjection::new(source);
+    Ok(PositionedBlock {
+        id: block.id.clone(), file: file.into(), page: block.page, x: block.x, y: block.y,
+        width: block.width, size: block.size, content: block.content.clone(),
+        height: metrics.get(&(block.id.clone(), block.page)).copied().unwrap_or(block.size * 1.3),
+        start: projection.editor_offset(block.range.start).map_err(fail)?,
+        end: projection.editor_offset(block.range.end).map_err(fail)?, line: block.line,
+    })
 }
 
 fn measurements(path: &Path) -> HashMap<(String, usize), f64> {

@@ -15,7 +15,7 @@ async function setup(){
  const editor={onDidChangeModelContent(fn){control.onEdit=fn},onDidChangeCursorPosition(){},onDidChangeCursorSelection(fn){control.onSelection=fn},addCommand(){},
   createContextKey(name,value){const key={value,set(next){this.value=next}};(control.contextKeys??=new Map()).set(name,key);return key},
   addAction(action){(control.actions??=[]).push(action)},hasTextFocus:()=>false,updateOptions(){},getDomNode:()=>({addEventListener(name,fn){composition[name]=fn}})};
- const control={compile:async()=>({ok:true,log:'',seconds:0,engine:'test',build_id:'new-pdf',blocks:[],objects:[]}),prepare:async result=>({result,pdf:{destroy:async()=>{}},pageCount:1,objects:new Map(),unclosed:new Set(),pageSizes:new Map()})};
+ const control={compile:async()=>({ok:true,log:'',seconds:0,engine:'pdflatex',build_id:'new-pdf',blocks:[],objects:[]}),prepare:async result=>({result,pdf:{destroy:async()=>{}},pageCount:1,objects:new Map(),unclosed:new Set(),pageSizes:new Map()})};
  const {NativeDocumentDouble}=require('./native-document-double.cjs');const native=new NativeDocumentDouble(control);
  function legacyGesture(resize=false){
   const listeners=new Map(),original={left:'20px',top:'30px',width:'100px'};
@@ -198,8 +198,27 @@ test('dependencies changing during PDF preparation reject the candidate and dest
 
 test('unresolved compiler diagnostics cannot commit visual source',async()=>{
  const t=await setup();t.control.compile=async()=>({ok:true,build_id:'unresolved',verification_eligible:false,log:'Unresolved references',
-  diagnostics:[{code:'unresolved_reference',severity:'error',message:'Reference missing'}]});
+  diagnostics:[{code:'unresolved_reference',severity:'error',message:'Reference missing',file:null,line:null}]});
  assert.equal(await t.run("visualTransaction('main.tex','Candidate')"),false);assert.equal(t.native.history.length,0);
+});
+
+test('a malformed successful compiler reply cannot render, publish or commit and does not block later typing',async()=>{
+ const t=await setup();let renders=0;t.control.prepare=async()=>{renders++;throw Error('Must not render malformed bytes')};
+ t.control.compile=async()=>({ok:true,build_id:'malformed',pdf:[37,80,68,70,45,256]});
+ assert.equal(await t.run("visualTransaction('main.tex','Candidate')"),false);
+ assert.equal(renders,0);assert.equal(t.native.history.length,0);assert.equal(t.native.pending.size,0);
+ assert.equal(t.run('state.result.build_id'),'last-good');assert.equal(t.run('state.client.error'),null);
+ await t.run("state.client.edit('main.tex',[{offset:0,length:15,text:'Later typed text'}])");
+ assert.equal(t.native.sources['main.tex'],'Later typed text');
+});
+
+test('a malformed verification acknowledgement destroys the candidate PDF and cannot authorize a commit',async()=>{
+ const t=await setup();let destroyed=0;
+ t.control.verify=async()=>({ok:true});
+ t.control.prepare=async()=>({pageCount:1,pdf:{destroy:async()=>{destroyed++}}});
+ assert.equal(await t.run("visualTransaction('main.tex','Candidate')"),false);
+ assert.equal(destroyed,1);assert.equal(t.native.history.length,0);assert.equal(t.native.pending.size,0);
+ assert.equal(t.run("state.sources['main.tex']"),'Original source');assert.equal(t.run('state.result.build_id'),'last-good');
 });
 
 test('cancellation after the compiler finishes still prevents PDF/source publication',async()=>{
@@ -244,6 +263,16 @@ test('a selection proof failure destroys the private PDF and discards its source
  const t=await probeSetup();let destroyed=false;t.control.prepare=async()=>({pdf:{destroy:async()=>{destroyed=true}}});t.control.prove=()=>{throw new Error('Wrong source occurrence')};
  await assert.rejects(t.run("resolveSourceSelection({buildId:'last-good',page:1,points:[],hits:[]})"),/Wrong source occurrence/);
  assert.equal(destroyed,true);assert.equal(t.native.pending.size,0);assert.equal(t.native.history.length,0);assert.equal(t.run('state.result.build_id'),'last-good');
+});
+
+test('a wrong-source mapping cannot plan, compile, select or mutate the displayed document',async()=>{
+ const t=await probeSetup();let plans=0,builds=0;
+ t.control.resolve=async()=>({schema:1,build_id:'last-good',revision:0,file:'main.tex',expected_source:'Original source',content:'Different source',start:0,end:15,kind:'paragraph'});
+ t.control.plan=async()=>{plans++;throw Error('Should not plan an invalid mapping')};
+ t.control.compile=async()=>{builds++;throw Error('Should not compile an invalid mapping')};
+ await assert.rejects(t.run("resolveSourceSelection({buildId:'last-good',page:1,points:[],hits:[]})"),/does not match/);
+ assert.equal(plans,0);assert.equal(builds,0);assert.equal(t.native.history.length,0);assert.equal(t.native.pending.size,0);
+ assert.equal(t.run('state.result.build_id'),'last-good');assert.equal(t.run("state.sources['main.tex']"),'Original source');
 });
 test('cancelling while the selection PDF is prepared cannot grant a selection',async()=>{
  const t=await probeSetup();let finish,destroyed=false;t.control.prepare=()=>new Promise(r=>finish=r);

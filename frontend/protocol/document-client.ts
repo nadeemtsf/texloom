@@ -1,5 +1,7 @@
 /** Ordered browser replica. Rust owns text/history and visual approvals. */
-import type { DocumentRequests, EditorChange, EditorRange } from '../../web/generated/document-ipc.js';
+import type { DocumentRequests, EditorChange, EditorRange, BuildPurpose, CompileResult, SourceLocation, SourceRectangle, SelectionPoint, ResolvedSelection } from '../../web/generated/document-ipc.js';
+import { acceptCompilation, acceptSourceLocation, acceptSourceRectangle, acceptResolvedSelection, assertSourceLine, BuildProtocolError, invokeUnit, requestBuild } from './build-protocol.js';
+import type { CompileContext } from './build-protocol.js';
 import {
   acceptReply, assertRevision, assertSnapshot, DocumentProtocolError, preparedReply,
 } from './document-protocol.js';
@@ -18,6 +20,7 @@ export class DocumentClient {
   private tail: Promise<unknown> = Promise.resolve();
   private compileSerial = 0;
   private activeToken: string | null = null;
+  private readonly candidates = new Map<string, { base: number; context: CompileContext }>();
   private readonly changed: (snapshot: Snapshot) => void;
   private readonly failed: (error: Error) => void;
   constructor(private readonly invoke: NativeInvoke, readonly projectId: string, snapshot: unknown, options: Options = {}) {
@@ -33,6 +36,7 @@ export class DocumentClient {
       if (name !== 'document_commit') request.revision = this.snapshot.revision;
       const next: unknown = await this.invoke(name, request);
       const accepted = acceptReply(name, request, next, this.snapshot);
+      if (accepted.snapshot.revision !== this.snapshot.revision) this.candidates.clear();
       this.snapshot = accepted.snapshot;
       if (accepted.sourceChanged) this.unpublished = true;
       return this.snapshot;
@@ -67,22 +71,58 @@ export class DocumentClient {
   async prepare(sources: Sources, baselineBuildId: string, operation: unknown = null) {
     await this.flush();
     const base = this.snapshot.revision;
-    return preparedReply(await this.invoke('document_prepare', { projectId: this.projectId, revision: base, sources, baselineBuildId, operation }), base);
+    const context = { sources: { ...sources }, engine: this.snapshot.engine };
+    const reply = preparedReply(await this.invoke('document_prepare', { projectId: this.projectId, revision: base, sources, baselineBuildId, operation }), base);
+    this.candidates.set(reply.token, { base, context: { ...context, revision: reply.revision } });
+    return reply;
   }
-  async compile(token: string | null = null, purpose = 'preview'): Promise<unknown> {
+  async compile(token: string | null = null, purpose: BuildPurpose = 'preview'): Promise<CompileResult> {
+    const snapshot = this.snapshot, candidate = token === null ? null : this.candidates.get(token);
+    if (token !== null && (!candidate || candidate.base !== snapshot.revision)) throw new BuildProtocolError('The visual candidate is no longer current');
+    const context = candidate?.context ?? { revision: snapshot.revision, sources: snapshot.sources, engine: snapshot.engine };
     this.activeToken = token;
     const requestId = ++this.compileSerial; assertRevision(requestId);
-    try { return await this.invoke('compile_document', { projectId: this.projectId, revision: this.snapshot.revision, token, purpose, requestId }); }
+    try {
+      const result = await requestBuild(this.invoke, 'compile_document', { projectId: this.projectId, revision: snapshot.revision, token, purpose, requestId });
+      return acceptCompilation(result, context);
+    }
     finally {
       if (requestId !== this.compileSerial) { const error = new Error('Compilation cancelled or superseded.'); error.name = 'CompilationCancelled'; throw error; }
     }
   }
-  async cancel(): Promise<unknown> {
+  async cancel(): Promise<void> {
     const requestId = this.compileSerial; assertRevision(this.compileSerial + 1); this.compileSerial++;
-    return this.invoke('cancel_compilation', { projectId: this.projectId, requestId, token: this.activeToken });
+    const token = this.activeToken;
+    if (token !== null) this.candidates.delete(token);
+    return invokeUnit(this.invoke, 'cancel_compilation', { projectId: this.projectId, requestId, token });
   }
-  async verify(buildId: string): Promise<unknown> { return this.invoke('verify_build', { buildId }); }
-  async pin(buildId: string): Promise<unknown> { return this.invoke('pin_displayed_build', { projectId: this.projectId, buildId }); }
-  commit(token: string, buildId: string): Promise<Snapshot> { return this.enqueue('document_commit', { token, buildId }, false); }
-  async discard(token: string): Promise<unknown> { return this.invoke('document_discard', { projectId: this.projectId, token }); }
+  async verify(buildId: string): Promise<void> { return invokeUnit(this.invoke, 'verify_build', { buildId }); }
+  async pin(buildId: string): Promise<void> { return invokeUnit(this.invoke, 'pin_displayed_build', { projectId: this.projectId, buildId }); }
+  async exportBuild(buildId: string, path: string): Promise<void> {
+    const snapshot = await this.flush();
+    return invokeUnit(this.invoke, 'export_document_build', { projectId: this.projectId, revision: snapshot.revision, buildId, path });
+  }
+  private assertMappingCurrent(snapshot: Snapshot): void {
+    if (this.error || this.pending || snapshot.revision !== this.snapshot.revision) throw new BuildProtocolError('The source changed during navigation. Compile the current source.');
+  }
+  async forward(buildId: string, file: string, line: number): Promise<SourceRectangle> {
+    const snapshot = await this.flush(); assertSourceLine(snapshot.sources, file, line);
+    const reply = await requestBuild(this.invoke, 'pdf_from_source', { buildId, file, line });
+    this.assertMappingCurrent(snapshot); return acceptSourceRectangle(reply);
+  }
+  async inverse(buildId: string, page: number, x: number, y: number): Promise<SourceLocation> {
+    const snapshot = await this.flush();
+    const reply = await requestBuild(this.invoke, 'source_from_pdf', { buildId, page, x, y });
+    this.assertMappingCurrent(snapshot); return acceptSourceLocation(reply, snapshot.sources);
+  }
+  async resolve(buildId: string, page: number, points: SelectionPoint[]): Promise<ResolvedSelection> {
+    const snapshot = await this.flush();
+    const reply = await requestBuild(this.invoke, 'resolve_text_selection', { projectId: this.projectId, revision: snapshot.revision, buildId, page, points });
+    this.assertMappingCurrent(snapshot); return acceptResolvedSelection(reply, { snapshot, buildId, page });
+  }
+  commit(token: string, buildId: string): Promise<Snapshot> { return this.enqueue('document_commit', { token, buildId }, false).then(snapshot => { this.candidates.delete(token); return snapshot; }); }
+  async discard(token: string): Promise<void> {
+    try { await invokeUnit(this.invoke, 'document_discard', { projectId: this.projectId, token }); }
+    finally { this.candidates.delete(token); }
+  }
 }

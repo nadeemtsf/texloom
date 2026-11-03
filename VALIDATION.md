@@ -1,6 +1,16 @@
 # Validation record
 
-Updated 2 November 2026. Individual checks, not release certification. Approved scope: docs/APPROVED-IMPLEMENTATION-PLAN.md.
+Updated 3 November 2026. Individual checks, not release certification. Approved scope: docs/APPROVED-IMPLEMENTATION-PLAN.md.
+
+## Compiler/mapping protocol and PDF renderer continuation
+
+Local validation passed 78 core, 71 build-infrastructure, 42 native with typegen, two explicitly invoked headless native approvals and 188 frontend/filesystem checks: 381 executed checks, excluding repeated earlier runs. The frontend run has zero failures and zero skips, including the junction fixture on this host. Thirteen compile-time negative contracts pass. The default build suite's five optional standalone worker checks and two engine corpora were not rerun or counted. Native approval used the actual pinned isolated worker. PR #22's three remote workflows were observed successful before this continuation; this new source requires its own CI.
+
+Compiler and mapping replies now cross generated Rust contracts and strict runtime checks before rendering, source planning or navigation. Candidate compilation is bound to its prepared source/revision; malformed replies and forged unit acknowledgements cannot publish a PDF or authorize a visual commit. New shell cases preserve accepted source/history/PDF, reject wrong-source selection before any probe, and keep later source typing available. See docs/BUILD-PROTOCOL.md.
+
+PDF.js is pinned to 6.2.108. The first updated run exposed the removed proxy destroy method in two real-PDF tests; the application and proof tools now own loading-task disposal through the shared loader. Tests include real PDF painting/text extraction and failure/idempotent cleanup. The final npm audit reports zero known vulnerabilities. This is not a complete security or license review; the PDFium pin remains a release-review item. See docs/PDF-RENDERER.md.
+
+Frontend, verifier and Windows x64 release builds passed. A final frontend/native rebuild followed the lifecycle correction; an intermediate build is not delivered. Portable validation checks ZIP CRC, unique exact entries, per-file hashes, matching native resources and the AMD64 executable header. Exact working-source/log/artifact/package receipts are in docs/evidence/build-protocol-local.json after those checks. The executable/package were not launched. Native mouse/typing/IME/crash/signature, installed-artifact, remaining IPC migration, wider adapters and all-phase/release gates remain open.
 
 ## P4/P5 working checkpoints
 

@@ -9,12 +9,12 @@ class NativeDocumentDouble {
  async invoke(name,args){
   if(name==='describe_text_edit')return this.control.describeText?.(args);
   if(name==='preview_text_edit')return this.control.previewText?.(args);
-  if(name==='resolve_text_selection')return this.control.resolve(args);
+  if(name==='resolve_text_selection')return {unit_id:'fixture-unit',first_line:1,last_line:1,plain_text:null,rectangles:[],...await this.control.resolve(args)};
   if(name==='plan_text_object')return this.control.plan(args.request);
   if(name==='transform')return this.control.transform?.(args.request);
   if(name==='mark_clean_exit'){this.control.cleanExits=(this.control.cleanExits??0)+1;return;}
-  if(name==='verify_build')return this.control.verify?.(args);
-  if(name==='cancel_compilation')return;
+  if(name==='verify_build')return (await this.control.verify?.(args))??null;
+  if(name==='cancel_compilation')return null;
   if(name==='close_document'){(this.control.closedRequests??=[]).push(args);return this.control.close?.(args);}
   if(name==='typing_drafts')return {drafts:[],errors:[]};
   if(name==='document_selection')return {revision:this.revision,selection:{file:args.file,anchor:args.anchor,head:args.head,secondary:args.secondary},recovery:{draft_id:null,protected_revision:null,error:null}};
@@ -28,7 +28,10 @@ class NativeDocumentDouble {
    if(args.revision!==this.revision)throw new Error('Stale compilation');
    const pending=args.token?this.pending.get(args.token):null;
    const revision=pending?pending.base+1:this.revision;
-   const result=await this.control.compile({sources:pending?.sources??this.sources,revision});
+   const reply=await this.control.compile({sources:pending?.sources??this.sources,revision});
+   const result={build_id:'fixture-build',log:'',engine:'pdflatex',seconds:0,passes:reply.ok?2:1,
+    job_id:args.requestId,pdf:reply.ok?[37,80,68,70,45,49,46,55,10]:[],blocks:[],objects:[],
+    diagnostics:[],verification_eligible:!!reply.ok,...reply};
    if(pending&&result.ok)pending.build=result.build_id;
    return {...result,revision:result.revision??revision};
   }
@@ -37,7 +40,7 @@ class NativeDocumentDouble {
    if(!pending||pending.base!==this.revision||pending.build!==args.buildId)throw new Error('Invalid native candidate');
    this.record();this.sources=structuredClone(pending.sources);this.revision++;this.pending.delete(args.token);return this.snapshot();
   }
-  if(name==='document_discard'){this.pending.delete(args.token);return;}
+  if(name==='document_discard'){this.pending.delete(args.token);return null;}
   if(name==='document_edit'){
    if(args.revision!==this.revision)throw new Error('Stale source');
    const base_revision=this.revision;let source=this.sources[args.file];

@@ -19,7 +19,7 @@
     "@tauri-apps/api": "^2.0.0",
     "@tauri-apps/plugin-dialog": "^2.0.0",
     "monaco-editor": "^0.52.0",
-    "pdfjs-dist": "^5.0.0"
+    "pdfjs-dist": "6.2.108"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.0.0",

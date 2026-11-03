@@ -1,8 +1,9 @@
 import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
 import {readFile} from 'node:fs/promises';
+import {loadPDFDocument} from '../../web/core/pdf-document.js';
 
 export async function inspectPdfjs(path) {
-  const doc = await pdfjs.getDocument({data:new Uint8Array(await readFile(path)), isEvalSupported:false}).promise;
+  const doc = await loadPDFDocument(pdfjs,{data:new Uint8Array(await readFile(path))});
   const result = {renderer:'pdfjs', version:pdfjs.version, pages:[], records:[], graphics:[]};
   try {
     for (let p=1; p<=doc.numPages; p++) {

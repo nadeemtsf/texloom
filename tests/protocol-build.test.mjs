@@ -12,8 +12,8 @@ test('protocol build checks reject stale runtime and invalid TypeScript without 
   const fixture = fs.mkdtempSync(path.join(parent, 'owned-'));
   try {
     const files = ['scripts/check-protocol.mjs', 'tsconfig.protocol.json',
-      'frontend/protocol/document-client.ts', 'frontend/protocol/document-protocol.ts',
-      'web/generated/document-ipc.d.ts', 'web/core/document-client.js', 'web/core/document-protocol.js',
+      'frontend/protocol/document-client.ts', 'frontend/protocol/document-protocol.ts', 'frontend/protocol/build-protocol.ts',
+      'web/generated/document-ipc.d.ts', 'web/core/document-client.js', 'web/core/document-protocol.js', 'web/core/build-protocol.js',
       'tests/types/document-protocol.test.ts'];
     for (const relative of files) {
       const destination = path.join(fixture, relative);

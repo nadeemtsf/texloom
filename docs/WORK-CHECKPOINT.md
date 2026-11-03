@@ -2,11 +2,21 @@
 
 Primary project: nadeemtsf/texloom, Rust/Tauri Windows. Approved scope is APPROVED-IMPLEMENTATION-PLAN.md. The owner authorizes continuing all phases and finishing earlier gaps, without the previous usage cutoff. Ordinary-PDF expansion is outside this scope. Do not equate implemented code with passed native acceptance.
 
+## Exported-chat continuation: compiler/mapping boundary and renderer
+
+The exported conversation was recovered in a new local chat. The requested primary checkout was clean but still at the old main baseline. Its existing remote branches were fetched, and feature/typed-backend-protocol was created from the exact PR #22 head, 41d9b19880bc0a2e10fbf241a517648be850c3df. No user work was reset or discarded. All three PR #22 workflows were observed successful. Git authentication works here. Rust was installed by the existing verified bootstrap script into this checkout's ignored .tools directory without global PATH modification.
+
+This continuation extends generated contracts and strict TypeScript checks to compiler/build acknowledgements and forward/inverse/visual-selection mapping. Native positioned-block/text-object records are typed instead of unstructured JSON. Prepared candidates retain their own sources/revision for reply checks; discarded/stale local tokens cannot be reused. Selection replies must match exact original source bytes and the normalized UTF-16 fragment before planning/probing. Native layout approval remains mandatory. Details: BUILD-PROTOCOL.md.
+
+The audit-flagged PDF.js lock is now pinned to patched 6.2.108, with matching legacy app/worker imports and a shared loading-task lifetime. The initial upgrade exposed two removed proxy-destroy calls; all app/proof loaders were migrated and real painting/extraction plus cleanup checks pass. The final npm audit reports zero known vulnerabilities; this does not complete release dependency review. Details: PDF-RENDERER.md.
+
+Validation: 78 core, 71 build, 42 native with typegen, two explicit headless native approvals and 188 frontend/filesystem checks passed (381, zero frontend skips), plus 13 negative compile-time contracts. Frontend/verifier/Windows x64 release builds passed; the final build follows the lifecycle change. Receipt-backed portable entry/CRC/hash/AMD64 checks and exact source/log/artifact identities are recorded in evidence/build-protocol-local.json after execution. The executable is not launched. Native input/IME/mouse/crash/signature and installed-artifact tests remain owner-deferred. Project/recovery/source-transform IPC migration, unsupported encodings, parser/provenance, broader recipes/adapters, fractional movement and release gates remain open.
+
 ## Current checkout and environment
 
 Local commands work. Exact remote history through source-acknowledgements at eb2108d9dbcd9a4e3e380e444942450482f4b6c4 was reconciled with matching Git trees/commit objects and connectivity checks. Earlier backups and the original untracked work-in-progress/source_benchmark.rs are preserved. Do not reset or discard user work.
 
-Current development branch: feature/typed-document-protocol, based on e8482a633fcd850fc1ced2dc36fe5c9c17643338 (draft PR #21). Main remains the older verified baseline; development uses the existing draft stack in the primary repository. Command-line Git authentication fails in its Windows credential helper; the connected GitHub service works. App-control tests remain explicitly deferred.
+Current continuation branch: feature/typed-backend-protocol, based on 41d9b19880bc0a2e10fbf241a517648be850c3df (draft PR #22). Main remains the older verified baseline; development uses the existing draft stack in the primary repository. The restored local checkout at C:\Users\thebe\Gtihub Repos\Mine\texloom has working Git authentication and project-local Rust tools. App-control tests remain explicitly deferred. Earlier environment limitations below are historical observations, not current execution policy.
 
 ## Verified implementation checkpoints
 

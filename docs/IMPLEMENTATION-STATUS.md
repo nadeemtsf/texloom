@@ -1,19 +1,19 @@
 # Implementation status
 
-Updated 2 November 2026. Owner-approved scope: APPROVED-IMPLEMENTATION-PLAN.md.
+Updated 3 November 2026. Owner-approved scope: APPROVED-IMPLEMENTATION-PLAN.md.
 Primary repository: https://github.com/nadeemtsf/texloom.
 
 | Stage | Status | Evidence / remaining gate |
 | --- | --- | --- |
 | P0 baseline | Reconciled | Local checkout matched verified remote commit 1ee59e3 before P2 |
 | P1 mapping/movement | Movement experiment passed; mapping decisions open | 24 positive cases over three engines, six oracle refusals; provenance/parser/extended coordinates pending |
-| P2 source/history | Core and desktop integration implemented; native input acceptance open | 51 core, 5 native service, 31 frontend/PDF tests; production build/sample compile passed; native input blocked by foreground capture |
+| P2 source/history | Core/history, optimized typing and strict document/compiler/mapping IPC implemented; native input acceptance open | See DOCUMENT-SESSION.md, SOURCE-PERFORMANCE.md, TYPED-DOCUMENT-PROTOCOL.md and BUILD-PROTOCOL.md; remaining IPC migration and unsupported encodings open |
 | P3 compilation | Build service implemented; automated acceptance passed | 120 local tests; all 24 expected three-engine corpus outcomes, Windows packaging and movement proof passed at 1ae8c75; exact CI recorded in PR #3; limited direct recipe, native P3 UI unverified |
 | P4 selection | Probe and three-engine corpus passed; native mouse acceptance open | 26 positive selections and seven explicit refusals across three engines at ab9eedc; bounded alternate hints resolve included sources; one measured pdfLaTeX mixed-format raster refusal; see LAYOUT-SELECTION.md |
 | P5 text/spacing | Protected literal editor and explicit line-gap adapter implemented; native acceptance open | Six literal/spacing cases and existing corpus passed in three-engine CI at 3900ac5; numeric-only existing gaps preserve units/source; broader spacing adapters open; see PROTECTED-TEXT.md |
-| P6 displacement | Rust comparison corpus passed; standalone native worker tested; application gate open | 24 positive/six refused engine comparisons; 13 comparison tests; five headless worker checks including independent marker movement; runtime integration and native signature workflow pending; see DISPLACEMENT-POLICY.md and PDFIUM-WORKER.md |
-| P7 hardening | Pending | Recovery, external conflicts, performance and compatibility |
-| P8 release | Pending | Exact installer and clean-machine acceptance |
+| P6 displacement | Runtime native approval integrated and automated corpus passed; native signature acceptance open | See NATIVE-LAYOUT-GATE.md and FINAL-NATIVE-ACCEPTANCE.md; fractional displacement and broader coordinates remain open |
+| P7 hardening | Guarded Save, crash-draft journal/recovery and typing optimization implemented; acceptance incomplete | See PROJECT-DURABILITY.md, UNSAVED-RECOVERY.md and SOURCE-PERFORMANCE.md; native crash/relaunch, retention and end-to-end performance remain open |
+| P8 release | Development portable packaging hardened; release pending | See PORTABLE-PACKAGING.md; exact installer, clean-machine, signing and dependency review remain open |
 | P9 richer adapters | Pending | Separate fixtures and acceptance for images, tables and typography |
 
 P2 owns source bytes and transactional history independently of unfinished P1 provenance. It does not interpret TeX or map arbitrary PDF glyphs. See DOCUMENT-SESSION.md and ../VALIDATION.md.

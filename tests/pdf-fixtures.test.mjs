@@ -3,10 +3,11 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
 import {extractTextGeometry,validateObjectLayout} from '../web/core/geometry.js';
+import {loadPDFDocument} from '../web/core/pdf-document.js';
 
 async function geometry(name){
  const data=new Uint8Array(await readFile(new URL(`./fixtures/objects/${name}.pdf`,import.meta.url)));
- const pdf=await pdfjs.getDocument({data,isEvalSupported:false}).promise;
+ const pdf=await loadPDFDocument(pdfjs,{data});
  try{
   const page=await pdf.getPage(1),viewport=page.getViewport({scale:1}),text=await page.getTextContent({includeMarkedContent:true});
   const g=extractTextGeometry(text.items,text.styles,1,viewport.height);

@@ -4,8 +4,8 @@ import 'monaco-editor/esm/vs/editor/contrib/contextmenu/browser/contextmenu.js';
 import 'monaco-editor/esm/vs/editor/contrib/multicursor/browser/multicursor.js';
 import 'monaco-editor/esm/vs/editor/contrib/clipboard/browser/clipboard.js';
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
-import * as pdfjs from 'pdfjs-dist';
-import pdfWorkerURL from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
+import pdfWorkerURL from 'pdfjs-dist/legacy/build/pdf.worker.min.mjs?url';
 import {invoke} from '@tauri-apps/api/core';
 import {getCurrentWindow} from '@tauri-apps/api/window';
 import {open,save,confirm} from '@tauri-apps/plugin-dialog';
@@ -295,7 +295,7 @@ async function resolveSourceSelection({buildId,page,points,hits}){
       let token=null,prepared=null;
       try{
         assertCurrent();
-        const resolved=await invoke('resolve_text_selection',{projectId:state.project.id,revision:state.revision,buildId,page,points:sample});
+        const resolved=await client.resolve(buildId,page,sample);
         assertCurrent();
         if(resolved.schema!==1||resolved.build_id!==buildId||resolved.revision!==state.revision)throw new StaleCandidate();
         const key=JSON.stringify([resolved.file,resolved.start,resolved.end]);if(seen.has(key))continue;seen.add(key);
@@ -564,7 +564,7 @@ async function pinSelection(){
   const selection=editor.getSelection();if(!selection||selection.isEmpty())return toast('Select complete source content, or click text on the PDF.');
   const start=model.getOffsetAt(selection.getStartPosition()),end=model.getOffsetAt(selection.getEndPosition());
   const identity=sessionIdentity(state);
-  try{const mapped=await invoke('pdf_from_source',{buildId:state.result.build_id,file:state.file,line:selection.startLineNumber});
+  try{const mapped=await state.client.forward(state.result.build_id,state.file,selection.startLineNumber);
     if(identity===sessionIdentity(state))await insertBlock({selection:[start,end],page:mapped.page,x:mapped.x,y:mapped.y,width:Math.min(500,mapped.width)});
   }catch(error){toast(message(error))}
 }
@@ -671,7 +671,7 @@ $('export').onclick=async()=>{
       compile:()=>client.compile(null,'export'),prepare:prepareResult,policy:null,requireVerified:true,verify:result=>client.verify(result.build_id)});
     prepared=candidate.prepared;
     state.mutating=true;editorReadOnly();updateControls();
-    await invoke('export_document_build',{projectId:state.project.id,revision,buildId:candidate.result.build_id,path});
+    await client.exportBuild(candidate.result.build_id,path);
     toast('PDF exported from a clean build of this source revision.');
   }catch(error){showFailure(error)}finally{if(prepared?.pdf)await prepared.pdf.destroy();if(ownsJob){state.mutating=false;editorReadOnly();finishJob()}}
 };

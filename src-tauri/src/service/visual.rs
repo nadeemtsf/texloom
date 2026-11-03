@@ -2,17 +2,20 @@
 use super::*;
 use std::time::Instant;
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
 pub struct SelectionPoint {
     pub x: f64,
     pub y: f64,
 }
 
 #[derive(Serialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
 pub struct ResolvedSelection {
     pub schema: u32,
     pub unit_id: String,
     pub build_id: String,
+    #[cfg_attr(feature = "typegen", ts(type = "number"))]
     pub revision: u64,
     pub file: String,
     pub expected_source: String,

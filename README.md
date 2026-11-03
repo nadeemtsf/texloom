@@ -6,7 +6,7 @@ This is a separate desktop implementation. It does not replace or convert the ea
 
 ## Development status
 
-Version 0.3 is under development in the primary repository, https://github.com/nadeemtsf/texloom. The ordered document protocol now has strict TypeScript sources and Rust-generated DTOs; see docs/TYPED-DOCUMENT-PROTOCOL.md. The Rust source/history, compile service, bounded visual adapters, independent verification, guarded Save and unsaved-work recovery have automated coverage. Native interaction and distribution gates remain open. The owner deferred mouse/keyboard/IME checks until implementation through the remaining phases is complete. See docs/WORK-CHECKPOINT.md and docs/FINAL-NATIVE-ACCEPTANCE.md. A successful test run does not establish reversible editing of arbitrary LaTeX.
+Version 0.3 is under development in the primary repository, https://github.com/nadeemtsf/texloom. The ordered document protocol and compiler/mapping boundary now have strict TypeScript sources and Rust-generated DTOs; see docs/TYPED-DOCUMENT-PROTOCOL.md and docs/BUILD-PROTOCOL.md. The PDF.js renderer is pinned to 6.2.108 with an owned loading-task lifetime; see docs/PDF-RENDERER.md. The Rust source/history, compile service, bounded visual adapters, independent verification, guarded Save and unsaved-work recovery have automated coverage. Native interaction and distribution gates remain open. The owner deferred mouse/keyboard/IME checks until implementation through the remaining phases is complete. See docs/WORK-CHECKPOINT.md and docs/FINAL-NATIVE-ACCEPTANCE.md. A successful test run does not establish reversible editing of arbitrary LaTeX.
 
 ## Implemented in source
 
@@ -31,7 +31,7 @@ You need the Windows build tools and access to official Rust, npm, and Cargo dow
 
 1. Extract the complete folder.
 2. Ensure Microsoft C++ Build Tools has **Desktop development with C++** and a Windows SDK installed. The build script checks for this component and explains if it is missing. Official installer: https://visualstudio.microsoft.com/visual-cpp-build-tools/
-3. Install a current Node.js LTS if it is not already installed: https://nodejs.org/
+3. Install a current Node.js LTS (22.13 or newer) if it is not already installed: https://nodejs.org/
 4. Double-click **Build-Portable.cmd** for an executable, or **Build-Desktop.cmd** for an NSIS installer.
 
 The build script uses your existing Rust installation if available. Otherwise it downloads rustup-init.exe and its SHA-256 checksum from static.rust-lang.org, checks the file, and installs a minimal Rust toolchain under `.tools/` without changing the global PATH. It selects the Windows MSVC target, compiles and runs the core tests, installs locked frontend dependencies with npm ci, and runs the Tauri release build. Portable mode skips the installer download and installer creation. Each portable build uses a fresh staging directory and a verified, explicit file list. The script prints its actual ZIP path; an existing archive is preserved and a new name is chosen. See docs/PORTABLE-PACKAGING.md.

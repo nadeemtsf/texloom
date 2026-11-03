@@ -1,11 +1,11 @@
 import {extractTextGeometry,union} from './geometry.js';
+import {loadPDFDocument} from './pdf-document.js';
 
 /** Prepare a complete PDF view offscreen. Publishing it is a separate operation. */
 export async function preparePDFView(pdfjs,result,{width,zoom=0,mode='select',signal}={}) {
-  const loading=pdfjs.getDocument({data:new Uint8Array(result.pdf),isEvalSupported:false,
+  const pdf=await loadPDFDocument(pdfjs,{data:new Uint8Array(result.pdf),
     cMapUrl:new URL('/pdfjs/cmaps/',location.href).href,cMapPacked:true,
     standardFontDataUrl:new URL('/pdfjs/standard_fonts/',location.href).href,wasmUrl:new URL('/pdfjs/wasm/',location.href).href});
-  const pdf=await loading.promise;
   try{return await prepareLoadedPDF(pdfjs,pdf,result,{width,zoom,mode,signal})}
   catch(error){await pdf.destroy();throw error}
 }
@@ -24,7 +24,7 @@ export async function prepareLoadedPDF(pdfjs,pdf,result,{width,zoom=0,mode='sele
     const canvas=document.createElement('canvas'),ratio=Math.min(2.5,devicePixelRatio||1);
     canvas.width=Math.ceil(viewport.width*ratio);canvas.height=Math.ceil(viewport.height*ratio);
     canvas.style.width=viewport.width+'px';canvas.style.height=viewport.height+'px';shell.append(canvas);
-    const rendering=page.render({canvasContext:canvas.getContext('2d'),viewport,transform:[ratio,0,0,ratio,0,0]});
+    const rendering=page.render({canvas,canvasContext:canvas.getContext('2d'),viewport,transform:[ratio,0,0,ratio,0,0]});
     const abort=()=>rendering.cancel();signal?.addEventListener('abort',abort,{once:true});
     try{await rendering.promise}finally{signal?.removeEventListener('abort',abort)}
     const text=await page.getTextContent({includeMarkedContent:true});

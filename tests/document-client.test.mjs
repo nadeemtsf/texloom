@@ -94,8 +94,11 @@ test('cancel fences the request ID and ignores a compiler that returns success a
   const calls=[];let finish;
   const client=new DocumentClient(async(name,args)=>{
     calls.push({name,...args});
+    if(name==='document_prepare')return {token:'candidate',revision:1};
     if(name==='compile_document')return new Promise(r=>finish=r);
+    return null;
   },'p',snapshot());
+  await client.prepare({'main.tex':'B'},'baseline');calls.length=0;
   const compiling=client.compile('candidate');await tick();
   await client.cancel();finish({ok:true,revision:0});
   await assert.rejects(compiling,{name:'CompilationCancelled'});

@@ -13,12 +13,14 @@ use std::{
 
 #[derive(Clone, Debug, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
 pub enum Severity {
     Error,
     Warning,
     Info,
 }
 #[derive(Clone, Debug, Serialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
 pub struct Diagnostic {
     pub code: String,
     pub severity: Severity,
