@@ -16,7 +16,7 @@ mod layout_gate;
 mod visual;
 pub use layout_gate::VisualOperation;
 pub use document::{
-    DocumentSnapshot, EditorChange, EditorRange, PreparedReply, SelectionReply, SourceEditReply,
+    CloseReply, DocumentSnapshot, EditorChange, EditorRange, PreparedReply, RecoveryReply, SelectionReply, SourceEditReply,
 };
 pub use visual::plan_object_edit as visual_plan;
 pub use visual::{
@@ -114,6 +114,12 @@ pub struct Project {
     pub recoveries: Vec<texloom_build::persistence::PendingSave>,
     #[serde(default)]
     pub recovery_error: Option<String>,
+    #[serde(default)]
+    pub restored: bool,
+    #[serde(default)]
+    pub draft_warning: Option<String>,
+    #[serde(default)]
+    pub source_only: bool,
 }
 
 #[derive(Clone, Deserialize)]
@@ -319,6 +325,7 @@ impl Backend {
             }
             (root, Some("main.tex".into()))
         };
+        let root = root.canonicalize().map_err(fail)?;
         let mut sources: BTreeMap<String, String> = BTreeMap::new();
         for file in project_files(&root)? {
             if text_file(&file) {
@@ -348,9 +355,11 @@ impl Backend {
         let (recoveries,recovery_error)=match texloom_build::persistence::pending(&root){Ok(saves)=>(saves,None),Err(error)=>(Vec::new(),Some(error))};
         let disk = texloom_build::persistence::DiskSnapshot::capture(&root, &sources)?;
         let id = Uuid::new_v4().simple().to_string();
+        let mut slot = document::DocumentSlot::new(sources.clone(), main.clone())?;
+        slot.start_typing_recovery(&self.root, &disk);
         self.documents.lock().map_err(fail)?.insert(
             id.clone(),
-            document::DocumentSlot::new(sources.clone(), main.clone())?,
+            slot,
         );
         self.projects
             .lock()
@@ -368,6 +377,9 @@ impl Backend {
             sources,
             recoveries,
             recovery_error,
+            restored: false,
+            draft_warning: None,
+            source_only: false,
         })
     }
     fn project_root(&self, id: &str) -> Result<PathBuf> {

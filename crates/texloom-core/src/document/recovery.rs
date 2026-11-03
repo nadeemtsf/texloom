@@ -19,6 +19,32 @@ pub struct Checkpoint {
     selection: Option<Selection>,
 }
 
+/// Infrastructure replays a verified journal tail before adopting the session.
+/// Keep the recorded typing groups during replay, then break them once at the
+/// new UI boundary so a crash does not change the historical undo grouping.
+pub struct Replay {
+    session: Session,
+}
+impl Checkpoint {
+    pub fn replay(self) -> EditResult<Replay> {
+        Session::restore_checkpoint(self).map(|session| Replay { session })
+    }
+}
+impl Replay {
+    pub fn session(&self) -> &Session {
+        &self.session
+    }
+    pub fn session_mut(&mut self) -> &mut Session {
+        &mut self.session
+    }
+    pub fn finish(mut self) -> Session {
+        for entry in &mut self.session.history {
+            entry.group = None;
+        }
+        self.session
+    }
+}
+
 impl Session {
     /// A checkpoint includes the redo branch and native byte selections, but
     /// never Prepared tokens, owner identities, builds or visual approvals.
@@ -34,7 +60,10 @@ impl Session {
         }
     }
 
-    pub fn from_checkpoint(mut checkpoint: Checkpoint) -> EditResult<Self> {
+    pub fn from_checkpoint(checkpoint: Checkpoint) -> EditResult<Self> {
+        Ok(checkpoint.replay()?.finish())
+    }
+    fn restore_checkpoint(mut checkpoint: Checkpoint) -> EditResult<Self> {
         if checkpoint.schema != SCHEMA || checkpoint.cursor > checkpoint.history.len()
             || (checkpoint.history.is_empty() && checkpoint.revision.0 != 0)
         {
@@ -116,10 +145,6 @@ impl Session {
             }
         }
 
-        // A new UI incarnation must not coalesce into an old typing group.
-        for entry in &mut checkpoint.history {
-            entry.group = None;
-        }
         Ok(Self {
             owner: Arc::new(()),
             sources: checkpoint.sources,
@@ -206,6 +231,31 @@ mod tests {
         assert_eq!(recovered.history_len(), 2);
         recovered.undo().unwrap();
         assert_eq!(recovered.sources()["main.tex"], "First");
+    }
+
+    #[test]
+    fn journal_replay_preserves_original_typing_groups_until_adoption() {
+        let mut state = session("Name");
+        replace(&mut state, "Name", "First", Some(7));
+        let mut replay = state.checkpoint().replay().unwrap();
+        let candidate = state.prepare(Patch {
+            base: state.revision(), profile: None,
+            files: vec![FileChange::Edit { file: "main.tex".into(), edits: vec![Replacement {
+                range: 0..5, expected: "First".into(), text: "Second".into(),
+            }] }],
+        }).unwrap();
+        let patch = candidate.recovery_patch();
+        state.commit(candidate, Origin::Source, Some(TypingGroup(7))).unwrap();
+        let candidate = replay.session().prepare(patch).unwrap();
+        replay.session_mut().commit(candidate, Origin::Source, Some(TypingGroup(7))).unwrap();
+        assert_eq!(replay.session().history_len(), state.history_len());
+        let mut adopted = replay.finish();
+        replace(&mut adopted, "Second", "Third", Some(7));
+        assert_eq!(adopted.history_len(), 2);
+        adopted.undo().unwrap();
+        assert_eq!(adopted.sources()["main.tex"], "Second");
+        adopted.undo().unwrap();
+        assert_eq!(adopted.sources()["main.tex"], "Name");
     }
 
     #[test]

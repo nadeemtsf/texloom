@@ -7,6 +7,7 @@ async function setup(){
  const transactions=await import('../web/core/transactions.js');
  const selectionProof=await import('../web/core/selection-proof.js');
  const {DocumentClient,editorText,sameSources}=await import('../web/core/document-client.js');
+ const {TypingRecoveryController}=await import('../web/core/typing-recovery.js');
  const elements=new Map();
  function element(id){if(!elements.has(id))elements.set(id,{value:'',checked:false,disabled:false,open:false,textContent:'',classList:{add(){},remove(){},toggle(){}},setAttribute(){},replaceChildren(){},append(){},addEventListener(){},focus(){},showModal(){this.open=true},close(){this.open=false}});return elements.get(id)}
  const model={setValue(){},setEOL(){},getValue:()=>'',getOffsetAt:p=>p.column-1};
@@ -17,7 +18,7 @@ async function setup(){
  const control={compile:async()=>({ok:true,log:'',seconds:0,engine:'test',build_id:'new-pdf',blocks:[],objects:[]}),prepare:async result=>({result,pdf:{destroy:async()=>{}},pageCount:1,objects:new Map(),unclosed:new Set(),pageSizes:new Map()})};
  const {NativeDocumentDouble}=require('./native-document-double.cjs');const native=new NativeDocumentDouble(control);
  const context=vm.createContext({
-  ...transactions,...selectionProof,validateSelectionProbe:(...args)=>control.prove?control.prove(...args):selectionProof.validateSelectionProbe(...args),DocumentClient,editorText,sameSources,initialSnapshot:native.snapshot(),inside:()=>true,self:{},EditorWorker:class{},pdfWorkerURL:'test-worker',
+  ...transactions,...selectionProof,validateSelectionProbe:(...args)=>control.prove?control.prove(...args):selectionProof.validateSelectionProbe(...args),DocumentClient,editorText,sameSources,TypingRecoveryController,initialSnapshot:native.snapshot(),inside:()=>true,self:{},EditorWorker:class{},pdfWorkerURL:'test-worker',
   CanvasController:class{clear(){}bind(){}selectObject(){}},
   monaco:{languages:{register(){},setMonarchTokensProvider(){},setLanguageConfiguration(){}},editor:{defineTheme(){},createModel:()=>model,create:()=>editor,EndOfLineSequence:{LF:0}},KeyMod:{CtrlCmd:1,Shift:2},KeyCode:{KeyS:1,Enter:2,KeyZ:3,KeyY:4}},
   pdfjs:{GlobalWorkerOptions:{}},structuredClone,crypto:require('node:crypto').webcrypto,
@@ -42,6 +43,27 @@ test('clean close marks the cache while refusing a dirty close preserves its rec
  t.run("state.sources['main.tex']='Unsaved edit'");
  await t.control.onClose({preventDefault(){prevented=true}});
  assert.equal(prevented,true);assert.equal(t.control.cleanExits,1);
+});
+
+test('restored work remains unsaved until explicitly saved even if buffers match the initial view',async()=>{
+ const t=await setup();t.run('state.restoredDirty=true');let prevented=false;
+ await t.control.onClose({preventDefault(){prevented=true}});
+ assert.equal(prevented,true);assert.equal(t.control.cleanExits,undefined);assert.equal(t.control.closedRequests,undefined);
+});
+
+test('a stale native close refusal keeps the editor available and does not mark a clean exit',async()=>{
+ const t=await setup();t.control.close=async()=>{throw Error('The source changed before closing')};let prevented=false;
+ await t.control.onClose({preventDefault(){prevented=true}});
+ assert.equal(prevented,true);assert.equal(t.run('state.saving'),false);assert.equal(t.control.cleanExits,undefined);
+ assert.equal(t.run("state.sources['main.tex']"),'Original source');
+});
+
+test('explicitly closing an unsynchronized editor retains its native draft without asserting a stale revision',async()=>{
+ const t=await setup();t.run("quitting=true;state.client.error=new Error('Acknowledgement failed')");let prevented=false;
+ await t.control.onClose({preventDefault(){prevented=true}});
+ assert.equal(prevented,false);assert.equal(t.control.cleanExits,1);
+ assert.equal(t.control.closedRequests[0].projectId,'test');assert.equal(t.control.closedRequests[0].revision,undefined);
+ assert.equal(t.control.closedRequests[0].discardRecovery,undefined);
 });
 
 test('compiler failure leaves source, history, revision and last good PDF intact',async()=>{

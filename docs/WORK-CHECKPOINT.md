@@ -4,9 +4,9 @@ Primary project: nadeemtsf/texloom, Rust/Tauri Windows. Approved scope is APPROV
 
 ## Current checkout and environment
 
-Local commands work again. Exact remote history was reconciled to feature/project-durability at e1caf7ce9649a6e7e9aa6c19d890480ae0ecc5e0 with Git object/ancestry/connectivity checks. All 151 working file byte snapshots were preserved; ignored backups are in .tools/reconcile-git. Do not reset or discard user work.
+Local commands work. Exact remote history through source-acknowledgements at eb2108d9dbcd9a4e3e380e444942450482f4b6c4 was reconciled with matching Git trees/commit objects and connectivity checks. Earlier backups and the original untracked work-in-progress/source_benchmark.rs are preserved. Do not reset or discard user work.
 
-Current development branch: feature/compiler-preflight, based on startup source c773a9045868d10e843134693bd9f64c582c8cd3. Main remains the older verified baseline. PR #11 (native-layout-gate) and PR #12 (project-durability) are drafts in the primary repository. Command-line Git authentication fails in its Windows credential helper; the connected GitHub service works.
+Current development branch: feature/typing-recovery, based on eb2108d9dbcd9a4e3e380e444942450482f4b6c4 (draft PR #17). Main remains the older verified baseline; development uses the existing draft stack in the primary repository. Command-line Git authentication fails in its Windows credential helper; the connected GitHub service works. App-control tests remain explicitly deferred.
 
 ## Verified implementation checkpoints
 
@@ -41,7 +41,7 @@ The follow-up returns short structured initialization diagnostics while retainin
 - P4 mouse/group-selection acceptance and broader mandatory mapping fixtures.
 - P5 broader spacing/reflow adapters and native editing acceptance. Existing numeric line-break spacing is implemented and fixture-tested.
 - P6 fractional displacement, fuller paint/coordinate inspection and the full native signature scenario. Do not interpolate/mask pixels or weaken exact appearance/neighbor checks. Any fractional experiment needs a separately rendered expected translation.
-- P7 recovery for unsaved typing independent of explicit Save, retention/performance/long-document/usability acceptance. Explicit-Save recovery is implemented; never-saved typing recovery is not.
+- P7 durable typing recovery is implemented in the current follow-up (UNSAVED-RECOVERY.md); native crash/relaunch, retention/performance/long-document/usability acceptance remain open. Explicit-Save recovery is independently implemented.
 - P8 exact installed-artifact/clean-machine/signing gates and dependency security/license review. The development PDFium pin is not production approval.
 - P9 separate richer LaTeX adapters with their own fixtures. No ordinary-PDF expansion.
 
@@ -64,3 +64,15 @@ Benchmark source b649034 passed Windows CI 41593287808. Its real native API retu
 Typing IPC now returns a tagged, revision-checked changed-file reply through the same native authority as the full-snapshot reference. The frontend retains untouched files, refuses malformed/mismatched acknowledgements, and avoids full-project structured cloning/JSON comparisons in acknowledgement/status handling. Opening, visual commits and history retain complete snapshots. Same-host release measurements reduced the 32 MiB reply from 34,452,005 to 269,362 bytes and p95 native edit plus encoding from 79.17 to 19.76 ms. No editor-paint target is inferred. SOURCE-PERFORMANCE.md and evidence/source-ack-local.json retain exact measurements and limits.
 
 Local checks passed: 69 core default, 30 native default and 100 frontend checks, plus frontend and Windows x64 release builds. The two normally ignored native-renderer checks were not repeated for this response-only change; existing CI evidence is separate. The freshly built executable was not launched and no new installer/portable release is claimed. All native input/IME/mouse checks remain owner-deferred. Next implementation work remains the bounded, durable unsaved-typing journal, guarded recovery adoption/status/UI, then other explicit phase gaps. P7 and the overall release are not complete.
+
+## Durable unsaved typing and recovery adoption
+
+The current follow-up implements a framed, hash-chained and flushed journal for canonical source/profile/history/selection/approved-visual changes. It preserves original saved disk fingerprints, has bounded checkpoint rotation, active-instance locks, expected-content-only flat cleanup, partial-tail warnings and safe recovery after storage failure. Source acceptance and recovery protection are distinct; a successful explicit Save is not reported failed because its separate recovery checkpoint failed.
+
+Recover work lists verified closed drafts across projects, opens a fresh native session without old visual authority, retains the earlier crash draft, and keeps restored work explicitly unsaved. Missing-folder recovery opens source/history and permits a new source-only copy without recreating the original path. Close/discard is revision guarded; uncertain cleanup retains data and returns a warning. The new controller and native APIs use blocking worker tasks rather than disk I/O in synchronous WebView commands. Details and remaining limits: UNSAVED-RECOVERY.md.
+
+Local checks passed: 70 core default (71 with the optional codec), 71 build-infrastructure, 36 native default, five explicitly invoked headless PDFium and two explicitly invoked headless native approval checks, and 113 frontend checks. This is 297 across default plus explicit suites, excluding repeated codec cases. Frontend, verifier and Windows x64 release builds passed. Exact source/log/resource/executable receipts and earlier integration failures are in evidence/typing-recovery-local.json. The executable was not launched; no new portable ZIP/installer was produced.
+
+The actual journal-enabled release benchmark passed ten cases with protection assertions, exact undo/redo and unchanged project originals. At 32 MiB the production changed-file path measured 56.39 ms p95 through encoding with a 269,459-byte reply. This includes durable source append/flush, excludes cursor-event flushes/compaction/transport/paint, and does not establish the 50 ms paint target. Schema-2 destruction timing was clarified without changing historical raw measurements. Canonical full-project string copies remain a measured performance concern and are the next P7 optimization to investigate.
+
+PR #17 source eb2108d9dbcd9a4e3e380e444942450482f4b6c4 passed Windows 41599564604 and proof 41599564562. The compile-corpus workflow was not returned for that response-only commit. The new recovery follow-up requires its own remote checks. Native UI/crash/IME/mouse/signature and local installed-engine gates remain unverified. Continue remaining implementation without retrying app control; do not declare P7, P8/P9 or the release complete.

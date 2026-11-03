@@ -14,6 +14,7 @@ import {CanvasController} from './core/canvas-controller.js';
 import {stageCandidate,sessionIdentity,StaleCandidate,CompilationFailure,compileDiagnostic} from './core/transactions.js';
 import {inside,intersects} from './core/geometry.js';
 import {DocumentClient,editorText,sameSources} from './core/document-client.js';
+import {TypingRecoveryController} from './core/typing-recovery.js';
 import {validateSelectionProbe} from './core/selection-proof.js';
 
 self.MonacoEnvironment={getWorker:()=>new EditorWorker()};
@@ -43,6 +44,7 @@ const state={
   selected:null,objectSelection:null,lastHistory:0,typingGroup:0,suppress:false,client:null,
   canUndo:false,canRedo:false,opening:false,mutating:false,composing:false,
   buildEpoch:0,cancelRequested:false,
+  recovery:null,restoredDirty:false,
   busy:false,pending:false,zoom:0,mode:'select',compileTimer:null,renderSerial:0,renderAbort:null,dialog:null
 };
 // Dedicated keys follow native history even when setValue clears Monaco's stack.
@@ -57,17 +59,22 @@ const canvas=new CanvasController({
   selected:selection=>showObjectInspector(selection),
   notify:text=>toast(text)
 });
+const typingRecovery=new TypingRecoveryController({invoke,document,getState:()=>state,isDirty:dirty,
+  adopt:project=>openProject(null,project),notify:toast,confirm,saveCopy:saveProjectCopy,
+  lock:()=>{state.saving=true;editorReadOnly();updateControls()},
+  unlock:()=>{state.saving=false;editorReadOnly();updateControls()}});
 
 function toast(text){
   $('toast').textContent=text;$('toast').classList.remove('hidden');clearTimeout(toast.timer);
   toast.timer=setTimeout(()=>$('toast').classList.add('hidden'),5500);
 }
-function dirty(){return !!state.client?.pending||!!state.client?.error||!sameSources(state.sources,state.saved)}
+function dirty(){return state.restoredDirty||!!state.client?.pending||!!state.client?.error||!sameSources(state.sources,state.saved)}
 function status(text){$('status').textContent=text||(dirty()?'Unsaved changes':'All changes saved')}
 function acceptDocument(snapshot){
   state.sources={...snapshot.sources};state.revision=snapshot.revision;
   state.project.main=snapshot.main;state.engine=snapshot.engine;
   state.canUndo=snapshot.can_undo;state.canRedo=snapshot.can_redo;
+  state.recovery=snapshot.recovery??state.recovery;
   status();updateControls();
 }
 function editorReadOnly(){editor.updateOptions({readOnly:state.opening||state.mutating||state.saving||!!state.client?.error});}
@@ -83,6 +90,7 @@ function syncEditor(){
 }
 function fresh(){return !!state.result&&state.result.verification_eligible!==false&&state.revision===state.compiled&&!state.busy&&!state.client?.pending&&!state.client?.error&&!state.mutating&&!state.saving&&!state.composing&&!state.opening}
 function updateControls(){
+  typingRecovery.renderProtection();
   const ready=fresh(),legacy=ready&&!!state.selected,object=ready&&!!state.objectSelection;
   for(const id of ['add-text','pin'])$(id).disabled=!ready;
   for(const id of ['apply-position','apply-size','apply-content','edit-block','delete-block'])$(id).disabled=!legacy;
@@ -154,9 +162,10 @@ async function openProject(path=null,supplied=null){
   try{
     const project=supplied||await invoke('open_project',{path});
     const snapshot=await invoke('document_snapshot',{projectId:project.id});
-    state.renderAbort?.abort();canvas.clear();const previous=state.pdf,previousProject=state.project?.id;
+    state.renderAbort?.abort();canvas.clear();const previous=state.pdf,previousProject=state.project?.id,previousRevision=state.client?.snapshot.revision;
     Object.assign(state,{project,sources:{...project.sources},saved:{...project.sources},file:project.main,
-      revision:snapshot.revision,compiled:-1,result:null,pdf:null,view:null,selected:null,lastHistory:0,canUndo:false,canRedo:false});
+      revision:snapshot.revision,compiled:-1,result:null,pdf:null,view:null,selected:null,lastHistory:0,canUndo:false,canRedo:false,
+      recovery:snapshot.recovery,restoredDirty:!!project.restored});
     const client=new DocumentClient(invoke,project.id,snapshot,{changed:next=>{if(state.client===client)acceptDocument(next)},failed:syncFailed});
     state.client=client;acceptDocument(snapshot);
     $('project-name').textContent=project.name;$('pages').replaceChildren();$('empty').classList.remove('hidden');
@@ -164,9 +173,16 @@ async function openProject(path=null,supplied=null){
     renderDiagnostics([]);
     syncEditor();renderInspector();status();updateControls();
     if(previous)await previous.destroy();
-    if(previousProject)await invoke('close_document',{projectId:previousProject}).catch(error=>toast(message(error)));
+    if(previousProject)await invoke('close_document',{projectId:previousProject,revision:previousRevision,discardRecovery:true})
+      .then(reply=>{if(reply?.warning)toast(reply.warning)}).catch(error=>toast(message(error)));
     state.opening=false;editorReadOnly();sendSelection();
     renderSaveRecoveries();
+    await typingRecovery.refresh();
+    if(project.restored)$('save-copy').classList.remove('hidden');
+    if(project.source_only){
+      $('banner').textContent='The original project folder is missing. Recovered source is editable. Save a copy writes source files; images and other missing assets must be restored separately.';
+      $('banner').classList.remove('hidden');return;
+    }
     if(!supplied&&(project.recoveries?.length||project.recovery_error)){
       $('save-copy').classList.remove('hidden');await showSaveRecovery();return;
     }
@@ -185,7 +201,7 @@ async function saveProject(){
   if(state.busy)return toast('Wait for the current compilation before saving.');
   state.saving=true;editorReadOnly();updateControls();
   try{await state.client.flush();const sources={...state.sources};
-    await invoke('save_document',{projectId:state.project.id,revision:state.revision});state.saved=sources;status();toast('Project source saved.')}
+    await state.client.save();state.saved=sources;state.restoredDirty=false;state.project.draft_warning=null;status();toast('Project source saved.')}
   catch(error){toast(message(error));$('save-copy').classList.remove('hidden');await refreshSaveRecoveries().catch(()=>{})}
   finally{state.saving=false;editorReadOnly();updateControls()}
 }
@@ -198,7 +214,7 @@ async function saveProjectCopy(){
     const parent=await open({directory:true,multiple:false,title:'Choose a folder outside this project for its copy'});
     if(!parent)return;
     const path=await invoke('copy_document',{projectId:state.project.id,revision:state.revision,parent});
-    toast('Project copy saved to '+path+'. The original project remains open.');
+    toast((state.project.source_only?'Recovered source files saved to ':'Project copy saved to ')+path+'. The original project remains open.');
   }catch(error){toast(message(error))}
   finally{state.saving=false;editorReadOnly();updateControls()}
 }
@@ -682,11 +698,25 @@ $('log-toggle').onclick=()=>$('log-panel').classList.toggle('hidden');$('close-l
 $('banner').onclick=()=>$('log-panel').classList.remove('hidden');
 let quitting=false;getCurrentWindow().onCloseRequested(async event=>{
   if(state.saving){event.preventDefault();toast('Wait for Save or recovery to finish before closing.');return}
-  if(quitting||!dirty()){await invoke('mark_clean_exit').catch(()=>{});return}event.preventDefault();
+  if(quitting||!dirty()){
+    state.saving=true;editorReadOnly();updateControls();
+    try {
+      if(quitting&&state.client?.error){
+        // An explicit discard may close an unsynchronized editor. Keep its
+        // native draft because the last acknowledged revision may be stale.
+        if(state.project)await invoke('close_document',{projectId:state.project.id});
+      }else{
+        await state.client?.flush();
+        if(state.project){const reply=await invoke('close_document',{projectId:state.project.id,revision:state.client.snapshot.revision,discardRecovery:true});if(reply?.warning)toast(reply.warning)}
+      }
+      await invoke('mark_clean_exit');
+    }catch(error){event.preventDefault();quitting=false;state.saving=false;editorReadOnly();updateControls();toast(message(error))}
+    return;
+  }event.preventDefault();
   if(await confirm('Close Texloom and discard unsaved source edits?',{title:'Unsaved source',kind:'warning'})){quitting=true;await getCurrentWindow().close()}
 });
 document.addEventListener('keydown',event=>{
-  if(editor.hasTextFocus()||$('edit-dialog').open||$('recovery-dialog').open||event.target.closest('input,textarea,select'))return;
+  if(editor.hasTextFocus()||$('edit-dialog').open||$('recovery-dialog').open||$('draft-dialog').open||event.target.closest('input,textarea,select'))return;
   if(event.ctrlKey||event.metaKey){
     if(event.key.toLowerCase()==='s'){event.preventDefault();saveProject()}
     else if(event.key==='Enter'){event.preventDefault();compile()}

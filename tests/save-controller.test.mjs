@@ -31,6 +31,7 @@ function setup({failure=null,parent='COPY-PARENT',busy=false,drafts=[],confirmed
       if(name==='discard_document_recovery')return [];
       return 'COPY-PATH';
     }};
+  state.client.save=()=>context.invoke('save_document',{projectId:state.project.id,revision:state.revision});
   vm.runInNewContext(app.slice(begin,end)+
     ';this.saveProject=saveProject;this.saveProjectCopy=saveProjectCopy;this.showSaveRecovery=showSaveRecovery;this.applySaveRecovery=applySaveRecovery;this.discardSaveRecovery=discardSaveRecovery;',context);
   return {context,state,events,saved,classes,element};

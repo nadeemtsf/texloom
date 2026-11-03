@@ -386,6 +386,7 @@ mod tests {
             .file_name()
             .to_string_lossy()
             .starts_with(".texloom-export")));
+        drop(b);
         fs::remove_dir_all(temp).unwrap();
     }
     #[test]
@@ -414,6 +415,7 @@ mod tests {
                 .export_document_build(&id, 0, "export", &target.to_string_lossy())
                 .is_err());
             assert_eq!(fs::read(&target).unwrap(), b"OLD");
+            drop(b);
             fs::remove_dir_all(temp).unwrap();
         }
     }

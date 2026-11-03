@@ -5,6 +5,26 @@ const snapshot=(revision=0)=>({revision,sources:{'main.tex':'A'},main:'main.tex'
 const tick=()=>new Promise(setImmediate);
 const delta=(base,file,source)=>({...snapshot(base+1),kind:'source_delta',base_revision:base,sources:{[file]:source},selection:null});
 
+test('Save and protection retries follow acknowledged typing without replacing sources or freezing on save conflicts',async()=>{
+ const calls=[],published=[];let conflict=true;
+ const protection={draft_id:'a'.repeat(32),protected_revision:1,error:null};
+ const client=new DocumentClient(async(name,args)=>{
+  calls.push([name,args.revision]);
+  if(name==='document_edit')return delta(args.revision,args.file,'B');
+  if(name==='save_document'&&conflict){conflict=false;throw Error('External file conflict')}
+  return {revision:args.revision,recovery:protection};
+ },'p',snapshot(),{changed:s=>published.push(s)});
+ const edit=client.edit('main.tex',[],1),save=client.save();await edit;await assert.rejects(save,/conflict/);
+ assert.equal(client.error,null);await client.retryRecovery();await client.save();
+ assert.deepEqual(calls,[['document_edit',0],['save_document',1],['retry_typing_recovery',1],['save_document',1]]);
+ assert.equal(client.snapshot.sources['main.tex'],'B');assert.deepEqual(client.snapshot.recovery,protection);assert.ok(published.length>0);
+});
+
+test('invalid future recovery protection cannot replace the acknowledged source state',async()=>{
+ const initial=snapshot();const client=new DocumentClient(async()=>({...delta(0,'main.tex','B'),recovery:{draft_id:'a'.repeat(32),protected_revision:2,error:null}}),'p',initial);
+ await assert.rejects(client.edit('main.tex',[],1),/recovery protection/);assert.equal(client.snapshot,initial);
+});
+
 test('saved-buffer comparison ignores file order but preserves BOM, line endings and the exact file set',()=>{
  const saved={'main.tex':'\ufeffName\r\n','empty.sty':''};
  assert.equal(sameSources(saved,{'empty.sty':'','main.tex':'\ufeffName\r\n'}),true);

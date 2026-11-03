@@ -22,3 +22,5 @@ button:disabled{cursor:default}#selection-hint{overflow:hidden;text-overflow:ell
 #diagnostics .diagnostic{display:block;text-align:left;padding:6px 10px;margin:4px 0;white-space:normal}#diagnostics .error{color:#993b25}#diagnostics .warning{color:#805f1c}
 
 #literal-fields{border:0;padding:0;max-height:50vh;overflow:auto}.literal-run-field{display:block;margin:14px 0}.literal-run-field span{display:block;font-size:11px;margin-bottom:5px}.literal-run-field textarea{display:block;width:100%;min-height:55px;resize:vertical;font:14px/1.5 Segoe UI,sans-serif}#edit-latex{margin-top:10px}
+
+.recovery-warning{flex-shrink:0;display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fff1d9;color:#77532f;font-size:11px;line-height:1.6;border-bottom:1px solid #e5cfaa}.recovery-warning span{flex:1}.recovery-warning button{font-size:10px;white-space:normal}#recover-work{width:100%;margin-top:14px}#draft-choice{display:block;width:100%;margin-top:8px}#draft-details,#draft-errors{white-space:pre-wrap;overflow-wrap:anywhere;font:11px/1.8 Consolas,monospace;max-height:180px;overflow:auto}#draft-errors{color:#985738}

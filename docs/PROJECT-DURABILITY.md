@@ -1,6 +1,6 @@
 # Explicit Save and recovery checkpoint
 
-The application now protects explicit project saves with native disk fingerprints and recoverable journals. Automatic recovery of typing that never reached Save is still unfinished. This checkpoint does not certify native interaction or a release.
+The application protects explicit project saves with native disk fingerprints and recoverable journals. Automatic recovery of typing that never reached Save is now a separate implemented path; see UNSAVED-RECOVERY.md for its format, UI and validation limits. Neither checkpoint certifies native interaction or a release.
 
 Rust records the exact disk state when a project opens. Save holds the canonical document revision guard through filesystem work, so an earlier request cannot write a newer editor revision. Changed, removed or newly occupied source paths produce a conflict; editor bytes/history and the saved-state marker remain unchanged. Existing StudioBlock dependency behavior stays in its isolated compatibility path.
 
@@ -22,4 +22,4 @@ Windows ran 156 Rust and 77 frontend checks, 233 combined. These include actual 
 
 Local commands resumed on 3 November. Exact remote history was reconciled without changing working file bytes, and all 233 existing automated checks passed locally, including seven explicitly invoked native worker/gate checks. Launch and observation succeeded, but native input remained denied. Inspection exposed a missing Cancel compile element that aborted shell startup; the correction supplies the control and four full-shell integration tests. The corrected 81 frontend checks, 64 required core checks and fresh Windows build passed. See evidence/desktop-startup-local.json. The corrected build has not received native input acceptance. No alternate launch/automation may bypass the current denial.
 
-Still open: recovery for unsaved typing independent of explicit Save, performance/retention/usability, P6 fractional movement and broader paint/coordinate handling, earlier native typing/IME/mouse/signature acceptance, P8 installation/clean-machine gates and P9 richer adapters. Ordinary-PDF expansion is outside the current phase scope.
+Still open: native crash/relaunch and broader recovery acceptance, performance/retention/usability, P6 fractional movement and broader paint/coordinate handling, earlier native typing/IME/mouse/signature acceptance, P8 installation/clean-machine gates and P9 richer adapters. Ordinary-PDF expansion is outside the current phase scope.

@@ -74,39 +74,39 @@ fn measure(base: &Path, files: usize, bytes: usize, delta: bool) -> Value {
             text: if index % 2 == 0 { "x" } else { "y" }.into(),
         };
         let started = Instant::now();
-        let (next_revision, payload, edited, encoded) = if delta {
+        let (next_revision, payload, edited, encoded, total) = if delta {
             let reply = backend
                 .document_edit_delta(&project.id, revision, "main.tex", vec![change], Some(1))
                 .unwrap();
             let edited = started.elapsed().as_secs_f64() * 1000.0;
             assert_eq!(reply.sources.len(), 1);
             assert_eq!(reply.base_revision, revision);
+            assert_eq!(reply.recovery.protected_revision, Some(reply.revision));
+            assert!(reply.recovery.error.is_none());
             let serialization = Instant::now();
             let payload = serde_json::to_vec(&reply).unwrap();
-            (
-                reply.revision,
-                payload,
-                edited,
-                serialization.elapsed().as_secs_f64() * 1000.0,
-            )
+            let encoded = serialization.elapsed().as_secs_f64() * 1000.0;
+            let total = started.elapsed().as_secs_f64() * 1000.0;
+            (reply.revision, payload, edited, encoded, total)
         } else {
             let snapshot = backend
                 .document_edit(&project.id, revision, "main.tex", vec![change], Some(1))
                 .unwrap();
             let edited = started.elapsed().as_secs_f64() * 1000.0;
+            assert_eq!(
+                snapshot.recovery.protected_revision,
+                Some(snapshot.revision)
+            );
+            assert!(snapshot.recovery.error.is_none());
             let serialization = Instant::now();
             let payload = serde_json::to_vec(&snapshot).unwrap();
-            (
-                snapshot.revision,
-                payload,
-                edited,
-                serialization.elapsed().as_secs_f64() * 1000.0,
-            )
+            let encoded = serialization.elapsed().as_secs_f64() * 1000.0;
+            let total = started.elapsed().as_secs_f64() * 1000.0;
+            (snapshot.revision, payload, edited, encoded, total)
         };
         assert_eq!(next_revision, revision + 1);
         revision = next_revision;
         response_bytes = black_box(payload.len());
-        let total = started.elapsed().as_secs_f64() * 1000.0;
         if index >= WARMUP {
             editing.push(edited);
             encoding.push(encoded);
@@ -163,21 +163,23 @@ fn main() {
     .flat_map(|(files, bytes)| [false, true].map(|delta| measure(&base, files, bytes, delta)))
     .collect::<Vec<_>>();
     let report = json!({
-        "schema": 2,
+        "schema": 3,
         "os": std::env::consts::OS,
         "architecture": std::env::consts::ARCH,
         "logical_processors_seen": std::thread::available_parallelism().map(|n| n.get()).ok(),
         "profile": "release",
-        "implementation_base": "c83dda1ece80758bbfdaddf89a78021857bae7cf",
+        "implementation_base": "eb2108d9dbcd9a4e3e380e444942450482f4b6c4",
         "github_sha_at_run": std::env::var("GITHUB_SHA").ok(),
         "github_ref_at_run": std::env::var("GITHUB_REF").ok(),
         "measured_api": "Shared native edit authority: full DocumentSnapshot reference vs production changed-file SourceEditReply",
+        "durable_recovery_journal": true,
         "cases": cases,
         "limitations": [
             "Synthetic source projects; one run with uncontrolled background load",
             "CI measurements describe the runner, not the user's laptop",
             "No WebView IPC transport, JavaScript parsing, editor paint, native typing or IME measurement",
-            "No compiler job or initialized build cache; no recovery journal or disk save in measured edits",
+            "No compiler job or initialized build cache; accepted source changes are journaled and flushed, without project Save",
+            "Only source-edit acknowledgements are measured; per-edit cursor acknowledgements and their journal flushes are excluded",
             "Response/snapshot destruction and transport are outside the measured interval",
             "Not a native UI acceptance gate or a comparison to the 50 ms editor-paint target"
         ]

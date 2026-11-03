@@ -14,6 +14,8 @@ class NativeDocumentDouble {
   if(name==='mark_clean_exit'){this.control.cleanExits=(this.control.cleanExits??0)+1;return;}
   if(name==='verify_build')return this.control.verify?.(args);
   if(name==='cancel_compilation')return;
+  if(name==='close_document'){(this.control.closedRequests??=[]).push(args);return this.control.close?.(args);}
+  if(name==='typing_drafts')return {drafts:[],errors:[]};
   if(name==='document_selection')return {revision:this.revision,selection:{file:args.file,anchor:args.anchor,head:args.head,secondary:args.secondary}};
   if(name==='document_prepare'){
    if(args.revision!==this.revision)throw new Error('Stale document');

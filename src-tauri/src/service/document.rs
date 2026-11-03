@@ -5,10 +5,13 @@ use texloom_core::document::{
     self as core, projection::EditorProjection, FileChange, Origin, Patch, Profile, ProfileChange,
     Replacement, Revision, Selection, TypingGroup,
 };
+mod typing_recovery;
+pub use typing_recovery::{CloseReply, RecoveryReply, RecoveryStatus};
 
 pub(super) struct DocumentSlot {
     session: core::Session,
     pub(super) pending: HashMap<String, Pending>,
+    protection: typing_recovery::Protection,
 }
 pub(super) struct Pending {
     candidate: core::Prepared,
@@ -30,6 +33,7 @@ impl DocumentSlot {
             )
             .map_err(fail)?,
             pending: HashMap::new(),
+            protection: Default::default(),
         })
     }
     fn snapshot(&self) -> DocumentSnapshot {
@@ -41,6 +45,7 @@ impl DocumentSlot {
             can_undo: self.session.can_undo(),
             can_redo: self.session.can_redo(),
             selection: self.editor_selection(),
+            recovery: self.protection.status(),
         }
     }
     fn source_reply(&self, base: u64, file: &str) -> SourceEditReply {
@@ -58,6 +63,7 @@ impl DocumentSlot {
             can_undo: self.session.can_undo(),
             can_redo: self.session.can_redo(),
             selection: self.editor_selection(),
+            recovery: self.protection.status(),
         }
     }
     fn editor_selection(&self) -> Option<EditorSelection> {
@@ -90,6 +96,7 @@ pub struct DocumentSnapshot {
     pub can_undo: bool,
     pub can_redo: bool,
     pub selection: Option<EditorSelection>,
+    pub recovery: RecoveryStatus,
 }
 /// A source edit cannot create/delete files or change the project profile.
 /// Send only its changed file; opening, history and visual commits send full snapshots.
@@ -104,6 +111,7 @@ pub struct SourceEditReply {
     pub can_undo: bool,
     pub can_redo: bool,
     pub selection: Option<EditorSelection>,
+    pub recovery: RecoveryStatus,
 }
 #[derive(Clone, Serialize)]
 pub struct EditorSelection {
@@ -121,6 +129,7 @@ pub struct EditorRange {
 pub struct SelectionReply {
     pub revision: u64,
     pub selection: Option<EditorSelection>,
+    pub recovery: RecoveryStatus,
 }
 #[derive(Deserialize)]
 pub struct EditorChange {
@@ -173,10 +182,15 @@ impl Backend {
             head: p.source_offset(head).map_err(fail)?,
             secondary,
         };
-        slot.session.set_selection(selection).map_err(fail)?;
+        let changed = slot.session.selection() != Some(&selection);
+        slot.session.set_selection(selection.clone()).map_err(fail)?;
+        if changed {
+            self.record_typing_recovery(id, slot, base, texloom_build::recovery::Mutation::Selection { selection });
+        }
         Ok(SelectionReply {
             revision: slot.session.revision().0,
             selection: slot.editor_selection(),
+            recovery: slot.protection.status(),
         })
     }
     pub fn document_snapshot(&self, id: &str) -> Result<DocumentSnapshot> {
@@ -257,6 +271,9 @@ impl Backend {
         if candidate.changed() {
             self.mark_cache_unclean()?;
         }
+        let mutation = candidate.changed().then(|| texloom_build::recovery::Mutation::Patch {
+            patch: candidate.recovery_patch(), origin: Origin::Source, group: group.map(TypingGroup),
+        });
         slot.session
             .commit(candidate, Origin::Source, group.map(TypingGroup))
             .map_err(fail)?;
@@ -264,6 +281,7 @@ impl Backend {
             slot.pending.clear();
             self.scheduler.cancel_project(id);
         }
+        if let Some(mutation) = mutation { self.record_typing_recovery(id, slot, base, mutation); }
         Ok(reply(slot))
     }
     pub fn document_profile(
@@ -289,6 +307,9 @@ impl Backend {
         if candidate.changed() {
             self.mark_cache_unclean()?;
         }
+        let mutation = candidate.changed().then(|| texloom_build::recovery::Mutation::Patch {
+            patch: candidate.recovery_patch(), origin: Origin::Settings, group: None,
+        });
         slot.session
             .commit(candidate, Origin::Settings, None)
             .map_err(fail)?;
@@ -296,6 +317,7 @@ impl Backend {
             slot.pending.clear();
             self.scheduler.cancel_project(id);
         }
+        if let Some(mutation) = mutation { self.record_typing_recovery(id, slot, base, mutation); }
         Ok(slot.snapshot())
     }
     pub fn document_history(&self, id: &str, base: u64, redo: bool) -> Result<DocumentSnapshot> {
@@ -315,6 +337,7 @@ impl Backend {
         if slot.session.revision() != Revision(base) {
             slot.pending.clear();
             self.scheduler.cancel_project(id);
+            self.record_typing_recovery(id, slot, base, if redo {texloom_build::recovery::Mutation::Redo} else {texloom_build::recovery::Mutation::Undo});
         }
         Ok(slot.snapshot())
     }
@@ -505,9 +528,14 @@ impl Backend {
             .pending
             .remove(token)
             .ok_or("The visual candidate is missing")?;
+        let base = slot.session.revision().0;
+        let mutation = pending.candidate.changed().then(|| texloom_build::recovery::Mutation::Patch {
+            patch: pending.candidate.recovery_patch(), origin: Origin::Canvas, group: None,
+        });
         slot.session
             .commit(pending.candidate, Origin::Canvas, None)
             .map_err(fail)?;
+        if let Some(mutation) = mutation { self.record_typing_recovery(id, slot, base, mutation); }
         Ok(slot.snapshot())
     }
     pub fn document_discard(&self, id: &str, token: &str) -> Result<()> {
@@ -559,18 +587,23 @@ impl Backend {
         if !sources.contains_key("texloom-objects.sty") && sources.values().any(|s|s.contains("\\TexloomObject")||s.contains("\\usepackage{texloom-objects}")) {
             sources.insert("texloom-objects.sty".into(),OBJECT_STYLE.into());
         }
-        texloom_build::persistence::copy_project(&root,&sources,Path::new(parent))
+        (if root.exists() {texloom_build::persistence::copy_project(&root,&sources,Path::new(parent))}
+        else {texloom_build::persistence::copy_sources(&sources,Path::new(parent))})
             .map(|path|path.to_string_lossy().into_owned())
     }
-    pub fn save_document(&self, id: &str, base: u64) -> Result<()> {
+    pub fn save_document(&self, id: &str, base: u64) -> Result<RecoveryReply> {
         // Serialize the full explicit save with edits/history/closure. No later
         // source revision can be written under an earlier Save acknowledgement.
-        let documents = self.documents.lock().map_err(fail)?;
-        let slot = documents.get(id).ok_or("Reopen this project")?;
+        let mut documents = self.documents.lock().map_err(fail)?;
+        let slot = documents.get_mut(id).ok_or("Reopen this project")?;
         if slot.session.revision() != Revision(base) {
             return Err("The source changed before Save; try again".into());
         }
-        self.save_project(id, slot.session.sources())
+        self.save_project(id, slot.session.sources())?;
+        // Save succeeded even if recovery storage is degraded. Never report
+        // an accepted disk Save as failed because a separate journal failed.
+        self.checkpoint_typing_recovery(id, slot);
+        Ok(RecoveryReply { revision: base, recovery: slot.protection.status() })
     }
 }
 
@@ -864,6 +897,7 @@ mod tests {
         );
         let reopened = b.open_project(Some(path.to_string_lossy().into())).unwrap();
         assert_eq!(reopened.sources, snapshot.sources);
+        drop(b);
         fs::remove_dir_all(root).unwrap();
     }
     fn backend(text: &str) -> Backend {

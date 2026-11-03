@@ -65,6 +65,7 @@ fn identity()->String {
 fn valid_id(id:&str)->bool{id.len()==32&&id.bytes().all(|b|b.is_ascii_hexdigit()&&!b.is_ascii_uppercase())}
 
 #[derive(Clone,Serialize,Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct DiskSnapshot { pub root:PathBuf, pub files:BTreeMap<String,Option<Fingerprint>> }
 #[derive(Debug,Serialize)]
 pub struct Conflict { pub file:String, pub kind:&'static str }
@@ -336,6 +337,22 @@ pub fn copy_project(project:&Path,sources:&Sources,parent:&Path)->Result<PathBuf
         fs::remove_file(&marker).map_err(fail)?;Ok(())
     })();
     result.map_err(|e|format!("Project copy was not completed at {}: {e}",directory.display()))?;
+    Ok(directory)
+}
+
+/// Salvage canonical source when the original project folder is unavailable.
+/// This deliberately copies no assets and never recreates the original path.
+pub fn copy_sources(sources:&Sources,parent:&Path)->Result<PathBuf> {
+    validate_sources(sources)?;let parent=root(parent)?;
+    let directory=parent.join(format!("Texloom-recovered-sources-{}",&identity()[..12]));
+    fs::create_dir(&directory).map_err(fail)?;let directory=directory.canonicalize().map_err(fail)?;
+    require(directory.parent()==Some(parent.as_path()),"Source copy escaped its selected folder")?;
+    let marker=directory.join(".texloom-copy-pending");write_new(&marker,b"Texloom incomplete source recovery copy v1\n")?;
+    let result:Result<()>=(||{
+        for (name,text) in sources {write_new(&destination(&directory,name,true)?,text.as_bytes())?;}
+        fs::remove_file(&marker).map_err(fail)?;Ok(())
+    })();
+    result.map_err(|e|format!("Source copy was not completed at {}: {e}",directory.display()))?;
     Ok(directory)
 }
 

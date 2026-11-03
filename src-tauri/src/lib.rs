@@ -6,8 +6,8 @@ pub mod benchmark {
     pub use crate::service::{Backend, DocumentSnapshot, EditorChange, SourceEditReply};
 }
 use service::{
-    Backend, CompileResult, DocumentSnapshot, EditorChange, EditorRange, ObjectEditRequest,
-    ObjectPlan, PreparedReply, Project, ResolvedSelection, SelectionPoint, SelectionReply,
+    Backend, CloseReply, CompileResult, DocumentSnapshot, EditorChange, EditorRange, ObjectEditRequest,
+    ObjectPlan, PreparedReply, Project, RecoveryReply, ResolvedSelection, SelectionPoint, SelectionReply,
     SourceEditReply, SourceLocation, SourceRectangle, TransformRequest, VisualOperation,
 };
 use std::{collections::BTreeMap, sync::Arc};
@@ -34,8 +34,9 @@ fn preview_text_edit(
 }
 
 #[tauri::command]
-fn open_project(state: State<'_, Arc<Backend>>, path: Option<String>) -> Result<Project, String> {
-    state.open_project(path)
+async fn open_project(state: State<'_, Arc<Backend>>, path: Option<String>) -> Result<Project, String> {
+    let backend = state.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || backend.open_project(path)).await.map_err(|e|e.to_string())?
 }
 
 #[tauri::command]
@@ -43,7 +44,7 @@ async fn save_document(
     state: State<'_, Arc<Backend>>,
     project_id: String,
     revision: u64,
-) -> Result<(), String> {
+) -> Result<RecoveryReply, String> {
     let backend = state.inner().clone();
     tauri::async_runtime::spawn_blocking(move || backend.save_document(&project_id, revision))
         .await.map_err(|e|e.to_string())?
@@ -117,12 +118,39 @@ fn pin_displayed_build(
     state.pin_displayed_build(&project_id, &build_id)
 }
 #[tauri::command]
-fn close_document(state: State<'_, Arc<Backend>>, project_id: String) -> Result<(), String> {
-    state.close_document(&project_id)
+async fn close_document(state: State<'_, Arc<Backend>>, project_id: String, revision: Option<u64>, discard_recovery: Option<bool>) -> Result<CloseReply, String> {
+    let backend = state.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        if let Some(revision) = revision { backend.close_document_checked(&project_id, revision, discard_recovery.unwrap_or(false)) }
+        else if discard_recovery.unwrap_or(false) { Err("A revision is required before discarding a live draft".into()) }
+        else { backend.close_document(&project_id).map(|()|CloseReply::default()) }
+    }).await.map_err(|e|e.to_string())?
 }
 #[tauri::command]
-fn mark_clean_exit(state: State<'_, Arc<Backend>>) -> Result<(), String> {
-    state.mark_clean_exit()
+async fn mark_clean_exit(state: State<'_, Arc<Backend>>) -> Result<(), String> {
+    let backend = state.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || backend.mark_clean_exit()).await.map_err(|e|e.to_string())?
+}
+
+#[tauri::command]
+async fn typing_drafts(state: State<'_, Arc<Backend>>) -> Result<texloom_build::recovery::Inventory, String> {
+    let backend = state.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || backend.typing_drafts()).await.map_err(|e|e.to_string())?
+}
+#[tauri::command]
+async fn open_typing_draft(state: State<'_, Arc<Backend>>, draft_id: String) -> Result<Project, String> {
+    let backend = state.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || backend.open_typing_draft(&draft_id)).await.map_err(|e|e.to_string())?
+}
+#[tauri::command]
+async fn discard_typing_draft(state: State<'_, Arc<Backend>>, draft_id: String) -> Result<texloom_build::recovery::Inventory, String> {
+    let backend = state.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || backend.discard_typing_draft(&draft_id)).await.map_err(|e|e.to_string())?
+}
+#[tauri::command]
+async fn retry_typing_recovery(state: State<'_, Arc<Backend>>, project_id: String, revision: u64) -> Result<RecoveryReply, String> {
+    let backend = state.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || backend.retry_typing_recovery(&project_id, revision)).await.map_err(|e|e.to_string())?
 }
 #[tauri::command]
 async fn verify_build(state: State<'_, Arc<Backend>>, build_id: String) -> Result<(), String> {
@@ -155,7 +183,7 @@ fn document_snapshot(
     state.document_snapshot(&project_id)
 }
 #[tauri::command]
-fn document_selection(
+async fn document_selection(
     state: State<'_, Arc<Backend>>,
     project_id: String,
     revision: u64,
@@ -164,10 +192,11 @@ fn document_selection(
     head: usize,
     secondary: Vec<EditorRange>,
 ) -> Result<SelectionReply, String> {
-    state.document_selection(&project_id, revision, file, anchor, head, secondary)
+    let backend = state.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || backend.document_selection(&project_id, revision, file, anchor, head, secondary)).await.map_err(|e|e.to_string())?
 }
 #[tauri::command]
-fn document_edit(
+async fn document_edit(
     state: State<'_, Arc<Backend>>,
     project_id: String,
     revision: u64,
@@ -175,26 +204,29 @@ fn document_edit(
     changes: Vec<EditorChange>,
     group: Option<u64>,
 ) -> Result<SourceEditReply, String> {
-    state.document_edit_delta(&project_id, revision, &file, changes, group)
+    let backend = state.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || backend.document_edit_delta(&project_id, revision, &file, changes, group)).await.map_err(|e|e.to_string())?
 }
 #[tauri::command]
-fn document_profile(
+async fn document_profile(
     state: State<'_, Arc<Backend>>,
     project_id: String,
     revision: u64,
     main: String,
     engine: String,
 ) -> Result<DocumentSnapshot, String> {
-    state.document_profile(&project_id, revision, main, engine)
+    let backend = state.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || backend.document_profile(&project_id, revision, main, engine)).await.map_err(|e|e.to_string())?
 }
 #[tauri::command]
-fn document_history(
+async fn document_history(
     state: State<'_, Arc<Backend>>,
     project_id: String,
     revision: u64,
     redo: bool,
 ) -> Result<DocumentSnapshot, String> {
-    state.document_history(&project_id, revision, redo)
+    let backend = state.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || backend.document_history(&project_id, revision, redo)).await.map_err(|e|e.to_string())?
 }
 #[tauri::command]
 async fn document_prepare(
@@ -306,6 +338,10 @@ pub fn run() {
             project_recoveries,
             recover_document,
             discard_document_recovery,
+            typing_drafts,
+            open_typing_draft,
+            discard_typing_draft,
+            retry_typing_recovery,
             compile_document,
             cancel_compilation,
             pin_displayed_build,

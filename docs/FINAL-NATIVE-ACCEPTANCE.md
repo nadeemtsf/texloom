@@ -16,11 +16,13 @@ Run this queue after the implementation backlog through P9 is complete and the e
 | Movement | Group drag/nudge, zoom/scroll coordinates, cancellation/Escape/lost capture and fractional displacement once implemented |
 | Text/spacing | Protected text edits, locked commands, raw fallback, supported numeric gaps, reflow failure and undo |
 | Complete signature | Select name plus two lines; move 12 bp down; edit name; undo/redo; Save, close/reopen, independently compile and compare |
-| Persistence | Interactive Save/reopen, external-edit conflicts, project copy, interrupted-Save recovery and unsaved-typing recovery once implemented |
+| Persistence | Interactive Save/reopen, external-edit conflicts, project copy, interrupted-Save recovery, abrupt-close/relaunch of unsaved typing/history, missing-folder source salvage, multi-instance locks and deliberate draft deletion |
 | Installation | Exact installed artifact on a clean machine; dependency/setup, resource layout and uninstall checks |
 | Usability/performance | Real editor-paint/gesture/scroll timing and long-session behavior on the user's laptop and a documented Windows reference machine |
 
 The previous native access rejection remains evidence of an unverified test, not a test failure in source logic. The prior access denial must not be bypassed by renaming apps, indirect launch or substituting automation methods. The owner's latest deferral means those checks should wait even if the desktop reconnects.
+
+For the typing-recovery cases, use a disposable multi-file fixture and never the owner's correspondence. Record the last acknowledged/protected revision, terminate the fixture app without its normal close handler, relaunch the same candidate, open Recover work, and compare exact source/history and original disk bytes. Check that restoration is explicitly unsaved, a later external edit still blocks Save, and missing-folder copies are labeled as source only. Exercise actual window close/confirmation as well as an abrupt termination. Headless backend reconstruction and byte-truncation tests are useful evidence but do not replace these native interactions.
 
 ## Completion language
 

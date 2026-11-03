@@ -158,6 +158,15 @@ impl Prepared {
     pub fn changed(&self) -> bool {
         self.changed
     }
+    /// Validated plain data for a durable mutation log. It carries no Prepared
+    /// ownership, compiler result or permission to commit a visual candidate.
+    pub fn recovery_patch(&self) -> Patch {
+        Patch {
+            base: self.base,
+            files: self.forward.files.clone(),
+            profile: self.forward.profile.clone(),
+        }
+    }
 }
 
 pub struct Session {

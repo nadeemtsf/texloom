@@ -10,7 +10,13 @@ export class DocumentClient {
     this.assertRevision(next.revision);
     const previous=this.snapshot;
     if(next.revision<previous.revision)throw new Error('Document acknowledgement moved backward');
-    if(next.kind===undefined)return {snapshot:{...previous,...next},sourceChanged:!!next.sources};
+    if(next.recovery!==undefined){
+      const r=next.recovery;
+      if(!r||typeof r!=='object'||!(r.draft_id===null||typeof r.draft_id==='string'&&/^[0-9a-f]{32}$/.test(r.draft_id))||
+        !(r.protected_revision===null||Number.isSafeInteger(r.protected_revision)&&r.protected_revision>=0&&r.protected_revision<=next.revision)||
+        !(r.error===null||typeof r.error==='string'))throw new Error('Invalid recovery protection acknowledgement');
+    }
+    if(next.kind===undefined)return {snapshot:{...previous,...next},sourceChanged:!!next.sources||!!next.recovery};
     const invalid=()=>{throw new Error('Invalid source edit acknowledgement; source synchronization stopped');};
     if(name!=='document_edit'||next.kind!=='source_delta'||next.base_revision!==previous.revision)invalid();
     if(next.revision!==previous.revision&&next.revision!==previous.revision+1)invalid();
@@ -45,6 +51,8 @@ export class DocumentClient {
   edit(file,changes,group){return this.enqueue('document_edit',{file,changes,group});}
   profile(main,engine){return this.enqueue('document_profile',{main,engine});}
   history(redo){return this.enqueue('document_history',{redo});}
+  save(){return this.enqueue('save_document',{},false);}
+  retryRecovery(){return this.enqueue('retry_typing_recovery',{},false);}
   selection(file,anchor,head,secondary=[]){return this.enqueue('document_selection',{file,anchor,head,secondary},true,false);}
   async prepare(sources,baselineBuildId,operation=null){await this.flush();return this.invoke('document_prepare',{projectId:this.projectId,revision:this.snapshot.revision,sources,baselineBuildId,operation});}
   async compile(token=null,purpose='preview'){

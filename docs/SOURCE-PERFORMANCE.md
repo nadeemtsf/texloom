@@ -35,3 +35,19 @@ The local schema-2 release run compared both paths on the same eight-logical-pro
 A single-file edit still returns that file, and native preparation still clones the canonical project map/strings. Further storage/projection optimizations require their own measurements. The frontend changes have functional tests but no native paint measurement. This does not establish the 50 ms editor-paint target, typing/IME acceptance, active-journal performance or a release gate. Native interaction remains in FINAL-NATIVE-ACCEPTANCE.md.
 
 The reconnected checkout was reconciled to c83dda1 without discarding the earlier untracked work-in-progress/source_benchmark.rs draft. That historical draft remains preserved and is not used by the working benchmark.
+
+## Journal-enabled measurement
+
+Schema 3 runs the production durable journal, asserts that every measured acknowledgement reports its revision protected, and includes append/flush work in native edit timing. It captures the combined endpoint before dropping the native reply, consistently excluding reply/payload destruction and transport. The earlier schema-2 combined endpoint occurred after branch-local reply destruction; its generic destruction-exclusion text was too broad. Its raw measurements are preserved and should not be treated as a controlled fsync-overhead comparison with schema 3.
+
+The local active-journal release run passed; its raw schema-3 report is in evidence/typing-recovery-local.json. Each of the ten cases includes 10 warmup and 100 measured edits, protected-revision assertions, exact coalesced undo/redo and unchanged original disk fingerprints.
+
+| Project | Full p95 through encoding | Changed-file p95 through encoding | Changed-file reply bytes |
+| --- | ---: | ---: | ---: |
+| 1 x 16 KiB | 6.02 ms | 6.99 ms | 17,143 |
+| 1 x 256 KiB | 24.40 ms | 19.74 ms | 269,459 |
+| 16 x 64 KiB | 13.43 ms | 8.23 ms | 67,607 |
+| 64 x 256 KiB | 155.56 ms | 55.17 ms | 269,459 |
+| 128 x 256 KiB | 257.85 ms | 56.39 ms | 269,459 |
+
+This is one uncontrolled run, not a controlled comparison of journaling overhead against earlier runs. Large-project timings remain a performance concern; canonical preparation still copies untouched source strings. No 50 ms editor-paint target is inferred. Measured edits do not include per-edit cursor acknowledgements or force checkpoint compaction. Startup/recovery replay, editor paint and native typing remain separate measurements.

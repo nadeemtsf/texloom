@@ -6,7 +6,7 @@ This is a separate desktop implementation. It does not replace or convert the ea
 
 ## Development status
 
-Version 0.3 is under development. The source tests pass; the corrected movement adapter and complete native interaction workflow still need verification. A successful source test run is not a claim that arbitrary imported LaTeX can be edited visually.
+Version 0.3 is under development in the primary repository, https://github.com/nadeemtsf/texloom. The Rust source/history, compile service, bounded visual adapters, independent verification, guarded Save and unsaved-work recovery have automated coverage. Native interaction and distribution gates remain open. The owner deferred mouse/keyboard/IME checks until implementation through the remaining phases is complete. See docs/WORK-CHECKPOINT.md and docs/FINAL-NATIVE-ACCEPTANCE.md. A successful test run does not establish reversible editing of arbitrary LaTeX.
 
 ## Implemented in source
 
@@ -18,7 +18,9 @@ Version 0.3 is under development. The source tests pass; the corrected movement 
 - Dragging, width resizing, exact coordinates, base font sizes, block text editing, source-to-PDF compilation, and guarded conversion of a complete source selection into a movable block.
 - **Visual transactions:** a mouse edit is compiled as a candidate before its source change is committed. Invalid edits preserve the original buffer and the last successful PDF.
 - UTF-16-to-UTF-8 mapping between editor selections and Rust source offsets, including Arabic and supplementary Unicode characters.
-- 33 Rust core tests and 13 frontend geometry, PDF regression and transaction tests.
+- A durable source/history recovery journal, protected-revision status, review/restore/discard UI and source salvage when an original project folder is missing. Recovery preserves original Save conflict fingerprints and grants no old visual approval.
+- Ordered changed-file typing acknowledgements that retain other project buffers; full opening/history/visual snapshots still handle file-set changes. Actual source-service timings and limits are in docs/SOURCE-PERFORMANCE.md.
+- Rust domain, native service, filesystem/process, independent renderer and frontend/controller checks. Exact counts, source/artifact receipts and limitations are in VALIDATION.md.
 - A Windows build script that locates Rust, or downloads and verifies the official Rust bootstrapper into the project when needed, then tests and builds an NSIS installer.
 
 The interface uses HTML/CSS/JavaScript within WebView2; the document model, files, native compiler process, and source transformations use Rust. This is not an all-Rust widget toolkit.
@@ -34,7 +36,7 @@ You need the Windows build tools and access to official Rust, npm, and Cargo dow
 
 The build script uses your existing Rust installation if available. Otherwise it downloads rustup-init.exe and its SHA-256 checksum from static.rust-lang.org, checks the file, and installs a minimal Rust toolchain under `.tools/` without changing the global PATH. It selects the Windows MSVC target, compiles and runs the core tests, installs locked frontend dependencies with npm ci, and runs the Tauri release build. Portable mode skips the installer download and packaging step.
 
-For portable mode the result is `target/x86_64-pc-windows-msvc/release/texloom-desktop.exe`. This executable includes its editor and PDF rendering assets; it does not require a local web server. WebView2 and MiKTeX/TeX Live must already be installed.
+The development executable is `target/x86_64-pc-windows-msvc/release/texloom-desktop.exe`. Its editor/PDF.js assets are embedded and need no local server. Independent visual verification also requires the matching packaged `verification` resources, including the worker, pinned PDFium DLL and notices. Use the complete development package rather than distributing a bare executable. WebView2 and a working MiKTeX/TeX Live installation are runtime prerequisites. A build is not installed-artifact acceptance.
 
 To update an already extracted source project, replace its source files with this archive while retaining its `.tools/`, `node_modules/`, and `target/` directories. The missing source-map type annotation reported by the original build is corrected in src-tauri/src/service.rs. The script can reuse the existing Rust installation and Cargo build cache.
 
@@ -66,9 +68,11 @@ The PowerShell execution-policy setting in the launcher applies to that process;
 
 ## Expected workflow
 
-Open a main .tex file, keep its supporting styles/images beneath the same project directory, and select the correct engine. The app compiles a copy of your sources in its own build directory. Typing refreshes the PDF after a pause. **Save** explicitly writes edited source files back to the opened project. If movable blocks need studio.sty, Save includes that dependency beside the main file.
+Open a main .tex file with its supporting styles/images and select its engine. Rust owns canonical sources and shared undo/redo. Builds use private copied snapshots; typing does not write the original files. **Save** checks the loaded disk fingerprints and performs a recoverable multi-file write. External changes are refused, with the editor retained and a project-copy escape.
 
-Select a movable PDF block to drag or resize it. The inspector allows exact positions, font sizes, and LaTeX content. Double-clicking opens the content editor. For existing ordinary text, a PDF click locates its source; double-clicking opens its source line. Select a complete source paragraph or environment and choose **Make movable** to pin it near its SyncTeX location. Pinning removes that selection from normal text flow, so subsequent content can reflow.
+Select objects mode resolves supported PDF text to a unique source unit; Read text permits highlighting/copying. A group frame shows the selected source scope. Supported normal-text movement retains the unit's contribution to flow and requires a compiled, independently checked candidate before committing. Double-click opens protected literal fields or an explicit LaTeX fallback; recognized numeric line-break spacing has separate reflow checks. Existing StudioBlock positioning remains an isolated compatibility adapter. Unsupported macros, geometry, paint or ambiguous identity receive a refusal and source fallback.
+
+Automatic recovery is separate from Save. Protection status stays visible beside the source, and storage errors leave editing/Save available. Recover work opens verified closed drafts for review with source and undo/redo; it never automatically overwrites originals. Earlier crash drafts stay until explicitly discarded. Missing-folder recovery can save source files to a new directory but cannot reconstruct missing images/assets. See docs/UNSAVED-RECOVERY.md.
 
 ## Current limits and required verification
 
@@ -78,10 +82,11 @@ Select a movable PDF block to drag or resize it. The inspector allows exact posi
 - Source conversion preserves the selected LaTeX tokens, but cannot reproduce every surrounding formatting context. Review the resulting layout, especially when converting content from lists, columns, or locally changed fonts.
 - Source mapping is provided by the installed native synctex utility. Some generated content may not have useful mappings.
 - Bibliography tool orchestration and custom shell-escape build recipes are not included.
-- The Rust build cache currently accumulates compilation snapshots. A bounded cleanup policy is needed before a production release.
-- Save does not yet detect changes made to the same source files by another editor. Avoid concurrent editing of one project until conflict detection is implemented.
+- Build/recovery caches have explicit retention and integrity checks. Native long-session, quota, replay/performance and usability acceptance remains open.
+- Source-service benchmarks are measured; WebView/editor paint, native typing/IME and full interaction latency have not passed acceptance. Fractional free movement and broader paint/coordinate cases remain gated.
 - Use your own trusted LaTeX projects. Turning shell escape off does not make native TeX a full sandbox.
 - The portable executable is an unsigned development build. An NSIS installer has not been generated or tested, and no Store approval or signing certificate is included.
+- The development PDFium pin still needs a production security/license review. A passing renderer fixture is not approval to distribute that dependency as a release.
 
 ## Microsoft Store planning
 

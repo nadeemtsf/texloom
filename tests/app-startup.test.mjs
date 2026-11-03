@@ -4,6 +4,7 @@ import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
 import * as transactions from '../web/core/transactions.js';
 import {DocumentClient,editorText,sameSources} from '../web/core/document-client.js';
+import {TypingRecoveryController} from '../web/core/typing-recovery.js';
 
 const [app,html]=await Promise.all(['app.js','index.html'].map(name=>readFile(new URL('../web/'+name,import.meta.url),'utf8')));
 
@@ -30,7 +31,7 @@ function boot({markup=html,openFailure=null}={}){
   const editor={createContextKey:()=>({set(){}}),updateOptions:o=>Object.assign(options,o),
     onDidChangeModelContent(){},onDidChangeCursorPosition(){},onDidChangeCursorSelection(){},
     addAction(){},addCommand(){},getDomNode:()=>element(),getSelections:()=>[],hasTextFocus:()=>false};
-  const context={...transactions,DocumentClient,editorText,sameSources,structuredClone,console,
+  const context={...transactions,DocumentClient,editorText,sameSources,TypingRecoveryController,structuredClone,console,
     self:{},pdfjs:{GlobalWorkerOptions:{}},pdfWorkerURL:'test-worker',EditorWorker:class{},
     monaco:{languages:{register(){},setMonarchTokensProvider(){},setLanguageConfiguration(){}},
       editor:{defineTheme(){},createModel:()=>model,create:()=>editor,EndOfLineSequence:{LF:0}},
@@ -45,6 +46,7 @@ function boot({markup=html,openFailure=null}={}){
       calls.push([name,args]);
       if(name==='open_project'){if(openFailure)throw Error(openFailure);return project}
       if(name==='document_snapshot')return snapshot;
+      if(name==='typing_drafts')return {drafts:[],errors:[]};
       throw Error('Test compiler unavailable');
     }};
   const script=app.replace(/^import .*;\r?$/gm,'').replace(/openProject\(\);\s*$/,'globalThis.startup = openProject();');
