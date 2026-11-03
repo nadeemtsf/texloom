@@ -11,6 +11,10 @@ typegen = ["dep:ts-rs"]
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha2 = "0.10.9"
+quick-xml = "=0.42.0"
+zip = { version = "=9.3.0", default-features = false, features = ["deflate-flate2"] }
+flate2 = "=1.1.10"
+encoding_rs = "=0.8.44"
 texloom-core = { path = "../texloom-core", features = ["recovery-serde"] }
 ts-rs = { version = "=11.1.0", optional = true }
 

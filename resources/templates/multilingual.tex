@@ -1,0 +1,30 @@
+% This project explicitly uses XeLaTeX, fontspec and polyglossia.
+\documentclass[11pt]{article}
+\usepackage{geometry}
+\geometry{margin=25mm}
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setdefaultlanguage{english}
+\setotherlanguages{arabic,hebrew}
+\IfFontExistsTF{Arial}{\def\ProjectFont{Arial}}{\def\ProjectFont{DejaVu Sans}}
+\setmainfont{\ProjectFont}
+\newfontfamily\arabicfont[Script=Arabic]{\ProjectFont}
+\newfontfamily\hebrewfont[Script=Hebrew]{\ProjectFont}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{8pt}
+\begin{document}
+\section*{English, Arabic and Hebrew}
+This editable project keeps the engine choice and language commands in its source.
+
+\begin{Arabic}
+مرحبا بالعالم. هذا نص عربي للتجربة.
+\end{Arabic}
+
+\begin{hebrew}
+שלום עולם. זהו טקסט בעברית לבדיקה.
+\end{hebrew}
+
+Keep language commands in place when editing the source. Read text mode supports
+selecting and copying the compiled text. Canvas movement for complex scripts is
+enabled only when its mapping and appearance checks pass.
+\end{document}

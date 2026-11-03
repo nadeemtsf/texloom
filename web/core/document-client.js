@@ -14,6 +14,7 @@ export class DocumentClient {
     tail = Promise.resolve();
     compileSerial = 0;
     activeToken = null;
+    queuedSelection = null;
     candidates = new Map();
     changed;
     failed;
@@ -26,10 +27,14 @@ export class DocumentClient {
         this.failed = options.failed ?? (() => { });
     }
     enqueue(name, args, fatal = true, mutating = true) {
+        if (name !== 'document_selection')
+            this.queuedSelection = null;
         this.outstanding++;
         if (mutating)
             this.pending++;
         const job = this.tail.then(async () => {
+            if (this.queuedSelection?.args === args)
+                this.queuedSelection = null;
             if (this.error)
                 throw this.error;
             // Caller arguments cannot replace queue-owned project/revision identity.
@@ -81,7 +86,14 @@ export class DocumentClient {
     save() { return this.enqueue('save_document', {}, false); }
     retryRecovery() { return this.enqueue('retry_typing_recovery', {}, false); }
     selection(file, anchor, head, secondary = []) {
-        return this.enqueue('document_selection', { file, anchor, head, secondary }, true, false);
+        const args = { file, anchor, head, secondary: secondary.map(cursor => ({ ...cursor })) };
+        if (this.queuedSelection) {
+            Object.assign(this.queuedSelection.args, args);
+            return this.queuedSelection.promise;
+        }
+        const promise = this.enqueue('document_selection', args, true, false);
+        this.queuedSelection = { args, promise };
+        return promise;
     }
     async prepare(sources, baselineBuildId, operation = null) {
         await this.flush();
@@ -143,9 +155,11 @@ export class DocumentClient {
         this.assertMappingCurrent(snapshot);
         return acceptSourceLocation(reply, snapshot.sources);
     }
-    async resolve(buildId, page, points) {
+    async resolve(buildId, page, points, candidate = 0) {
+        if (!Number.isSafeInteger(candidate) || candidate < 0 || candidate >= 16)
+            throw new BuildProtocolError('Invalid selection candidate');
         const snapshot = await this.flush();
-        const reply = await requestBuild(this.invoke, 'resolve_text_selection', { projectId: this.projectId, revision: snapshot.revision, buildId, page, points });
+        const reply = await requestBuild(this.invoke, 'resolve_text_selection', { projectId: this.projectId, revision: snapshot.revision, buildId, page, points, candidate });
         this.assertMappingCurrent(snapshot);
         return acceptResolvedSelection(reply, { snapshot, buildId, page });
     }

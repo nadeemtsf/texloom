@@ -6,9 +6,10 @@ import {spawnSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {resolve,join,dirname} from 'node:path';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
-const wheelName='pypdfium2-4.30.0-py3-none-win_amd64.whl';
-const wheelSha='90dbb2ac07be53219f56be09961eb95cf2473f834d01a42d901d13ccfad64b4c';
-const dllSha='b2c15cd4537d8efaf23b85b3353abe7a0b863e9c52b2f017dd87bb86a55f9c72';
+const pin=JSON.parse(await readFile(join(root,'scripts/pdfium-pin.json'),'utf8'));
+const wheelName='pypdfium2-5.14.0-py3-none-win_amd64.whl';
+const wheelSha='149fd5c6397b8df8bf7911a93506eff0be874f877afe7ac936cf5d37d21a6a06';
+const dllSha='69f1e860f6742fbaafcc4db80e785eec9a4ee0da36ea6d1dc0867ea0f18baea6';
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const require=(ok,message)=>{if(!ok)throw new Error(message)};
 async function boundedFetch(url,max,host){
@@ -52,7 +53,7 @@ try{
   const wheel=resolve(process.argv[2]||join(root,'.tools/pdfium-wheels',wheelName));
   try{await stat(wheel)}catch(error){
     if(error.code!=='ENOENT')throw error;
-    const index=JSON.parse((await boundedFetch('https://pypi.org/pypi/pypdfium2/4.30.0/json',2_000_000,'pypi.org')).toString('utf8'));
+    const index=JSON.parse((await boundedFetch('https://pypi.org/pypi/pypdfium2/5.14.0/json',2_000_000,'pypi.org')).toString('utf8'));
     const assets=index.urls.filter(a=>a.filename===wheelName&&a.digests?.sha256===wheelSha);
     require(assets.length===1&&new URL(assets[0].url).hostname==='files.pythonhosted.org'&&new URL(assets[0].url).protocol==='https:','Pinned wheel is missing from the official package index');
     const bytes=await boundedFetch(assets[0].url,30_000_000,'files.pythonhosted.org');
@@ -61,8 +62,9 @@ try{
     try{await writeFile(temp,bytes,{flag:'wx'});await rename(temp,wheel)}finally{await unlink(temp).catch(error=>{if(error.code!=='ENOENT')throw error})}
   }
   require((await stat(wheel)).size<=30_000_000,'Pinned wheel exceeds size budget');
-  const entries=pinnedEntries(await readFile(wheel),new Set(['pypdfium2_raw/pdfium.dll','pypdfium2-4.30.0.dist-info/LicenseRef-PdfiumThirdParty.txt']));
-  const dll=entries.get('pypdfium2_raw/pdfium.dll'),notice=entries.get('pypdfium2-4.30.0.dist-info/LicenseRef-PdfiumThirdParty.txt');
+  require(pin.wheel===wheelName&&pin.wheel_sha256===wheelSha&&pin.dll_sha256===dllSha,'PDFium pin files disagree');
+  const entries=pinnedEntries(await readFile(wheel),new Set(['pypdfium2_raw/pdfium.dll',...pin.notices]));
+  const dll=entries.get('pypdfium2_raw/pdfium.dll'),notice=Buffer.from(pin.notices.map(name=>'===== '+name+' =====\n'+new TextDecoder(pin.notice_encodings[name]||'utf-8',{fatal:true}).decode(entries.get(name))).join('\n\n'));
   require(hash(dll)===dllSha,'Pinned DLL checksum mismatch');
   const built=spawnSync('cargo.exe',['build','--locked','--release','-p','texloom-build','--bin','pdfium_worker','--target','x86_64-pc-windows-msvc'],{cwd:root,stdio:'inherit',windowsHide:true,timeout:180_000});
   require(!built.error&&built.status===0,'Building the native layout verifier failed');
@@ -70,7 +72,7 @@ try{
   const resources=join(root,'src-tauri/resources/verification');await mkdir(resources,{recursive:true});
   await writeFile(join(resources,'pdfium.dll'),dll);await writeFile(join(resources,'PDFIUM-NOTICE.txt'),notice);
   await copyFile(program,join(resources,'pdfium_worker.exe'));
-  const manifest={schema:2,protocol:2,purpose:'Development verification dependency; release review pending',platform:'windows-x86_64',pdfium:'126.0.6462.0',binding_source:'pypdfium2-4.30.0',
+  const manifest={schema:2,protocol:3,purpose:'Pinned isolated layout verification dependency',platform:'windows-x86_64',pdfium:'156.0.8076.0',binding_source:'pypdfium2-5.14.0',
     wheel_sha256:wheelSha,dll_sha256:dllSha,worker_sha256:hash(await readFile(program)),notice_sha256:hash(notice)};
   await writeFile(join(resources,'verifier-manifest.json'),JSON.stringify(manifest,null,2)+'\n');
   console.log('Prepared checked native layout verifier and PDFium notices (development dependency).');

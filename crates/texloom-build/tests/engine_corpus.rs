@@ -136,11 +136,11 @@ fn real_three_engine_corpus() {
                                 && out.diagnostics.iter().any(|d| d.code == "nonconvergence")
                         }
                         "bibliography" => {
-                            !out.eligible
+                            out.ok&&!out.eligible&&out.receipt.auxiliary_tools.contains_key("bibtex")
                                 && out
                                     .diagnostics
                                     .iter()
-                                    .any(|d| d.code == "bibliography_tool_required")
+                                    .any(|d| d.code == "unresolved_reference"&&d.severity==texloom_build::engine::Severity::Error)
                         }
                         _ => false,
                     };

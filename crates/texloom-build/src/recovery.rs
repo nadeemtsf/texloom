@@ -120,17 +120,19 @@ fn lock(directory: &Path, create: bool) -> Result<File> {
     if create {
         drop(write_new(&path, OWNER)?);
     }
-    require(
-        read_small(&path, 128)? == OWNER,
-        "Unknown recovery owner marker",
-    )?;
-    let file = OpenOptions::new()
+    checked(&path, false)?;
+    let mut file = OpenOptions::new()
         .read(true)
         .write(true)
         .open(&path)
         .map_err(fail)?;
     file.try_lock()
         .map_err(|_| "This recovery draft is open in another Texloom instance".to_string())?;
+    // Windows denies reading an exclusively locked region through another
+    // handle. Acquire ownership before reading, and use this same handle.
+    let mut marker = Vec::new();
+    Read::by_ref(&mut file).take(129).read_to_end(&mut marker).map_err(fail)?;
+    require(marker == OWNER, "Unknown recovery owner marker")?;
     Ok(file)
 }
 fn generations(directory: &Path) -> Result<Vec<(u64, PathBuf)>> {
@@ -165,7 +167,7 @@ fn validate_disk(disk: &DiskSnapshot) -> Result<()> {
         "Invalid recovery project identity",
     )?;
     for (name, value) in &disk.files {
-        valid_source(name)?;
+        if name!=crate::project_io::PROFILE {valid_source(name)?;}
         if let Some(hash) = value {
             require(
                 hash.bytes <= 4_000_000
@@ -303,16 +305,20 @@ pub struct Recovered {
     pub warning: Option<String>,
 }
 #[derive(Clone, Serialize)]
+#[cfg_attr(feature="typegen",derive(ts_rs::TS))]
 pub struct Draft {
     pub id: String,
     pub project: String,
     pub main: String,
+    #[cfg_attr(feature="typegen",ts(type="number"))]
     pub revision: u64,
+    #[cfg_attr(feature="typegen",ts(type="number"))]
     pub source_bytes: u64,
     pub files: usize,
     pub warning: Option<String>,
 }
 #[derive(Default, Serialize)]
+#[cfg_attr(feature="typegen",derive(ts_rs::TS))]
 pub struct Inventory {
     pub drafts: Vec<Draft>,
     pub errors: Vec<String>,

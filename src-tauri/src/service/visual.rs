@@ -132,7 +132,8 @@ mod tests {
     }
 }
 
-#[derive(Clone, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
+#[cfg_attr(feature="typegen",derive(ts_rs::TS))]
 pub struct ObjectEditRequest {
     pub sources: BTreeMap<String, String>,
     pub main: String,
@@ -157,12 +158,14 @@ pub struct ObjectEditRequest {
     pub spacing_edits: Option<Vec<SpacingEditRequest>>,
 }
 
-#[derive(Clone, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
+#[cfg_attr(feature="typegen",derive(ts_rs::TS))]
 pub struct SpacingEditRequest {
     pub id: usize,
     pub value: String,
 }
 #[derive(Serialize)]
+#[cfg_attr(feature="typegen",derive(ts_rs::TS))]
 pub struct SpacingView {
     pub id: usize,
     pub value: Option<f64>,
@@ -171,18 +174,21 @@ pub struct SpacingView {
     pub reason: Option<String>,
 }
 
-#[derive(Clone, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
+#[cfg_attr(feature="typegen",derive(ts_rs::TS))]
 pub struct LiteralEditRequest {
     pub id: usize,
     pub text: String,
 }
 #[derive(Serialize)]
+#[cfg_attr(feature="typegen",derive(ts_rs::TS))]
 pub struct LiteralRunView {
     pub id: usize,
     pub text: String,
     pub styles: Vec<String>,
 }
 #[derive(Serialize)]
+#[cfg_attr(feature="typegen",derive(ts_rs::TS))]
 pub struct TextEditModel {
     pub runs: Vec<LiteralRunView>,
     pub protected: Vec<String>,
@@ -252,6 +258,7 @@ pub fn preview_edit_parameters(
 }
 
 #[derive(Serialize)]
+#[cfg_attr(feature="typegen",derive(ts_rs::TS))]
 pub struct ObjectPlan {
     pub sources: BTreeMap<String, String>,
     pub object_id: String,
@@ -429,8 +436,9 @@ impl Backend {
         id: &str,
         page: usize,
         points: Vec<SelectionPoint>,
+        candidate: usize,
     ) -> Result<ResolvedSelection> {
-        if points.is_empty() || points.len() > 64 {
+        if points.is_empty() || points.len() > 64 || candidate >= 16 {
             return Err("Select between one and 64 visible text lines".into());
         }
         self.verify_project_build(project, revision, id, true)?;
@@ -450,7 +458,7 @@ impl Backend {
             fs::read_to_string(build.directory.join(relative(&build.main)?)).map_err(fail)?;
         let mut file: Option<String> = None;
         let mut source = String::new();
-        let mut units = Vec::new();
+        let mut lines = Vec::new();
         for point in points {
             if started.elapsed() > Duration::from_secs(15) {
                 return Err(
@@ -469,18 +477,10 @@ impl Backend {
                 }
                 file = Some(location.file.clone());
             }
-            let unit =
-                texloom_core::resolve_text_unit_in_document(&source, location.line, &document)?;
-            if units
-                .iter()
-                .any(|u: &texloom_core::SourceUnit| u.range == unit.range)
-            {
-                continue;
-            }
-            units.push(unit);
+            lines.push(location.line);
         }
         // Validation uses the main preamble for simple macros in included files.
-        let unit = texloom_core::combine_text_units_in_document(&source, &units, &document)?;
+        let unit = texloom_core::resolve_selection_hint(&source, &lines, &document, candidate)?;
         texloom_core::validate_movable_text(&unit.content, &document)?;
         let plain_text = texloom_core::plain_text_preview(&unit.content, &document);
         if started.elapsed() > Duration::from_secs(15) {

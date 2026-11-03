@@ -61,6 +61,7 @@ pub struct Outcome {
 const MEMORY: usize = 2 * 1024 * 1024 * 1024;
 const MAX_PASSES: usize = 6;
 const MAX_TIME: Duration = Duration::from_secs(120);
+pub fn bibliography_search_path(root:&Path)->String { crate::bibliography::search_path(root) }
 pub fn build(request: Request<'_>, cancel: &Cancellation) -> Result<Outcome, String> {
     let started = Instant::now();
     cancel.check()?;
@@ -96,6 +97,7 @@ pub fn build(request: Request<'_>, cancel: &Cancellation) -> Result<Outcome, Str
         "TEXMFOUTPUT".into(),
         receipt.directory.join(".out").to_string_lossy().into(),
     );
+    for key in ["BIBINPUTS","BSTINPUTS"] {environment.insert(key.into(),bibliography_search_path(&receipt.directory));}
     receipt.environment = environment.clone();
     let version_args = vec!["--version".into()];
     let version = process::run(
@@ -155,6 +157,9 @@ pub fn build(request: Request<'_>, cancel: &Cancellation) -> Result<Outcome, Str
     let mut log = String::new();
     let mut diagnostics = Vec::new();
     let mut truncated = false;
+    let mut bibliography_digest = None;
+    let mut bibliography_disabled = false;
+    let mut bibliography_errors = Vec::new();
     for pass in 1..=MAX_PASSES {
         cancel.check()?;
         receipt.verify()?;
@@ -208,6 +213,20 @@ pub fn build(request: Request<'_>, cancel: &Cancellation) -> Result<Outcome, Str
         let discovered =
             receipt.record_inputs(&receipt.directory.join(".out/preview.fls"), &roots)?;
         receipt.verify()?;
+        let mut bibliography_ran=false;
+        if !bibliography_disabled {
+            match crate::bibliography::requested(&receipt) {
+                Ok(Some(recipe)) if bibliography_digest.as_ref()!=Some(&recipe.digest) => {
+                    bibliography_digest=Some(recipe.digest.clone());
+                    let budget=MAX_TIME.checked_sub(started.elapsed()).ok_or("Compilation exceeded its bibliography budget")?;
+                    match crate::bibliography::execute(&mut receipt,&recipe,cancel,budget) {
+                        Ok(output)=>{log.push_str(&output);bibliography_ran=true;if log.len()>1_000_000 {let mut start=log.len()-800_000;while !log.is_char_boundary(start){start+=1}log.drain(..start);truncated=true;}},
+                        Err(error)=>{cancel.check()?;bibliography_errors.push(Diagnostic::new("bibliography_tool_failed",Severity::Error,format!("Bibliography: {error}")));bibliography_disabled=true;}
+                    }
+                },
+                Err(error)=>{bibliography_errors.push(Diagnostic::new("bibliography_input_refused",Severity::Error,error));bibliography_disabled=true;},_=>()
+            }
+        }
         let mut state = auxiliary_state(&receipt.directory.join(".out"))?;
         for name in &receipt.generated_inputs {
             state.insert(
@@ -218,6 +237,7 @@ pub fn build(request: Request<'_>, cancel: &Cancellation) -> Result<Outcome, Str
         if pass >= 2
             && previous.as_ref() == Some(&state)
             && !discovered
+            && !bibliography_ran
             && !rerun_requested(&output.text)
         {
             converged = true;
@@ -233,11 +253,7 @@ pub fn build(request: Request<'_>, cancel: &Cancellation) -> Result<Outcome, Str
             format!("Document did not settle after {MAX_PASSES} passes"),
         ));
     }
-    let aux = fs::read_to_string(receipt.directory.join(".out/preview.aux")).unwrap_or_default();
-    if aux.contains("\\bibdata") || receipt.directory.join(".out/preview.bcf").exists() {
-        diagnostics.push(Diagnostic::new("bibliography_tool_required",Severity::Error,
-            "This direct-engine recipe does not run BibTeX/Biber. Build the bibliography externally or use a supported prebuilt bibliography input."));
-    }
+    diagnostics.extend(bibliography_errors);
     if truncated {
         diagnostics.push(Diagnostic::new(
             "log_truncated",
@@ -318,7 +334,7 @@ fn auxiliary_state(root: &Path) -> Result<BTreeMap<PathBuf, Fingerprint>, String
             }
             if path.is_dir() {
                 visit(root, &path, out)?;
-            } else if ["aux", "toc", "out", "lof", "lot", "nav", "snm", "bcf"]
+            } else if ["aux", "toc", "out", "lof", "lot", "nav", "snm", "bcf", "bbl"]
                 .contains(&path.extension().and_then(|s| s.to_str()).unwrap_or(""))
             {
                 out.insert(
@@ -400,7 +416,7 @@ pub fn parse_diagnostics(log: &str, sources: &BTreeMap<String, String>) -> Vec<D
             None
         };
         if let Some(ref mut d) = d {
-            if lower.contains("not found") && lower.contains(".sty") {
+            if lower.contains("not found") && [".sty",".cls",".ldf"].iter().any(|extension|lower.contains(extension)) {
                 d.code = "missing_package".into();
             }
         }

@@ -22,6 +22,7 @@ pub fn is_source(path: &Path) -> bool {
             | "def"
             | "clo"
             | "txt"
+            | "md"
             | "bbl"
             | "bbx"
             | "cbx"
@@ -86,6 +87,7 @@ fn no_reparse(path: &Path) -> Result<()> {
     }
     Ok(())
 }
+pub fn check_plain(path:&Path)->Result<()> {no_reparse(path)}
 fn files(root: &Path) -> Result<Vec<PathBuf>> {
     fn visit(root: &Path, dir: &Path, depth: usize, out: &mut Vec<PathBuf>) -> Result<()> {
         if depth > 20 {
@@ -173,6 +175,11 @@ impl Dependency {
     }
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct AuxiliaryTool { pub invocation:PathBuf, pub binary:Dependency, pub version:String }
+impl AuxiliaryTool {
+    pub fn verify(&self)->Result<()> {self.binary.verify()?;if self.invocation.canonicalize().map_err(fail)?!=self.binary.path{return Err("Bibliography tool alias changed".into())}Ok(())}
+}
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Receipt {
     pub schema: u32,
     pub directory: PathBuf,
@@ -182,6 +189,8 @@ pub struct Receipt {
     pub assets: BTreeMap<String, Dependency>,
     pub toolchain_inputs: BTreeMap<PathBuf, Dependency>,
     pub compiler: Dependency,
+    #[serde(default)]
+    pub auxiliary_tools:BTreeMap<String,AuxiliaryTool>,
     pub invocation: PathBuf,
     pub engine_version: String,
     pub environment: BTreeMap<String, String>,
@@ -222,6 +231,7 @@ impl Receipt {
             assets: BTreeMap::new(),
             toolchain_inputs: BTreeMap::new(),
             compiler: Dependency::capture(compiler)?,
+            auxiliary_tools:BTreeMap::new(),
             invocation: if compiler.is_absolute() {
                 compiler.into()
             } else {
@@ -283,6 +293,7 @@ impl Receipt {
             return Err("Snapshot exceeds 600 inputs".into());
         }
         fs::create_dir_all(r.directory.join(".out")).map_err(fail)?;
+        for name in r.inputs.keys() {if let Some(parent)=Path::new(name).parent(){fs::create_dir_all(r.directory.join(".out").join(parent)).map_err(fail)?;}}
         r.verify()?;
         Ok(r)
     }
@@ -295,6 +306,7 @@ impl Receipt {
     }
     pub fn verify(&self) -> Result<()> {
         self.compiler.verify()?;
+        for tool in self.auxiliary_tools.values(){tool.verify()?;}
         if self.invocation.canonicalize().map_err(fail)? != self.compiler.path {
             return Err("Compiler alias changed".into());
         }

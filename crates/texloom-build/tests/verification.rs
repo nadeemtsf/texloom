@@ -76,6 +76,14 @@ fn moved(a: &Inspection, dx: f64, dy: f64) -> Inspection {
 fn compare_move(a: &Inspection, b: &Inspection) -> Result<Verified> {
     compare(a, b, Operation::Displace { dx: 3.0, dy: 8.0 })
 }
+#[test]
+fn fractional_prediction_checks_every_pixel_and_keeps_neighbor_geometry_strict(){
+    let a=baseline();let b=moved(&a,0.13,4.27);let mut prediction=a.clone();prediction.rasters=b.rasters.clone();
+    assert!(compare_prediction(&a,&b,0.13,4.27,&prediction).is_ok());
+    let mut changed=b.clone();changed.rasters[0].pixels[0]=0;assert!(compare_prediction(&a,&changed,0.13,4.27,&prediction).is_err());
+    let mut changed=b.clone();changed.glyphs[1].bounds.x+=0.1;assert!(compare_prediction(&a,&changed,0.13,4.27,&prediction).is_err());
+    let mut changed=prediction.clone();changed.glyphs[0].text="Forged".into();assert!(compare_prediction(&a,&b,0.13,4.27,&changed).is_err());
+}
 
 #[test]
 fn exact_translation_preserves_repeated_unselected_text_and_all_pixels() {

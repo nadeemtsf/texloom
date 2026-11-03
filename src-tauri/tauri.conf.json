@@ -21,7 +21,7 @@
     "publisher": "Texloom Project",
     "shortDescription": "LaTeX source and a hands-on PDF canvas.",
     "icon": ["icons/icon.ico"],
-    "resources": { "resources/verification/": "verification/" },
+    "resources": { "resources/verification/": "verification/", "resources/distribution/": "distribution/" },
     "windows": { "webviewInstallMode": { "type": "downloadBootstrapper" }, "minimumWebview2Version": "130.0.0.0" }
   }
 }

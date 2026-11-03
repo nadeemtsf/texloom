@@ -20,6 +20,8 @@ struct Request {
     pdf_sha256: String,
     #[serde(default)]
     target_marker: Option<String>,
+    #[serde(default)]
+    target_translation: Option<[f64;2]>,
 }
 fn read(path: &Path, max: u64) -> Result<Vec<u8>> {
     let mut bytes = Vec::new();
@@ -125,6 +127,7 @@ fn inspect(request: &Request, prefix: &Path) -> Result<Value> {
         )?;
         let record_start = records.len();
         let mut text_objects = Vec::new();
+        let mut selected_objects = Vec::new();
         let chars = bounded(unsafe { (api.FPDFText_CountChars)(text.raw) }, 50_000)?;
         for i in 0..chars {
             let code = unsafe { (api.FPDFText_GetUnicode)(text.raw, i) };
@@ -157,7 +160,7 @@ fn inspect(request: &Request, prefix: &Path) -> Result<Value> {
             check(!object.is_null(), "Missing page object")?;
             let kind = unsafe { (api.FPDFPageObj_GetType)(object) };
             check(
-                (1..=4).contains(&kind),
+                (1..=4).contains(&kind)||(kind==5&&request.target_marker.is_none()),
                 "Form XObjects or unknown paint require an inspection adapter",
             )?;
             let selected = if let Some(name) = &request.target_marker {
@@ -166,6 +169,7 @@ fn inspect(request: &Request, prefix: &Path) -> Result<Value> {
                 false
             };
             check(!selected || kind == 1, "Target contains non-text paint")?;
+            if selected {selected_objects.push(object);}
             if kind == 1 && request.target_marker.is_none() {
                 continue;
             }
@@ -200,6 +204,10 @@ fn inspect(request: &Request, prefix: &Path) -> Result<Value> {
             target_glyphs +=
                 target::attribute(&mut records[record_start..], &text_objects, height)?;
         }
+        // Predict the requested drawing with the inspector's own object API,
+        // independently of TeX literals or candidate pixels. Geometry records
+        // remain the original baseline; only this prediction's raster changes.
+        if let Some([dx,dy])=request.target_translation {for object in selected_objects {unsafe{(api.FPDFPageObj_Transform)(object,1.0,0.0,0.0,1.0,dx,-dy);}}}
         let (w, h) = (
             (width * 2.0).ceil() as usize,
             (height * 2.0).ceil() as usize,
@@ -243,10 +251,10 @@ fn inspect(request: &Request, prefix: &Path) -> Result<Value> {
         check(target_glyphs > 0, "Target marker has no visible glyphs")?;
     }
     Ok(
-        json!({"schema":texloom_build::inspection_worker::PROTOCOL,"renderer":"pdfium","pdfium":"126.0.6462.0","binding":"rust-worker-v1",
+        json!({"schema":texloom_build::inspection_worker::PROTOCOL,"renderer":"pdfium","pdfium":"156.0.8076.0","binding":"rust-worker-v1",
         "librarySha256":api::DLL_SHA256,"pdfSha256":request.pdf_sha256,
             "pages":pages,"records":records,"graphics":graphics,"rasters":rasters,
-            "target":request.target_marker.as_ref().map(|name|json!({"marker":name,"instances":instances.len(),"glyphs":target_glyphs})),
+            "target":request.target_marker.as_ref().map(|name|json!({"marker":name,"instances":instances.len(),"glyphs":target_glyphs})),"translation":request.target_translation,
             "limitations":["Experimental Windows worker; broader marker attribution, UserUnit and native commit binding need acceptance.","Forms and nonzero page origins/rotation are refused."]}),
     )
 }
@@ -283,6 +291,7 @@ pub fn run() -> Result<()> {
             "Invalid target marker",
         )?;
     }
+    if let Some([dx,dy])=request.target_translation {check(request.target_marker.is_some()&&dx.is_finite()&&dy.is_finite()&&dx.abs()<=2000.0&&dy.abs()<=2000.0,"Invalid target raster prediction")?;}
     let prefix = path.with_extension("inspection.json");
     // All output names derive from the request file in its private directory.
     check(

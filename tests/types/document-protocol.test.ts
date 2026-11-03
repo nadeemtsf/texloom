@@ -41,3 +41,18 @@ const diagnostic: CompileResult['diagnostics'][number] = {code:'error', severity
 void diagnostic;
 // @ts-expect-error Selection samples contain numeric PDF coordinates.
 void client.resolve('build', 1, [{x:'12', y:24}]);
+// @ts-expect-error candidate indexes are numbers
+void client.resolve('build', 1, [], '1');
+
+import {invokeWorkspace} from '../../frontend/protocol/workspace-protocol.js';
+void invokeWorkspace(invoke, 'recent_projects', {});
+void invokeWorkspace(invoke, 'create_project', {template:'article',name:'Example',parent:null});
+// @ts-expect-error New projects require an explicit template identifier.
+void invokeWorkspace(invoke, 'create_project', {name:'Example',parent:null});
+void invokeWorkspace(invoke, 'import_image', {projectId:'project', revision:0, path:'image.png'});
+// @ts-expect-error Native recovery acknowledgements use numeric revisions.
+void invokeWorkspace(invoke, 'recover_document', {projectId:'project', revision:'0', transactionId:'save', finish:true});
+// @ts-expect-error ZIP export is revision-bound.
+void invokeWorkspace(invoke, 'export_project_archive', {projectId:'project', path:'out.zip'});
+// @ts-expect-error Explicit encoding choices bind the original byte hash.
+void invokeWorkspace(invoke, 'convert_encoding', {path:'project', parent:'copies', fingerprint:'hash', choices:[{file:'main.tex',encoding:'windows-1252'}]});

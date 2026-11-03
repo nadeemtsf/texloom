@@ -36,9 +36,9 @@ jobs:
       - name: Prepare pinned development PDFium and independent reference
         shell: pwsh
         run: |
-          python -m pip download --disable-pip-version-check --only-binary=:all: --no-deps --platform win_amd64 --dest .tools/pdfium-wheels pypdfium2==4.30.0
+          python -m pip download --disable-pip-version-check --only-binary=:all: --no-deps --platform win_amd64 --dest .tools/pdfium-wheels pypdfium2==5.14.0
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          python scripts/proof/prepare_pdfium.py .tools/pdfium-wheels/pypdfium2-4.30.0-py3-none-win_amd64.whl .tools/native-pdfium
+          python scripts/proof/prepare_pdfium.py .tools/pdfium-wheels/pypdfium2-5.14.0-py3-none-win_amd64.whl .tools/native-pdfium
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python -m pip install --disable-pip-version-check --target .tools/proof-python -r scripts/proof/requirements.txt
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

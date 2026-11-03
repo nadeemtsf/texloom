@@ -72,4 +72,5 @@ pub struct ResolveSelectionRequest {
     pub build_id: String,
     pub page: usize,
     pub points: Vec<crate::service::SelectionPoint>,
+    pub candidate: usize,
 }

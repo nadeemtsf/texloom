@@ -1,6 +1,8 @@
 //! ts-rs declarations and Serde fixtures for the source/history IPC slice.
 use super::*;
 use crate::build_protocol::*;
+use crate::workspace_protocol::*;
+use crate::service::{Project,ProjectProfile,RecentProject,ImportedProject,ImportedImage,EncodingIssue,EncodingReview,EncodingChoice,AdapterRequest,AdapterControl,AdapterParameter,AdapterPlan,TransformRequest,ObjectEditRequest,ObjectPlan,LiteralEditRequest,LiteralRunView,SpacingEditRequest,SpacingView,TextEditModel,VisualOperation};
 use crate::service::{
     CloseReply, DocumentSnapshot, EditorSelection, PreparedReply, RecoveryReply, RecoveryStatus,
     SelectionReply, SourceEditReply, CompileResult, PositionedBlock, MappedTextObject,
@@ -50,7 +52,11 @@ pub fn declarations() -> String {
         InverseMappingRequest,
         SelectionPoint,
         ResolvedSelection,
-        ResolveSelectionRequest
+        ResolveSelectionRequest,
+        texloom_build::persistence::SaveState,texloom_build::persistence::PendingSave,texloom_build::recovery::Draft,texloom_build::recovery::Inventory,
+        Project,ProjectProfile,RecentProject,ImportedProject,ImportedImage,EncodingIssue,EncodingReview,EncodingChoice,
+        AdapterRequest,AdapterControl,AdapterParameter,AdapterPlan,TransformRequest,ObjectEditRequest,ObjectPlan,LiteralEditRequest,LiteralRunView,SpacingEditRequest,SpacingView,TextEditModel,VisualOperation,
+        EmptyRequest,OpenProjectRequest,PathRequest,CreateProjectRequest,ProjectRequest,DraftRequest,SourceControlsRequest,AdapterCommandRequest,ObjectCommandRequest,TransformCommandRequest,TextModelRequest,TextPreviewRequest,EncodingPreviewRequest,ConvertEncodingRequest,CopyProjectRequest,SaveRecoveryRequest,DiscardSaveRequest,ProjectFileRequest,CloseProjectRequest,PrepareVisualRequest
     );
     text.push_str("export interface DocumentRequests {\n");
     macro_rules! commands {
@@ -91,6 +97,25 @@ pub fn declarations() -> String {
         resolve_text_selection: ResolveSelectionRequest => ResolvedSelection,
     );
     text.push_str("}\n");
+    text.push_str("\nexport interface WorkspaceRequests {\n");
+    macro_rules! workspace_commands {
+        ($($name:ident: $request:ty => $reply:ty),+ $(,)?)=>{
+            $(let _=crate::$name;text.push_str(&format!("  {}: {};\n",stringify!($name),<$request>::ident()));)+
+            text.push_str("}\n\nexport interface WorkspaceReplies {\n");
+            $(text.push_str(&format!("  {}: {};\n",stringify!($name),<$reply>::inline()));)+
+        };
+    }
+    workspace_commands!(
+        open_project:OpenProjectRequest=>Project,open_recent:PathRequest=>Project,recent_projects:EmptyRequest=>Vec<RecentProject>,
+        create_project:CreateProjectRequest=>ImportedProject,
+        import_project_archive:PathRequest=>ImportedProject,export_project_archive:ProjectFileRequest=>(),import_image:ProjectFileRequest=>ImportedImage,
+        review_encoding:PathRequest=>EncodingReview,preview_encoding:EncodingPreviewRequest=>String,convert_encoding:ConvertEncodingRequest=>ImportedProject,
+        copy_document:CopyProjectRequest=>String,project_recoveries:ProjectRequest=>Vec<texloom_build::persistence::PendingSave>,recover_document:SaveRecoveryRequest=>Project,discard_document_recovery:DiscardSaveRequest=>Vec<texloom_build::persistence::PendingSave>,
+        typing_drafts:EmptyRequest=>texloom_build::recovery::Inventory,open_typing_draft:DraftRequest=>Project,discard_typing_draft:DraftRequest=>texloom_build::recovery::Inventory,close_document:CloseProjectRequest=>CloseReply,mark_clean_exit:EmptyRequest=>(),
+        document_snapshot:ProjectRequest=>DocumentSnapshot,document_prepare:PrepareVisualRequest=>PreparedReply,
+        describe_adapters:SourceControlsRequest=>Vec<AdapterControl>,plan_adapter:AdapterCommandRequest=>AdapterPlan,transform:TransformCommandRequest=>String,plan_text_object:ObjectCommandRequest=>ObjectPlan,describe_text_edit:TextModelRequest=>TextEditModel,preview_text_edit:TextPreviewRequest=>String,
+    );
+    text.push_str("}\n");
     text
 }
 
@@ -123,6 +148,15 @@ pub fn fixtures() -> Value {
         "recovery_reply": RecoveryReply { revision: 8, recovery: protection(8) },
         "prepared_reply": PreparedReply { token: "b".repeat(32), revision: 9 },
         "close_reply": CloseReply { warning: None },
+        "project": Project {id:"project".into(),name:"Fixture".into(),main:"main.tex".into(),sources:BTreeMap::from([("main.tex".into(),"\u{feff}A\r\n\u{1f600}\r\n".into())]),recoveries:vec![],recovery_error:None,restored:false,draft_warning:None,source_only:false},
+        "pending_saves": vec![texloom_build::persistence::PendingSave{id:"b".repeat(32),state:texloom_build::persistence::SaveState::Committing,files:vec!["main.tex".into()]}],
+        "inventory":texloom_build::recovery::Inventory{drafts:vec![texloom_build::recovery::Draft{id:"a".repeat(32),project:"C:/Fixture".into(),main:"main.tex".into(),revision:7,source_bytes:32,files:2,warning:None}],errors:vec![]},
+        "adapter_controls":crate::service::describe_adapters("\\includegraphics[width=2cm]{image.png}\n\\vspace{2mm}").unwrap(),
+        "text_model":crate::service::describe_text_edit("Hello \\textbf{world}","Hello \\textbf{world}").unwrap(),
+        "recent_projects":vec![RecentProject{path:"C:/Fixture".into(),name:"Fixture".into(),main:"main.tex".into(),engine:"pdflatex".into(),opened:1_793_720_000}],
+        "encoding_review":EncodingReview{root:"C:/Fixture".into(),fingerprint:"a".repeat(64),files:vec![EncodingIssue{file:"main.tex".into(),detected:Some("utf-16le".into()),bytes:42,sha256:"b".repeat(64)}]},
+        "imported_project":ImportedProject{path:"C:/Fixture".into()},
+        "imported_image":ImportedImage{asset:format!("images/image-{}.png","a".repeat(32)),sha256:"c".repeat(64)},
         "compile_request": CompileDocumentRequest { project_id: "project".into(), revision: 7,
             token: None, purpose: Some(BuildPurpose::Export), request_id: 1 },
         "compile_success": CompileResult { ok: true, build_id: "c".repeat(32), revision: 7,

@@ -7,15 +7,15 @@ class NativeDocumentDouble {
   can_undo:!!this.history.length,can_redo:!!this.redo.length,selection:null,recovery:{draft_id:null,protected_revision:null,error:null}});}
  record(){this.history.push(this.snapshot());this.redo=[];}
  async invoke(name,args){
-  if(name==='describe_text_edit')return this.control.describeText?.(args);
+  if(name==='describe_text_edit'){const value=await this.control.describeText?.(args);return value?{spacing:[],...value}:value;}
   if(name==='preview_text_edit')return this.control.previewText?.(args);
   if(name==='resolve_text_selection')return {unit_id:'fixture-unit',first_line:1,last_line:1,plain_text:null,rectangles:[],...await this.control.resolve(args)};
-  if(name==='plan_text_object')return this.control.plan(args.request);
+  if(name==='plan_text_object'){const value=await this.control.plan(args.request);return {object_id:args.request.id||'fixture-object',operation:args.request.action,...value};}
   if(name==='transform')return this.control.transform?.(args.request);
-  if(name==='mark_clean_exit'){this.control.cleanExits=(this.control.cleanExits??0)+1;return;}
+  if(name==='mark_clean_exit'){this.control.cleanExits=(this.control.cleanExits??0)+1;return null;}
   if(name==='verify_build')return (await this.control.verify?.(args))??null;
   if(name==='cancel_compilation')return null;
-  if(name==='close_document'){(this.control.closedRequests??=[]).push(args);return this.control.close?.(args);}
+  if(name==='close_document'){(this.control.closedRequests??=[]).push(args);return (await this.control.close?.(args))??{warning:null};}
   if(name==='typing_drafts')return {drafts:[],errors:[]};
   if(name==='document_selection')return {revision:this.revision,selection:{file:args.file,anchor:args.anchor,head:args.head,secondary:args.secondary},recovery:{draft_id:null,protected_revision:null,error:null}};
   if(name==='document_prepare'){

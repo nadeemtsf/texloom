@@ -116,7 +116,7 @@ fn inside(r: Rect, p: &Page) -> bool {
         && r.x + r.width <= p.width + EPSILON
         && r.y + r.height <= p.height + EPSILON
 }
-pub(crate) fn validate(view: &Inspection) -> Result<usize> {
+pub fn validate(view: &Inspection) -> Result<usize> {
     require(
         !view.pages.is_empty() && view.pages.len() <= 20 && view.rasters.len() == view.pages.len(),
         "Invalid page/raster count",
@@ -146,8 +146,8 @@ pub(crate) fn validate(view: &Inspection) -> Result<usize> {
             "Crop or rotation requires a coordinate adapter",
         )?;
         require(
-            p.annotations == 0,
-            "Annotations require a separate movement adapter",
+            p.annotations <= 10_000,
+            "Excessive annotation count",
         )?;
         require(
             r.scale.is_finite() && r.scale > 0.0 && r.scale <= 4.0 && [3, 4].contains(&r.channels),
@@ -347,10 +347,25 @@ fn isolated(w: Window, page: usize, raster: &Raster, a: &Inspection, b: &Inspect
 /// raster shifts or bounded-resource exhaustion. No tolerances are supplied by
 /// the frontend. Identity requires complete same-renderer pixel equality.
 pub fn compare(a: &Inspection, b: &Inspection, operation: Operation) -> Result<Verified> {
+    compare_impl(a,b,operation,None)
+}
+/// `prediction` is a separately inspected baseline whose selected PDF text
+/// objects were translated by the pinned worker. No candidate pixel is used to
+/// construct it. Its original geometry and the complete resulting raster are
+/// checked, including all pixels outside and within the target.
+pub fn compare_prediction(a:&Inspection,b:&Inspection,dx:f64,dy:f64,prediction:&Inspection)->Result<Verified>{
+    validate(prediction)?;
+    require(a.pages.len()==prediction.pages.len(),"Prediction page count changed")?;
+    match_glyphs(a,prediction,0.0,0.0,true)?;match_graphics(a,prediction)?;
+    for (p,q) in a.pages.iter().zip(&prediction.pages){require(p.width==q.width&&p.height==q.height&&p.crop==q.crop&&p.rotation==q.rotation&&p.annotations==q.annotations,"Prediction page geometry changed")?;}
+    compare_impl(a,b,Operation::Displace{dx,dy},Some(prediction))
+}
+fn compare_impl(a: &Inspection, b: &Inspection, operation: Operation,prediction:Option<&Inspection>) -> Result<Verified> {
     let pixels = validate(a)?;
     validate(b)?;
     require(a.pages.len() == b.pages.len(), "Page count changed")?;
     for (p, q) in a.pages.iter().zip(&b.pages) {
+        require(p.annotations==0&&q.annotations==0,"Annotations require a separate movement adapter")?;
         require(
             (p.width - q.width).abs() <= EPSILON && (p.height - q.height).abs() <= EPSILON,
             "Page dimensions changed",
@@ -404,8 +419,11 @@ pub fn compare(a: &Inspection, b: &Inspection, operation: Operation) -> Result<V
                 && old.scale == new.scale,
             "Raster configuration changed",
         )?;
-        let mut expected = old.pixels.clone();
+        let mut expected = if let Some(prediction)=prediction {let p=&prediction.rasters[page];require(p.width==old.width&&p.height==old.height&&p.stride==old.stride&&p.channels==old.channels&&p.scale==old.scale,"Prediction raster configuration changed")?;p.pixels.clone()}else{old.pixels.clone()};
         if !identity && targets.iter().any(|i| a.glyphs[*i].page == page) {
+            if prediction.is_some(){
+                for i in &targets {let glyph=&a.glyphs[*i];if glyph.page!=page{continue}let w=window(glyph.bounds,old)?;let d=window(glyph.bounds.translated(dx,dy),old)?;isolated(w,page,old,a,b)?;isolated(d,page,old,a,b)?;}
+            }else{
             let shift_x = dx * old.scale;
             let shift_y = dy * old.scale;
             require(
@@ -461,6 +479,7 @@ pub fn compare(a: &Inspection, b: &Inspection, operation: Operation) -> Result<V
                     let length = (w.x1 - w.x0) * old.channels;
                     expected[to..to + length].copy_from_slice(&old.pixels[from..from + length]);
                 }
+            }
             }
         }
         for y in 0..old.height {

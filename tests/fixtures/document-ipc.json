@@ -1,4 +1,54 @@
 {
+  "adapter_controls": [
+    {
+      "id": 0,
+      "kind": "image",
+      "label": "Image: image.png",
+      "line": 1,
+      "parameters": [
+        {
+          "key": "width",
+          "label": "Width",
+          "reason": null,
+          "value": "2cm"
+        },
+        {
+          "key": "height",
+          "label": "Height",
+          "reason": null,
+          "value": ""
+        },
+        {
+          "key": "scale",
+          "label": "Scale",
+          "reason": null,
+          "value": ""
+        },
+        {
+          "key": "keepaspectratio",
+          "label": "Keep proportions",
+          "reason": null,
+          "value": "false"
+        }
+      ],
+      "reason": null
+    },
+    {
+      "id": 1,
+      "kind": "spacing",
+      "label": "vspace",
+      "line": 2,
+      "parameters": [
+        {
+          "key": "length",
+          "label": "Length",
+          "reason": null,
+          "value": "2mm"
+        }
+      ],
+      "reason": null
+    }
+  ],
   "close_reply": {
     "warning": null
   },
@@ -97,10 +147,74 @@
     "projectId": "project",
     "revision": 7
   },
+  "encoding_review": {
+    "files": [
+      {
+        "bytes": 42,
+        "detected": "utf-16le",
+        "file": "main.tex",
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      }
+    ],
+    "fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "root": "C:/Fixture"
+  },
+  "imported_image": {
+    "asset": "images/image-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.png",
+    "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+  },
+  "imported_project": {
+    "path": "C:/Fixture"
+  },
+  "inventory": {
+    "drafts": [
+      {
+        "files": 2,
+        "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "main": "main.tex",
+        "project": "C:/Fixture",
+        "revision": 7,
+        "source_bytes": 32,
+        "warning": null
+      }
+    ],
+    "errors": []
+  },
+  "pending_saves": [
+    {
+      "files": [
+        "main.tex"
+      ],
+      "id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "state": "committing"
+    }
+  ],
   "prepared_reply": {
     "revision": 9,
     "token": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
   },
+  "project": {
+    "draft_warning": null,
+    "id": "project",
+    "main": "main.tex",
+    "name": "Fixture",
+    "recoveries": [],
+    "recovery_error": null,
+    "restored": false,
+    "source_only": false,
+    "sources": {
+      "main.tex": "﻿A\r\n😀\r\n"
+    }
+  },
+  "recent_projects": [
+    {
+      "engine": "pdflatex",
+      "main": "main.tex",
+      "name": "Fixture",
+      "opened": 1793720000,
+      "path": "C:/Fixture"
+    }
+  ],
   "recovery_reply": {
     "recovery": {
       "draft_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -209,5 +323,25 @@
     "width": 1.25,
     "x": 12.0,
     "y": -3.0
+  },
+  "text_model": {
+    "protected": [
+      "\\textbf"
+    ],
+    "runs": [
+      {
+        "id": 0,
+        "styles": [],
+        "text": "Hello"
+      },
+      {
+        "id": 1,
+        "styles": [
+          "Bold"
+        ],
+        "text": "world"
+      }
+    ],
+    "spacing": []
   }
 }

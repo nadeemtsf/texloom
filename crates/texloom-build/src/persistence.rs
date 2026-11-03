@@ -20,7 +20,7 @@ fn no_reparse(path:&Path)->Result<()> {
 }
 fn file_name(name:&str)->Result<PathBuf> {
     let path=relative(name)?;
-    require(is_source(&path)&&path.components().next().is_some_and(|p|p.as_os_str()!=DIRECTORY),"Invalid project save filename")?;
+    require((is_source(&path)||name==crate::project_io::PROFILE)&&path.components().next().is_some_and(|p|p.as_os_str()!=DIRECTORY),"Invalid project save filename")?;
     Ok(path)
 }
 fn root(path:&Path)->Result<PathBuf> {
@@ -71,6 +71,13 @@ pub struct DiskSnapshot { pub root:PathBuf, pub files:BTreeMap<String,Option<Fin
 pub struct Conflict { pub file:String, pub kind:&'static str }
 pub enum SaveOutcome { Saved, Conflicts(Vec<Conflict>) }
 impl DiskSnapshot {
+    /// Track app-owned build-profile metadata alongside sources without adding
+    /// it to the editable LaTeX buffers or trusting a later external change.
+    pub fn track_project_profile(&mut self)->Result<()> {
+        let name=crate::project_io::PROFILE;
+        let value=state(&self.root,name)?;
+        self.files.entry(name.into()).or_insert(value);Ok(())
+    }
     pub fn capture(path:&Path,sources:&Sources)->Result<Self> {
         validate_sources(sources)?;let root=root(path)?;let mut files=BTreeMap::new();
         for (name,text) in sources {
@@ -137,9 +144,9 @@ impl DiskSnapshot {
     }
 }
 fn validate_sources(sources:&Sources)->Result<()> {
-    require(sources.len()<=600&&sources.values().map(String::len).sum::<usize>()<=60*1024*1024,"Project exceeds save limits")?;
+    require(sources.keys().filter(|name|name.as_str()!=crate::project_io::PROFILE).count()<=600&&sources.values().map(String::len).sum::<usize>()<=60*1024*1024,"Project exceeds save limits")?;
     let mut names=BTreeSet::new();
-    for (name,text) in sources {file_name(name)?;require(text.len()as u64<=MAX_FILE&&names.insert(name.to_lowercase()),"Invalid or case-colliding project sources")?;}
+    for (name,text) in sources {file_name(name)?;require(text.len()as u64<=if name==crate::project_io::PROFILE{65536}else{MAX_FILE}&&names.insert(name.to_lowercase()),"Invalid or case-colliding project sources")?;}
     Ok(())
 }
 fn journal_base(project:&Path)->Result<PathBuf> {
@@ -155,8 +162,10 @@ fn project_lock(base:&Path)->Result<File> {
 }
 #[derive(Clone,Copy,Debug,PartialEq,Eq,Serialize,Deserialize)]
 #[serde(rename_all="snake_case")]
+#[cfg_attr(feature="typegen",derive(ts_rs::TS))]
 pub enum SaveState { Preparing, Prepared, Committing, Complete, RolledBack }
 #[derive(Clone,Serialize,Deserialize)]
+#[cfg_attr(feature="typegen",derive(ts_rs::TS))]
 pub struct PendingSave { pub id:String, pub state:SaveState, pub files:Vec<String> }
 #[derive(Serialize,Deserialize)]
 #[serde(deny_unknown_fields)]

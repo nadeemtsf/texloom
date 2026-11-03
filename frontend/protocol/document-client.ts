@@ -20,6 +20,7 @@ export class DocumentClient {
   private tail: Promise<unknown> = Promise.resolve();
   private compileSerial = 0;
   private activeToken: string | null = null;
+  private queuedSelection: {args: Args<'document_selection'>; promise: Promise<Snapshot>} | null = null;
   private readonly candidates = new Map<string, { base: number; context: CompileContext }>();
   private readonly changed: (snapshot: Snapshot) => void;
   private readonly failed: (error: Error) => void;
@@ -28,8 +29,10 @@ export class DocumentClient {
     this.changed = options.changed ?? (() => {}); this.failed = options.failed ?? (() => {});
   }
   private enqueue<C extends Command>(name: C, args: Args<C>, fatal = true, mutating = true): Promise<Snapshot> {
+    if (name !== 'document_selection') this.queuedSelection = null;
     this.outstanding++; if (mutating) this.pending++;
     const job = this.tail.then(async () => {
+      if (this.queuedSelection?.args === args) this.queuedSelection = null;
       if (this.error) throw this.error;
       // Caller arguments cannot replace queue-owned project/revision identity.
       const request: Record<string, unknown> = { ...args, projectId: this.projectId };
@@ -66,7 +69,11 @@ export class DocumentClient {
   save(): Promise<Snapshot> { return this.enqueue('save_document', {}, false); }
   retryRecovery(): Promise<Snapshot> { return this.enqueue('retry_typing_recovery', {}, false); }
   selection(file: string, anchor: number, head: number, secondary: EditorRange[] = []): Promise<Snapshot> {
-    return this.enqueue('document_selection', { file, anchor, head, secondary }, true, false);
+    const args = { file, anchor, head, secondary: secondary.map(cursor => ({...cursor})) };
+    if (this.queuedSelection) { Object.assign(this.queuedSelection.args, args); return this.queuedSelection.promise; }
+    const promise = this.enqueue('document_selection', args, true, false);
+    this.queuedSelection = {args, promise};
+    return promise;
   }
   async prepare(sources: Sources, baselineBuildId: string, operation: unknown = null) {
     await this.flush();
@@ -115,9 +122,10 @@ export class DocumentClient {
     const reply = await requestBuild(this.invoke, 'source_from_pdf', { buildId, page, x, y });
     this.assertMappingCurrent(snapshot); return acceptSourceLocation(reply, snapshot.sources);
   }
-  async resolve(buildId: string, page: number, points: SelectionPoint[]): Promise<ResolvedSelection> {
+  async resolve(buildId: string, page: number, points: SelectionPoint[], candidate = 0): Promise<ResolvedSelection> {
+    if (!Number.isSafeInteger(candidate) || candidate < 0 || candidate >= 16) throw new BuildProtocolError('Invalid selection candidate');
     const snapshot = await this.flush();
-    const reply = await requestBuild(this.invoke, 'resolve_text_selection', { projectId: this.projectId, revision: snapshot.revision, buildId, page, points });
+    const reply = await requestBuild(this.invoke, 'resolve_text_selection', { projectId: this.projectId, revision: snapshot.revision, buildId, page, points, candidate });
     this.assertMappingCurrent(snapshot); return acceptResolvedSelection(reply, { snapshot, buildId, page });
   }
   commit(token: string, buildId: string): Promise<Snapshot> { return this.enqueue('document_commit', { token, buildId }, false).then(snapshot => { this.candidates.delete(token); return snapshot; }); }

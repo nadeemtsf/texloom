@@ -14,7 +14,7 @@ const {createCanvas}=require('@napi-rs/canvas');
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..'),base=join(root,'artifacts/proof');
 const manifest=JSON.parse(await readFile(join(root,'tests/fixtures/proof/manifest.json'),'utf8'));
 const movement=JSON.parse(await readFile(join(base,'report.json'),'utf8'));
-const output=join(root,'artifacts/selection');await mkdir(output,{recursive:true});
+const output=process.env.TEXLOOM_SELECTION_REPORT_DIR ? resolve(process.env.TEXLOOM_SELECTION_REPORT_DIR) : join(root,'artifacts/selection');await mkdir(output,{recursive:true});
 const hint=join(root,'target/debug/examples/selection_hint'+(process.platform==='win32'?'.exe':''));
 const report={schema:1,createdAt:new Date().toISOString(),status:'pending',cases:[],limitations:['Synthetic source/SyncTeX/probe corpus; native mouse acceptance remains open.','Rotated/cropped/UserUnit pages, arbitrary TeX and independent runtime inspection are not certified.']};
 function run(exe,args,cwd=root){const r=spawnSync(exe,args,{cwd,encoding:'utf8',windowsHide:true,timeout:90_000,maxBuffer:8*1024*1024});if(r.error||r.status!==0)throw new Error(r.error?.message||(r.stderr+r.stdout).slice(-1500));return r.stdout}
@@ -83,6 +83,30 @@ try{
     if(!unit)throw lastError;
     const proof=validateSelectionProbe(baseline,probe,id,hits,target.page);
     row.status='pass';row.lines=hits.length;row.runs=proof.runs.length;row.kind=unit.kind;
+    if(engine.name==='lualatex'&&fixture.id==='minipage'){
+     // LuaTeX's box hint can identify the closing environment for every line.
+     // Exercise actual private builds: wrong candidate units must be refused
+     // before the correct name acquires a capability. No golden range selects it.
+     const clicked=hits[0],x=clicked.x+Math.min(clicked.width/2,15),y=clicked.baseline-clicked.height*.35;
+     const response=run('synctex',['edit','-o',target.page+':'+x+':'+y+':'+join(compiled,'baseline/main.pdf')]);
+     const actualLine=response.match(/^Line:(\d+)$/m)?.[1];
+     const line=String(source.split('\n').findIndex(row=>row.trim()==='\\end{minipage}')+1);let accepted=null,rejections=0;
+     for(let ordinal=0;ordinal<16;ordinal++){
+      let hinted;try{hinted=JSON.parse(run(hint,[join(sourceRoot,fixture.targetFile),join(sourceRoot,fixture.main),line,String(ordinal)]))}catch{break}
+      const work=join(output,'minipage-single-'+ordinal);await mkdir(work,{recursive:true});await cp(sourceRoot,work,{recursive:true});
+      const marked=run(join(root,'target/debug/examples/proof_candidate'+(process.platform==='win32'?'.exe':'')),
+       [join(sourceRoot,fixture.targetFile),join(sourceRoot,fixture.main),String(hinted.start),String(hinted.end),'single_probe','0','0','wrap']);
+      await writeFile(join(work,'main.tex'),marked.replace('\\begin{document}','\\usepackage{texloom-objects}\n\\begin{document}'));
+      await cp(join(root,'resources/texloom-objects.sty'),join(work,'texloom-objects.sty'));
+      const args=['-interaction=nonstopmode','-halt-on-error','-file-line-error','-no-shell-escape'];if(engine.miktex)args.push('--disable-installer');
+      run(engine.name,[...args,'main.tex'],work);run(engine.name,[...args,'main.tex'],work);
+      const staged=await view(join(work,'main.pdf'),'single-probe-'+ordinal);
+      try{const capability=validateSelectionProbe(baseline,staged,'single_probe',[clicked],target.page);accepted={hinted,runs:capability.runs.length,ordinal};break}
+      catch(error){if(!/mapped source does not produce all the clicked text/u.test(error.message))throw error;rejections++}
+     }
+     if(!accepted||accepted.runs!==clicked.runs.length||rejections<2)throw Error('Single-name minipage candidate isolation was not proven');
+     report.cases.push({engine:engine.name,fixture:'minipage-single-name',status:'pass',private_builds:accepted.ordinal+1,wrong_candidates_rejected:rejections,actual_synctex_line:Number(actualLine),regression_box_hint_line:Number(line)});
+    }
    }catch(e){
     row.status=engine.name==='pdflatex'&&fixture.id==='formatting'&&/probe changed the page appearance/.test(e.message)?'expected-refusal':'fail';row.reason=e.message;
     if(row.status==='expected-refusal')row.limitation='Measured unsupported pdfLaTeX mixed-format probe; the runtime pixel check remains strict.';

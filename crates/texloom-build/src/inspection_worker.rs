@@ -17,8 +17,8 @@ use std::{
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
 type Result<T> = std::result::Result<T, String>;
-pub const DLL_SHA256: &str = "b2c15cd4537d8efaf23b85b3353abe7a0b863e9c52b2f017dd87bb86a55f9c72";
-pub const PROTOCOL: u32 = 2;
+pub const DLL_SHA256: &str = "69f1e860f6742fbaafcc4db80e785eec9a4ee0da36ea6d1dc0867ea0f18baea6";
+pub const PROTOCOL: u32 = 3;
 static NEXT: AtomicU64 = AtomicU64::new(0);
 fn fail(e: impl std::fmt::Display) -> String {
     e.to_string()
@@ -183,6 +183,7 @@ struct Request<'a> {
     pdf: &'a Path,
     pdf_sha256: &'a str,
     target_marker: Option<&'a str>,
+    target_translation: Option<[f64;2]>,
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -213,6 +214,8 @@ struct View {
     graphics: Vec<GraphicView>,
     rasters: Vec<RasterView>,
     target: Option<TargetView>,
+    #[serde(default)]
+    translation: Option<[f64;2]>,
 }
 #[derive(Deserialize)]
 struct PageView {
@@ -296,6 +299,13 @@ impl Worker {
         marker: Option<&str>,
         cancel: &Cancellation,
     ) -> Result<CheckedInspection> {
+        self.inspect_with_translation(pdf,pdf_sha256,marker,None,cancel)
+    }
+    pub fn predict_displacement(&self,pdf:&Path,pdf_sha256:&str,marker:&str,dx:f64,dy:f64,cancel:&Cancellation)->Result<CheckedInspection>{
+        require(dx.is_finite()&&dy.is_finite()&&dx.abs()<=2000.0&&dy.abs()<=2000.0,"Invalid independent displacement")?;
+        self.inspect_with_translation(pdf,pdf_sha256,Some(marker),Some([dx,dy]),cancel)
+    }
+    fn inspect_with_translation(&self,pdf:&Path,pdf_sha256:&str,marker:Option<&str>,translation:Option<[f64;2]>,cancel:&Cancellation)->Result<CheckedInspection>{
         cancel.check()?;
         let _program = pin(&self.program, &self.program_sha256, 50_000_000)?;
         let _library = pin(&self.library, DLL_SHA256, 30_000_000)?;
@@ -315,6 +325,7 @@ impl Worker {
             pdf: &pdf,
             pdf_sha256,
             target_marker: marker,
+            target_translation:translation,
         };
         let bytes = serde_json::to_vec(&request).map_err(fail)?;
         let request_sha256 = digest(&bytes);
@@ -365,13 +376,14 @@ impl Worker {
             });
         }
         let reply: Reply = serde_json::from_str(output.text.trim()).map_err(fail)?;
-        let view = read_receipt(
+        let view = read_receipt_with_translation(
             &workspace,
             &reply,
             request_id,
             &request_sha256,
             pdf_sha256,
             marker,
+            translation,
             cancel,
         )?;
         // Recheck the input at completion; the native document gate must also
@@ -389,6 +401,7 @@ impl Worker {
         })
     }
 }
+#[cfg(test)]
 fn read_receipt(
     workspace: &Workspace,
     reply: &Reply,
@@ -398,6 +411,9 @@ fn read_receipt(
     marker: Option<&str>,
     cancel: &Cancellation,
 ) -> Result<Inspection> {
+    read_receipt_with_translation(workspace,reply,id,request_sha,pdf_sha,marker,None,cancel)
+}
+fn read_receipt_with_translation(workspace:&Workspace,reply:&Reply,id:&str,request_sha:&str,pdf_sha:&str,marker:Option<&str>,translation:Option<[f64;2]>,cancel:&Cancellation)->Result<Inspection>{
     cancel.check()?;
     require(
         reply.schema == PROTOCOL
@@ -417,10 +433,11 @@ fn read_receipt(
         "Inspection result checksum mismatch",
     )?;
     let raw: View = serde_json::from_slice(&bytes).map_err(fail)?;
+    require(raw.translation==translation,"Independent raster prediction belongs to a different displacement")?;
     require(
         raw.schema == PROTOCOL
             && raw.renderer == "pdfium"
-            && raw.pdfium == "126.0.6462.0"
+            && raw.pdfium == "156.0.8076.0"
             && raw.binding == "rust-worker-v1"
             && raw.library_sha256 == DLL_SHA256,
         "Unpinned independent inspection evidence",
@@ -580,7 +597,7 @@ mod tests {
             let raster = workspace.root.join("request.inspection.p1.raster");
             fs::write(&raster, &pixels).unwrap();
             let marker = marked.then_some("Texloom_sig");
-            let raw = json!({"schema":PROTOCOL,"renderer":"pdfium","pdfium":"126.0.6462.0","binding":"rust-worker-v1",
+            let raw = json!({"schema":PROTOCOL,"renderer":"pdfium","pdfium":"156.0.8076.0","binding":"rust-worker-v1",
                 "requestId":ID,"requestSha256":REQUEST,"librarySha256":DLL_SHA256,"pdfSha256":PDF,
                 "pages":[{"width":8.0,"height":8.0,"crop":[0.0,0.0,8.0,8.0],"rotation":0,"annotations":0}],
                 "records":[{"text":"A","page":1,"x":2.0,"y":2.0,"width":2.0,"height":3.0,"target":marked}],"graphics":[],
@@ -729,7 +746,7 @@ mod tests {
                 1 => f.raw["pages"][0]["width"] = json!(-1),
                 2 => f.raw["rasters"][0]["channels"] = json!(1),
                 3 => f.raw["rasters"][0]["stride"] = json!(usize::MAX),
-                _ => f.raw["pages"][0]["annotations"] = json!(1),
+                _ => f.raw["pages"][0]["annotations"] = json!(10_001),
             }
             f.publish();
             assert!(f.checked().is_err());

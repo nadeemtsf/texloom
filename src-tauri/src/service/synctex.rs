@@ -121,6 +121,23 @@ pub(super) fn inverse(output: &str) -> Result<(&str, usize)> {
         .ok_or("SyncTeX returned an invalid source line")?;
     Ok((input, line))
 }
+pub(super) fn project_input(directory: &Path, input: &str) -> Result<String> {
+    // LuaTeX can emit \\?\C:\...\./main.tex. Dot components and slash
+    // separators are invalid inside a Win32 verbatim path. Convert to an
+    // ordinary path before canonicalizing, then retain the project fence.
+    #[cfg(windows)]
+    let input = if let Some(unc) = input.strip_prefix("\\\\?\\UNC\\") {
+        format!("\\\\{}", unc.replace('/', "\\"))
+    } else {
+        input.strip_prefix("\\\\?\\").unwrap_or(input).replace('/', "\\")
+    };
+    let input = PathBuf::from(input);
+    let input = if input.is_absolute() { input } else { directory.join(input) };
+    let input = input.canonicalize().map_err(fail)?;
+    let folder = directory.canonicalize().map_err(fail)?;
+    let file = input.strip_prefix(folder).map_err(|_| "The mapped source is outside this project")?;
+    Ok(file.to_string_lossy().replace('\\', "/"))
+}
 pub(super) fn forward(output: &str) -> Result<SourceRectangle> {
     let page = field(output, "Page")?
         .parse::<usize>()
@@ -154,6 +171,22 @@ pub(super) fn forward(output: &str) -> Result<SourceRectangle> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn mapped_paths_normalize_dot_components_but_cannot_escape_the_snapshot() {
+        let root = std::env::temp_dir().join(format!("texloom-synctex-path-{}-{}",std::process::id(),uuid::Uuid::new_v4()));
+        let project = root.join("snapshot with spaces");
+        fs::create_dir_all(&project).unwrap();
+        fs::write(project.join("main.tex"), "Synthetic source").unwrap();
+        fs::write(root.join("outside.tex"), "Outside source").unwrap();
+        assert_eq!(project_input(&project,"./main.tex").unwrap(),"main.tex");
+        assert!(project_input(&project,"../outside.tex").is_err());
+        #[cfg(windows)] {
+            let verbatim = format!("{}\\./main.tex",project.canonicalize().unwrap().display());
+            assert!(verbatim.starts_with("\\\\?\\"));
+            assert_eq!(project_input(&project,&verbatim).unwrap(),"main.tex");
+        }
+        fs::remove_dir_all(root).unwrap();
+    }
     #[test]
     fn forward_requires_real_complete_geometry_and_does_not_enlarge_or_clamp_it() {
         let mapped = forward("Page:2\nh:10\nv:5\nW:3.25\nH:8\nx:99\ny:99\n").unwrap();

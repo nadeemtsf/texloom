@@ -28,7 +28,7 @@ $manifestPath = Join-Path $verifierSource 'verifier-manifest.json'
 $manifestReceipt = Get-PortableFileReceipt -Path $manifestPath -RelativePath 'verification/verifier-manifest.json'
 if ($manifestReceipt.bytes -gt 65536) { throw 'Native verifier manifest exceeds size limit.' }
 $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
-if ($manifest.schema -ne 2 -or $manifest.protocol -ne 2 -or $manifest.dll_sha256 -ne 'b2c15cd4537d8efaf23b85b3353abe7a0b863e9c52b2f017dd87bb86a55f9c72') { throw 'Invalid native verifier manifest.' }
+if ($manifest.schema -ne 2 -or $manifest.protocol -ne 3 -or $manifest.dll_sha256 -ne '69f1e860f6742fbaafcc4db80e785eec9a4ee0da36ea6d1dc0867ea0f18baea6') { throw 'Invalid native verifier manifest.' }
 Copy-PackageFile $manifestPath 'verification/verifier-manifest.json' $manifestReceipt.sha256
 foreach ($entry in @(@('pdfium_worker.exe', $manifest.worker_sha256), @('pdfium.dll', $manifest.dll_sha256), @('PDFIUM-NOTICE.txt', $manifest.notice_sha256))) {
     if ($entry[1] -notmatch '^[a-f0-9]{64}$') { throw 'Invalid native verifier receipt.' }
@@ -36,33 +36,9 @@ foreach ($entry in @(@('pdfium_worker.exe', $manifest.worker_sha256), @('pdfium.
 }
 foreach ($name in @('main.tex', 'studio.sty', 'texloom-objects.sty')) { Copy-PackageFile (Join-Path $projectRoot "resources/$name") ('Example/' + $name) }
 
-if (-not $CargoSourceRoot) { $CargoSourceRoot = Join-Path $env:USERPROFILE '.cargo' }
-$noticeRoots = @((Join-Path $projectRoot 'node_modules'), (Join-Path $CargoSourceRoot 'registry/src'))
-$notices = [Text.StringBuilder]::new()
-foreach ($noticeRoot in $noticeRoots) {
-    Assert-PlainPackagePath -Path $noticeRoot -Directory $true
-    # License aggregation is a development notice bundle, not a completed
-    # dependency/license audit. Do not follow cache links into unrelated paths.
-    $pending = [Collections.Generic.Stack[string]]::new()
-    $pending.Push($noticeRoot)
-    $licenses = [Collections.Generic.List[string]]::new()
-    while ($pending.Count -gt 0) {
-        foreach ($item in Get-ChildItem -LiteralPath $pending.Pop() -Force) {
-            if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'Linked dependency cache entry; review notices before packaging.' }
-            if ($item.PSIsContainer) { $pending.Push($item.FullName) }
-            elseif ($item.Name -match '^(LICENSE|LICENCE|NOTICE|COPYING|ThirdPartyNotice)') { $licenses.Add($item.FullName) }
-        }
-    }
-    foreach ($path in @($licenses | Sort-Object)) {
-        if ((Get-Item -LiteralPath $path).Length -gt 16000000) { throw 'Dependency notice exceeds size limit.' }
-        [void]$notices.AppendLine('===== ' + $path.Substring($noticeRoot.Length).TrimStart('\', '/') + ' =====')
-        [void]$notices.AppendLine([IO.File]::ReadAllText($path))
-        if ($notices.Length -gt 64000000) { throw 'Dependency notice bundle exceeds size limit.' }
-    }
+foreach ($name in @('DEPENDENCIES.json', 'SOURCE-AVAILABILITY.txt', 'THIRD-PARTY-NOTICES.txt')) {
+    Copy-PackageFile (Join-Path $projectRoot ('src-tauri/resources/distribution/' + $name)) $name
 }
-$noticePath = Join-Path $packageRoot 'THIRD-PARTY-NOTICES.txt'
-[IO.File]::WriteAllText($noticePath, $notices.ToString())
-$files.Add((Get-PortableFileReceipt $noticePath 'THIRD-PARTY-NOTICES.txt'))
 $receipt = [ordered]@{
     schema = 2
     purpose = 'Development checkpoint; native interaction and release gates remain open'

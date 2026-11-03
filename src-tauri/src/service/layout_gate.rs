@@ -10,9 +10,11 @@ use texloom_build::{
 };
 type Sources = BTreeMap<String, String>;
 
-#[derive(Deserialize)]
+#[derive(Serialize,Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+#[cfg_attr(feature="typegen",derive(ts_rs::TS))]
 pub enum VisualOperation {
+    Adapter { request: super::AdapterRequest },
     Text {
         request: ObjectEditRequest,
     },
@@ -29,6 +31,7 @@ pub(super) struct Plan {
     policy: Policy,
 }
 enum Policy {
+    Semantic,
     Move {
         marker: String,
         dx: f64,
@@ -119,6 +122,10 @@ impl Plan {
     ) -> Result<Self> {
         source_receipt(&baseline, before, main)?;
         let (expected, policy) = match operation {
+            VisualOperation::Adapter { request } => {
+                if request.sources != *before || request.main != main { return Err("The adapter request does not match the current document".into()); }
+                (super::plan_adapter(request)?.sources, Policy::Semantic)
+            }
             VisualOperation::Text { request } => {
                 if request.sources != *before || request.main != main {
                     return Err("The visual request does not match the current document".into());
@@ -214,6 +221,7 @@ fn same_recipe(a: &Build, b: &Build) -> Result<()> {
                 return Err("Compiler output environment escaped its build".into());
             }
         }
+        for key in ["BIBINPUTS","BSTINPUTS"] {if let Some(value)=env.remove(key){if value!=texloom_build::engine::bibliography_search_path(&build.directory){return Err("Bibliography search path escaped its build".into())}}}
         Ok(env)
     };
     if a.project_id != b.project_id
@@ -222,6 +230,8 @@ fn same_recipe(a: &Build, b: &Build) -> Result<()> {
         || a.receipt.compiler.fingerprint != b.receipt.compiler.fingerprint
         || a.receipt.engine_version != b.receipt.engine_version
         || a.receipt.arguments != b.receipt.arguments
+        || a.receipt.auxiliary_tools.keys().collect::<Vec<_>>() != b.receipt.auxiliary_tools.keys().collect::<Vec<_>>()
+        || a.receipt.auxiliary_tools.iter().any(|(name,tool)|b.receipt.auxiliary_tools.get(name).is_none_or(|other|tool.binary.path!=other.binary.path||tool.binary.fingerprint!=other.binary.fingerprint||tool.version!=other.version))
         || environment(a)? != environment(b)?
     {
         return Err("The compiler configuration changed during verification".into());
@@ -333,6 +343,10 @@ impl Backend {
         }
         self.layout_build(&result.build_id)
     }
+    fn predict_layout(&self,build:&Build,marker:&str,dx:f64,dy:f64,cancel:&Cancellation)->Result<CheckedInspection>{
+        let sha=&build.receipt.outputs.get(".out/preview.pdf").ok_or("PDF receipt is missing")?.sha256;
+        self.verifier.as_ref().ok_or("Layout verification is unavailable in this build")?.as_ref().map_err(Clone::clone)?.predict_displacement(&build.directory.join(".out/preview.pdf"),sha,marker,dx,dy,cancel)
+    }
     pub(super) fn approve_layout(
         &self,
         plan: &Plan,
@@ -357,6 +371,13 @@ impl Backend {
         source_receipt(&build, &request.sources, &request.main)?;
         let mut private_builds = Vec::new();
         match &plan.policy {
+            Policy::Semantic => {
+                // Parameter/style edits explicitly permit reflow. The exact
+                // source plan is rederived natively; no displacement claim is
+                // made. Require independent readable page/paint evidence.
+                let view = self.inspect_layout(&build, None, &lease.cancel)?;
+                verification::validate(&view.view).map_err(fail)?;
+            }
             Policy::Legacy => { /* Native source plan plus existing PDF.js block acceptance. */ }
             Policy::Move { marker, zero, .. } | Policy::Reflow { marker, zero } => {
                 let tagged = if let Some(sources) = zero {
@@ -375,10 +396,11 @@ impl Backend {
                 let next = self.inspect_layout(&build, Some(marker), &lease.cancel)?;
                 match &plan.policy {
                     Policy::Move { dx, dy, .. } => {
-                        verification::compare(
+                        let prediction=self.predict_layout(&tagged,marker,*dx,*dy,&lease.cancel)?;
+                        verification::compare_prediction(
                             &old.view,
                             &next.view,
-                            Operation::Displace { dx: *dx, dy: *dy },
+                            *dx,*dy,&prediction.view,
                         )
                         .map_err(fail)?;
                     }
@@ -396,10 +418,11 @@ impl Backend {
                 same_recipe(&plan.baseline, &probe)?;
                 let old = self.inspect_layout(&plan.baseline, Some(marker), &lease.cancel)?;
                 let next = self.inspect_layout(&probe, Some(marker), &lease.cancel)?;
-                verification::compare(
+                let prediction=self.predict_layout(&plan.baseline,marker,*dx,*dy,&lease.cancel)?;
+                verification::compare_prediction(
                     &old.view,
                     &next.view,
-                    Operation::Displace { dx: *dx, dy: *dy },
+                    *dx,*dy,&prediction.view,
                 )
                 .map_err(fail)?;
                 drop(old);

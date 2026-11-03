@@ -5,6 +5,10 @@ pub use objects::*;
 pub mod document;
 pub mod literal_text;
 pub mod spacing;
+pub mod adapters;
+pub mod templates;
+mod selection_hints;
+pub use selection_hints::resolve_selection_hint;
 
 pub type Result<T> = std::result::Result<T, String>;
 

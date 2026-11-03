@@ -5,6 +5,19 @@ const snapshot=(revision=0)=>({revision,sources:{'main.tex':'A'},main:'main.tex'
 const tick=()=>new Promise(setImmediate);
 const delta=(base,file,source)=>({...snapshot(base+1),kind:'source_delta',base_revision:base,sources:{[file]:source},selection:null});
 
+test('queued cursor movement coalesces before dispatch but never crosses a source edit',async()=>{
+ const calls=[];let release;const client=new DocumentClient(async(name,args)=>{calls.push([name,structuredClone(args)]);
+  if(name==='document_edit'){if(!release)await new Promise(r=>release=r);return delta(args.revision,args.file,args.revision?'C':'B');}
+  return {revision:args.revision,selection:{file:args.file,anchor:args.anchor,head:args.head,secondary:args.secondary},recovery:snapshot().recovery};
+ },'p',snapshot());
+ const first=client.edit('main.tex',[],1);await tick();
+ const cursors=[];for(let n=0;n<500;n++)cursors.push(client.selection('main.tex',n%2,n%2));
+ const second=client.edit('main.tex',[],2);const last=client.selection('main.tex',0,0);
+ release();await Promise.all([first,second,last,...cursors]);await client.flush();
+ assert.deepEqual(calls.map(c=>c[0]),['document_edit','document_selection','document_edit','document_selection']);
+ assert.equal(calls[1][1].head,1);assert.equal(calls[1][1].revision,1);assert.equal(calls[3][1].revision,2);assert.equal(client.outstanding,0);
+});
+
 test('Save and protection retries follow acknowledged typing without replacing sources or freezing on save conflicts',async()=>{
  const calls=[],published=[];let conflict=true;
  const protection={draft_id:'a'.repeat(32),protected_revision:1,error:null};

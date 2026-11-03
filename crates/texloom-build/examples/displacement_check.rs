@@ -89,7 +89,7 @@ fn digest(data: &[u8]) -> String {
 }
 fn inspection(json: &Path, pdf: &Path, target: &[usize]) -> std::result::Result<Inspection, Error> {
     let raw: View = serde_json::from_slice(&read(json, 12_000_000)?)?;
-    if raw.renderer != "pdfium" || raw.pdfium != "126.0.6462.0" || raw.binding != "4.30.0" {
+    if raw.renderer != "pdfium" || raw.pdfium != "156.0.8076.0" || raw.binding != "5.14.0" {
         return Err("Unpinned independent inspector".into());
     }
     if digest(&read(pdf, 40_000_000)?) != raw.pdf_sha256 {

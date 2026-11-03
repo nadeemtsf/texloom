@@ -8,6 +8,9 @@ async function setup(){
  const selectionProof=await import('../web/core/selection-proof.js');
  const {DocumentClient,editorText,sameSources}=await import('../web/core/document-client.js');
  const {TypingRecoveryController}=await import('../web/core/typing-recovery.js');
+ const {createWorkspaceInvoke}=await import('../web/core/workspace-protocol.js');
+ const {ProjectControls}=await import('../web/core/project-controls.js');
+ const {PDFSearch}=await import('../web/core/pdf-search.js');
  const elements=new Map();
  function element(id){if(!elements.has(id))elements.set(id,{value:'',checked:false,disabled:false,open:false,textContent:'',classList:{add(){},remove(){},toggle(){}},setAttribute(){},replaceChildren(){},append(){},addEventListener(){},focus(){},showModal(){this.open=true},close(){this.open=false}});return elements.get(id)}
  const model={setValue(){},setEOL(){},getValue:()=>'',getOffsetAt:p=>p.column-1};
@@ -28,20 +31,20 @@ async function setup(){
   return {frame,listeners,original};
  }
  const context=vm.createContext({
-  ...transactions,...selectionProof,validateSelectionProbe:(...args)=>control.prove?control.prove(...args):selectionProof.validateSelectionProbe(...args),DocumentClient,editorText,sameSources,TypingRecoveryController,initialSnapshot:native.snapshot(),inside:()=>true,self:{},EditorWorker:class{},pdfWorkerURL:'test-worker',
+  ...transactions,...selectionProof,validateSelectionProbe:(...args)=>control.prove?control.prove(...args):selectionProof.validateSelectionProbe(...args),DocumentClient,editorText,sameSources,TypingRecoveryController,createWorkspaceInvoke,ProjectControls,PDFSearch,initialSnapshot:native.snapshot(),inside:()=>true,self:{},EditorWorker:class{},pdfWorkerURL:'test-worker',
   CanvasController:class{clear(){}bind(){}selectObject(){}},
   monaco:{languages:{register(){},setMonarchTokensProvider(){},setLanguageConfiguration(){}},editor:{defineTheme(){},createModel:()=>model,create:()=>editor,EndOfLineSequence:{LF:0}},KeyMod:{CtrlCmd:1,Shift:2},KeyCode:{KeyS:1,Enter:2,KeyZ:3,KeyY:4}},
   pdfjs:{GlobalWorkerOptions:{}},structuredClone,crypto:require('node:crypto').webcrypto,
   document:{getElementById:element,createElement:()=>element('generated-'+Math.random()),querySelector:()=>null,querySelectorAll:()=>[],addEventListener(){}},window:{addEventListener(){}},
   getCurrentWindow:()=>({onCloseRequested(fn){control.onClose=fn}}),open:async()=>null,save:async()=>control.save?.()??null,confirm:async()=>false,
-  invoke:(name,args)=>native.invoke(name,args),
+  nativeInvoke:(name,args)=>native.invoke(name,args),
   setTimeout:(fn,ms)=>{const t=setTimeout(fn,ms);t.unref();return t},clearTimeout,console,
   preparePDFView:async(_pdfjs,result)=>control.prepare(result)
  });
  let script=fs.readFileSync(require('node:path').join(__dirname,'../web/app.js'),'utf8').replace(/^import .*;\r?$/gm,'');
  script=script.replace(/\nopenProject\(\);\s*$/,'\n');vm.runInContext(script,context);
  const run=s=>vm.runInContext(s,context);
- run("state.project={id:'test',main:'main.tex'};state.sources={'main.tex':'Original source','studio.sty':'Style source'};state.saved=structuredClone(state.sources);state.file='main.tex';state.revision=0;state.compiled=0;state.result={build_id:'last-good',blocks:[]};state.view={pageCount:1};syncEditor=()=>{};renderOverlays=()=>{};renderInspector=()=>{};publishPrepared=(prepared,result)=>{state.pdf=prepared.pdf;state.result=result;state.compiled=state.revision};");
+ run("state.project={id:'test',main:'main.tex'};state.compileApproved=true;state.sources={'main.tex':'Original source','studio.sty':'Style source'};state.saved=structuredClone(state.sources);state.file='main.tex';state.revision=0;state.compiled=0;state.result={build_id:'last-good',blocks:[]};state.view={pageCount:1};syncEditor=()=>{};renderOverlays=()=>{};renderInspector=()=>{};publishPrepared=(prepared,result)=>{state.pdf=prepared.pdf;state.result=result;state.compiled=state.revision};");
  run("state.client=new DocumentClient(invoke,'test',initialSnapshot,{changed:acceptDocument,failed:syncFailed});");
  return {run,control,native,model,composition,legacyGesture};
 }
@@ -79,6 +82,10 @@ test('restored work remains unsaved until explicitly saved even if buffers match
  const t=await setup();t.run('state.restoredDirty=true');let prevented=false;
  await t.control.onClose({preventDefault(){prevented=true}});
  assert.equal(prevented,true);assert.equal(t.control.cleanExits,undefined);assert.equal(t.control.closedRequests,undefined);
+});
+test('changing only the main document or engine still marks the project unsaved',async()=>{
+ const t=await setup();t.run("state.savedProfile={main:'main.tex',engine:'auto'}");assert.equal(t.run('dirty()'),false);
+ t.run("state.engine='xelatex'");assert.equal(t.run('dirty()'),true);t.run("state.engine='auto';state.project.main='part.tex'");assert.equal(t.run('dirty()'),true);
 });
 
 test('a stale native close refusal keeps the editor available and does not mark a clean exit',async()=>{
@@ -295,6 +302,17 @@ test('an unsupported first SyncTeX hint retries bounded samples before granting 
 test('duplicate failed source hints do not trigger repeated private builds',async()=>{
  const t=await probeSetup();let builds=0;t.control.compile=async()=>{builds++;return {ok:true,build_id:'probe'}};t.control.prove=()=>{throw new Error('Pixel identity failed')};
  await assert.rejects(t.run("resolveSourceSelection({buildId:'last-good',page:1,points:[],hits:[]})"),/Pixel identity failed/);assert.equal(builds,1);assert.equal(t.native.pending.size,0);
+});
+
+test('bounded minipage alternatives require separate proofs and discard each rejected build',async()=>{
+ const t=await probeSetup();const indexes=[];let proofs=0,destroyed=0;
+ t.control.resolve=async args=>{indexes.push(args.candidate);const start=args.candidate;
+  return {schema:1,build_id:'last-good',revision:0,file:'main.tex',expected_source:'Original source',content:'Original source'.slice(start),start,end:15,kind:'paragraph'}};
+ t.control.prepare=async()=>({pdf:{destroy:async()=>{destroyed++}}});
+ t.control.prove=()=>{if(++proofs<3)throw Error('The mapped source does not produce all the clicked text. Select it in the source editor.');return {schema:1,runs:[]}};
+ const result=await t.run("resolveSourceSelection({buildId:'last-good',page:1,points:[],hits:[]})");
+ assert.equal(result.start,2);assert.deepEqual(indexes,[0,1,2]);assert.equal(destroyed,3);
+ assert.equal(t.native.pending.size,0);assert.equal(t.native.history.length,0);assert.equal(t.run('state.result.build_id'),'last-good');
 });
 
 async function literalSetup(){

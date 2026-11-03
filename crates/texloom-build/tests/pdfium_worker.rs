@@ -77,7 +77,7 @@ fn bad_schema_unknown_fields_receipts_and_large_requests_fail_before_loading() {
         let dir = Directory::new();
         let mut value = request(Path::new("not-a-library.dll"));
         match case {
-            0 => value["schema"] = json!(3),
+            0 => value["schema"] = json!(texloom_build::inspection_worker::PROTOCOL+1),
             1 => value["unrecognized"] = json!(true),
             2 => value["pdf_sha256"] = json!("changed"),
             _ => value["padding"] = json!("x".repeat(64_001)),

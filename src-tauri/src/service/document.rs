@@ -24,12 +24,15 @@ impl DocumentSlot {
         self.pending.remove(token);
     }
     pub(super) fn new(sources: BTreeMap<String, String>, main: String) -> Result<Self> {
+        Self::new_with_engine(sources,main,"auto".into())
+    }
+    pub(super) fn new_with_engine(sources:BTreeMap<String,String>,main:String,engine:String)->Result<Self>{
         Ok(Self {
             session: core::Session::new(
                 sources,
                 Profile {
                     main,
-                    engine: "auto".into(),
+                    engine,
                 },
             )
             .map_err(fail)?,
@@ -656,6 +659,7 @@ impl Backend {
         }
         let root = self.project_root(id)?;
         let mut sources = slot.session.sources().clone();
+        sources.insert(texloom_build::project_io::PROFILE.into(),serde_json::to_string_pretty(&ProjectProfile{schema:1,main:slot.session.profile().main.clone(),engine:slot.session.profile().engine.clone()}).map_err(fail)?+"\n");
         if !sources.contains_key("studio.sty") && sources.values().any(|s|s.contains("\\StudioBlock")||s.contains("\\usepackage{studio}")) {
             sources.insert("studio.sty".into(),STYLE.into());
         }
@@ -674,7 +678,8 @@ impl Backend {
         if slot.session.revision() != Revision(base) {
             return Err("The source changed before Save; try again".into());
         }
-        self.save_project(id, slot.session.sources())?;
+        self.save_project(id, slot.session.sources(),&slot.session.profile().main,&slot.session.profile().engine)?;
+        if let Ok(root)=self.project_root(id){let _=self.remember_recent(&root,&slot.session.profile().main,&slot.session.profile().engine);}
         // Save succeeded even if recovery storage is degraded. Never report
         // an accepted disk Save as failed because a separate journal failed.
         self.checkpoint_typing_recovery(id, slot);

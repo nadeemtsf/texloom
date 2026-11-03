@@ -6,7 +6,7 @@ import 'monaco-editor/esm/vs/editor/contrib/clipboard/browser/clipboard.js';
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
 import pdfWorkerURL from 'pdfjs-dist/legacy/build/pdf.worker.min.mjs?url';
-import {invoke} from '@tauri-apps/api/core';
+import {invoke as nativeInvoke} from '@tauri-apps/api/core';
 import {getCurrentWindow} from '@tauri-apps/api/window';
 import {open,save,confirm} from '@tauri-apps/plugin-dialog';
 import {preparePDFView,prepareLoadedPDF,publishPDFView} from './core/pdf-surface.js';
@@ -16,6 +16,11 @@ import {inside,intersects} from './core/geometry.js';
 import {DocumentClient,editorText,sameSources} from './core/document-client.js';
 import {TypingRecoveryController} from './core/typing-recovery.js';
 import {validateSelectionProbe} from './core/selection-proof.js';
+import {createWorkspaceInvoke} from './core/workspace-protocol.js';
+import {ProjectControls} from './core/project-controls.js';
+import {PDFSearch} from './core/pdf-search.js';
+
+const invoke=createWorkspaceInvoke(nativeInvoke);
 
 self.MonacoEnvironment={getWorker:()=>new EditorWorker()};
 pdfjs.GlobalWorkerOptions.workerSrc=pdfWorkerURL;
@@ -40,17 +45,18 @@ const editor=monaco.editor.create($('editor'),{model,theme:'texloom',automaticLa
   scrollBeyondLastLine:false,renderWhitespace:'selection',padding:{top:18},
   unicodeHighlight:{ambiguousCharacters:false},accessibilitySupport:'auto'});
 const state={
-  project:null,sources:{},saved:{},file:'',engine:'auto',revision:0,compiled:-1,result:null,pdf:null,view:null,
+  project:null,sources:{},saved:{},savedProfile:null,file:'',engine:'auto',revision:0,compiled:-1,result:null,pdf:null,view:null,
   selected:null,objectSelection:null,lastHistory:0,typingGroup:0,suppress:false,client:null,
   canUndo:false,canRedo:false,opening:false,mutating:false,composing:false,
   buildEpoch:0,cancelRequested:false,
   recovery:null,restoredDirty:false,
-  busy:false,pending:false,zoom:0,mode:'select',compileTimer:null,renderSerial:0,renderAbort:null,dialog:null
+  busy:false,pending:false,zoom:0,mode:'select',compileTimer:null,renderSerial:0,renderAbort:null,dialog:null,compileApproved:false
 };
 // Dedicated keys follow native history even when setValue clears Monaco's stack.
 const undoContext=editor.createContextKey('texloomCanUndo',false);
 const redoContext=editor.createContextKey('texloomCanRedo',false);
 const surfaceElements={pages:$('pages'),scroller:$('preview-scroll'),count:$('page-count'),empty:$('empty')};
+const pdfSearch=new PDFSearch({document,getView:()=>state.view,notify:toast});
 const canvas=new CanvasController({
   getSession:()=>state,
   resolve:args=>resolveSourceSelection(args),
@@ -63,12 +69,19 @@ const typingRecovery=new TypingRecoveryController({invoke,document,getState:()=>
   adopt:project=>openProject(null,project),notify:toast,confirm,saveCopy:saveProjectCopy,
   lock:()=>{state.saving=true;editorReadOnly();updateControls()},
   unlock:()=>{state.saving=false;editorReadOnly();updateControls()}});
+const projectControls=new ProjectControls({document,invoke,getState:()=>state,flush:()=>state.client?.flush(),isDirty:dirty,
+  lock:()=>{state.saving=true;editorReadOnly();updateControls()},unlock:()=>{state.saving=false;editorReadOnly();updateControls()},
+  confirm,open,save,adopt:project=>openProject(null,project),compile,notify:toast,
+  cursor:()=>{const selection=editor.getSelection();return selection?{file:state.file,source:state.sources[state.file],selection:[model.getOffsetAt(selection.getEndPosition()),model.getOffsetAt(selection.getEndPosition())]}:null},
+  insertImage:async(context,asset)=>{const request={sources:clone(state.sources),main:state.project.main,file:context.file,expected_source:context.source,control:null,selection:context.selection,key:'insert_image',value:asset};
+    const identity=sessionIdentity(state),plan=await invoke('plan_adapter',{request});if(identity!==sessionIdentity(state))throw new StaleCandidate();
+    if(!await commitSources(plan.sources,{file:context.file,operation:{kind:'adapter',request},expectedIdentity:identity}))toast('The image file is available at '+asset+'. Its source insertion was not accepted.');}});
 
 function toast(text){
   $('toast').textContent=text;$('toast').classList.remove('hidden');clearTimeout(toast.timer);
   toast.timer=setTimeout(()=>$('toast').classList.add('hidden'),5500);
 }
-function dirty(){return state.restoredDirty||!!state.client?.pending||!!state.client?.error||!sameSources(state.sources,state.saved)}
+function dirty(){return state.restoredDirty||!!state.client?.pending||!!state.client?.error||!sameSources(state.sources,state.saved)||!!state.savedProfile&&(state.project?.main!==state.savedProfile.main||state.engine!==state.savedProfile.engine)}
 function status(text){$('status').textContent=text||(dirty()?'Unsaved changes':'All changes saved')}
 function acceptDocument(snapshot){
   state.sources={...snapshot.sources};state.revision=snapshot.revision;
@@ -99,6 +112,7 @@ function updateControls(){
   $('compile').disabled=state.busy||!!state.saving;
   $('save').disabled=!!state.saving||state.busy||state.composing;
   $('open').disabled=!!state.saving;
+  for(const id of ['projects','layout-controls','import-image'])$(id).disabled=state.busy||state.composing||state.mutating||state.opening||!!state.saving;
   $('engine').disabled=!!state.saving;
   $('main-file').disabled=!!state.saving;
   $('cancel-compile').disabled=!state.busy||state.mutating;
@@ -114,6 +128,55 @@ function updateControls(){
 }
 function sourceChanged(revision){
   state.revision=revision??state.revision+1;canvas.clear();state.selected=null;renderInspector();status();scheduleCompile();updateControls();
+}
+let layoutContext=null;
+async function openLayoutControls(){
+  if(!state.client||state.busy||state.composing||state.saving)return;
+  try{
+    await state.client.flush();
+    const file=state.file,source=state.sources[file],selection=editor.getSelection?.();
+    const context={identity:sessionIdentity(state),file,source,sources:clone(state.sources),main:state.project.main,
+      selection:selection&&!selection.isEmpty()?[model.getOffsetAt(selection.getStartPosition()),model.getOffsetAt(selection.getEndPosition())]:null};
+    const controls=await invoke('describe_adapters',{source});
+    if(context.identity!==sessionIdentity(state))throw new StaleCandidate();
+    if(!Array.isArray(controls))throw Error('Invalid layout controls');
+    layoutContext=context;$('controls-list').replaceChildren();$('controls-message').textContent='';
+    const choice=$('controls-choice');choice.replaceChildren();choice.disabled=!controls.length;
+    for(const control of controls){const option=document.createElement('option');option.value=String(control.id);option.textContent=control.label+' · line '+control.line;choice.append(option)}
+    const renderControl=control=>{
+      $('controls-list').replaceChildren();if(!control)return;
+      const group=document.createElement('fieldset'),legend=document.createElement('legend');
+      legend.textContent=control.label+' · line '+control.line;group.append(legend);
+      if(control.reason){const reason=document.createElement('p');reason.textContent=control.reason;group.append(reason)}
+      for(const parameter of control.parameters){
+        const row=document.createElement('label');row.className='parameter-row';const label=document.createElement('span');label.textContent=parameter.label;
+        const input=document.createElement(parameter.key==='keepaspectratio'?'select':'input');
+        if(parameter.key==='keepaspectratio')for(const value of ['true','false']){const option=document.createElement('option');option.value=value;option.textContent=value==='true'?'Keep proportions':'Allow both dimensions';input.append(option)}
+        input.value=parameter.value;input.setAttribute('aria-label',control.label+' '+parameter.label);
+        const apply=document.createElement('button');apply.type='button';apply.textContent='Apply';
+        input.disabled=apply.disabled=!!(control.reason||parameter.reason);input.title=parameter.reason||(parameter.key==='factor'?'Line spacing multiplier between 0.5 and 3.':'Examples: 35mm, 2cm, 0.5\\linewidth');
+        apply.onclick=()=>applyLayoutControl(context,{control:control.id,key:parameter.key,value:input.value,selection:null});
+        row.append(label,input,apply);group.append(row);
+      }
+      const show=document.createElement('button');show.type='button';show.textContent='Show source';show.onclick=()=>{$('controls-dialog').close();editor.setPosition({lineNumber:control.line,column:1});editor.revealLineInCenter(control.line);editor.focus()};group.append(show);
+      $('controls-list').append(group);
+    };
+    choice.onchange=()=>renderControl(controls.find(control=>String(control.id)===choice.value));choice.value=String(controls[0]?.id??'');renderControl(controls[0]);
+    if(!controls.length)$('controls-message').textContent='No supported image, table, font or spacing parameters were found in this file.';
+    $('controls-style-apply').disabled=!context.selection;$('controls-dialog').showModal();
+  }catch(error){toast(message(error))}
+}
+async function applyLayoutControl(context,edit){
+  if(!context||context.identity!==sessionIdentity(state))return toast('The source changed. Reopen Layout controls.');
+  if(!fresh())return toast('Compile the current source before applying a layout change.');
+  const request={sources:context.sources,main:context.main,file:context.file,expected_source:context.source,...edit};
+  try{
+    const plan=await invoke('plan_adapter',{request});
+    if(context.identity!==sessionIdentity(state))throw new StaleCandidate();
+    if(sameSources(plan.sources,context.sources)){toast('No change.');return}
+    $('controls-dialog').close();
+    if(await commitSources(plan.sources,{file:context.file,operation:{kind:'adapter',request},expectedIdentity:context.identity}))layoutContext=null;
+  }catch(error){toast(message(error))}
 }
 function scheduleCompile(){clearTimeout(state.compileTimer);if($('auto').checked)state.compileTimer=setTimeout(()=>compile('auto'),800)}
 function showFailure(error){
@@ -163,12 +226,13 @@ async function openProject(path=null,supplied=null){
     const project=supplied||await invoke('open_project',{path});
     const snapshot=await invoke('document_snapshot',{projectId:project.id});
     const client=new DocumentClient(invoke,project.id,snapshot,{changed:next=>{if(state.client===client)acceptDocument(next)},failed:syncFailed});
-    state.renderAbort?.abort();canvas.clear();const previous=state.pdf,previousProject=state.project?.id,previousRevision=state.client?.snapshot.revision;
+    state.renderAbort?.abort();state.view?.dispose?.();pdfSearch.reset();canvas.clear();const previous=state.pdf,previousProject=state.project?.id,previousRevision=state.client?.snapshot.revision;
     Object.assign(state,{project,sources:{...project.sources},saved:{...project.sources},file:project.main,
       revision:snapshot.revision,compiled:-1,result:null,pdf:null,view:null,selected:null,lastHistory:0,canUndo:false,canRedo:false,
       recovery:snapshot.recovery,restoredDirty:!!project.restored});
+    state.savedProfile={main:snapshot.main,engine:snapshot.engine};state.compileApproved=!path&&!supplied;
     state.client=client;acceptDocument(snapshot);
-    $('project-name').textContent=project.name;$('pages').replaceChildren();$('empty').classList.remove('hidden');
+    $('project-name').textContent=project.name;$('pages').replaceChildren();$('empty').classList.remove('hidden');$('page-count').textContent='Not compiled';
     $('banner').classList.add('hidden');$('log-panel').classList.add('hidden');$('log').textContent='';
     renderDiagnostics([]);
     syncEditor();renderInspector();status();updateControls();
@@ -186,6 +250,7 @@ async function openProject(path=null,supplied=null){
     if(!supplied&&(project.recoveries?.length||project.recovery_error)){
       $('save-copy').classList.remove('hidden');await showSaveRecovery();return;
     }
+    if(!state.compileApproved){$('banner').textContent='Project source opened. Review it before choosing Compile. LaTeX runs locally and can access files using your account.';$('banner').classList.remove('hidden');return;}
     await compile();
   }catch(error){
     toast(message(error));
@@ -201,7 +266,7 @@ async function saveProject(){
   if(state.busy)return toast('Wait for the current compilation before saving.');
   state.saving=true;editorReadOnly();updateControls();
   try{await state.client.flush();const sources={...state.sources};
-    await state.client.save();state.saved=sources;state.restoredDirty=false;state.project.draft_warning=null;status();toast('Project source saved.')}
+    await state.client.save();state.saved=sources;state.savedProfile={main:state.project.main,engine:state.engine};state.restoredDirty=false;state.project.draft_warning=null;status();toast('Project source saved.')}
   catch(error){toast(message(error));$('save-copy').classList.remove('hidden');await refreshSaveRecoveries().catch(()=>{})}
   finally{state.saving=false;editorReadOnly();updateControls()}
 }
@@ -266,7 +331,7 @@ async function applySaveRecovery(finish){
     toast(finish?'The interrupted Save was completed.':'Earlier files restored. The recovery draft is retained until you discard it.');
   }catch(error){toast(message(error))}
   finally{state.saving=false;editorReadOnly();updateControls()}
-  if(adopted)await compile();
+  if(adopted)toast('Recovered source opened. Review it and choose Compile to rebuild the PDF.');
 }
 async function discardSaveRecovery(){
   const draft=state.project?.recoveries?.find(item=>item.id===$('recovery-choice').value);
@@ -291,14 +356,18 @@ async function resolveSourceSelection({buildId,page,points,hits}){
   state.busy=true;state.cancelRequested=false;clearTimeout(state.compileTimer);updateControls();
   try{
     let lastError=null;
-    for(const sample of variants){
+    const samples=variants.map(sample=>({sample,candidate:0}));
+    let attempts=0;
+    for(let sampleIndex=0;sampleIndex<samples.length&&attempts<16;sampleIndex++){
+      const {sample,candidate:ordinal}=samples[sampleIndex];
       let token=null,prepared=null;
       try{
         assertCurrent();
-        const resolved=await client.resolve(buildId,page,sample);
+        const resolved=await client.resolve(buildId,page,sample,ordinal);
         assertCurrent();
         if(resolved.schema!==1||resolved.build_id!==buildId||resolved.revision!==state.revision)throw new StaleCandidate();
         const key=JSON.stringify([resolved.file,resolved.start,resolved.end]);if(seen.has(key))continue;seen.add(key);
+        attempts++;
         const cached=selectionProofs.get(baseline)?.get(key);
         if(cached&&hits.every(h=>h.runs.every(r=>cached.runs.includes(r)))){
           await client.verify(buildId);assertCurrent();return {...resolved,proof:cached};
@@ -320,6 +389,9 @@ async function resolveSourceSelection({buildId,page,points,hits}){
       }catch(error){
         if(error instanceof StaleCandidate||error.name==='CompilationCancelled')throw error;
         assertCurrent();lastError=error;
+        // Only native hints are enumerated; every candidate still needs the
+        // complete marker, glyph, geometry and exact-page appearance proof.
+        if(ordinal<15&&/mapped source does not produce all the clicked text/u.test(error.message))samples.splice(sampleIndex+1,0,{sample,candidate:ordinal+1});
       }finally{
         if(prepared?.pdf)await prepared.pdf.destroy().catch(()=>{});
         if(token)await client.discard(token).catch(()=>{});
@@ -329,11 +401,12 @@ async function resolveSourceSelection({buildId,page,points,hits}){
   }finally{finishJob()}
 }
 function prepareResult(result){
-  return preparePDFView(pdfjs,result,{width:$('preview-scroll').clientWidth,zoom:state.zoom,mode:state.mode});
+  return preparePDFView(pdfjs,result,{width:$('preview-scroll').clientWidth,zoom:state.zoom,mode:state.mode,lazy:true});
 }
 function publishPrepared(prepared,result){
   const previous=state.pdf;
   state.renderSerial++;state.renderAbort?.abort();
+  state.view?.dispose?.();pdfSearch.reset();
   state.pdf=prepared.pdf;state.result={...result,pdf:[]};state.compiled=state.revision;
   prepared.result=state.result;prepared.mode=state.mode;state.view=prepared;
   publishPDFView(prepared,surfaceElements);canvas.bind(prepared);
@@ -349,6 +422,8 @@ function publishPrepared(prepared,result){
 async function compile(reason='manual'){
   if(!state.project)return;clearTimeout(state.compileTimer);
   if(state.composing||state.saving)return;
+  if(!state.compileApproved&&reason!=='manual')return;
+  if(reason==='manual')state.compileApproved=true;
   if(state.busy){if(reason==='manual'||!state.pending)state.pending=reason;return}
   try{await state.client.flush()}catch(error){return syncFailed(error)}
   if(state.busy){if(reason==='manual'||!state.pending)state.pending=reason;return}
@@ -477,9 +552,9 @@ async function renderPDF(){
   state.renderAbort?.abort();const abort=new AbortController();state.renderAbort=abort;
   const serial=++state.renderSerial,pdf=state.pdf,result=state.result;
   try{
-    const view=await prepareLoadedPDF(pdfjs,pdf,result,{width:$('preview-scroll').clientWidth,zoom:state.zoom,mode:state.mode,signal:abort.signal});
+    const view=await prepareLoadedPDF(pdfjs,pdf,result,{width:$('preview-scroll').clientWidth,zoom:state.zoom,mode:state.mode,signal:abort.signal,lazy:true});
     if(serial!==state.renderSerial||pdf!==state.pdf)return;
-    state.view=view;publishPDFView(view,surfaceElements);canvas.bind(view);
+    state.view?.dispose?.();pdfSearch.reset();state.view=view;publishPDFView(view,surfaceElements);canvas.bind(view);
     $('fit').textContent=state.zoom?Math.round(view.scale*100)+'%':'Fit';renderOverlays();updateControls();
   }catch(error){if(!abort.signal.aborted)toast(message(error))}
 }
@@ -727,6 +802,9 @@ document.addEventListener('keydown',event=>{
   }
 });
 $('recovery-choice').onchange=renderRecoveryFiles;
+$('layout-controls').onclick=openLayoutControls;
+$('controls-close').onclick=()=>{$('controls-dialog').close();layoutContext=null};
+$('controls-style-apply').onclick=()=>applyLayoutControl(layoutContext,{control:null,selection:layoutContext?.selection,key:'style',value:$('controls-style').value});
 $('recovery-finish').onclick=()=>applySaveRecovery(true);
 $('recovery-rollback').onclick=()=>applySaveRecovery(false);
 $('recovery-copy').onclick=saveProjectCopy;

@@ -24,3 +24,17 @@ button:disabled{cursor:default}#selection-hint{overflow:hidden;text-overflow:ell
 #literal-fields{border:0;padding:0;max-height:50vh;overflow:auto}.literal-run-field{display:block;margin:14px 0}.literal-run-field span{display:block;font-size:11px;margin-bottom:5px}.literal-run-field textarea{display:block;width:100%;min-height:55px;resize:vertical;font:14px/1.5 Segoe UI,sans-serif}#edit-latex{margin-top:10px}
 
 .recovery-warning{flex-shrink:0;display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fff1d9;color:#77532f;font-size:11px;line-height:1.6;border-bottom:1px solid #e5cfaa}.recovery-warning span{flex:1}.recovery-warning button{font-size:10px;white-space:normal}#recover-work{width:100%;margin-top:14px}#draft-choice{display:block;width:100%;margin-top:8px}#draft-details,#draft-errors{white-space:pre-wrap;overflow-wrap:anywhere;font:11px/1.8 Consolas,monospace;max-height:180px;overflow:auto}#draft-errors{color:#985738}
+#controls-dialog{width:min(650px,90vw);max-height:85vh;overflow:auto}#controls-list fieldset{margin:16px 0;border:1px solid #d8dfcf;border-radius:6px;padding:14px}#controls-list legend{font-weight:600;font-size:12px}.parameter-row{display:grid;grid-template-columns:1fr minmax(100px,180px) 65px;gap:10px;align-items:center;margin:8px 0}.parameter-row input,.parameter-row select{width:100%;padding:8px}#controls-message{white-space:pre-wrap}
+/* Project tools keep source previews selectable and long inventories bounded. */
+#project-dialog,#encoding-dialog{width:min(760px,90vw);max-height:85vh;overflow:auto}
+#project-path{display:block;width:100%;margin:8px 0 14px}
+#project-dialog>label{display:block;margin:12px 0;font-size:11px}
+#project-dialog>label>input,#project-dialog>label>select{display:block;width:100%;margin-top:6px}
+#project-recents{display:flex;flex-direction:column;gap:6px;max-height:28vh;overflow:auto}
+#project-recents button{text-align:left;overflow-wrap:anywhere}
+#encoding-preview{width:100%;height:35vh;resize:vertical;font:13px/1.6 Consolas,monospace;white-space:pre}
+.pdf-find{display:flex;align-items:center;gap:5px;padding:6px 12px;border-bottom:1px solid #dfe5d7}
+#pdf-query{width:150px;flex:1}#pdf-matches{min-width:70px;font-size:11px}
+.pdf-page.pending-page{background:#fff;position:relative}.pending-page:after{content:'Page ' attr(data-page);position:absolute;top:24px;left:24px;color:#7c8d75}
+.pdf-page.pdf-search-match{outline:2px solid #9b8c2f}.textLayer ::highlight(texloom-search){background:#e8cb46a8;color:transparent}
+header{gap:7px;padding:0 12px}header #project-name{max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

@@ -1,29 +1,32 @@
-# Deferred final native acceptance
+# Native acceptance in progress
 
-On 3 November 2026 the owner explicitly asked to continue all implementation phases and defer app-control tests until after implementation is finished. This changes test order. It does not convert missing native evidence into a pass.
+Updated 4 November 2026. The owner's latest instruction supersedes the earlier sequencing deferral: reopen the exact built app and complete the tests now. English, Arabic and Hebrew are the current input-language scope; CJK IMEs and adding other Windows input languages are deferred.
 
-Native mouse, keyboard/IME and end-to-end interactive acceptance are queued below. Do not request or retry app control during the remaining implementation work. Source/domain/controller tests, headless worker checks, real-engine CI, failure injection, builds and artifact checks continue normally. No clock-based reminder or automatic desktop-control task is created by this sequencing change.
+All interaction uses the packaged Windows app and disposable synthetic projects. Never compile .text files. The default example's earlier saved 98 bp name position is preserved.
 
-## Final acceptance queue
+## Observed native passes
 
-Run this queue after the implementation backlog through P9 is complete and the exact candidate is built. Record the executable/package hash, OS/WebView/engine versions and case results. Use a generated public fixture; preserve private correspondence.
+The first recorded candidate executable SHA-256 is E3FDA2786D0C4C98B580B29D0E9F087E6B09BDB5A810E87D122D3E6F1EB18986. Later rebuilt artifacts require their own receipt and remaining native checks.
 
-| Area | Deferred interaction |
-| --- | --- |
-| Source editing | Actual typing, composition with installed IMEs, Unicode/BOM/CRLF, multiple cursors, clipboard/find and context-menu/keyboard undo/redo |
-| Reading | PDF text selection/copy/search, zoom, scroll and reading access after a failed compile |
-| Selection | Click, Shift-click and marquee; repeated text and columns; visible logical-unit expansion; source navigation |
-| Movement | Group drag/nudge, zoom/scroll coordinates, cancellation/Escape/lost capture and fractional displacement once implemented |
-| Text/spacing | Protected text edits, locked commands, raw fallback, supported numeric gaps, reflow failure and undo |
-| Complete signature | Select name plus two lines; move 12 bp down; edit name; undo/redo; Save, close/reopen, independently compile and compare |
-| Persistence | Interactive Save/reopen, external-edit conflicts, project copy, interrupted-Save recovery, abrupt-close/relaunch of unsaved typing/history, missing-folder source salvage, multi-instance locks and deliberate draft deletion |
-| Installation | Exact installed artifact on a clean machine; dependency/setup, resource layout and uninstall checks |
-| Usability/performance | Real editor-paint/gesture/scroll timing and long-session behavior on the user's laptop and a documented Windows reference machine |
+- Open a BOM/CRLF project by path, review sources without automatic execution, explicitly compile with pdfLaTeX, and reopen through recents.
+- Click the name alone, marquee the three signature lines, apply exactly 12 bp down, and edit only the bold name while retaining both 2 pt gaps. Two Undo followed by Save restores main.tex to SHA-256 A91EC3F6AAD7B7E77C28719D29CEE2273932EA8DC442394D8D10E4A6CB4B66A1. Two Redo/Save restore the accepted changed source exactly; normal close/reopen and recompile preserve it.
+- Native PDF search finds one Synthetic occurrence. Mouse double-click selects Synthetic; Copy and paste into the actual source editor yields exactly that word, followed by exact Undo. An earlier drag missed the text and left the clipboard unchanged; it is not counted as a pass.
+- Actual physical key input under the three existing layouts yields English a, Arabic ش and Hebrew ש. Three Undo restore the exact source. The layout cycle is returned to English. This is installed-layout typing evidence, not CJK IME composition evidence.
+- Two Ctrl+D selections and one typing action replace Alpha Alpha with Beta Beta. One Undo restores both words; the next restores the original fixture.
+- Abruptly terminate only the hash-verified synthetic app process after protected revision 17, relaunch, open Recover work, and restore the exact multilingual unsaved comment plus undo history. Undo/Redo works; restored work remains explicitly unsaved.
+- Change the original notes.sty externally after recovery. Save reports a conflict and preserves both the editor version and the exact external file. Save a copy through the native Windows folder chooser preserves BOM/CRLF/Unicode in a new project and retains the original external edit. Byte comparisons passed.
 
-The previous native access rejection remains evidence of an unverified test, not a test failure in source logic. The prior access denial must not be bypassed by renaming apps, indirect launch or substituting automation methods. The owner's latest deferral means those checks should wait even if the desktop reconnects.
+The crash catalog exposed a Windows locked-handle ordering issue: an active draft was correctly excluded but produced a misleading raw lock error. The fix acquires ownership before reading its marker through the same handle; the strengthened Windows test passes. The rebuilt candidate repeats the catalog without the error, including while a second native instance owns a live draft. Missing-folder recovery and a source-only copy also pass exact byte comparisons; the fixture folder was restored afterward.
 
-For the typing-recovery cases, use a disposable multi-file fixture and never the owner's correspondence. Record the last acknowledged/protected revision, terminate the fixture app without its normal close handler, relaunch the same candidate, open Recover work, and compare exact source/history and original disk bytes. Check that restoration is explicitly unsaved, a later external edit still blocks Save, and missing-folder copies are labeled as source only. Exercise actual window close/confirmation as well as an abrupt termination. Headless backend reconstruction and byte-truncation tests are useful evidence but do not replace these native interactions.
+## Remaining interactive queue
 
-## Completion language
+- Exact rebuilt app: LuaTeX minipage candidate fallback and current locked-draft fix; native image/layout/style/template/ZIP/encoding workflows.
+- Independent saved-project rebuild passed with all three engines outside app caches: group displacement and neighbors match, and pdfLaTeX full-page pixels equal the native export.
+- Native malformed compile, cancellation, concurrent typing, reading after failure, repeated text/columns, drag/nudge and cancellation, zoom/scroll/DPI, long documents and sustained resource measurements.
+- Missing-folder source salvage/copy and simultaneous native catalog access passed. Interrupted-Save UI and deliberate disposable draft deletion remain (confirmation rules apply).
+- Exact installer on a clean Windows account/machine, dependency/setup/resource layout and uninstall. Installer actions through Windows UI require action-time confirmation under the computer-use skill. Signing/public Store submission and a human usability trial remain owner/external gates.
 
-Track implementation and acceptance separately. An implementation item can be coded and automatically checked while its native acceptance is pending. Mark that state explicitly. A release claim still requires the final queue and remaining engine, coordinate, provenance, recovery and distribution gates to pass.
+Implementation and acceptance are tracked separately. A passing build, headless renderer or compiler corpus does not mark an unexecuted native case passed. Raw synthetic interaction observations are retained in the continuation workspace's work/native-acceptance/ui-observations.json; release evidence must name the exact source and artifact hashes.
+
+
+The sixth candidate exposed an additional real Windows LuaTeX mapping failure: SyncTeX returned a verbatim path containing ./main.tex, which Windows rejects with error 123. The mapped-path resolver now normalizes that spelling before canonicalization while retaining the snapshot-directory fence, with a regression covering dot components and escape refusal. The exact seventh build (SHA-256 4b188a1f0606a6d7b0af0e32aa1c2465758e29d83856bec76ce787a14faa464c) repeats actual LuaTeX name selection successfully after the rejected candidates; source/history remain unchanged by selection. The earlier sixth-build refusal is retained as regression evidence.

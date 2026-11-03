@@ -5,6 +5,9 @@ import vm from 'node:vm';
 import * as transactions from '../web/core/transactions.js';
 import {DocumentClient,editorText,sameSources} from '../web/core/document-client.js';
 import {TypingRecoveryController} from '../web/core/typing-recovery.js';
+import {createWorkspaceInvoke} from '../web/core/workspace-protocol.js';
+import {ProjectControls} from '../web/core/project-controls.js';
+import {PDFSearch} from '../web/core/pdf-search.js';
 
 const [app,html]=await Promise.all(['app.js','index.html'].map(name=>readFile(new URL('../web/'+name,import.meta.url),'utf8')));
 
@@ -25,13 +28,13 @@ function boot({markup=html,openFailure=null,badSnapshot=false}={}){
     elements.set(match[1],element(match[1]));
   }
   const source='\\documentclass{article}\n\\begin{document}\nNative shell fixture\n\\end{document}\n';
-  const project={id:'fixture',name:'Fixture',main:'main.tex',sources:{'main.tex':source},recoveries:[]};
+  const project={id:'fixture',name:'Fixture',main:'main.tex',sources:{'main.tex':source},recoveries:[],recovery_error:null,restored:false,draft_warning:null,source_only:false};
   const snapshot={revision:0,sources:project.sources,main:project.main,engine:'auto',can_undo:false,can_redo:false,selection:null,recovery:{draft_id:null,protected_revision:null,error:null}};
   const model={value:'',setValue(v){this.value=v},setEOL(){},getValue(){return this.value}};
   const editor={createContextKey:()=>({set(){}}),updateOptions:o=>Object.assign(options,o),
     onDidChangeModelContent(){},onDidChangeCursorPosition(){},onDidChangeCursorSelection(){},
     addAction(){},addCommand(){},getDomNode:()=>element(),getSelections:()=>[],hasTextFocus:()=>false};
-  const context={...transactions,DocumentClient,editorText,sameSources,TypingRecoveryController,structuredClone,console,
+  const context={...transactions,DocumentClient,editorText,sameSources,TypingRecoveryController,createWorkspaceInvoke,ProjectControls,PDFSearch,structuredClone,console,
     self:{},pdfjs:{GlobalWorkerOptions:{}},pdfWorkerURL:'test-worker',EditorWorker:class{},
     monaco:{languages:{register(){},setMonarchTokensProvider(){},setLanguageConfiguration(){}},
       editor:{defineTheme(){},createModel:()=>model,create:()=>editor,EndOfLineSequence:{LF:0}},
@@ -42,7 +45,7 @@ function boot({markup=html,openFailure=null,badSnapshot=false}={}){
     window:{addEventListener(){}},setTimeout:()=>1,clearTimeout(){},
     getCurrentWindow:()=>({onCloseRequested:fn=>{handlers.close=fn}}),
     open:async()=>null,save:async()=>null,confirm:async()=>true,
-    invoke:async(name,args)=>{
+    nativeInvoke:async(name,args)=>{
       calls.push([name,args]);
       if(name==='open_project'){if(openFailure)throw Error(openFailure);return project}
       if(name==='document_snapshot')return badSnapshot?{...snapshot,sources:null}:snapshot;

@@ -21,7 +21,7 @@ function run(file,args,options={}) {
 }
 async function inspect(path,label) {
   const json=join(output,label+'.json');
-  const env={...process.env,PYTHONPATH:[join(root,'.tools/proof-python'),process.env.PYTHONPATH].filter(Boolean).join(delimiter)};
+  const env={...process.env,PYTHONPATH:[process.env.PYTHONPATH,join(root,'.tools/proof-python')].filter(Boolean).join(delimiter)};
   run(python,[join(root,'scripts/proof/inspect_pdf.py'),path,json],{env});
   return {...JSON.parse(await readFile(json,'utf8')),evidencePath:json};
 }

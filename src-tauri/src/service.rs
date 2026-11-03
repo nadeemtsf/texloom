@@ -17,6 +17,11 @@ mod document;
 mod synctex;
 mod layout_gate;
 mod visual;
+mod adapters;
+mod project_workflows;
+pub use project_workflows::{ProjectProfile,RecentProject,ImportedProject,EncodingIssue,EncodingReview,EncodingChoice,ImportedImage};
+pub use adapters::{AdapterControl, AdapterParameter, AdapterPlan, AdapterRequest};
+pub use adapters::{describe as describe_adapters, plan as plan_adapter};
 pub use layout_gate::VisualOperation;
 pub use document::{
     CloseReply, DocumentSnapshot, EditorChange, EditorRange, PreparedReply, RecoveryReply, SelectionReply, SourceEditReply,
@@ -27,6 +32,7 @@ pub use visual::plan_object_edit as visual_plan;
 pub use visual::{
     describe_text_edit, preview_edit_parameters, LiteralEditRequest, SpacingEditRequest,
     TextEditModel,
+    LiteralRunView, SpacingView,
 };
 pub use visual::{ObjectEditRequest, ObjectPlan, ResolvedSelection, SelectionPoint};
 
@@ -90,6 +96,7 @@ fn project_files(root: &Path) -> Result<Vec<PathBuf>> {
             {
                 continue;
             }
+            texloom_build::snapshot::check_plain(&entry.path())?;
             if kind.is_dir() {
                 visit(root, &entry.path(), out, total, depth + 1)?;
             } else if kind.is_file() && allowed_file(&entry.path()) {
@@ -110,6 +117,7 @@ fn project_files(root: &Path) -> Result<Vec<PathBuf>> {
 }
 
 #[derive(Clone, Serialize, Deserialize)]
+#[cfg_attr(feature="typegen",derive(ts_rs::TS))]
 pub struct Project {
     pub id: String,
     pub name: String,
@@ -188,12 +196,14 @@ pub struct CompileResult {
     pub job_id: u64,
 }
 
-#[derive(Clone, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
+#[cfg_attr(feature="typegen",derive(ts_rs::TS))]
 pub struct TransformRequest {
     pub source: String,
     pub action: String,
     pub id: String,
     #[serde(default)]
+    #[cfg_attr(feature="typegen",ts(type="Record<string, unknown>"))]
     pub changes: BTreeMap<String, Value>,
     #[serde(default)]
     pub selection: Option<[usize; 2]>,
@@ -316,6 +326,7 @@ pub struct Backend {
     displayed: Mutex<HashMap<String, String>>,
     cache: std::sync::OnceLock<Result<build_cache::SessionCache>>,
     verifier: Option<Result<texloom_build::inspection_worker::Worker>>,
+    recent_lock:Mutex<()>,
 }
 
 impl Backend {
@@ -330,9 +341,13 @@ impl Backend {
             displayed: Mutex::new(HashMap::new()),
             cache: Default::default(),
             verifier: None,
+            recent_lock:Mutex::new(()),
         }
     }
     pub fn open_project(&self, path: Option<String>) -> Result<Project> {
+        self.open_project_with_profile(path,None)
+    }
+    pub(super) fn open_project_with_profile(&self,path:Option<String>,hint:Option<ProjectProfile>)->Result<Project>{
         let (root, preferred) = if let Some(path) = path {
             let path = PathBuf::from(path).canonicalize().map_err(fail)?;
             if path.is_file() {
@@ -365,6 +380,7 @@ impl Backend {
             (root, Some("main.tex".into()))
         };
         let root = root.canonicalize().map_err(fail)?;
+        let profile=if hint.is_some(){hint}else{project_workflows::profile(&root)?};
         let mut sources: BTreeMap<String, String> = BTreeMap::new();
         for file in project_files(&root)? {
             if text_file(&file) {
@@ -374,6 +390,7 @@ impl Backend {
                 }
                 let source = fs::read_to_string(path)
                     .map_err(|e| format!("{} must be UTF-8: {e}", file.display()))?;
+                if source.contains('\0'){return Err(format!("{} needs encoding review before editing",file.display()))}
                 sources.insert(file.to_string_lossy().replace('\\', "/"), source);
             }
         }
@@ -383,6 +400,7 @@ impl Backend {
             .map(|(name, _)| name.clone())
             .collect();
         let main = preferred
+            .or_else(||profile.as_ref().map(|p|p.main.clone()))
             .or_else(|| {
                 candidates
                     .iter()
@@ -391,10 +409,12 @@ impl Backend {
             })
             .or_else(|| candidates.first().cloned())
             .ok_or("No main LaTeX document found")?;
+        let engine=profile.as_ref().filter(|p|p.main==main).map(|p|p.engine.clone()).unwrap_or_else(||"auto".into());
         let (recoveries,recovery_error)=match texloom_build::persistence::pending(&root){Ok(saves)=>(saves,None),Err(error)=>(Vec::new(),Some(error))};
-        let disk = texloom_build::persistence::DiskSnapshot::capture(&root, &sources)?;
+        let mut disk = texloom_build::persistence::DiskSnapshot::capture(&root, &sources)?;
+        disk.track_project_profile()?;
         let id = Uuid::new_v4().simple().to_string();
-        let mut slot = document::DocumentSlot::new(sources.clone(), main.clone())?;
+        let mut slot = document::DocumentSlot::new_with_engine(sources.clone(), main.clone(),engine.clone())?;
         slot.start_typing_recovery(&self.root, &disk);
         self.documents.lock().map_err(fail)?.insert(
             id.clone(),
@@ -405,6 +425,7 @@ impl Backend {
             .map_err(fail)?
             .insert(id.clone(), root.clone());
         self.disk_snapshots.lock().map_err(fail)?.insert(id.clone(), disk);
+        let _=self.remember_recent(&root,&main,&engine);
         Ok(Project {
             id,
             name: root
@@ -429,12 +450,13 @@ impl Backend {
             .cloned()
             .ok_or_else(|| "Reopen this project before continuing".into())
     }
-    pub fn save_project(&self, id: &str, sources: &BTreeMap<String, String>) -> Result<()> {
+    pub fn save_project(&self, id: &str, sources: &BTreeMap<String, String>,main:&str,engine:&str) -> Result<()> {
         let root = self.project_root(id)?.canonicalize().map_err(fail)?;
         let mut snapshots = self.disk_snapshots.lock().map_err(fail)?;
         let disk = snapshots.get_mut(id).ok_or("Reopen this project before Save")?;
         if disk.root != root { return Err("The project directory changed".into()); }
         let mut desired = sources.clone();
+        desired.insert(texloom_build::project_io::PROFILE.into(),serde_json::to_string_pretty(&ProjectProfile{schema:1,main:main.into(),engine:engine.into()}).map_err(fail)?+"\n");
         // Preserve the existing isolated StudioBlock compatibility dependency.
         // Normal text-object dependencies already belong to canonical source.
         if !desired.contains_key("studio.sty")
@@ -689,19 +711,7 @@ impl Backend {
         let output = synctex::run(command, &Default::default())?;
         self.check_mapping_snapshot(&build)?;
         let (input, line) = synctex::inverse(&output)?;
-        let input = PathBuf::from(input);
-        let input = if input.is_absolute() {
-            input
-        } else {
-            build.directory.join(input)
-        };
-        let input = input.canonicalize().map_err(fail)?;
-        let folder = build.directory.canonicalize().map_err(fail)?;
-        let file = input
-            .strip_prefix(folder)
-            .map_err(|_| "The mapped source is outside this project")?
-            .to_string_lossy()
-            .replace('\\', "/");
+        let file = synctex::project_input(&build.directory, input)?;
         let _project = self.project_root(&build.project_id)?;
         Ok(SourceLocation {
             file,

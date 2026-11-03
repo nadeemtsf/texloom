@@ -1,29 +1,17 @@
-# Implementation status
+# Implementation and acceptance status
 
-Updated 3 November 2026. Owner-approved scope: APPROVED-IMPLEMENTATION-PLAN.md.
-Primary repository: https://github.com/nadeemtsf/texloom.
+Updated 4 November 2026. Scope: APPROVED-IMPLEMENTATION-PLAN.md, with the owner's later instruction to complete native tests now and limit input-language acceptance to English, Arabic and Hebrew.
 
-| Stage | Status | Evidence / remaining gate |
+| Area | Current implementation and observed evidence | Remaining acceptance |
 | --- | --- | --- |
-| P0 baseline | Reconciled | Local checkout matched verified remote commit 1ee59e3 before P2 |
-| P1 mapping/movement | Movement experiment passed; mapping decisions open | 24 positive cases over three engines, six oracle refusals; provenance/parser/extended coordinates pending |
-| P2 source/history | Core/history, optimized typing and strict document/compiler/mapping IPC implemented; native input acceptance open | See DOCUMENT-SESSION.md, SOURCE-PERFORMANCE.md, TYPED-DOCUMENT-PROTOCOL.md and BUILD-PROTOCOL.md; remaining IPC migration and unsupported encodings open |
-| P3 compilation | Build service implemented; automated acceptance passed | 120 local tests; all 24 expected three-engine corpus outcomes, Windows packaging and movement proof passed at 1ae8c75; exact CI recorded in PR #3; limited direct recipe, native P3 UI unverified |
-| P4 selection | Probe and three-engine corpus passed; native mouse acceptance open | 26 positive selections and seven explicit refusals across three engines at ab9eedc; bounded alternate hints resolve included sources; one measured pdfLaTeX mixed-format raster refusal; see LAYOUT-SELECTION.md |
-| P5 text/spacing | Protected literal editor and explicit line-gap adapter implemented; native acceptance open | Six literal/spacing cases and existing corpus passed in three-engine CI at 3900ac5; numeric-only existing gaps preserve units/source; broader spacing adapters open; see PROTECTED-TEXT.md |
-| P6 displacement | Runtime native approval integrated and automated corpus passed; native signature acceptance open | See NATIVE-LAYOUT-GATE.md and FINAL-NATIVE-ACCEPTANCE.md; fractional displacement and broader coordinates remain open |
-| P7 hardening | Guarded Save, crash-draft journal/recovery and typing optimization implemented; acceptance incomplete | See PROJECT-DURABILITY.md, UNSAVED-RECOVERY.md and SOURCE-PERFORMANCE.md; native crash/relaunch, retention and end-to-end performance remain open |
-| P8 release | Development portable packaging hardened; release pending | See PORTABLE-PACKAGING.md; exact installer, clean-machine, signing and dependency review remain open |
-| P9 richer adapters | Pending | Separate fixtures and acceptance for images, tables and typography |
+| Source/history and IPC | Rust authority, exact byte preservation, recovery journal, strict generated document/build/workspace contracts. 89 core, 54 build-library, 50 native default and 231 frontend checks pass locally. | Exact final-candidate native matrix; long-session timings |
+| Compilation | Immutable receipts, cancellation/convergence, declared BibTeX and Biber. All 24 expected three-engine corpus outcomes and both bibliography recipes pass. | Native error/cancellation/concurrent-typing scenarios |
+| Selection | Private zero-offset probes. 28 positive and 6 expected refusals across three engines, including a LuaTeX minipage box-hint fallback which rejects wrong single-name candidates. | Exact rebuilt native LuaTeX fallback; repeated/column mouse cases |
+| Movement | Pinned PDFium 156 worker/protocol 3 independently predicts target translation. 24 positive and 6 oracle refusals; nine fractional moves pass. Actual native mouse line and three-line marquee, 12 bp move, protected name edit, two Undo/Redo, Save and reopen passed on the recorded development candidate. | Exact final candidate, all advertised engines/zoom; independent saved-project rebuild |
+| Richer source controls | Images/aspect ratio, supported table columns, explicit lengths/margins/font/leading/line factors/float placement, selected source styles. 27 real adapter cases pass across three engines. | Native controls and image insertion matrix |
+| Project workflows | Paths, recents, guarded ZIP import/export, explicit encoding review and UTF-8 copy, profile persistence, editable Article/Letter/CV/multilingual templates. 19 template/class cases pass, including Arabic/Hebrew glyphs under XeLaTeX. | Native ZIP/encoding/template/image workflows |
+| Reading | PDF text layer, occurrence search and bounded lazy long-document painting. Six real PDF.js crop/rotation/UserUnit render/coordinate cases pass; such pages explicitly refuse layout edits. Native PDF word selection/copy into source passed. | Native long-document/zoom and failed-compile reading |
+| Durability | Native multilingual crash/relaunch restored source and history; Undo/Redo passed; a subsequent actual external edit correctly blocked Save. | Missing-folder/source-copy, multiple instances, final-candidate repetition |
+| Distribution | Unsigned NSIS and verified 15-entry portable packages generated. Cargo audit: zero vulnerabilities; inactive-platform warnings retained. npm audit: zero known vulnerabilities. Exact Windows dependency inventory, MPL source availability and notices are generated for portable and installer. | Clean-machine/account installation, uninstall, human usability trial; signing/public distribution require owner decisions |
 
-P2 owns source bytes and transactional history independently of unfinished P1 provenance. It does not interpret TeX or map arbitrary PDF glyphs. See DOCUMENT-SESSION.md and ../VALIDATION.md.
-
-The disconnected checkout was safely reconciled before this work. No new release is certified; the previous downloadable ZIP is older.
-
-The owner deferred manual P2 input acceptance and explicitly authorized P3. See BUILD-SERVICE.md; that authorization does not mark the P2 checks passed.
-
-P5 protected editing is tracked in PROTECTED-TEXT.md; unfinished gates remain explicit.
-
-Latest local spacing checkpoint: 64 core, 19 native service and 67 frontend tests passed. Desktop control explicitly denied the test executable, so native typing/IME/mouse checks cannot be signed off. The account usage endpoint also fails; unavailable allowance is not treated as unused allowance.
-
-The native inspection checkpoint passes 185 local checks including three explicitly executed worker tests that are ignored by default. Read WORK-CHECKPOINT.md before resuming. No phase is certified by headless tests alone.
+This is an implementation and evidence report, not a completed release claim. Old deferral statements and old artifact receipts elsewhere describe historical checkpoints. FINAL-NATIVE-ACCEPTANCE.md records the current interactive queue. Never compile .text files; all fixtures are synthetic .tex projects.

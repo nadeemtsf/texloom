@@ -1,4 +1,4 @@
-//! Small audited ABI surface from the pinned PDFium 126 development binding.
+//! Small audited ABI surface from the pinned PDFium 156 development binding.
 //! No PDFium code is loaded into the application process.
 use sha2::{Digest, Sha256};
 use std::{
@@ -123,6 +123,7 @@ api! {
     FPDFPageObj_GetMark(Handle,u32)->Handle;
     FPDFPageObjMark_GetName(Handle,*mut c_void,u32,*mut u32)->i32;
     FPDFPageObj_GetBounds(Handle,*mut f32,*mut f32,*mut f32,*mut f32)->i32;
+    FPDFPageObj_Transform(Handle,f64,f64,f64,f64,f64,f64)->();
     FPDFBitmap_CreateEx(i32,i32,i32,*mut c_void,i32)->Handle;
     FPDFBitmap_Destroy(Handle)->();
     FPDFBitmap_FillRect(Handle,i32,i32,i32,i32,u32)->();

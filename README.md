@@ -1,4 +1,4 @@
-# Texloom Desktop - Rust desktop prototype
+# Texloom Desktop — development candidate
 
 **This archive contains application source. A separate Windows x64 portable archive contains the compiled Texloom.exe.** The corrected source now passes the Rust tests and a complete Tauri release build. The executable opens a native window and compiles and renders an actual LaTeX PDF. It remains a development prototype; the full native editing workflow and installer are not certified. See VALIDATION.md for the exact checks completed.
 
@@ -6,7 +6,7 @@ This is a separate desktop implementation. It does not replace or convert the ea
 
 ## Development status
 
-Version 0.3 is under development in the primary repository, https://github.com/nadeemtsf/texloom. The ordered document protocol and compiler/mapping boundary now have strict TypeScript sources and Rust-generated DTOs; see docs/TYPED-DOCUMENT-PROTOCOL.md and docs/BUILD-PROTOCOL.md. The PDF.js renderer is pinned to 6.2.108 with an owned loading-task lifetime; see docs/PDF-RENDERER.md. The Rust source/history, compile service, bounded visual adapters, independent verification, guarded Save and unsaved-work recovery have automated coverage. Native interaction and distribution gates remain open. The owner deferred mouse/keyboard/IME checks until implementation through the remaining phases is complete. See docs/WORK-CHECKPOINT.md and docs/FINAL-NATIVE-ACCEPTANCE.md. A successful test run does not establish reversible editing of arbitrary LaTeX.
+Version 0.3 is under development in the primary repository, https://github.com/nadeemtsf/texloom. Source/history, compiler/mapping and workspace messages have Rust-generated TypeScript contracts and runtime checks. The current candidate adds project ZIP import/export, recents, explicit encoding conversion into a new copy, editable templates, BibTeX/Biber recipes, image import and bounded source layout controls. English, Arabic and Hebrew are the current language scope. See docs/IMPLEMENTATION-STATUS.md and docs/FINAL-NATIVE-ACCEPTANCE.md for actual test results and remaining release gates. Native tests have resumed at the owner's request; earlier deferral notes are historical.
 
 ## Implemented in source
 
@@ -14,6 +14,9 @@ Version 0.3 is under development in the primary repository, https://github.com/n
 - Monaco for source editing, including highlighting, find, keyboard editing, and shared source/canvas history.
 - PDF.js for rendering actual compiler output inside the desktop window.
 - Native file dialogs for opening a main .tex file and exporting a PDF.
+- Projects dialog with direct paths, recents, bounded ZIP import/export, encoding review and new Article/Letter/CV/multilingual templates.
+- Declared local BibTeX/Biber builds, image import and source-preserving image/table/typography/spacing controls.
+- PDF search across unpainted pages and bounded lazy painting for documents longer than 20 pages.
 - Existing MiKTeX/TeX Live detection, pdfLaTeX/XeLaTeX/LuaLaTeX selection, bounded compilation time, compiler logs, and SyncTeX source lookup.
 - Dragging, width resizing, exact coordinates, base font sizes, block text editing, source-to-PDF compilation, and guarded conversion of a complete source selection into a movable block.
 - **Visual transactions:** a mouse edit is compiled as a candidate before its source change is committed. Invalid edits preserve the original buffer and the last successful PDF.
@@ -76,17 +79,14 @@ Automatic recovery is separate from Save. Protection status stays visible beside
 
 ## Current limits and required verification
 
-- Rust compilation, native linking, Tauri production asset embedding, startup, PDF rendering, and actual compiler integration have passed. A complete native drag/edit/resize/save/export round trip remains to be verified.
-- This prototype opens a main .tex file with supporting files in the same project tree; ZIP import, a dedicated image-upload flow, persistent recent-project lists, and project ZIP export are not included yet.
-- Ordinary arbitrary LaTeX is not automatically reconstructed into independent visual objects. The source editor remains the fallback for complex macros, tables, and generated or repeated content.
-- Source conversion preserves the selected LaTeX tokens, but cannot reproduce every surrounding formatting context. Review the resulting layout, especially when converting content from lists, columns, or locally changed fonts.
-- Source mapping is provided by the installed native synctex utility. Some generated content may not have useful mappings.
-- Bibliography tool orchestration and custom shell-escape build recipes are not included.
-- Build/recovery caches have explicit retention and integrity checks. Native long-session, quota, replay/performance and usability acceptance remains open.
-- Source-service benchmarks are measured; WebView/editor paint, native typing/IME and full interaction latency have not passed acceptance. Fractional free movement and broader paint/coordinate cases remain gated.
-- Use your own trusted LaTeX projects. Turning shell escape off does not make native TeX a full sandbox.
-- The portable executable is an unsigned development build. An NSIS installer has not been generated or tested, and no Store approval or signing certificate is included.
-- The development PDFium pin still needs a production security/license review. A passing renderer fixture is not approval to distribute that dependency as a release.
+- Visual editing supports bounded, unambiguous single-page text units. Arbitrary math, table cells, TikZ, cross-page groups and opaque macro expansions remain source-editing workflows.
+- Cropped, rotated and UserUnit-scaled pages can be read and rendered. Their visual layout edits are explicitly refused.
+- Complex shaping is tested for faithful source/display. CJK input-language acceptance is deferred by the owner; no input languages are installed by the app.
+- BibTeX and Biber run declared local recipes with fixed arguments. Remote bibliography sources, project configuration scripts and shell-escape recipes are refused.
+- Image dimensions, supported table column widths, explicit lengths, margins, font size/leading, line factors, styles and float placement have source controls. Unsupported grammars retain source access.
+- Imported projects open for source review before Compile runs LaTeX under the user's Windows account. Turning shell escape off is not an operating-system isolation boundary.
+- Portable and NSIS development packages include the dependency inventory, source-availability notices and pinned PDFium notices. They are unsigned. Clean-machine installation/uninstall and a human usability trial remain release gates. Signing and Store submission are separate owner decisions.
+- Automated and real-engine results do not substitute for the exact native acceptance matrix. Current status and measured performance limits are documented rather than inferred from a successful build.
 
 ## Microsoft Store planning
 

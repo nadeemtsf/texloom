@@ -203,7 +203,9 @@ fn recovery_retains_saved_conflict_fingerprints_and_never_writes_originals() {
 fn active_drafts_are_locked_and_excluded_from_crash_inventory() {
     let f = Fixture::new("A");
     let journal = f.store.begin(&f.disk, &f.session).unwrap();
-    assert!(f.store.inventory().unwrap().drafts.is_empty());
+    let inventory = f.store.inventory().unwrap();
+    assert!(inventory.drafts.is_empty());
+    assert!(inventory.errors.is_empty(), "Active drafts are not corrupt recovery entries");
     assert!(f.store.recover(journal.id(), &f.disk.root).is_err());
     assert!(f.store.discard(journal.id(), &f.disk.root).is_err());
     let id = journal.id().to_string();

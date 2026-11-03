@@ -1,5 +1,12 @@
 use super::*;
 use serde_json::Value;
+#[test]
+fn profile_metadata_uses_the_same_recoverable_transaction_and_refuses_other_json(){
+    let f=Fixture::new();let mut disk=f.disk();disk.track_project_profile().unwrap();let mut after=f.after();after.insert(crate::project_io::PROFILE.into(),"{\"schema\":1,\"main\":\"main.tex\",\"engine\":\"xelatex\"}".into());
+    let result=disk.save_with(&after,|stage|if matches!(stage,Stage::AfterReplace(0)){Err("Injected failure".into())}else{Ok(())});assert!(result.is_err());f.assert_sources(&f.before);assert!(!f.root.join(crate::project_io::PROFILE).exists());
+    let transaction=id(&f.root);recover(&f.root,&transaction,true).unwrap();f.assert_sources(&after);
+    assert!(file_name("unrelated.json").is_err());assert!(file_name("nested/texloom-project.json").is_err());
+}
 struct Fixture { root:PathBuf, before:Sources }
 impl Fixture {
     fn new()->Self {
