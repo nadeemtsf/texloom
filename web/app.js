@@ -171,7 +171,14 @@ async function openProject(path=null,supplied=null){
       $('save-copy').classList.remove('hidden');await showSaveRecovery();return;
     }
     await compile();
-  }catch(error){toast(message(error))}finally{state.opening=false;editorReadOnly();updateControls()}
+  }catch(error){
+    toast(message(error));
+    if(!state.project){
+      status('Could not open project');
+      $('banner').textContent='Could not open a project: '+message(error)+'. Choose Open project to try again.';
+      $('banner').classList.remove('hidden');
+    }
+  }finally{state.opening=false;editorReadOnly();updateControls()}
 }
 async function saveProject(){
   if(!state.project||state.saving||state.opening||state.mutating||state.composing)return;

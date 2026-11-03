@@ -1,49 +1,42 @@
-# Work checkpoint - 2 November 2026
+# Work checkpoint - 3 November 2026
 
-Primary project: nadeemtsf/texloom, Rust/Tauri Windows. Preserve the active checkout and user projects. Approved scope is APPROVED-IMPLEMENTATION-PLAN.md. Latest owner instruction authorizes continuing all phases and finishing earlier gaps; it does not turn unverified gates into passes. Ordinary-PDF expansion is not part of these phases.
+Primary project: nadeemtsf/texloom, Rust/Tauri Windows. Approved scope is APPROVED-IMPLEMENTATION-PLAN.md. The owner authorizes continuing all phases and finishing earlier gaps, without the previous usage cutoff. Ordinary-PDF expansion is outside this scope. Do not equate implemented code with passed native acceptance.
 
-Completed checkpoints:
+## Current checkout and environment
 
-- P5 explicit line-break gap controls: source 3900ac5, draft PR #7. All six literal/spacing engine cases, movement/selection corpus and Windows packaging passed. Exact spacing executable checksum is in PROTECTED-TEXT.md.
-- P6 Rust comparison: source 07c803a, draft PR #8. All 24 positive movement cases and six expected refusals passed in workflow 41493768700; build corpus passed 41493768662; Windows packaging passed 41493768634. Maximum observed bounds error 0.01092529296875 bp. Identity raster equality remains exact. First failed threshold experiment is retained alongside the passing raw report.
-- P6 native worker experiment: source 10357ff, draft PR #9. Windows, engine proof and build corpus passed (41496866570, 41496866516, 41496866661). Standalone Rust/Windows inspection, pinned DLL loading, bounded outputs, marker attribution and headless integration tests; see PDFIUM-WORKER.md.
-- P6 parent receipts: source b47fc0d, draft PR #10. All three CI workflows passed (41500732419, 41500732666, 41500732377). Protocol 2 checks exact request and artifact identities, private paths, cancellation and flat cleanup.
-- P6 native transaction gate: current feature/native-layout-gate work. Native source replanning, private zero probes, typed movement/reflow/detach policies and one-shot receipt-bound commit authority are implemented. Verifier resources/notices are packaged and the desktop embeds its worker hash. See NATIVE-LAYOUT-GATE.md. Local validation and artifact receipts are in docs/evidence/native-layout-local.json; exact new CI remains pending.
+Local commands work again. Exact remote history was reconciled to feature/project-durability at e1caf7ce9649a6e7e9aa6c19d890480ae0ecc5e0 with Git object/ancestry/connectivity checks. All 151 working file byte snapshots were preserved; ignored backups are in .tools/reconcile-git. Do not reset or discard user work.
 
-Open gates remain explicit:
+Current development branch: feature/desktop-startup, based on that durability tip. Main remains the older verified baseline. PR #11 (native-layout-gate) and PR #12 (project-durability) are drafts in the primary repository. Command-line Git authentication fails in its Windows credential helper; the connected GitHub service works.
 
-- P1 parser/provenance decisions and extended coordinate support.
-- P2 actual typing/IME/multicursor/context-menu undo and interactive save/reopen. Desktop control rejected the test app: "Computer Use was not approved to use texloom-p5." The latest launch retry was also rejected by automatic approval review because the recorded access denial was still in force. Do not retry, rename, indirectly launch or substitute UI automation to bypass this rejection. Native tests remain unverified.
-- P3 native UI acceptance; the current recipe is a documented direct-engine recipe without bibliography-tool orchestration.
-- P4 actual mouse/group-selection acceptance and broader mandatory mapping fixtures.
-- P5 broader spacing/reflow adapters and native editing acceptance.
-- P6 real-engine native mark-attribution corpus is newly wired into Windows CI but not yet passed; its test is ignored in the local default run. Complete native signature scenario, fractional-pixel verification and fuller paint/coordinate inspection remain open. Source-plan binding is implemented and tested headlessly, not a substitute for those gates.
-- P7 recovery/conflicts/performance/usability, P8 exact installed-artifact acceptance and P9 separate richer adapters remain pending. Do not declare earlier stages complete to advance the table.
+## Verified implementation checkpoints
 
-The owner explicitly removed the usage cutoff on 2 November and authorized continuing the full phase plan. Do not stop because the usage endpoint remains unavailable. No replacement restart automation was created.
+- P5 explicit line-break gaps: 3900ac5, PR #7. All six literal/spacing engine cases passed. See PROTECTED-TEXT.md.
+- P6 Rust comparison: 07c803a, PR #8; isolated worker: 10357ff, PR #9; checked parent receipts: b47fc0d, PR #10. See DISPLACEMENT-POLICY.md and PDFIUM-WORKER.md.
+- P6 native source/layout gate: 2786504e7ee9f02b522d91bb6f7779cfde06d5a8, draft PR #11. Windows 41527609301, proof 41527609539 and build corpus 41527609160 passed. Native mark attribution passed 24 positives and three expected overlap refusals. Both earlier failures are retained; inherited boxes use the pinned effective-box API. See NATIVE-LAYOUT-GATE.md and evidence/native-marker-verified-run.json.
+- P7 guarded Save/copy: 803f2b4; interrupted-Save recovery/discard: 426d052e7001883ac4e1bfc3610aeed24579ce07, draft PR #12. Windows 41532942547, proof 41532942542 and build corpus 41532942522 passed: 156 Rust plus 77 frontend checks, 233 total. Executable and portable packaging passed. Documentation-only e1caf7 records these results. See PROJECT-DURABILITY.md and evidence/project-durability-ci.json.
 
-Continue coding/tests within the authorized scope, preserve passing and failing evidence, and only close gates when their actual acceptance checks pass. Native UI access is still required to complete the plan; headless subprocess tests do not replace it.
+## Resumed local checks and startup correction
 
-## Active durability work and environment interruption
+On 3 November the reconciled source passed 149 default Rust checks, 77 frontend checks, five explicitly invoked isolated PDFium checks and two explicitly invoked native document-gate checks: 233 combined. A fresh Windows desktop executable built.
 
-P6 native gate is saved at 4b31c5a (PR #11). Its native-engine test first failed during candidate attribution; the failed result is retained in native-marker-first-run.json. Follow-up f9afe4d recognizes only the predeclared overlap refusal and adds fixture context; fresh CI remains pending.
+Launching the existing .tools/p5-ui-test/Texloom-P5.exe succeeded. This pre-fix executable has SHA-256 374ca5ffe3c26b0a85a4b453486871653f16b33e2180752087af86658d3d6cce. Activation eventually produced the actual Texloom screenshot and accessibility tree, which remained at Starting with an empty source editor. An attempted input did not complete; a later observation was rejected with "Computer Use was not approved to use texloom-p5." No typing, mouse selection, IME, undo or signature workflow passed. Do not rename, indirectly launch or substitute UI automation to bypass the denial. No further native-control retries under the current denial.
 
-Standalone save/recovery infrastructure is on remote feature/project-durability (draft PR #12). Initial source 3c2a40b hit a Rust closure-result type error, corrected at 13707f8. Component tests and native integration are not yet passed. Application Save still uses its earlier implementation until the component passes and is integrated.
+Source inspection found a startup failure: app.js assigns a handler and state to cancel-compile, but the HTML lacks that element. Initialization throws before openProject runs. The correction adds the visible, initially disabled Cancel compile control. Initial project-open errors now receive a persistent explanation and leave Open project available.
 
-The supplied Windows workspace permission configuration now contains invalid URI file:///workspace. exec_command and apply_patch reject requests before starting. Direct file access within this workspace and GitHub connector/CI still work. No local command checks after this interruption are claimed. Local branch feature/project-durability still has HEAD 4b31c5a with preserved uncommitted component and P6 test follow-up files; remote heads are newer. Reconcile carefully when the command runner works again; do not reset or drop these files.
+Four new tests execute the complete production shell against IDs from shipped HTML, retaining real DocumentClient and transaction code with mock native/Monaco/DOM boundaries. They cover source opening, reproducing the missing-element failure, wired cancellation and failed initial open. They are shell integration tests, not native input tests. All 81 frontend and required 64 core checks passed after the correction; the Windows executable rebuilt successfully. Combined unchanged-Rust and updated-frontend coverage is 237 checks. Exact source/artifact hashes: evidence/desktop-startup-local.json. New CI is recorded separately when available.
 
-Next: finish the pending CI checks, retain exact engine results, integrate checked disk state into revision-guarded Save/conflict/recovery flows, then typing recovery/performance and remaining phase code. Native GUI access remains denied; no alternate launch or automation may bypass it. P6/P7 acceptance and P8/P9 are not complete.
+The running P5 test app predates the correction. The new target/release executable contains it but has not been interactively tested. Never label the running test app, an old portable ZIP or prior CI artifact as this fixed build.
 
-## Latest verified implementation checkpoint
+## Open gates and next work
 
-Native layout source 2786504e7ee9f02b522d91bb6f7779cfde06d5a8 passed Windows 41527609301, proof 41527609539 and build corpus 41527609160. The Windows mark-handle corpus passed 24 positive cases and three expected overlap refusals. Both failed experiments are retained; inherited page boxes now use the pinned effective-box API. Native input and fractional-pixel displacement remain open.
+- P1 parser/provenance decisions and extended coordinates.
+- P2 native typing/IME/multicursor/context-menu undo and interactive Save/reopen; strict/generated IPC and unsupported-encoding support.
+- P3 native acceptance and broader recipe orchestration. The current direct-engine recipe is not bibliography-complete.
+- P4 mouse/group-selection acceptance and broader mandatory mapping fixtures.
+- P5 broader spacing/reflow adapters and native editing acceptance. Existing numeric line-break spacing is implemented and fixture-tested.
+- P6 fractional displacement, fuller paint/coordinate inspection and the full native signature scenario. Do not interpolate/mask pixels or weaken exact appearance/neighbor checks. Any fractional experiment needs a separately rendered expected translation.
+- P7 recovery for unsaved typing independent of explicit Save, retention/performance/long-document/usability acceptance. Explicit-Save recovery is implemented; never-saved typing recovery is not.
+- P8 exact installed-artifact/clean-machine/signing gates and dependency security/license review. The development PDFium pin is not production approval.
+- P9 separate richer LaTeX adapters with their own fixtures. No ordinary-PDF expansion.
 
-Save/conflict/copy source 803f2b47adf0b867262a63c46033edb55ac94e7e passed Windows 41529949033, proof 41529948802 and build corpus 41529948752. Explicit interrupted-Save recovery/discard source 426d052e7001883ac4e1bfc3610aeed24579ce07 passed Windows 41532942547, proof 41532942542 and build corpus 41532942522. Exact Windows checks: 156 Rust plus 77 frontend, 233 total. The executable and portable package also built. Evidence: docs/evidence/project-durability-ci.json and native-marker-verified-run.json.
-
-Current remote development branch is feature/project-durability at 426d052 (draft PR #12, based on native-layout-gate PR #11). Native Save now guards loaded disk fingerprints and source revision, stages/flushes recoverable file replacements, preserves external changes, offers a separate editor-version project copy, and provides explicit finish/rollback/discard choices for interrupted saves. Cleanup checks contents as well as filenames and never recurses into unknown data.
-
-Local Git remains at 4b31c5a on feature/project-durability because exec_command/apply_patch reject requests before starting: invalid Windows permission URI file:///workspace. All newer code is preserved in this existing working tree through direct file access and is published remotely. Do not reset/drop it. Reconcile Git metadata carefully when local commands work again; remote history includes a merge bringing 2786504 into the durability branch. The last locally built executable predates the inherited-box and durability changes; do not identify it as the latest CI build.
-
-Computer Use still rejected launching the existing native test app. Do not retry, rename the app or use indirect UI/process automation to bypass that denial. Codex app attachment requests also failed through the app bridge. No native typing/IME/mouse/signature workflow is certified.
-
-Next work remains: P6 ordinary fractional displacement (use a separately rendered expected translation, never interpolated/masked pixels as proof); P7 recovery for unsaved typing independent of explicit Save, retention/performance/usability; earlier parser/provenance/coordinate and native interaction gates; P8 installer/clean-machine acceptance; P9 richer adapters. Ordinary-PDF expansion is still outside this phase scope. Do not mark all previous phases complete or call this a release.
+Continue authorized coding, preserve failures and successes, and keep blocked native gates explicit. The phase plan and release are not complete.
