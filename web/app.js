@@ -529,14 +529,16 @@ function startBlockDrag(event,block,el,page){
   event.preventDefault();event.stopPropagation();canvas.clear();state.selected={...block};renderInspector();
   document.querySelectorAll('.block').forEach(e=>e.classList.remove('selected'));el.classList.add('selected');
   const resize=event.target.classList.contains('handle'),factor=Number(page.dataset.scale),start=[event.clientX,event.clientY];let changes=null;
+  const originalStyle={left:el.style.left,top:el.style.top,width:el.style.width};
   el.setPointerCapture(event.pointerId);
   const move=e=>{const dx=(e.clientX-start[0])/factor,dy=(e.clientY-start[1])/factor;if(Math.abs(dx)+Math.abs(dy)<1)return;
     const snap=v=>e.altKey?Math.round(v*100)/100:Math.round(v/4)*4;
     if(resize){changes={width:Math.max(12,snap(block.width+dx))};el.style.width=changes.width*factor+'px'}
     else{changes={x:Math.max(0,snap(block.x+dx)),y:Math.max(0,snap(block.y+dy))};el.style.left=changes.x*factor+'px';el.style.top=changes.y*factor+'px'}};
-  const clean=()=>{el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',up);el.removeEventListener('pointercancel',cancel)};
-  const up=()=>{clean();if(changes)patchBlock(changes,block)},cancel=()=>{clean();renderOverlays()};
-  el.addEventListener('pointermove',move);el.addEventListener('pointerup',up);el.addEventListener('pointercancel',cancel);
+  const reset=()=>Object.assign(el.style,originalStyle);
+  const clean=()=>{el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',up);el.removeEventListener('pointercancel',cancel);el.removeEventListener('lostpointercapture',cancel);if(canvas.cancelGesture===cancel)canvas.cancelGesture=null};
+  const up=async()=>{clean();try{if(changes)await patchBlock(changes,block)}finally{reset();renderOverlays()}},cancel=()=>{clean();reset();renderOverlays()};
+  canvas.cancelGesture=cancel;el.addEventListener('pointermove',move);el.addEventListener('pointerup',up);el.addEventListener('pointercancel',cancel);el.addEventListener('lostpointercapture',cancel);
 }
 function showEditor(title,value,plain,locked=false){
   $('spacing-fields').replaceChildren();$('spacing-fields').classList.add('hidden');

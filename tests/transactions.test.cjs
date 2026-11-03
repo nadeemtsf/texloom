@@ -17,6 +17,16 @@ async function setup(){
   addAction(action){(control.actions??=[]).push(action)},hasTextFocus:()=>false,updateOptions(){},getDomNode:()=>({addEventListener(name,fn){composition[name]=fn}})};
  const control={compile:async()=>({ok:true,log:'',seconds:0,engine:'test',build_id:'new-pdf',blocks:[],objects:[]}),prepare:async result=>({result,pdf:{destroy:async()=>{}},pageCount:1,objects:new Map(),unclosed:new Set(),pageSizes:new Map()})};
  const {NativeDocumentDouble}=require('./native-document-double.cjs');const native=new NativeDocumentDouble(control);
+ function legacyGesture(resize=false){
+  const listeners=new Map(),original={left:'20px',top:'30px',width:'100px'};
+  const frame={style:{...original},classList:{add(){},remove(){}},setPointerCapture(){},
+   addEventListener:(name,fn)=>listeners.set(name,fn),removeEventListener:(name,fn)=>{if(listeners.get(name)===fn)listeners.delete(name)}};
+  const block={id:'block',file:'main.tex',x:20,y:30,width:100};
+  context.legacyFrame=frame;context.legacyBlock=block;context.legacyEvent={button:0,pointerId:1,clientX:10,clientY:10,
+   target:{classList:{contains:()=>resize}},preventDefault(){},stopPropagation(){}};
+  run("startBlockDrag(legacyEvent,legacyBlock,legacyFrame,{dataset:{scale:'1'}})");
+  return {frame,listeners,original};
+ }
  const context=vm.createContext({
   ...transactions,...selectionProof,validateSelectionProbe:(...args)=>control.prove?control.prove(...args):selectionProof.validateSelectionProbe(...args),DocumentClient,editorText,sameSources,TypingRecoveryController,initialSnapshot:native.snapshot(),inside:()=>true,self:{},EditorWorker:class{},pdfWorkerURL:'test-worker',
   CanvasController:class{clear(){}bind(){}selectObject(){}},
@@ -33,8 +43,28 @@ async function setup(){
  const run=s=>vm.runInContext(s,context);
  run("state.project={id:'test',main:'main.tex'};state.sources={'main.tex':'Original source','studio.sty':'Style source'};state.saved=structuredClone(state.sources);state.file='main.tex';state.revision=0;state.compiled=0;state.result={build_id:'last-good',blocks:[]};state.view={pageCount:1};syncEditor=()=>{};renderOverlays=()=>{};renderInspector=()=>{};publishPrepared=(prepared,result)=>{state.pdf=prepared.pdf;state.result=result;state.compiled=state.revision};");
  run("state.client=new DocumentClient(invoke,'test',initialSnapshot,{changed:acceptDocument,failed:syncFailed});");
- return {run,control,native,model,composition};
+ return {run,control,native,model,composition,legacyGesture};
 }
+
+for(const failure of ['prepare','compile'])test(`legacy movement preview restores accepted bounds after ${failure} rejection`,async()=>{
+ const t=await setup();t.control.transform=async()=> 'Moved source';
+ if(failure==='prepare')t.control.prepareFailure='Native preparation refused';
+ else t.control.compile=async()=>({ok:false,log:'Compilation failed'});
+ const g=t.legacyGesture();
+ for(let n=0;n<10;n++)g.listeners.get('pointermove')({clientX:30+n,clientY:40,altKey:false});
+ assert.notEqual(g.frame.style.left,g.original.left);assert.equal(t.native.pending.size,0);assert.equal(t.native.history.length,0);
+ await g.listeners.get('pointerup')();
+ assert.deepEqual(g.frame.style,g.original);assert.equal(g.listeners.size,0);
+ assert.equal(t.run("state.sources['main.tex']"),'Original source');assert.equal(t.run('state.result.build_id'),'last-good');
+ assert.equal(t.native.history.length,0);assert.equal(t.native.pending.size,0);
+});
+
+for(const cancellation of ['pointercancel','lostpointercapture','gesture-hook'])test(`legacy resize cancellation (${cancellation}) restores its accepted width without a transaction`,async()=>{
+ const t=await setup();const g=t.legacyGesture(true);g.listeners.get('pointermove')({clientX:75,clientY:10,altKey:false});
+ assert.notEqual(g.frame.style.width,g.original.width);
+ if(cancellation==='gesture-hook')t.run('canvas.cancelGesture()');else g.listeners.get(cancellation)();
+ assert.deepEqual(g.frame.style,g.original);assert.equal(g.listeners.size,0);assert.equal(t.native.history.length,0);assert.equal(t.native.pending.size,0);
+});
 
 test('clean close marks the cache while refusing a dirty close preserves its recovery copies',async()=>{
  const t=await setup();let prevented=false;

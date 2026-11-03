@@ -11,6 +11,7 @@ class NativeDocumentDouble {
   if(name==='preview_text_edit')return this.control.previewText?.(args);
   if(name==='resolve_text_selection')return this.control.resolve(args);
   if(name==='plan_text_object')return this.control.plan(args.request);
+  if(name==='transform')return this.control.transform?.(args.request);
   if(name==='mark_clean_exit'){this.control.cleanExits=(this.control.cleanExits??0)+1;return;}
   if(name==='verify_build')return this.control.verify?.(args);
   if(name==='cancel_compilation')return;
@@ -18,6 +19,7 @@ class NativeDocumentDouble {
   if(name==='typing_drafts')return {drafts:[],errors:[]};
   if(name==='document_selection')return {revision:this.revision,selection:{file:args.file,anchor:args.anchor,head:args.head,secondary:args.secondary}};
   if(name==='document_prepare'){
+   if(this.control.prepareFailure)throw Error(this.control.prepareFailure);
    if(args.revision!==this.revision)throw new Error('Stale document');
    const token='candidate-'+(this.pending.size+1);this.pending.set(token,{sources:structuredClone(args.sources),base:this.revision});
    return {token,revision:this.revision+1};

@@ -6,7 +6,7 @@ Primary project: nadeemtsf/texloom, Rust/Tauri Windows. Approved scope is APPROV
 
 Local commands work. Exact remote history through source-acknowledgements at eb2108d9dbcd9a4e3e380e444942450482f4b6c4 was reconciled with matching Git trees/commit objects and connectivity checks. Earlier backups and the original untracked work-in-progress/source_benchmark.rs are preserved. Do not reset or discard user work.
 
-Current development branch: feature/typing-recovery, based on eb2108d9dbcd9a4e3e380e444942450482f4b6c4 (draft PR #17). Main remains the older verified baseline; development uses the existing draft stack in the primary repository. Command-line Git authentication fails in its Windows credential helper; the connected GitHub service works. App-control tests remain explicitly deferred.
+Current development branch: feature/visual-bridge-audit, based on d67c5af37717091e64a973964c3322b5b55e7ad2 (draft PR #18). Main remains the older verified baseline; development uses the existing draft stack in the primary repository. Command-line Git authentication fails in its Windows credential helper; the connected GitHub service works. App-control tests remain explicitly deferred.
 
 ## Verified implementation checkpoints
 
@@ -76,3 +76,13 @@ Local checks passed: 70 core default (71 with the optional codec), 71 build-infr
 The actual journal-enabled release benchmark passed ten cases with protection assertions, exact undo/redo and unchanged project originals. At 32 MiB the production changed-file path measured 56.39 ms p95 through encoding with a 269,459-byte reply. This includes durable source append/flush, excludes cursor-event flushes/compaction/transport/paint, and does not establish the 50 ms paint target. Schema-2 destruction timing was clarified without changing historical raw measurements. Canonical full-project string copies remain a measured performance concern and are the next P7 optimization to investigate.
 
 PR #17 source eb2108d9dbcd9a4e3e380e444942450482f4b6c4 passed Windows 41599564604 and proof 41599564562. The compile-corpus workflow was not returned for that response-only commit. The new recovery follow-up requires its own remote checks. Native UI/crash/IME/mouse/signature and local installed-engine gates remain unverified. Continue remaining implementation without retrying app control; do not declare P7, P8/P9 or the release complete.
+
+## Owner-requested five-point visual bridge audit
+
+Recovery source d67c5af37717091e64a973964c3322b5b55e7ad2 passed Windows 41607398490, proof 41607398601 and compile corpus 41607398503. A local source-performance branch was created but no optimization code was written before the owner supplied five architecture questions. Work switched to feature/visual-bridge-audit to inspect and correct those paths first. The original WIP draft remains unchanged.
+
+Actual implementation: JavaScript/Monaco, CSS-only pointer movement and release-triggered transactions; real SyncTeX edit/view CLI; -synctex=1 already present; pending candidates preserve canonical source/PDF until validated commit; constrained balanced scanning plus guarded byte patches, not a full TeX AST. Exact excerpts and all five answers are in VISUAL-BRIDGE-AUDIT.md.
+
+Two concrete gaps were corrected: forward mapping's guessed/inflated/clipped geometry and ignored process failure status; legacy drag/resize outlines remaining at unaccepted preview bounds after a rejected transaction. Queries now require complete/unambiguous valid output, successful nontruncated execution, a sealed trace and matching current source identity. Artifact reads use their own lifetime so a valid baseline remains queryable after a private probe supersedes its compiler lease. Legacy preview cleanup now restores accepted bounds on refusal/cancellation/capture loss.
+
+Local audit checks passed: 70 core, 41 native default, 118 frontend, frontend build and Windows x64 release build. The two normally ignored native renderer tests were not repeated for this bridge-only follow-up. Receipts: evidence/visual-bridge-audit-local.json. No executable launch or new portable/installer was performed. Remote audit CI remains separate until observed. Strict/generated IPC typing, broader syntax/provenance, fractional movement, source-copy/selection performance and all deferred native/release gates remain open. Resume earlier-phase and remaining implementation after answering the audit; no React rewrite or AST-wide source regeneration was authorized by those questions.

@@ -19,6 +19,7 @@ pub(super) struct Pending {
     pub(super) approval: Option<layout_gate::Approval>,
 }
 impl DocumentSlot {
+    pub(super) fn revision(&self) -> u64 { self.session.revision().0 }
     pub(super) fn discard(&mut self, token: &str) {
         self.pending.remove(token);
     }

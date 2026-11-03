@@ -12,6 +12,7 @@ use texloom_core::{Block, Change, NewBlock};
 use uuid::Uuid;
 mod build_cache;
 mod document;
+mod synctex;
 mod layout_gate;
 mod visual;
 pub use layout_gate::VisualOperation;
@@ -627,6 +628,7 @@ impl Backend {
         } else {
             "synctex"
         });
+        self.check_mapping_snapshot(&build)?;
         let binary = if sibling.is_file() {
             sibling
         } else {
@@ -639,22 +641,10 @@ impl Backend {
             .arg("edit")
             .arg("-o")
             .arg(format!("{page}:{x}:{y}:{}", pdf.display()));
-        let (_, output) = run_command(command, Duration::from_secs(10))?;
-        let mut input = None;
-        let mut line = None;
-        for record in output.lines() {
-            if let Some(value) = record.strip_prefix("Input:") {
-                if input.is_none() {
-                    input = Some(value.trim().to_string());
-                }
-            }
-            if let Some(value) = record.strip_prefix("Line:") {
-                if line.is_none() {
-                    line = value.trim().parse::<usize>().ok();
-                }
-            }
-        }
-        let input = PathBuf::from(input.ok_or("No source was mapped at this point")?);
+        let output = synctex::run(command, &Default::default())?;
+        self.check_mapping_snapshot(&build)?;
+        let (input, line) = synctex::inverse(&output)?;
+        let input = PathBuf::from(input);
         let input = if input.is_absolute() {
             input
         } else {
@@ -670,7 +660,7 @@ impl Backend {
         let _project = self.project_root(&build.project_id)?;
         Ok(SourceLocation {
             file,
-            line: line.ok_or("No source line was mapped")?,
+            line,
         })
     }
     pub fn forward(&self, id: &str, file: &str, line: usize) -> Result<SourceRectangle> {
@@ -685,6 +675,7 @@ impl Backend {
             .get(id)
             .cloned()
             .ok_or("Compile the document first")?;
+        self.check_mapping_snapshot(&build)?;
         let sibling = build.compiler.with_file_name(if cfg!(windows) {
             "synctex.exe"
         } else {
@@ -703,37 +694,10 @@ impl Backend {
             .arg(format!("{line}:0:{}", build.directory.join(file).display()))
             .arg("-o")
             .arg(build.directory.join(".out/preview.pdf"));
-        let (_, output) = run_command(command, Duration::from_secs(10))?;
-        let mut numbers: HashMap<&str, f64> = HashMap::new();
-        for record in output.lines() {
-            if let Some((key, value)) = record.split_once(':') {
-                if let Ok(number) = value.trim().parse::<f64>() {
-                    numbers.entry(key.trim()).or_insert(number);
-                }
-            }
-        }
-        let page = numbers
-            .get("Page")
-            .copied()
-            .ok_or("No PDF position was mapped for this source")? as usize;
-        let height = numbers.get("H").copied().unwrap_or(12.0).max(1.0);
-        Ok(SourceRectangle {
-            page,
-            x: numbers
-                .get("h")
-                .or_else(|| numbers.get("x"))
-                .copied()
-                .unwrap_or(62.0),
-            y: (numbers
-                .get("v")
-                .or_else(|| numbers.get("y"))
-                .copied()
-                .unwrap_or(112.0)
-                - height)
-                .max(0.0),
-            width: numbers.get("W").copied().unwrap_or(300.0).max(30.0),
-            height,
-        })
+        let output = synctex::run(command, &Default::default())?;
+        self.check_mapping_snapshot(&build)?;
+        self.project_root(&build.project_id)?;
+        synctex::forward(&output)
     }
 }
 
@@ -849,33 +813,6 @@ fn find_program(name: &str) -> Option<PathBuf> {
         .find(|path| path.is_file())
 }
 
-fn run_command(command: Command, timeout: Duration) -> Result<(bool, String)> {
-    let args: Vec<String> = command
-        .get_args()
-        .map(|x| x.to_string_lossy().into())
-        .collect();
-    let env: BTreeMap<String, String> = command
-        .get_envs()
-        .filter_map(|(k, v)| v.map(|v| (k.to_string_lossy().into(), v.to_string_lossy().into())))
-        .collect();
-    let cwd = command
-        .get_current_dir()
-        .map(Path::to_path_buf)
-        .unwrap_or(std::env::current_dir().map_err(fail)?);
-    let output = texloom_build::process::run(
-        &texloom_build::process::CommandSpec {
-            program: Path::new(command.get_program()),
-            args: &args,
-            directory: &cwd,
-            env: &env,
-            timeout,
-            memory_bytes: 2 * 1024 * 1024 * 1024,
-        },
-        &Default::default(),
-    )
-    .map_err(fail)?;
-    Ok((output.success, output.text))
-}
 #[cfg(test)]
 mod engine_tests {
     use super::*;
