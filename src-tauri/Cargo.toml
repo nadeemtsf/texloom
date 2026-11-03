@@ -10,10 +10,15 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 
 [features]
 benchmark = []
+typegen = ["dep:ts-rs"]
 
 [[example]]
 name = "source_benchmark"
 required-features = ["benchmark"]
+
+[[example]]
+name = "document_bindings"
+required-features = ["typegen"]
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
@@ -27,3 +32,4 @@ serde_json = "1"
 uuid = { version = "1", features = ["v4"] }
 texloom-core = { path = "../crates/texloom-core" }
 texloom-build = { path = "../crates/texloom-build" }
+ts-rs = { version = "=11.1.0", optional = true }

@@ -74,7 +74,7 @@ try {
     Check-NativeExit 'Installing frontend dependencies'
     & npm.cmd test
     Check-NativeExit 'Frontend transaction and PDF geometry tests'
-    & cargo.exe test --locked -p texloom-desktop --lib
+    & cargo.exe test --locked -p texloom-desktop --features typegen --lib
     Check-NativeExit 'Native document protocol tests'
     if ($Portable) {
         Write-Host 'Building the portable Windows desktop app...'

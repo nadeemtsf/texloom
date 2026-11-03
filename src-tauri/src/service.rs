@@ -19,6 +19,8 @@ pub use layout_gate::VisualOperation;
 pub use document::{
     CloseReply, DocumentSnapshot, EditorChange, EditorRange, PreparedReply, RecoveryReply, SelectionReply, SourceEditReply,
 };
+#[cfg(feature = "typegen")]
+pub use document::{EditorSelection, RecoveryStatus};
 pub use visual::plan_object_edit as visual_plan;
 pub use visual::{
     describe_text_edit, preview_edit_parameters, LiteralEditRequest, SpacingEditRequest,

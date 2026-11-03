@@ -10,7 +10,7 @@ const [app,html]=await Promise.all(['app.js','index.html'].map(name=>readFile(ne
 
 // Run the complete production shell. IDs come only from the shipped HTML;
 // looking up a missing control returns null, as it does in the actual WebView.
-function boot({markup=html,openFailure=null}={}){
+function boot({markup=html,openFailure=null,badSnapshot=false}={}){
   const calls=[],elements=new Map(),options={},handlers={};
   function element(id=''){
     const classes=new Set();
@@ -26,7 +26,7 @@ function boot({markup=html,openFailure=null}={}){
   }
   const source='\\documentclass{article}\n\\begin{document}\nNative shell fixture\n\\end{document}\n';
   const project={id:'fixture',name:'Fixture',main:'main.tex',sources:{'main.tex':source},recoveries:[]};
-  const snapshot={revision:0,sources:project.sources,main:project.main,engine:'auto',can_undo:false,can_redo:false,selection:null};
+  const snapshot={revision:0,sources:project.sources,main:project.main,engine:'auto',can_undo:false,can_redo:false,selection:null,recovery:{draft_id:null,protected_revision:null,error:null}};
   const model={value:'',setValue(v){this.value=v},setEOL(){},getValue(){return this.value}};
   const editor={createContextKey:()=>({set(){}}),updateOptions:o=>Object.assign(options,o),
     onDidChangeModelContent(){},onDidChangeCursorPosition(){},onDidChangeCursorSelection(){},
@@ -45,7 +45,7 @@ function boot({markup=html,openFailure=null}={}){
     invoke:async(name,args)=>{
       calls.push([name,args]);
       if(name==='open_project'){if(openFailure)throw Error(openFailure);return project}
-      if(name==='document_snapshot')return snapshot;
+      if(name==='document_snapshot')return badSnapshot?{...snapshot,sources:null}:snapshot;
       if(name==='typing_drafts')return {drafts:[],errors:[]};
       throw Error('Test compiler unavailable');
     }};
@@ -92,4 +92,16 @@ test('an initial native open failure leaves a visible explanation and working re
   assert.equal(t.elements.get('banner').classList.contains('hidden'),false);
   assert.equal(t.elements.get('open').disabled,false);
   assert.equal(typeof t.elements.get('open').onclick,'function');
+});
+
+test('an invalid native snapshot cannot replace the existing editor or destroy its displayed PDF',async()=>{
+  const t=boot({badSnapshot:true});let destroyed=0,aborted=0;
+  const previous={id:'accepted',name:'Accepted'};
+  Object.assign(t.context.shell.state,{project:previous,sources:{'main.tex':'Unsaved accepted text'},
+    pdf:{destroy(){destroyed++}},renderAbort:{abort(){aborted++}}});
+  t.model.value='Unsaved accepted text';
+  await t.context.startup;
+  assert.equal(t.context.shell.state.project,previous);
+  assert.equal(t.context.shell.state.sources['main.tex'],'Unsaved accepted text');
+  assert.equal(t.model.value,'Unsaved accepted text');assert.equal(destroyed,0);assert.equal(aborted,0);
 });

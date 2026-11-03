@@ -4,7 +4,7 @@ class NativeDocumentDouble {
  constructor(control){this.control=control;this.sources={'main.tex':'Original source','studio.sty':'Style source'};
   this.revision=0;this.main='main.tex';this.engine='auto';this.history=[];this.redo=[];this.pending=new Map();}
  snapshot(){return structuredClone({sources:this.sources,revision:this.revision,main:this.main,engine:this.engine,
-  can_undo:!!this.history.length,can_redo:!!this.redo.length});}
+  can_undo:!!this.history.length,can_redo:!!this.redo.length,selection:null,recovery:{draft_id:null,protected_revision:null,error:null}});}
  record(){this.history.push(this.snapshot());this.redo=[];}
  async invoke(name,args){
   if(name==='describe_text_edit')return this.control.describeText?.(args);
@@ -17,7 +17,7 @@ class NativeDocumentDouble {
   if(name==='cancel_compilation')return;
   if(name==='close_document'){(this.control.closedRequests??=[]).push(args);return this.control.close?.(args);}
   if(name==='typing_drafts')return {drafts:[],errors:[]};
-  if(name==='document_selection')return {revision:this.revision,selection:{file:args.file,anchor:args.anchor,head:args.head,secondary:args.secondary}};
+  if(name==='document_selection')return {revision:this.revision,selection:{file:args.file,anchor:args.anchor,head:args.head,secondary:args.secondary},recovery:{draft_id:null,protected_revision:null,error:null}};
   if(name==='document_prepare'){
    if(this.control.prepareFailure)throw Error(this.control.prepareFailure);
    if(args.revision!==this.revision)throw new Error('Stale document');

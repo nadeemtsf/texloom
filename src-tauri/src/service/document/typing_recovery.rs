@@ -5,17 +5,22 @@ use texloom_build::{
 };
 
 #[derive(Clone, Debug, Serialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
 pub struct RecoveryStatus {
     pub draft_id: Option<String>,
+    #[cfg_attr(feature = "typegen", ts(type = "number | null"))]
     pub protected_revision: Option<u64>,
     pub error: Option<String>,
 }
 #[derive(Debug, Serialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
 pub struct RecoveryReply {
+    #[cfg_attr(feature = "typegen", ts(type = "number"))]
     pub revision: u64,
     pub recovery: RecoveryStatus,
 }
 #[derive(Default, Debug, Serialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
 pub struct CloseReply {
     pub warning: Option<String>,
 }

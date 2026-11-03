@@ -4,12 +4,16 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test tests/*.test.cjs tests/*.test.mjs",
-    "dev": "node scripts/prepare-assets.mjs && vite --host 127.0.0.1 --port 1420 --strictPort",
-    "build": "node scripts/prepare-assets.mjs && vite build",
+    "test": "npm run protocol:check && node --test tests/*.test.cjs tests/*.test.mjs",
+    "dev": "npm run protocol:emit && node scripts/prepare-assets.mjs && vite --host 127.0.0.1 --port 1420 --strictPort",
+    "build": "npm run protocol:check && node scripts/prepare-assets.mjs && vite build",
     "desktop:dev": "node scripts/prepare-native-verifier.mjs && tauri dev",
     "desktop:build": "node scripts/prepare-native-verifier.mjs && tauri build",
-    "test:core": "cargo test -p texloom-core"
+    "test:core": "cargo test -p texloom-core",
+    "protocol:emit": "node scripts/check-protocol.mjs --write",
+    "protocol:check": "node scripts/check-protocol.mjs --check",
+    "protocol:rust:generate": "cargo run --locked -p texloom-desktop --features typegen --example document_bindings -- --write",
+    "protocol:rust:check": "cargo run --locked -p texloom-desktop --features typegen --example document_bindings -- --check"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.0.0",
@@ -19,6 +23,7 @@
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.0.0",
+    "typescript": "5.9.3",
     "vite": "^6.0.0"
   }
 }

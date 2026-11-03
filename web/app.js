@@ -162,11 +162,11 @@ async function openProject(path=null,supplied=null){
   try{
     const project=supplied||await invoke('open_project',{path});
     const snapshot=await invoke('document_snapshot',{projectId:project.id});
+    const client=new DocumentClient(invoke,project.id,snapshot,{changed:next=>{if(state.client===client)acceptDocument(next)},failed:syncFailed});
     state.renderAbort?.abort();canvas.clear();const previous=state.pdf,previousProject=state.project?.id,previousRevision=state.client?.snapshot.revision;
     Object.assign(state,{project,sources:{...project.sources},saved:{...project.sources},file:project.main,
       revision:snapshot.revision,compiled:-1,result:null,pdf:null,view:null,selected:null,lastHistory:0,canUndo:false,canRedo:false,
       recovery:snapshot.recovery,restoredDirty:!!project.restored});
-    const client=new DocumentClient(invoke,project.id,snapshot,{changed:next=>{if(state.client===client)acceptDocument(next)},failed:syncFailed});
     state.client=client;acceptDocument(snapshot);
     $('project-name').textContent=project.name;$('pages').replaceChildren();$('empty').classList.remove('hidden');
     $('banner').classList.add('hidden');$('log-panel').classList.add('hidden');$('log').textContent='';

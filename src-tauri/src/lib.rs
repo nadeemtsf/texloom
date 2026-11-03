@@ -1,4 +1,7 @@
 mod service;
+mod document_protocol;
+#[cfg(feature = "typegen")]
+pub use document_protocol::bindings as protocol_bindings;
 
 /// Development-only Rust harness access; adds no IPC commands or app controls.
 #[cfg(feature = "benchmark")]
@@ -45,8 +48,9 @@ async fn save_document(
     project_id: String,
     revision: u64,
 ) -> Result<RecoveryReply, String> {
+    let request = document_protocol::RevisionRequest { project_id, revision };
     let backend = state.inner().clone();
-    tauri::async_runtime::spawn_blocking(move || backend.save_document(&project_id, revision))
+    tauri::async_runtime::spawn_blocking(move || backend.save_document(&request.project_id, request.revision))
         .await.map_err(|e|e.to_string())?
 }
 
@@ -149,8 +153,9 @@ async fn discard_typing_draft(state: State<'_, Arc<Backend>>, draft_id: String) 
 }
 #[tauri::command]
 async fn retry_typing_recovery(state: State<'_, Arc<Backend>>, project_id: String, revision: u64) -> Result<RecoveryReply, String> {
+    let request = document_protocol::RevisionRequest { project_id, revision };
     let backend = state.inner().clone();
-    tauri::async_runtime::spawn_blocking(move || backend.retry_typing_recovery(&project_id, revision)).await.map_err(|e|e.to_string())?
+    tauri::async_runtime::spawn_blocking(move || backend.retry_typing_recovery(&request.project_id, request.revision)).await.map_err(|e|e.to_string())?
 }
 #[tauri::command]
 async fn verify_build(state: State<'_, Arc<Backend>>, build_id: String) -> Result<(), String> {
@@ -192,8 +197,9 @@ async fn document_selection(
     head: usize,
     secondary: Vec<EditorRange>,
 ) -> Result<SelectionReply, String> {
+    let request = document_protocol::SelectionRequest { project_id, revision, file, anchor, head, secondary };
     let backend = state.inner().clone();
-    tauri::async_runtime::spawn_blocking(move || backend.document_selection(&project_id, revision, file, anchor, head, secondary)).await.map_err(|e|e.to_string())?
+    tauri::async_runtime::spawn_blocking(move || backend.document_selection(&request.project_id, request.revision, request.file, request.anchor, request.head, request.secondary)).await.map_err(|e|e.to_string())?
 }
 #[tauri::command]
 async fn document_edit(
@@ -204,8 +210,9 @@ async fn document_edit(
     changes: Vec<EditorChange>,
     group: Option<u64>,
 ) -> Result<SourceEditReply, String> {
+    let request = document_protocol::EditRequest { project_id, revision, file, changes, group };
     let backend = state.inner().clone();
-    tauri::async_runtime::spawn_blocking(move || backend.document_edit_delta(&project_id, revision, &file, changes, group)).await.map_err(|e|e.to_string())?
+    tauri::async_runtime::spawn_blocking(move || backend.document_edit_delta(&request.project_id, request.revision, &request.file, request.changes, request.group)).await.map_err(|e|e.to_string())?
 }
 #[tauri::command]
 async fn document_profile(
@@ -215,8 +222,9 @@ async fn document_profile(
     main: String,
     engine: String,
 ) -> Result<DocumentSnapshot, String> {
+    let request = document_protocol::ProfileRequest { project_id, revision, main, engine };
     let backend = state.inner().clone();
-    tauri::async_runtime::spawn_blocking(move || backend.document_profile(&project_id, revision, main, engine)).await.map_err(|e|e.to_string())?
+    tauri::async_runtime::spawn_blocking(move || backend.document_profile(&request.project_id, request.revision, request.main, request.engine)).await.map_err(|e|e.to_string())?
 }
 #[tauri::command]
 async fn document_history(
@@ -225,8 +233,9 @@ async fn document_history(
     revision: u64,
     redo: bool,
 ) -> Result<DocumentSnapshot, String> {
+    let request = document_protocol::HistoryRequest { project_id, revision, redo };
     let backend = state.inner().clone();
-    tauri::async_runtime::spawn_blocking(move || backend.document_history(&project_id, revision, redo)).await.map_err(|e|e.to_string())?
+    tauri::async_runtime::spawn_blocking(move || backend.document_history(&request.project_id, request.revision, request.redo)).await.map_err(|e|e.to_string())?
 }
 #[tauri::command]
 async fn document_prepare(
@@ -251,9 +260,10 @@ async fn document_commit(
     token: String,
     build_id: String,
 ) -> Result<DocumentSnapshot, String> {
+    let request = document_protocol::CommitRequest { project_id, token, build_id };
     let backend = state.inner().clone();
     tauri::async_runtime::spawn_blocking(move || {
-        backend.document_commit(&project_id, &token, &build_id)
+        backend.document_commit(&request.project_id, &request.token, &request.build_id)
     })
     .await
     .map_err(|e| e.to_string())?

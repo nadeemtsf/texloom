@@ -89,7 +89,9 @@ impl DocumentSlot {
     }
 }
 #[derive(Clone, Serialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
 pub struct DocumentSnapshot {
+    #[cfg_attr(feature = "typegen", ts(type = "number"))]
     pub revision: u64,
     pub sources: BTreeMap<String, String>,
     pub main: String,
@@ -102,9 +104,13 @@ pub struct DocumentSnapshot {
 /// A source edit cannot create/delete files or change the project profile.
 /// Send only its changed file; opening, history and visual commits send full snapshots.
 #[derive(Clone, Serialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
 pub struct SourceEditReply {
+    #[cfg_attr(feature = "typegen", ts(type = "'source_delta'"))]
     pub kind: &'static str,
+    #[cfg_attr(feature = "typegen", ts(type = "number"))]
     pub base_revision: u64,
+    #[cfg_attr(feature = "typegen", ts(type = "number"))]
     pub revision: u64,
     pub sources: BTreeMap<String, String>,
     pub main: String,
@@ -115,6 +121,7 @@ pub struct SourceEditReply {
     pub recovery: RecoveryStatus,
 }
 #[derive(Clone, Serialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
 pub struct EditorSelection {
     pub file: String,
     pub anchor: usize,
@@ -122,25 +129,31 @@ pub struct EditorSelection {
     pub secondary: Vec<EditorRange>,
 }
 #[derive(Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
 pub struct EditorRange {
     pub anchor: usize,
     pub head: usize,
 }
 #[derive(Serialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
 pub struct SelectionReply {
+    #[cfg_attr(feature = "typegen", ts(type = "number"))]
     pub revision: u64,
     pub selection: Option<EditorSelection>,
     pub recovery: RecoveryStatus,
 }
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
 pub struct EditorChange {
     pub offset: usize,
     pub length: usize,
     pub text: String,
 }
 #[derive(Serialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
 pub struct PreparedReply {
     pub token: String,
+    #[cfg_attr(feature = "typegen", ts(type = "number"))]
     pub revision: u64,
 }
 

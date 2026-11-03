@@ -1,0 +1,104 @@
+{
+  "close_reply": {
+    "warning": null
+  },
+  "edit_request": {
+    "changes": [
+      {
+        "length": 1,
+        "offset": 0,
+        "text": "B"
+      }
+    ],
+    "file": "main.tex",
+    "group": 1,
+    "projectId": "project",
+    "revision": 7
+  },
+  "prepared_reply": {
+    "revision": 9,
+    "token": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  "recovery_reply": {
+    "recovery": {
+      "draft_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "error": null,
+      "protected_revision": 8
+    },
+    "revision": 8
+  },
+  "selection_reply": {
+    "recovery": {
+      "draft_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "error": null,
+      "protected_revision": 8
+    },
+    "revision": 8,
+    "selection": {
+      "anchor": 0,
+      "file": "main.tex",
+      "head": 1,
+      "secondary": [
+        {
+          "anchor": 4,
+          "head": 4
+        }
+      ]
+    }
+  },
+  "snapshot": {
+    "can_redo": false,
+    "can_undo": true,
+    "engine": "auto",
+    "main": "main.tex",
+    "recovery": {
+      "draft_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "error": null,
+      "protected_revision": 7
+    },
+    "revision": 7,
+    "selection": {
+      "anchor": 0,
+      "file": "main.tex",
+      "head": 1,
+      "secondary": [
+        {
+          "anchor": 4,
+          "head": 4
+        }
+      ]
+    },
+    "sources": {
+      "main.tex": "﻿A\r\n😀\r\n",
+      "style.sty": "% keep\r\n"
+    }
+  },
+  "source_delta": {
+    "base_revision": 7,
+    "can_redo": false,
+    "can_undo": true,
+    "engine": "auto",
+    "kind": "source_delta",
+    "main": "main.tex",
+    "recovery": {
+      "draft_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "error": null,
+      "protected_revision": 8
+    },
+    "revision": 8,
+    "selection": {
+      "anchor": 0,
+      "file": "main.tex",
+      "head": 1,
+      "secondary": [
+        {
+          "anchor": 4,
+          "head": 4
+        }
+      ]
+    },
+    "sources": {
+      "main.tex": "﻿B\r\n😀\r\n"
+    }
+  }
+}

@@ -32,7 +32,7 @@ jobs:
       - name: Check build scheduling, snapshots and process-tree cleanup
         run: cargo test --locked -p texloom-build
       - name: Check native document protocol
-        run: cargo test --locked -p texloom-desktop --lib
+        run: cargo test --locked -p texloom-desktop --features typegen --lib
       - name: Prepare pinned development PDFium and independent reference
         shell: pwsh
         run: |

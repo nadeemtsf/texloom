@@ -6,7 +6,7 @@ This is a separate desktop implementation. It does not replace or convert the ea
 
 ## Development status
 
-Version 0.3 is under development in the primary repository, https://github.com/nadeemtsf/texloom. The Rust source/history, compile service, bounded visual adapters, independent verification, guarded Save and unsaved-work recovery have automated coverage. Native interaction and distribution gates remain open. The owner deferred mouse/keyboard/IME checks until implementation through the remaining phases is complete. See docs/WORK-CHECKPOINT.md and docs/FINAL-NATIVE-ACCEPTANCE.md. A successful test run does not establish reversible editing of arbitrary LaTeX.
+Version 0.3 is under development in the primary repository, https://github.com/nadeemtsf/texloom. The ordered document protocol now has strict TypeScript sources and Rust-generated DTOs; see docs/TYPED-DOCUMENT-PROTOCOL.md. The Rust source/history, compile service, bounded visual adapters, independent verification, guarded Save and unsaved-work recovery have automated coverage. Native interaction and distribution gates remain open. The owner deferred mouse/keyboard/IME checks until implementation through the remaining phases is complete. See docs/WORK-CHECKPOINT.md and docs/FINAL-NATIVE-ACCEPTANCE.md. A successful test run does not establish reversible editing of arbitrary LaTeX.
 
 ## Implemented in source
 

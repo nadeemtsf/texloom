@@ -9,3 +9,5 @@ Keep source transformations in texloom-core, native process/file work in src-tau
 Use synthetic documents in tests. Keep user projects, build caches, credentials, generated installers and personal correspondence out of Git. The checked-in lockfiles are part of the build contract.
 
 Windows filesystem packaging checks in npm test prefer PowerShell 7 (pwsh.exe), matching CI, and fall back to system Windows PowerShell when version 7 is absent. They do not change execution policy. A host that denies creation of the test junction reports that specific link case as skipped; do not count it as a passed refusal check.
+
+The ordered document client is authored in frontend/protocol/*.ts. Its web/core JavaScript is generated and must not be edited directly. After a TypeScript change run npm run protocol:emit; after a Rust DTO change first run npm run protocol:rust:generate. npm test/build fail on stale runtime output, and native tests with --features typegen fail on stale Rust bindings/fixtures. See docs/TYPED-DOCUMENT-PROTOCOL.md. The remaining frontend migration is separate work.

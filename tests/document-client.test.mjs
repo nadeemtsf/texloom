@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {DocumentClient,editorText,sameSources} from '../web/core/document-client.js';
-const snapshot=(revision=0)=>({revision,sources:{'main.tex':'A'},main:'main.tex',engine:'auto',can_undo:revision>0,can_redo:false});
+const snapshot=(revision=0)=>({revision,sources:{'main.tex':'A'},main:'main.tex',engine:'auto',can_undo:revision>0,can_redo:false,selection:null,recovery:{draft_id:null,protected_revision:null,error:null}});
 const tick=()=>new Promise(setImmediate);
 const delta=(base,file,source)=>({...snapshot(base+1),kind:'source_delta',base_revision:base,sources:{[file]:source},selection:null});
 
@@ -53,8 +53,9 @@ test('a no-op delta keeps source identity and publishes the authoritative revisi
 });
 
 test('full history and visual acknowledgements can replace the file set after source deltas',async()=>{
- const client=new DocumentClient(async(name,args)=>name==='document_edit'?delta(args.revision,args.file,'B'):
-  {...snapshot(args.revision+1),sources:{'main.tex':'Restored','new.sty':'New style'}},'p',snapshot());
+ let revision=0;
+ const client=new DocumentClient(async(name,args)=>{revision++;return name==='document_edit'?delta(args.revision,args.file,'B'):
+  {...snapshot(revision),sources:{'main.tex':'Restored','new.sty':'New style'}}},'p',snapshot());
  await client.edit('main.tex',[],1);await client.history(false);
  assert.deepEqual(client.snapshot.sources,{'main.tex':'Restored','new.sty':'New style'});
  await client.commit('candidate','build');assert.equal(client.snapshot.revision,3);
@@ -105,7 +106,7 @@ test('source events are ordered against acknowledged revisions and only publish 
   const calls=[],published=[];let finish;
   const client=new DocumentClient(async(name,args)=>{
     calls.push({name,...args});if(calls.length===1)await new Promise(r=>finish=r);
-    return snapshot(args.revision+1);
+    return delta(args.revision,args.file,'Edit '+(args.revision+1));
   },'project',snapshot(),{changed:s=>published.push(s.revision)});
   const first=client.edit('main.tex',[{offset:0,length:1,text:'B'}],1);
   const second=client.edit('main.tex',[{offset:1,length:0,text:'C'}],1);
@@ -116,7 +117,7 @@ test('source events are ordered against acknowledged revisions and only publish 
 
 test('flush includes typing queued while an earlier acknowledgement is awaited',async()=>{
   const resolvers=[];
-  const client=new DocumentClient(async(_name,args)=>{await new Promise(r=>resolvers.push(r));return snapshot(args.revision+1);},'p',snapshot());
+  const client=new DocumentClient(async(_name,args)=>{await new Promise(r=>resolvers.push(r));return delta(args.revision,args.file,'Edit '+(args.revision+1));},'p',snapshot());
   const first=client.edit('main.tex',[],1);await tick();let flushed=false;
   const flush=client.flush().then(s=>{flushed=true;return s;});
   const second=client.edit('main.tex',[],1);resolvers[0]();await first;await tick();
@@ -135,7 +136,7 @@ test('a rejected source edit retains the last acknowledged source and stops depe
 
 test('a refused visual commit does not poison later source typing',async()=>{
   const client=new DocumentClient(async(name,args)=>{
-    if(name==='document_commit')throw new Error('Superseded visual candidate');return snapshot(args.revision+1);
+    if(name==='document_commit')throw new Error('Superseded visual candidate');return delta(args.revision,args.file,'Edit '+(args.revision+1));
   },'p',snapshot());
   await assert.rejects(client.commit('old-token','old-build'));
   assert.equal(client.error,null);await client.edit('main.tex',[],1);assert.equal(client.snapshot.revision,1);
@@ -154,7 +155,7 @@ test('editor projection is a view and leaves canonical BOM and mixed line ending
 test('selection acknowledgements are ordered but do not publish a new source snapshot',async()=>{
   const calls=[];let published=0;
   const client=new DocumentClient(async(name,args)=>{
-    calls.push(name);return name==='document_selection'?{revision:args.revision,selection:{file:args.file,anchor:args.anchor,head:args.head}}:snapshot(args.revision+1);
+    calls.push(name);return name==='document_selection'?{revision:args.revision,selection:{file:args.file,anchor:args.anchor,head:args.head,secondary:args.secondary},recovery:snapshot().recovery}:delta(args.revision,args.file,'B');
   },'p',snapshot(),{changed:()=>published++});
   await client.selection('main.tex',1,1);assert.equal(published,0);assert.equal(client.snapshot.sources['main.tex'],'A');
   const source=client.edit('main.tex',[],1),selection=client.selection('main.tex',0,1);
