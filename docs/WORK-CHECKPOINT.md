@@ -46,3 +46,11 @@ The follow-up returns short structured initialization diagnostics while retainin
 - P9 separate richer LaTeX adapters with their own fixtures. No ordinary-PDF expansion.
 
 Continue authorized coding, preserve failures and successes, and keep blocked native gates explicit. The phase plan and release are not complete.
+
+## Owner-directed test sequencing and current execution availability
+
+The latest owner instruction on 3 November defers native app-control/typing/IME/mouse checks until implementation through the remaining phases is complete. Continue automated source/build/headless worker/engine checks. Deferred native cases and completion language are in FINAL-NATIVE-ACCEPTANCE.md; do not retry app control while implementing the remaining work.
+
+The desktop executor disconnected during resumption and then reported no usable execution environment. The local checkout was read successfully first: feature/source-benchmark at 2f3d39 with an untracked work-in-progress/source_benchmark.rs draft. That initial draft failed to compile because its service path import resolved child modules incorrectly; no timings exist. Preserve the local changes. Work now continues remotely on feature/source-benchmark through GitHub and Windows CI. Do not reset the disconnected local tree to a newer remote head without inspecting it.
+
+Compiler source 2f3d393a0350cc2c0d626e319486f6b621b12bcc passed Windows 41586639323, visual proof/native inspection 41586639242 and compile corpus 41586639296. The benchmark follow-up adds an explicit opt-in library harness and CI measurement; its own build/results remain pending until observed. See SOURCE-PERFORMANCE.md. Unsaved-typing recovery and other phase implementation items remain open.

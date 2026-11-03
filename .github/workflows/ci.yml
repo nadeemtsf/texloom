@@ -71,3 +71,14 @@ jobs:
           path: artifacts/Texloom-Desktop-Windows-x64.zip
           if-no-files-found: error
           retention-days: 14
+      - name: Measure native source editing and snapshot encoding
+        shell: pwsh
+        run: |
+          cargo run --locked --release -p texloom-desktop --features benchmark --example source_benchmark --target x86_64-pc-windows-msvc -- artifacts/source-benchmark
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: Texloom-Native-Service-Benchmark
+          path: artifacts/source-benchmark/report.json
+          if-no-files-found: error
+          retention-days: 30

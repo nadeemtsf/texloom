@@ -8,6 +8,13 @@ license = "MIT"
 name = "texloom_desktop_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
+[features]
+benchmark = []
+
+[[example]]
+name = "source_benchmark"
+required-features = ["benchmark"]
+
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 sha2 = "0.10"

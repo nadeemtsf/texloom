@@ -1,4 +1,10 @@
 mod service;
+
+/// Development-only Rust harness access; adds no IPC commands or app controls.
+#[cfg(feature = "benchmark")]
+pub mod benchmark {
+    pub use crate::service::{Backend, DocumentSnapshot, EditorChange};
+}
 use service::{
     Backend, CompileResult, DocumentSnapshot, EditorChange, EditorRange, ObjectEditRequest,
     ObjectPlan, PreparedReply, Project, ResolvedSelection, SelectionPoint, SelectionReply,
