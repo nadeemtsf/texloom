@@ -60,6 +60,12 @@ test('switching windows cancels a held drag and a later deliberate drag still wo
  t.frame.events.get('pointermove')({clientX:30,clientY:40,altKey:false});
  await t.frame.events.get('pointerup')();assert.equal(t.operations.length,1);
 });
+
+test('disposing a controller releases its window listener and active gesture',()=>{
+ const t=setup();t.c.drag(t.event,t.frame,t.selection);t.c.destroy();
+ assert.equal(t.eventWindow.events.has('blur'),false);assert.equal(t.frame.events.size,0);
+ assert.equal(t.operations.length,0);assert.equal(t.c.view,null);
+});
 test('switching windows removes a marquee without resolving or replacing the selection',()=>{
  const t=setup(),shell=new Element();let resolutions=0;
  shell.getBoundingClientRect=()=>({left:0,top:0});shell.append=()=>{};

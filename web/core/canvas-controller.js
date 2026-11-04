@@ -1,9 +1,10 @@
 import {intersects,normalizedRectangle} from './geometry.js';
+import {performanceOutcome} from './performance-diagnostics.js';
 
 /** DOM gestures are isolated from source edits and compilation. */
 export class CanvasController {
-  constructor({getSession,resolve,move,edit,selected,notify,eventWindow=globalThis.window}) {
-    Object.assign(this,{getSession,resolve,move,edit,onSelected:selected,notify});
+  constructor({getSession,resolve,move,edit,selected,notify,eventWindow=globalThis.window,diagnostics=null}) {
+    Object.assign(this,{getSession,resolve,move,edit,onSelected:selected,notify,eventWindow,diagnostics});
     this.view=null;this.selection=null;this.pending=0;this.hits=[];
     this.cancelGesture=null;
     this.onEscape=e=>{if(e.key==='Escape'){this.cancelGesture?.();this.clear()}};
@@ -41,27 +42,31 @@ export class CanvasController {
     hits=[...new Map(hits.filter(h=>h.page===page).map(h=>[h.id,h])).values()];
     if(!hits.length||hits.length>64)return this.notify('Select between one and 64 adjacent text lines.');
     const serial=++this.pending,session=this.getSession(),buildId=session.result.build_id,revision=session.revision;
+    const trace=this.diagnostics?.begin('source-selection');
     this.notify('Mapping selected text to its source…');
     try{
-      const resolved=await this.resolve({buildId,page,hits,points:hits.map(h=>({x:h.x+Math.min(h.width/2,15),y:h.baseline-h.height*0.35}))});
+      const resolved=await this.resolve({buildId,page,hits,trace,points:hits.map(h=>({x:h.x+Math.min(h.width/2,15),y:h.baseline-h.height*0.35}))});
       const now=this.getSession();
-      if(serial!==this.pending||revision!==now.revision||now.result?.build_id!==buildId||now.mode==='read')return;
+      if(serial!==this.pending||revision!==now.revision||now.result?.build_id!==buildId||now.mode==='read'){trace?.finish('stale');return}
       if(now.sources[resolved.file]!==resolved.expected_source)throw new Error('The source changed. Select the text again.');
       const proof=resolved.proof;
       if(proof?.schema!==1||proof.build_id!==buildId||proof.page!==page)throw new Error('This selection has no current layout proof.');
       const mapped=proof.lines;
       this.hits=mapped;this.selection={...resolved,x:proof.x,y:proof.y,width:proof.width,height:proof.height,baselineRuns:proof.runs,page,kind:'source',unitKind:resolved.kind};
       const frame=this.drawFrame();this.onSelected(this.selection);frame?.focus({preventScroll:true});
+      trace?.mark('selection-ready');trace?.finish('selected',{paint:true,isCurrent:()=>serial===this.pending&&this.fresh()});
       this.notify(`Selected ${resolved.kind}${mapped.length>1?' · '+mapped.length+' visible lines':''}. Drag its frame or double-click to edit.`);
       if(edit)this.edit(this.selection);
-    }catch(error){if(serial===this.pending)this.notify(error.message||String(error))}
+    }catch(error){trace?.finish(performanceOutcome(error));if(serial===this.pending)this.notify(error.message||String(error))}
   }
-  selectObject(id){
+  selectObject(id,{record=true}={}){
     const object=(this.view?.result.objects||[]).find(o=>o.id===id),bounds=this.view?.objects.get(id);
     if(!object||!bounds||!this.fresh()||this.getSession().mode==='read')return;
     const reason=this.view.pages.find(p=>p.number===bounds.page)?.selectionReason;if(reason)return this.notify(reason);
     if(bounds.instances!==1||bounds.pages.size!==1)return this.notify('This source object has multiple PDF instances. Use source editing.');
+    const trace=record?this.diagnostics?.begin('object-selection'):null;
     this.pending++;this.hits=[];this.selection={...object,...bounds,kind:'object'};const frame=this.drawFrame();this.onSelected(this.selection);frame?.focus({preventScroll:true});
+    const serial=this.pending;trace?.mark('selection-ready');trace?.finish('selected',{paint:true,isCurrent:()=>serial===this.pending&&this.fresh()});
   }
   drawFrame(){
     document.querySelectorAll('.source-selection-frame').forEach(el=>el.remove());
@@ -98,20 +103,22 @@ export class CanvasController {
   drag(event,frame,selection){
     if(event.button!==0||!this.fresh()||this.getSession().mode==='read')return;
     event.preventDefault();event.stopPropagation();frame.focus({preventScroll:true});frame.setPointerCapture(event.pointerId);
-    const origin={x:event.clientX,y:event.clientY};let delta=null;
+    const origin={x:event.clientX,y:event.clientY};let delta=null,previewMeasured=false;
     const factor=this.view.scale;
     const move=e=>{
       const snap=v=>e.altKey?Math.round(v*100)/100:Math.round(v/2)*2;
       if(Math.hypot(e.clientX-origin.x,e.clientY-origin.y)<3&&!delta)return;
+      const trace=previewMeasured?null:this.diagnostics?.begin('drag-preview');previewMeasured=true;
       delta={x:snap((e.clientX-origin.x)/factor),y:snap((e.clientY-origin.y)/factor)};
       frame.style.transform=`translate(${delta.x*this.view.scale}px,${delta.y*this.view.scale}px)`;
       frame.classList.add('dragging');
+      trace?.mark('preview-updated');trace?.finish('feedback',{paint:true,isCurrent:()=>this.cancelGesture===cancel&&this.fresh()});
     };
     // A moving outline is honest feedback until target-only paint is proven.
     // Cropping the page would copy background ink; masking would erase it.
     const clean=()=>{frame.style.transform='';frame.classList.remove('dragging');this.cancelGesture=null};
     const unbind=()=>{frame.removeEventListener('pointermove',move);frame.removeEventListener('pointerup',up);frame.removeEventListener('pointercancel',cancel);frame.removeEventListener('lostpointercapture',cancel)};
-    const cancel=()=>{unbind();clean()};const up=async()=>{unbind();this.lastClick=null;try{if(delta&&(delta.x||delta.y))await this.move(selection,delta.x,delta.y)}finally{clean()}};
+    const cancel=()=>{unbind();clean()};const up=async()=>{const trace=delta&&(delta.x||delta.y)?this.diagnostics?.begin('text-move'):null;unbind();this.lastClick=null;try{if(delta&&(delta.x||delta.y))await this.move(selection,delta.x,delta.y,trace)}finally{clean()}};
     this.cancelGesture=cancel;frame.addEventListener('pointermove',move);frame.addEventListener('pointerup',up);frame.addEventListener('pointercancel',cancel);frame.addEventListener('lostpointercapture',cancel);
   }
   marquee(event,shell,lines,page){
@@ -125,5 +132,5 @@ export class CanvasController {
     const cancel=()=>clean();const up=()=>{clean();if(bounds&&bounds.width*scale>5&&bounds.height*scale>5)this.selectHits(lines.filter(l=>intersects(l,bounds)),page);else this.clear()};
     this.cancelGesture=cancel;shell.addEventListener('pointermove',move);shell.addEventListener('pointerup',up);shell.addEventListener('pointercancel',cancel);
   }
-  destroy(){this.cancelGesture?.();document.removeEventListener('keydown',this.onEscape);this.view=null;this.selection=null}
+  destroy(){this.cancelGesture?.();document.removeEventListener('keydown',this.onEscape);this.eventWindow?.removeEventListener('blur',this.onBlur);this.view=null;this.selection=null}
 }

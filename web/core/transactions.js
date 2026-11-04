@@ -25,18 +25,22 @@ export function sessionIdentity(session) {
 }
 
 /** No source, history, or PDF state is mutated before the complete candidate passes. */
-export async function stageCandidate({sources,revision,identity,getIdentity,compile,prepare,policy,previousPageCount,verify=async()=>{},requireVerified=false}) {
+export async function stageCandidate({sources,revision,identity,getIdentity,compile,prepare,policy,previousPageCount,verify=async()=>{},requireVerified=false,trace=null}) {
   let prepared=null;
   try{
     if(getIdentity()!==identity)throw new StaleCandidate();
     const result=await compile(structuredClone(sources),revision);
+    trace?.mark('build-returned');
     if(getIdentity()!==identity)throw new StaleCandidate();
     if(!result.ok||requireVerified&&result.verification_eligible===false)throw new CompilationFailure(result.log,result.diagnostics);
     if(result.revision!==revision)throw new StaleCandidate();
     prepared=await prepare(result);
+    trace?.mark('pdf-prepared');
     if(getIdentity()!==identity)throw new StaleCandidate();
     validateObjectLayout(prepared,policy,previousPageCount);
+    trace?.mark('frontend-validated');
     await verify(result);
+    trace?.mark('build-rechecked');
     if(getIdentity()!==identity)throw new StaleCandidate();
     return {sources,result,prepared};
   }catch(error){if(prepared?.pdf)await prepared.pdf.destroy();if(error.name!=='CompilationCancelled'&&getIdentity()!==identity)throw new StaleCandidate();throw error}

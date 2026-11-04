@@ -8,6 +8,8 @@ import {TypingRecoveryController} from '../web/core/typing-recovery.js';
 import {createWorkspaceInvoke} from '../web/core/workspace-protocol.js';
 import {ProjectControls} from '../web/core/project-controls.js';
 import {PDFSearch} from '../web/core/pdf-search.js';
+import {SetupHelp} from '../web/core/setup-help.js';
+import {installPerformanceDiagnostics,performanceOutcome} from '../web/core/performance-diagnostics.js';
 
 const [app,html]=await Promise.all(['app.js','index.html'].map(name=>readFile(new URL('../web/'+name,import.meta.url),'utf8')));
 
@@ -34,14 +36,14 @@ function boot({markup=html,openFailure=null,badSnapshot=false,adapterFailure=nul
   const editor={createContextKey:()=>({set(){}}),updateOptions:o=>Object.assign(options,o),
     onDidChangeModelContent(){},onDidChangeCursorPosition(){},onDidChangeCursorSelection(){},
     addAction(){},addCommand(){},getDomNode:()=>element(),getSelections:()=>[],hasTextFocus:()=>false};
-  const context={...transactions,DocumentClient,editorText,sameSources,TypingRecoveryController,createWorkspaceInvoke,ProjectControls,PDFSearch,structuredClone,console,
+  const context={...transactions,DocumentClient,editorText,sameSources,TypingRecoveryController,createWorkspaceInvoke,ProjectControls,PDFSearch,SetupHelp,installPerformanceDiagnostics,performanceOutcome,structuredClone,console,
     self:{},pdfjs:{GlobalWorkerOptions:{}},pdfWorkerURL:'test-worker',EditorWorker:class{},
     monaco:{languages:{register(){},setMonarchTokensProvider(){},setLanguageConfiguration(){}},
       editor:{defineTheme(){},createModel:()=>model,create:()=>editor,EndOfLineSequence:{LF:0}},
       KeyMod:{CtrlCmd:1,Shift:2},KeyCode:{KeyS:3,Enter:4,KeyZ:5,KeyY:6}},
     CanvasController:class{clear(){}},
     document:{getElementById:id=>elements.get(id)||null,createElement:()=>element(),
-      querySelectorAll:()=>[],addEventListener:(name,fn)=>{handlers[name]=fn}},
+      querySelectorAll:selector=>selector==='dialog[open]'?[...elements.values()].filter(e=>e.open):[],addEventListener:(name,fn)=>{handlers[name]=fn}},
     window:{addEventListener(){}},setTimeout:()=>1,clearTimeout(){},
     getCurrentWindow:()=>({onCloseRequested:fn=>{handlers.close=fn}}),
     open:async()=>null,save:async()=>null,confirm:async()=>true,
@@ -54,7 +56,7 @@ function boot({markup=html,openFailure=null,badSnapshot=false,adapterFailure=nul
       throw Error('Test compiler unavailable');
     }};
   const script=app.replace(/^import .*;\r?$/gm,'').replace(/openProject\(\);\s*$/,'globalThis.startup = openProject();');
-  vm.runInNewContext(script+'\nglobalThis.shell={state,updateControls,applyLayoutControl};',context,{filename:'web/app.js'});
+  vm.runInNewContext(script+'\nglobalThis.shell={state,updateControls,applyLayoutControl,showFailure};',context,{filename:'web/app.js'});
   return {context,calls,elements,options,model,handlers};
 }
 
@@ -96,6 +98,23 @@ test('an initial native open failure leaves a visible explanation and working re
   assert.equal(t.elements.get('banner').classList.contains('hidden'),false);
   assert.equal(t.elements.get('open').disabled,false);
   assert.equal(typeof t.elements.get('open').onclick,'function');
+});
+
+test('the shipped setup help explains a known failure without invoking native operations',async()=>{
+  const t=boot();await t.context.startup;
+  const calls=t.calls.length,before=structuredClone(t.context.shell.state.sources);
+  t.context.shell.showFailure(Error('xelatex was not found. Install MiKTeX or TeX Live, then reopen Texloom.'));
+  assert.equal(t.elements.get('setup-error-help').classList.contains('hidden'),false);
+  t.elements.get('setup-error-help').onclick();
+  assert.equal(t.elements.get('setup-dialog').open,true);
+  assert.equal(t.elements.get('setup-context').textContent,'LaTeX compiler not found');
+  assert.match(t.elements.get('setup-steps').children.map(c=>c.textContent).join(' '),/reopen Texloom/i);
+  assert.equal(t.calls.length,calls);assert.deepEqual({...t.context.shell.state.sources},before);
+  t.handlers.keydown({ctrlKey:true,key:'s',target:{closest:()=>null},preventDefault(){assert.fail('A setup dialog must retain its own keyboard input')}});
+  t.elements.get('setup-close').onclick();assert.equal(t.elements.get('setup-dialog').open,false);
+  t.context.shell.showFailure(Error('Unsupported transformation'));
+  assert.equal(t.elements.get('setup-error-help').classList.contains('hidden'),true);
+  t.elements.get('setup-help').onclick();assert.equal(t.elements.get('setup-context').textContent,'Set up LaTeX for Texloom');
 });
 
 test('an invalid native snapshot cannot replace the existing editor or destroy its displayed PDF',async()=>{

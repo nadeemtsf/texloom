@@ -19,8 +19,11 @@ import {validateSelectionProbe} from './core/selection-proof.js';
 import {createWorkspaceInvoke} from './core/workspace-protocol.js';
 import {ProjectControls} from './core/project-controls.js';
 import {PDFSearch} from './core/pdf-search.js';
+import {SetupHelp} from './core/setup-help.js';
+import {installPerformanceDiagnostics,performanceOutcome} from './core/performance-diagnostics.js';
 
 const invoke=createWorkspaceInvoke(nativeInvoke);
+const diagnostics=installPerformanceDiagnostics();
 
 self.MonacoEnvironment={getWorker:()=>new EditorWorker()};
 pdfjs.GlobalWorkerOptions.workerSrc=pdfWorkerURL;
@@ -56,11 +59,13 @@ const state={
 const undoContext=editor.createContextKey('texloomCanUndo',false);
 const redoContext=editor.createContextKey('texloomCanRedo',false);
 const surfaceElements={pages:$('pages'),scroller:$('preview-scroll'),count:$('page-count'),empty:$('empty')};
+const setupHelp=new SetupHelp({document});
 const pdfSearch=new PDFSearch({document,getView:()=>state.view,notify:toast});
 const canvas=new CanvasController({
+  diagnostics,
   getSession:()=>state,
   resolve:args=>resolveSourceSelection(args),
-  move:(selection,dx,dy)=>moveText(selection,dx,dy),
+  move:(selection,dx,dy,trace)=>moveText(selection,dx,dy,trace),
   edit:selection=>editText(selection),
   selected:selection=>showObjectInspector(selection),
   notify:text=>toast(text)
@@ -190,6 +195,7 @@ function showFailure(error){
   if(error.name==='CompilationCancelled'){toast(error.message);return}
   if(error instanceof StaleCandidate){toast(error.message);if(state.pending!=='manual')state.pending=false;scheduleCompile();return}
   renderDiagnostics(error.diagnostics||[]);
+  setupHelp.update(error);
   if(error.log)$('log').textContent=error.log;
   $('banner').textContent=message(error)+' Visual editing is paused until the current source compiles. Read text is still available.';
   $('banner').classList.remove('hidden');
@@ -238,6 +244,7 @@ async function openProject(path=null,supplied=null){
       recovery:snapshot.recovery,restoredDirty:!!project.restored});
     state.savedProfile={main:snapshot.main,engine:snapshot.engine};state.compileApproved=!path&&!supplied;
     state.client=client;acceptDocument(snapshot);
+    setupHelp.update(null);
     $('project-name').textContent=project.name;$('pages').replaceChildren();$('empty').classList.remove('hidden');$('page-count').textContent='Not compiled';
     $('banner').classList.add('hidden');$('log-panel').classList.add('hidden');$('log').textContent='';
     renderDiagnostics([]);
@@ -354,7 +361,7 @@ async function discardSaveRecovery(){
 }
 function compileCandidate(){return state.client.compile();}
 const selectionProofs=new WeakMap();
-async function resolveSourceSelection({buildId,page,points,hits}){
+async function resolveSourceSelection({buildId,page,points,hits,trace=null}){
   if(!fresh()||buildId!==state.result.build_id)throw new StaleCandidate();
   const identity=sessionIdentity(state),baseline=state.view,client=state.client,seen=new Set();
   const assertCurrent=()=>{if(sessionIdentity(state)!==identity||state.view!==baseline)throw new StaleCandidate()};
@@ -370,6 +377,7 @@ async function resolveSourceSelection({buildId,page,points,hits}){
       try{
         assertCurrent();
         const resolved=await client.resolve(buildId,page,sample,ordinal);
+        trace?.mark('mapping-resolved');
         assertCurrent();
         if(resolved.schema!==1||resolved.build_id!==buildId||resolved.revision!==state.revision)throw new StaleCandidate();
         const key=JSON.stringify([resolved.file,resolved.start,resolved.end]);if(seen.has(key))continue;seen.add(key);
@@ -383,9 +391,10 @@ async function resolveSourceSelection({buildId,page,points,hits}){
           action:'wrap',id,selection:[resolved.start,resolved.end],expected:resolved.content,dx:0,dy:0}});
         assertCurrent();
         const candidate=await client.prepare(plan.sources,buildId);token=candidate.token;
+        trace?.mark('native-prepared');
         const staged=await stageCandidate({sources:plan.sources,revision:candidate.revision,identity,getIdentity:()=>sessionIdentity(state),
           compile:()=>client.compile(token),prepare:result=>preparePDFView(pdfjs,result,{width:$('preview-scroll').clientWidth,zoom:baseline.scale,mode:state.mode}),
-          requireVerified:true,verify:result=>client.verify(result.build_id)});
+          requireVerified:true,verify:result=>client.verify(result.build_id),trace});
         prepared=staged.prepared;
         const proof=validateSelectionProbe(baseline,prepared,id,hits,page);
         await client.verify(buildId);assertCurrent();
@@ -419,6 +428,7 @@ function publishPrepared(prepared,result){
   $('fit').textContent=state.zoom?Math.round(prepared.scale*100)+'%':'Fit';
   $('log').textContent=result.log;$('banner').classList.add('hidden');
   renderDiagnostics(result.diagnostics||[]);
+  setupHelp.update(result.verification_eligible===false?new CompilationFailure(result.log,result.diagnostics):null);
   if(result.verification_eligible===false){$('banner').textContent='PDF compiled with unresolved diagnostics. Resolve them before visual editing or export.';$('banner').classList.remove('hidden')}
   renderOverlays();renderInspector();
   status((dirty()?'Unsaved':'Saved')+' · '+result.seconds.toFixed(2)+'s · '+result.engine);
@@ -431,35 +441,40 @@ async function compile(reason='manual'){
   if(!state.compileApproved&&reason!=='manual')return;
   if(reason==='manual')state.compileApproved=true;
   if(state.busy){if(reason==='manual'||!state.pending)state.pending=reason;return}
-  try{await state.client.flush()}catch(error){return syncFailed(error)}
-  if(state.busy){if(reason==='manual'||!state.pending)state.pending=reason;return}
+  const trace=diagnostics.begin(reason==='manual'?'compile-manual':'compile-auto');
+  try{await state.client.flush();trace?.mark('sync-flushed')}catch(error){trace?.finish(performanceOutcome(error));return syncFailed(error)}
+  if(state.busy){trace?.finish('superseded');if(reason==='manual'||!state.pending)state.pending=reason;return}
   const identity=sessionIdentity(state),revision=state.revision;state.busy=true;state.cancelRequested=false;updateControls();
   try{
     const candidate=await stageCandidate({sources:clone(state.sources),revision,identity,getIdentity:()=>sessionIdentity(state),
-        compile:compileCandidate,prepare:prepareResult,policy:null,previousPageCount:state.view?.pageCount,verify:result=>state.client.verify(result.build_id)});
+        compile:compileCandidate,prepare:prepareResult,policy:null,previousPageCount:state.view?.pageCount,verify:result=>state.client.verify(result.build_id),trace});
     publishPrepared(candidate.prepared,candidate.result);
-  }catch(error){showFailure(error)}
+    const view=state.view;trace?.mark('published');trace?.finish('published',{paint:!view.lazy,isCurrent:()=>state.view===view&&sessionIdentity(state)===identity});
+  }catch(error){trace?.finish(performanceOutcome(error));showFailure(error)}
   finally{finishJob()}
 }
 function finishJob(){
   state.busy=false;updateControls();
   if(state.pending){const reason=state.pending;state.pending=false;if(reason==='manual')setTimeout(()=>compile(),0);else scheduleCompile()}
 }
-async function commitSources(sources,{file=state.file,policy=null,operation=null,expectedIdentity=sessionIdentity(state)}={}){
+async function commitSources(sources,{file=state.file,policy=null,operation=null,expectedIdentity=sessionIdentity(state),trace=null}={}){
   if(!fresh()||sessionIdentity(state)!==expectedIdentity)return toast('Compile the latest source before applying this edit.');
   const client=state.client;let nativeCandidate=null,prepared=null;
   state.busy=true;state.cancelRequested=false;clearTimeout(state.compileTimer);updateControls();
   try{
     nativeCandidate=await client.prepare(sources,state.result.build_id,operation);
+    trace?.mark('native-prepared');
     const candidate=await stageCandidate({sources,revision:nativeCandidate.revision,identity:expectedIdentity,getIdentity:()=>sessionIdentity(state),
-      compile:()=>client.compile(nativeCandidate.token),prepare:prepareResult,policy,previousPageCount:state.view.pageCount,requireVerified:true,verify:result=>client.verify(result.build_id)});
+      compile:()=>client.compile(nativeCandidate.token),prepare:prepareResult,policy,previousPageCount:state.view.pageCount,requireVerified:true,verify:result=>client.verify(result.build_id),trace});
     prepared=candidate.prepared;
     if(sessionIdentity(state)!==expectedIdentity)throw new StaleCandidate();
     state.mutating=true;editorReadOnly();
     await client.commit(nativeCandidate.token,candidate.result.build_id);
+    trace?.mark('native-committed');
     state.file=file;state.lastHistory=0;syncEditor();publishPrepared(prepared,candidate.result);prepared=null;
+    trace?.mark('published');
     return true;
-  }catch(error){showFailure(error);return false}
+  }catch(error){trace?.finish(performanceOutcome(error));showFailure(error);return false}
   finally{
     if(prepared?.pdf)await prepared.pdf.destroy();
     if(nativeCandidate)await client.discard(nativeCandidate.token).catch(()=>{});
@@ -470,11 +485,11 @@ function visualTransaction(file,source,request){
   const candidate=clone(state.sources);candidate[file]=source;
   return commitSources(candidate,{file,operation:{kind:'legacy',file,request}});
 }
-async function textOperation(selection,{dx,dy,content,literalEdits,spacingEdits,plain=false,detach=false}={}){
-  if(!fresh())return toast('Compile the current source before changing the canvas.');
-  if(selection.kind==='source'&&state.sources[selection.file]!==selection.expected_source)return toast('That source selection changed. Select it again.');
+async function textOperation(selection,{dx,dy,content,literalEdits,spacingEdits,plain=false,detach=false}={},trace=diagnostics.begin('text-edit')){
+  if(!fresh()){trace?.finish('refused');return toast('Compile the current source before changing the canvas.')}
+  if(selection.kind==='source'&&state.sources[selection.file]!==selection.expected_source){trace?.finish('stale');return toast('That source selection changed. Select it again.')}
   const identity=sessionIdentity(state),id=selection.kind==='object'?selection.id:'text-'+crypto.randomUUID().slice(0,8);
-  if((literalEdits||spacingEdits)&&!literalEdits?.length&&!spacingEdits?.length)return true;
+  if((literalEdits||spacingEdits)&&!literalEdits?.length&&!spacingEdits?.length){trace?.finish('refused');return true}
   const isEdit=content!==undefined||literalEdits!==undefined||spacingEdits!==undefined;
   const action=detach?'detach':selection.kind==='source'?'wrap':isEdit?'edit':'move';
   try{
@@ -483,23 +498,25 @@ async function textOperation(selection,{dx,dy,content,literalEdits,spacingEdits,
       expected:selection.content,
       dx:dx??selection.dx??0,dy:dy??selection.dy??0,content:content??null,literal_edits:literalEdits??null,spacing_edits:spacingEdits??null,plain};
     const plan=await invoke('plan_text_object',{request});
-    if(sessionIdentity(state)!==identity)return toast('The source changed. Select the text again.');
+    trace?.mark('planned');
+    if(sessionIdentity(state)!==identity){trace?.finish('stale');return toast('The source changed. Select the text again.')}
     const kind=detach?'detach':spacingEdits?.length?'spacing':isEdit?'edit':'move';
     const selectedRuns=new Set(selection.kind==='object'?state.view.objects.get(id)?.runs:
       selection.baselineRuns||canvas.hits.flatMap(line=>line.runs));
     const unchangedRuns=state.view.pages.flatMap(page=>page.runs).filter(run=>!selectedRuns.has(run));
     const ok=await commitSources(plan.sources,{file:plan.file,expectedIdentity:identity,
-      operation:{kind:'text',request},
+      operation:{kind:'text',request},trace,
       policy:{id,kind,unchangedRuns:kind==='move'?unchangedRuns:null}});
-    if(ok&&!detach)canvas.selectObject(id);
+    if(ok&&!detach)canvas.selectObject(id,{record:false});
+    const view=state.view;trace?.finish(ok?'published':'refused',{paint:!!ok&&!view.lazy,isCurrent:()=>state.view===view&&fresh()});
     return ok;
-  }catch(error){toast(message(error));return false}
+  }catch(error){trace?.finish(performanceOutcome(error));toast(message(error));return false}
 }
-function moveText(selection,dx,dy){
-  if(!selection)return;
+function moveText(selection,dx,dy,trace=diagnostics.begin('text-move')){
+  if(!selection){trace?.finish('refused');return}
   const proposed={...selection,x:selection.x+dx,y:selection.y+dy};
-  if(!inside(proposed,state.view.pageSizes.get(selection.page)))return toast('Keep the selected text inside the page.');
-  return textOperation(selection,{dx:(selection.dx||0)+dx,dy:(selection.dy||0)+dy});
+  if(!inside(proposed,state.view.pageSizes.get(selection.page))){trace?.finish('refused');return toast('Keep the selected text inside the page.')}
+  return textOperation(selection,{dx:(selection.dx||0)+dx,dy:(selection.dy||0)+dy},trace);
 }
 async function editText(selection=state.objectSelection){
   if(!selection||!fresh())return;
@@ -682,10 +699,13 @@ function setMode(value){
 
 editor.onDidChangeModelContent(event=>{
   if(state.suppress||!state.project)return;
+  const trace=diagnostics.begin('source-feedback');
   if(Date.now()-state.lastHistory>650)state.typingGroup++;
   state.lastHistory=Date.now();
   const changes=event.changes.map(c=>({offset:c.rangeOffset,length:c.rangeLength,text:c.text}));
   state.client.edit(state.file,changes,state.typingGroup).catch(()=>{});sourceChanged();
+  trace?.mark('feedback-updated');const revision=state.revision,client=state.client;
+  trace?.finish('feedback',{paint:true,isCurrent:()=>state.client===client&&state.revision===revision});
 });
 // Monaco's context-menu and accessibility undo paths reach the model methods.
 // Route those through the same native history as keyboard and toolbar actions.
@@ -799,7 +819,7 @@ let quitting=false;getCurrentWindow().onCloseRequested(async event=>{
   if(await confirm('Close Texloom and discard unsaved source edits?',{title:'Unsaved source',kind:'warning'})){quitting=true;await getCurrentWindow().close()}
 });
 document.addEventListener('keydown',event=>{
-  if(editor.hasTextFocus()||$('edit-dialog').open||$('recovery-dialog').open||$('draft-dialog').open||event.target.closest('input,textarea,select'))return;
+  if(editor.hasTextFocus()||document.querySelectorAll('dialog[open]').length||event.target.closest('input,textarea,select'))return;
   if(event.ctrlKey||event.metaKey){
     if(event.key.toLowerCase()==='s'){event.preventDefault();saveProject()}
     else if(event.key==='Enter'){event.preventDefault();compile()}

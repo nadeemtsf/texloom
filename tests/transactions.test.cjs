@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
 
-async function setup(){
+async function setup({tracing=false,presentation=false}={}){
  const transactions=await import('../web/core/transactions.js');
  const selectionProof=await import('../web/core/selection-proof.js');
  const {DocumentClient,editorText,sameSources}=await import('../web/core/document-client.js');
@@ -11,6 +11,8 @@ async function setup(){
  const {createWorkspaceInvoke}=await import('../web/core/workspace-protocol.js');
  const {ProjectControls}=await import('../web/core/project-controls.js');
  const {PDFSearch}=await import('../web/core/pdf-search.js');
+ const {SetupHelp}=await import('../web/core/setup-help.js');
+ const {installPerformanceDiagnostics,performanceOutcome}=await import('../web/core/performance-diagnostics.js');
  const elements=new Map();
  function element(id){if(!elements.has(id))elements.set(id,{value:'',checked:false,disabled:false,open:false,textContent:'',classList:{add(){},remove(){},toggle(){}},setAttribute(){},replaceChildren(){},append(){},addEventListener(){},focus(){},showModal(){this.open=true},close(){this.open=false}});return elements.get(id)}
  const model={setValue(){},setEOL(){},getValue:()=>'',getOffsetAt:p=>p.column-1};
@@ -18,7 +20,7 @@ async function setup(){
  const editor={onDidChangeModelContent(fn){control.onEdit=fn},onDidChangeCursorPosition(){},onDidChangeCursorSelection(fn){control.onSelection=fn},addCommand(){},
   createContextKey(name,value){const key={value,set(next){this.value=next}};(control.contextKeys??=new Map()).set(name,key);return key},
   addAction(action){(control.actions??=[]).push(action)},hasTextFocus:()=>false,updateOptions(){},getDomNode:()=>({addEventListener(name,fn){composition[name]=fn}})};
- const control={compile:async()=>({ok:true,log:'',seconds:0,engine:'pdflatex',build_id:'new-pdf',blocks:[],objects:[]}),prepare:async result=>({result,pdf:{destroy:async()=>{}},pageCount:1,objects:new Map(),unclosed:new Set(),pageSizes:new Map()})};
+ const control={frames:new Map(),frameId:0,compile:async()=>({ok:true,log:'',seconds:0,engine:'pdflatex',build_id:'new-pdf',blocks:[],objects:[]}),prepare:async result=>({result,pdf:{destroy:async()=>{}},pageCount:1,objects:new Map(),unclosed:new Set(),pageSizes:new Map()})};
  const {NativeDocumentDouble}=require('./native-document-double.cjs');const native=new NativeDocumentDouble(control);
  function legacyGesture(resize=false){
   const listeners=new Map(),original={left:'20px',top:'30px',width:'100px'};
@@ -31,12 +33,14 @@ async function setup(){
   return {frame,listeners,original};
  }
  const context=vm.createContext({
-  ...transactions,...selectionProof,validateSelectionProbe:(...args)=>control.prove?control.prove(...args):selectionProof.validateSelectionProbe(...args),DocumentClient,editorText,sameSources,TypingRecoveryController,createWorkspaceInvoke,ProjectControls,PDFSearch,initialSnapshot:native.snapshot(),inside:()=>true,self:{},EditorWorker:class{},pdfWorkerURL:'test-worker',
+  ...transactions,...selectionProof,validateSelectionProbe:(...args)=>control.prove?control.prove(...args):selectionProof.validateSelectionProbe(...args),DocumentClient,editorText,sameSources,TypingRecoveryController,createWorkspaceInvoke,ProjectControls,PDFSearch,SetupHelp,installPerformanceDiagnostics,performanceOutcome,initialSnapshot:native.snapshot(),inside:()=>true,self:{},EditorWorker:class{},pdfWorkerURL:'test-worker',
   CanvasController:class{clear(){}bind(){}selectObject(){}},
   monaco:{languages:{register(){},setMonarchTokensProvider(){},setLanguageConfiguration(){}},editor:{defineTheme(){},createModel:()=>model,create:()=>editor,EndOfLineSequence:{LF:0}},KeyMod:{CtrlCmd:1,Shift:2},KeyCode:{KeyS:1,Enter:2,KeyZ:3,KeyY:4}},
   pdfjs:{GlobalWorkerOptions:{}},structuredClone,crypto:require('node:crypto').webcrypto,
   document:{getElementById:element,createElement:()=>element('generated-'+Math.random()),querySelector:()=>null,querySelectorAll:()=>[],addEventListener(){}},window:{addEventListener(){}},
   getCurrentWindow:()=>({onCloseRequested(fn){control.onClose=fn}}),open:async()=>null,save:async()=>control.save?.()??null,confirm:async()=>false,
+  installPerformanceDiagnostics:()=>installPerformanceDiagnostics({enabled:tracing,document:{visibilityState:'visible'},
+    ...(presentation?{requestFrame:fn=>{control.frames.set(++control.frameId,fn);return control.frameId},cancelFrame:id=>control.frames.delete(id)}:{})}),
   nativeInvoke:(name,args)=>native.invoke(name,args),
   setTimeout:(fn,ms)=>{const t=setTimeout(fn,ms);t.unref();return t},clearTimeout,console,
   preparePDFView:async(_pdfjs,result)=>control.prepare(result)
@@ -116,6 +120,36 @@ test('source commits after PDF preparation and retains other files and undo snap
  finish({pageCount:1,pdf:{}});assert.equal(await pending,true);
  assert.equal(t.run("state.sources['main.tex']"),'Moved source');assert.equal(t.run("state.sources['studio.sty']"),'Style source');
  assert.equal(t.native.history[0].sources['main.tex'],'Original source');assert.equal(t.run('state.revision'),1);
+});
+
+test('enabled tracing records a failed visual candidate without publication or history changes',async()=>{
+ const t=await setup({tracing:true});t.control.compile=async()=>({ok:false,log:'! Synthetic compilation failure'});
+ const before=structuredClone(t.native.sources);
+ assert.equal(await t.run("commitSources({'main.tex':'Candidate','studio.sty':'Style source'},{trace:diagnostics.begin('text-move')})"),false);
+ assert.deepEqual(t.native.sources,before);assert.equal(t.native.history.length,0);assert.equal(t.run('state.result.build_id'),'last-good');
+ const record=t.run('diagnostics.snapshot().records[0]');assert.equal(record.outcome,'compile-failed');assert.equal(record.frame_proxy_ms,null);
+ assert.deepEqual(Array.from(record.phases,p=>p.name),['native-prepared','build-returned']);
+});
+
+test('enabled tracing observes the production compile and source-feedback boundaries',async()=>{
+ const t=await setup({tracing:true});await t.run('compile()');
+ const record=t.run('diagnostics.snapshot().records[0]');assert.equal(record.kind,'compile-manual');assert.equal(record.outcome,'published');
+ assert.deepEqual(Array.from(record.phases,p=>p.name),['sync-flushed','build-returned','pdf-prepared','frontend-validated','build-rechecked','published']);
+ // Node has no presentation surface. Passing the wiring test must not invent a displayed frame.
+ assert.equal(record.frame_status,'unavailable');assert.equal(record.frame_proxy_ms,null);assert.equal(t.native.history.length,0);
+ t.control.onEdit({changes:[{rangeOffset:0,rangeLength:15,text:'Typed source'}]});await t.run('state.client.flush()');
+ const feedback=t.run('diagnostics.snapshot().records[1]');assert.equal(feedback.kind,'source-feedback');assert.equal(feedback.outcome,'feedback');
+ assert.equal(feedback.frame_proxy_ms,null);assert.equal(t.native.sources['main.tex'],'Typed source');
+});
+
+test('a published compile schedules its frame proxy before the busy flag is released',async()=>{
+ const t=await setup({tracing:true,presentation:true});await t.run('compile()');
+ assert.equal(t.run('diagnostics.snapshot().records.length'),0);assert.equal(t.control.frames.size,1);
+ for(let n=0;n<2;n++){const [id,callback]=t.control.frames.entries().next().value;t.control.frames.delete(id);callback()}
+ const record=t.run('diagnostics.snapshot().records[0]');assert.equal(record.frame_status,'observed');
+ assert.equal(record.outcome,'published');assert.ok(Number.isFinite(record.frame_proxy_ms));
+ // Synthetic animation callbacks test scheduling only, never measured Windows presentation.
+ assert.equal(t.run('state.busy'),false);assert.equal(t.native.history.length,0);
 });
 test('typing during compile prevents the older candidate from committing',async()=>{
  const t=await setup();let finish;t.control.compile=()=>new Promise(r=>finish=r);

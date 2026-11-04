@@ -38,3 +38,7 @@ button:disabled{cursor:default}#selection-hint{overflow:hidden;text-overflow:ell
 .pdf-page.pending-page{background:#fff;position:relative}.pending-page:after{content:'Page ' attr(data-page);position:absolute;top:24px;left:24px;color:#7c8d75}
 .pdf-page.pdf-search-match{outline:2px solid #9b8c2f}.textLayer ::highlight(texloom-search){background:#e8cb46a8;color:transparent}
 header{gap:7px;padding:0 12px}header #project-name{max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#setup-dialog{width:min(660px,90vw);max-height:85vh;overflow:auto}
+#setup-dialog li{font-size:12px;line-height:1.7;margin:10px 0}#setup-dialog label{display:block;margin:12px 0;font-size:11px}
+#setup-dialog input{display:block;width:100%;margin-top:5px;font-size:12px}
+.setup-error-help{position:fixed;bottom:38px;right:20px;z-index:21;font-size:11px;background:#f5e9d9}
