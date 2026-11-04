@@ -130,6 +130,10 @@ function sourceChanged(revision){
   state.revision=revision??state.revision+1;canvas.clear();state.selected=null;renderInspector();status();scheduleCompile();updateControls();
 }
 let layoutContext=null;
+function layoutFeedback(text){
+  if($('controls-dialog').open)$('controls-message').textContent=text;
+  else toast(text);
+}
 async function openLayoutControls(){
   if(!state.client||state.busy||state.composing||state.saving)return;
   try{
@@ -144,6 +148,7 @@ async function openLayoutControls(){
     const choice=$('controls-choice');choice.replaceChildren();choice.disabled=!controls.length;
     for(const control of controls){const option=document.createElement('option');option.value=String(control.id);option.textContent=control.label+' · line '+control.line;choice.append(option)}
     const renderControl=control=>{
+      $('controls-message').textContent='';
       $('controls-list').replaceChildren();if(!control)return;
       const group=document.createElement('fieldset'),legend=document.createElement('legend');
       legend.textContent=control.label+' · line '+control.line;group.append(legend);
@@ -167,16 +172,17 @@ async function openLayoutControls(){
   }catch(error){toast(message(error))}
 }
 async function applyLayoutControl(context,edit){
-  if(!context||context.identity!==sessionIdentity(state))return toast('The source changed. Reopen Layout controls.');
-  if(!fresh())return toast('Compile the current source before applying a layout change.');
+  $('controls-message').textContent='';
+  if(!context||context.identity!==sessionIdentity(state))return layoutFeedback('The source changed. Reopen Layout controls.');
+  if(!fresh())return layoutFeedback('Compile the current source before applying a layout change.');
   const request={sources:context.sources,main:context.main,file:context.file,expected_source:context.source,...edit};
   try{
     const plan=await invoke('plan_adapter',{request});
     if(context.identity!==sessionIdentity(state))throw new StaleCandidate();
-    if(sameSources(plan.sources,context.sources)){toast('No change.');return}
+    if(sameSources(plan.sources,context.sources)){layoutFeedback('No change.');return}
     $('controls-dialog').close();
     if(await commitSources(plan.sources,{file:context.file,operation:{kind:'adapter',request},expectedIdentity:context.identity}))layoutContext=null;
-  }catch(error){toast(message(error))}
+  }catch(error){layoutFeedback(message(error))}
 }
 function scheduleCompile(){clearTimeout(state.compileTimer);if($('auto').checked)state.compileTimer=setTimeout(()=>compile('auto'),800)}
 function showFailure(error){

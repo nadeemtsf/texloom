@@ -13,7 +13,7 @@ const [app,html]=await Promise.all(['app.js','index.html'].map(name=>readFile(ne
 
 // Run the complete production shell. IDs come only from the shipped HTML;
 // looking up a missing control returns null, as it does in the actual WebView.
-function boot({markup=html,openFailure=null,badSnapshot=false}={}){
+function boot({markup=html,openFailure=null,badSnapshot=false,adapterFailure=null}={}){
   const calls=[],elements=new Map(),options={},handlers={};
   function element(id=''){
     const classes=new Set();
@@ -50,10 +50,11 @@ function boot({markup=html,openFailure=null,badSnapshot=false}={}){
       if(name==='open_project'){if(openFailure)throw Error(openFailure);return project}
       if(name==='document_snapshot')return badSnapshot?{...snapshot,sources:null}:snapshot;
       if(name==='typing_drafts')return {drafts:[],errors:[]};
+      if(name==='plan_adapter'&&adapterFailure)throw Error(adapterFailure);
       throw Error('Test compiler unavailable');
     }};
   const script=app.replace(/^import .*;\r?$/gm,'').replace(/openProject\(\);\s*$/,'globalThis.startup = openProject();');
-  vm.runInNewContext(script+'\nglobalThis.shell={state,updateControls};',context,{filename:'web/app.js'});
+  vm.runInNewContext(script+'\nglobalThis.shell={state,updateControls,applyLayoutControl};',context,{filename:'web/app.js'});
   return {context,calls,elements,options,model,handlers};
 }
 
@@ -107,4 +108,30 @@ test('an invalid native snapshot cannot replace the existing editor or destroy i
   assert.equal(t.context.shell.state.project,previous);
   assert.equal(t.context.shell.state.sources['main.tex'],'Unsaved accepted text');
   assert.equal(t.model.value,'Unsaved accepted text');assert.equal(destroyed,0);assert.equal(aborted,0);
+});
+
+test('a refused layout value stays readable inside the open modal and cannot change source or history',async()=>{
+  const explanation='Unsupported parameter value; use a simple bounded numeric value';
+  const t=boot({adapterFailure:explanation});await t.context.startup;
+  const {state,applyLayoutControl}=t.context.shell;
+  state.result={verification_eligible:true};state.compiled=state.revision;
+  const before=structuredClone(state.sources),revision=state.revision,callCount=t.calls.length;
+  t.elements.get('controls-dialog').showModal();
+  const context={identity:transactions.sessionIdentity(state),file:state.file,source:state.sources[state.file],sources:before,main:state.project.main};
+  await applyLayoutControl(context,{control:0,key:'factor',value:'4',selection:null});
+  assert.equal(t.elements.get('controls-dialog').open,true);
+  assert.equal(t.elements.get('controls-message').textContent,explanation);
+  assert.notEqual(t.elements.get('toast').textContent,explanation);
+  assert.deepEqual({...state.sources},before);assert.equal(state.revision,revision);
+  assert.equal(state.canUndo,false);assert.equal(state.canRedo,false);
+  assert.deepEqual(t.calls.slice(callCount).map(([name])=>name),['plan_adapter']);
+});
+
+test('stale layout controls explain the refusal in the modal before asking native code to plan',async()=>{
+  const t=boot();await t.context.startup;
+  t.elements.get('controls-dialog').showModal();
+  await t.context.shell.applyLayoutControl({identity:'obsolete'},{key:'factor',value:'1.15'});
+  assert.match(t.elements.get('controls-message').textContent,/source changed.*Reopen Layout controls/);
+  assert.equal(t.elements.get('controls-dialog').open,true);
+  assert.equal(t.calls.some(([name])=>name==='plan_adapter'),false);
 });
