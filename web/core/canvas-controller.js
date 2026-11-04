@@ -2,12 +2,16 @@ import {intersects,normalizedRectangle} from './geometry.js';
 
 /** DOM gestures are isolated from source edits and compilation. */
 export class CanvasController {
-  constructor({getSession,resolve,move,edit,selected,notify}) {
+  constructor({getSession,resolve,move,edit,selected,notify,eventWindow=globalThis.window}) {
     Object.assign(this,{getSession,resolve,move,edit,onSelected:selected,notify});
     this.view=null;this.selection=null;this.pending=0;this.hits=[];
     this.cancelGesture=null;
     this.onEscape=e=>{if(e.key==='Escape'){this.cancelGesture?.();this.clear()}};
     document.addEventListener('keydown',this.onEscape);
+    // Switching windows need not deliver pointercancel before the next release.
+    // Keep the accepted selection, but discard any in-progress drag or marquee.
+    this.onBlur=()=>this.cancelGesture?.();
+    eventWindow?.addEventListener('blur',this.onBlur);
   }
   clear(){this.cancelGesture?.();this.pending++;this.selection=null;this.hits=[];this.drawFrame();this.onSelected(null)}
   bind(view) {
