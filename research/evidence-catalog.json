@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "kind": "development_evidence_inventory_not_evaluation_results",
-  "recorded_utc": "2026-11-04T18:19:08.015143+00:00",
-  "audited_head": "05761985a7deef312426c268b953d4d01eccdaca",
+  "recorded_utc": "2026-11-04T18:24:28.870375+00:00",
+  "audited_head": "d4671c7be9b8d8fce529b07418d3af2eec36850b",
   "working_tree_note": "Uncommitted report/evidence changes may be present; see the session checkpoint.",
   "final_evaluation_executed": false,
   "entries": [
@@ -20,8 +20,8 @@
     },
     {
       "path": "docs/evidence/build-protocol-local.json",
-      "bytes": 12480,
-      "sha256": "3ce5157af23bf666f29676ee000492231b53076f501763f0ec2100c114d7fa2c",
+      "bytes": 12251,
+      "sha256": "f9fedb77b746cd2c513435f36abd00f56a287b3fdeb2951c4a6f3bf90609a192",
       "audit_action": "read_parse_fingerprint_only",
       "experiment_reproduced_by_this_audit": false,
       "schema": 1,
@@ -62,8 +62,8 @@
     },
     {
       "path": "docs/evidence/dawn-native-acceptance.json",
-      "bytes": 6632,
-      "sha256": "85e4e958b02ffcf92f538b09925fe2e2d7a1ec9391c6f4e45012b684b6b83eb0",
+      "bytes": 6530,
+      "sha256": "0ca93992aff0f02aefd11c9f6914868078879d9b0a4e0c0936829c3be7839c36",
       "audit_action": "read_parse_fingerprint_only",
       "experiment_reproduced_by_this_audit": false,
       "schema": 1,
@@ -74,8 +74,8 @@
     },
     {
       "path": "docs/evidence/dependency-review-2026-11-04.json",
-      "bytes": 4752,
-      "sha256": "3e83393dfde2f4dd947dd317ca748cdcb2c2c39f626cec3b2ec0e1be624fcc4e",
+      "bytes": 4655,
+      "sha256": "bc07e7488d39c5146509ebe9dba633a7e5c58f3be2f8e070a4a7a21a0c31808f",
       "audit_action": "read_parse_fingerprint_only",
       "experiment_reproduced_by_this_audit": false,
       "schema": 1,
@@ -127,6 +127,17 @@
       "parse_status": "ok"
     },
     {
+      "path": "docs/evidence/evidence-canonicalization-2026-11-04.json",
+      "bytes": 4122,
+      "sha256": "70aebda881121dc32032cfb7796709ece6ae9aced3078c360213f128d533a132",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "canonical_git_line_endings_preserving_payloads",
+      "recorded_utc": "2026-11-04T18:24:28.570166+00:00",
+      "parse_status": "ok"
+    },
+    {
       "path": "docs/evidence/feedback-fix-ci-2026-11-04.json",
       "bytes": 1138,
       "sha256": "5341240bd70868d7dd73fc243f3711876de022e4ce87697e068e37ffbb171eea",
@@ -140,8 +151,8 @@
     },
     {
       "path": "docs/evidence/feedback-fix-native-2026-11-04.json",
-      "bytes": 3615,
-      "sha256": "d4ba1c98c720019f2cede6cbeba9ca3fb489e9de46acdfa10b985f32cc1b6b2c",
+      "bytes": 3534,
+      "sha256": "1f7e494ae7cbf9b71915efc50f4ba54aefa2ef5808e92794e618bb9595ebe305",
       "audit_action": "read_parse_fingerprint_only",
       "experiment_reproduced_by_this_audit": false,
       "schema": 1,
@@ -152,8 +163,8 @@
     },
     {
       "path": "docs/evidence/installed-acceptance-2026-11-04.json",
-      "bytes": 6442,
-      "sha256": "b29fc62b6dbe7748ab4376e4db7bad637b7a23ded08a08c550a832ac8e6776f6",
+      "bytes": 6278,
+      "sha256": "f675a0072e9befc4819b3a7010ee22fbe6141ac84c6dcc8940907b8d39dc0123",
       "audit_action": "read_parse_fingerprint_only",
       "experiment_reproduced_by_this_audit": false,
       "schema": 1,
@@ -164,8 +175,8 @@
     },
     {
       "path": "docs/evidence/installed-r2-acceptance-2026-11-04.json",
-      "bytes": 4760,
-      "sha256": "50d97210044c0ae243d20fffea194c7f5885aee9255ae82b614a59a8be143515",
+      "bytes": 4646,
+      "sha256": "c7d0afbfd88387aea39f0a3d5a67af8dafc5ae8dbdc19ad664d34d737561133a",
       "audit_action": "read_parse_fingerprint_only",
       "experiment_reproduced_by_this_audit": false,
       "schema": 1,
@@ -176,8 +187,8 @@
     },
     {
       "path": "docs/evidence/morning-ci-2700.json",
-      "bytes": 17244,
-      "sha256": "5d249c61516e6f4c81cce1b0ca4c1747edf4ccd4a0085dd7a3c692cbadeefb38",
+      "bytes": 16715,
+      "sha256": "1cfba815c77997abc1e376fea4dddb750e7f7b86cc6c38bfad0151259a347059",
       "audit_action": "read_parse_fingerprint_only",
       "experiment_reproduced_by_this_audit": false,
       "schema": 1,
@@ -232,8 +243,8 @@
     },
     {
       "path": "docs/evidence/oracle-feasibility-2026-11-04.json",
-      "bytes": 38970,
-      "sha256": "0e1a06c1425276026ecb91aad3b17ce44c419dffcdb5319983117907035e1063",
+      "bytes": 38022,
+      "sha256": "e4c8ea9ea7580269368171df73386d1cb40d217f6f333c219b96039ba30c0302",
       "audit_action": "read_parse_fingerprint_only",
       "experiment_reproduced_by_this_audit": false,
       "schema": 1,
@@ -302,8 +313,8 @@
     },
     {
       "path": "docs/evidence/remaining-features-local.json",
-      "bytes": 4229,
-      "sha256": "8bd7f236f6c2b2e1a63fcc8cd0d387e8493b59b6a99659d6e62fd60b7d1d3707",
+      "bytes": 4116,
+      "sha256": "7888fafbe97a5aac62890e8414e499a87a7f50ade9112745ecf700df7a238237",
       "audit_action": "read_parse_fingerprint_only",
       "experiment_reproduced_by_this_audit": false,
       "schema": 1,
@@ -313,8 +324,8 @@
     },
     {
       "path": "docs/evidence/research-analysis-prototype-2026-11-04.json",
-      "bytes": 1090,
-      "sha256": "f3c9bc8903ac2f4f4656373c0d21af6b78df9542c692f153f51aa28af9016ea3",
+      "bytes": 1061,
+      "sha256": "19768b2f63fcca066e348ae93ba24560163db7fb3732f382ed80e1706c045eed",
       "audit_action": "read_parse_fingerprint_only",
       "experiment_reproduced_by_this_audit": false,
       "schema": 1,
@@ -372,8 +383,8 @@
     },
     {
       "path": "docs/evidence/source-contract-prototype-2026-11-04.json",
-      "bytes": 1337,
-      "sha256": "649a2af8014c0a251a3f19135b40d64aa5ba396abce90f076474fd438a1b921a",
+      "bytes": 1303,
+      "sha256": "862cd8a66533f3388b5b9e06b0afca29965e4e502bc78df62e01d69f9c125ab8",
       "audit_action": "read_parse_fingerprint_only",
       "experiment_reproduced_by_this_audit": false,
       "schema": 1,
@@ -440,8 +451,8 @@
     },
     {
       "path": "docs/evidence/window-blur-local-2026-11-04.json",
-      "bytes": 1864,
-      "sha256": "a2c04b658dc954aadb7152e02596c818a77cd5ad69f22b107de0db10b350f31c",
+      "bytes": 1814,
+      "sha256": "e8ef79efc655a42c83426e689d2f1b6a1dd7093a5e7a7964996752314f68f110",
       "audit_action": "read_parse_fingerprint_only",
       "experiment_reproduced_by_this_audit": false,
       "schema": 1,

@@ -60,7 +60,7 @@ def main() -> None:
     output = args.output or root / "research/evidence-catalog.json"
     result = catalog(root)
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+    output.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8", newline="\n")
     failures = sum(entry["parse_status"] != "ok" for entry in result["entries"])
     print(f"Cataloged {len(result['entries'])} evidence files; {failures} parse failures; no experiments executed.")
     if failures:

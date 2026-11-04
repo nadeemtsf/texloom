@@ -2,6 +2,8 @@
 
 Audit date: 4 November 2026. The generated `evidence-catalog.json` records file hashes, dates/source identifiers when present, and top-level outcome metadata. Its audit action is **read/parse/fingerprint**, not a rerun. Do not sum repeated suites, different commits or different test layers into one accuracy denominator.
 
+Tracked JSON evidence uses Git's LF line endings. Initial Windows working copies with CRLF were archived byte-for-byte before canonicalizing their line endings to the already committed Git blobs; their JSON payloads/outcomes did not change. The canonicalization receipt records both hashes. Catalog fingerprints now match working files and fresh Git checkouts. Research sources have explicit LF attributes so their source-code hashes remain stable across checkouts; raw experiment files retain their original recorded bytes.
+
 | Evidence | Current use | Important limit |
 | --- | --- | --- |
 | `docs/evidence/dawn-native-acceptance.json` | Candidate 7/10/11 hashes, native actions, exact source hashes, discovered regressions, 20-minute resource sample | Development observations; some open-gate text predates the later installed recovery completion. Shared WebView processes/second instance invalidate an isolated leak interpretation. |
