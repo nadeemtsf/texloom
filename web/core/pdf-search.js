@@ -1,3 +1,19 @@
+/** Compare shaped PDF letters and ligatures with ordinary typed Unicode. */
+export const pdfSearchKey=value=>value.normalize('NFKC').toLocaleLowerCase();
+const graphemes=new Intl.Segmenter(undefined,{granularity:'grapheme'});
+/** Return original UTF-16 boundaries, even when normalization expands a glyph. */
+export function pdfSearchRange(value,query,occurrence=0){
+  const key=pdfSearchKey(value),needle=pdfSearchKey(query);if(!needle)return null;
+  let at=-needle.length;for(let n=0;n<=occurrence;n++){at=key.indexOf(needle,at+needle.length);if(at<0)return null;}
+  let offset=0,start;
+  for(const {segment,index} of graphemes.segment(value)){
+    const end=offset+pdfSearchKey(segment).length;
+    if(start===undefined&&at<end)start=index;
+    if(start!==undefined&&at+needle.length<=end)return [start,index+segment.length];
+    offset=end;
+  }
+  return null;
+}
 /** Search original PDF text, including pages not currently painted. */
 export class PDFSearch {
   constructor({document,getView,notify}){
@@ -9,14 +25,14 @@ export class PDFSearch {
   }
   reset(){this.serial++;this.matches=[];this.index=-1;this.count.textContent='';globalThis.CSS?.highlights?.delete('texloom-search');this.document.querySelectorAll('.pdf-search-match').forEach(e=>e.classList.remove('pdf-search-match'));}
   async find(){
-    clearTimeout(this.timer);this.reset();const query=this.input.value.trim().toLocaleLowerCase(),view=this.getView(),serial=this.serial;if(!query||!view)return;
+    clearTimeout(this.timer);this.reset();const query=pdfSearchKey(this.input.value.trim()),view=this.getView(),serial=this.serial;if(!query||!view)return;
     if(query.length>256){this.count.textContent='Use at most 256 characters';return;}
     this.searchedQuery=query;
     this.count.textContent='Searching…';const matches=[];
     try{let characters=0;
       for(let n=1;n<=view.pageCount;n++){
         const page=await view.pdf.getPage(n),text=await page.getTextContent();if(serial!==this.serial||view!==this.getView())return;
-        const value=text.items.filter(i=>typeof i.str==='string').map(i=>i.str).join(' ').toLocaleLowerCase();characters+=value.length;
+        const value=pdfSearchKey(text.items.filter(i=>typeof i.str==='string').map(i=>i.str).join(' '));characters+=value.length;
         if(characters>8_000_000)throw Error('Search exceeds the eight-million-character limit. Narrow the project.');
         let at=0,occurrence=0;while((at=value.indexOf(query,at))>=0){matches.push({page:n,offset:at,occurrence:occurrence++});at+=query.length;if(matches.length>=10000)break;}if(matches.length>=10000)break;
       }
@@ -25,7 +41,7 @@ export class PDFSearch {
     }catch(error){if(serial===this.serial){this.count.textContent='Search unavailable';this.notify(String(error?.message||error))}}
   }
   async step(direction){
-    if(!this.matches.length||this.searchedQuery!==this.input.value.trim().toLocaleLowerCase())return this.find();const serial=this.serial,view=this.getView();this.index=(this.index+direction+this.matches.length)%this.matches.length;
+    if(!this.matches.length||this.searchedQuery!==pdfSearchKey(this.input.value.trim()))return this.find();const serial=this.serial,view=this.getView();this.index=(this.index+direction+this.matches.length)%this.matches.length;
     const match=this.matches[this.index];
     try{await view.ensurePage?.(match.page);if(serial!==this.serial||view!==this.getView())return;
       this.document.querySelectorAll('.pdf-search-match').forEach(e=>e.classList.remove('pdf-search-match'));
@@ -36,11 +52,10 @@ export class PDFSearch {
   }
   highlight(page,occurrence){
     globalThis.CSS?.highlights?.delete('texloom-search');
-    const spans=[...page.shell.querySelectorAll('.textLayer span')].filter(span=>span.firstChild?.nodeType===3),query=this.input.value.trim().toLocaleLowerCase();
-    const joined=spans.map(s=>s.textContent).join(' ').toLocaleLowerCase();let at=-query.length;
-    for(let n=0;n<=occurrence;n++){at=joined.indexOf(query,at+query.length);if(at<0)return;}
+    const spans=[...page.shell.querySelectorAll('.textLayer span')].filter(span=>span.firstChild?.nodeType===3);
+    const bounds=pdfSearchRange(spans.map(s=>s.textContent).join(' '),this.input.value.trim(),occurrence);if(!bounds)return;
     const find=offset=>{for(const span of spans){if(offset<=span.textContent.length)return [span,Math.min(offset,span.firstChild.length)];offset-=span.textContent.length+1;}return null};
-    const start=find(at),end=find(at+query.length);if(!start||!end)return;
+    const start=find(bounds[0]),end=find(bounds[1]);if(!start||!end)return;
     if(globalThis.CSS?.highlights&&globalThis.Highlight){const range=this.document.createRange();range.setStart(start[0].firstChild,start[1]);range.setEnd(end[0].firstChild,end[1]);CSS.highlights.set('texloom-search',new Highlight(range));}
     start[0].scrollIntoView({block:'center'});
   }

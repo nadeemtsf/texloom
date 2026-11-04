@@ -9,6 +9,7 @@ class Element{
  addEventListener(name,fn){this.events.set(name,fn)}
  removeEventListener(name,fn){if(this.events.get(name)===fn)this.events.delete(name)}
  setPointerCapture(id){this.capture=id}
+ focus(options){this.focused=options}
  getContext(){return {drawImage(){}}}
  remove(){this.removed=true}
 }
@@ -25,7 +26,7 @@ function setup({scale=1,mode='select',revision=0}={}){
  return {c,state,frame,selection,event,operations,generated,notifications};
 }
 test('pointer movement renders only an outline and release invokes exactly one edit',async()=>{
- const t=setup();t.c.drag(t.event,t.frame,t.selection);assert.equal(t.frame.capture,7);
+ const t=setup();t.c.drag(t.event,t.frame,t.selection);assert.equal(t.frame.capture,7);assert.deepEqual(t.frame.focused,{preventScroll:true});
  for(let n=0;n<20;n++)t.frame.events.get('pointermove')({clientX:30+n,clientY:40,altKey:false});
  assert.equal(t.operations.length,0);assert.equal(t.generated.length,0);assert.notEqual(t.frame.style.transform,'');
  const up=t.frame.events.get('pointerup');await up();assert.equal(t.operations.length,1);assert.equal(t.operations[0][0],t.selection);
@@ -54,4 +55,10 @@ test('zoom and free movement preserve PDF-point deltas',async()=>{
 });
 test('stale and reading surfaces do not start a drag',()=>{
  for(const options of [{mode:'read'},{revision:1}]){const t=setup(options);t.c.drag(t.event,t.frame,t.selection);assert.equal(t.frame.events.size,0);assert.equal(t.frame.capture,undefined);assert.equal(t.operations.length,0);}
+});
+test('selecting the verified movable object restores keyboard focus after a PDF publication',()=>{
+ const t=setup(),object={id:'text-current',kind:'object',page:1};
+ t.c.view.result.objects=[object];t.c.view.objects=new Map([[object.id,{page:1,instances:1,pages:new Set([1])}]]);t.c.view.pages=[{number:1}];
+ t.c.drawFrame=()=>t.frame;t.c.selectObject(object.id);
+ assert.equal(t.c.selection.id,object.id);assert.deepEqual(t.frame.focused,{preventScroll:true});
 });

@@ -11,7 +11,7 @@
 .text-object-hit{z-index:3;cursor:move}.text-object-hit:hover{border-color:#668f5088;background:#9ab57b12}
 .text-object-frame{z-index:5;border:1px solid #668f50;background:#9ab57b0a;cursor:move;outline-offset:3px}
 .text-object-frame:hover{background:#9ab57b12}.text-object-frame.dragging{background:transparent}
-.object-frame-label{position:absolute;bottom:100%;left:-1px;padding:4px 6px;background:#315d4d;color:#fff;white-space:nowrap;font:10px 'Segoe UI',sans-serif;pointer-events:none}
+.object-frame-label{position:absolute;bottom:100%;left:-1px;padding:4px 6px;background:#315d4d;color:#fff;white-space:nowrap;font:10px 'Segoe UI',sans-serif;pointer-events:auto}
 .read-mode :is(.line-hit,.text-object-hit,.text-object-frame),.stale :is(.line-hit,.text-object-hit,.text-object-frame){pointer-events:none;visibility:hidden}
 .marquee{position:absolute;border:1px solid #668f50;background:#9ab57b33;pointer-events:none;z-index:8}
 .drag-ghost,.drag-mask{position:absolute;pointer-events:none;z-index:4}.drag-mask{background:white;z-index:3}

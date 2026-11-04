@@ -47,7 +47,7 @@ export class CanvasController {
       if(proof?.schema!==1||proof.build_id!==buildId||proof.page!==page)throw new Error('This selection has no current layout proof.');
       const mapped=proof.lines;
       this.hits=mapped;this.selection={...resolved,x:proof.x,y:proof.y,width:proof.width,height:proof.height,baselineRuns:proof.runs,page,kind:'source',unitKind:resolved.kind};
-      this.drawFrame();this.onSelected(this.selection);
+      const frame=this.drawFrame();this.onSelected(this.selection);frame?.focus({preventScroll:true});
       this.notify(`Selected ${resolved.kind}${mapped.length>1?' · '+mapped.length+' visible lines':''}. Drag its frame or double-click to edit.`);
       if(edit)this.edit(this.selection);
     }catch(error){if(serial===this.pending)this.notify(error.message||String(error))}
@@ -57,7 +57,7 @@ export class CanvasController {
     if(!object||!bounds||!this.fresh()||this.getSession().mode==='read')return;
     const reason=this.view.pages.find(p=>p.number===bounds.page)?.selectionReason;if(reason)return this.notify(reason);
     if(bounds.instances!==1||bounds.pages.size!==1)return this.notify('This source object has multiple PDF instances. Use source editing.');
-    this.pending++;this.hits=[];this.selection={...object,...bounds,kind:'object'};this.drawFrame();this.onSelected(this.selection);
+    this.pending++;this.hits=[];this.selection={...object,...bounds,kind:'object'};const frame=this.drawFrame();this.onSelected(this.selection);frame?.focus({preventScroll:true});
   }
   drawFrame(){
     document.querySelectorAll('.source-selection-frame').forEach(el=>el.remove());
@@ -89,11 +89,11 @@ export class CanvasController {
       if(directions[event.key]){event.preventDefault();this.move(selection,...directions[event.key])}
       else if(event.key==='Enter'){event.preventDefault();this.edit(selection)}
     };
-    page.shell.append(frame);
+    page.shell.append(frame);return frame;
   }
   drag(event,frame,selection){
     if(event.button!==0||!this.fresh()||this.getSession().mode==='read')return;
-    event.preventDefault();event.stopPropagation();frame.setPointerCapture(event.pointerId);
+    event.preventDefault();event.stopPropagation();frame.focus({preventScroll:true});frame.setPointerCapture(event.pointerId);
     const origin={x:event.clientX,y:event.clientY};let delta=null;
     const factor=this.view.scale;
     const move=e=>{
