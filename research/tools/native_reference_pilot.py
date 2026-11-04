@@ -3,12 +3,13 @@ import argparse
 from datetime import datetime, timezone
 import hashlib
 import json
+import math
 from pathlib import Path
 import shutil
 import subprocess
 
 from oracle_feasibility import MULTILINGUAL, NEIGHBORS
-from reference_oracle import compare_pdfs, digest, executable, tool_receipt
+from reference_oracle import compare_pdfs, digest, executable, tool_receipt, page_contract, words_from_xml
 from source_contract import verify_sources
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -29,7 +30,7 @@ def document(engine, language, mode):
     # displacement operation. The zero reference also omits both object macros.
     first = FIRST if mode == "baseline" else "Repeated target"
     second = (TARGET if mode == "baseline" else "Repeated target" if mode == "zero"
-              else r"\hbox to 0pt{\kern12bp Repeated target\hss}\phantom{Repeated target}")
+              else r"\leavevmode\hbox to 0pt{\kern12bp Repeated target\hss}\phantom{Repeated target}")
     text = (f"% !TeX program = {engine}\n" + r"\documentclass{article}" + "\n"
             + r"\usepackage[margin=25mm]{geometry}\usepackage{xcolor}\usepackage{texloom-objects}" + "\n"
             + (MULTILINGUAL if language == "multilingual" else "")
@@ -77,7 +78,7 @@ def prepare(root):
     root.mkdir(parents=True, exist_ok=False)
     # Preserve the actual distribution bytes, including line endings.
     style = (ROOT/"resources/texloom-objects.sty").read_bytes().decode("utf-8")
-    protocol = {"schema": 1, "kind": "native_candidate_boundary_development_v1",
+    protocol = {"schema": 1, "kind": "native_candidate_boundary_development_v1", "protocol_revision": 2,
         "recorded_before_execution_utc": datetime.now(timezone.utc).isoformat(),
         "repository_head_before_preparation": subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip(),
         "entry_layer": "proposed_sources_plus_move_request_at_native_prepare",
@@ -85,6 +86,7 @@ def prepare(root):
         "criteria": {"intended_move": "native commit, exact declared source, Poppler reference match, exact Undo, no disk write",
             "tampered_packet": "native prepare refuses with canonical source/history unchanged; do not compile it",
             "baseline_oracle_health": "native zero-offset baseline equals independent plain-text reference",
+            "moved_reference_health": "Only second Repeated/target words move 12 bp horizontally; every other word bound stays within 0.02 bp",
             "geometry_tolerance_bp": 0.02, "raster_dpi": 144, "raster_match": "exact full-page pixels"},
         "limits": ["Development cases, same preparer, no independent human adjudication",
             "Existing wrapped objects; no PDF.js input/mapping/frontend selection probe or physical UI",
@@ -122,6 +124,49 @@ def gold_build(engine, sources, output):
     return codes == [0, 0] and (output/"main.pdf").is_file()
 
 
+def reference_word_health(zero, moved, dx=12, tolerance=0.02):
+    """A bounded, declared occurrence check for this isolated-line reference only."""
+    result={"decision":"unresolved","target_word_keys":[[1,"Repeated",1],[1,"target",1]],
+            "expected_dx_bp":dx,"tolerance_bp":tolerance}
+    if not math.isfinite(dx) or not math.isfinite(tolerance) or tolerance<0:
+        return {**result,"reason":"Invalid health-check displacement/tolerance"}
+    if len(zero)!=len(moved) or any((a["page"],a["text"])!=(b["page"],b["text"]) for a,b in zip(zero,moved)):
+        return {**result,"reason":"Missing, changed or reordered words require adjudication"}
+    counts={};target_errors=[];other_errors=[]
+    targets={(1,"Repeated",1),(1,"target",1)}
+    for a,b in zip(zero,moved):
+        key=(a["page"],a["text"]);ordinal=counts.get(key,0);counts[key]=ordinal+1
+        target=(*key,ordinal) in targets
+        if not all(math.isfinite(v) for v in a["bounds"]+b["bounds"]):
+            return {**result,"reason":"Invalid word geometry"}
+        expected=[dx,0,dx,0] if target else [0,0,0,0]
+        error=max(abs((new-old)-delta) for old,new,delta in zip(a["bounds"],b["bounds"],expected))
+        (target_errors if target else other_errors).append(error)
+    if len(target_errors)!=2 or counts.get((1,"Repeated"))!=2 or counts.get((1,"target"))!=2:
+        return {**result,"reason":"The declared two-occurrence target was not uniquely resolved"}
+    result.update(target_word_count=2,maximum_target_error_bp=max(target_errors),maximum_non_target_error_bp=max(other_errors,default=0))
+    result["decision"]="matches_declared_translation" if max(target_errors+other_errors,default=0)<=tolerance else "differs"
+    return result
+
+
+def reference_health(zero, moved, output, tools):
+    output.mkdir()
+    if page_contract(zero)!=page_contract(moved):
+        result={"decision":"differs","reason":"Reference page count or geometry changed"}
+    else:
+        words=[]
+        for label,pdf in [("zero",zero),("moved",moved)]:
+            xml=output/(label+".xml")
+            with (output/(label+"-console.log")).open("xb") as log:
+                run=subprocess.run([str(tools["text"]),"-bbox-layout","-enc","UTF-8",str(pdf),str(xml)],
+                                   stdout=log,stderr=subprocess.STDOUT,timeout=45)
+            if run.returncode:raise ValueError("Reference-health text extraction failed")
+            words.append(words_from_xml(xml))
+        result=reference_word_health(*words)
+    save_json(output/"health.json",result)
+    return result
+
+
 def evaluate(root, runner, tools):
     protocol_path = root/"protocol.json"
     before = digest(protocol_path)
@@ -142,7 +187,7 @@ def evaluate(root, runner, tools):
     for case in protocol["conditions"]:
         item = next((x for x in native["conditions"] if x["id"] == case["id"]), {})
         row = {"id": case["id"], "engine": case["engine"], "language": case["language"], "native": item,
-               "status": "unresolved", "native_source_contract": None, "baseline_comparison": None, "candidate_comparison": None}
+               "status": "unresolved", "native_source_contract": None, "baseline_comparison": None, "candidate_comparison": None,"reference_health":None}
         rows.append(row); work=analysis/case["id"]; work.mkdir()
         try:
             engine = executable(None, case["engine"])
@@ -151,6 +196,10 @@ def evaluate(root, runner, tools):
                     raise ValueError(name + " compilation failed")
             native_root=root/"native-output"/case["id"]
             row["baseline_comparison"] = compare_pdfs(work/"gold_zero/main.pdf", native_root/"baseline.pdf", work/"baseline-comparison", tools)
+            row["reference_health"]=reference_health(work/"gold_zero/main.pdf",work/"gold_moved/main.pdf",work/"reference-health",tools)
+            if row["reference_health"]["decision"]!="matches_declared_translation":
+                row["status"]="invalid_or_unresolved_reference"
+                continue
             if item.get("intended_move", {}).get("status") != "committed":
                 row["status"] = "native_postcommit_failure" if item.get("intended_move",{}).get("commit_performed") else "native_failed_or_refused"
                 continue

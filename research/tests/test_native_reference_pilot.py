@@ -37,5 +37,24 @@ class NativeReferencePilotTests(unittest.TestCase):
             with self.assertRaises(FileExistsError):PILOT.prepare(root)
             self.assertEqual((root/"protocol.json").read_bytes(),before)
 
+    def test_reference_health_detects_the_observed_extra_neighbor_line(self):
+        words=[{"page":1,"text":text,"bounds":[x,y,x+8,y+5]} for text,x,y in
+               [("Repeated",10,10),("target",20,10),("Repeated",10,30),("target",20,30),("Neighbor",10,50)]]
+        import copy
+        moved=copy.deepcopy(words)
+        for index in (2,3):
+            moved[index]["bounds"][0]+=12;moved[index]["bounds"][2]+=12
+        self.assertEqual(PILOT.reference_word_health(words,moved)["decision"],"matches_declared_translation")
+        moved[-1]["bounds"][1]+=11.955;moved[-1]["bounds"][3]+=11.955
+        result=PILOT.reference_word_health(words,moved)
+        self.assertEqual(result["decision"],"differs")
+        self.assertAlmostEqual(result["maximum_non_target_error_bp"],11.955)
+        self.assertEqual(result["maximum_target_error_bp"],0)
+
+    def test_reference_health_will_not_pair_a_missing_or_ambiguous_target(self):
+        words=[{"page":1,"text":"Repeated","bounds":[10,10,20,20]}]
+        self.assertEqual(PILOT.reference_word_health(words,words)["decision"],"unresolved")
+        self.assertEqual(PILOT.reference_word_health(words,[])["decision"],"unresolved")
+
 
 if __name__=="__main__":unittest.main()
