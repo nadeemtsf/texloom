@@ -54,11 +54,27 @@ export async function prepareLoadedPDF(pdfjs,pdf,result,{width,zoom=0,mode='sele
   return {pdf,result,fragment,pages,objects,unclosed,pageSizes,pageCount:pdf.numPages,scale,mode};
 }
 
-export function publishPDFView(prepared,elements) {
+export function capturePDFScrollAnchor(elements){
+  const viewport=elements.scroller.getBoundingClientRect(),center=(viewport.top+viewport.bottom)/2;
+  for(const shell of elements.pages.children){
+    const rect=shell.getBoundingClientRect();
+    if(rect.bottom>=center&&rect.height>0)return {page:shell.dataset.page,fraction:Math.max(0,Math.min(1,(center-rect.top)/rect.height))};
+  }
+  return null;
+}
+export function restorePDFScrollAnchor(elements,anchor){
+  if(!anchor)return;
+  const shell=[...elements.pages.children].find(page=>page.dataset.page===anchor.page);if(!shell)return;
+  const rect=shell.getBoundingClientRect(),viewport=elements.scroller.getBoundingClientRect();
+  elements.scroller.scrollTop+=rect.top+rect.height*anchor.fraction-(viewport.top+viewport.bottom)/2;
+}
+export function publishPDFView(prepared,elements,{preserveAnchor=false}={}) {
+  const anchor=preserveAnchor?capturePDFScrollAnchor(elements):null;
   const scroll=elements.scroller.scrollTop;
   elements.pages.replaceChildren(prepared.fragment);
   elements.pages.classList.toggle('read-mode',prepared.mode==='read');
   elements.scroller.scrollTop=scroll;
+  restorePDFScrollAnchor(elements,anchor);
   elements.count.textContent=prepared.pageCount+' '+(prepared.pageCount===1?'page':'pages');
   elements.empty.classList.add('hidden');
   prepared.mount?.({...elements,onError:error=>{elements.count.textContent=String(error?.message||error)}});

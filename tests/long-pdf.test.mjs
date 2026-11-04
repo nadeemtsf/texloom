@@ -2,7 +2,19 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {prepareLongPDF} from '../web/core/long-pdf.js';
 import {PDFSearch,pdfSearchKey,pdfSearchRange} from '../web/core/pdf-search.js';
+import {capturePDFScrollAnchor,restorePDFScrollAnchor} from '../web/core/pdf-surface.js';
 function element(){return {children:[],dataset:{},style:{setProperty(){}},classList:{add(){},remove(){}},setAttribute(){},append(...items){this.children.push(...items)},replaceChildren(...items){this.children=items},contains:()=>false,getContext:()=>({}),scrollIntoView(){this.scrolled=true},querySelectorAll:()=>[]};}
+test('zoom preserves the page and fraction at the reading viewport center',()=>{
+ const scroller={scrollTop:74000,getBoundingClientRect:()=>({top:200,bottom:800})};
+ const shell=(page,top,height)=>({dataset:{page:String(page)},getBoundingClientRect:()=>({top,bottom:top+height,height})});
+ const elements={scroller,pages:{children:[shell(74,-700,1000),shell(75,320,1000),shell(76,1340,1000)]}};
+ const anchor=capturePDFScrollAnchor(elements);assert.deepEqual(anchor,{page:'75',fraction:0.18});
+ elements.pages.children=[shell(74,6000,1150),shell(75,7170,1150),shell(76,8340,1150)];
+ restorePDFScrollAnchor(elements,anchor);assert.equal(scroller.scrollTop,80877);
+ assert.equal(7170-(scroller.scrollTop-74000)+1150*anchor.fraction,500,'same position on page75 remains centered');
+ const before=scroller.scrollTop;restorePDFScrollAnchor(elements,{page:'missing',fraction:0.5});assert.equal(scroller.scrollTop,before);
+ elements.pages.children=[];assert.equal(capturePDFScrollAnchor(elements),null);
+});
 test('a 100-page view paints on demand, evicts old canvases and disposes without destroying the shared PDF',async()=>{
  const previous=globalThis.document;let painted=0,destroyed=0;globalThis.document={createElement:element,createDocumentFragment:element,getSelection:()=>null};globalThis.devicePixelRatio=1;
  const pdf={numPages:100,destroy(){destroyed++},getPage:async number=>({getViewport:({scale})=>({width:300*scale,height:400*scale}),getTextContent:async()=>({items:[{str:'Page '+number}]}),render(){painted++;return {promise:Promise.resolve(),cancel(){}}}})};

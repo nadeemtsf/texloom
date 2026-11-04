@@ -554,7 +554,7 @@ async function renderPDF(){
   try{
     const view=await prepareLoadedPDF(pdfjs,pdf,result,{width:$('preview-scroll').clientWidth,zoom:state.zoom,mode:state.mode,signal:abort.signal,lazy:true});
     if(serial!==state.renderSerial||pdf!==state.pdf)return;
-    state.view?.dispose?.();pdfSearch.reset();state.view=view;publishPDFView(view,surfaceElements);canvas.bind(view);
+    state.view?.dispose?.();pdfSearch.reset();state.view=view;publishPDFView(view,surfaceElements,{preserveAnchor:true});canvas.bind(view);
     $('fit').textContent=state.zoom?Math.round(view.scale*100)+'%':'Fit';renderOverlays();updateControls();
   }catch(error){if(!abort.signal.aborted)toast(message(error))}
 }
