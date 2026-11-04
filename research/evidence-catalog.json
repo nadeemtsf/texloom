@@ -1,0 +1,470 @@
+{
+  "schema": 1,
+  "kind": "development_evidence_inventory_not_evaluation_results",
+  "recorded_utc": "2026-11-04T18:19:08.015143+00:00",
+  "audited_head": "05761985a7deef312426c268b953d4d01eccdaca",
+  "working_tree_note": "Uncommitted report/evidence changes may be present; see the session checkpoint.",
+  "final_evaluation_executed": false,
+  "entries": [
+    {
+      "path": "docs/evidence/build-first-run.json",
+      "bytes": 2534,
+      "sha256": "e99efdf00ab5b9dea0971d6b0e70c760c495cd1d7980e6c35f8debb6d7aa69da",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "failed",
+      "sourceCommit": "0dd8468b97883cf6fa431dc55041c560b7c74dd6",
+      "run": "https://github.com/nadeemtsf/texloom/actions/runs/41354680393",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/build-protocol-local.json",
+      "bytes": 12480,
+      "sha256": "3ce5157af23bf666f29676ee000492231b53076f501763f0ec2100c114d7fa2c",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "implementation_base": "41d9b19880bc0a2e10fbf241a517648be850c3df",
+      "recorded_utc": "2026-11-03T18:12:02.738006+00:00",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/build-second-run.json",
+      "bytes": 13785,
+      "sha256": "9b6725c43706cdb8d7498d761cf175ac2aed2a8e973744f706fa15acdb880054",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "failed",
+      "sourceCommit": "3ecaee646b1497b0785a6b62c8d5e3fc887ff9bc",
+      "run": "https://github.com/nadeemtsf/texloom/actions/runs/41355403634",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/build-verified-run.json",
+      "bytes": 13838,
+      "sha256": "b64f57c53d8001c26d75c6cc32616cc66eb58880d6522ce70287bbe46bbd338c",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "source_commit": "3e40b997881cbbb3366c78775898f93a4bf33f1e",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/compiler-preflight-local.json",
+      "bytes": 2726,
+      "sha256": "0524ebc0e9f237131ff7d6421cb4c48569523e130d51bf0d7146365993c27464",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "recorded_utc": "2026-11-03T05:52:51.549277+00:00",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/dawn-native-acceptance.json",
+      "bytes": 6632,
+      "sha256": "85e4e958b02ffcf92f538b09925fe2e2d7a1ec9391c6f4e45012b684b6b83eb0",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "source_commit": "2700d3462c3c6762c6e1053e5646ca7191a1935c",
+      "date": "2026-11-04",
+      "release_ready": false,
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/dependency-review-2026-11-04.json",
+      "bytes": 4752,
+      "sha256": "3e83393dfde2f4dd947dd317ca748cdcb2c2c39f626cec3b2ec0e1be624fcc4e",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "bounded_dependency_provenance_review_not_security_certification",
+      "recorded_utc": "2026-11-04T17:59:02.754903+00:00",
+      "release_ready": false,
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/desktop-startup-ci.json",
+      "bytes": 8020,
+      "sha256": "b1193f7bb9d58f880b6af4e56a1a9372352ac228e6c3f461c415d0df16b7ab24",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "source_commit": "c773a9045868d10e843134693bd9f64c582c8cd3",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/desktop-startup-local.json",
+      "bytes": 1611,
+      "sha256": "828aae44bb083aef3bee3a1ef5e72a0d3f5f99fddd80fd15a7620bc611bc3b94",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "recorded_utc": "2026-11-03T05:22:47.198252+00:00",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/displacement-policy-first-run.json",
+      "bytes": 14797,
+      "sha256": "783151506dfb24cd6b6f629525ffbcc1d8baad26145bbd029189b00b725c5260",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "fail",
+      "createdAt": "2026-11-02T17:37:25.362Z",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/displacement-policy-verified-run.json",
+      "bytes": 20072,
+      "sha256": "9356a7624182355fb277b760893cb7b376d93fe0df04e5c11feec6adbc8af6e0",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "pass",
+      "createdAt": "2026-11-02T17:44:47.765Z",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/feedback-fix-ci-2026-11-04.json",
+      "bytes": 1138,
+      "sha256": "5341240bd70868d7dd73fc243f3711876de022e4ce87697e068e37ffbb171eea",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "product_source_commit": "c26a23851155f7e4e542eef80fae92e35c51f707",
+      "date": "2026-11-04",
+      "release_ready": false,
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/feedback-fix-native-2026-11-04.json",
+      "bytes": 3615,
+      "sha256": "d4ba1c98c720019f2cede6cbeba9ca3fb489e9de46acdfa10b985f32cc1b6b2c",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "product_source_commit": "c26a23851155f7e4e542eef80fae92e35c51f707",
+      "date": "2026-11-04",
+      "release_ready": false,
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/installed-acceptance-2026-11-04.json",
+      "bytes": 6442,
+      "sha256": "b29fc62b6dbe7748ab4376e4db7bad637b7a23ded08a08c550a832ac8e6776f6",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "product_source_commit": "2700d3462c3c6762c6e1053e5646ca7191a1935c",
+      "date": "2026-11-04",
+      "release_ready": false,
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/installed-r2-acceptance-2026-11-04.json",
+      "bytes": 4760,
+      "sha256": "50d97210044c0ae243d20fffea194c7f5885aee9255ae82b614a59a8be143515",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "product_source_commit": "c26a23851155f7e4e542eef80fae92e35c51f707",
+      "date": "2026-11-04",
+      "release_ready": false,
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/morning-ci-2700.json",
+      "bytes": 17244,
+      "sha256": "5d249c61516e6f4c81cce1b0ca4c1747edf4ccd4a0085dd7a3c692cbadeefb38",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "product_source_commit": "2700d3462c3c6762c6e1053e5646ca7191a1935c",
+      "date": "2026-11-04",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/native-layout-local.json",
+      "bytes": 2086,
+      "sha256": "be200cde083c63fa6df091ba91b7ab0422e033a14b63730743b9e46f1906ecce",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "component checks passed; native acceptance blocked",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/native-marker-first-run.json",
+      "bytes": 578,
+      "sha256": "62954b38e21f3052723448212e01deea66ed46e022e1573d2cce112cb48d4d31",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "failed",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/native-marker-second-run.json",
+      "bytes": 887,
+      "sha256": "a518f31a9c5fd43a9d3f59909e5de71a9c65db367421b59017b5cd069235498f",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "failed",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/native-marker-verified-run.json",
+      "bytes": 6311,
+      "sha256": "3128273fe91cbe068a829024ca4395ee6948296be7395277073f60d809fc2c43",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "pass",
+      "recorded_case_rows": 27,
+      "case_status_counts_as_recorded": {
+        "pass": 24,
+        "expected-refusal": 3
+      },
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/oracle-feasibility-2026-11-04.json",
+      "bytes": 38970,
+      "sha256": "0e1a06c1425276026ecb91aad3b17ce44c419dffcdb5319983117907035e1063",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "pass",
+      "recorded_utc": "2026-11-04T17:59:55.012962+00:00",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/portable-packaging-local.json",
+      "bytes": 5718,
+      "sha256": "715c8493155d20a61e1d2f94f3aad20cb39023cad7ec746bacb1cf5b8cc25f11",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "implementation_base": "ffab26183eaa4b5565caaf1ab843986bd299fb89",
+      "recorded_utc": "2026-11-03T16:42:05.354136+00:00",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/project-durability-ci.json",
+      "bytes": 1018,
+      "sha256": "1d8ba58b03818453f3b6539d0e266b830eb268ab9c64ecf4b4c3f10eccb235a7",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "all three CI workflows passed",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/proof-first-run.json",
+      "bytes": 8748,
+      "sha256": "a8543822b841fc499f668e4750814086303fcdf9d8f542ffb195dde8f7567006",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "fail",
+      "createdAt": "2026-11-01T16:39:41.426Z",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/proof-second-run.json",
+      "bytes": 9610,
+      "sha256": "336b8f4847c7c8d1324d06acc11fde92498041d92404a7380abec29a809bff79",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "fail",
+      "createdAt": "2026-11-01T16:46:44.707Z",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/protected-text-verified-run.json",
+      "bytes": 624,
+      "sha256": "070bf0603e6d08497e4f97f7c1dac38ac8905b6e27deffcc94e1dfc6078e4832",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "pass",
+      "sourceCommit": "6eb2b5a26684714a25609bd67157677e3ce882ec",
+      "run": "https://github.com/nadeemtsf/texloom/actions/runs/41402245293",
+      "recorded_case_rows": 3,
+      "case_status_counts_as_recorded": {
+        "pass": 3
+      },
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/remaining-features-local.json",
+      "bytes": 4229,
+      "sha256": "8bd7f236f6c2b2e1a63fcc8cd0d387e8493b59b6a99659d6e62fd60b7d1d3707",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "implementation_base": "c97c037d3f3042dbf39993802c53914252ed6c20",
+      "date": "2026-11-04",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/research-analysis-prototype-2026-11-04.json",
+      "bytes": 1090,
+      "sha256": "f3c9bc8903ac2f4f4656373c0d21af6b78df9542c692f153f51aa28af9016ea3",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "development_tool_diagnostics_pass",
+      "recorded_utc": "2026-11-04T18:19:07.833611+00:00",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/selection-first-run.json",
+      "bytes": 5534,
+      "sha256": "7d947d8d164109ede335f30ac1d99120eb89f2e4dc46fed5c1dd00e7a71063dc",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "fail",
+      "sourceCommit": "c67de5c610d9d370b9ed542da6a331ba14d9283b",
+      "createdAt": "2026-11-02T06:25:28.012Z",
+      "run": "https://github.com/nadeemtsf/texloom/actions/runs/41399443027",
+      "recorded_case_rows": 33,
+      "case_status_counts_as_recorded": {
+        "pass": 24,
+        "fail": 3,
+        "expected-refusal": 6
+      },
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/selection-verified-run.json",
+      "bytes": 6330,
+      "sha256": "ebcaf31c3842ea83b87305df3558a1ef81e0e4d181a6ed77c7e94959a4ba1d98",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "pass",
+      "sourceCommit": "ab9eedc3b3e58a64a7e89446d4fb8ca61eabc5a3",
+      "createdAt": "2026-11-02T06:34:13.631Z",
+      "run": "https://github.com/nadeemtsf/texloom/actions/runs/41400437651",
+      "recorded_case_rows": 33,
+      "case_status_counts_as_recorded": {
+        "pass": 26,
+        "expected-refusal": 7
+      },
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/source-ack-local.json",
+      "bytes": 17877,
+      "sha256": "820a267179d8a039a3e2b115f539e55eb7e88bc57c63d7306463e53b1c1c96cc",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "implementation_base": "c83dda1ece80758bbfdaddf89a78021857bae7cf",
+      "recorded_utc": "2026-11-03T07:53:58.812927+00:00",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/source-contract-prototype-2026-11-04.json",
+      "bytes": 1337,
+      "sha256": "649a2af8014c0a251a3f19135b40d64aa5ba396abce90f076474fd438a1b921a",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "prototype_diagnostics_pass_not_final_evaluation",
+      "recorded_utc": "2026-11-04T18:12:26.390093+00:00",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/source-plans-local.json",
+      "bytes": 20529,
+      "sha256": "575de6d7fd2991ff6de6f10566a1277c26c0c997218ff88902c2d2bffa327295",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "implementation_base": "30cf0f9b6e4ab653a7d7779e52c12a0b4b4d63ec",
+      "recorded_utc": "2026-11-03T16:23:57.459094+00:00",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/spacing-verified-run.json",
+      "bytes": 1106,
+      "sha256": "797352fb3447d7684f24860458475d0110cc774ba67d5dd179c4f347a1160a1e",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "pass",
+      "recorded_case_rows": 6,
+      "case_status_counts_as_recorded": {
+        "pass": 6
+      },
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/typed-protocol-local.json",
+      "bytes": 11196,
+      "sha256": "32d58f7ca6e883a8c1d1b3ba9dd7356e3364b26ed344061be6e0d5a8335a3d0b",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "implementation_base": "e8482a633fcd850fc1ced2dc36fe5c9c17643338",
+      "recorded_utc": "2026-11-03T17:24:05.041327+00:00",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/typing-recovery-local.json",
+      "bytes": 16914,
+      "sha256": "becb87975437bca98456abfd362c6cb08dabce33effd2bf2c08bcc9cdb2b0ca3",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "implementation_base": "eb2108d9dbcd9a4e3e380e444942450482f4b6c4",
+      "recorded_utc": "2026-11-03T08:55:53.039458+00:00",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/visual-bridge-audit-local.json",
+      "bytes": 2980,
+      "sha256": "5507bdd58cfd1dbec6145d9737ea8dc33ecc5f975ac7baefc713d6efb08c3625",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "recorded_utc": "2026-11-03T15:55:55.608053+00:00",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/window-blur-local-2026-11-04.json",
+      "bytes": 1864,
+      "sha256": "a2c04b658dc954aadb7152e02596c818a77cd5ad69f22b107de0db10b350f31c",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "local_automated_and_build_pass_native_pending",
+      "product_source_commit": "05761985a7deef312426c268b953d4d01eccdaca",
+      "recorded_utc": "2026-11-04T17:59:02.754903+00:00",
+      "release_ready": false,
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/windows-engine-first-local.json",
+      "bytes": 4140,
+      "sha256": "17bfe661cd63a7eb3528249a0d42f505964c73b60d37958fe74c581de188fb4e",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "environment-blocked; acceptance failed",
+      "source_commit": "c773a9045868d10e843134693bd9f64c582c8cd3",
+      "recorded_case_rows": 24,
+      "case_status_counts_as_recorded": {
+        "not_recorded": 24
+      },
+      "parse_status": "ok"
+    }
+  ]
+}

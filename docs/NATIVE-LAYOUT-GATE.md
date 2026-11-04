@@ -1,5 +1,7 @@
 # P6 native visual transaction checkpoint
 
+Version note, 4 November 2026: this records the earlier P6 design. Current source at c26a238 has distinct displacement, reflow, semantic-adapter and legacy-block policies. Only the displacement/identity path makes the strict geometry/full-raster preservation check; semantic adapters permit reflow, and legacy blocks retain a compatibility path. See research/implementation-audit.md for code anchors and limitations, FINAL-NATIVE-ACCEPTANCE.md for actual native/installed observations, and the dated evidence for exact artifacts. Later fractional prediction and native acceptance results do not erase the earlier failures below.
+
 The application now binds supported visual operations to a native source plan
 and an independent PDFium check before committing canonical source or history.
 This is an implementation checkpoint, not completion of native acceptance.

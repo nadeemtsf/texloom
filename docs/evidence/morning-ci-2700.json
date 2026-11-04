@@ -1,0 +1,529 @@
+{
+  "schema": 1,
+  "date": "2026-11-04",
+  "product_source_commit": "2700d3462c3c6762c6e1053e5646ca7191a1935c",
+  "all_workflows": "success",
+  "runs": [
+    {
+      "name": "Check and build Windows",
+      "run_id": 41772369980,
+      "job_id": 126384997002,
+      "conclusion": "success",
+      "windows_packaging_uploads_benchmark": "success"
+    },
+    {
+      "name": "Compile service corpus",
+      "run_id": 41772369993,
+      "conclusion": "success"
+    },
+    {
+      "name": "Visual editing proof experiment",
+      "run_id": 41772369892,
+      "conclusion": "success"
+    }
+  ],
+  "windows_log_sha256": "c1a66e92344bba8f3b78d6e20256c987ea09871770a647396c94c4f9e0fea1c0",
+  "benchmark": {
+    "architecture": "x86_64",
+    "cases": [
+      {
+        "bytes_per_file": 16384,
+        "coalesced_undo_redo_exact": true,
+        "files": 1,
+        "measured_edits": 100,
+        "mode": "project_plan_changed_file",
+        "native_edit_and_reply": {
+          "max_ms": 3.5154,
+          "median_ms": 1.0907999999999998,
+          "p95_ms": 1.2857,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 3.5387999999999997,
+          "median_ms": 1.1118000000000001,
+          "p95_ms": 1.3088,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "plan_mode": "project_snapshot",
+        "production_ipc": false,
+        "project_source_bytes": 16384,
+        "reply_json_encoding": {
+          "max_ms": 0.09509999999999999,
+          "median_ms": 0.0195,
+          "p95_ms": 0.0258,
+          "samples": 100
+        },
+        "response_bytes": 17143,
+        "response_mode": "changed_file",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 16384,
+        "coalesced_undo_redo_exact": true,
+        "files": 1,
+        "measured_edits": 100,
+        "mode": "file_plan_changed_file",
+        "native_edit_and_reply": {
+          "max_ms": 2.8009,
+          "median_ms": 1.06905,
+          "p95_ms": 1.2826,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 2.8245,
+          "median_ms": 1.0881500000000002,
+          "p95_ms": 1.3066,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "plan_mode": "single_existing_file",
+        "production_ipc": true,
+        "project_source_bytes": 16384,
+        "reply_json_encoding": {
+          "max_ms": 0.0953,
+          "median_ms": 0.0191,
+          "p95_ms": 0.0249,
+          "samples": 100
+        },
+        "response_bytes": 17143,
+        "response_mode": "changed_file",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 16384,
+        "coalesced_undo_redo_exact": true,
+        "files": 1,
+        "measured_edits": 100,
+        "mode": "file_plan_full_snapshot",
+        "native_edit_and_reply": {
+          "max_ms": 3.1519999999999997,
+          "median_ms": 1.0744,
+          "p95_ms": 1.4067,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 3.1748000000000003,
+          "median_ms": 1.0944500000000001,
+          "p95_ms": 1.4289,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "plan_mode": "single_existing_file",
+        "production_ipc": false,
+        "project_source_bytes": 16384,
+        "reply_json_encoding": {
+          "max_ms": 0.11170000000000001,
+          "median_ms": 0.0204,
+          "p95_ms": 0.0265,
+          "samples": 100
+        },
+        "response_bytes": 17101,
+        "response_mode": "full_snapshot",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 262144,
+        "coalesced_undo_redo_exact": true,
+        "files": 1,
+        "measured_edits": 100,
+        "mode": "project_plan_changed_file",
+        "native_edit_and_reply": {
+          "max_ms": 20.9201,
+          "median_ms": 5.95595,
+          "p95_ms": 7.6777,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 21.4081,
+          "median_ms": 6.4068000000000005,
+          "p95_ms": 8.1327,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "plan_mode": "project_snapshot",
+        "production_ipc": false,
+        "project_source_bytes": 262144,
+        "reply_json_encoding": {
+          "max_ms": 0.5916,
+          "median_ms": 0.42310000000000003,
+          "p95_ms": 0.5107999999999999,
+          "samples": 100
+        },
+        "response_bytes": 269459,
+        "response_mode": "changed_file",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 262144,
+        "coalesced_undo_redo_exact": true,
+        "files": 1,
+        "measured_edits": 100,
+        "mode": "file_plan_changed_file",
+        "native_edit_and_reply": {
+          "max_ms": 7.428299999999999,
+          "median_ms": 5.6968499999999995,
+          "p95_ms": 6.0889999999999995,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 7.6852,
+          "median_ms": 6.1202000000000005,
+          "p95_ms": 6.5306,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "plan_mode": "single_existing_file",
+        "production_ipc": true,
+        "project_source_bytes": 262144,
+        "reply_json_encoding": {
+          "max_ms": 0.5575000000000001,
+          "median_ms": 0.4587,
+          "p95_ms": 0.5191,
+          "samples": 100
+        },
+        "response_bytes": 269459,
+        "response_mode": "changed_file",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 262144,
+        "coalesced_undo_redo_exact": true,
+        "files": 1,
+        "measured_edits": 100,
+        "mode": "file_plan_full_snapshot",
+        "native_edit_and_reply": {
+          "max_ms": 7.7029000000000005,
+          "median_ms": 5.3239,
+          "p95_ms": 5.9821,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 7.9613,
+          "median_ms": 5.611,
+          "p95_ms": 6.2444,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "plan_mode": "single_existing_file",
+        "production_ipc": false,
+        "project_source_bytes": 262144,
+        "reply_json_encoding": {
+          "max_ms": 0.4752,
+          "median_ms": 0.25805,
+          "p95_ms": 0.4682,
+          "samples": 100
+        },
+        "response_bytes": 269417,
+        "response_mode": "full_snapshot",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 65536,
+        "coalesced_undo_redo_exact": true,
+        "files": 16,
+        "measured_edits": 100,
+        "mode": "project_plan_changed_file",
+        "native_edit_and_reply": {
+          "max_ms": 3.6467,
+          "median_ms": 2.0035,
+          "p95_ms": 2.5509999999999997,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 3.6998,
+          "median_ms": 2.0492,
+          "p95_ms": 2.5947,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "plan_mode": "project_snapshot",
+        "production_ipc": false,
+        "project_source_bytes": 1048576,
+        "reply_json_encoding": {
+          "max_ms": 0.09809999999999999,
+          "median_ms": 0.0457,
+          "p95_ms": 0.0725,
+          "samples": 100
+        },
+        "response_bytes": 67607,
+        "response_mode": "changed_file",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 65536,
+        "coalesced_undo_redo_exact": true,
+        "files": 16,
+        "measured_edits": 100,
+        "mode": "file_plan_changed_file",
+        "native_edit_and_reply": {
+          "max_ms": 3.9012000000000002,
+          "median_ms": 1.59695,
+          "p95_ms": 1.8760999999999999,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 3.9835000000000003,
+          "median_ms": 1.65655,
+          "p95_ms": 1.9195,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "plan_mode": "single_existing_file",
+        "production_ipc": true,
+        "project_source_bytes": 1048576,
+        "reply_json_encoding": {
+          "max_ms": 0.09519999999999999,
+          "median_ms": 0.045200000000000004,
+          "p95_ms": 0.0727,
+          "samples": 100
+        },
+        "response_bytes": 67607,
+        "response_mode": "changed_file",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 65536,
+        "coalesced_undo_redo_exact": true,
+        "files": 16,
+        "measured_edits": 100,
+        "mode": "file_plan_full_snapshot",
+        "native_edit_and_reply": {
+          "max_ms": 15.2833,
+          "median_ms": 1.73275,
+          "p95_ms": 2.3303,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 16.4598,
+          "median_ms": 2.7219499999999996,
+          "p95_ms": 3.4133,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "plan_mode": "single_existing_file",
+        "production_ipc": false,
+        "project_source_bytes": 1048576,
+        "reply_json_encoding": {
+          "max_ms": 1.6154,
+          "median_ms": 0.93725,
+          "p95_ms": 1.1581,
+          "samples": 100
+        },
+        "response_bytes": 1077140,
+        "response_mode": "full_snapshot",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 262144,
+        "coalesced_undo_redo_exact": true,
+        "files": 64,
+        "measured_edits": 100,
+        "mode": "project_plan_changed_file",
+        "native_edit_and_reply": {
+          "max_ms": 15.9753,
+          "median_ms": 9.839199999999998,
+          "p95_ms": 15.259699999999999,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 16.2303,
+          "median_ms": 10.1141,
+          "p95_ms": 15.5532,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "plan_mode": "project_snapshot",
+        "production_ipc": false,
+        "project_source_bytes": 16777216,
+        "reply_json_encoding": {
+          "max_ms": 0.5817,
+          "median_ms": 0.27344999999999997,
+          "p95_ms": 0.2948,
+          "samples": 100
+        },
+        "response_bytes": 269459,
+        "response_mode": "changed_file",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 262144,
+        "coalesced_undo_redo_exact": true,
+        "files": 64,
+        "measured_edits": 100,
+        "mode": "file_plan_changed_file",
+        "native_edit_and_reply": {
+          "max_ms": 7.5058,
+          "median_ms": 4.8767,
+          "p95_ms": 5.2332,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 7.774900000000001,
+          "median_ms": 5.14695,
+          "p95_ms": 5.5083,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "plan_mode": "single_existing_file",
+        "production_ipc": true,
+        "project_source_bytes": 16777216,
+        "reply_json_encoding": {
+          "max_ms": 0.3747,
+          "median_ms": 0.2701,
+          "p95_ms": 0.28390000000000004,
+          "samples": 100
+        },
+        "response_bytes": 269459,
+        "response_mode": "changed_file",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 262144,
+        "coalesced_undo_redo_exact": true,
+        "files": 64,
+        "measured_edits": 100,
+        "mode": "file_plan_full_snapshot",
+        "native_edit_and_reply": {
+          "max_ms": 20.954400000000003,
+          "median_ms": 10.69115,
+          "p95_ms": 13.434099999999999,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 38.5335,
+          "median_ms": 27.44075,
+          "p95_ms": 30.4053,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "plan_mode": "single_existing_file",
+        "production_ipc": false,
+        "project_source_bytes": 16777216,
+        "reply_json_encoding": {
+          "max_ms": 24.2017,
+          "median_ms": 16.7239,
+          "p95_ms": 17.673000000000002,
+          "samples": 100
+        },
+        "response_bytes": 17226182,
+        "response_mode": "full_snapshot",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 262144,
+        "coalesced_undo_redo_exact": true,
+        "files": 128,
+        "measured_edits": 100,
+        "mode": "project_plan_changed_file",
+        "native_edit_and_reply": {
+          "max_ms": 26.0659,
+          "median_ms": 14.4266,
+          "p95_ms": 23.755499999999998,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 26.3447,
+          "median_ms": 14.710650000000001,
+          "p95_ms": 24.0408,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "plan_mode": "project_snapshot",
+        "production_ipc": false,
+        "project_source_bytes": 33554432,
+        "reply_json_encoding": {
+          "max_ms": 0.36479999999999996,
+          "median_ms": 0.28295,
+          "p95_ms": 0.2934,
+          "samples": 100
+        },
+        "response_bytes": 269459,
+        "response_mode": "changed_file",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 262144,
+        "coalesced_undo_redo_exact": true,
+        "files": 128,
+        "measured_edits": 100,
+        "mode": "file_plan_changed_file",
+        "native_edit_and_reply": {
+          "max_ms": 8.323,
+          "median_ms": 4.9419,
+          "p95_ms": 5.2397,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 8.6009,
+          "median_ms": 5.2177500000000006,
+          "p95_ms": 5.5172,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "plan_mode": "single_existing_file",
+        "production_ipc": true,
+        "project_source_bytes": 33554432,
+        "reply_json_encoding": {
+          "max_ms": 0.29750000000000004,
+          "median_ms": 0.27505,
+          "p95_ms": 0.28350000000000003,
+          "samples": 100
+        },
+        "response_bytes": 269459,
+        "response_mode": "changed_file",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 262144,
+        "coalesced_undo_redo_exact": true,
+        "files": 128,
+        "measured_edits": 100,
+        "mode": "file_plan_full_snapshot",
+        "native_edit_and_reply": {
+          "max_ms": 19.854799999999997,
+          "median_ms": 12.378499999999999,
+          "p95_ms": 13.501600000000002,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 53.0889,
+          "median_ms": 45.673249999999996,
+          "p95_ms": 47.9547,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "plan_mode": "single_existing_file",
+        "production_ipc": false,
+        "project_source_bytes": 33554432,
+        "reply_json_encoding": {
+          "max_ms": 38.2214,
+          "median_ms": 33.2822,
+          "p95_ms": 34.3409,
+          "samples": 100
+        },
+        "response_bytes": 34452102,
+        "response_mode": "full_snapshot",
+        "warmup_edits": 10
+      }
+    ],
+    "durable_recovery_journal": true,
+    "github_ref_at_run": "refs/pull/24/merge",
+    "github_sha_at_run": "25eb6e9b12f26ad6d28f9c6eaa118967116cf787",
+    "implementation_base": "30cf0f9b6e4ab653a7d7779e52c12a0b4b4d63ec",
+    "limitations": [
+      "Synthetic source projects; one run with uncontrolled background load",
+      "CI measurements describe the runner, not the user's laptop",
+      "No WebView IPC transport, JavaScript parsing, editor paint, native typing or IME measurement",
+      "No compiler job or initialized build cache; accepted source changes are journaled and flushed, without project Save",
+      "Only source-edit acknowledgements are measured; per-edit cursor acknowledgements and their journal flushes are excluded",
+      "Response/snapshot destruction and transport are outside the measured interval",
+      "Not a native UI acceptance gate or a comparison to the 50 ms editor-paint target"
+    ],
+    "logical_processors_seen": 2,
+    "measured_api": "Shared native source authority, recovery, and changed-file reply: project-snapshot reference planner vs production single-file planner; full reply retained as a separate response comparison",
+    "os": "windows",
+    "profile": "release",
+    "schema": 4
+  }
+}

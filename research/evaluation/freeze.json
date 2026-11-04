@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "status": "not_frozen",
+  "final_evaluation_executed": false,
+  "audit_baseline_commit": "c26a23851155f7e4e542eef80fae92e35c51f707",
+  "evaluation_commit": null,
+  "executable_sha256": null,
+  "fixture_manifest_sha256": null,
+  "oracle_manifest_sha256": null,
+  "analysis_commit": null,
+  "protocol_version": "draft-v0",
+  "reason": "Continue the initial working app and stabilize the core workflow before sealing a final evaluation version. Development evidence is not final held-out evidence."
+}

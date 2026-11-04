@@ -1,5 +1,7 @@
 # Native acceptance in progress
 
+Latest instruction: the owner is away from the laptop and explicitly defers every test requiring approval or opening Texloom. Local 0576198 adds focus-loss gesture cancellation; 239 frontend/88 default core and Windows build pass, but its new executable (SHA-256 3e8207d43704fd017bb05b385772069348d69c898635462e85af46bb675bf2ce) has not been launched or installed. Keep these native checks pending; no repeated approval request is needed while this deferral applies. Existing installed r2 observations below retain their own artifact identity.
+
 Updated 4 November 2026. Native tests resumed at the owner's request. English, Arabic and Hebrew are the current language scope; CJK IMEs and installing Windows input languages are deferred. All projects are disposable synthetic fixtures. No .text file was compiled, and the default example's earlier saved98bp position is preserved.
 
 ## Exact candidates
@@ -10,8 +12,13 @@ Updated 4 November 2026. Native tests resumed at the owner's request. English, A
 | Seventh | 4B188A1F0606A6D7B0AF0E32AA1C2465758E29D83856BEC76CE787A14FAA464C | LuaTeX mapping/group/edit, catalog/recovery, project/adapter flows, XeLaTeX signature and compile failure |
 | Tenth | 42CA509B0D0CC43C740C018837718B9CA6E8159D5B153BBCCED8509B056192C2 | Arabic/Hebrew search, label drag, repeated keyboard nudges, controls, real cancellation and concurrent typing |
 | Eleventh | FA022284F2F4FDE6955DD068524F23AEECD4DC400E5C86508C06E21B44D8970D | Long-document zoom-position correction, lazy reading/navigation |
+| Installed eleventh | 8B7BD9542BA78202451DAA9A5DB031B739870933F92822AAB7AB17F15C6F3AE9 | Existing-account NSIS installation, verified nudge/Save/Undo/reopen, Letter/CV templates and shutdown during compilation |
+| Twelfth / r2 portable | 20520866982788619F7E128B1A9B9B0345977C75B944FE42E6B94DB1C35AB5CD | Modal feedback correction and line-spacing/table-placement native repeat |
+| Installed twelfth / r2 | A3C4225BE0FBC9BF6F79AD0C4234AC9CD0CDAEFCF6002F5EB2846A28AD5D067A | Approved existing-account reinstall/update, matching resources, verified nudge, exact Save/Undo, clean close and relaunch |
 
-The eleventh NSIS SHA-256 is916356F24EF2BE3765844FA1D62C8BAE050FFEB844B0420C5CB2951877AB1421. It is built but installation is unexecuted. Exact dawn receipts and source hashes are in evidence/dawn-native-acceptance.json. Later documentation-only repackaging does not change the executable hash.
+The eleventh NSIS SHA-256 is `916356F24EF2BE3765844FA1D62C8BAE050FFEB844B0420C5CB2951877AB1421`; its approved normal per-user installation completed on the existing developer account. Installed/portable EXEs differ in exactly three bytes at offset 13489842: Tauri's `NSS` versus `UNK` bundle marker; all other bytes are identical. See evidence/installed-acceptance-2026-11-04.json. This is not a clean-machine/account result.
+
+The twelfth/r2 installer SHA-256 is `AE8567329A095445417E010069A27372317444F6DCE30F1B701037977C500CF1`. The owner separately approved it; the existing-account reinstall/update and installed native repeat completed. Its installed/portable EXEs differ only in the three-byte Tauri bundle marker at offset 13489778. Setup advanced between read-only observations; maintenance/default destination/extraction and the resulting installed launch were observed, but the completion page and individual clicks are not claimed. Documentation-only portable repackaging preserves the EXE hash. See evidence/installed-r2-acceptance-2026-11-04.json and the separate feedback-fix CI receipt.
 
 ## Observed passes
 
@@ -32,16 +39,24 @@ The eleventh NSIS SHA-256 is916356F24EF2BE3765844FA1D62C8BAE050FFEB844B0420C5CB2
 
 The eleventh build also edits only the second identical phrase, with exact Undo/Save. A marquee spanning independent columns refuses safely: “Select adjacent lines; unselected source occurs between these items.”
 
+Later installed-artifact checks passed normal installation completion/launch, resource hashes/notices, per-user 0.3.0 registration and desktop/Start menu shortcuts. A synthetic example opened for review, explicitly compiled, mapped the name, accepted a verified +1bp Right nudge, kept disk unchanged until Save and restored all three original files with one Undo/Save. Clean close/relaunch/recents/recompile passed. Closing while an actual pdfLaTeX process was running left no app/compiler/worker processes. Native Letter and CV creation/explicit compilation passed.
+
+On the twelfth/r2 portable build, an out-of-range factor 4 stays safely refused with its explanation readable inside the modal. A fresh controlled synthetic copy accepted line spacing 1.05 to 1.15 and table placement htbp to H. Explicit Save changed only those values, retaining every other byte and the final CRLF; two Undo operations plus Save restored original SHA `c9a794cbb70c9141288d3345c8c156dba3c4f77721ee31b912e9407dc6d578eb`. An earlier mixed-input session lost the final newline; its strict byte assertion failed and is retained as inconclusive because intervening input prevents attributing the change. It is not silently promoted to a preservation pass. See evidence/feedback-fix-native-2026-11-04.json.
+
+The installed r2 repeat opened a fresh synthetic project without automatic compilation, explicitly compiled, mapped the name, accepted a verified +1bp Right nudge and kept disk unchanged until Save. Save changed only the expected wrapper/package; one Undo/Save restored all three original files exactly. Twelve protected synthetic fixture/copy files retained their hashes across reinstall. Clean close left no app/worker processes, and relaunch succeeded. The launch helper initially reported no targetable window; a fresh inventory found the running app. A first byte-check regex omitted the wrapper's terminating newline; the corrected exact reconstruction and the original assertion failure are distinguished in the receipt.
+
+The approved final interrupted-Save restore reopened the exact original source/profile. Rollback intentionally retained a `rolled_back` journal; the separately approved staged-draft discard removed only that journal. Original hashes and the separately saved recovered-edit copy stayed exact. An earlier harness assumption that rollback itself deletes the journal was corrected after source/state inspection; it is not counted as a product defect.
+
 ## Regressions exposed and corrected
 
-Native tests found Windows active-draft locked-marker read ordering, LuaTeX verbatim ./ input paths, shaped-Arabic search, a drag label ignoring pointer input, keyboard focus lost after PDF publication, and zoom preserving pixels rather than the reading position. Clean-checkout CI found an absent generated-resource directory and concurrent bibliography test timestamp collisions. Failed attempts/logs are retained; a correction is counted only after its relevant repeat.
+Native tests found Windows active-draft locked-marker read ordering, LuaTeX verbatim ./ input paths, shaped-Arabic search, a drag label ignoring pointer input, keyboard focus lost after PDF publication, zoom preserving pixels rather than the reading position, and a correctly refused numeric input whose explanation was blurred behind the modal. The last issue was corrected at c26a238; actual rebuilt-window feedback is visible inside the modal. Clean-checkout CI found an absent generated-resource directory and concurrent bibliography test timestamp collisions. Failed attempts/logs are retained; a correction is counted only after its relevant repeat.
 
 ## Open gates
 
 - Real mid-gesture Escape/pointer cancellation/lost capture. Controller tests cover these cancellation events, but the current Windows input API cannot inject a held drag plus an intervening key/cancel event.
 - Windows DPI scale-change, multiple-monitor and documented reference-machine latency checks. Windows Settings did not expose a targetable window through the tool; no display setting was changed. A passing zoom test is not a DPI test.
-- Actual interrupted Save was stopped during staging; original bytes remained intact, the3.7MB protected source/history recovered, and a separate exact new copy passed. Final disk restore/reopen and deliberate draft discard remain: the current unsaved-editor discard prompt was cancelled pending action-time confirmation.
+- Both exact eleventh and r2 installations have existing-account evidence; neither establishes a clean-machine dependency/setup result.
 - End-to-end latency distributions and an unassisted human usability trial remain. A20-minute exact-process-tree sample completed117 snapshots:548.83–824.18MiB working set,680.23MiB final; private peak494.54MiB,389.15MiB final. Shared WebView descendants included a second app and its crash/relaunch during the sample; this is not an isolated reference-machine benchmark, leak pass or long-session certification.
-- Exact installed artifact on a clean Windows account/machine, dependency/setup/resource layout, uninstall, and interrupted shutdown. Windows UI installation requires action-time confirmation. Signing/public Store release requires owner decisions/credentials.
+- Clean Windows account/machine installation and missing-dependency setup remain. The existing-account install/resource/shutdown checks passed, but uninstaller launch returned “product policy blocks this app”; no uninstall ran and no alternate route was used. The app remains installed and project/recovery data are preserved. Signing/public distribution requires owner decisions/credentials.
 
 The project is not release-complete. Automated suites and headless real-engine proof do not replace unexecuted native/installation gates. Raw synthetic observations remain in the continuation workspace work/native-acceptance/ui-observations.json; committed receipts identify exact sources/artifacts without private user documents.

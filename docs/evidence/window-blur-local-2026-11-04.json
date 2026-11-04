@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-04T17:59:02.754903+00:00",
+  "product_source_commit": "05761985a7deef312426c268b953d4d01eccdaca",
+  "status": "local_automated_and_build_pass_native_pending",
+  "release_ready": false,
+  "frontend": {
+    "pass": 239,
+    "fail": 0,
+    "skip": 0
+  },
+  "core_default": {
+    "unit_pass": 70,
+    "integration_pass": 18,
+    "fail": 0
+  },
+  "windows_release_nsis_build": "pass",
+  "change": "Window blur cancels the active drag or marquee while retaining accepted selection; a subsequent deliberate drag works in controller tests.",
+  "logs": [
+    {
+      "path": ".tools/evening-window-blur-frontend.log",
+      "bytes": 22878,
+      "sha256": "98892b7286557b8c7513da109f1bbe3a81dac75a3ea7f9b5f566b8dbf0501267"
+    },
+    {
+      "path": ".tools/evening-window-blur-core.log",
+      "bytes": 7903,
+      "sha256": "417b478578682ea37e0ce583a5231ff608846fb4c7660009235620b4fa73e5fb"
+    },
+    {
+      "path": ".tools/evening-window-blur-desktop.log",
+      "bytes": 7502,
+      "sha256": "26f970f90d6ca8f7a9ef73cc59ac7cb765d2a16692591d306d6b46101eacde49"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "target/x86_64-pc-windows-msvc/release/texloom-desktop.exe",
+      "bytes": 17010176,
+      "sha256": "3e8207d43704fd017bb05b385772069348d69c898635462e85af46bb675bf2ce"
+    },
+    {
+      "path": "target/x86_64-pc-windows-msvc/release/bundle/nsis/Texloom_0.3.0_x64-setup.exe",
+      "bytes": 9303255,
+      "sha256": "b96aaf2d3915fca5b70899c85e53bce7958de0177c1156fdfb01b8a23d343dc5"
+    }
+  ],
+  "native_ui_tests": "Owner explicitly deferred all tests requiring approval or opening Texloom while away from laptop. New build not launched or installed.",
+  "remote_ci": "Not run for this local commit; no push/publication. Earlier c26a238 CI success is separate."
+}

@@ -1,5 +1,7 @@
 # P6 independent comparison checkpoint
 
+Historical checkpoint below. For the current implementation audited at c26a238, see research/implementation-audit.md and FINAL-NATIVE-ACCEPTANCE.md. The later baseline-derived rendering prediction supports the recorded fractional-move cases; the integer-pixel-only restriction below describes the earlier comparison path. Native three-engine signature and existing-account installation checks have since run, with exact candidate receipts. Held-gesture/DPI, clean-machine, performance and usability gates remain open. Preserve the old failures and their version context.
+
 `texloom-build::verification` implements a UI-independent comparison over trusted PDF inspection evidence. The native transaction service now uses it with packaged inspection and receipt-bound operation plans, alongside PDF.js preparation; see NATIVE-LAYOUT-GATE.md. A bare comparison result is not a native commit authorization.
 
 The comparison checks every physical page, exact text multiplicities, target membership, uniquely matched glyph geometry, unchanged non-text object geometry and every rendered pixel. It compares bounds within the same renderer. Target tolerance is 0.25 bp; unaffected and identity glyph tolerance is 0.02 bp; non-text geometry uses 0.000001 bp. Identity still requires exact pixels. The frontend cannot change these tolerances. Extraction order may change, but ambiguous correspondence is refused. Successful results report their maximum geometry error.

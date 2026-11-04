@@ -1,12 +1,12 @@
 # Texloom Desktop — development candidate
 
-**This archive contains application source. A separate Windows x64 portable archive contains the compiled Texloom.exe.** The corrected source now passes the Rust tests and a complete Tauri release build. The executable opens a native window and compiles and renders an actual LaTeX PDF. The core native signature workflow has passed under all three engines. It remains a development build with open installation, performance and usability release gates. See VALIDATION.md for the exact checks completed.
+**This repository contains application source. A separate Windows x64 portable archive contains the compiled Texloom.exe.** The executable opens a native window and compiles and renders actual LaTeX output. The core native signature workflow has passed under all three engines on the recorded candidates. One exact installer passed existing-account installation and native workflow checks; clean-machine setup, uninstall, held-gesture/DPI, performance and usability gates remain open. See VALIDATION.md for versioned evidence. This is a development build.
 
 This is a separate desktop implementation. It does not replace or convert the earlier Python application or its saved projects.
 
 ## Development status
 
-Version 0.3 is under development in the primary repository, https://github.com/nadeemtsf/texloom. Source/history, compiler/mapping and workspace messages have Rust-generated TypeScript contracts and runtime checks. The current candidate adds project ZIP import/export, recents, explicit encoding conversion into a new copy, editable templates, BibTeX/Biber recipes, image import and bounded source layout controls. English, Arabic and Hebrew are the current language scope. See docs/IMPLEMENTATION-STATUS.md and docs/FINAL-NATIVE-ACCEPTANCE.md for actual test results and remaining release gates. Native tests have resumed at the owner's request; earlier deferral notes are historical.
+Version 0.3 is under development in the primary repository, https://github.com/nadeemtsf/texloom. Source/history, compiler/mapping and workspace messages have Rust-generated TypeScript contracts and runtime checks. The current candidate adds project ZIP import/export, recents, explicit encoding conversion into a new copy, editable templates, BibTeX/Biber recipes, image import and bounded source layout controls. English, Arabic and Hebrew are the current language scope. See docs/IMPLEMENTATION-STATUS.md, docs/FINAL-NATIVE-ACCEPTANCE.md and docs/REMAINING-WORK.md for actual results and remaining work. New native/installation tests are currently deferred at the owner's request; headless checks continue. The research draft, development pilot and later evaluation plan are described in research/README.md; no final evaluation or publication is implied.
 
 ## Implemented in source
 

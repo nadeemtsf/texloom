@@ -1,0 +1,97 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-04T17:59:02.754903+00:00",
+  "status": "bounded_dependency_provenance_review_not_security_certification",
+  "release_ready": false,
+  "runtime_pin": {
+    "schema": 1,
+    "package": "pypdfium2",
+    "version": "5.14.0",
+    "pdfium": "156.0.8076.0",
+    "wheel": "pypdfium2-5.14.0-py3-none-win_amd64.whl",
+    "wheel_sha256": "149fd5c6397b8df8bf7911a93506eff0be874f877afe7ac936cf5d37d21a6a06",
+    "dll_sha256": "69f1e860f6742fbaafcc4db80e785eec9a4ee0da36ea6d1dc0867ea0f18baea6",
+    "notices": [
+      "pypdfium2-5.14.0.dist-info/licenses/LICENSES/Apache-2.0.txt",
+      "pypdfium2-5.14.0.dist-info/licenses/LICENSES/BSD-3-Clause.txt",
+      "pypdfium2-5.14.0.dist-info/licenses/LICENSES/CC-BY-4.0.txt",
+      "pypdfium2-5.14.0.dist-info/licenses/data/windows_x64/BUILD_LICENSES/abseil.txt",
+      "pypdfium2-5.14.0.dist-info/licenses/data/windows_x64/BUILD_LICENSES/agg23.txt",
+      "pypdfium2-5.14.0.dist-info/licenses/data/windows_x64/BUILD_LICENSES/fast_float.txt",
+      "pypdfium2-5.14.0.dist-info/licenses/data/windows_x64/BUILD_LICENSES/freetype.txt",
+      "pypdfium2-5.14.0.dist-info/licenses/data/windows_x64/BUILD_LICENSES/icu.txt",
+      "pypdfium2-5.14.0.dist-info/licenses/data/windows_x64/BUILD_LICENSES/lcms.txt",
+      "pypdfium2-5.14.0.dist-info/licenses/data/windows_x64/BUILD_LICENSES/libjpeg_turbo.ijg",
+      "pypdfium2-5.14.0.dist-info/licenses/data/windows_x64/BUILD_LICENSES/libjpeg_turbo.md",
+      "pypdfium2-5.14.0.dist-info/licenses/data/windows_x64/BUILD_LICENSES/libopenjpeg.txt",
+      "pypdfium2-5.14.0.dist-info/licenses/data/windows_x64/BUILD_LICENSES/libpng.txt",
+      "pypdfium2-5.14.0.dist-info/licenses/data/windows_x64/BUILD_LICENSES/llvm-libc.txt",
+      "pypdfium2-5.14.0.dist-info/licenses/data/windows_x64/BUILD_LICENSES/pdfium-binaries.txt",
+      "pypdfium2-5.14.0.dist-info/licenses/data/windows_x64/BUILD_LICENSES/pdfium.txt",
+      "pypdfium2-5.14.0.dist-info/licenses/data/windows_x64/BUILD_LICENSES/simdutf.txt",
+      "pypdfium2-5.14.0.dist-info/licenses/data/windows_x64/BUILD_LICENSES/zlib.txt"
+    ],
+    "notice_encodings": {
+      "pypdfium2-5.14.0.dist-info/licenses/data/windows_x64/BUILD_LICENSES/freetype.txt": "windows-1252"
+    }
+  },
+  "wheel_version_metadata": {
+    "major": 156,
+    "minor": 0,
+    "build": 8076,
+    "patch": 0,
+    "n_commits": 0,
+    "hash": null,
+    "origin": "pdfium-binaries",
+    "flags": []
+  },
+  "pypi_current_version_as_observed": "5.14.0",
+  "pypi_declared_vulnerabilities": [],
+  "wheel_checksum_matches_official_index": true,
+  "cached_wheel_and_packaged_dll_match_pin": true,
+  "all_pinned_notice_entries_present": true,
+  "notice_entry_count": 18,
+  "packaged_notice_matches_manifest": true,
+  "pypi_provenance": {
+    "fetched": true,
+    "publisher": {
+      "environment": "release",
+      "kind": "GitHub",
+      "repository": "pypdfium2-team/pypdfium2",
+      "workflow": "main.yaml"
+    },
+    "cryptographic_verification_performed": false
+  },
+  "source_urls": [
+    "https://pypi.org/pypi/pypdfium2/5.14.0/json",
+    "https://pypi.org/pypi/pypdfium2/json",
+    "https://pypi.org/project/pypdfium2/5.14.0/",
+    "https://pypi.org/integrity/pypdfium2/5.14.0/pypdfium2-5.14.0-py3-none-win_amd64.whl/provenance",
+    "https://pdfium.googlesource.com/pdfium/+/refs/heads/main/README.md"
+  ],
+  "raw_responses": [
+    {
+      "path": "artifacts/dependency-review-20261104/pypi-5.14.0.json",
+      "bytes": 83868,
+      "sha256": "d115b3bd9d7fb73a678414e27440f1b855d26b5e430199f74ab7ccef85cde548"
+    },
+    {
+      "path": "artifacts/dependency-review-20261104/pypi-current.json",
+      "bytes": 1520075,
+      "sha256": "e761a338dfa137de8017585ce72085e36d271b5a6c7a5c4159909d63c79dbaca"
+    },
+    {
+      "path": "artifacts/dependency-review-20261104/pypi-provenance.json",
+      "bytes": 9802,
+      "sha256": "b8826296dd540a71e70fc943b733d4b9d38c4a106abd247d777fec47d2c06b75"
+    }
+  ],
+  "limits": [
+    "An empty package-index vulnerability list does not audit embedded PDFium or all transitive components.",
+    "A separate bounded worker with checked DLL paths/hashes is not an OS security sandbox.",
+    "Provenance metadata was fetched/read, not independently cryptographically verified.",
+    "This is a bounded pin/notice/provenance review, not a legal license opinion or comprehensive vulnerability audit.",
+    "PDFium126/pypdfium2 4.30 references in historical evidence do not identify the current packaged DLL."
+  ],
+  "decision": "Retain tested 5.14.0/156 pin for current development; do not swap binary solely to appear newer. Complete unresolved review before public distribution."
+}

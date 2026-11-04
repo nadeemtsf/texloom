@@ -1,0 +1,81 @@
+{
+  "schema": 1,
+  "date": "2026-11-04",
+  "product_source_commit": "c26a23851155f7e4e542eef80fae92e35c51f707",
+  "release_ready": false,
+  "artifact": {
+    "portable_exe_sha256": "20520866982788619f7e128b1a9b9b0345977c75b944fe42e6b94db1c35ab5cd",
+    "installer_sha256": "ae8567329a095445417e010069a27372317444f6dce30f1b701037977c500cf1",
+    "installer_executed": false
+  },
+  "local_validation": {
+    "frontend": {
+      "pass": 237,
+      "fail": 0,
+      "skip": 0
+    },
+    "core_default": {
+      "unit_pass": 70,
+      "integration_pass": 18,
+      "fail": 0
+    },
+    "frontend_windows_nsis_build": "pass",
+    "unchanged_earlier_suites": "See versioned prior receipts; not counted as newly rerun local suites."
+  },
+  "logs": [
+    {
+      "path": ".tools/morning-layout-feedback-frontend.log",
+      "bytes": 22709,
+      "sha256": "a1995b864df3c6d46a503d12d22aee59c802b0473d6637541554355e31f9b8b7"
+    },
+    {
+      "path": ".tools/morning-layout-feedback-core.log",
+      "bytes": 8001,
+      "sha256": "6398115f3dc17bca6bd6ed5d359289a13319368d6ccc66eb5e752ce13f809d72"
+    },
+    {
+      "path": ".tools/morning-layout-feedback-desktop.log",
+      "bytes": 7502,
+      "sha256": "83116b237dea52bce04bfecdcf3653063fe1b48bc6ae8e7a7348a1b994c08369"
+    }
+  ],
+  "native_checks": {
+    "out_of_range_factor_4": "Source/history safely refused; explanation visible within open modal on actual rebuilt app",
+    "valid_factor_1_15": "accepted and compiled",
+    "float_placement_H": "accepted and compiled",
+    "controlled_source_preservation": {
+      "schema": 1,
+      "status": "pass",
+      "phase": "complete",
+      "original_sha256": "c9a794cbb70c9141288d3345c8c156dba3c4f77721ee31b912e9407dc6d578eb",
+      "factor_only_sha256": "3a9875a3d51a749a638cd18e51c3c17033b86829f8481f630e52f895f6d0cf4f",
+      "saved_sha256": "965aab25e877e0cdda201f7b3fa1c0e7a051ad7ee28b18e87d57c5ffec65095f",
+      "saved_bytes": 446,
+      "unrelated_bytes_exact": true,
+      "final_crlf_preserved": true,
+      "two_undo_save_exact_original": true,
+      "undo_saved_sha256": "c9a794cbb70c9141288d3345c8c156dba3c4f77721ee31b912e9407dc6d578eb"
+    },
+    "first_mixed_input_session": {
+      "schema": 1,
+      "status": "inconclusive_preservation",
+      "strict_original_byte_check": "failed",
+      "expected_two_changes_sha256": "965aab25e877e0cdda201f7b3fa1c0e7a051ad7ee28b18e87d57c5ffec65095f",
+      "first_saved_sha256": "46ffb45e3bc9871807861998457090b62da36bf809deedaebf01d3a1cb7a7888",
+      "unexpected_difference": "final CRLF absent",
+      "session_limit": "Intervening user input was detected before the float edit. Cause cannot be attributed from this trace. Repeat with a fresh fixture.",
+      "single_undo": "float H reverted to htbp; factor and missing newline unchanged",
+      "undo_saved_sha256": "1915489b7f1319a2a58cb30241791bc078aaee4c30e44176465e81cce013303c"
+    }
+  },
+  "raw_ui_observations": {
+    "scope": "Disposable synthetic fixture interactions only",
+    "workspace_path": "work/native-acceptance/rebuilt-ui-observations.json",
+    "sha256": "3eb4c771084f12b890ec3d2ec9fb6f0b274175c59739f5971cec6c15c3969b71"
+  },
+  "limits": [
+    "Native UI observations on one developer Windows account, not final held-out evaluation.",
+    "First mixed-input session final-newline discrepancy is retained as inconclusive; the subsequent controlled repeat passes exact bytes.",
+    "The newer installer has not been installed. Other native, clean-machine, performance and usability gates remain open."
+  ]
+}
