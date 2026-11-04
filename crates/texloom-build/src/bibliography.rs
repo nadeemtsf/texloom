@@ -352,13 +352,18 @@ pub fn execute(
 mod tests {
     use super::*;
     use std::collections::BTreeMap;
+    use std::sync::atomic::{AtomicU64, Ordering};
     fn fixture() -> Receipt {
+        // Windows clock resolution can give concurrent tests the same timestamp.
+        static NEXT_FIXTURE: AtomicU64 = AtomicU64::new(0);
         let root = std::env::temp_dir().join(format!(
-            "texloom-bib-{}",
+            "texloom-bib-{}-{}-{}",
+            std::process::id(),
             std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)
                 .unwrap()
-                .as_nanos()
+                .as_nanos(),
+            NEXT_FIXTURE.fetch_add(1, Ordering::Relaxed)
         ));
         fs::create_dir_all(root.join("project")).unwrap();
         fs::write(root.join("compiler"), b"fixture").unwrap();
