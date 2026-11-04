@@ -1,6 +1,6 @@
 # Texloom Desktop — development candidate
 
-**This archive contains application source. A separate Windows x64 portable archive contains the compiled Texloom.exe.** The corrected source now passes the Rust tests and a complete Tauri release build. The executable opens a native window and compiles and renders an actual LaTeX PDF. It remains a development prototype; the full native editing workflow and installer are not certified. See VALIDATION.md for the exact checks completed.
+**This archive contains application source. A separate Windows x64 portable archive contains the compiled Texloom.exe.** The corrected source now passes the Rust tests and a complete Tauri release build. The executable opens a native window and compiles and renders an actual LaTeX PDF. The core native signature workflow has passed under all three engines. It remains a development build with open installation, performance and usability release gates. See VALIDATION.md for the exact checks completed.
 
 This is a separate desktop implementation. It does not replace or convert the earlier Python application or its saved projects.
 

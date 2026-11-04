@@ -1,3 +1,9 @@
+# Current validation status — 4 November2026, dawn continuation
+
+The current source is2700d34 plus documentation updates. Local frontend235, core89, build54 and native50 checks pass; independent real-worker/approval and three-engine corpus evidence is retained. Actual native signature workflows pass under all three engines; native project/encoding/controls, error/cancellation/concurrent-input and reading/zoom fixes have been exercised. The project remains unfinished at the open native, performance, clean-install and human usability gates. See docs/FINAL-NATIVE-ACCEPTANCE.md and docs/evidence/dawn-native-acceptance.json for candidate hashes and the current queue. Text below records dated historical checkpoints; older deferral/unlaunched statements do not describe the current candidate.
+
+---
+
 # Validation record
 
 Updated 3 November 2026. Individual checks, not release certification. Approved scope: docs/APPROVED-IMPLEMENTATION-PLAN.md.

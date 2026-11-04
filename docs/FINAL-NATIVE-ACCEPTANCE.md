@@ -1,34 +1,47 @@
 # Native acceptance in progress
 
-Updated 4 November 2026. The owner's latest instruction supersedes the earlier sequencing deferral: reopen the exact built app and complete the tests now. English, Arabic and Hebrew are the current input-language scope; CJK IMEs and adding other Windows input languages are deferred.
+Updated 4 November 2026. Native tests resumed at the owner's request. English, Arabic and Hebrew are the current language scope; CJK IMEs and installing Windows input languages are deferred. All projects are disposable synthetic fixtures. No .text file was compiled, and the default example's earlier saved98bp position is preserved.
 
-All interaction uses the packaged Windows app and disposable synthetic projects. Never compile .text files. The default example's earlier saved 98 bp name position is preserved.
+## Exact candidates
 
-## Observed native passes
+| Candidate | Executable SHA-256 | Observed scope |
+| --- | --- | --- |
+| First interaction build | E3FDA2786D0C4C98B580B29D0E9F087E6B09BDB5A810E87D122D3E6F1EB18986 | pdfLaTeX signature, source/input, crash/save/conflict |
+| Seventh | 4B188A1F0606A6D7B0AF0E32AA1C2465758E29D83856BEC76CE787A14FAA464C | LuaTeX mapping/group/edit, catalog/recovery, project/adapter flows, XeLaTeX signature and compile failure |
+| Tenth | 42CA509B0D0CC43C740C018837718B9CA6E8159D5B153BBCCED8509B056192C2 | Arabic/Hebrew search, label drag, repeated keyboard nudges, controls, real cancellation and concurrent typing |
+| Eleventh | FA022284F2F4FDE6955DD068524F23AEECD4DC400E5C86508C06E21B44D8970D | Long-document zoom-position correction, lazy reading/navigation |
 
-The first recorded candidate executable SHA-256 is E3FDA2786D0C4C98B580B29D0E9F087E6B09BDB5A810E87D122D3E6F1EB18986. Later rebuilt artifacts require their own receipt and remaining native checks.
+The eleventh NSIS SHA-256 is916356F24EF2BE3765844FA1D62C8BAE050FFEB844B0420C5CB2951877AB1421. It is built but installation is unexecuted. Exact dawn receipts and source hashes are in evidence/dawn-native-acceptance.json. Later documentation-only repackaging does not change the executable hash.
 
-- Open a BOM/CRLF project by path, review sources without automatic execution, explicitly compile with pdfLaTeX, and reopen through recents.
-- Click the name alone, marquee the three signature lines, apply exactly 12 bp down, and edit only the bold name while retaining both 2 pt gaps. Two Undo followed by Save restores main.tex to SHA-256 A91EC3F6AAD7B7E77C28719D29CEE2273932EA8DC442394D8D10E4A6CB4B66A1. Two Redo/Save restore the accepted changed source exactly; normal close/reopen and recompile preserve it.
-- Native PDF search finds one Synthetic occurrence. Mouse double-click selects Synthetic; Copy and paste into the actual source editor yields exactly that word, followed by exact Undo. An earlier drag missed the text and left the clipboard unchanged; it is not counted as a pass.
-- Actual physical key input under the three existing layouts yields English a, Arabic ش and Hebrew ש. Three Undo restore the exact source. The layout cycle is returned to English. This is installed-layout typing evidence, not CJK IME composition evidence.
-- Two Ctrl+D selections and one typing action replace Alpha Alpha with Beta Beta. One Undo restores both words; the next restores the original fixture.
-- Abruptly terminate only the hash-verified synthetic app process after protected revision 17, relaunch, open Recover work, and restore the exact multilingual unsaved comment plus undo history. Undo/Redo works; restored work remains explicitly unsaved.
-- Change the original notes.sty externally after recovery. Save reports a conflict and preserves both the editor version and the exact external file. Save a copy through the native Windows folder chooser preserves BOM/CRLF/Unicode in a new project and retains the original external edit. Byte comparisons passed.
+## Observed passes
 
-The crash catalog exposed a Windows locked-handle ordering issue: an active draft was correctly excluded but produced a misleading raw lock error. The fix acquires ownership before reading its marker through the same handle; the strengthened Windows test passes. The rebuilt candidate repeats the catalog without the error, including while a second native instance owns a live draft. Missing-folder recovery and a source-only copy also pass exact byte comparisons; the fixture folder was restored afterward.
+- Open BOM/CRLF sources by path, review without execution, explicitly compile, reopen through recents.
+- Actual pdfLaTeX name click and three-line marquee, exact12bp move, protected bold-name edit retaining both2pt gaps. Undo2/Save restores main.tex SHA A91EC3F6AAD7B7E77C28719D29CEE2273932EA8DC442394D8D10E4A6CB4B66A1; Redo2/Save exact, normal close/reopen and recompile.
+- Actual LuaTeX single-name selection after wrong bounded candidates are rejected, three-line marquee,12bp group move and explicit LaTeX name fallback. Undo2/Save restores all source bytes SHA fc39c665d24eed31a998fb235363fe4e75b8dbcbe49a6186abd397da466f9e20.
+- Actual XeLaTeX signature at91% zoom, three-line marquee,26bp frame drag, literal name edit with bold/two2pt gaps preserved. Undo2/Save restores original bytes; Redo2/Save restores moved/edited bytes exactly.
+- In the tenth build, drag the label itself (+30bp), Down(+1bp) and Shift+Down(+10bp) after separate PDF refreshes without refocusing. Saved source differs only in dy26->67. Escape clears selection without source change; Undo3/Save exact original.
+- PDF word double-click/Copy/paste into the real source editor; search and navigation. Existing physical English/Arabic/Hebrew keyboards yield a/ش/ש; Undo restores source, keyboard cycle returned English. Actual Ctrl+D multicursor edits undo together.
+- Real undefined-control-sequence compile retains invalid source and the last good PDF, disables stale visual edits, and still permits reading/copy/paste. Undo restores valid source.
+- Cancel a real bounded20-million-iteration engine job through the toolbar; engine processes are gone afterward. Typing during a real build supersedes the old result and preserves newer input/last good PDF. The newer source subsequently compiles; explicit Save writes exactly original source plus typed prefix. An earlier input attempt missed editor focus and is not counted.
+- Abrupt exact-process termination/relaunch recovers protected multilingual source and history; Undo/Redo retained and explicitly unsaved. External notes.sty modification blocks Save without overwriting disk/editor. Native Save-copy preserves exact BOM/CRLF/Unicode bytes. Missing-folder source salvage/copy and simultaneous native catalog access pass; original fixture folder restored.
+- Native Article and English/Arabic/Hebrew template creation, explicit pdfLaTeX/XeLaTeX compilation, readable three-language output. Native image copy/insertion,35mm aspect-preserving resize, margin change, selected-source bold, title size18->20pt and table column28->35mm pass. Complete corresponding Undo/Save restores all original bytes.
+- Native ZIP export contains unsaved source, exact image and engine/main profile while saved source remains unchanged. Import opens exact three-file roundtrip in a new folder and compiles. Unsaved switch Cancel preserves editor.
+- Native Windows1252/1256/1255 readonly previews show Western/Arabic/Hebrew text correctly. Conversion creates exact UTF-8 copies and updates inputenc; original hashes unchanged. Copy explicitly compiles.
+- Ordinary Arabic query finds shaped PDF letters and highlights the correct original word; Hebrew search passes. A100-page project paints/searches distant pages75/100. Eleventh build zoom preserves page75 and reading position; native wheel scroll paints page76.
+- Saved project independently rebuilds under all three engines outside app caches:12bp group displacement and neighbors match; pdfLaTeX whole-page pixels equal native exported PDF.
 
-## Remaining interactive queue
+The eleventh build also edits only the second identical phrase, with exact Undo/Save. A marquee spanning independent columns refuses safely: “Select adjacent lines; unselected source occurs between these items.”
 
-- Exact rebuilt app: LuaTeX minipage candidate fallback and current locked-draft fix; native image/layout/style/template/ZIP/encoding workflows.
-- Independent saved-project rebuild passed with all three engines outside app caches: group displacement and neighbors match, and pdfLaTeX full-page pixels equal the native export.
-- Native malformed compile, cancellation, concurrent typing, reading after failure, repeated text/columns, drag/nudge and cancellation, zoom/scroll/DPI, long documents and sustained resource measurements.
-- Missing-folder source salvage/copy and simultaneous native catalog access passed. Interrupted-Save UI and deliberate disposable draft deletion remain (confirmation rules apply).
-- Exact installer on a clean Windows account/machine, dependency/setup/resource layout and uninstall. Installer actions through Windows UI require action-time confirmation under the computer-use skill. Signing/public Store submission and a human usability trial remain owner/external gates.
+## Regressions exposed and corrected
 
-Implementation and acceptance are tracked separately. A passing build, headless renderer or compiler corpus does not mark an unexecuted native case passed. Raw synthetic interaction observations are retained in the continuation workspace's work/native-acceptance/ui-observations.json; release evidence must name the exact source and artifact hashes.
+Native tests found Windows active-draft locked-marker read ordering, LuaTeX verbatim ./ input paths, shaped-Arabic search, a drag label ignoring pointer input, keyboard focus lost after PDF publication, and zoom preserving pixels rather than the reading position. Clean-checkout CI found an absent generated-resource directory and concurrent bibliography test timestamp collisions. Failed attempts/logs are retained; a correction is counted only after its relevant repeat.
 
+## Open gates
 
-The sixth candidate exposed an additional real Windows LuaTeX mapping failure: SyncTeX returned a verbatim path containing ./main.tex, which Windows rejects with error 123. The mapped-path resolver now normalizes that spelling before canonicalization while retaining the snapshot-directory fence, with a regression covering dot components and escape refusal. The exact seventh build (SHA-256 4b188a1f0606a6d7b0af0e32aa1c2465758e29d83856bec76ce787a14faa464c) repeats actual LuaTeX name selection successfully after the rejected candidates; source/history remain unchanged by selection. The earlier sixth-build refusal is retained as regression evidence.
+- Real mid-gesture Escape/pointer cancellation/lost capture. Controller tests cover these cancellation events, but the current Windows input API cannot inject a held drag plus an intervening key/cancel event.
+- Windows DPI scale-change, multiple-monitor and documented reference-machine latency checks. Windows Settings did not expose a targetable window through the tool; no display setting was changed. A passing zoom test is not a DPI test.
+- Actual interrupted Save was stopped during staging; original bytes remained intact, the3.7MB protected source/history recovered, and a separate exact new copy passed. Final disk restore/reopen and deliberate draft discard remain: the current unsaved-editor discard prompt was cancelled pending action-time confirmation.
+- End-to-end latency distributions and an unassisted human usability trial remain. A20-minute exact-process-tree sample completed117 snapshots:548.83–824.18MiB working set,680.23MiB final; private peak494.54MiB,389.15MiB final. Shared WebView descendants included a second app and its crash/relaunch during the sample; this is not an isolated reference-machine benchmark, leak pass or long-session certification.
+- Exact installed artifact on a clean Windows account/machine, dependency/setup/resource layout, uninstall, and interrupted shutdown. Windows UI installation requires action-time confirmation. Signing/public Store release requires owner decisions/credentials.
 
-The seventh build also passes actual LuaTeX three-line marquee selection, a verified 12 bp group displacement, and name editing through the explicit LaTeX fallback (the name macro stays protected in literal mode). Both 2 pt gaps and bold syntax remain. Two Undo and Save restore every original main.tex byte (SHA-256 fc39c665d24eed31a998fb235363fe4e75b8dbcbe49a6186abd397da466f9e20). These results extend the earlier pdfLaTeX scenario; the remaining XeLaTeX/native feature matrix is still open.
+The project is not release-complete. Automated suites and headless real-engine proof do not replace unexecuted native/installation gates. Raw synthetic observations remain in the continuation workspace work/native-acceptance/ui-observations.json; committed receipts identify exact sources/artifacts without private user documents.

@@ -1,0 +1,102 @@
+{
+  "schema": 1,
+  "date": "2026-11-04",
+  "release_ready": false,
+  "source_commit": "2700d3462c3c6762c6e1053e5646ca7191a1935c",
+  "candidate_7_exe_sha256": "4b188a1f0606a6d7b0af0e32aa1c2465758e29d83856bec76ce787a14faa464c",
+  "candidate_10_exe_sha256": "42ca509b0d0cc43c740c018837718b9ca6e8159d5b153bbcced8509b056192c2",
+  "candidate_10_native_fixes": "pass",
+  "automated_checks": {
+    "frontend": 235,
+    "core_with_recovery": 89,
+    "build_library": 54,
+    "native_default_clean_resource_directory": 50,
+    "native_default_ignored_separately_executed_earlier": 2,
+    "generated_bindings": "pass"
+  },
+  "native_candidate_7_passes": [
+    "article template creation and explicit compilation",
+    "margin change and exact Undo/Save",
+    "native image copy/insertion, 35mm width with aspect ratio, exact two-step Undo/Redo/Save",
+    "ZIP export of unsaved source, image and engine/main profile with original disk unchanged",
+    "ZIP import exact three-file roundtrip and explicit successful compile",
+    "cancel unsaved project switch preserves current editor",
+    "Windows-1252/1256/1255 readonly previews and exact UTF-8 copy; original hashes unchanged",
+    "English/Arabic/Hebrew template creation and XeLaTeX display",
+    "XeLaTeX 91 percent zoom, three-line marquee, actual 26bp frame drag with verified output",
+    "XeLaTeX name literal edit preserves bold and both 2pt gaps; two Undo/Save original exact, two Redo/Save accepted source exact",
+    "actual undefined-control-sequence error preserves invalid editor and last good PDF; stale visual editing disabled",
+    "read/copy Synthetic from retained PDF, paste into actual editor, Undo restores valid saved source"
+  ],
+  "exact_sources": {
+    "article_original_sha256": "4978364c20df651029c6bd336da61d93bcb6b0ab7ccb368e818efce09e5e8fac",
+    "article_image_resized_sha256": "69bfeadd39fca57eefa96ce392bf86ae3e024ae58b3e29e3eaa2c946fc5c7188",
+    "image_asset_sha256": "a607e7f799f44e0b69ebd254b5ad729b49612177bd0f4dad9f848b6577bc5323",
+    "xe_original_sha256": "0c1575e2cd2f87827bcce00c2125286eceef6520453f152f8542d98d4a7b9c96",
+    "xe_drag_edit_sha256": "1f352d3759fa7d8f806049625f4511aff66585f46255a53ed81294ce2bc6da00"
+  },
+  "discovered_regressions": [
+    "clean checkout lacked ignored distribution directory: fixed tracked README",
+    "concurrent Windows bibliography test timestamp collision: fixed PID/atomic unique fixture",
+    "ordinary Arabic query did not match shaped PDF letters: NFKC comparison and original UTF-16 highlight mapping added",
+    "drag label ignored pointer input: pointer events enabled",
+    "selection/movement did not restore keyboard focus for nudges: frame focus restored"
+  ],
+  "unresolved_gates": [
+    "real mid-gesture Escape/pointer-cancel/lost-capture; Windows DPI/multiple-monitor changes",
+    "interrupted Save final disk restore/reopen and deliberate draft discard require action-time confirmation for the discard prompt",
+    "reference-machine latency and human usability unverified",
+    "clean-account/machine installer/uninstall; signing/public distribution owner decisions"
+  ],
+  "native_candidate_10_passes": [
+    "ordinary Arabic query matches shaped letters and highlights the correct original PDF word",
+    "Hebrew search highlights the correct word",
+    "drag via selection label accepted +30bp on XeLaTeX",
+    "Down +1bp and Shift+Down +10bp after separate verified PDF publications without refocusing",
+    "Escape clears selected frame without a source change",
+    "saved source equals previous accepted source with only object dy26->67",
+    "three Undo and Save restore exact pre-label-test source",
+    "cancel actual 20-million-iteration LaTeX job through native toolbar; no remaining LaTeX engine process",
+    "typing valid source during actual build immediately supersedes the old job, retains typed source and last good PDF; stale-result toast observed",
+    "selected source phrase styled bold through native controls; title size18->20pt; first table column28->35mm; all candidates readable",
+    "three layout-control Undo/Save restore every original source byte including mixed line endings",
+    "explicit Save after concurrent input writes exactly the original source plus typed prefix"
+  ],
+  "native_test_attempts_not_counted": [
+    "first concurrent-input attempt missed the editor; source unchanged; refocused to a visible caret and repeated successfully"
+  ],
+  "candidate_11_exe_sha256": "fa022284f2f4fde6955dd068524f23aeecd4dc400e5c86508c06e21b44d8970d",
+  "candidate_11_nsis_sha256": "916356f24ef2be3765844fa1d62c8bae050ffeb844b0420c5cb2951877ab1421",
+  "native_candidate_11_passes": [
+    "100-page document explicitly compiles",
+    "search reaches and highlights page75",
+    "zoom93percent preserves page75 and reading position; earlier candidate10 incorrectly jumped to page67",
+    "native wheel scroll paints the following page76",
+    "second identical sentence edited without changing first; Undo/Save original bytes exact",
+    "cross-column marquee safely refuses: Select adjacent lines; unselected source occurs between these items",
+    "actual Save interrupted when staged0000.new created; journal Preparing; original disk SHA855acceda03ebaf42ed2e3df21bc1864bfb7a5942ec5a58061e2085e1ac866e9 unchanged",
+    "relaunch recovers3696400-byte source and undo history; Save-copy exact original plus typed prefix; original remains unchanged",
+    "recovered Undo restores original text; editor remains explicitly unsaved as designed"
+  ],
+  "tool_limitations": [
+    "Windows Settings exe was present, but launching it through the Windows tool returned no targetable window; no Windows display scaling was changed"
+  ],
+  "interrupted_save": {
+    "journal_state": "preparing",
+    "original_disk_exact": true,
+    "recovered_copy_exact": true,
+    "recovered_bytes": 3696400,
+    "restore_final_step": "not executed; discard prompt cancelled; exact new copy and earlier draft retained"
+  },
+  "resource_sample": {
+    "completed": true,
+    "samples": 117,
+    "observed_seconds": 1196.28,
+    "working_mib_min": 548.83,
+    "working_mib_peak": 824.18,
+    "working_mib_last": 680.23,
+    "private_mib_peak": 494.54,
+    "private_mib_last": 389.15,
+    "limitations": "Exact candidate10 process tree; shared WebView descendants include candidate11 launched during sampling, then killed/relaunched for synthetic Save test. Two-instance phases and background compilation are not an isolated reference-machine benchmark or a leak certification."
+  }
+}
