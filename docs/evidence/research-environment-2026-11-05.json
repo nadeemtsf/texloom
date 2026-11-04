@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-04T22:10:34.850781+00:00",
+  "kind": "partial_posthoc_environment_inventory_not_evaluation",
+  "product_source_commit": "5e59e77282fd5e4b4f70440437b8f841ccea1364",
+  "final_evaluation_executed": false,
+  "snapshot": {
+    "path": "artifacts/research-environment-20261105/posthoc-snapshot.json",
+    "bytes": 7949,
+    "sha256": "2a2963c9c4428e421b9828e6eb7c178a39830b5e45b02d1f0e65ad0b4724d6f9"
+  },
+  "executed_collector": {
+    "path": "artifacts/research-environment-20261105/executed-environment_manifest.py",
+    "bytes": 6549,
+    "sha256": "6255e72d200791547455887d89cebefbc6f803895b8c475cd045c4a9f6550ef1"
+  },
+  "research_helper_tests": {
+    "passed": 22,
+    "scope": "infrastructure diagnostics, not app accuracy trials",
+    "log": {
+      "path": ".tools/continuation-research-tests.log",
+      "bytes": 4344,
+      "sha256": "6cda2236ce03f4cbaefe610758d1669251f86b536805661d26ff5c900a466eee"
+    }
+  },
+  "declared_tools_resolved": 7,
+  "declared_font_files_fingerprinted": 4,
+  "input_files_fingerprinted": 10,
+  "font_binaries_copied": false,
+  "earlier_pilot_reexecuted": false,
+  "limits": [
+    "Collected after pilot; no proof of prior exact tool/font bytes",
+    "Declared font files do not prove engine font resolution/fallback",
+    "RAM/WebView2/display remain unset",
+    "Not complete dependency inventory, clean-machine replication, native timing or final freeze"
+  ]
+}

@@ -23,7 +23,7 @@
 \fancyhf{}
 \fancyhead[L]{\small Texloom: methods and evidence}
 \fancyhead[R]{\small TECHNICAL REPORT DRAFT}
-\fancyfoot[L]{\small 4 November 2026; final evaluation pending}
+\fancyfoot[L]{\small 5 November 2026; final evaluation pending}
 \fancyfoot[R]{\small\thepage}
 \renewcommand{\headrulewidth}{0.3pt}
 \newcommand{\pending}{\textit{Pending: no final evaluation has been run.}}
@@ -31,7 +31,7 @@
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 \title{\vspace{-1.7em}Texloom: Checking Source-Preserving Visual Edits\\to Compiled \LaTeX\ Documents}
 \author{Texloom Project\\\small Technical report draft; methods and evaluation design}
-\date{4 November 2026}
+\date{5 November 2026}
 
 \begin{document}
 \maketitle
@@ -185,9 +185,9 @@ The audited product baseline is commit
 cover domain/frontend checks, real-engine corpora and synthetic native
 signature, source/history, transfer/encoding, error/cancellation and recovery
 workflows. Different receipts name different commits and executable hashes.
-The later local focus-loss hardening at \code{0576198} passed 239 frontend checks
-and 88 default core checks; these are regression counts, not independent
-visual-edit trials. Its Windows build passed; native retesting is pending.
+Later focus-loss, setup and optional-timing work at \code{5e59e77} passed 252
+frontend and 88 default core checks; these are regression counts, not independent
+visual-edit trials. Ordinary/diagnostic Windows builds passed; native retesting is pending.
 Previously recorded optional-codec and native-worker runs remain separately
 identified rather than added again to an accuracy sample.
 
@@ -383,12 +383,18 @@ establish end-to-end production error frequency. Isolated ablations cannot
 commit user projects. No unmeasured competitor superiority is inferred.
 
 \subsection{Timing and operational evidence}
-Record input release, mapping, snapshot/TeX/auxiliary work, PDF preparation,
-independent validation, native commit and the first frame showing the accepted
-result. State whether the endpoint is an instrumented frame proxy or externally
-observed presentation. Existing service/JSON timings exclude WebView transport
-and paint. Any diagnostic instrumentation must have recorded overhead and be
-frozen consistently, without changing working behavior to enhance a claim.
+Optional diagnostic builds now record handler entry, mapping, native build
+return, PDF preparation, receipt recheck, commit and publication, followed by
+two animation callbacks with visibility/freshness checks. This is a frame
+opportunity proxy, not physical input-to-display latency. Source feedback
+starts after Monaco's content-change notification; compile timing excludes
+preceding debounce/queue delay. The visual build RPC already includes native
+layout approval; the later receipt recheck is not another PDF comparison.
+Keep incomplete, hidden, superseded and failed traces, with loss counts.
+Native boundary validation and overhead remain unmeasured; compare paired
+ordinary/diagnostic builds using an external method before performance claims.
+Seal actual input/font/runtime bindings before evaluation. A partial posthoc
+tool/font snapshot cannot establish the environment of the earlier pilot.
 Use at least ten representative small documents, ten declared warmups and 30
 measured warm repetitions per document/engine condition, with randomized
 paired order. Keep cold and failed/censored runs. Add a documented repeated

@@ -1,6 +1,6 @@
 # Editable technical report draft
 
-`main.tex` and `references.bib` are the editable sources. This is an eight-page technical report draft, dated 4 November 2026. Methods, contract boundaries and limitations precede the proposed evaluation. Final results are pending; the audit commit is not an evaluation freeze.
+`main.tex` and `references.bib` are the editable sources. This is an eight-page technical report draft, updated 5 November 2026. Methods, contract boundaries and limitations precede the proposed evaluation. Optional timing instrumentation is described without measured native latency or overhead results; posthoc environment metadata is explicitly limited. Final results are pending; the audit commit is not an evaluation freeze.
 
 The document uses neutral system descriptions and makes no individual-contribution claim. The primary-source inspection notes and limitations are in `../related-work.md`. No publication or submission is authorized.
 

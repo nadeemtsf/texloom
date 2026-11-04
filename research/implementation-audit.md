@@ -4,6 +4,8 @@ Audited product baseline: `c26a23851155f7e4e542eef80fae92e35c51f707`. This is a 
 
 Supplement: local `0576198` adds a window-blur listener that cancels the active canvas gesture while retaining the accepted selection. Controller drag/marquee regressions pass; actual Windows input remains pending because the owner is away. The native acceptance, source planning and verification policies audited below are unchanged. The later independent-reference development pilot is documented separately in ORACLE-PILOT.md.
 
+5 November supplement: `5e59e77` adds read-only setup guidance and opt-in static-category timing, with 252 frontend/88 default core checks and an ordinary Windows build passing. It does not change the native source planner/acceptance policies. Milestones distinguish build return (already including native layout approval for visual candidates), PDF.js preparation, build receipt recheck, commit and publication. The two-animation-callback endpoint is a presentation proxy, not observed hardware display latency; overhead/native validation remain pending. Environment metadata collected after the development pilot is explicitly partial and posthoc (ENVIRONMENT.md).
+
 The provisional question describes the main problem, but overstates uniformity if applied to every feature. A more testable question is: **For a declared subset of single-page LaTeX text moves, how effectively do constrained source patches and verification after compilation reject incorrect transformations, and what do they cost in valid-edit refusal and end-to-end latency?** Treat replacement/reflow and richer adapters as separate exploratory strata.
 
 ## Actual workflow

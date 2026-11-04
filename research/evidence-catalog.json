@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "kind": "development_evidence_inventory_not_evaluation_results",
-  "recorded_utc": "2026-11-04T18:24:28.870375+00:00",
-  "audited_head": "d4671c7be9b8d8fce529b07418d3af2eec36850b",
+  "recorded_utc": "2026-11-04T22:10:36.331420+00:00",
+  "audited_head": "5e59e77282fd5e4b4f70440437b8f841ccea1364",
   "working_tree_note": "Uncommitted report/evidence changes may be present; see the session checkpoint.",
   "final_evaluation_executed": false,
   "entries": [
@@ -323,6 +323,17 @@
       "parse_status": "ok"
     },
     {
+      "path": "docs/evidence/report-draft-v3-2026-11-05.json",
+      "bytes": 2203,
+      "sha256": "d6ceb916715f35006c48dcfe7f897a3030e2df0444aaac5c755b9f3f384de25f",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "product_source_commit": "5e59e77282fd5e4b4f70440437b8f841ccea1364",
+      "recorded_utc": "2026-11-04T22:10:34.850781+00:00",
+      "parse_status": "ok"
+    },
+    {
       "path": "docs/evidence/research-analysis-prototype-2026-11-04.json",
       "bytes": 1061,
       "sha256": "19768b2f63fcca066e348ae93ba24560163db7fb3732f382ed80e1706c045eed",
@@ -331,6 +342,17 @@
       "schema": 1,
       "status": "development_tool_diagnostics_pass",
       "recorded_utc": "2026-11-04T18:19:07.833611+00:00",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/research-environment-2026-11-05.json",
+      "bytes": 1442,
+      "sha256": "3a3e2516d18d774c40d989d7257728a2f18a3b2dc90bf7311e4c078a1fc5a8fb",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "product_source_commit": "5e59e77282fd5e4b4f70440437b8f841ccea1364",
+      "recorded_utc": "2026-11-04T22:10:34.850781+00:00",
       "parse_status": "ok"
     },
     {
@@ -368,6 +390,18 @@
         "pass": 26,
         "expected-refusal": 7
       },
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/setup-timing-local-2026-11-05.json",
+      "bytes": 3994,
+      "sha256": "a2ff88ed4b5a2a7f60f5dadc18634cf8c752a1a7c14a807e330262877c13fca6",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "product_source_commit": "5e59e77282fd5e4b4f70440437b8f841ccea1364",
+      "recorded_utc": "2026-11-04T22:10:34.850781+00:00",
+      "release_ready": false,
       "parse_status": "ok"
     },
     {

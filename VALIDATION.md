@@ -1,4 +1,10 @@
-# Current validation status — 4 November 2026
+# Current validation status - 5 November 2026
+
+Local product source `5e59e77282fd5e4b4f70440437b8f841ccea1364` adds read-only setup guidance and build-opt-in local timing diagnostics. Required checks passed: 252 frontend (zero skips), 88 default core (70 unit and 18 integration), an ordinary Windows release/NSIS build with tracing disabled, and a separate tracing-enabled Windows release build without an installer. Five existing Rust warnings remain. These checks do not measure native latency, tracing overhead or clean-account setup. See docs/SETUP-HELP.md and docs/PERFORMANCE-DIAGNOSTICS.md for exact scope and boundaries.
+
+No new executable has been opened or installed. The owner remains away and all tests requiring approval or Texloom to open are deferred. Current local work is unpushed; no new remote CI or final research evaluation ran. Earlier results below retain their own artifact identities.
+
+## Preceding checkpoint - 4 November 2026
 
 The current local product source is `05761985a7deef312426c268b953d4d01eccdaca`, followed by local documentation/research work. Active canvas drags and marquees now cancel on window blur. Required checks passed: 239 frontend (zero skips), 88 default core, and a full Windows release/NSIS build. The new binary has not been launched or installed; the owner explicitly deferred all approval-dependent and Texloom UI tests while away. No remote CI was run for this unpushed local commit.
 

@@ -1,5 +1,7 @@
 # Native acceptance in progress
 
+5 November supplement: product source `5e59e77282fd5e4b4f70440437b8f841ccea1364` adds setup help and optional timing plumbing. 252 frontend/88 default core checks and the ordinary Windows release/NSIS build pass. No new native/UI/setup/installation or performance observation was made. Both the ordinary and diagnostic variants need their own recorded native checks after the owner returns. The owner-away deferral below continues to apply.
+
 Latest instruction: the owner is away from the laptop and explicitly defers every test requiring approval or opening Texloom. Local 0576198 adds focus-loss gesture cancellation; 239 frontend/88 default core and Windows build pass, but its new executable (SHA-256 3e8207d43704fd017bb05b385772069348d69c898635462e85af46bb675bf2ce) has not been launched or installed. Keep these native checks pending; no repeated approval request is needed while this deferral applies. Existing installed r2 observations below retain their own artifact identity.
 
 Updated 4 November 2026. Native tests resumed at the owner's request. English, Arabic and Hebrew are the current language scope; CJK IMEs and installing Windows input languages are deferred. All projects are disposable synthetic fixtures. No .text file was compiled, and the default example's earlier saved98bp position is preserved.

@@ -1,14 +1,14 @@
-# Current remaining work - 4 November 2026
+# Current remaining work - 5 November 2026
 
 The initial supported workflow is implemented: open/compile sources, select supported PDF text, move or edit it through checked candidates, Undo/Redo, explicit Save/export and recovery. Project transfer, encodings, templates, image import and bounded image/table/typography/spacing controls are present. Implemented scope is narrower than arbitrary visual LaTeX editing.
 
 ## Implementation and engineering
 
-- Complete the missing-prerequisite guidance/setup acceptance on a clean Windows account. Current discovery/preflight diagnostics and WebView2 installer configuration exist; a successful developer-account install is insufficient evidence of the clean setup flow.
-- Add or validate end-to-end diagnostic timestamps for source feedback, selection and verified visible results; measure overhead and address actual missed performance targets. Existing service/compile timings exclude user-visible transport/paint.
+- Read-only prerequisite guidance is now implemented, including contextual compiler/package/font help. Native appearance, keyboard use and clean Windows setup acceptance remain pending; a developer-account install is insufficient evidence. See SETUP-HELP.md.
+- Opt-in local handler-to-publication/frame-proxy timing is implemented. Validate its actual Windows boundaries, measure overhead and distributions, and address measured missed targets. Compiler IPC timings include native verification; two animation callbacks do not establish physical presentation. See PERFORMANCE-DIAGNOSTICS.md.
 - Run a controlled single-instance resource/long-session workload. The earlier two-instance sample remains limited evidence.
 - Complete the bounded runtime dependency/provenance review's remaining security/version/license checks before public distribution. The current tested pin is PDFium156/pypdfium2 5.14.0; no upgrade is justified solely by historical PDFium126 references.
-- Fix further reproducible behavior failures exposed by these checks. New local 0576198 cancels active drag/marquee on blur, with automated tests/build passing; native repeat remains pending.
+- Fix further reproducible behavior failures exposed by these checks. Focus-loss cancellation and current setup/timing source `5e59e77` pass automated checks/builds; native repeat remains pending.
 
 ## Explicitly pending while the owner is away
 
