@@ -27,6 +27,6 @@ pdflatex --disable-installer -no-shell-escape -interaction=nonstopmode -halt-on-
 
 Check every process exit status. `--disable-installer` is specific to MiKTeX; use the corresponding no-auto-install configuration on another distribution. Render all pages with Poppler and inspect the latest rendering after layout changes. Successful compilation alone does not establish visual quality or the truth of research claims.
 
-The reviewed draft is eight pages with ten bibliography entries. The initial missing `booktabs` dependency was removed from the source in favor of ordinary table rules; no global package was installed. Build logs, intermediate PDFs and page renders remain under ignored `artifacts/research-report/`, outside tracked research sources.
+The reviewed draft is eight pages with ten bibliography entries. Development component results are separate from final results: the native-entry pilot includes a preserved invalid-reference run and a corrected protocol, without pooling reused cases or claiming actual PDF mouse selection. The initial missing `booktabs` dependency was removed from the source in favor of ordinary table rules; no global package was installed. Build logs, intermediate PDFs and page renders remain under ignored `artifacts/research-report/`, outside tracked research sources.
 
 Future measured results require the freeze, fixture/oracle manifests and run records described in `../evaluation-plan.md`. Do not fill result cells from regression-test totals.

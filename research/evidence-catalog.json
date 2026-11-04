@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "kind": "development_evidence_inventory_not_evaluation_results",
-  "recorded_utc": "2026-11-04T22:10:36.331420+00:00",
-  "audited_head": "5e59e77282fd5e4b4f70440437b8f841ccea1364",
+  "recorded_utc": "2026-11-04T22:49:56.709892+00:00",
+  "audited_head": "b5edb9d0e6cf3daf05770b108ca6a9d0c7640e58",
   "working_tree_note": "Uncommitted report/evidence changes may be present; see the session checkpoint.",
   "final_evaluation_executed": false,
   "entries": [
@@ -242,6 +242,17 @@
       "parse_status": "ok"
     },
     {
+      "path": "docs/evidence/native-reference-development-2026-11-05.json",
+      "bytes": 4580,
+      "sha256": "4ffdaa65f24065c3e4ad678d11e3395eb13052b52118a8499dbeb9ef39e6ed7a",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "recorded_utc": "2026-11-04T22:42:14.550806+00:00",
+      "release_ready": false,
+      "parse_status": "ok"
+    },
+    {
       "path": "docs/evidence/oracle-feasibility-2026-11-04.json",
       "bytes": 38022,
       "sha256": "e4c8ea9ea7580269368171df73386d1cb40d217f6f333c219b96039ba30c0302",
@@ -250,6 +261,18 @@
       "schema": 1,
       "status": "pass",
       "recorded_utc": "2026-11-04T17:59:55.012962+00:00",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/pdfium-attestation-verification-2026-11-05.json",
+      "bytes": 3930,
+      "sha256": "521c3682129d561e41cf1f63d32b6eae89f76439344a4c3153cb5f9c8960a629",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "product_source_commit": "5e59e77282fd5e4b4f70440437b8f841ccea1364",
+      "recorded_utc": "2026-11-04T22:42:14.550806+00:00",
+      "release_ready": false,
       "parse_status": "ok"
     },
     {
@@ -331,6 +354,17 @@
       "schema": 1,
       "product_source_commit": "5e59e77282fd5e4b4f70440437b8f841ccea1364",
       "recorded_utc": "2026-11-04T22:10:34.850781+00:00",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/report-draft-v4-2026-11-05.json",
+      "bytes": 2629,
+      "sha256": "93d010ed65977dff38ecd12ffcac699624a1c9cbb7e2cc3f2a6ff697bbdd9a60",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "product_source_commit": "5e59e77282fd5e4b4f70440437b8f841ccea1364",
+      "recorded_utc": "2026-11-04T22:49:56.397561+00:00",
       "parse_status": "ok"
     },
     {

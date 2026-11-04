@@ -22,6 +22,7 @@ Files:
 - [Independent-reference pilot](ORACLE-PILOT.md) and [prototype byte-level source oracle](SOURCE-CONTRACT.md): executed development diagnostics, separate from final study results.
 - [Development annotation analysis](ANALYSIS.md): tested denominators, unresolved/unrun handling and separate evidence strata; no final data summarized.
 - [Environment records](ENVIRONMENT.md): explicit tool/font/input hashes, posthoc versus preflight limits and remaining final-freeze requirements.
+- [Native candidate-boundary pilot](NATIVE-REFERENCE-PILOT.md): real native source-plan/build/approval/commit/Undo plus separate source/Poppler references. The first invalid-reference run is retained; a corrected protocol passes five intended cases and refuses 25 source-corrupt packets. No mouse-mapping, app accuracy rate or final evaluation is implied.
 - [Freeze record](evaluation/freeze.json): deliberately unset until the core workflow and protocol are stable.
 
 Keep development fixtures in their existing directories. Do not populate or run the final held-out set yet. Future final inputs, labels, executable, dependencies, engine/font versions, machine description and analysis code must be sealed together. Any product fix during final evaluation requires a new version and a separately labelled run; failures remain preserved.

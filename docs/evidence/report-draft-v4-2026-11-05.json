@@ -1,0 +1,76 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-04T22:49:56.397561+00:00",
+  "kind": "technical_report_draft_v4_not_final_evaluation",
+  "product_source_commit": "5e59e77282fd5e4b4f70440437b8f841ccea1364",
+  "native_harness_commit": "cb3cd1112bdec2fc54f5765f55e78e56fb790240",
+  "corrected_protocol_analysis_commit": "b5edb9d0e6cf3daf05770b108ca6a9d0c7640e58",
+  "pages": 8,
+  "bibliography_entries": 10,
+  "pdf": {
+    "path": "outputs/Texloom-technical-report-draft-2026-11-05-v4.pdf",
+    "bytes": 397519,
+    "sha256": "f5363bff2d6f053de1f8a43ef556c06815fa4de90f82592d8680399d932e3c3a"
+  },
+  "source_files": [
+    {
+      "path": "research/report/main.tex",
+      "bytes": 28226,
+      "sha256": "90777bfe7b8c991d80daa76651399757d770ea6fe94e932654147a727ace4cc1"
+    },
+    {
+      "path": "research/report/references.bib",
+      "bytes": 3248,
+      "sha256": "4a04336a76df0986192d60bf60005ee712c029c3f19038ea0ccae77010c5e7ea"
+    }
+  ],
+  "logs": [
+    {
+      "path": "artifacts/research-report/draft-v4-20261105/pass-1-console.log",
+      "bytes": 8693,
+      "sha256": "add66db1be5d82d99b0e385f0cde1aa068d490c90a0cd43f88de3a50f71423c4"
+    },
+    {
+      "path": "artifacts/research-report/draft-v4-20261105/bibtex-console.log",
+      "bytes": 147,
+      "sha256": "56f840581b4d9d863cb4655ea912b0debe32d4637240918f0af0f53c6f84caa7"
+    },
+    {
+      "path": "artifacts/research-report/draft-v4-20261105/pass-2-console.log",
+      "bytes": 8951,
+      "sha256": "74b81a953bd137b7402bc514cacd9dc60e622ab4e9fe5ca2d57accc45bcc24b1"
+    },
+    {
+      "path": "artifacts/research-report/draft-v4-20261105/pass-3-console.log",
+      "bytes": 8024,
+      "sha256": "1ec471c2d544f1f6921d0f98a72af3dd702c401df6f62fdfd32b55fa608e210b"
+    },
+    {
+      "path": "artifacts/research-report/draft-v4-20261105/final-console.log",
+      "bytes": 8024,
+      "sha256": "5843614ccae39d4268e0cfcea9095cf534d031a2348ecea89f2ddf36838efd91"
+    },
+    {
+      "path": "artifacts/research-report/draft-v4-20261105/main.log",
+      "bytes": 26055,
+      "sha256": "cbe60b4e0007efc8d0fafaded92d07c05b4115fdbe52d8371cf7a2f3f56a3bd7"
+    }
+  ],
+  "visual_review": {
+    "full_size_changed_pages": [
+      6,
+      7
+    ],
+    "remaining_pages_byte_identical_to_reviewed_v3": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      8
+    ],
+    "observed_layout_defects": 0
+  },
+  "final_evaluation_executed": false,
+  "claims": "Two development component pilots; native candidate entry bypasses mouse mapping. Original invalid-gold run retained; corrected repeated-case run is not independent replication. No measured native latency or overhead."
+}

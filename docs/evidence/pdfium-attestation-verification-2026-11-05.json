@@ -1,0 +1,90 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-04T22:42:14.550806+00:00",
+  "kind": "bounded_PyPI_publish_attestation_verification_not_full_security_review",
+  "product_source_commit": "5e59e77282fd5e4b4f70440437b8f841ccea1364",
+  "artifact": {
+    "path": ".tools/pdfium-wheels/pypdfium2-5.14.0-py3-none-win_amd64.whl",
+    "bytes": 3947280,
+    "sha256": "149fd5c6397b8df8bf7911a93506eff0be874f877afe7ac936cf5d37d21a6a06"
+  },
+  "expected_repository_policy": "https://github.com/pypdfium2-team/pypdfium2",
+  "publisher_metadata": {
+    "workflow": "main.yaml",
+    "environment": "release"
+  },
+  "verification_tool": "pypi-attestations 0.0.31 / sigstore 4.5.1",
+  "production_sigstore_trust": true,
+  "offline": false,
+  "checks": [
+    {
+      "case": "original",
+      "exit_code": 0,
+      "expected_result": "verified",
+      "log": {
+        "path": "artifacts/attestation-review-20261105/verify-original.log",
+        "bytes": 45,
+        "sha256": "39facc1350454ebed0b6f602f8a95659f079a617250b811b24246781af14f307"
+      }
+    },
+    {
+      "case": "tampered",
+      "exit_code": 1,
+      "expected_result": "rejected",
+      "log": {
+        "path": "artifacts/attestation-review-20261105/verify-tampered.log",
+        "bytes": 130,
+        "sha256": "a3481d2fdafd6e70dab04ba4df94d69f4d51fd2f0e4db8e7a36ec35c5d383bc4"
+      }
+    },
+    {
+      "case": "wrong-repository",
+      "exit_code": 1,
+      "expected_result": "rejected",
+      "log": {
+        "path": "artifacts/attestation-review-20261105/verify-wrong-repository.log",
+        "bytes": 112,
+        "sha256": "a7fe2014d7bffc516fa044ce1a235bb2f444daf7500b85798c386340bb07a347"
+      }
+    }
+  ],
+  "packaged_dll_matches_verified_wheel_sha256": "69f1e860f6742fbaafcc4db80e785eec9a4ee0da36ea6d1dc0867ea0f18baea6",
+  "tool_bootstrap": "Isolated development environment, official PyPI over TLS, exact root-tool wheel digest matched official metadata; installed dependency wheels/hashes recorded. Verifier itself not independently audited.",
+  "tool_wheel_sha256": "c022f7bc771545463fdcbb019160b86b87a6048c9a9edb7d541824593d64a1c8",
+  "tool_install_report": {
+    "path": "artifacts/attestation-review-20261105/tool-install-report.json",
+    "bytes": 437474,
+    "sha256": "f59539feb6543e0da329df7464a2523add443c135b65ce2d9eae00750bd0b704"
+  },
+  "tool_metadata": {
+    "path": "artifacts/attestation-review-20261105/pypi-attestations-0.0.31-metadata.json",
+    "bytes": 11006,
+    "sha256": "1441a9f65111a250b7e0a061d8893a68d272062475aedc117cfd169d7b458716"
+  },
+  "tool_versions": {
+    "path": "artifacts/attestation-review-20261105/tool-versions.txt",
+    "bytes": 630,
+    "sha256": "a399850bf85e7b6eb5293f7401739374add527a7a7236073a22d8fb72fa27c5a"
+  },
+  "attestation": {
+    "path": "artifacts/dependency-review-20261104/pypi-provenance.json",
+    "bytes": 9802,
+    "sha256": "b8826296dd540a71e70fc943b733d4b9d38c4a106abd247d777fec47d2c06b75"
+  },
+  "post_verification_trust_cache": {
+    "path": "artifacts/attestation-review-20261105/trust-cache-snapshot-v2/snapshot.json",
+    "bytes": 1858,
+    "sha256": "113ec75726940db0a858944fada2e120a601faaaf89e2a2866e5eb012e7c5af6"
+  },
+  "cache_capture_limit": "Seven public metadata files retained; one root.json directory entry unreadable. First optional cache-copy attempt failed on that entry; verification outcomes unchanged. Snapshot was after verification, not presealed.",
+  "tampered_wheel_installed_or_loaded": false,
+  "original_wheel_or_runtime_upgraded": false,
+  "signing_or_login": false,
+  "limits": [
+    "Authenticates a signed wheel publication and repository policy, not a reproducible PDFium build or audit of workflow/source",
+    "No comprehensive embedded-component vulnerability or license assessment",
+    "Unsigned Texloom binary is not made code-signed by upstream wheel verification",
+    "No native app, installer or final research evaluation ran"
+  ],
+  "release_ready": false
+}

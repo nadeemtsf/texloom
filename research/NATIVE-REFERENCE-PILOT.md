@@ -1,6 +1,6 @@
 # Native candidate-boundary development pilot
 
-Protocol v1, written before execution. This is development integration, not the final evaluation or an actual Texloom window test. The original post-compilation pilot in ORACLE-PILOT.md remains unchanged.
+Native entry API schema 1; reference protocol revisions 1 and 2 were each written before their execution. This is development integration, not the final evaluation or an actual Texloom window test. The original post-compilation pilot in ORACLE-PILOT.md remains unchanged.
 
 ## Question and entry layer
 
@@ -32,4 +32,10 @@ The failed comparisons exposed an invalid reference: a zero-width `hbox` began i
 
 Before a second attempt, protocol revision 2 adds `leavevmode` before the independent reference box and a gold-only health condition: the two declared second-occurrence words must translate exactly, and every other word bound must remain within 0.02 bp. This is a bounded word-geometry health check, not proof of all reference semantics/appearance. Missing or reordered/ambiguous target words remain unresolved. The native executable and acceptance implementation are unchanged. Two new diagnostics check the observed neighbor drift and unresolved-target handling; 27 research helper checks pass. A fresh protocol/run is required; this is a corrected development rerun on reused cases, not new holdout evidence.
 
-The corrected run is **pending at this checkpoint**. Final held-out fixtures remain empty, `evaluation/freeze.json` remains `not_frozen`, and the owner's deferral of all tests requiring Texloom to open or approval still applies.
+## Corrected run: measured development results
+
+`artifacts/native-reference-development-20261105-reference-v2` completed with **five of five intended moves matching all declared postconditions** and **25 of 25 corrupted packets refused before compilation**. All ten baseline/candidate Poppler full-page comparisons have zero changed pixels; all five gold-only geometry health checks and exact byte-source contracts pass. Exact Undo and unchanged original source files hold in all five conditions. The native refusal reason is the source-plan mismatch, not an independently observed renderer rejection of those packets.
+
+Native executable SHA-256 `fcb46dae8fcdbc86e415209cc9f9caf62892ff4315009658185468768422c2a3` is identical across both runs. Baseline sources, candidate packets, requests, source contracts and zero references also match between attempts. Only the moved-reference construction and its health analysis changed. These are the same five intended cases and 25 corrupted packets reused in a corrected development rerun; do not pool the two attempts as ten/fifty distinct trials or call them independent replication. Receipts identify the code/protocol/outputs and the retained failure: `../docs/evidence/native-reference-development-2026-11-05.json`.
+
+Final held-out fixtures remain empty, `evaluation/freeze.json` remains `not_frozen`, and the owner's deferral of all tests requiring Texloom to open or approval still applies. No end-to-end latency, actual mouse interaction or clean-machine result was produced.

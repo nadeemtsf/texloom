@@ -2,6 +2,8 @@
 
 Updated 5 November 2026. Scope: APPROVED-IMPLEMENTATION-PLAN.md and the owner's current English/Arabic/Hebrew language scope. Current local product commit is 5e59e77; 252 frontend/88 default core and ordinary/diagnostic Windows builds pass. Its native/installation checks are pending at the owner's explicit request while away. The project is not release-complete. Historical deferral notes elsewhere do not override this status.
 
+Later development evidence adds five native candidate-entry moves with exact source/Poppler/Undo checks and 25 source-plan refusals. The original invalid-reference run and corrected protocol remain separate. This uses a headless development harness, not a Texloom window or mouse-mapping test. All 27 research helper checks pass. The pinned upstream wheel's signed publication verifies under the expected repository policy, with changed-byte/wrong-repository controls rejected; broader component security/license review remains. See the dated receipts and research/NATIVE-REFERENCE-PILOT.md.
+
 | Area | Observed evidence | Remaining acceptance |
 | --- | --- | --- |
 | Setup and diagnostics | Read-only contextual compiler/package/font help; build-opt-in bounded local timing. Production shell, failure/pending handling and disabled-mode checks pass. | Actual Windows setup/keyboard/appearance, trace boundaries, overhead and measured latency; a frame proxy is not physical presentation |

@@ -2,7 +2,9 @@
 
 Local product source `5e59e77282fd5e4b4f70440437b8f841ccea1364` adds read-only setup guidance and build-opt-in local timing diagnostics. Required checks passed: 252 frontend (zero skips), 88 default core (70 unit and 18 integration), an ordinary Windows release/NSIS build with tracing disabled, and a separate tracing-enabled Windows release build without an installer. Five existing Rust warnings remain. These checks do not measure native latency, tracing overhead or clean-account setup. See docs/SETUP-HELP.md and docs/PERFORMANCE-DIAGNOSTICS.md for exact scope and boundaries.
 
-No new executable has been opened or installed. The owner remains away and all tests requiring approval or Texloom to open are deferred. Current local work is unpushed; no new remote CI or final research evaluation ran. Earlier results below retain their own artifact identities.
+No new Texloom application executable has been opened or installed. The owner remains away and all tests requiring approval or Texloom to open are deferred. Current local work is unpushed; no new remote CI or final research evaluation ran. Earlier results below retain their own artifact identities.
+
+A separate headless development harness exercised the native candidate boundary: five intended existing-object moves match byte-source/Poppler reference/Undo checks in a corrected protocol, and 25 corrupted source packets fail native plan rederivation before compilation. An initial hand-authored reference introduced an extra line; its failed run is preserved. This does not exercise PDF mouse mapping or open the app. All 27 research helper regressions pass, separately from the 252 frontend/88 core checks. The pinned PDFium wheel's publish attestation also verifies under the expected repository policy, with two negative controls; this is not a complete dependency/security audit. Dated receipts describe both scopes.
 
 ## Preceding checkpoint - 4 November 2026
 

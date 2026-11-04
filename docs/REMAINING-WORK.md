@@ -16,7 +16,7 @@ All tests requiring approval or opening Texloom: actual held-drag Escape/Alt+Tab
 
 ## Research implementation
 
-The audit, evidence inventory, primary-source notes, evaluation definitions and editable eight-page draft exist. An independent Poppler reference comparator and five-condition development pilot now run, with separate predicate replay. A prototype declared-byte source-contract oracle has five diagnostics plus CLI health checks; it does not prove TeX semantics. Next work is independent contract annotation/review and integration, ambiguous/reordered-layout adjudication, full pipeline comparisons, final fixture labels, end-to-end timing and machine/font manifests. Seal a fixed version and final inputs/oracles before the final evaluation; retain every failure and version change.
+The audit, evidence inventory, primary-source notes, evaluation definitions and editable eight-page draft exist. Independent Poppler/source references now also connect to the real native candidate-entry prepare/build/approval/commit/Undo path: five corrected-protocol matches and 25 source-plan refusals, with the first invalid-gold run retained. This still bypasses PDF click/mapping and frontend selection proof. All 27 research helper checks pass; they are infrastructure diagnostics, not accuracy samples. Next work is independent contract annotation/review, ambiguous/reordered-layout adjudication, full interactive pipeline comparisons, final fixture labels, actual timing/overhead and complete machine/font manifests. Seal a fixed version and final inputs/oracles before the final evaluation; retain every failure and version change.
 
 ## Later scope and owner decisions
 
