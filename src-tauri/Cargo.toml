@@ -17,6 +17,10 @@ name = "source_benchmark"
 required-features = ["benchmark"]
 
 [[example]]
+name = "native_reference_development"
+required-features = ["benchmark"]
+
+[[example]]
 name = "document_bindings"
 required-features = ["typegen"]
 
