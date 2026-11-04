@@ -1,0 +1,107 @@
+\section{Reproducibility, artifact identity and dependency provenance}
+Reproduction needs more than an application version string. Product source,
+native harness, reference code, binary, fixtures and environment have separate
+identities. The ordinary r4 executable, diagnostic executable and debug native
+harness are different artifacts. A successful check on one cannot silently
+become an observation of another.
+
+\subsection{Version and input binding}
+The current product source is \code{5e59e77}. The native-entry harness was
+committed at \code{cb3cd11}; the corrected reference/health code at
+\code{b5edb9d}. The exact debug harness executable is unchanged across the two
+native attempts. Both protocols snapshot executed helper/native source and
+record fingerprints before execution. The evaluator refuses an existing run
+directory, changed implementation snapshots or changed protocol/runner.
+These controls preserve provenance; they do not independently establish the
+correctness of the supplied reference.
+
+The pre-expansion Git evidence checkpoint contains 46 JSON receipts, all
+parsed and fingerprint-checked against working files and Git blobs. Reading,
+parsing or archiving a receipt is not reproducing its experiment. Historical
+line-ending canonicalization preserved the original receipt bytes separately
+and did not alter their JSON outcomes. Research source uses LF attributes so
+future checkouts can preserve code fingerprints. Raw experimental inputs are
+not normalized into a more convenient form.
+
+Each run keeps its protocol, source snapshots, complete synthetic sources,
+compiler logs/manifests, PDFs and independent comparison outputs. The invalid
+native reference is retained alongside the corrected protocol, rather than
+overwritten. The supplied editable-report archive is not a complete application
+checkout; running the native harness requires the full recorded repository and
+its prepared resources. Reproduction commands and archive scope are in the
+appendices.
+
+\subsection{Machine, engines and fonts}
+A development environment collector fingerprints explicitly chosen tools,
+font files and inputs without compiling or launching the application. The
+executed partial snapshot records seven tools, four declared Arial font files
+and ten inputs. It was collected after the first reference pilot. It therefore
+cannot establish the exact bytes or font resolution used during that earlier
+execution. A declared font filename is not proof that no fallback occurred.
+
+RAM, WebView2 and display configuration remain unset in that snapshot. It does
+not inventory every shared library, TeX package or background task. Gold builds
+for the later native pilot retain recorder output, but complete engine/driver/
+OS font binding still needs review before a final freeze. Source documents,
+font acquisition and permission to redistribute standalone font files must be
+handled separately; the collector does not copy or license those files.
+
+For a final run, seal the source/analysis commits or exact diffs, executables,
+worker/DLL, lockfiles, support packages, actual engine/bibliography/font inputs,
+OS/CPU/RAM/WebView2/display/DPI/power state, commands, ordering seed and resource
+budgets before execution. Document cold/warm and background-load conditions.
+Do not generalize one Windows machine's pixels or latency to every installation.
+
+\subsection{The bundled independent verifier}
+The packaged verifier uses PDFium 156.0.8076.0 from the pinned pypdfium2 5.14.0
+Windows x64 wheel. Historical reports naming PDFium 126 or pypdfium2 4.30 concern
+other artifacts. The Rust worker does not require Python at application runtime.
+The recorded wheel digest, extracted DLL and packaged DLL match; pinned notices
+are included. The index's latest-version observation was made on 4 November
+2026, not asserted indefinitely from an old note.
+
+A follow-up checked the wheel's signed PyPI publication against an explicit
+expected repository policy, using the attestation mechanism documented by
+PyPI~\cite{pypiattest}. The isolated development tool was
+\code{pypi-attestations 0.0.31} with \code{sigstore 4.5.1} and default production
+trust~\cite{pypitool}. Table~\ref{tab:provenance} records the positive and
+negative controls. Verification did not install the wheel or upgrade the app's
+runtime, and used no signing or browser login.
+
+\begin{table}[htbp]
+\small\begin{tabularx}{\linewidth}{@{}YY@{}}
+\toprule
+Input / policy & Observed verification result\\
+\midrule
+Pinned original wheel; expected pypdfium2 repository & Verified signed publication\\
+Same basename, valid ZIP with changed archive bytes & Rejected: subject digest mismatch\\
+Original wheel; deliberately wrong expected repository & Rejected: repository policy mismatch\\
+\bottomrule
+\end{tabularx}
+\caption{Bounded provenance checks, not application edit-acceptance tests.}
+\label{tab:provenance}
+\end{table}
+
+The tool was obtained from official PyPI over TLS; its root wheel checksum
+matched the index metadata, and installed dependency wheel hashes/versions
+were retained. The verifier itself was not independently audited. Seven public
+trust metadata files were captured after verification; one \code{root.json}
+directory entry was unreadable. That partial post-verification snapshot is
+not a presealed trust environment.
+
+Signed publication authenticates an artifact under a policy, not a reproducible
+PDFium source-to-binary build, an audit of the publishing workflow or a complete
+embedded-component security/license review. An empty package-index advisory
+field is not proof of no vulnerabilities. The worker's checked paths, held DLL,
+immutable bounded inputs, separate process and time/memory budgets likewise
+do not constitute an operating-system sandbox. Nested provenance/build,
+vulnerability/version and license review remain public-distribution work.
+
+\subsection{Final freeze rule}
+\path{research/evaluation/freeze.json} remains \code{not\_frozen}. The final
+fixture directory has no executed held-out cases. Freeze only after the core
+workflow and regression gates are stable, labels/oracles have been reviewed,
+and final manifests are sealed. If a final evaluation discovers a defect,
+retain the failure, fix the development version and start a separately labelled
+frozen run. Reusing and tuning the same cases cannot be described as an untouched
+final evaluation.

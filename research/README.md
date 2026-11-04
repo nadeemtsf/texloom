@@ -16,7 +16,7 @@ Files:
 - [Evidence inventory](evidence-inventory.md): admissible claims, historical failures and missing evidence. A generated JSON catalog fingerprints existing evidence; parsing a receipt is not reproducing its experiment.
 - [Related work](related-work.md): primary sources, what was checked and how each narrows the claim.
 - [Evaluation plan](evaluation-plan.md): outcomes, denominators, success criteria, independent oracles, comparisons and freeze rules.
-- [Report outline](report-outline.md): intended 5-8-page structure.
+- [Report outline](report-outline.md): full report structure without a page cap; the earlier eight-page target was withdrawn by the owner.
 - [Contribution notes](contributions.md): avoid inferring individual work from a Git author field.
 - [Editable report](report/main.tex), with [bibliography](report/references.bib).
 - [Independent-reference pilot](ORACLE-PILOT.md) and [prototype byte-level source oracle](SOURCE-CONTRACT.md): executed development diagnostics, separate from final study results.
@@ -27,4 +27,4 @@ Files:
 
 Keep development fixtures in their existing directories. Do not populate or run the final held-out set yet. Future final inputs, labels, executable, dependencies, engine/font versions, machine description and analysis code must be sealed together. Any product fix during final evaluation requires a new version and a separately labelled run; failures remain preserved.
 
-Compile only the explicitly named `.tex` report, with shell escape disabled. Never compile `.text` files. Generated PDFs/logs/renders stay outside tracked research source, under ignored `artifacts/research-report/`; a review copy may be placed in the chat outputs. The report's results section remains pending.
+Compile only the explicitly named `.tex` report, with shell escape disabled. Never compile `.text` files. Generated PDFs/logs/renders stay outside tracked research source, under ignored `artifacts/research-report/`; a review copy may be placed in the chat outputs. The expanded v5 draft has 21 pages without a page cap; recorded development results and failures are included, while final-study results remain pending.

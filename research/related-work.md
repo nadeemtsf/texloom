@@ -18,3 +18,14 @@ Checked 4 November 2026. This is a scoped first pass, not an exhaustive novelty 
 The publisher PDF for Laurens' 2008 TUGboat article could not be fetched reliably in this session. Its search-visible bibliographic record is a lead, not a substitute for a full-text review. The report instead cites the inspected author-maintained API for the concrete synchronization limits above. No claims are based on Reddit, third-party product summaries or unverified citation counts.
 
 Next useful literature work: inspect the expanded lenses paper; search backward/forward citations from the two Sketch-n-Sketch papers for document-specific update verification; inspect original BaKoMa documentation before designing any competitor study. Record exclusions and retrieval limitations. Product marketing is not proof of a correctness contract, and absence of a claim in documentation is not proof that a feature is absent.
+
+## Supporting platform and provenance documentation
+
+These four primary documentation sources support the timing/provenance methods; they are not additional visual-editing systems or evidence of Texloom's novelty. They bring the expanded report bibliography to fourteen entries.
+
+| Source inspected | Bounded use and retrieval limits |
+| --- | --- |
+| W3C, [High Resolution Time](https://www.w3.org/TR/hr-time-3/), generic specification inspected 4 November 2026, displaying a working draft dated 4 November 2026 | Supports the monotonic-clock API and its precision limits. The dated-version URL could not be retrieved; do not claim inspection of an archived dated copy or treat `performance.now()` as a physical input/display measurement. |
+| WHATWG, [HTML animation frames](https://html.spec.whatwg.org/multipage/imagebitmap-and-animations.html#animation-frames), inspected 5 November 2026 | Supports the animation-callback boundary discussion. Two callbacks are a presentation proxy, not independent proof that pixels appeared on a physical display. |
+| PyPI, [Introduction to Attestations](https://docs.pypi.org/attestations/), inspected 5 November 2026 | Explains signed-publication/provenance records. The measured wheel verification and negative controls have separate local receipts; signed publication is not a PDFium reproducible-build, security or complete license audit. |
+| Trail of Bits, [`pypi-attestations` 0.0.31 documentation](https://pypi.org/project/pypi-attestations/0.0.31/), inspected 5 November 2026 | Versioned documentation for the isolated tool used in the development provenance follow-up. Its CLI is documented as experimental; the tool itself was not independently audited. Verification used its default production trust and an explicit expected-repository policy. |

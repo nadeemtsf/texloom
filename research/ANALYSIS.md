@@ -6,7 +6,7 @@ Supply a JSON list of annotated correctness cases. The unfilled object in `evalu
 
 An empty dataset has no results. A group containing an unrun case gets no success rates. Zero accepted candidates means the accepted-error fraction is not applicable; a deny-all system still has zero useful valid acceptance. Accepted cases with unresolved correctness get error bounds and an unresolved safety gate, rather than a zero-error claim. Compile failures, timeouts and crashes retain their own categories and do not become valid refusals. Conflicting oracle/preservation labels are rejected.
 
-Five unit checks exercise these distinctions using explicitly synthetic annotations. No actual app observations or final-study rows have been summarized. Together with the separate nine PDF/replay and five source-contract diagnostics, 19 research-tool checks pass. These counts are not an accuracy sample.
+Five unit checks exercise these distinctions using explicitly synthetic annotations. No actual app observations or final-study rows have been summarized. The original nine PDF/replay, five source-contract and five annotation diagnostics totaled 19. With three environment and five native-protocol/reference-health diagnostics, the current research-helper suite totals 27 passing checks. These counts are infrastructure evidence, not an accuracy sample.
 
 ```text
 python research/tools/summarize_annotations.py ANNOTATED-ROWS.json NEW-OUTPUT.json --development

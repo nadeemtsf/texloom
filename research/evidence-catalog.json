@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "kind": "development_evidence_inventory_not_evaluation_results",
-  "recorded_utc": "2026-11-04T22:49:56.709892+00:00",
-  "audited_head": "b5edb9d0e6cf3daf05770b108ca6a9d0c7640e58",
+  "recorded_utc": "2026-11-04T23:28:09.341414+00:00",
+  "audited_head": "ecec9d5883f258f3f8d43811398f666d5ae60ab9",
   "working_tree_note": "Uncommitted report/evidence changes may be present; see the session checkpoint.",
   "final_evaluation_executed": false,
   "entries": [
@@ -365,6 +365,17 @@
       "schema": 1,
       "product_source_commit": "5e59e77282fd5e4b4f70440437b8f841ccea1364",
       "recorded_utc": "2026-11-04T22:49:56.397561+00:00",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/report-full-draft-v5-2026-11-05.json",
+      "bytes": 5635,
+      "sha256": "059770bba89cc127304418bfbb3f62ecf79cb913a25bddc28f2b2af8185b50e8",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "product_source_commit": "5e59e77282fd5e4b4f70440437b8f841ccea1364",
+      "recorded_utc": "2026-11-04T23:27:15.677235+00:00",
       "parse_status": "ok"
     },
     {

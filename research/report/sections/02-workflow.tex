@@ -1,0 +1,145 @@
+\section{Implemented workflow and authority boundaries}
+The application combines a Tauri/Rust backend, Monaco source editing and a
+PDF.js preview. The Rust document model owns canonical source/history and
+visual-operation authority. JavaScript provides interaction and prepares the
+view but cannot manufacture a native approval. Figure~\ref{fig:workflow}
+summarizes the supported path; the following account separates selection,
+candidate verification, commit and durability.
+
+\begin{figure}[htbp]
+\centering\small
+\newlength{\stagewidth}\setlength{\stagewidth}{.27\textwidth}
+\begin{tabularx}{\linewidth}{@{}YcYcY@{}}
+\fbox{\parbox{\stagewidth}{\centering\textbf{1. Select}\\Compiled text hit/group}} & $\to$ &
+\fbox{\parbox{\stagewidth}{\centering\textbf{2. Map}\\Source hints and unit}} & $\to$ &
+\fbox{\parbox{\stagewidth}{\centering\textbf{3. Establish identity}\\Private zero-offset probe}}\\[9pt]
+\fbox{\parbox{\stagewidth}{\centering\textbf{4. Plan}\\Immutable source candidate}} & $\to$ &
+\fbox{\parbox{\stagewidth}{\centering\textbf{5. Compile and inspect}\\Operation-specific policy}} & $\to$ &
+\fbox{\parbox{\stagewidth}{\centering\textbf{6. Decide}\\Commit or refusal}}
+\end{tabularx}
+\caption{Read stages in numerical order. Selection capability, native commit,
+view publication and later Save are distinct boundaries.}
+\label{fig:workflow}
+\end{figure}
+
+\subsection{Visible selection and source evidence}
+PDF.js supplies compiled text runs, line geometry and marked-content bounds.
+The canvas controller proposes a clicked line or adjacent group. A marquee
+does not directly choose source offsets or write files. Read-text mode remains
+available separately for ordinary highlighting and copying.
+
+For unwrapped text, the resolver asks native SyncTeX for file/line evidence
+and examines conservative source units. It can enumerate bounded alternatives;
+the frontend limits distinct probe attempts rather than searching indefinitely.
+Duplicate hints are not repeatedly compiled. A wrapped paragraph may be the
+smallest safe unit, even if the user clicked one displayed line. Cross-file,
+incompatible-column and unsupported structural evidence can refuse before
+any edit is planned. A repeated printed string is not treated as a unique
+source occurrence merely because its spelling matches.
+
+An existing movable object is resolved through its compiled marker and
+observed bounds. Multiple PDF instances, multiple pages or unsupported page
+coordinates do not grant an ordinary movement frame. The marker links a
+source object to emitted content; it does not independently establish that
+the user intended that object.
+
+\subsection{Private identity probes}
+For an ordinary source unit, a private candidate wraps the fragment at zero
+displacement. The frontend requires compatible pages, unchanged runs and
+pixels, unique marker membership and coverage of the clicked runs. The
+selection can expand to the verified unit, and the frame shows that scope.
+The probe does not add a wrapper to canonical source or history. Its cached
+proof belongs to the current baseline view and must still pass baseline
+dependency checks when reused.
+
+A probe token is not a visual-operation approval. The eventual movement
+requires a native operation plan and independent native layout approval.
+First-wrap movement also performs a native zero-offset identity check. Thus
+frontend selection evidence and native commit authority serve different
+purposes. Their agreement is useful, but shared source assumptions and the
+movement package can still create correlated mistakes.
+
+\subsection{Exact source planning}
+Canonical sources preserve UTF-8 bytes, including BOMs and local line endings.
+Monaco sees an LF-normalized view without a leading BOM and reports UTF-16
+coordinates. The Rust projection maps valid editor boundaries back to source
+byte positions. It does not serialize a syntax tree over the whole document.
+Unsupported or stale ranges can refuse rather than guess through a surrogate
+or source boundary.
+
+For supported text, native planning derives the candidate from the current
+sources, object/selection, expected content and operation. A proposal with an
+unrequested neighboring or supporting-file change does not match this plan.
+The movement macro applies drawing translation while retaining the fragment's
+layout contribution. It does not generally box and relocate arbitrary material
+outside its formatting context or solve a new flow layout. Support-package
+version consistency is also checked.
+
+The frontend's proposed source and typed messages are not the final authority.
+Rust-generated protocol contracts and runtime reply validation protect the
+transport boundary; native prepare still rederives the permitted source
+change. Reusing the same planner at two boundaries is not equivalent to two
+independent semantic specifications, which motivates a separate source oracle
+in the evaluation.
+
+\subsection{Immutable builds and native inspection}
+Candidates compile from private snapshots, with engine, recipe, source,
+asset and recorded dependency receipts. The current direct-engine service
+has bounded passes/time and declared bibliography recipes. Preflight failure,
+truncated output or unresolved build diagnostics can withhold verification
+eligibility. Source remains editable when TeX compilation fails; the last
+good PDF is retained as an older view rather than promoted to current authority.
+Shell escape is disabled and MiKTeX automatic package installation is disabled.
+These process controls are not a security sandbox for arbitrary untrusted TeX.
+
+For a visual candidate with a native operation plan, the build RPC obtains independent inspection
+from a checked, pinned PDFium worker before returning successful visual
+approval. Normal displacement compares against a baseline-derived translation
+prediction, including target geometry, unaffected material and complete
+same-renderer appearance. Candidate pixels do not construct that prediction.
+Budget, paint, annotation, target-isolation or correspondence failures can refuse.
+
+After the native reply, the frontend prepares the PDF offscreen in PDF.js,
+checks its operation-specific geometry and rechecks the build receipt.
+The latter native \code{verify\_build} call checks recorded inputs; it is not
+another independent PDF comparison. This ordering matters when interpreting
+timings: native layout approval is already included in the build RPC.
+
+\subsection{Commit, cancellation and newer typing}
+Approval is private native state bound to the exact project, revision, build
+and cancellation lease. Commit checks it under the canonical document lock
+and consumes the pending candidate once. A JSON field cannot substitute for
+that approval. Source edits, changed configuration, stale results and cancelled
+leases can invalidate an operation even when a previously compiled PDF exists.
+
+The frontend also checks identity after asynchronous steps. If the user types
+while a visual candidate compiles, the newer source is preserved and the old
+candidate is discarded. Preparation failure destroys the private prepared
+view rather than adding history. Dragging updates an outline and does not
+compile on pointer movement; release requests an edit. Event-boundary tests
+cover Escape, capture loss and focus-loss cancellation, while actual held-input
+Windows acceptance remains a separate pending gate.
+
+Native commit occurs before final frontend publication. Offscreen preparation
+reduces the chance of a presentation failure after commit, but this cross-process
+workflow is not claimed as a filesystem/UI-wide atomic transaction. Native
+acceptance and a displayed frame are recorded separately in the proposed study.
+
+\subsection{History, Save and recovery}
+Source edits and accepted visual edits share native Undo/Redo history. Typing
+may coalesce; an accepted visual transaction has its own entry. Undo restores
+source state while advancing revision and invalidating old layout authority.
+It does not authorize a stale candidate merely because old bytes reappear.
+
+Save is explicit. It verifies external file fingerprints and stages multi-file
+replacement with recovery information. Recovery can finish a staged Save,
+restore earlier files or preserve the editor version as a separate copy.
+Rollback and removal of a staged recovery journal are different operations.
+Typing recovery protects unsaved source/history separately and grants no old
+visual approval. These are recoverable writes, not a claim of one atomic
+filesystem rename covering an entire project.
+
+The code anchors are \path{web/app.js}, the modules under \path{web/core/},
+\path{src-tauri/src/service/document.rs}, \path{src-tauri/src/service/layout_gate.rs},
+and the document/build crates. \path{research/implementation-audit.md} gives
+the detailed mapping and separates implemented, recorded and planned behavior.

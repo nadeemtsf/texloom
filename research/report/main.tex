@@ -13,7 +13,7 @@
 \usepackage{fancyhdr}
 \usepackage[hyphens]{url}
 \usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
-\hypersetup{pdftitle={Texloom: Checking Source-Preserving Visual Edits to Compiled LaTeX Documents},pdfauthor={Texloom Project},pdfsubject={Technical report draft; methods and evaluation design; final results pending}}
+\hypersetup{pdftitle={Texloom: Checking Source-Preserving Visual Edits to Compiled LaTeX Documents},pdfauthor={Texloom Project},pdfsubject={Technical report draft; methods, development evidence and final evaluation design}}
 \urlstyle{same}
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{5pt}
@@ -30,7 +30,7 @@
 \newcommand{\code}[1]{\texttt{#1}}
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 \title{\vspace{-1.7em}Texloom: Checking Source-Preserving Visual Edits\\to Compiled \LaTeX\ Documents}
-\author{Texloom Project\\\small Technical report draft; methods and evaluation design}
+\author{Texloom Project\\\small Technical report draft; methods, development evidence and evaluation design}
 \date{5 November 2026}
 
 \begin{document}
@@ -38,433 +38,39 @@
 \thispagestyle{fancy}
 \vspace{-1.5em}
 \begin{abstract}
-Texloom is a Windows prototype for selecting supported text in a compiled
-\LaTeX\ page and translating an edit into a constrained source patch.
-This draft documents its mechanism and limitations before a final study.
-The primary case is single-page text displacement: preserve the fragment's
-contribution to document flow while changing its drawing position, then check
-the compiled candidate before accepting source and history. Source evidence,
-private identity probes, immutable compilation, independent PDF inspection and
-revision-bound commit authority form a chain of checks. Text replacement and
-semantic parameter changes use different, weaker reflow contracts. Existing
-development receipts motivate the evaluation but are not a held-out accuracy
-study. The proposed study measures incorrect acceptance, useful correct
-acceptance, valid refusal, preservation and end-to-end latency on a fixed
-version. No novelty, universal correctness, usability or publication-readiness
-claim is made; final results remain pending.
+Texloom is a Windows prototype that translates selected edits to compiled
+\LaTeX\ text into constrained changes to the original source. The primary
+operation is single-page text displacement that retains the fragment's
+contribution to document flow. Source evidence, private identity probes,
+immutable compilation, independent PDF inspection and revision-bound commit
+form a chain of checks. Replacement, semantic parameter changes and legacy
+positioned blocks have different acceptance policies and must be evaluated
+separately. This technical report documents the implemented mechanism, the
+limits of its checks, recorded development evidence and a proposed fixed-version
+evaluation. Two component pilots are reported with explicit entry layers.
+A native candidate-boundary pilot met declared source, render and Undo
+conditions for five intended moves and refused 25 corrupted source packets;
+an initial invalid reference and its failed run are retained. These purposive
+development cases do not estimate full-app error frequency. No final held-out
+evaluation, native latency distribution or unassisted usability study has run.
+No novelty, universal correctness or publication-readiness claim is made.
 \end{abstract}
 
-\section{Scope and operational method}
-The motivating problem is concrete: select a name and adjacent signature lines
-in a typeset page, move them, edit supported text, and retain a portable,
-understandable change to the original sources. A successful compiler exit does
-not show that the intended occurrence moved or that its neighbors stayed put.
-Conversely, refusing every request prevents corruption but does not provide a
-useful editor.
-
-The provisional question---how visual edits can become source changes while
-preserving unrelated content and rejecting incorrect transformations---fits
-the project, with a narrower primary scope:
-\begin{quote}
-For a declared subset of single-page \LaTeX\ text moves, how effectively do
-constrained source patches and verification after compilation reject
-incorrect transformations, and what are the costs in valid-edit refusal and
-end-to-end latency?
-\end{quote}
-This wording treats preservation and usefulness as separate obligations.
-It does not assume arbitrary \TeX\ programs can be inverted. Tables, mathematics,
-opaque macro effects, annotations, overlapping paint and cross-page groups may
-require refusal or source editing. English, Arabic and Hebrew source/display
-are current priorities; successful display does not automatically authorize
-canvas editing of every shaped or bidirectional fragment.
-
-\subsection{State and decision model}
-Let $S_r$ be the canonical source set at revision $r$, $P_r$ its accepted
-compiled view, and $u$ a requested visual operation. The system proposes a
-bounded patch $\Delta$, producing a private $S'=\Delta(S_r)$ and compiled
-candidate $P'$. Acceptance requires source preconditions, an eligible build,
-operation-specific evidence and the continued identity of revision $r$.
-Otherwise the candidate is refused without adding its source change to
-canonical history. Save is a later, explicit operation.
-
-This is a checked, partial update procedure. Tests of exact inverse patches or
-zero-offset appearance support particular invariants; they do not constitute
-a theorem about all \TeX\ execution. The report therefore begins with the
-method and its limits, and reserves quantitative conclusions for a sealed run.
+\input{sections/01-scope}
+\input{sections/02-workflow}
+\input{sections/03-contracts}
+\input{sections/04-related-work}
+\input{sections/05-evaluation}
+\input{sections/06-development-evidence}
+\input{sections/07-timing}
+\input{sections/08-reproducibility}
+\input{sections/09-limitations}
 
 \clearpage
-\section{From PDF interaction to canonical source}
-\begin{center}
-\small
-\newlength{\stagewidth}\setlength{\stagewidth}{.27\textwidth}
-\begin{tabularx}{\linewidth}{@{}YcYcY@{}}
-\fbox{\parbox{\stagewidth}{\centering\textbf{1. Select}\\Compiled text hit/group}} & $\to$ &
-\fbox{\parbox{\stagewidth}{\centering\textbf{2. Map}\\Source hints and unit}} & $\to$ &
-\fbox{\parbox{\stagewidth}{\centering\textbf{3. Establish identity}\\Private zero-offset probe}}\\[9pt]
-\fbox{\parbox{\stagewidth}{\centering\textbf{4. Plan}\\Immutable source candidate}} & $\to$ &
-\fbox{\parbox{\stagewidth}{\centering\textbf{5. Compile and inspect}\\Operation-specific policy}} & $\to$ &
-\fbox{\parbox{\stagewidth}{\centering\textbf{6. Decide}\\One-shot commit or refusal}}
-\end{tabularx}
-\\[5pt]\textit{Read stages in numerical order. A failed check preserves accepted state.}
-\end{center}
-
-\textbf{Selection and mapping.} PDF.js supplies the displayed text geometry.
-Clicks and marquees propose visible runs; ordinary wrapped text can expand to
-its complete source paragraph. Native SyncTeX results supply file/line
-evidence, then a conservative source resolver enumerates bounded candidates.
-The implementation does not equate a repeated printed string with a unique
-source occurrence. A candidate that spans incompatible files or source context
-can refuse before transformation.
-
-\textbf{Identity probe.} For ordinary unwrapped text, a private build adds the
-same movement wrapper at zero displacement. The frontend checks unchanged
-page geometry, text runs and pixels, unique marker membership and coverage of
-the clicked runs. A successful probe grants a selection capability; it does
-not commit its wrapper. Its cache belongs to the accepted baseline view.
-
-\textbf{Source plan and compilation.} Rust rederives the proposed candidate
-from the current sources, expected fragment and operation. Editor UTF-16
-coordinates are projected to valid UTF-8 source boundaries. Normal movement
-uses a portable wrapper which retains the fragment's original layout space
-while translating its drawing. The candidate compiles in a private snapshot
-with receipts for the engine, recipe, inputs and dependencies. Revision,
-project and cancellation checks prevent an old result from replacing newer
-typing. Source text remains editable even when a compilation fails.
-
-\textbf{Inspection and approval.} The native service obtains checked evidence
-from an isolated, pinned PDFium worker, independent of the PDF.js display.
-First-wrap movement also proves native zero-offset identity. For displacement,
-the checker compares the candidate with a baseline-derived translation
-prediction, checking target geometry, unaffected material and the complete
-raster. Candidate pixels do not construct the prediction. This is stronger
-than ignoring a rectangular region around the target, which could hide extra
-ink, but is still conditional on the renderer, target evidence and budgets.
-
-\textbf{Commit, refusal and durability.} A private approval binds the exact
-build, project, revision and cancellation lease. Native commit consumes it
-once under the canonical document lock; frontend preparation must also have
-succeeded. A failed or stale candidate retains accepted history and the last
-good PDF. Source and accepted visual edits share Undo/Redo. Explicit Save
-checks external file fingerprints and stages recoverable multi-file writes.
-Typing recovery separately protects unsaved buffers/history without granting
-old visual approval. Recovery copies and disk rollback are distinct actions;
-multi-file replacement is not a claim of filesystem-wide atomicity.
-
-Code anchors for this account are listed in
-\path{research/implementation-audit.md}; they include the real resolver,
-selection proof, native layout gate, document commit and persistence services.
-
-\clearpage
-\section{Contracts, evidence status and limitations}
-\begin{table}[h]
-\small
-\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{.20\linewidth}YY@{}}
-\toprule
-Operation family & Implemented acceptance contract & Limit on the claim\\
-\midrule
-Text displacement / identity & Source-bound plan; page and glyph/non-text geometry; isolated target; complete same-renderer appearance comparison & Bounded target/page/paint domain and renderer assumptions; not arbitrary layout equivalence\\
-Text replacement / reflow & Exact native plan; visible target; non-target extracted-text multiplicities and non-text object count & Does not prove unchanged unrelated geometry, graphics appearance or document semantics\\
-Parameter/style adapters & Exact native source plan, eligible compilation and independent readable inspection & Reflow is permitted; this is not the displacement preservation test\\
-Legacy positioned blocks & Native compatibility planner and existing frontend acceptance & Not independently certified normal-text displacement\\
-\bottomrule
-\end{tabularx}
-\caption{Separate policies are essential: one successful visual operation cannot establish a stronger contract for another family.}
-\end{table}
-
-The current displacement constants are 0.25 bp for comparable target geometry,
-0.02 bp for unaffected glyphs and $10^{-6}$ bp for non-text geometry. Identity
-requires exact same-renderer pixels. The current fractional-displacement path
-uses a separately rendered baseline prediction; an older integer-pixel-only
-description in historical documentation does not describe this later path.
-Annotations, ambiguous target correspondence, unsupported coordinates or
-paint, and exhausted resource budgets can still refuse.
-
-\subsection{What existing evidence can support}
-The audited product baseline is commit
-\code{c26a238}; it is not yet the final evaluation freeze. Development receipts
-cover domain/frontend checks, real-engine corpora and synthetic native
-signature, source/history, transfer/encoding, error/cancellation and recovery
-workflows. Different receipts name different commits and executable hashes.
-Later focus-loss, setup and optional-timing work at \code{5e59e77} passed 252
-frontend and 88 default core checks; these are regression counts, not independent
-visual-edit trials. Ordinary/diagnostic Windows builds passed; native retesting is pending.
-Previously recorded optional-codec and native-worker runs remain separately
-identified rather than added again to an accuracy sample.
-
-An approved installer was exercised on the existing developer Windows account:
-installed resources, actual verified displacement, explicit Save/Undo/reopen
-and shutdown during a running compiler were observed. It is not a clean-machine
-test. A staged Save interruption preserved the original files and recovered a
-separate exact copy; the later approved rollback and staged-draft removal also
-have byte-level receipts. These observations are useful engineering evidence,
-not a final held-out study.
-
-\subsection{What remains unestablished}
-Actual held-drag Escape/lost-capture and Windows DPI/multiple-monitor tests,
-clean-account missing-dependency setup, uninstall, an unassisted human trial and
-reference-machine end-to-end latency remain open. The desktop tool blocked
-uninstaller launch; it was not bypassed. Controller event tests are not native
-held-input evidence. A prior 20-minute resource sample included shared WebView
-processes from two instances and background work; it is not an isolated leak
-or long-session certification.
-
-Independent inspection also has limits. PDFium prediction and inspection share
-a rendering implementation; PDF.js agreement does not prove preservation of
-all annotations, accessibility structure, semantics or future package behavior.
-These limits constrain both the evaluation oracle and any later contribution
-claim.
-
-\clearpage
-\section{Related work and contribution boundary}
-\textbf{Synchronization.} SyncTeX's author-maintained API documents weak
-matching, line fallback when an exact column is unavailable, multiple query
-results and ambiguity with PDF forms~\cite{synctex}. This supports navigation
-evidence rather than an automatic authority to rewrite a source occurrence.
-Texloom adds a constrained source-unit proposal and a compiled identity test.
-
-\textbf{Visual scientific and LaTeX editors.} LyX describes a structure-oriented
-graphical document workflow~\cite{lyx}; TeXmacs discusses structured interactive
-scientific editing~\cite{texmacs}. The archived original BaKoMa description
-explicitly presents rendered-page interaction with LaTeX source editing
-without an import/export conversion~\cite{bakoma}. Overleaf documents code and
-rich-text visual editors alongside a compiled preview~\cite{overleaf}. These
-are established precedents. Differences in document representation and
-supported operations prevent an unqualified comparison of performance or
-correctness from documentation alone.
-
-\textbf{Bidirectional transformations.} Foster et al. define get/putback and
-round-trip laws for lenses~\cite{foster2005}. They provide vocabulary for the
-view-update problem, not a proof of Texloom's behavior. Exact Undo of a recorded
-patch and a successful zero-offset probe are distinct from establishing lens
-laws for arbitrary TeX/PDF transformations. This draft cites the inspected
-2005 conference version, rather than assigning it the later journal version's
-metadata.
-
-\textbf{Output-directed programming.} Bidirectional evaluation repairs programs
-after output changes~\cite{mayer2018}. Sketch-n-Sketch also combines textual and
-graphical interaction with provenance for SVG-producing programs
-\cite{hempel2019}. Thus, translating output manipulation into source updates
-is not the proposed novelty. Texloom's bounded TeX plans and checks over
-compiled PDF candidates differ from implementing a reverse evaluator for a
-general-purpose language.
-
-\textbf{Validation and review.} Translation validation checks individual
-translations using a specified semantic relationship~\cite{pnueli1998}.
-Texloom shares the motivation of checking a particular candidate but does not
-provide that formal refinement proof. Source comparison tools such as
-latexdiff help review changed LaTeX~\cite{latexdiff}; source markup alone is not
-a rendered-content preservation oracle.
-
-\subsection{A defensible provisional contribution}
-The prospective contribution is an empirical systems account: a lossless
-source/compiled-view transaction pipeline for a declared subset, its refusal
-boundaries, and measured safety/coverage/latency trade-offs. Its value would
-come from reproducible cases and a careful comparison showing which checks
-matter, including where conservative checks reject useful edits. No claim of
-being the first visual LaTeX editor or of superior performance follows from
-the present audit.
-
-This literature pass is deliberately incomplete. Further work should examine
-the expanded lenses article, backward/forward references from output-directed
-programming, and original visual-LaTeX implementation documentation. The
-SyncTeX journal article was not reliably retrievable in this session; concrete
-API claims here use the inspected author-maintained source instead. Product
-documentation cannot prove that a competing system lacks an internal method.
-
-\clearpage
-\section{Evaluation definitions and criteria}
-The final study must distinguish the intended operation's validity from its
-membership in the product's declared supported subset. A semantically valid
-edit can be unsupported and safely refused, while still representing lost
-useful coverage. A refusal must not become a success merely because the test
-author anticipated it.
-
-\subsection{Independent ground truth}
-Before the product runs, each request receives an intended source occurrence,
-allowed patch/support-file set, target transformation and preservation policy.
-Expected sources are authored independently and compiled outside app caches.
-A separately pinned renderer, provisionally Poppler, and independent source
-annotations should adjudicate the resulting output. Runtime marker checks,
-the source planner and PDFium verifier must not supply their own final ground
-truth. Disagreements remain unresolved cases with retained evidence, not
-silently removed observations.
-
-For a sealed request set, let $V$ denote valid intended edits, $U$ unsafe
-requests/candidates, and $A$ system acceptances. Report counts and denominators:
-\begin{align*}
-\mathrm{incorrect\ acceptance\ fraction} &=
-  \frac{|\{a\in A:\ a\text{ violates its oracle contract}\}|}{|A|},\\
-\mathrm{correct\ valid\ acceptance} &=
-  \frac{|\{v\in V:\ v\text{ accepted with all postconditions}\}|}{|V|},\\
-\mathrm{valid\ refusal} &=
-  \frac{|\{v\in V:\ v\text{ refused}\}|}{|V|}.
-\end{align*}
-Also report unsafe requests accepted divided by $|U|$, correct unsafe refusals,
-and in-scope versus broader valid coverage. Compile failures, crashes and
-timeouts have their own categories; they are not silently excluded. Timing
-repetitions do not increase the number of independent correctness cases.
-Zero-denominator ratios are not applicable, not zero; deny-all has no
-accepted-candidate error fraction and no useful valid acceptance.
-
-\subsection{Proposed gates, recorded before final experiments}
-\begin{enumerate}
-\item \textbf{Safety:} zero independently adjudicated incorrect acceptances,
-wrong-occurrence edits, unrelated-source corruption or stale-result commits
-in the sealed suite. A single occurrence fails this gate and stays reported.
-Zero observed errors is finite evidence, not zero universal risk.
-\item \textbf{Usefulness:} a proposed engineering target of at least 90\%
-correct acceptance on predeclared in-scope valid displacement requests.
-Always report all valid refusals by family, including the broader stress set.
-This target is not a claim of representativeness.
-\item \textbf{Preservation:} exact bytes outside the allowed source/support
-changes; exact Undo/Redo/Save/reopen where required; zero-offset appearance
-identity; target and unaffected-geometry limits stated in Section 3. Define
-independent raster/annotation comparisons before runs. Never tune tolerances
-on the final set.
-\item \textbf{Performance:} inherited goals are p95 visual source feedback and
-prepared selection within 50 ms, a 16.7 ms drag-preview frame budget on a
-documented 60 Hz setup, zero pointermove builds, one logical release build and
-p95 warm small-document verified completion within 3 s. These are goals,
-not established results; compiler time and visible latency are separate.
-\end{enumerate}
-
-Use paired comparisons with per-family and per-engine breakdowns. Report
-uncertainty clustered by document and the assumptions of any error-rate bound.
-An adversarial deterministic corpus is not an IID sample of all LaTeX.
-Correctness, availability, performance and usability require separate evidence.
-
-\clearpage
-\section{Reproducible experiment design}
-\subsection{Cases and fixed versions}
-The proposed minimum is 120 labelled requests across at least 36 new synthetic
-documents, including at least 60 valid intentions and 60 unsafe/adversarial
-candidates. Exact counts are sealed with the final manifest before evaluation.
-Required strata include ordinary signatures and wrapped prose; repeated
-strings/macros; ambiguous or cross-column/file mappings; English/Arabic/Hebrew
-and shaping/combining cases; unsupported structures or page/paint conditions;
-and compile failure, staleness, cancellation and deliberately wrong candidates.
-
-Development fixtures remain separate. The final set is currently absent.
-Prepare new combinations and independent labels after core stabilization,
-record who prepared/reviewed them, and hash inputs/oracles before the first
-run. A set prepared and evaluated by the same developer is a procedural
-holdout, not a blinded independent study. Define a feasible language/engine
-matrix: failure to compile an unsupported language configuration is not
-equivalent to refusing a supported visual edit.
-
-The freeze record must include product and analysis commits, exact executable
-and dependency hashes, support-package versions, engine/font versions, OS,
-CPU/RAM, display/DPI, power/background state, commands, budgets and ordering
-seed. A new product fix during final evaluation starts a new labelled version
-and run; the previous failure is retained. The recorded audit commit
-\code{c26a238} is a development baseline, not an automatic final freeze.
-
-\subsection{Paired comparisons}
-\begin{table}[h]
-\small
-\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{.34\linewidth}Y@{}}
-\toprule
-Comparison & Question answered and limitation\\
-\midrule
-Full pipeline vs. same constrained plan plus compile-only & Which incorrect candidates escape compiler success? Offline ablation planned; production guards stay enabled.\\
-Source/provenance checks vs. independent final movement validation & Which rejections are added by the last verifier? Replay must use the same candidates; it is not automatically an end-to-end editor baseline.\\
-Geometry-only vs. full appearance comparison & Does geometry miss appearance/duplicate-ink faults, and does raster checking cause valid refusals? Shared-oracle bias must be measured.\\
-First/cached selection and first/existing wrapper & Which latency comes from identity establishment rather than movement itself? Workloads differ and must remain labelled.\\
-Deny-all and known broken-literal diagnostics & Expose the safety/usefulness trade-off and test harness sensitivity. Neither is a competitive editor or held-out headline result.\\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-These final-study pipeline comparisons are specified, not yet run; Section 7.1
-reports separate component development pilots. Natural user
-requests and injected-candidate diagnostics are separate study arms; record
-each entry layer and never pool their rates. Offline decision replay does not
-establish end-to-end production error frequency. Isolated ablations cannot
-commit user projects. No unmeasured competitor superiority is inferred.
-
-\subsection{Timing and operational evidence}
-Optional diagnostic builds now record handler entry, mapping, native build
-return, PDF preparation, receipt recheck, commit and publication, followed by
-two animation callbacks with visibility/freshness checks. This is a frame
-opportunity proxy, not physical input-to-display latency. Source feedback
-starts after Monaco's content-change notification; compile timing excludes
-preceding debounce/queue delay. The visual build RPC already includes native
-layout approval; the later receipt recheck is not another PDF comparison.
-Keep incomplete, hidden, superseded and failed traces, with loss counts.
-Native boundary validation and overhead remain unmeasured; compare paired
-ordinary/diagnostic builds using an external method before performance claims.
-Seal actual input/font/runtime bindings before evaluation. A partial posthoc
-tool/font snapshot cannot establish the environment of the earlier pilot.
-Use at least ten representative small documents, ten declared warmups and 30
-measured warm repetitions per document/engine condition, with randomized
-paired order. Keep cold and failed/censored runs. Add a documented repeated
-operation soak; assess an unassisted human task separately.
-
-\clearpage
-\section{Results pending and next experiments}
-\pending\ The current work is an evidence audit, development correction and
-protocol design. No final held-out case has been run, and no accuracy rate or
-end-to-end performance figure is inferred from the number of regression tests.
-
-\begin{table}[h]
-\small
-\begin{tabularx}{\linewidth}{@{}YY@{}}
-\toprule
-Final result to report & Status\\
-\midrule
-Incorrect acceptances / accepted candidates and unsafe requests & Pending sealed requests and independent adjudication\\
-Correct valid acceptances and valid refusals, in-scope and broader & Pending labelled set; separate family/engine denominators\\
-Unrelated source/rendered-content and exact recovery preservation & Pending final independent oracle and frozen-binary run\\
-First/cached selection and verified-move latency, median/p95 & Pending native timing/overhead and complete machine record\\
-Resource stability and unassisted task success & Pending controlled soak and distinct usability protocol\\
-\bottomrule
-\end{tabularx}
-\caption{Empty final-evaluation cells are intentional. Development diagnostics do not substitute for these results.}
-\end{table}
-
-\subsection{Development component pilots}
-A post-compilation pilot compared manually specified TeX box placement with
-the movement wrapper using Poppler bounds (0.02 bp) and exact full-page pixels
-at 144 dpi. Five conditions covered Latin targets under three engines and
-Arabic/Hebrew neighbors under XeLaTeX/LuaLaTeX. Five intended controls matched,
-20 faulty PDFs differed, and five invalid sources failed compilation. On these
-artifacts, compiler success admitted 20 known faults, text/geometry checks
-admitted five color faults, and the full reference admitted none. This is
-predicate replay, not a production acceptance rate or native-gate ablation.
-
-A native candidate-entry pilot then exercised existing tagged-object moves,
-actual source-plan rederivation, compilation, independent approval, commit and
-Undo. Under the corrected protocol, five moves met exact source, Poppler reference, Undo and unchanged
-original-source conditions; 25 corrupted packets with an unchanged requested
-operation were refused before compilation. PDF mouse mapping and frontend
-selection proof were bypassed. The first reference added an unrelated blank
-line and failed all five candidate comparisons; that raw run is preserved. A gold-only
-geometry health check and corrected reference preceded a fresh run with the
-same native executable and packets. Reused cases are not independent replication.
-Neither pilot has independent human adjudication or establishes general
-correctness, usability or latency. Final fixtures remain unused.
-
-\subsection{Threats and limits of interpretation}
-\textbf{Construct validity:} pixel/geometry agreement is not a full document
-semantics or accessibility specification; extracted text multiplicity is
-weaker still. \textbf{Internal validity:} shared renderers, support macros,
-planners or gold-source generators can create correlated mistakes. Avoid a
-golden oracle built by the same code being evaluated.
-\textbf{Selection bias:} development fixtures influenced implementation;
-new procedural holdouts still do not represent every package or real document.
-\textbf{External validity:} a Windows laptop or hosted CI runner does not
-establish universal latency, font or engine behavior.
-\textbf{Human factors:} successful scripted interaction is not proof that a
-new user understands scope expansion, pending compilation or refusal messages.
-
-\subsection{Conditions for a later paper}
-A later submission would require a sharper literature review, reviewed frozen
-artifacts and independent labels, substantive paired evidence, and a useful
-finding beyond assembling known mechanisms. Negative results---for example,
-strict preservation with poor coverage or excessive first-selection cost---may
-be informative when documented carefully. They must not be hidden by changing
-the denominator or weakening working safeguards. This draft is a technical
-report in progress, with no submission or publication performed.
+\appendix
+\input{sections/appendix-protocol}
+\input{sections/appendix-artifacts}
+\input{sections/appendix-reproduction}
 
 \clearpage
 \begingroup

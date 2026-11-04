@@ -1,0 +1,198 @@
+\section{Recorded development evidence}
+\label{sec:development}
+This section reports executed development work with its scope intact.
+Engineering checks, post-compilation predicate replay and native candidate
+entry are different evidence types. Their counts are not summed into an
+application accuracy denominator. The final held-out set remains unused.
+
+\subsection{Implementation and artifact checkpoints}
+The audited baseline is \code{c26a238}; it is not the final evaluation freeze.
+Later product source \code{5e59e77} adds focus-loss hardening, setup guidance
+and optional timing instrumentation without changing the audited native
+acceptance policies. Table~\ref{tab:engineering} distinguishes current local
+checks from earlier versioned interaction evidence.
+
+\begin{table}[htbp]
+\small\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{.24\linewidth}YY@{}}
+\toprule
+Evidence & Recorded outcome & What remains outside it\\
+\midrule
+Current frontend suite & 252 pass; zero failures/skips & Includes protocol, filesystem, fixture and simulated shell/controller boundaries; not 252 native UI tasks\\
+Default core suite & 70 unit plus 18 integration pass & Domain/history/byte checks; not a general TeX correctness proof\\
+Research helpers & 27 diagnostics pass & Oracle, source-contract, denominator, environment and reference-health infrastructure; not app accuracy trials\\
+Windows builds & Ordinary release/NSIS and separate diagnostic release pass & Neither new application variant opened or installed; no measured overhead\\
+Earlier real-engine/native receipts & Engine corpora and synthetic signature/source/history/recovery workflows on named candidates & Do not promote earlier installed/portable observations to the new r4 GUI build\\
+Earlier remote CI & Three c26a238 workflows succeeded & Later local commits remain unpushed; no new remote CI claim\\
+\bottomrule
+\end{tabularx}
+\caption{Versioned engineering evidence. Required suites repeated for changed
+source remain the same tests, not additional independent trials.}
+\label{tab:engineering}
+\end{table}
+
+Historical Windows observations include signature workflows under all three
+engines, actual source/input and PDF reading/search, visual controls, failure/
+cancellation/concurrent typing, explicit Save, exact Undo/reopen and staged
+recovery. Approved installers were exercised on an existing developer account,
+not a clean machine. An interrupted Save retained original bytes and a separate
+recovered copy; later approved rollback and staged-draft removal were recorded
+as distinct actions.
+
+Native testing also exposed real issues: shaped-Arabic search, drag-label
+input, focus after PDF publication, zoom reading position and refusal text
+hidden behind a modal were corrected on recorded versions. One mixed-input
+source check lost a final CRLF and remains inconclusive; the controlled repeat
+preserved it. These failures are not erased or treated as current universal
+defects. Exact receipts in the evidence inventory take precedence over older
+status prose.
+
+\subsection{Pilot A: independent reference and predicate replay}
+The first component pilot compared manually specified TeX box placement with
+the movement wrapper. Criteria were recorded before compilation: Poppler word
+bounds within 0.02 bp and exact full-page pixels at 144 dpi. Five conditions
+covered Latin targets under pdfLaTeX, XeLaTeX and LuaLaTeX, plus Latin targets
+with Arabic/Hebrew neighbors under XeLaTeX/LuaLaTeX. The latter conditions do
+not establish movement of arbitrary shaped RTL target text.
+
+The executed controls were five intended candidates, 20 deliberate faulty
+PDFs and five deliberately invalid sources. All five intended candidates
+matched their reference; all 20 faulty PDFs differed; all five invalid sources
+failed compilation. The faults represented wrong repeated occurrence,
+unrelated-text change, changed appearance and duplicated ink.
+
+On these same artifacts, diagnostic predicate replay produced
+Table~\ref{tab:replay}. The checks do not replay the app's source-selection,
+native source-plan or canonical-commit path. In particular, the compiler-only
+column is not evidence that the production app accepted 20 incorrect edits.
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Predicate on compiled artifacts & Intended matches admitted & Known faults admitted\\
+\midrule
+Compiler success & 5 & 20\\
+Text plus word geometry & 5 & 5\\
+Full reference predicates & 5 & 0\\
+\bottomrule
+\end{tabular}
+\caption{Pilot A decision-layer replay. The five compile failures stay separate.
+All predicates use the same purpose-built development artifacts.}
+\label{tab:replay}
+\end{table}
+
+The color-only controls explain the geometry check's limitation: text and
+bounds can agree while appearance differs. The reference comparator does not
+check source intent; a separately declared source oracle is still needed.
+The simple reading order, same preparer and one host limit interpretation.
+Raw sources, logs, PDFs, rasters, criteria and both replay versions are retained.
+
+\subsection{Pilot B: the native candidate boundary}
+The next pilot connects the actual native prepare/build/independent-approval/
+commit/Undo path to separate source and Poppler references. It uses a
+development-only Rust example enabled by the existing \code{benchmark}
+feature. It starts no Tauri window and calls no Save. The executable is a
+debug harness, not the ordinary application's UI artifact or a performance
+benchmark.
+
+Entry is proposed source plus a fixed move request for an existing tagged
+object. Each synthetic baseline has two identical printed phrases with
+different object identifiers. The request moves the second object 12 bp right.
+The main source has a BOM/CRLF representation and an unchanged supporting file.
+Five conditions use the same engine/language strata as Pilot A, with separately
+constructed documents. PDF.js mouse mapping, its frontend identity probe and
+the normal frontend planner invocation are bypassed. Native prepare does
+rederive the permitted source plan.
+
+For each condition, five corrupted proposed-source packets precede the correct
+packet while baseline and revision remain current. The operation request stays
+fixed. Table~\ref{tab:packets} identifies the modifications. A packet rejected
+at prepare is not compiled. Any unexpectedly prepared packet would be recorded
+and discarded without commit, so even that event would not be a final edit
+acceptance.
+
+\begin{table}[htbp]
+\small\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{.29\linewidth}Yr@{}}
+\toprule
+Packet modification & Intended diagnostic & Conditions\\
+\midrule
+Move first occurrence & Source proposal disagrees with the requested second object & 5\\
+Change neighboring text & Unrelated source change accompanying a move & 5\\
+Change target color & Appearance edit absent from the move request & 5\\
+Duplicate target ink & Extra content absent from the move request & 5\\
+Change supporting file only & Source preservation beyond the printed target & 5\\
+\bottomrule
+\end{tabularx}
+\caption{Pilot B's 25 deliberate corruptions. These test source rederivation
+before compilation, not the renderer's sensitivity to the corruptions.}
+\label{tab:packets}
+\end{table}
+
+The intended candidate succeeds only if native commit completes, every source
+matches a manually declared byte contract, its PDF matches an independently
+authored TeX-box reference, Undo restores all source bytes and the original
+synthetic source files on disk remain unchanged. A plain-text zero reference
+first checks the native zero-offset baseline. The moved gold uses ordinary
+TeX boxes/phantom rather than the runtime movement transformation.
+
+\subsection{The failed reference is part of the result}
+The first attempt recorded zero of five intended moves meeting every declared
+postcondition. All five native commits, exact-source checks and Undo checks
+completed; all 25 corrupted packets were refused with a native operation-plan
+mismatch. The moved-reference comparisons failed because the manually authored
+gold changed unrelated layout.
+
+The zero-width reference box began in vertical mode. Its following phantom
+started another blank line. The intended target moved the correct 12 bp, but
+the gold's following neighbor moved down about 11.955 bp for Latin or
+11.956 bp in the multilingual conditions. Native candidate geometry retained
+the neighbor. Gold-only comparisons of the zero and moved references reproduce
+this error without consulting native output; a rendered pair was also inspected.
+
+The original protocol, executed-source snapshots, zero/five count, PDFs and
+comparison failures are unchanged. The failure is not retrospectively labelled
+a full application correctness pass, nor is the invalid gold treated as proof
+that the application accepted a wrong edit. A diagnosis was stored separately.
+
+Before another attempt, reference protocol revision 2 added \code{leavevmode}
+before the TeX box and a reference-only geometry health check. The declared
+second-occurrence words must move exactly; every other word bound must stay
+within 0.02 bp. Missing or reordered/ambiguous words remain unresolved. This
+health check is bounded word geometry, not a proof of every reference semantic
+or non-text property.
+
+\subsection{Corrected protocol results}
+The corrected run met all declared postconditions for all five intended moves.
+All five byte-source contracts and reference-health checks passed. All ten
+baseline/candidate full-page Poppler raster comparisons had zero changed
+pixels. Undo restored exact source and original project source files stayed
+unchanged in every condition. All 25 corrupt packets were refused before
+compilation with canonical source/history unchanged.
+
+\begin{table}[htbp]
+\small\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{.21\linewidth}YYY@{}}
+\toprule
+Engine / context & Source and Undo & Zero/moved reference pixels & Original source disk\\
+\midrule
+pdfLaTeX / Latin & Exact & Exact / exact & Unchanged\\
+XeLaTeX / Latin & Exact & Exact / exact & Unchanged\\
+LuaLaTeX / Latin & Exact & Exact / exact & Unchanged\\
+XeLaTeX / RTL neighbors & Exact & Exact / exact & Unchanged\\
+LuaLaTeX / RTL neighbors & Exact & Exact / exact & Unchanged\\
+\bottomrule
+\end{tabularx}
+\caption{Pilot B, corrected protocol only. Targets are Latin in all conditions;
+RTL neighbors do not establish arbitrary RTL target eligibility.}
+\label{tab:native-results}
+\end{table}
+
+The native executable, baseline sources, requests, candidate packets, source
+contracts and zero references are identical across both attempts. Only the
+moved reference and its health analysis changed. These are reused development
+cases, not ten independent intended requests or 50 distinct corrupted packets.
+No application behavior was changed to make the corrected result pass.
+
+The result supports this bounded native-entry path and shows that native source
+rederivation rejects these proposed-source corruptions. It does not establish
+full PDF-selection correctness, an independently labelled acceptance rate,
+native UI usability or latency. The final evaluation remains pending.

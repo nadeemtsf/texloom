@@ -1,0 +1,81 @@
+\section{Problem, scope and decision model}
+The motivating task is concrete: select a name and adjacent signature lines
+on a typeset page, move the group, edit supported text, undo the change, and
+retain a portable project. Rewriting source at a guessed location can move
+the wrong occurrence of repeated text. A syntactically valid edit can change
+line breaks, neighboring content or an unrelated graphic. A successful
+compiler exit therefore does not establish that the requested edit is correct.
+Refusing every request avoids many corruptions but does not make a useful editor.
+
+The provisional question is how visual edits to compiled \LaTeX\ can become
+source changes while preserving unrelated content and rejecting ambiguous or
+incorrect transformations. It describes the implementation's motivation, but
+an evaluation needs a narrower primary question:
+\begin{quote}
+For a declared subset of single-page \LaTeX\ text moves, how effectively do
+constrained source patches and verification after compilation reject incorrect
+transformations, and what do they cost in valid-edit refusal and latency?
+\end{quote}
+Preservation, useful coverage and response time are separate obligations.
+The report treats the source as authoritative and the compiled PDF as an
+observable view, not as a complete editable document model.
+
+\subsection{Supported operations and explicit boundaries}
+The first direct-manipulation contract covers supported text units on one
+physical page, including short groups and logical paragraphs. Selecting one
+soft-wrapped line may expand to its whole source paragraph; the displayed
+frame must reveal that expansion. Drawing displacement retains the unit's
+original space in TeX flow. It is different from moving text into another
+paragraph, changing its width or reordering the logical document.
+
+Text replacement and spacing/style controls can legitimately reflow later
+content. They use weaker, separate policies. Bounded image dimensions, table
+column parameters, typography and other source adapters exist, but do not
+amount to arbitrary visual editing of floats, table cells, mathematics or
+TikZ internals. Opaque macro effects, multiple renderings of one source object,
+annotations, unsupported paint or page coordinates, and cross-page groups
+can require refusal or source editing.
+
+English, Arabic and Hebrew source/display are the present language scope.
+Display success does not grant editing authority over every shaped or
+bidirectional fragment. Eligibility must be demonstrated for the actual
+operation, source structure and engine. Other languages and CJK input methods
+are later scope; no Windows input language was added for this work.
+
+\subsection{State and acceptance}
+Let $S_r$ denote the canonical set of source bytes at revision $r$, $C_r$ the
+main-document/engine configuration and recorded build context, and $P_r$ the
+last accepted compiled view. A requested operation $u$ includes its intended
+source object or selected unit and operation-specific parameters. The system
+proposes a bounded patch $\Delta$ and privately constructs
+\[
+S'=\Delta(S_r), \qquad P'=\operatorname{compile}(S',C_r).
+\]
+An eligible build is only one acceptance condition. The proposed source must
+match the native operation plan; its evidence must satisfy the operation's
+policy; and the project, source revision, build and cancellation identity must
+still be current. A stale or failed candidate has no authority to replace a
+newer canonical state. Exact bytes alone do not restore an old authority:
+Undo can return to previous text while advancing the revision.
+
+This is a checked, partial update procedure. It does not invert arbitrary
+\TeX\ execution. Multiple sources can produce the same visible text, and a
+source fragment may expand into several occurrences or affect distant layout.
+Tests of identity, inverse patches and selected examples support particular
+invariants; they are not a theorem about every possible document.
+
+Three boundaries must be distinguished. Native commit advances canonical
+source/history. Frontend publication presents an already prepared PDF and
+selection geometry. Explicit Save later changes the original project files.
+A final evaluation must record these separately, including any failure after
+native commit but before complete presentation. A presentation error must not
+be counted as a harmless refusal if source/history already advanced.
+
+\subsection{Purpose of this report}
+The report is an implementation audit, a record of bounded development
+experiments and an evaluation design. It does not assume that Texloom is the
+first visual \LaTeX\ editor or a publication-ready research contribution.
+The proposed contribution is an empirical account of the trade-off between
+preservation checks, accepted useful edits, refused valid edits and execution
+cost in a declared domain. Working behavior is not weakened to improve a
+novelty claim.

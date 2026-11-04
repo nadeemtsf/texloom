@@ -1,0 +1,92 @@
+\section{Reproduction entry points and pending Windows work}
+\label{app:reproduction}
+The report is editable LaTeX. Research/native helpers require a complete
+Texloom checkout at the recorded commits, prepared verifier resources and the
+declared dependencies. A report-source ZIP alone is not that checkout. Use
+fresh synthetic output directories and preserve every prior failed attempt.
+
+\subsection{Required engineering commands}
+The repository requires frontend and default-core checks for source changes:
+\begin{verbatim}
+npm test
+cargo test --locked -p texloom-core
+\end{verbatim}
+The environment in this run uses a project-local Rust toolchain/cache. That
+choice and the locked dependency files must be recorded when reproducing a
+build. A successful command is a check of the named code/environment, not an
+installed-artifact or native-interaction result.
+
+The opt-in native development example is built without launching the app:
+\begin{verbatim}
+cargo build --locked -p texloom-desktop --features benchmark `
+  --example native_reference_development
+\end{verbatim}
+These examples use PowerShell backtick continuation syntax. The recorded
+run used the resulting Windows debug example. Do not substitute an ordinary
+or diagnostic GUI executable for this CLI harness.
+
+\subsection{Preparing and executing a development pilot}
+The Python research requirements pin Pillow and pypdf. With the complete
+recorded source, prepare an unused output directory:
+\begin{verbatim}
+python research/tools/native_reference_pilot.py prepare `
+  artifacts/NEW_DEVELOPMENT_RUN
+\end{verbatim}
+This records criteria and source/code fingerprints before any experimental
+compilation. Evaluation is then explicitly supplied the native runner and
+the independent PDF tools:
+\begin{verbatim}
+python research/tools/native_reference_pilot.py evaluate `
+  artifacts/NEW_DEVELOPMENT_RUN `
+  --native-runner target/debug/examples/native_reference_development.exe `
+  --pdftotext 'PATH_TO_PDFTOTEXT' --pdftoppm 'PATH_TO_PDFTOPPM'
+\end{verbatim}
+Replace the illustrative paths and continuation syntax for the local shell.
+The exact commands, paths and file hashes used by the recorded runs are in
+their receipts and logs. The helper rejects overwritten run/output directories
+and implementation changes after preparation. Reproducing the first protocol
+requires its recorded source/snapshots; current corrected code is not silently
+substituted into its old result.
+
+All experimental LaTeX inputs are explicitly named \code{main.tex} and known
+supporting \code{.sty} files. Gold builds disable shell escape and automatic
+MiKTeX package installation. Never compile \code{.text} files. No user document
+is an experimental fixture, and no ablation is allowed to commit a real project.
+
+\subsection{Rebuilding this report}
+From \path{research/report/}, compile only \code{main.tex} with an existing
+LaTeX installation. The MiKTeX flags used here are:
+\begin{verbatim}
+pdflatex --disable-installer -no-shell-escape `
+  -interaction=nonstopmode -halt-on-error main.tex
+\end{verbatim}
+Use a fresh ignored output directory when retaining another version, run
+BibTeX against that directory with the report source on its bibliography search
+path, and repeat LaTeX until references settle. Check process exit statuses,
+render the latest PDF and inspect layout. Compilation alone verifies neither
+the truth of claims nor visual quality. Other distributions require their
+corresponding no-auto-install configuration; do not copy MiKTeX-specific flags
+as a universal engine contract.
+
+\subsection{Windows gates that remain unexecuted}
+\begin{enumerate}
+\item Reopen the exact new ordinary r4 application with its matching resources,
+using disposable synthetic projects; repeat the supported source/signature/
+control/Save/Undo/reopen workflows. The current target release executable is
+the diagnostic variant, so its identity must not be confused with ordinary r4.
+\item Exercise actual held-drag Escape, Alt+Tab and lost capture. Simulated
+event tests are separate; the present control API could not inject every
+interleaving of held pointer and keyboard input.
+\item Test actual DPI changes and multiple-monitor transitions. A zoom/scroll
+anchor test is not a Windows display-scale test.
+\item Validate clean-account prerequisites, WebView2/setup guidance, missing
+compiler/package/font recovery, the current installer and permitted uninstall
+procedure. The previously blocked uninstaller launch must not be bypassed.
+\item Validate diagnostic boundaries and paired external overhead, then run
+the declared timing and single-instance resource workloads. Collect an
+unassisted usability task separately.
+\end{enumerate}
+These steps are pending, not instructions to perform them while the owner is
+away. They require the owner's deferred application access/approvals. Separate
+independent labels, oracle review and final manifests are also required before
+the final evaluation; signing/public distribution remains a later owner decision.

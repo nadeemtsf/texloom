@@ -24,6 +24,8 @@ Required strata: ordinary signatures/paragraphs/formatting; repeated visible str
 
 For every intended request record system decision and independent adjudication. Report raw counts alongside rates:
 
+Acceptance means canonical source/history commit, separately from frontend publication, successful presentation and explicit Save. A post-commit presentation error remains an acceptance for source/render adjudication; it is neither a harmless pre-commit refusal nor a successful end-to-end task. Preserve native stage/commit observations, all independent postconditions and presentation/persistence outcomes separately. Accepted edits with incomplete independent evidence remain unresolved for the affected correctness claim.
+
 Natural interaction requests and injected-candidate/component diagnostics are separate study arms. Record the injection/entry layer (mapping, source plan, candidate build or comparator) and never pool their rates. A corrupted receipt rejected before geometry says nothing about the geometric check's sensitivity. Decision replay can expose a check's marginal effect but cannot establish end-to-end production error frequency.
 
 - Incorrect edits accepted: all accepted candidates that violate target, source, preservation or concurrency requirements. Report both the count and the fraction of accepted candidates, plus unsafe requests accepted divided by unsafe requests.
@@ -33,7 +35,9 @@ Natural interaction requests and injected-candidate/component diagnostics are se
 - Compile failures, timeouts and crashes: separate counts, with availability/latency consequences; they are not silently excluded or all described as expected safe refusals.
 - Preservation: exact bytes outside an enumerated allowed patch set, exact Undo/Redo/Save/reopen checks, intended target geometry and independently checked unrelated rendered content. Count every failed postcondition, including accepted edits to the wrong repeated occurrence.
 
-Use paired comparisons on identical requests. Provide per-family/engine breakdowns and uncertainty clustered by document. If zero incorrect acceptances occur, report the finite sample and a confidence bound under stated assumptions, not proof of zero risk. Deterministic/adversarial fixture families are not an IID sample of all LaTeX.
+Use paired comparisons on identical requests. Provide per-family/engine breakdowns. Any statistical uncertainty method must state and justify its sampling/independence assumptions and preserve document clusters; a clustered method alone cannot make this purposive corpus representative. Zero observed incorrect acceptances is a finite result, not proof of zero risk. Do not manufacture a population confidence claim from deterministic/adversarial fixtures.
+
+For accepted edits with unresolved adjudication, report confirmed incorrect count I, unresolved count Q and accepted count A. If A is nonzero, the possible incorrect-acceptance fraction lies between I/A and (I+Q)/A. This is a deterministic adjudication interval, not a statistical confidence interval. Keep the corresponding safety conclusion unresolved while accepted outcomes lack required evidence.
 
 Ratios with zero denominators are reported as not applicable, not zero. In particular, deny-all has no accepted-candidate error fraction and has zero useful valid acceptance.
 

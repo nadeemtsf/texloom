@@ -1,0 +1,165 @@
+\section{Evaluation definitions and final-study design}
+\label{sec:evaluation}
+\pending\ Development fixtures influenced implementation. Their diagnostic
+value does not make them a held-out estimate of ordinary use. The final study
+will use a recorded application version, sealed inputs/oracles and a protocol
+that separates natural interaction from injected-candidate diagnostics.
+
+\subsection{Validity, declared support and execution}
+Each intended request needs independent labels for semantic validity and
+membership in the declared supported subset. A meaningful request can be
+unsupported and safely refused while still representing lost useful coverage.
+Support must be declared before running the product, not assigned after a
+failure to improve the acceptance rate.
+
+An unsuitable engine or missing package/font can prevent execution of an
+otherwise meaningful request. Those availability failures are separate from
+deliberate safety refusals. Arabic/Hebrew configuration failures under
+pdfLaTeX must not be pooled with supported XeLaTeX/LuaLaTeX workflows. A request
+whose intention or oracle is unresolved keeps that status; the product's own
+acceptance/refusal message cannot supply its ground truth.
+
+\subsection{Independent ground truth and preservation}
+Before product execution, record the intended visual target and exact source
+occurrence, allowed source/support-file changes, expected displacement or
+reflow, and the independent checking method. Manually prepared expected sources
+are compiled outside app caches. A separately pinned renderer and source
+annotations check output and bytes; difficult disagreements require explicit
+adjudication rather than convenient pairing of repeated text.
+
+The current prototype reference uses Poppler word bounds and full-page RGB
+rasters, while the runtime uses PDF.js and PDFium. This reduces one kind of
+implementation sharing but does not make reference preparation independent
+of the developer. Shared TeX/fonts, an incorrect gold source or an incomplete
+task specification can create correlated errors. The initial native-entry
+reference failure in Section~\ref{sec:development} is a concrete example.
+
+Source preservation includes the complete enumerated file set, exact bytes
+outside allowed changes, permitted support-package insertion, and exact
+history/durability checks. BOMs, CRLF/LF, comments and supporting files are not
+discarded because the PDF happens to look unchanged. Rendered preservation
+uses the policy appropriate to the operation; reflow cases cannot claim the
+movement policy's unchanged appearance. Neither comparison alone proves TeX
+semantics or the user's intent.
+
+\subsection{Outcomes and denominators}
+Let $T$ be the labelled requests in one declared study arm, $V\subseteq T$
+the valid intentions, $D\subseteq T$ the declared supported subset and
+$U\subseteq T$ the unsafe requests or deliberately incorrect candidates for
+that arm. Let $A\subseteq T$ be requests whose canonical source/history was
+accepted. Publication, persistence and successful presentation are separately
+recorded outcomes. A post-commit error does not erase membership in $A$.
+
+For each accepted request, $\operatorname{Bad}(t)$ means a confirmed violation
+of required target, source, preservation or concurrency postconditions;
+$\operatorname{All}(t)$ means every required postcondition is established.
+The primary reported quantities are
+\[
+\frac{|\{t\in A:\operatorname{Bad}(t)\}|}{|A|},\qquad
+\frac{|A\cap U|}{|U|},\qquad
+\frac{|\{t\in A\cap V:\operatorname{All}(t)\}|}{|V|}.
+\]
+The first is the confirmed incorrect-acceptance fraction among accepted
+requests. The second is unsafe acceptance in an independently labelled unsafe
+arm, not a substitute for the first. The third is useful correct acceptance
+among valid intentions. Report raw counts and the corresponding in-scope
+quantity restricted to $V\cap D$.
+
+Valid refusal is $|\{t\in V:\text{decision is refusal}\}|/|V|$, with mapping,
+grammar, verifier, budget and other reasons kept distinct. Compile failures,
+crashes, timeouts and unresolved outcomes have separate counts and remain in
+the availability/useful-success accounting. Consequently correct acceptance
+and valid refusal need not sum to one. Do not silently remove failed attempts
+from an appealing denominator.
+
+Zero denominators are not applicable, not zero. In particular, deny-all has
+no accepted-candidate error fraction and zero useful valid acceptance. If
+$I$ accepted requests are confirmed incorrect and $Q$ accepted requests remain
+unresolved, report the deterministic adjudication interval
+\[
+ I/|A|\ \leq\ \text{possible incorrect-acceptance fraction}\ \leq\ (I+Q)/|A|.
+\]
+This is not a statistical confidence interval. Any population inference needs
+an explicit sampling/independence argument, which the current purposive
+development controls do not provide.
+
+\subsection{Cases and separation from development}
+The proposed minimum is 120 labelled requests over at least 36 new synthetic
+documents: at least 60 valid intended edits and 60 unsafe/adversarial candidates.
+Exact counts and the allocation to arms are sealed before the first final run.
+Report documents, requests, engine variants and timing repetitions separately;
+30 timings of one request do not create 30 new correctness cases.
+
+Required strata include ordinary signatures, logical paragraphs and formatting;
+repeated strings and repeated macro use; ambiguous/coincident, cross-column
+and cross-file evidence; English/Arabic/Hebrew shaping and combining cases;
+unsupported tables/math/links/paint/page coordinates; and compilation failure,
+staleness, cancellation and corrupted evidence. Development cases stay in
+their current directories. New combinations and independently reviewed labels
+should be prepared after core stabilization. A set prepared and evaluated by
+the same developer is a procedural holdout, not a blinded independent study.
+
+Natural requests and injected packets must never be pooled into one rate.
+Record the entry layer: PDF selection, source evidence, proposed source,
+compiled candidate or comparator. For example, the native-entry pilot's
+refusals before compilation establish a source-plan check, not renderer
+sensitivity or the frequency of mistakes in ordinary interaction.
+
+\subsection{Criteria recorded before final execution}
+The following are proposed engineering gates, not achieved outcomes or
+externally registered thresholds. Amendments must be dated before sealing.
+\begin{enumerate}
+\item \textbf{Safety:} zero independently adjudicated incorrect acceptances,
+wrong-occurrence commits, stale commits or unrelated-source corruptions in
+the sealed suite. Any observed instance fails the finite gate and is retained.
+This does not prove zero risk outside the suite.
+\item \textbf{Useful coverage:} at least 90\% correct acceptance among
+predeclared in-scope valid displacement requests, with per-family/engine
+counts. Report broader valid refusals separately rather than hiding them in
+a safety total.
+\item \textbf{Preservation:} exact bytes outside the allowed patch/file set,
+exact history/durability checks, and independent target/unrelated-output
+criteria fixed in advance. Runtime tolerances are not permission to tune the
+final oracle after seeing results.
+\item \textbf{Performance:} the proposed reference-machine goals are p95 source
+feedback and prepared selection within 50 ms, a 16.7 ms gesture-frame budget
+on a documented 60 Hz setup, and p95 warm small-document verified result within
+3 s. The required endpoint and overhead measurements are still pending.
+Pointer motion should start no builds; one release should request one logical
+operation. TeX passes and private identity builds are counted separately.
+\item \textbf{Native reliability:} the exact frozen application must pass its
+signature/source/save/recovery workflow, actual held-gesture cancellation,
+DPI and installed-artifact checks. Automated/headless results cannot fill
+unexecuted Windows cells.
+\end{enumerate}
+
+\subsection{Baselines and ablations}
+Table~\ref{tab:comparisons} specifies useful comparisons. Unsafe variants run
+only in isolated research copies; production safeguards remain enabled for
+real projects. Candidate replay is a decision-layer comparison when it does
+not reproduce interaction and source planning. A system can reject a packet
+before a later check is reached, so instrument the rejection layer rather than
+attribute every refusal to the last verifier.
+
+\begin{table}[htbp]
+\small\begin{tabularx}{\linewidth}{@{}YY@{}}
+\toprule
+Comparison & Question and limitation\\
+\midrule
+Full pipeline versus same constrained plan plus compiler-only & Which wrong candidates escape build success? An offline comparison; guards stay on in the product.\\
+Source/selection checks versus independent final validation & What marginal rejection does the last check add? Replay must use the same candidate set and independent labels.\\
+Geometry-only versus full appearance & Which color/duplicate-ink defects are missed, and which valid cases are refused? Shared-renderer bias remains.\\
+First/cached selection and first/existing wrapper & Where does cost arise? These are distinct workloads; timing alone does not show a correctness advantage.\\
+Deny-all and known broken-literal controls & Expose coverage and harness sensitivity; neither is a competitive editor or held-out headline result.\\
+\bottomrule
+\end{tabularx}
+\caption{Planned final-study comparisons. The measured component replays have
+separate entry layers and limitations.}\label{tab:comparisons}
+\end{table}
+
+Paired comparisons use identical requests and preserve document/family/engine
+structure. Repeated requests from one document are correlated. Report the
+breakdowns and any uncertainty method with its assumptions; a clustered
+analysis cannot turn a purposive corpus into all LaTeX documents. Documented
+competitor workflows motivate scope, but no unmeasured superiority comparison
+is performed here.
