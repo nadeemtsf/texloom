@@ -32,3 +32,7 @@ Native multilingual typing, DPI/monitor transitions, installation/uninstallation
 ## Replacement continuation
 
 The active development pin now uses PDFium 159.0.8138.0; see PDFIUM159-UPGRADE.md. Frontend checks: **273 passes, zero failures/skips**. Replacement build-library: **55 passes**; explicit worker: **five passes**; explicit native approval: **two passes**. The first approval command omitted the required worker-path variable and failed before executing the checks; the corrected repeat passed. All logs remain. Wider replacement engine checks and release/NSIS build were running at the computer-control stop; inspect their outcomes before repeating. The new app has not been opened, installed or packaged into a verified portable archive.
+
+## Checkpoint follow-up
+
+The replacement ordinary release and NSIS build completed. The real portable package passed its own receipt checks and an independent Python CRC/exact 15-entry/per-file hash audit. Two initial auditor path assumptions failed; the unchanged archive passed after its actual enclosing-folder layout was used. Exact artifacts and log hashes are recorded in `docs/evidence/resumed-validation-2026-11-05.json`. Replacement engine gates at checkpoint: already running; do not start duplicates. Replacement GUI/installation and wider release gates remain open.

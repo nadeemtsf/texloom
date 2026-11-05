@@ -1,0 +1,172 @@
+{
+  "schema": 1,
+  "kind": "resumed_development_validation_not_final_evaluation",
+  "recorded_utc": "2026-11-05T17:44:42.389780+00:00",
+  "product_source_commit": "d267118",
+  "pre_upgrade_source_commit": "35396a5",
+  "frontend_pass": 273,
+  "core_default_pass": 88,
+  "core_recovery_pass": 89,
+  "research_infrastructure_pass": 40,
+  "historical_dependency_engine_gates": "four explicit invocations passed; adapters27 fractional9 templates19 and marked-content corpus",
+  "replacement_build_library_pass": 55,
+  "replacement_worker_pass": 5,
+  "replacement_native_approval_pass": 2,
+  "replacement_engine_gates": "already running; inspect log/session73562; do not duplicate",
+  "replacement_engine_test_results_seen": 3,
+  "ordinary_release_and_nsis_build": "pass",
+  "portable_independent": {
+    "kind": "independent_new_portable_zip_check",
+    "status": "pass",
+    "files": 15,
+    "crc": "pass",
+    "all_receipted_bytes": "pass",
+    "pdfium": "159.0.8138.0",
+    "desktop_sha256": "bb78dedc718b3a3c87931e9724561ea23d256b0601dce799fd8dfd1b79da85ae",
+    "archive_sha256": "4d8af0e3b94c8854d64c9cbc93dcf26e7bac66daaaa287380dcdf56a2e345be9",
+    "native_app_opened": false,
+    "installer_executed": false,
+    "release_ready": false
+  },
+  "owner_native_report": {
+    "build_sha256": "bb0c81317695ec52c95cef63784a7bc0c100b01f29d41ca4f5c7afd4fef0529c",
+    "held_drag_escape": "owner reported pass",
+    "held_drag_alt_tab": "owner reported pass",
+    "verbatim": "did that exactly and the text  returned to its place both times or in other words stayed in its place",
+    "post_test_independent_ui_observation": false,
+    "reason": "Computer Use reported physical Escape stop; no subsequent UI inputs"
+  },
+  "retained_failures": [
+    "initial stale frontend harnesses",
+    "nonexistent runner TEMP doctest",
+    "two long-TEMP Biber runs",
+    "initial research handle/path ctime comparisons",
+    "replacement approval omitted worker-path variable",
+    "two portable auditor path/prefix assumptions"
+  ],
+  "new_artifacts": [
+    {
+      "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-Windows-x64-development-2026-11-05-r5-pdfium159.zip",
+      "bytes": 12054397,
+      "sha256": "4d8af0e3b94c8854d64c9cbc93dcf26e7bac66daaaa287380dcdf56a2e345be9",
+      "executed": false
+    },
+    {
+      "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-0.3.0-x64-development-2026-11-05-r5-pdfium159-setup.exe",
+      "bytes": 9470038,
+      "sha256": "c3a7b63686fdd20a3f1b4b8c3c5bf37d9dd67cb00a394fa0b08c73ced5c66a3c",
+      "executed": false
+    }
+  ],
+  "replacement_native_ui_opened": false,
+  "replacement_installed": false,
+  "final_evaluation": "not_frozen_unrun",
+  "release_ready": false,
+  "local_log_receipts": [
+    {
+      "path": "artifacts/resumed-validation-20261105-run1/frontend-with-active-pin.log",
+      "bytes": 26105,
+      "sha256": "e4678da6420e6800e8bd81bea0053dd05e213f292af2291f6598de4660a56440"
+    },
+    {
+      "path": "artifacts/resumed-validation-20261105-run1/core-first.log",
+      "bytes": 9025,
+      "sha256": "654b399bc532979082b5113cf5813a946f03f0a42a9de95c259382a5050ab0a1"
+    },
+    {
+      "path": "artifacts/resumed-validation-20261105-run1/core-doc-repeat.log",
+      "bytes": 219,
+      "sha256": "f4d410751e3226a08e5d0d48ca28ef8fbf3d0b0edd6c4ecf39b07c6dfc9e280e"
+    },
+    {
+      "path": "artifacts/resumed-validation-20261105-run1/core-recovery.log",
+      "bytes": 8105,
+      "sha256": "75bd5fe80d38573aecb217f4430dbfe8703a2bf1ff1ab3462f7085189aa53283"
+    },
+    {
+      "path": "artifacts/resumed-validation-20261105-run1/build-crate.log",
+      "bytes": 13846,
+      "sha256": "517e28bee6f09fe1f6f9d2c6f38baa2e30a5d10fd59e1a55e23d03582c17c988"
+    },
+    {
+      "path": "artifacts/resumed-validation-20261105-run1/native-service.log",
+      "bytes": 8375,
+      "sha256": "9e9ac07b26210d49e07f07c99c569de98e79025b984be76255b1540de00139eb"
+    },
+    {
+      "path": "artifacts/resumed-validation-20261105-run1/engine-corpus.log",
+      "bytes": 17489,
+      "sha256": "04a737fdc05ee06bceda421a04521c16668b090d660e57ebf7dd36a5b122942e"
+    },
+    {
+      "path": "artifacts/resumed-validation-20261105-run1/bibliography.log",
+      "bytes": 2760,
+      "sha256": "5543a400459ce024a76b195ca295646f89b45e80d9a8111d0bfebfe08a8b7e93"
+    },
+    {
+      "path": "artifacts/resumed-validation-20261105-run1/bibliography-warmed-repeat.log",
+      "bytes": 2774,
+      "sha256": "d92f0b1ae8573e316ec8e7055cda4b3a022704dbcc28d257c7de091a09b46e3b"
+    },
+    {
+      "path": "artifacts/resumed-validation-20261105-run1/bibliography-normal-temp.log",
+      "bytes": 2082,
+      "sha256": "5c922724e6edc1de35d19a97ba966f44e3b0e77e5b7ca32cfc05b3d24f3b7145"
+    },
+    {
+      "path": "artifacts/resumed-validation-20261105-run1/research-expanded.log",
+      "bytes": 8564,
+      "sha256": "a38a742e85359c331aaa330044b2eb37d2b7a730360809907ed22f15dddd7407"
+    },
+    {
+      "path": "artifacts/resumed-validation-20261105-run1/research-final.log",
+      "bytes": 7522,
+      "sha256": "97773123d50b89cc1f453f38c929855d4ee76a5dd7a9eeec22bf15a8135a42ca"
+    },
+    {
+      "path": "artifacts/resumed-validation-20261105-run1/worker-explicit.log",
+      "bytes": 2443,
+      "sha256": "f7a4adb1048c3decc43287c2e0a51914af07a39b6a782aadb4dbe0b1e26d136d"
+    },
+    {
+      "path": "artifacts/resumed-validation-20261105-run1/native-approval-explicit.log",
+      "bytes": 3292,
+      "sha256": "55c4db2f96dded67a915ee5d06e08607768a735cf7316a594f47c156aa6eeabe"
+    },
+    {
+      "path": "artifacts/resumed-validation-20261105-run1/remaining-engine-gates.log",
+      "bytes": 12485,
+      "sha256": "227e3d0b7c7a27d3075e14e66154521fbef07cd0b19cc51a06a4483df808eb33"
+    },
+    {
+      "path": "artifacts/resumed-validation-20261105-run1/pdfium159-build-lib.log",
+      "bytes": 5820,
+      "sha256": "79a5f70d133cf8e931dc020d30d63f1749e58285b31ac0f36456301852be92d4"
+    },
+    {
+      "path": "artifacts/resumed-validation-20261105-run1/pdfium159-worker.log",
+      "bytes": 2542,
+      "sha256": "2db7468671c8c3ae443db27946b75312365ba3a13aeb78f564ac7e2b10e061fa"
+    },
+    {
+      "path": "artifacts/resumed-validation-20261105-run1/pdfium159-approval.log",
+      "bytes": 3383,
+      "sha256": "56ef4283cae1f0532e7902a3f4ec84db4c33d2e92852026a269ca15294aa3642"
+    },
+    {
+      "path": "artifacts/resumed-validation-20261105-run1/pdfium159-approval-repeat.log",
+      "bytes": 2391,
+      "sha256": "59f64db5dc6b1f4bc2b4128f73378a4bf34cd8109866009baec5b753527bb7e6"
+    },
+    {
+      "path": "artifacts/resumed-validation-20261105-run1/pdfium159-desktop-build.log",
+      "bytes": 7466,
+      "sha256": "cf87aee82f3879cb9e2993493b9eb351d920ec29a5ff7963f87cff09a0176068"
+    },
+    {
+      "path": "artifacts/resumed-validation-20261105-run1/pdfium159-portable-package.log",
+      "bytes": 263,
+      "sha256": "54da1dba5903e50af9463c5915a7eca3f84b49385c1d2c116df0e9920d6a60e8"
+    }
+  ]
+}

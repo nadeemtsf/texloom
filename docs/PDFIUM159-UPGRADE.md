@@ -15,3 +15,7 @@ GitHub CLI verified the archive SLSA statement against `bblanchon/pdfium-binarie
 Replacement checks: 273 frontend/protocol passes; 55 build-library passes; five worker passes, including the retained historical reference's glyph/graphics/raster comparison; two native approval passes. First approval invocation failed for a missing worker-path variable, then its corrected repeat passed. Logs: `artifacts/resumed-validation-20261105-run1/`, generally `pdfium159-` prefixed.
 
 At the computer-control stop, adapter/fractional/template/marked-content repeats and release/NSIS build remained active. Inspect existing logs/sessions before repeating. Actual replacement GUI/installation/portable acceptance, bounded nested provenance/license/security review and wider environment/performance/final-study gates remain open. Public distribution is unapproved; no security certification or final evaluation is claimed.
+
+## Checkpoint follow-up
+
+The replacement ordinary release and NSIS build completed. The real portable package passed its own receipt checks and an independent Python CRC/exact 15-entry/per-file hash audit. Two initial auditor path assumptions failed; the unchanged archive passed after its actual enclosing-folder layout was used. Exact artifacts and log hashes are recorded in `docs/evidence/resumed-validation-2026-11-05.json`. Replacement engine gates at checkpoint: already running; do not start duplicates. Replacement GUI/installation and wider release gates remain open.
