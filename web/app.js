@@ -274,7 +274,9 @@ async function openProject(path=null,supplied=null){
     $('banner').classList.add('hidden');$('log-panel').classList.add('hidden');$('log').textContent='';
     renderDiagnostics([]);
     syncEditor();renderInspector();status();updateControls();
-    if(previous)await previous.destroy();
+    // The new project is already adopted. An old renderer's cleanup failure
+    // must not skip native close/recovery setup for that project.
+    if(previous)try{await previous.destroy()}catch(error){toast(message(error))}
     if(previousProject)await invoke('close_document',{projectId:previousProject,revision:previousRevision,discardRecovery:true})
       .then(reply=>{if(reply?.warning)toast(reply.warning)}).catch(error=>toast(message(error)));
     state.opening=false;editorReadOnly();sendSelection();
@@ -457,7 +459,9 @@ function publishPrepared(prepared,result){
   if(result.verification_eligible===false){$('banner').textContent='PDF compiled with unresolved diagnostics. Resolve them before visual editing or export.';$('banner').classList.remove('hidden')}
   renderOverlays();renderInspector();
   status((dirty()?'Unsaved':'Saved')+' · '+result.seconds.toFixed(2)+'s · '+result.engine);
-  if(previous&&previous!==prepared.pdf)previous.destroy().catch(error=>toast(message(error)));
+  if(previous&&previous!==prepared.pdf){
+    try{Promise.resolve(previous.destroy()).catch(error=>toast(message(error)))}catch(error){toast(message(error))}
+  }
   state.client.pin(result.build_id).catch(error=>toast(message(error)));
 }
 async function compile(reason='manual'){
@@ -470,13 +474,24 @@ async function compile(reason='manual'){
   try{await state.client.flush();trace?.mark('sync-flushed')}catch(error){trace?.finish(performanceOutcome(error));return syncFailed(error)}
   if(state.busy){trace?.finish('superseded');if(reason==='manual'||!state.pending)state.pending=reason;return}
   const identity=sessionIdentity(state),revision=state.revision;state.busy=true;state.cancelRequested=false;updateControls();
+  let prepared=null;
   try{
     const candidate=await stageCandidate({sources:clone(state.sources),revision,identity,getIdentity:()=>sessionIdentity(state),
         compile:compileCandidate,prepare:prepareResult,policy:null,previousPageCount:state.view?.pageCount,verify:result=>state.client.verify(result.build_id),trace});
+    prepared=candidate.prepared;
     publishPrepared(candidate.prepared,candidate.result);
     const view=state.view;trace?.mark('published');trace?.finish('published',{paint:!view.lazy,isCurrent:()=>state.view===view&&sessionIdentity(state)===identity});
-  }catch(error){trace?.finish(performanceOutcome(error));showFailure(error)}
-  finally{finishJob()}
+  }catch(error){
+    if(prepared?.pdf&&prepared.pdf===state.pdf){state.compiled=-1;try{canvas.clear()}catch{}}
+    trace?.finish(performanceOutcome(error));showFailure(error);
+  }finally{
+    try{
+      if(prepared?.pdf&&prepared.pdf!==state.pdf){
+        try{prepared.dispose?.()}catch{}
+        try{await prepared.pdf.destroy()}catch{}
+      }
+    }finally{finishJob()}
+  }
 }
 function finishJob(){
   state.busy=false;updateControls();
@@ -704,18 +719,19 @@ function renderOverlays(){
 }
 function startBlockDrag(event,block,el,page){
   if(event.button!==0||state.mode==='read'||!fresh())return;
+  const pointerId=event.pointerId;
   event.preventDefault();event.stopPropagation();canvas.clear();state.selected={...block};renderInspector();
   document.querySelectorAll('.block').forEach(e=>e.classList.remove('selected'));el.classList.add('selected');
   const resize=event.target.classList.contains('handle'),factor=Number(page.dataset.scale),start=[event.clientX,event.clientY];let changes=null;
   const originalStyle={left:el.style.left,top:el.style.top,width:el.style.width};
   el.setPointerCapture(event.pointerId);
-  const move=e=>{const dx=(e.clientX-start[0])/factor,dy=(e.clientY-start[1])/factor;if(Math.abs(dx)+Math.abs(dy)<1)return;
+  const move=e=>{if(e.pointerId!==pointerId)return;const dx=(e.clientX-start[0])/factor,dy=(e.clientY-start[1])/factor;if(Math.abs(dx)+Math.abs(dy)<1)return;
     const snap=v=>e.altKey?Math.round(v*100)/100:Math.round(v/4)*4;
     if(resize){changes={width:Math.max(12,snap(block.width+dx))};el.style.width=changes.width*factor+'px'}
     else{changes={x:Math.max(0,snap(block.x+dx)),y:Math.max(0,snap(block.y+dy))};el.style.left=changes.x*factor+'px';el.style.top=changes.y*factor+'px'}};
   const reset=()=>Object.assign(el.style,originalStyle);
   const clean=()=>{el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',up);el.removeEventListener('pointercancel',cancel);el.removeEventListener('lostpointercapture',cancel);if(canvas.cancelGesture===cancel)canvas.cancelGesture=null};
-  const up=async()=>{clean();try{if(changes)await patchBlock(changes,block)}finally{reset();renderOverlays()}},cancel=()=>{clean();reset();renderOverlays()};
+  const up=async e=>{if(e.pointerId!==pointerId)return;clean();try{if(changes)await patchBlock(changes,block)}finally{reset();renderOverlays()}},cancel=e=>{if(e&&e.pointerId!==pointerId)return;clean();reset();renderOverlays()};
   canvas.cancelGesture=cancel;el.addEventListener('pointermove',move);el.addEventListener('pointerup',up);el.addEventListener('pointercancel',cancel);el.addEventListener('lostpointercapture',cancel);
 }
 function positionTextEditor(){
@@ -880,7 +896,12 @@ $('export').onclick=async()=>{
     state.mutating=true;editorReadOnly();updateControls();
     await client.exportBuild(candidate.result.build_id,path);
     toast('PDF exported from a clean build of this source revision.');
-  }catch(error){showFailure(error)}finally{if(prepared?.pdf)await prepared.pdf.destroy();if(ownsJob){state.mutating=false;editorReadOnly();finishJob()}}
+  }catch(error){showFailure(error)}finally{
+    try{
+      try{prepared?.dispose?.()}catch{}
+      try{if(prepared?.pdf)await prepared.pdf.destroy()}catch{}
+    }finally{if(ownsJob){state.mutating=false;try{editorReadOnly()}finally{finishJob()}}}
+  }
 };
 $('engine').onchange=()=>{if(!state.project)return;state.engine=$('engine').value;state.client.profile(state.project.main,state.engine).catch(()=>{});sourceChanged()};
 $('main-file').onchange=()=>{if(!state.project)return;state.project.main=$('main-file').value;state.client.profile(state.project.main,state.engine).catch(()=>{});sourceChanged()};

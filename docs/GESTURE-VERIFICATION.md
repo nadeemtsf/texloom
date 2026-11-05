@@ -1,5 +1,7 @@
 # P6 gesture verification checkpoint
 
+5 November 2026 source-only follow-up: drag, marquee and legacy block handlers now accept move/release/cancel events only from their initiating pointer. Starting a canvas gesture cancels a previous gesture; marquee also cancels on lost capture. A completed old gesture clears the global cancel handler only if it still owns it. These changes were found by reading the event paths and are **unbuilt and untested**; historical test totals below do not validate them. Real held-input Escape/Alt+Tab/capture and multi-pointer/normal-flow acceptance remain pending under the owner's all-tests pause.
+
 Seven focused tests execute the production CanvasController against an explicit event/DOM boundary. Repeated pointer movement produces a transient outline, release dispatches exactly one movement, and click jitter dispatches none. Escape, pointer-cancel and lost pointer capture restore the preview without an edit. Zoom/free movement retains PDF-point deltas, and stale/read surfaces do not start a drag. The verified PDF stays visible; a page crop/white mask is not used as a drag image.
 
 The complete frontend suite passes 64 tests. Combined with the already passing 58 core, 17 native and 17 build-infrastructure checks, this is 156 local checks. No production executable code changed in this checkpoint; the P5 executable hash remains the recorded build.

@@ -32,6 +32,8 @@ The implementation commit is a declared identifier. Neither a forty-character st
 
 The checker reads only declared paths beneath one explicit root. It refuses absolute/traversal/ADS/device names, case-colliding declarations, linked/reparse-point components and changed/nonregular files. File identities are compared before/after hashing. No arbitrary directory scan or manifest command execution is used. The implementation budgets are 10,000 declared files, 128 MiB per general file, 50 MiB per JSON input and 2 GiB declared total.
 
+The later source revision also uses each declared byte length as that file's read ceiling. A larger actual file remains unresolved rather than consuming a maximum-sized read for every understated declaration. Smaller changed files can still yield an observed mismatching digest. The aggregate declared budget therefore bounds successful input reads; this mechanism remains unexecuted.
+
 These are accidental-misrouting/change checks for a controlled research directory. They are not an OS security boundary against hostile concurrent path replacement, a proof of input immutability for the original execution, or protection obtained merely by calling a directory synthetic. Actual documents remain outside the experimental corpus. Source bytes are only read; `.text` files must never be compiled.
 
 Strict JSON reading rejects duplicate object keys and nonfinite numeric constants. Exclusive output creation preserves earlier reports. The CLI is designed to write a rejected/unresolved reference report for malformed or changed inputs rather than fabricate success. Raw observations distinguish declared from observed hashes and do not call a metadata mismatch an application refusal or a new correctness trial.

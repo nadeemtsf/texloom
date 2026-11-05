@@ -163,7 +163,7 @@ def summarize(manifest, root):
                        "coverage_complete_current_epoch": False, "trials": []}
         try:
             path = contained_file(root, reference["path"])
-            receipt, raw = read_fingerprint(path, retain=True, limit=MAX_JSON_BYTES)
+            receipt, raw = read_fingerprint(path, retain=True, limit=reference["bytes"])
             require(receipt == {key: reference[key] for key in ("bytes", "sha256")}, "Snapshot bytes differ from declaration")
             snapshot = strict_json(raw)
             records = validate_snapshot(snapshot)

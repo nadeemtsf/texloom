@@ -22,6 +22,8 @@ Export small, disjoint batches. Do not submit multiple cumulative snapshots cont
 
 The checker uses bounded, read-only local inputs, strict JSON, relative-path checks and exclusive output creation from `evidence_io.py`. It does not run commands, load the app, compile documents, collect trials or alter the final freeze record. Controlled directories are required; this is not an operating-system security boundary against a hostile filesystem. Byte identity does not authenticate supplied context, pre-run planning, execution or source-to-executable provenance.
 
+Each snapshot's declared byte length is its read ceiling as well as an expected identity. Oversized/changed inputs remain unresolved; declaring many tiny files cannot authorize reading a full maximum-sized file at every path. These checks are source-only and have not run.
+
 ## Analysis rules fixed before collection
 
 Group by the entire context above; do not pool engines, languages, documents, workloads, cache states, builds or environments into one favourable number. The output retains every planned trial, warmup role, missing trace, pending operation, outcome, frame state and loss counter. Refusals, stale/cancelled work, compilation failures, uncertain commits and committed presentation failures are distinct outcomes. A `published` trace is not an independent correctness judgement.

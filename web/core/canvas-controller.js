@@ -104,10 +104,12 @@ export class CanvasController {
   }
   drag(event,frame,selection){
     if(event.button!==0||!this.fresh()||this.getSession().mode==='read')return;
+    this.cancelGesture?.();const pointerId=event.pointerId;
     event.preventDefault();event.stopPropagation();frame.focus({preventScroll:true});frame.setPointerCapture(event.pointerId);
     const origin={x:event.clientX,y:event.clientY};let delta=null,previewMeasured=false;
     const factor=this.view.scale;
     const move=e=>{
+      if(e.pointerId!==pointerId)return;
       const snap=v=>e.altKey?Math.round(v*100)/100:Math.round(v/2)*2;
       if(Math.hypot(e.clientX-origin.x,e.clientY-origin.y)<3&&!delta)return;
       const trace=previewMeasured?null:this.diagnostics?.begin('drag-preview');previewMeasured=true;
@@ -118,21 +120,22 @@ export class CanvasController {
     };
     // A moving outline is honest feedback until target-only paint is proven.
     // Cropping the page would copy background ink; masking would erase it.
-    const clean=()=>{frame.style.transform='';frame.classList.remove('dragging');this.cancelGesture=null};
+    const clean=()=>{frame.style.transform='';frame.classList.remove('dragging');if(this.cancelGesture===cancel)this.cancelGesture=null};
     const unbind=()=>{frame.removeEventListener('pointermove',move);frame.removeEventListener('pointerup',up);frame.removeEventListener('pointercancel',cancel);frame.removeEventListener('lostpointercapture',cancel)};
-    const cancel=()=>{unbind();clean()};const up=async()=>{const trace=delta&&(delta.x||delta.y)?this.diagnostics?.begin('text-move'):null;unbind();this.lastClick=null;try{if(delta&&(delta.x||delta.y))await this.move(selection,delta.x,delta.y,trace)}finally{clean()}};
+    const cancel=e=>{if(e&&e.pointerId!==pointerId)return;unbind();clean()};const up=async e=>{if(e.pointerId!==pointerId)return;const trace=delta&&(delta.x||delta.y)?this.diagnostics?.begin('text-move'):null;unbind();this.lastClick=null;try{if(delta&&(delta.x||delta.y))await this.move(selection,delta.x,delta.y,trace)}finally{clean()}};
     this.cancelGesture=cancel;frame.addEventListener('pointermove',move);frame.addEventListener('pointerup',up);frame.addEventListener('pointercancel',cancel);frame.addEventListener('lostpointercapture',cancel);
   }
   marquee(event,shell,lines,page){
     if(event.button!==0||event.target.closest('button,.block,.text-object-frame')||!this.fresh()||this.getSession().mode==='read')return;
+    this.cancelGesture?.();const pointerId=event.pointerId;
     const rect=shell.getBoundingClientRect(),scale=this.view.scale;
     const point=e=>({x:(e.clientX-rect.left)/scale,y:(e.clientY-rect.top)/scale}),origin=point(event);
     const box=document.createElement('div');box.className='marquee';shell.append(box);shell.setPointerCapture(event.pointerId);
     let bounds=null;
-    const move=e=>{bounds=normalizedRectangle(origin,point(e));this.position(box,bounds,scale)};
-    const clean=()=>{box.remove();shell.removeEventListener('pointermove',move);shell.removeEventListener('pointerup',up);shell.removeEventListener('pointercancel',cancel);this.cancelGesture=null};
-    const cancel=()=>clean();const up=()=>{clean();if(bounds&&bounds.width*scale>5&&bounds.height*scale>5)this.selectHits(lines.filter(l=>intersects(l,bounds)),page);else this.clear()};
-    this.cancelGesture=cancel;shell.addEventListener('pointermove',move);shell.addEventListener('pointerup',up);shell.addEventListener('pointercancel',cancel);
+    const move=e=>{if(e.pointerId!==pointerId)return;bounds=normalizedRectangle(origin,point(e));this.position(box,bounds,scale)};
+    const clean=()=>{box.remove();shell.removeEventListener('pointermove',move);shell.removeEventListener('pointerup',up);shell.removeEventListener('pointercancel',cancel);shell.removeEventListener('lostpointercapture',cancel);if(this.cancelGesture===cancel)this.cancelGesture=null};
+    const cancel=e=>{if(e&&e.pointerId!==pointerId)return;clean()};const up=e=>{if(e.pointerId!==pointerId)return;clean();if(bounds&&bounds.width*scale>5&&bounds.height*scale>5)this.selectHits(lines.filter(l=>intersects(l,bounds)),page);else this.clear()};
+    this.cancelGesture=cancel;shell.addEventListener('pointermove',move);shell.addEventListener('pointerup',up);shell.addEventListener('pointercancel',cancel);shell.addEventListener('lostpointercapture',cancel);
   }
   destroy(){this.cancelGesture?.();document.removeEventListener('keydown',this.onEscape);this.eventWindow?.removeEventListener('blur',this.onBlur);this.view=null;this.selection=null}
 }

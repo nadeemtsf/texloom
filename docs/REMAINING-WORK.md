@@ -16,6 +16,7 @@ The continued source audit found and implemented automatic PDF-to-source highlig
 - Validate the source-only `c2ef008` commit/presentation/uncertain-response and cleanup changes, plus ordinary workflow regressions, only after the owner resumes tests. Source review is not a reproduced failure or a passing fix.
 - Include the new interaction source and object double-click refusal guard (`391332d`, `4e403ca`), schema-2 diagnostics and all new record/admission/timing modules in that resumed validation. Neither code presence nor recorded file hashes close their behavior gates.
 - Validate the source-only bitmap-initialization return guard (`8e23d15`) on the exact rebuilt verifier/app. Candidate dependency intake supplies archive/header/notice observations and an upgrade worksheet, not adopted resources or a runtime compatibility result. See DEPENDENCY-CANDIDATE-INTAKE.md.
+- Later source-only work covers ordinary compile/export/project cleanup, latest-request PDF search navigation, pointer ownership/lost-capture cancellation, and declared research-file read ceilings. Validate normal and failure paths when tests resume. The separate review-candidate manifest/in-memory TGZ reader is inactive and unexecuted; integrate it into a replacement packaging path only after dependency review and parser validation.
 
 ## Explicitly pending while the owner is away
 

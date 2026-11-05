@@ -104,7 +104,9 @@ def admit(rows, manifest, root):
         try:
             path = contained_file(root, entry["path"])
             retain = entry["role"] in {"fixture_manifest", "oracle_manifest"}
-            receipt, raw = read_fingerprint(path, retain=retain, limit=MAX_JSON_BYTES if retain else MAX_FILE_BYTES)
+            # The declared total is also the read budget, even if many files
+            # understate their actual size. Oversized inputs stay unresolved.
+            receipt, raw = read_fingerprint(path, retain=retain, limit=entry["bytes"])
             check.update(observed_bytes=receipt["bytes"], observed_sha256=receipt["sha256"])
             if receipt["bytes"] != entry["bytes"] or receipt["sha256"] != entry["sha256"]:
                 check["status"] = "different_bytes"

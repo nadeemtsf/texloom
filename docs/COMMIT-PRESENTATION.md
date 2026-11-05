@@ -1,5 +1,7 @@
 # Commit, presentation and cleanup - untested development change
 
+Later source-only follow-up extends cleanup handling to ordinary compilation, PDF export and project switching. Unadopted prepared views are disposed/destroyed without masking the original error; export releases its busy/read-only state in an outer finally even if cleanup fails. A partially adopted failed compile view is marked stale and never destroyed as if private; a prior renderer's destroy failure cannot skip the new project's native-close/recovery setup. These are unbuilt/untested source changes. No cleanup fault was reproduced during the all-tests pause; required failure-injection and normal-flow checks remain pending.
+
 Prepared 5 November 2026. The owner paused **all tests** for this continuation, including automated and headless checks. The implementation below was reviewed as source only: it has not been executed, built, installed or observed in Texloom. Earlier passing suites and r4 artifacts belong to earlier source; they do not validate this change. No original document or recovery draft was modified.
 
 ## Failure boundary found by source review
