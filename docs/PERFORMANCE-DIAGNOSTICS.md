@@ -6,6 +6,8 @@ Implemented 4 November 2026; native measurements and overhead evaluation are pen
 
 Later source changes add automatic source highlighting/file activation before the controller's `selection-ready` boundary. Its cost is therefore inside future selection traces on that source version; it was absent from earlier build receipts. Reset position uses the `text-move` category and must be identified by the declared workload condition, not inferred from an unlabelled timing record. No latency or overhead measurement accompanies either change.
 
+The next source-only revision changes exports to **schema 2**: a per-launch local random collector identity, clear epochs, issued-ID boundaries, explicit discard/invalid-start counters and cumulative erased-row counts. Disabled ordinary builds do not request an identity. Missing randomness leaves identity null rather than fabricating one. The unexecuted batch-analysis draft separates endpoints/outcomes and withholds distributions for incomplete current epochs. These additions are **unbuilt and untested**; old schema-1 receipts remain unchanged. See [timing record specification](../research/TIMING-RECORDS.md).
+
 The collector records static event categories, sequence numbers and `performance.now()` offsets. It does not record source text, document names, paths, selection content, error messages or identifiers from projects. No trace is automatically saved or transmitted. A snapshot is a detached copy; the evaluator must export it and record its hash before resetting the collector.
 
 ## Measurement boundaries
@@ -30,7 +32,7 @@ The endpoint is deliberately named `frame_proxy_ms`: two animation callbacks aft
 
 Keep every record, including refusal, compilation failure, stale, cancelled and failed work. These are execution outcomes, not independent correctness labels. `hidden`, `superseded`, `timeout`, `unavailable`, `invalid-clock`, `stopped` and `not-requested` frame states have no observed frame latency. A 2-second presentation timeout does not cancel compilation; it only withholds a frame estimate. An interrupted trace remains incomplete on `.stop()`.
 
-Storage holds 256 completed records, at most 16 active operations, and 64 milestones per operation. Evictions, dropped starts and truncated milestones are counted. Export small batches; a final timing study must reject or explicitly account for nonzero losses/pending records. The collector does not infer missing events as successes. `.clear()` intentionally clears both pending/completed diagnostics and loss counters; use it only between recorded batches.
+Storage holds 256 completed records, at most 16 active operations, and 64 milestones per operation. Evictions, dropped starts, explicit discards, invalid-clock starts and truncated milestones are counted. Export small batches; a final timing study must reject or explicitly account for nonzero losses/pending records. The collector does not infer missing events as successes. `.clear()` clears current pending/completed diagnostics and epoch loss counters, increments the epoch and retains cumulative erased-row counts; use it only between recorded batches.
 
 ## Required evaluation before performance claims
 
@@ -40,6 +42,6 @@ Storage holds 256 completed records, at most 16 active operations, and 64 milest
 4. Collect declared warm/cold, failed/censored and successful samples. Record the machine, WebView2, engine, font, dependency and display configuration. Report distributions by category and condition, with counts and losses.
 5. Compare with the predeclared targets only for the boundaries actually measured. Leave physical presentation, sustained gesture-frame timing and usability claims pending unless separately measured.
 
-Headless tests establish bounded storage, milestone plumbing, failure/pending handling and absence of an API/clock sampling in disabled mode. They do not establish real app latency, acceptable overhead or native usability. No Texloom window was opened for these tests.
+Previously recorded headless tests cover the earlier collector's bounded storage, milestone plumbing, failure/pending handling and absence of an API/clock sampling in disabled mode. They do not validate the subsequent schema-2 revision or establish real app latency, acceptable overhead or native usability. No Texloom window was opened for those tests. All new diagnostics and app measurements remain paused.
 
 Primary API basis: [W3C High Resolution Time](https://www.w3.org/TR/hr-time-3/) defines the monotonic clock (published working draft checked 4 November 2026); [WHATWG animation frames](https://html.spec.whatwg.org/multipage/imagebitmap-and-animations.html#animation-frames) defines animation callbacks. Neither specification turns two callbacks into proof of physical display presentation.

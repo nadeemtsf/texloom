@@ -12,6 +12,11 @@ import json
 from pathlib import Path, PurePosixPath
 import re
 
+if __package__:
+    from .evidence_io import read_json
+else:
+    from evidence_io import read_json
+
 
 GROUP_FIELDS = ("run_id", "study_arm", "decision_basis", "entry_layer",
                 "contract_family", "variant", "fixture_family", "engine_version",
@@ -173,7 +178,7 @@ def established_incorrect(row):
              any(row["postconditions"][key] is False for key in row["required_postconditions"])))
 
 
-def summarize(rows):
+def grouped_records(rows):
     require(isinstance(rows, list) and len(rows) <= 10000, "Expected at most 10,000 annotation records")
     groups, identities, natural_intents = defaultdict(list), set(), set()
     for row in rows:
@@ -187,6 +192,11 @@ def summarize(rows):
             require(intent_identity not in natural_intents, "Repeated natural intent in one stratum; timing repetitions are separate")
             natural_intents.add(intent_identity)
         groups[tuple(row[key] for key in GROUP_FIELDS)].append(row)
+    return groups
+
+
+def summarize(rows):
+    groups = grouped_records(rows)
     result = {"schema": 1, "kind": "development_annotation_summary_v1",
               "status": "development_only" if rows else "empty_no_results",
               "final_evaluation_executed": False, "groups": [],
@@ -256,12 +266,12 @@ def main():
     parser.add_argument("output", type=Path)
     parser.add_argument("--development", action="store_true", required=True)
     args = parser.parse_args()
-    raw = args.rows.read_bytes()
-    require(len(raw) <= 50 * 1024 * 1024, "Annotation input exceeds 50 MiB")
-    result = summarize(json.loads(raw.decode("utf-8")))
+    rows, input_receipt = read_json(args.rows)
+    result = summarize(rows)
     result.update(recorded_utc=datetime.now(timezone.utc).isoformat(),
-                  input_sha256=hashlib.sha256(raw).hexdigest(),
-                  analysis_file_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest())
+                  input_sha256=input_receipt["sha256"],
+                  analysis_file_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                  data_io_file_sha256=hashlib.sha256(Path(__file__).with_name("evidence_io.py").read_bytes()).hexdigest())
     with args.output.open("x", encoding="utf-8", newline="\n") as stream:
         json.dump(result, stream, indent=2)
         stream.write("\n")

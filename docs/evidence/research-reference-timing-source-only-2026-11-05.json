@@ -1,0 +1,72 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-05T13:14:06.2680147Z",
+  "kind": "source_only_reference_and_timing_infrastructure_not_validation",
+  "status": "unexecuted_unbuilt_owner_paused_all_tests",
+  "base_head": "391332d0de560a573edde822255ffb162cee0e94",
+  "last_tested_product_commit": "5e59e77282fd5e4b4f70440437b8f841ccea1364",
+  "source_files": [
+    {
+      "path": "web/core/performance-diagnostics.js",
+      "bytes": 5691,
+      "sha256": "ab6ceb583786b6b1ba83b8e9fdc3d7641dc85d0756b674cb8cb1d8ec51bb3eef"
+    },
+    {
+      "path": "research/tools/evidence_io.py",
+      "bytes": 4071,
+      "sha256": "84010cf1e5c81cfd52f8688d43599dfdc5de8db626579aacc6f83694b4226f8b"
+    },
+    {
+      "path": "research/tools/admit_records.py",
+      "bytes": 10872,
+      "sha256": "015487c42e40b1d0acc78a0a48bfa828111ccf3736f157c446b0a92731a77c9b"
+    },
+    {
+      "path": "research/tools/study_records.py",
+      "bytes": 17833,
+      "sha256": "134374b555df827d842d55c33ff8037c2e997429cf6fa66ddcd391fe619f1afc"
+    },
+    {
+      "path": "research/tools/timing_records.py",
+      "bytes": 17646,
+      "sha256": "4bf3f8f985a9f35aa2e4ece3979e5662bc04f3b2bb628b5b3e1864bdf275a694"
+    },
+    {
+      "path": "research/evaluation/artifact-manifest-template-v1.json",
+      "bytes": 308,
+      "sha256": "a65037dbeda8e2a7bf169f8e363b11167506a8ed3a63ddd25edb51cdc9b410ec"
+    },
+    {
+      "path": "research/evaluation/input-manifest-template-v1.json",
+      "bytes": 79,
+      "sha256": "b58d7cf5de4989551977def9b76ddd73dcbcd557e4a0ec1866d5ce4606112136"
+    },
+    {
+      "path": "research/evaluation/timing-batches-template-v1.json",
+      "bytes": 93,
+      "sha256": "7137159d89aeba0ab7944bc05cf491c63dab896b3e7257f0d3768d59161ad3b9"
+    }
+  ],
+  "implemented_in_source": [
+    "Bounded strict evidence I/O and declared byte/manifest-relation checking without commands or final admission",
+    "Shared v1 annotation-record validation/grouping with independent outcome analysis",
+    "Collector schema 2 launch identity, clear epochs, issued-ID and discard/invalid-start accounting",
+    "Separate unexecuted timing batch analysis with hashed exports, planned trials, duplicate/loss/censor accounting and conditional endpoint distributions"
+  ],
+  "tests_run": false,
+  "type_checks_run": false,
+  "tools_invoked_or_imported_for_validation": false,
+  "experiments_run": false,
+  "app_build_run": false,
+  "app_opened": false,
+  "final_evaluation_executed": false,
+  "final_evaluation_admitted": false,
+  "binary_pin_changed": false,
+  "release_ready": false,
+  "limits": [
+    "Implementation only; old research helper checks do not validate these modules",
+    "Matching declared files does not authenticate execution, pre-run sealing, annotation truth or source-to-runner provenance",
+    "No actual timing, physical latency, overhead, usability or correctness measured",
+    "Controlled data directories, not a hostile-filesystem OS security boundary"
+  ]
+}

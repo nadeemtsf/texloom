@@ -30,7 +30,7 @@ Each record explicitly declares its required postconditions before execution. Ca
 
 ## Binding and denominator design
 
-Executed rows require a recorded implementation commit, runner/protocol/fixture/oracle manifest hashes and relative raw-evidence references with SHA-256 values. These are **declared bindings**, not verified files or sealed final manifests. The tool validates record structure; a later reviewed admission step must establish file bytes, scope, pre-run timing, artifact relationships and actual execution. It does not read arbitrary evidence paths, run compilers or open the app.
+Executed rows require a recorded implementation commit, runner/protocol/fixture/oracle manifest hashes and relative raw-evidence references with SHA-256 values. These are **declared bindings**, not verified files or sealed final manifests. The tool validates record structure. The separate, unexecuted `admit_records.py` draft checks declared file bytes and fixture/oracle-manifest relations under an explicit controlled root; it cannot establish actual execution, correct labels, pre-run sealing or source-to-binary provenance. See [reference admission](REFERENCE-ADMISSION.md). Neither route runs compilers or opens the app.
 
 Groups separate run, arm, decision basis, entry layer, contract, variant, fixture family, engine, language and evidence origin. Binding changes inside a stratum are refused. Case IDs remain unique within a run/arm/basis/layer/variant/engine/origin, even if a family or contract label changes. Repeated natural intents within that identity are also refused. Engine variants and reused cases in distinct runs are not pooled as independent requests. Timing repetitions belong in separate records, not duplicated correctness rows.
 

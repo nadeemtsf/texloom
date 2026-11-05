@@ -13,17 +13,29 @@ export function performanceOutcome(error){
 
 /** Local, bounded diagnostics. No source, paths, text, error messages or network output. */
 export function createPerformanceDiagnostics({enabled=false,now=()=>performance.now(),
+  newCollectorId=()=>globalThis.crypto?.randomUUID?.()??null,
   requestFrame=globalThis.requestAnimationFrame?.bind(globalThis),cancelFrame=globalThis.cancelAnimationFrame?.bind(globalThis),
   document=globalThis.document,setTimer=setTimeout,clearTimer=clearTimeout,capacity=256,maxActive=16,frameTimeoutMs=2000}={}){
   capacity=Number.isInteger(capacity)&&capacity>0?Math.min(capacity,4096):256;
   maxActive=Number.isInteger(maxActive)&&maxActive>0?Math.min(maxActive,64):16;
-  const records=[],active=new Map();let sequence=0,evicted=0,dropped=0,stopped=!enabled;
-  const snapshot=()=>({schema:1,clock:'performance.now',endpoint:'two-animation-frames-proxy',
-    enabled:!stopped,capacity,evicted,dropped,active:active.size,records:structuredClone(records),pending:structuredClone([...active.values()])});
+  // Per-launch random identity is local diagnostic metadata, unrelated to projects.
+  // Disabled ordinary builds do not request randomness or sample the clock.
+  let collectorId=null;
+  if(enabled)try{
+    const value=newCollectorId();
+    if(typeof value==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value))collectorId=value.toLowerCase();
+  }catch{}
+  const records=[],active=new Map();
+  let sequence=0,firstId=1,epoch=0,evicted=0,dropped=0,discarded=0,invalidStarts=0,clearedRecords=0,clearedPending=0,stopped=!enabled;
+  const snapshot=()=>({schema:2,clock:'performance.now',endpoint:'two-animation-frames-proxy',
+    collector_id:collectorId,epoch,first_id:firstId,last_id:sequence,
+    clear_history:{completed:clearedRecords,pending:clearedPending},
+    enabled:!stopped,capacity,evicted,dropped,discarded,invalid_starts:invalidStarts,
+    active:active.size,records:structuredClone(records),pending:structuredClone([...active.values()])});
   function begin(kind){
     if(stopped||!kinds.has(kind))return null;
     if(active.size>=maxActive){dropped++;return null}
-    const started=now();if(!Number.isFinite(started))return null;
+    const started=now();if(!Number.isFinite(started)){invalidStarts++;return null}
     const record={id:++sequence,kind,started_ms:started,phases:[],truncated_phases:0,outcome:null,operation_ms:null,frame_proxy_ms:null,frame_status:'not-requested'};
     let finished=false,ended=false,timer=null,frame=null,last=started,clockValid=true;
     const read=()=>{const value=now();if(!clockValid||!Number.isFinite(value)||value<last){clockValid=false;return null}last=value;return value-started};
@@ -51,12 +63,16 @@ export function createPerformanceDiagnostics({enabled=false,now=()=>performance.
           record.frame_proxy_ms=read();save(record.frame_proxy_ms===null?'invalid-clock':'observed');
         })});
       },
-      discard(){if(ended)return;finished=true;ended=true;release()},
+      discard(){if(ended)return;finished=true;ended=true;discarded++;release()},
       stop(){finished=true;save('stopped')}
     };
     active.set(span,record);return span;
   }
-  return Object.freeze({begin,snapshot,clear(){for(const span of active.keys())span.discard();records.length=0;evicted=0;dropped=0},
+  return Object.freeze({begin,snapshot,clear(){
+    clearedRecords+=records.length;clearedPending+=active.size;
+    for(const span of active.keys())span.discard();
+    records.length=0;evicted=0;dropped=0;discarded=0;invalidStarts=0;firstId=sequence+1;epoch++;
+  },
     stop(){stopped=true;for(const span of active.keys())span.stop()}});
 }
 
