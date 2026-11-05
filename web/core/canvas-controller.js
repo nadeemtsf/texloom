@@ -67,6 +67,7 @@ export class CanvasController {
     const trace=record?this.diagnostics?.begin('object-selection'):null;
     this.pending++;this.hits=[];this.selection={...object,...bounds,kind:'object'};const frame=this.drawFrame();this.onSelected(this.selection);frame?.focus({preventScroll:true});
     const serial=this.pending;trace?.mark('selection-ready');trace?.finish('selected',{paint:true,isCurrent:()=>serial===this.pending&&this.fresh()});
+    return this.selection;
   }
   drawFrame(){
     document.querySelectorAll('.source-selection-frame').forEach(el=>el.remove());
@@ -77,7 +78,8 @@ export class CanvasController {
       if(!hit){hit=document.createElement('button');hit.type='button';hit.dataset.object=id;page.shell.append(hit)}
       hit.className='text-object-hit';hit.replaceChildren();
       hit.setAttribute('aria-label','Select movable text '+id);this.position(hit,bounds,this.view.scale);
-      hit.onclick=e=>{e.stopPropagation();if(this.selection?.id!==id)this.selectObject(id)};hit.ondblclick=e=>{e.stopPropagation();this.selectObject(id);this.edit(this.selection)};
+      hit.onclick=e=>{e.stopPropagation();if(this.selection?.id!==id)this.selectObject(id)};
+      hit.ondblclick=e=>{e.stopPropagation();const selected=this.selectObject(id);if(selected)this.edit(selected)};
       hit.onpointerdown=null;hit.onkeydown=null;
     }
     const selection=this.selection;if(!selection)return;
