@@ -1,0 +1,44 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-05T16:37:13.1060515Z",
+  "kind": "public_attestation_payload_reading_not_signature_verification",
+  "status": "unverified_claims_only",
+  "source_commit": "ccc760b6fe056e8ae17c7db481c8cd8e941b31c3",
+  "inputs": [
+    {
+      "path": "artifacts/dependency-candidate-intake-20261105/github-attestation-metadata-response.json",
+      "bytes": 29781,
+      "sha256": "506387faf3d81322531a0fe1c5151d8e84d1f5d36f1b5ca3b13ac82a89281180"
+    },
+    {
+      "path": "artifacts/dependency-candidate-intake-20261105/candidate-build-all.yml.txt",
+      "bytes": 28079,
+      "sha256": "cd17751f875f8770b82c2dafc71d688be47df0c531dddd97b2aa25a0a480e60b"
+    }
+  ],
+  "archive_sha256": "8d48973e3eb472dda0f5f2435e595ac043f9f2219dd71883392f549445afa8a5",
+  "bundle_count": 2,
+  "payload_predicate_types": [
+    "https://in-toto.io/attestation/release/v0.2",
+    "https://slsa.dev/provenance/v1"
+  ],
+  "payload_claims": {
+    "archive_subject_matches_declared_digest": true,
+    "build_repository_commit": "0eb94b28c2252d2baae3dfe15dc6b237131d8cd8",
+    "workflow": ".github/workflows/build-all.yml",
+    "invocation": "https://github.com/bblanchon/pdfium-binaries/actions/runs/41803647331/attempts/1",
+    "resolved_dependencies_note": "Build repository only; exact PDFium/nested inputs are not supplied by this payload field"
+  },
+  "source_observation": "At claimed build-repo commit, workflow assembles downloaded job artifacts into tarballs and requests provenance in release job",
+  "signatures_or_certificates_verified": false,
+  "timestamp_or_signer_policy_verified": false,
+  "actual_nested_build_provenance_established": false,
+  "verification_tool_executed": false,
+  "upstream_commands_executed": false,
+  "tests_run": false,
+  "app_opened": false,
+  "pin_changed": false,
+  "final_evaluation_executed": false,
+  "release_ready": false,
+  "primary_documentation": "https://docs.github.com/en/rest/users/attestations?apiVersion=2022-11-28"
+}

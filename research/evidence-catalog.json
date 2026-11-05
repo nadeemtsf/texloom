@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "kind": "development_evidence_inventory_not_evaluation_results",
-  "recorded_utc": "2026-11-05T13:27:15.092726+00:00",
-  "audited_head": "8e23d1546639bccd8e09afb68f11acd61973d824",
+  "recorded_utc": "2026-11-05T16:38:32.027246+00:00",
+  "audited_head": "ccc760b6fe056e8ae17c7db481c8cd8e941b31c3",
   "working_tree_note": "Uncommitted report/evidence changes may be present; see the session checkpoint.",
   "final_evaluation_executed": false,
   "entries": [
@@ -60,6 +60,31 @@
       "audit_action": "read_parse_fingerprint_only",
       "experiment_reproduced_by_this_audit": false,
       "source_commit": "3e40b997881cbbb3366c78775898f93a4bf33f1e",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/candidate-attestation-metadata-reading-2026-11-05.json",
+      "bytes": 1981,
+      "sha256": "eca19d7b2ac5039665009287c2831ac735014d1397189f095ab0fa07b83dc91b",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "unverified_claims_only",
+      "source_commit": "ccc760b6fe056e8ae17c7db481c8cd8e941b31c3",
+      "recorded_utc": "2026-11-05T16:37:13.1060515Z",
+      "release_ready": false,
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/compile-request-ownership-source-only-2026-11-05.json",
+      "bytes": 1201,
+      "sha256": "6addb6e271eb86b481efdad19874a39f4267d89044b075684c7b5959d5a47127",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "unbuilt_unexecuted_owner_paused_all_tests",
+      "recorded_utc": "2026-11-05T16:34:58.8966829Z",
+      "release_ready": false,
       "parse_status": "ok"
     },
     {
@@ -442,6 +467,17 @@
       "parse_status": "ok"
     },
     {
+      "path": "docs/evidence/report-limitations-source-followup-v2-2026-11-05.json",
+      "bytes": 1070,
+      "sha256": "ec4899d64d56289171580f9cf1adc91f9d2f7806668fb6d8dcdadc983b3a6b67",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "uncompiled_unrendered",
+      "recorded_utc": "2026-11-05T16:38:31.7797164Z",
+      "parse_status": "ok"
+    },
+    {
       "path": "docs/evidence/report-source-followup-2026-11-05.json",
       "bytes": 4112,
       "sha256": "785393096b1a14afdcc0bfa0ed74b568a68bce5d3671d6e0da25511b38471429",
@@ -604,6 +640,18 @@
       "schema": 1,
       "implementation_base": "30cf0f9b6e4ab653a7d7779e52c12a0b4b4d63ec",
       "recorded_utc": "2026-11-03T16:23:57.459094+00:00",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/source-reading-gestures-cleanup-followup-2026-11-05.json",
+      "bytes": 2816,
+      "sha256": "bbbd942fb65342ecd5b95c4cfe1f5189debfb1e8f2476854e07470acafa68ab2",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "unbuilt_unexecuted_owner_paused_all_tests",
+      "recorded_utc": "2026-11-05T16:32:46.9626190Z",
+      "release_ready": false,
       "parse_status": "ok"
     },
     {
