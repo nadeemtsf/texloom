@@ -13,7 +13,7 @@ export async function preparePDFView(pdfjs,result,{width,zoom=0,mode='select',si
     cMapUrl:new URL('/pdfjs/cmaps/',location.href).href,cMapPacked:true,
     standardFontDataUrl:new URL('/pdfjs/standard_fonts/',location.href).href,wasmUrl:new URL('/pdfjs/wasm/',location.href).href});
   try{return await prepareLoadedPDF(pdfjs,pdf,result,{width,zoom,mode,signal,lazy})}
-  catch(error){await pdf.destroy();throw error}
+  catch(error){try{await pdf.destroy()}catch{}throw error}
 }
 
 export async function prepareLoadedPDF(pdfjs,pdf,result,{width,zoom=0,mode='select',signal,lazy=false}={}) {

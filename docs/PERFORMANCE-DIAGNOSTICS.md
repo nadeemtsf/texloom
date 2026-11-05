@@ -2,6 +2,8 @@
 
 Implemented 4 November 2026; native measurements and overhead evaluation are pending. Ordinary builds disable tracing. A separate build with `VITE_TEXLOOM_PERFORMANCE=1` opts in and exposes `window.texloomPerformance.snapshot()`, `.stop()` and `.clear()` for a controlled evaluation harness. Record that build's flag, complete source identity and executable hash. Do not describe it as byte-identical to the ordinary build.
 
+5 November source-only continuation adds `committed-ui-failed` and `commit-unknown` outcomes. A later UI error does not erase a native commit or an already recorded publication milestone; an unusable commit response is not proof of refusal. These new categories and their handling are **untested** because the owner paused every test run. Earlier diagnostic build/check receipts apply to the preceding implementation, not these additions. See COMMIT-PRESENTATION.md.
+
 The collector records static event categories, sequence numbers and `performance.now()` offsets. It does not record source text, document names, paths, selection content, error messages or identifiers from projects. No trace is automatically saved or transmitted. A snapshot is a detached copy; the evaluator must export it and record its hash before resetting the collector.
 
 ## Measurement boundaries

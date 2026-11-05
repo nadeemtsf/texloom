@@ -11,7 +11,7 @@ import {getCurrentWindow} from '@tauri-apps/api/window';
 import {open,save,confirm} from '@tauri-apps/plugin-dialog';
 import {preparePDFView,prepareLoadedPDF,publishPDFView} from './core/pdf-surface.js';
 import {CanvasController} from './core/canvas-controller.js';
-import {stageCandidate,sessionIdentity,StaleCandidate,CompilationFailure,compileDiagnostic} from './core/transactions.js';
+import {stageCandidate,sessionIdentity,StaleCandidate,CompilationFailure,CommittedPresentationFailure,CommitStatusUnknown,compileDiagnostic} from './core/transactions.js';
 import {inside,intersects} from './core/geometry.js';
 import {DocumentClient,editorText,sameSources} from './core/document-client.js';
 import {TypingRecoveryController} from './core/typing-recovery.js';
@@ -102,8 +102,9 @@ function syncFailed(error){
   $('banner').classList.remove('hidden');updateControls();
 }
 function syncEditor(){
-  state.suppress=true;model.setValue(editorText(state.sources[state.file]||''));
-  model.setEOL(monaco.editor.EndOfLineSequence.LF);state.suppress=false;
+  state.suppress=true;
+  try{model.setValue(editorText(state.sources[state.file]||''));model.setEOL(monaco.editor.EndOfLineSequence.LF)}
+  finally{state.suppress=false}
   $('active-file').textContent=state.file;renderFiles();
 }
 function fresh(){return !!state.result&&state.result.verification_eligible!==false&&state.revision===state.compiled&&!state.busy&&!state.client?.pending&&!state.client?.error&&!state.mutating&&!state.saving&&!state.composing&&!state.opening}
@@ -114,12 +115,12 @@ function updateControls(){
   for(const id of ['apply-position','apply-size','apply-content','edit-block','delete-block'])$(id).disabled=!legacy;
   for(const id of ['object-apply','object-edit','object-source'])$(id).disabled=!object;
   $('object-detach').disabled=!object||state.objectSelection?.kind!=='object';
-  $('compile').disabled=state.busy||!!state.saving;
-  $('save').disabled=!!state.saving||state.busy||state.composing;
-  $('open').disabled=!!state.saving;
+  $('compile').disabled=state.busy||!!state.saving||!!state.client?.error;
+  $('save').disabled=!!state.saving||state.busy||state.composing||!!state.client?.error;
+  $('open').disabled=!!state.saving||state.mutating;
   for(const id of ['projects','layout-controls','import-image'])$(id).disabled=state.busy||state.composing||state.mutating||state.opening||!!state.saving;
-  $('engine').disabled=!!state.saving;
-  $('main-file').disabled=!!state.saving;
+  $('engine').disabled=!!state.saving||state.mutating||!!state.client?.error;
+  $('main-file').disabled=!!state.saving||state.mutating||!!state.client?.error;
   $('cancel-compile').disabled=!state.busy||state.mutating;
   $('undo').disabled=!state.canUndo||state.mutating||state.saving||state.composing||!!state.client?.error;
   $('redo').disabled=!state.canRedo||state.mutating||state.saving||state.composing||!!state.client?.error;
@@ -191,6 +192,9 @@ async function applyLayoutControl(context,edit){
 }
 function scheduleCompile(){clearTimeout(state.compileTimer);if($('auto').checked)state.compileTimer=setTimeout(()=>compile('auto'),800)}
 function showFailure(error){
+  if(error instanceof CommittedPresentationFailure||error instanceof CommitStatusUnknown){
+    $('banner').textContent=error.message;$('banner').classList.remove('hidden');return;
+  }
   if(state.cancelRequested){toast('Compilation cancelled.');return}
   if(error.name==='CompilationCancelled'){toast(error.message);return}
   if(error instanceof StaleCandidate){toast(error.message);if(state.pending!=='manual')state.pending=false;scheduleCompile();return}
@@ -459,7 +463,8 @@ function finishJob(){
 }
 async function commitSources(sources,{file=state.file,policy=null,operation=null,expectedIdentity=sessionIdentity(state),trace=null}={}){
   if(!fresh()||sessionIdentity(state)!==expectedIdentity)return toast('Compile the latest source before applying this edit.');
-  const client=state.client;let nativeCandidate=null,prepared=null;
+  const client=state.client,baseRevision=client.snapshot.revision;
+  let nativeCandidate=null,prepared=null,committed=false,commitAttempted=false;
   state.busy=true;state.cancelRequested=false;clearTimeout(state.compileTimer);updateControls();
   try{
     nativeCandidate=await client.prepare(sources,state.result.build_id,operation);
@@ -468,17 +473,54 @@ async function commitSources(sources,{file=state.file,policy=null,operation=null
       compile:()=>client.compile(nativeCandidate.token),prepare:prepareResult,policy,previousPageCount:state.view.pageCount,requireVerified:true,verify:result=>client.verify(result.build_id),trace});
     prepared=candidate.prepared;
     if(sessionIdentity(state)!==expectedIdentity)throw new StaleCandidate();
-    state.mutating=true;editorReadOnly();
+    state.mutating=true;editorReadOnly();updateControls();
+    commitAttempted=true;
     await client.commit(nativeCandidate.token,candidate.result.build_id);
+    committed=true;
     trace?.mark('native-committed');
     state.file=file;state.lastHistory=0;syncEditor();publishPrepared(prepared,candidate.result);prepared=null;
     trace?.mark('published');
     return true;
-  }catch(error){trace?.finish(performanceOutcome(error));showFailure(error);return false}
+  }catch(error){
+    // The validated replica can advance before its changed callback throws.
+    const acknowledged=committed||commitAttempted&&nativeCandidate&&client.snapshot.revision>baseRevision&&
+      client.snapshot.revision===nativeCandidate.revision&&sameSources(client.snapshot.sources,sources);
+    if(acknowledged){
+      if(!committed)trace?.mark('native-committed');
+      try{acceptDocument(client.snapshot)}catch{}
+      state.file=Object.hasOwn(state.sources,file)?file:state.project.main;state.lastHistory=0;
+      state.compiled=-1;state.selected=null;
+      try{canvas.clear()}catch{}
+      try{syncEditor()}catch{}
+      const failure=new CommittedPresentationFailure(error);
+      trace?.finish(performanceOutcome(failure));showFailure(failure);
+      // Callers must not report a refused insertion or select an incomplete view.
+      throw failure;
+    }
+    if(commitAttempted){
+      // An unusable/missing acknowledgement is not proof that native source
+      // stayed unchanged. Do not retry or send newer writes from this replica.
+      const failure=new CommitStatusUnknown(error);client.error=failure;
+      state.compiled=-1;state.selected=null;
+      try{canvas.clear()}catch{}
+      trace?.finish(performanceOutcome(failure));showFailure(failure);
+      throw failure;
+    }
+    trace?.finish(performanceOutcome(error));showFailure(error);return false;
+  }
   finally{
-    if(prepared?.pdf)await prepared.pdf.destroy();
-    if(nativeCandidate)await client.discard(nativeCandidate.token).catch(()=>{});
-    state.mutating=false;editorReadOnly();finishJob();
+    try{
+      // A partially published PDF may already be the reading view. Keep it
+      // alive, but stale, until the next successful compilation replaces it.
+      if(prepared?.pdf&&prepared.pdf!==state.pdf){
+        try{prepared.dispose?.()}catch{}
+        try{await prepared.pdf.destroy()}catch{}
+      }
+      if(nativeCandidate)await client.discard(nativeCandidate.token).catch(()=>{});
+    }finally{
+      state.mutating=false;
+      try{editorReadOnly()}finally{finishJob()}
+    }
   }
 }
 function visualTransaction(file,source,request){
@@ -492,6 +534,7 @@ async function textOperation(selection,{dx,dy,content,literalEdits,spacingEdits,
   if((literalEdits||spacingEdits)&&!literalEdits?.length&&!spacingEdits?.length){trace?.finish('refused');return true}
   const isEdit=content!==undefined||literalEdits!==undefined||spacingEdits!==undefined;
   const action=detach?'detach':selection.kind==='source'?'wrap':isEdit?'edit':'move';
+  let accepted=false;
   try{
     const request={sources:clone(state.sources),main:state.project.main,file:selection.file,
       action,id,selection:selection.kind==='source'?[selection.start,selection.end]:null,
@@ -507,10 +550,18 @@ async function textOperation(selection,{dx,dy,content,literalEdits,spacingEdits,
     const ok=await commitSources(plan.sources,{file:plan.file,expectedIdentity:identity,
       operation:{kind:'text',request},trace,
       policy:{id,kind,unchangedRuns:kind==='move'?unchangedRuns:null}});
+    accepted=!!ok;
     if(ok&&!detach)canvas.selectObject(id,{record:false});
     const view=state.view;trace?.finish(ok?'published':'refused',{paint:!!ok&&!view.lazy,isCurrent:()=>state.view===view&&fresh()});
     return ok;
-  }catch(error){trace?.finish(performanceOutcome(error));toast(message(error));return false}
+  }catch(error){
+    if(accepted){
+      state.compiled=-1;state.selected=null;
+      try{canvas.clear()}catch{}
+      error=new CommittedPresentationFailure(error);showFailure(error);
+    }
+    trace?.finish(performanceOutcome(error));toast(message(error));return false;
+  }
 }
 function moveText(selection,dx,dy,trace=diagnostics.begin('text-move')){
   if(!selection){trace?.finish('refused');return}

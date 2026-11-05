@@ -1,8 +1,10 @@
 const kinds=new Set(['source-feedback','source-selection','object-selection','drag-preview','text-move','text-edit','compile-manual','compile-auto']);
 const phases=new Set(['source-queued','feedback-updated','mapping-resolved','planned','native-prepared','build-returned','pdf-prepared','frontend-validated','build-rechecked','native-committed','published','selection-ready','preview-updated','sync-flushed']);
-const outcomes=new Set(['feedback','selected','published','refused','failed','compile-failed','stale','cancelled','superseded']);
+const outcomes=new Set(['feedback','selected','published','committed-ui-failed','commit-unknown','refused','failed','compile-failed','stale','cancelled','superseded']);
 
 export function performanceOutcome(error){
+  if(error?.name==='CommittedPresentationFailure')return 'committed-ui-failed';
+  if(error?.name==='CommitStatusUnknown')return 'commit-unknown';
   if(error?.name==='StaleCandidate')return 'stale';
   if(error?.name==='CompilationCancelled')return 'cancelled';
   if(error?.name==='CompilationFailure')return 'compile-failed';

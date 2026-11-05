@@ -9,6 +9,18 @@ export class CompilationFailure extends Error {
     super(preflight?.message||compileDiagnostic(log));this.name='CompilationFailure';this.log=log;this.diagnostics=diagnostics;
   }
 }
+export class CommittedPresentationFailure extends Error {
+  constructor(cause){
+    super('The edit was applied to the source, but the preview could not be completed. Use Undo to revert the edit, or Compile to refresh the preview. Save is still explicit.',{cause});
+    this.name='CommittedPresentationFailure';
+  }
+}
+export class CommitStatusUnknown extends Error {
+  constructor(cause){
+    super('The edit may already be in the source. Texloom could not confirm it, so source changes are paused. Copy any needed editor text before closing, then reopen Texloom and review recovery.',{cause});
+    this.name='CommitStatusUnknown';
+  }
+}
 export function compileDiagnostic(log='') {
   const lines=String(log).split(/\r?\n/);
   const index=lines.findIndex(line=>/\.tex:\d+:.*(?:error|undefined|missing|extra|runaway)/i.test(line)||/^!\s/.test(line));
@@ -43,5 +55,11 @@ export async function stageCandidate({sources,revision,identity,getIdentity,comp
     trace?.mark('build-rechecked');
     if(getIdentity()!==identity)throw new StaleCandidate();
     return {sources,result,prepared};
-  }catch(error){if(prepared?.pdf)await prepared.pdf.destroy();if(error.name!=='CompilationCancelled'&&getIdentity()!==identity)throw new StaleCandidate();throw error}
+  }catch(error){
+    // A cleanup fault must not replace the compilation/validation failure.
+    try{prepared?.dispose?.()}catch{}
+    try{if(prepared?.pdf)await prepared.pdf.destroy()}catch{}
+    if(error.name!=='CompilationCancelled'&&getIdentity()!==identity)throw new StaleCandidate();
+    throw error;
+  }
 }
