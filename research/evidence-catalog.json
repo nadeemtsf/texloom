@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "kind": "development_evidence_inventory_not_evaluation_results",
-  "recorded_utc": "2026-11-04T23:28:09.341414+00:00",
-  "audited_head": "ecec9d5883f258f3f8d43811398f666d5ae60ab9",
+  "recorded_utc": "2026-11-05T12:10:25.963061+00:00",
+  "audited_head": "c2ef008ddee53b6ea06028122f60ddbc0f00f2bb",
   "working_tree_note": "Uncommitted report/evidence changes may be present; see the session checkpoint.",
   "final_evaluation_executed": false,
   "entries": [
@@ -81,6 +81,19 @@
       "schema": 1,
       "status": "bounded_dependency_provenance_review_not_security_certification",
       "recorded_utc": "2026-11-04T17:59:02.754903+00:00",
+      "release_ready": false,
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/dependency-source-review-2026-11-05.json",
+      "bytes": 4707,
+      "sha256": "ca968cf88b5643375b5fc956df02c285595ef61708d8422410c8ce3bed06058c",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "bounded_static_review_remaining_gates_open",
+      "product_source_commit": "c2ef008ddee53b6ea06028122f60ddbc0f00f2bb",
+      "recorded_utc": "2026-11-05T12:10:25.241348+00:00",
       "release_ready": false,
       "parse_status": "ok"
     },
@@ -401,6 +414,19 @@
       "parse_status": "ok"
     },
     {
+      "path": "docs/evidence/research-source-only-2026-11-05.json",
+      "bytes": 3538,
+      "sha256": "0d568d870d1ef2fd0f8cdaeffb24670c24f22921fd1f31e1e7335363196672cf",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "study_record_implementation_unexecuted_owner_paused_tests",
+      "product_source_commit": "c2ef008ddee53b6ea06028122f60ddbc0f00f2bb",
+      "recorded_utc": "2026-11-05T12:10:25.241348+00:00",
+      "release_ready": false,
+      "parse_status": "ok"
+    },
+    {
       "path": "docs/evidence/selection-first-run.json",
       "bytes": 5534,
       "sha256": "7d947d8d164109ede335f30ac1d99120eb89f2e4dc46fed5c1dd00e7a71063dc",
@@ -472,6 +498,18 @@
       "parse_status": "ok"
     },
     {
+      "path": "docs/evidence/source-only-commit-presentation-2026-11-05.json",
+      "bytes": 2676,
+      "sha256": "cc3df7afbbfc3e651b6b13222695f17393d32de142d0da9bf7ce74e9d79a74c1",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "untested_unbuilt_owner_paused_all_tests",
+      "recorded_utc": "2026-11-05T11:54:54.729747+00:00",
+      "release_ready": false,
+      "parse_status": "ok"
+    },
+    {
       "path": "docs/evidence/source-plans-local.json",
       "bytes": 20529,
       "sha256": "575de6d7fd2991ff6de6f10566a1277c26c0c997218ff88902c2d2bffa327295",
@@ -538,6 +576,19 @@
       "status": "local_automated_and_build_pass_native_pending",
       "product_source_commit": "05761985a7deef312426c268b953d4d01eccdaca",
       "recorded_utc": "2026-11-04T17:59:02.754903+00:00",
+      "release_ready": false,
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/windows-context-inventory-2026-11-05.json",
+      "bytes": 3514,
+      "sha256": "6bef86d38bdf58ac3ab2c5a17b1b8bace66303add1d152cf5c3dab30caa20141",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "later_posthoc_inventory_only",
+      "product_source_commit": "c2ef008ddee53b6ea06028122f60ddbc0f00f2bb",
+      "recorded_utc": "2026-11-05T12:10:25.241348+00:00",
       "release_ready": false,
       "parse_status": "ok"
     },

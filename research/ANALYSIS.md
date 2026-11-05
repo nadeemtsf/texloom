@@ -1,5 +1,7 @@
 # Development annotation analysis
 
+This page describes the original v0 helper and its recorded diagnostics. The new `study_records.py` v1 implementation is separate and **unexecuted**, because the owner paused all tests. See RECORDS.md and ADJUDICATION.md. Old helper pass totals must not be used as validation of the new format or new product source.
+
 `tools/summarize_annotations.py` implements the draft correctness denominators. It does not run experiments, establish interaction provenance or independently adjudicate a candidate. It requires explicit `--development`; integration with a reviewed frozen evaluation remains planned.
 
 Supply a JSON list of annotated correctness cases. The unfilled object in `evaluation/outcome-schema.json` is a specification example, not input data. Cases are separated by study arm, contract family, comparison variant, engine, language and evidence origin. A duplicate case within a stratum is rejected, so timing repetitions cannot inflate the correctness sample. Document counts remain distinct from case counts.

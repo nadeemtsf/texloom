@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "run_id": null,
+  "case_id": null,
+  "intent_id": null,
+  "document_id": null,
+  "study_arm": null,
+  "decision_basis": null,
+  "entry_layer": null,
+  "contract_family": null,
+  "variant": null,
+  "fixture_family": null,
+  "engine_version": null,
+  "language": null,
+  "evidence_origin": null,
+  "operation": null,
+  "declared_in_scope": null,
+  "oracle_truth": null,
+  "system_decision": null,
+  "refusal_stage": null,
+  "refusal_reason": null,
+  "commit_status": null,
+  "presentation_status": null,
+  "save_status": null,
+  "terminal_event": null,
+  "adjudicated_correct_if_accepted": null,
+  "required_postconditions": [],
+  "postconditions": {
+    "target_correct": null,
+    "source_outside_patch_exact": null,
+    "unrelated_rendered_content_preserved": null,
+    "undo_source_exact": null,
+    "redo_source_exact": null,
+    "save_reopen_exact": null
+  },
+  "annotation": {
+    "preparer": null,
+    "reviewer": null,
+    "status": "draft"
+  },
+  "bindings": {
+    "implementation_commit": null,
+    "runner_sha256": null,
+    "protocol_sha256": null,
+    "fixture_manifest_sha256": null,
+    "oracle_manifest_sha256": null
+  },
+  "raw_evidence": []
+}

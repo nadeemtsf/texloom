@@ -1,0 +1,102 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-05T12:10:25.241348+00:00",
+  "base_head": "c2ef008ddee53b6ea06028122f60ddbc0f00f2bb",
+  "product_source_commit": "c2ef008ddee53b6ea06028122f60ddbc0f00f2bb",
+  "last_tested_product_commit": "5e59e77282fd5e4b4f70440437b8f841ccea1364",
+  "automated_tests_run": false,
+  "headless_tests_run": false,
+  "native_tests_run": false,
+  "experiments_run": false,
+  "app_build_run": false,
+  "app_opened": false,
+  "final_evaluation_executed": false,
+  "release_ready": false,
+  "kind": "dependency_source_metadata_review_not_runtime_validation",
+  "status": "bounded_static_review_remaining_gates_open",
+  "pin_changed": false,
+  "wheel_or_dll_installed_loaded_or_mutated": false,
+  "upstream_commands_executed": false,
+  "advisory_scan_run": false,
+  "wheel_origin_metadata": {
+    "pdfium": "156.0.8076.0",
+    "package": "pypdfium2",
+    "version": "5.14.0",
+    "origin": "pdfium-binaries",
+    "flags": [],
+    "source_hash": null
+  },
+  "release_url": "https://github.com/bblanchon/pdfium-binaries/releases/tag/chromium%2F8076",
+  "build_repository_commit": "f2e9a1c45bb17b85b540abf1af30146ef65416ac",
+  "pdfium_source_commit_established": false,
+  "decoded_upstream_files": [
+    {
+      "capture_name": "readme",
+      "url": "https://github.com/bblanchon/pdfium-binaries/blob/f2e9a1c/README.md",
+      "git_blob_sha1": "df9edda0f9efc83b206acb47a9700f4446388745",
+      "decoded_utf8_bytes": 18993,
+      "decoded_utf8_sha256": "961737cb1ec8d952c22a2a9adb7e9cfade2f57e8e44b5c8b85f5f656e71a9bc2"
+    },
+    {
+      "capture_name": "upstream-build-script",
+      "url": "https://github.com/bblanchon/pdfium-binaries/blob/f2e9a1c/build.sh",
+      "git_blob_sha1": "84ac032e1dd1a4ffcaebe634d8e558e04509f505",
+      "decoded_utf8_bytes": 2628,
+      "decoded_utf8_sha256": "96298bbf2d4da06952848f180cdce149cbdc7b55e1d95b3cec8dfc85317566dc"
+    },
+    {
+      "capture_name": "upstream-build-workflow",
+      "url": "https://github.com/bblanchon/pdfium-binaries/blob/f2e9a1c/.github/workflows/build.yml",
+      "git_blob_sha1": "146e8f6e0ea4cdb79fa94b907bffadc57306a4ad",
+      "decoded_utf8_bytes": 4240,
+      "decoded_utf8_sha256": "cb05c65c906724ca8728fa4840f92c2d6b77ce4a211bd20748096208dfa0896e"
+    },
+    {
+      "capture_name": "steps/02-checkout.sh",
+      "url": "https://github.com/bblanchon/pdfium-binaries/blob/f2e9a1c/steps/02-checkout.sh",
+      "git_blob_sha1": "03fceadd64ecd774dcae9f84a89ced80c21fc43a",
+      "decoded_utf8_bytes": 680,
+      "decoded_utf8_sha256": "75eafb141796de6e37a076cb920c305d2aca46d6408c4bc13f64cc65ac7b91a9"
+    },
+    {
+      "capture_name": "steps/05-configure.sh",
+      "url": "https://github.com/bblanchon/pdfium-binaries/blob/f2e9a1c/steps/05-configure.sh",
+      "git_blob_sha1": "fa2cd7588591c8d213bbccf145c22424b1555994",
+      "decoded_utf8_bytes": 3730,
+      "decoded_utf8_sha256": "68c83ed42a18d39ef2846b45f8d162ebd07a919139555d9ca4e90c3fe4511833"
+    },
+    {
+      "capture_name": "steps/08-licenses.sh",
+      "url": "https://github.com/bblanchon/pdfium-binaries/blob/f2e9a1c/steps/08-licenses.sh",
+      "git_blob_sha1": "53551919d82d2479cdcbf6b937dfca3624eaff23",
+      "decoded_utf8_bytes": 3515,
+      "decoded_utf8_sha256": "25944e0d3c02d595283dd1cbde7b4aefdbece6e88eed919d00c3805590742724"
+    }
+  ],
+  "captures": [
+    {
+      "path": "artifacts/dependency-source-review-20261105/github-source-responses.json",
+      "bytes": 72140,
+      "sha256": "e95a785b66df55f54f501b2e6459859f14413e93aee7d3cc64d91dcdc34fa0e6"
+    },
+    {
+      "path": "artifacts/dependency-source-review-20261105/wheel-metadata-index.json",
+      "bytes": 1300,
+      "sha256": "2ac5820409e9440527db39731454a387380c7ba2afdfd0da07d9f8a7537a0275"
+    }
+  ],
+  "findings": [
+    "Wheel version JSON has null source hash",
+    "Pinned build template defaults V8 off and ties XFA to V8; actual wheel build arguments not independently bound",
+    "Checkout uses an origin branch rather than recording an immutable PDFium checkout here",
+    "License collector warns on unknown library names; collection success alone cannot establish complete graph coverage"
+  ],
+  "connector_retrieval_limit": "Initial encoded release-tag URL rejected as invalid repository path; public release page and pinned file reads supplied context",
+  "remaining": [
+    "actual source/args/patches/toolchain/component binding to DLL",
+    "complete compiled-graph notice/license assessment",
+    "version/advisory applicability review",
+    "exact artifact acceptance if a pin changes when tests resume"
+  ],
+  "note": "No specific missing license or vulnerability absence is established. Signed publication result is earlier evidence and was not rerun."
+}

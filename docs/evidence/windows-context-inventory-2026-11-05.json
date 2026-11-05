@@ -1,0 +1,106 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-05T12:10:25.241348+00:00",
+  "base_head": "c2ef008ddee53b6ea06028122f60ddbc0f00f2bb",
+  "product_source_commit": "c2ef008ddee53b6ea06028122f60ddbc0f00f2bb",
+  "last_tested_product_commit": "5e59e77282fd5e4b4f70440437b8f841ccea1364",
+  "automated_tests_run": false,
+  "headless_tests_run": false,
+  "native_tests_run": false,
+  "experiments_run": false,
+  "app_build_run": false,
+  "app_opened": false,
+  "final_evaluation_executed": false,
+  "release_ready": false,
+  "kind": "read_only_windows_inventory_not_acceptance_test",
+  "status": "later_posthoc_inventory_only",
+  "inventory": {
+    "path": "artifacts/research-windows-context-20261105/posthoc-context.json",
+    "bytes": 3100,
+    "sha256": "0e160bfc67c89a6e57b3cf81b9cb1099548e527f683881c2f3d78e3be9c3d2f4"
+  },
+  "collector": {
+    "path": "research/tools/windows_context.ps1",
+    "bytes": 5086,
+    "sha256": "bd757b186a480569dde9c661b069502be8715e76c84125d5d30a7557349bd228"
+  },
+  "collector_executed_for_read_only_inventory": true,
+  "collector_behavior_independently_validated": false,
+  "observed": {
+    "os": {
+      "status": "observed",
+      "source": "Win32_OperatingSystem",
+      "items": [
+        {
+          "Caption": "Microsoft Windows 11 Pro",
+          "Version": "10.0.26300",
+          "BuildNumber": "26300",
+          "OSArchitecture": "64-bit"
+        }
+      ]
+    },
+    "memory": {
+      "status": "observed",
+      "source": "Win32_ComputerSystem",
+      "items": [
+        {
+          "TotalPhysicalMemory": 16856203264,
+          "NumberOfLogicalProcessors": 8
+        }
+      ]
+    },
+    "cpu": {
+      "status": "observed",
+      "source": "Win32_Processor",
+      "items": [
+        {
+          "Name": "11th Gen Intel(R) Core(TM) i7-11370H @ 3.30GHz",
+          "NumberOfCores": 4,
+          "NumberOfLogicalProcessors": 8
+        }
+      ]
+    },
+    "video_controller_reports": {
+      "status": "observed",
+      "source": "Win32_VideoController",
+      "items": [
+        {
+          "Name": "Intel(R) Iris(R) Xe Graphics",
+          "DriverVersion": "31.0.101.5333",
+          "CurrentHorizontalResolution": 1920,
+          "CurrentVerticalResolution": 1080,
+          "CurrentRefreshRate": 144
+        }
+      ]
+    },
+    "webview2_registry": [
+      {
+        "scope": "per_machine",
+        "registry_view": "32_on_64",
+        "status": "observed",
+        "registered_version": "156.0.4314.58"
+      },
+      {
+        "scope": "per_user",
+        "registry_view": "current_user",
+        "status": "not_registered_at_this_key",
+        "registered_version": null
+      }
+    ],
+    "collector_process_override_presence": {
+      "WEBVIEW2_BROWSER_EXECUTABLE_FOLDER": false,
+      "WEBVIEW2_RELEASE_CHANNEL_PREFERENCE": false,
+      "WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS": false
+    }
+  },
+  "still_unobserved": [
+    "actual Texloom-loaded WebView2",
+    "effective per-monitor DPI",
+    "physical monitor topology",
+    "Texloom devicePixelRatio",
+    "power/background load during experiments",
+    "exact prior font/input/runtime binding"
+  ],
+  "capture_method": "Selected local CIM properties and documented WebView2 registration pv; PowerShell/CIM inventory only. No app/engine/installer/version-probe launch or settings changes.",
+  "limitations": "Current registration/controller reports are not functional prerequisites, physical display/DPI tests, a prior-run environment or a sealed final manifest. Earlier partial snapshot remains unchanged."
+}

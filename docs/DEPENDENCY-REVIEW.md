@@ -1,5 +1,7 @@
 # Bounded runtime dependency review - updated 5 November 2026
 
+Later source-only follow-up: [DEPENDENCY-SOURCE-REVIEW.md](DEPENDENCY-SOURCE-REVIEW.md) records the wheel's missing source hash and a pinned upstream build-repository/workflow inspection. It does not run builds, upstream tests or advisory scans, and does not close the nested-build/security/license gates. The owner has now paused all tests. The pin and prior cryptographic-verification results below are unchanged.
+
 The current packaged verifier uses **PDFium 156.0.8076.0**, extracted from the SHA-256-pinned pypdfium2 5.14.0 Windows x64 wheel. Historical PDFium 126 / pypdfium2 4.30 development reports are different artifacts. The app's Rust worker does not require Python.
 
 The [official package index](https://pypi.org/project/pypdfium2/5.14.0/) and its JSON endpoints were checked on 4 November 2026. The current package version at that check was 5.14.0; the exact Windows wheel digest matched the repository pin and cached wheel, its DLL matched the packaged DLL, all pinned notice entries were present, and the packaged notice matched its manifest. The wheel's PDFium version metadata reports no optional feature flags. This is distributor metadata, not an independent proof of every build option.

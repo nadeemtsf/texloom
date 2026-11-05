@@ -2,6 +2,8 @@
 
 This plan precedes final experiments. The final study is **not run and not frozen**. Continue development first. The audit baseline is `c26a238`; it is not automatically the evaluation version. Targets below are proposed acceptance criteria recorded now, not achieved results or an externally registered protocol.
 
+5 November source-only continuation: all tests are paused. RECORDS.md and ADJUDICATION.md develop the separate commit/display/Save outcome model, intent/candidate counts and independent review procedure. Their v1 record implementation is unexecuted and not a frozen protocol or final admission system. Primary-source follow-up is in related-work-followup-2026-11-05.md. The current compiled v5 report is unchanged; no results have been added from this continuation.
+
 ## Questions and scope
 
 - RQ1: In declared single-page text displacement cases, how many incorrect edits are accepted, correct edits accepted, and valid edits refused?

@@ -17,3 +17,23 @@ The manifest intentionally leaves RAM, WebView2 and display configuration unset.
 Record the product/analysis/tool hashes and complete inputs before running; retain native build receipts/recorder inputs and record actual font resolution, fallback and permitted font acquisition. Specify reproducible, appropriately licensed fonts for shareable final fixtures. Capture OS/CPU/RAM/WebView2/display/DPI/power/background-load information and the exact diagnostic-build flag. Seal fixture/oracle manifests and independent labels together. Refresh the environment record and record any changes; preserve the posthoc pilot snapshot as its own artifact.
 
 The collector reports missing/changing executables or unreadable inputs as unresolved, never as evidence of a successful setup. Full local paths and the account's home path are omitted/redacted from output; filename/hash alone is still insufficient to reconstruct a complete installation.
+
+## Read-only Windows context supplement, 5 November 2026
+
+The separate `tools/windows_context.ps1` was used once for system inventory after the owner paused all tests. It reads selected local CIM properties and the documented WebView2 registration keys. No Texloom/engine/installer/version-probe program was launched, no settings were changed and no tests or experiments ran. The collector itself and Windows providers participate in this read-only activity; the snapshot is not evidence that any application workflow executed. Its exclusive output is `artifacts/research-windows-context-20261105/posthoc-context.json`.
+
+Observed provider/registry data:
+
+| Item | Observation | Limit |
+| --- | --- | --- |
+| Windows | Windows 11 Pro, version 10.0.26300, build 26300, 64-bit | Current posthoc provider report, not a sealed prior execution environment |
+| CPU | Intel Core i7-11370H; four cores/eight logical processors | No sustained clock, load or thermal measurement |
+| RAM | 16,856,203,264 OS/provider-reported bytes | Not an inventory of individual DIMMs or free memory during a run |
+| WebView2 | Per-machine registered version 156.0.4314.58; no entry at the inspected per-user key | Not proof that Texloom selected/loaded it, that installation is healthy, or that an earlier process used that version |
+| Graphics | Intel Iris Xe, driver 31.0.101.5333; controller reports 1920x1080 at 144 Hz | Not an independently verified physical monitor topology, effective DPI or sustained presentation rate |
+
+The three selected WebView2 override variables were absent in the collector process; that does not establish an application's actual environment. Effective per-monitor DPI, physical monitor arrangement, Texloom's device-pixel ratio, loaded runtime identity and experimental power/background load remain null. The 60 Hz performance target in the protocol must not be presented as a measured property of this 144 Hz controller report. Choose and record an actual reference display/mode before timing work.
+
+The earlier seven-tool/four-font partial snapshot is unchanged, including its null RAM/WebView2/display fields. This supplement is later evidence and cannot fill those fields retrospectively. Actual engine/font resolution, complete inputs and pre-run sealing remain open.
+
+Primary technical references inspected 5 November: Microsoft's [WebView2 distribution/detection documentation](https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution), [Win32_ComputerSystem](https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-computersystem) and [Win32_VideoController](https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-videocontroller). Registry versions and provider properties are observations with the limits above, not prerequisite/DPI acceptance tests. No hostname, account name, serial/UUID, device instance identifier or environment-variable value is exported.
