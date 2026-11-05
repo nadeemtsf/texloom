@@ -254,7 +254,7 @@ fn inspect(request: &Request, prefix: &Path) -> Result<Value> {
         check(target_glyphs > 0, "Target marker has no visible glyphs")?;
     }
     Ok(
-        json!({"schema":texloom_build::inspection_worker::PROTOCOL,"renderer":"pdfium","pdfium":"156.0.8076.0","binding":"rust-worker-v1",
+        json!({"schema":texloom_build::inspection_worker::PROTOCOL,"renderer":"pdfium","pdfium":texloom_build::inspection_worker::PDFIUM_VERSION,"binding":"rust-worker-v1",
         "librarySha256":api::DLL_SHA256,"pdfSha256":request.pdf_sha256,
             "pages":pages,"records":records,"graphics":graphics,"rasters":rasters,
             "target":request.target_marker.as_ref().map(|name|json!({"marker":name,"instances":instances.len(),"glyphs":target_glyphs})),"translation":request.target_translation,

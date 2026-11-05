@@ -13,7 +13,7 @@ The owner explicitly resumed pending tests before further features. This superse
 - Research tools: **40 passed**. An initial expanded run found two failures from Windows handle/path ctime differences. The fix retains complete before/after handle identity and stable file ID/size/mtime across APIs. Controlled changed metadata still fails. Infrastructure checks do not measure app correctness/latency.
 - Candidate TGZ reader and four synthetic archive controls passed. GitHub CLI verified the candidate SLSA bundle against the expected repository/workflow/build-repository commit. Wrong-repository and changed-byte controls failed as expected. This verifies the signed statement's distributor identity, not the complete nested source-to-DLL derivation or universal security clearance.
 
-Additional explicit adapter, fractional, template and marked-content engine gates were started separately. Their final outcomes must be read before being counted as passed.
+The explicit adapter, fractional, template and marked-content engine gates all passed against historical PDFium 156: 27 adapter rows, nine fractional rows, 19 template/class conditions and the three-engine marked-content corpus. These four integration invocations are not independent accuracy experiments.
 
 ## Actual Windows observations
 
@@ -25,4 +25,10 @@ Disposable projects demonstrated source-only opening until explicit Compile, suc
 
 Raw logs, failures, reports, exact build identities and disposable projects remain in ignored `artifacts/resumed-validation-20261105-run1/`. Prior movement/protected-text directories were preserved. The movement report's `baselineCommit` is its historical comparison identifier, not current tested app identity; use the exact identities above.
 
-Held-drag Escape/window-switch cancellation needs a human step because the available input API performs atomic drags. Native multilingual typing, DPI/monitor transitions, installation/uninstallation, clean-machine prerequisites, controlled single-instance resource/performance work, full recovery repetitions and unassisted usability remain gates until exercised. The historical PDFium pin has an advisory blocker. Final study: **not frozen, unrun**. No release, publication, submission or remote push occurred.
+The owner performed held-drag Escape and Alt+Tab cancellation on this exact ordinary copy and reported that text returned to/stayed at its original position both times. This is a human-reported pass, not instrumented latency/history evidence. The attempted post-test observation received the computer-control tool's physical-Escape stop; no later UI input was issued. This is not a product failure or a usage-threshold stop.
+
+Native multilingual typing, DPI/monitor transitions, installation/uninstallation, clean-machine prerequisites, single-instance resource/performance work, full recovery repetitions and unassisted usability remain gates. Final study: **not frozen, unrun**. No release, publication, submission or push occurred.
+
+## Replacement continuation
+
+The active development pin now uses PDFium 159.0.8138.0; see PDFIUM159-UPGRADE.md. Frontend checks: **273 passes, zero failures/skips**. Replacement build-library: **55 passes**; explicit worker: **five passes**; explicit native approval: **two passes**. The first approval command omitted the required worker-path variable and failed before executing the checks; the corrected repeat passed. All logs remain. Wider replacement engine checks and release/NSIS build were running at the computer-control stop; inspect their outcomes before repeating. The new app has not been opened, installed or packaged into a verified portable archive.

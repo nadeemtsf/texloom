@@ -25,7 +25,8 @@ def prepare(wheel, output):
     output.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(wheel) as archive:
         # Read exact entries, never extract caller-controlled archive paths.
-        pin = json.loads((Path(__file__).resolve().parent.parent / "pdfium-pin.json").read_text(encoding="utf8"))
+        # Historical Python reference, separate from the active native runtime.
+        pin = json.loads((Path(__file__).resolve().parent.parent / "pdfium-proof-pin-156.json").read_text(encoding="utf8"))
         if pin["wheel_sha256"] != WHEEL_SHA256 or pin["dll_sha256"] != DLL_SHA256:
             raise ValueError("PDFium pin files disagree")
         entries = {"pypdfium2_raw/pdfium.dll": "pdfium.dll"}

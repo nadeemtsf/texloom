@@ -10,7 +10,9 @@ ARTIFACT-RECEIPT.json schema 2 lists the fourteen other files with byte lengths 
 
 Run from the repository in PowerShell 7 with the locked Windows build and verifier resources prepared:
 
-    ./scripts/package-portable.ps1
+    $exe = (Resolve-Path target/release/texloom-desktop.exe).Path
+    $sha = (Get-FileHash -LiteralPath $exe -Algorithm SHA256).Hash
+    ./scripts/package-portable.ps1 -DesktopExecutable $exe -ExpectedDesktopSha256 $sha
 
 CargoSourceRoot is retained as a compatibility argument; notices are prepared from Cargo metadata by the desktop build. Optional ArtifactRoot selects an existing plain parent location for new output; it is also used by filesystem checks. End users do not need Node, Python or PowerShell to run an extracted app. Windows tests prefer pwsh.exe when installed and otherwise use system Windows PowerShell. No test or package script changes execution policy. Legacy Windows PowerShell 5 execution could not be validated in the current managed host; the production script has not been accepted there.
 

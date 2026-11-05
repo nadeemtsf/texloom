@@ -1,4 +1,9 @@
-param([string]$CargoSourceRoot = $env:CARGO_HOME, [string]$ArtifactRoot)
+param(
+    [string]$CargoSourceRoot = $env:CARGO_HOME,
+    [string]$ArtifactRoot,
+    [Parameter(Mandatory = $true)][string]$DesktopExecutable,
+    [Parameter(Mandatory = $true)][ValidatePattern('^[a-fA-F0-9]{64}$')][string]$ExpectedDesktopSha256
+)
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
 . (Join-Path $PSScriptRoot 'portable-archive.ps1')
@@ -21,14 +26,17 @@ function Copy-PackageFile {
     $files.Add($copied)
 }
 
-Copy-PackageFile (Join-Path $projectRoot 'target/x86_64-pc-windows-msvc/release/texloom-desktop.exe') 'Texloom.exe'
+# Tauri can build target/release or a target-triple subfolder. Never silently
+# select a stale binary from a different build directory.
+Copy-PackageFile (Resolve-Path -LiteralPath $DesktopExecutable).Path 'Texloom.exe' $ExpectedDesktopSha256.ToLowerInvariant()
 foreach ($name in @('VALIDATION.md', 'LICENSE', 'README.md')) { Copy-PackageFile (Join-Path $projectRoot $name) $name }
 $verifierSource = Join-Path $projectRoot 'src-tauri/resources/verification'
 $manifestPath = Join-Path $verifierSource 'verifier-manifest.json'
 $manifestReceipt = Get-PortableFileReceipt -Path $manifestPath -RelativePath 'verification/verifier-manifest.json'
 if ($manifestReceipt.bytes -gt 65536) { throw 'Native verifier manifest exceeds size limit.' }
 $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
-if ($manifest.schema -ne 2 -or $manifest.protocol -ne 3 -or $manifest.dll_sha256 -ne '69f1e860f6742fbaafcc4db80e785eec9a4ee0da36ea6d1dc0867ea0f18baea6') { throw 'Invalid native verifier manifest.' }
+$pin = Get-Content -LiteralPath (Join-Path $projectRoot 'scripts/pdfium-pin.json') -Raw | ConvertFrom-Json
+if ($manifest.schema -ne 2 -or $manifest.protocol -ne 3 -or $manifest.dll_sha256 -ne $pin.dll_sha256 -or $manifest.pdfium -ne $pin.pdfium) { throw 'Native verifier manifest differs from the active pin.' }
 Copy-PackageFile $manifestPath 'verification/verifier-manifest.json' $manifestReceipt.sha256
 foreach ($entry in @(@('pdfium_worker.exe', $manifest.worker_sha256), @('pdfium.dll', $manifest.dll_sha256), @('PDFIUM-NOTICE.txt', $manifest.notice_sha256))) {
     if ($entry[1] -notmatch '^[a-f0-9]{64}$') { throw 'Invalid native verifier receipt.' }

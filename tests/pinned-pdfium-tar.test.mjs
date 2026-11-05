@@ -4,6 +4,12 @@ import {createHash} from 'node:crypto';
 import {gzipSync} from 'node:zlib';
 import {readPinnedPdfiumTar} from '../scripts/pinned-pdfium-tar.mjs';
 const sha=raw=>createHash('sha256').update(raw).digest('hex');
+
+test('an active distributor declaration uses the same bounded reader without implying runtime compatibility',()=>{
+  const {bytes,manifest}=fixture();manifest.kind='pdfium_pinned_distributor';manifest.adopted=true;
+  assert.equal(readPinnedPdfiumTar(bytes,manifest).get('bin/pdfium.dll').toString(),'Synthetic bytes, not executable');
+  manifest.adopted=false;assert.throws(()=>readPinnedPdfiumTar(bytes,manifest),/identity mismatch/);
+});
 function fixture({name='bin/pdfium.dll',type='0',badChecksum=false}={}){
   const data=Buffer.from('Synthetic bytes, not executable'),header=Buffer.alloc(512);
   header.write(name,0,100,'ascii');header.write('0000644\0',100,'ascii');

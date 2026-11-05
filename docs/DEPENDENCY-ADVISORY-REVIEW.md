@@ -1,5 +1,7 @@
 # PDFium advisory follow-up - 5 November 2026
 
+**Later resumed work:** the active development pin now uses the reviewed 159 distributor archive. See [upgrade status](PDFIUM159-UPGRADE.md) for observed checks and unresolved nested provenance/security/release gates. The original source-only review below retains its original scope; its statement about retaining the old pin is historical.
+
 **Public distribution remains blocked pending dependency remediation and validation.** The current development pin is retained for reproducibility; this is not security approval of that pin. This review reads public source/advisory metadata only. No app, DLL, exploit, vulnerability scanner, upstream code or test was executed. All tests remain paused.
 
 ## Finding and evidence strength

@@ -17,7 +17,8 @@ use std::{
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
 type Result<T> = std::result::Result<T, String>;
-pub const DLL_SHA256: &str = "69f1e860f6742fbaafcc4db80e785eec9a4ee0da36ea6d1dc0867ea0f18baea6";
+pub const DLL_SHA256: &str = "71a3e63e6ab8f5746a0fc9de9bc3d0c0dc07eb60990dfd37d9db7fc891821943";
+pub const PDFIUM_VERSION: &str = "159.0.8138.0";
 pub const PROTOCOL: u32 = 3;
 static NEXT: AtomicU64 = AtomicU64::new(0);
 fn fail(e: impl std::fmt::Display) -> String {
@@ -437,7 +438,7 @@ fn read_receipt_with_translation(workspace:&Workspace,reply:&Reply,id:&str,reque
     require(
         raw.schema == PROTOCOL
             && raw.renderer == "pdfium"
-            && raw.pdfium == "156.0.8076.0"
+            && raw.pdfium == PDFIUM_VERSION
             && raw.binding == "rust-worker-v1"
             && raw.library_sha256 == DLL_SHA256,
         "Unpinned independent inspection evidence",
@@ -579,6 +580,14 @@ mod tests {
     const ID: &str = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
     const REQUEST: &str = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
     const PDF: &str = "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc";
+    #[test]
+    fn native_identity_matches_active_build_pin() {
+        let pin: Value = serde_json::from_str(include_str!("../../../scripts/pdfium-pin.json")).unwrap();
+        assert_eq!(pin["dll_sha256"], DLL_SHA256);
+        assert_eq!(pin["pdfium"], PDFIUM_VERSION);
+        assert_eq!(pin["kind"], "pdfium_pinned_distributor");
+        assert_eq!(pin["adopted"], true);
+    }
     impl Fixture {
         fn new(marked: bool) -> Self {
             let parent = std::env::temp_dir().join(format!(
@@ -597,7 +606,7 @@ mod tests {
             let raster = workspace.root.join("request.inspection.p1.raster");
             fs::write(&raster, &pixels).unwrap();
             let marker = marked.then_some("Texloom_sig");
-            let raw = json!({"schema":PROTOCOL,"renderer":"pdfium","pdfium":"156.0.8076.0","binding":"rust-worker-v1",
+            let raw = json!({"schema":PROTOCOL,"renderer":"pdfium","pdfium":PDFIUM_VERSION,"binding":"rust-worker-v1",
                 "requestId":ID,"requestSha256":REQUEST,"librarySha256":DLL_SHA256,"pdfSha256":PDF,
                 "pages":[{"width":8.0,"height":8.0,"crop":[0.0,0.0,8.0,8.0],"rotation":0,"annotations":0}],
                 "records":[{"text":"A","page":1,"x":2.0,"y":2.0,"width":2.0,"height":3.0,"target":marked}],"graphics":[],

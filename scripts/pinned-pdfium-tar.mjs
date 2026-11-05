@@ -1,4 +1,4 @@
-// Source-only dependency preparation draft. Not imported by the active builder.
+// Bounded dependency archive reader shared by review and active preparation.
 // Read an exactly pinned distributor archive in memory; never extract paths,
 // invoke commands, write resources, load a DLL or declare compatibility.
 import {createHash} from 'node:crypto';
@@ -30,10 +30,12 @@ function octal(header,start,length){
   require(integer(number),'Invalid tar numeric value');return number;
 }
 
-/** Review-only manifest and complete file list; no caller-selected output names. */
+/** Complete pinned file inventory; no caller-selected output names. */
 export function readPinnedPdfiumTar(bytes,manifest){
   require(Buffer.isBuffer(bytes)&&bytes.length<=32*1024*1024,'Compressed dependency byte budget exceeded');
-  require(manifest?.schema===1&&manifest.kind==='pdfium_distributor_review_candidate'&&manifest.adopted===false&&
+  const declaredKind=manifest?.kind==='pdfium_distributor_review_candidate'&&manifest.adopted===false||
+    manifest?.kind==='pdfium_pinned_distributor'&&manifest.adopted===true;
+  require(manifest?.schema===1&&declaredKind&&
     digest(manifest.archive_sha256)&&integer(manifest.archive_bytes)&&bytes.length===manifest.archive_bytes&&
     sha(bytes)===manifest.archive_sha256,'Pinned distributor archive identity mismatch');
   require(Array.isArray(manifest.files)&&manifest.files.length>0&&manifest.files.length<=256,'Invalid pinned entry inventory');
