@@ -9,7 +9,7 @@ application accuracy denominator. The final held-out set remains unused.
 The audited baseline is \code{c26a238}; it is not the final evaluation freeze.
 Later product source \code{5e59e77} adds focus-loss hardening, setup guidance
 and optional timing instrumentation without changing the audited native
-acceptance policies. Table~\ref{tab:engineering} distinguishes current local
+acceptance policies. Table~\ref{tab:engineering} distinguishes recorded local
 checks from earlier versioned interaction evidence.
 
 \begin{table}[htbp]
@@ -17,7 +17,7 @@ checks from earlier versioned interaction evidence.
 \toprule
 Evidence & Recorded outcome & What remains outside it\\
 \midrule
-Current frontend suite & 252 pass; zero failures/skips & Includes protocol, filesystem, fixture and simulated shell/controller boundaries; not 252 native UI tasks\\
+Frontend suite at \code{5e59e77} & 252 pass; zero failures/skips & Includes protocol, filesystem, fixture and simulated shell/controller boundaries; not 252 native UI tasks or validation of later source\\
 Default core suite & 70 unit plus 18 integration pass & Domain/history/byte checks; not a general TeX correctness proof\\
 Research helpers & 27 diagnostics pass & Oracle, source-contract, denominator, environment and reference-health infrastructure; not app accuracy trials\\
 Windows builds & Ordinary release/NSIS and separate diagnostic release pass & Neither new application variant opened or installed; no measured overhead\\
@@ -29,6 +29,12 @@ Earlier remote CI & Three c26a238 workflows succeeded & Later local commits rema
 source remain the same tests, not additional independent trials.}
 \label{tab:engineering}
 \end{table}
+
+The subsequent source-only UI, failure handling, collector/analysis and
+bitmap-initialization guard have no new build or test evidence. Read-only
+archive inventories and header/source inspection are metadata evidence,
+not new application acceptance trials. All tests are paused and the final
+study remains unfrozen.
 
 Historical Windows observations include signature workflows under all three
 engines, actual source/input and PDF reading/search, visual controls, failure/

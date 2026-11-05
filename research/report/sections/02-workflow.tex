@@ -28,6 +28,15 @@ The canvas controller proposes a clicked line or adjacent group. A marquee
 does not directly choose source offsets or write files. Read-text mode remains
 available separately for ordinary highlighting and copying.
 
+A later source-only UI revision links an accepted PDF selection to its
+normalized source range using a Monaco decoration, preserving canvas focus.
+It also adds a distinct reset-to-zero action that retains the movable wrapper,
+separate from removing positioning. Literal editing shows bounded formatting,
+direction and protected-command hints; these are not a TeX font/shaping preview.
+The modal is placed beside the selected unit only when it fits the viewport,
+with a centered fallback. These additions have not been built or exercised;
+their source presence does not establish current Windows usability.
+
 For unwrapped text, the resolver asks native SyncTeX for file/line evidence
 and examines conservative source units. It can enumerate bounded alternatives;
 the frontend limits distinct probe attempts rather than searching indefinitely.
@@ -124,6 +133,16 @@ Native commit occurs before final frontend publication. Offscreen preparation
 reduces the chance of a presentation failure after commit, but this cross-process
 workflow is not claimed as a filesystem/UI-wide atomic transaction. Native
 acceptance and a displayed frame are recorded separately in the proposed study.
+
+The subsequent untested failure-handling revision distinguishes a known
+native commit followed by presentation/reselection failure from a refusal
+before commit. If an attempted commit has no usable acknowledgement or
+confirming state, the replica stops new writes and records uncertainty rather
+than automatically retrying. Cleanup failures must not clear the busy state
+incorrectly or destroy an adopted PDF. These are implementation intentions
+with source changes, not newly reproduced passing recovery cases. Native
+history, view publication, original-file Save and exact reopen still require
+separate observations.
 
 \subsection{History, Save and recovery}
 Source edits and accepted visual edits share native Undo/Redo history. Typing

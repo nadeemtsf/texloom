@@ -1,0 +1,89 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-05T13:15:09.4889404Z",
+  "kind": "primary_advisory_and_source_reading_not_execution",
+  "status": "public_distribution_blocked_pending_remediation_and_validation",
+  "source_commit": "2f6eb9caaa4a65de1807581028d01b491e40b03c",
+  "pin": {
+    "package": "pypdfium2",
+    "version": "5.14.0",
+    "pdfium": "156.0.8076.0",
+    "wheel_sha256": "149fd5c6397b8df8bf7911a93506eff0be874f877afe7ac936cf5d37d21a6a06",
+    "dll_sha256": "69f1e860f6742fbaafcc4db80e785eec9a4ee0da36ea6d1dc0867ea0f18baea6"
+  },
+  "primary_finding": {
+    "cve": "CVE-2026-110155",
+    "chromium_bug": "570167922",
+    "upstream_report": "https://github.com/pypdfium2-team/pypdfium2/issues/487",
+    "report_acknowledged_by_maintainer": true,
+    "fix_commit": "58e11305710a506ce3369581662eeb14440639cf",
+    "fix_author_date": "2026-10-06",
+    "observed_branch": "refs/heads/chromium/8076",
+    "observed_branch_commit": "8ca5b735df4263f43c830479b78213854a392c22",
+    "source_observation": "Branch AGG constructor/reset retain old current-cell initialization; fixed source has replacement",
+    "exact_dll_source_build_relation_authenticated": false,
+    "texloom_exploit_demonstrated": false
+  },
+  "latest_release_at_inspection": {
+    "tag": "5.14.0",
+    "source": "https://api.github.com/repos/pypdfium2-team/pypdfium2/releases/latest",
+    "published_at": "2026-10-04T15:19:27Z",
+    "fixed_replacement_selected": false
+  },
+  "other_fix_metadata_read": [
+    "0a42f6e64f28603f3aee118a1c140e9bd0647b71",
+    "4150fb564e0d83109f33a06385d22bb13cc3cd97",
+    "cce5c5ed801f54cadb5b039d98ed43804994764c",
+    "0a21f66dd0c665dc4d6dbdafc150e93528cb0020"
+  ],
+  "captures": [
+    {
+      "path": "artifacts/dependency-advisory-review-20261105/agg-8076-source.base64.txt",
+      "bytes": 19488,
+      "sha256": "289c4523466b22992add6f3ae849187f6106ff515a1e4871d0648f4d50d7deb5"
+    },
+    {
+      "path": "artifacts/dependency-advisory-review-20261105/agg-fix-commit.json.txt",
+      "bytes": 2640,
+      "sha256": "e5c5232922801161f7bb316aacf8d2510f174e345bacb46076f41ab901d7e8d9"
+    },
+    {
+      "path": "artifacts/dependency-advisory-review-20261105/agg-fix-source.base64.txt",
+      "bytes": 19512,
+      "sha256": "3e6a63b99b8855cf2276986aa6c3e5cfbb5b03f2c7e809d350aa7f2662f1f683"
+    },
+    {
+      "path": "artifacts/dependency-advisory-review-20261105/branch-8076-commit.json.txt",
+      "bytes": 2202,
+      "sha256": "5c041191e9feb71d3e70b2247b31088f17d63edfaaccb5359ff7c62a928b85f5"
+    },
+    {
+      "path": "artifacts/dependency-advisory-review-20261105/github-responses.json",
+      "bytes": 204060,
+      "sha256": "d8addae73bac4872a35d1947f2086f5e15f8c247123c27fc9d10a2fa8050ecc9"
+    },
+    {
+      "path": "artifacts/dependency-advisory-review-20261105/gitiles-captures.json",
+      "bytes": 1488,
+      "sha256": "28f46d6dc4f9797c4c445b4f411e6809e464601c34bef2fc928b59abb369540d"
+    }
+  ],
+  "tests_run": false,
+  "app_opened": false,
+  "dll_loaded": false,
+  "exploit_run": false,
+  "vulnerability_scanner_run": false,
+  "upstream_code_executed": false,
+  "dependency_pin_changed": false,
+  "binary_changed": false,
+  "final_evaluation_executed": false,
+  "release_ready": false,
+  "limits": [
+    "Source/distributor evidence is not a demonstrated Texloom exploit or complete exact-DLL applicability audit",
+    "Other fix/CVE mappings, enabled features and component coverage require further review",
+    "Open PyPA issue is a proposal, not evidence of an accepted database mapping",
+    "Historical publication/hash checks remain scoped and do not establish vulnerability absence",
+    "No replacement selected or tested; old pin retained for historical reproduction only"
+  ],
+  "document": "docs/DEPENDENCY-ADVISORY-REVIEW.md"
+}

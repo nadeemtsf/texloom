@@ -2,6 +2,8 @@
 
 Scope: read existing wheel metadata and primary upstream source, without installing/loading a DLL, rebuilding, running tests, scanning advisories or changing a dependency pin. This is not validation of the new application source, a reproducible build, a complete license review or a release decision. The owner's all-tests pause remains in force.
 
+Later separate advisory reading found a relevant published fix and an acknowledged report against the current distributor pin. See [DEPENDENCY-ADVISORY-REVIEW.md](DEPENDENCY-ADVISORY-REVIEW.md). The no-advisory-reading scope above describes this earlier source review only. Public distribution is blocked pending remediation/validation; retaining the old pin for reproduction is not security approval.
+
 ## Recorded identities
 
 The existing pin remains PDFium 156.0.8076.0 from pypdfium2 5.14.0. The cached wheel's two version records were read as data. `pypdfium2_raw/version.json` declares `origin: pdfium-binaries`, `flags: []`, and **`hash: null`**. The wrapper version record also has a null hash. These files do not bind an exact upstream PDFium source commit. Their original bytes and SHA-256 values are retained, not rewritten.

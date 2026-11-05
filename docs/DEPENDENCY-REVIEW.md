@@ -1,5 +1,7 @@
 # Bounded runtime dependency review - updated 5 November 2026
 
+**Later finding:** primary advisory/source reading identifies an unresolved security blocker against the current pinned distributor build. Public distribution remains blocked; see [DEPENDENCY-ADVISORY-REVIEW.md](DEPENDENCY-ADVISORY-REVIEW.md). The historical hash/publication-verification results below remain true within their scope and are not security approval. No replacement pin or binary was introduced while tests are paused.
+
 Later source-only follow-up: [DEPENDENCY-SOURCE-REVIEW.md](DEPENDENCY-SOURCE-REVIEW.md) records the wheel's missing source hash and a pinned upstream build-repository/workflow inspection. It does not run builds, upstream tests or advisory scans, and does not close the nested-build/security/license gates. The owner has now paused all tests. The pin and prior cryptographic-verification results below are unchanged.
 
 The current packaged verifier uses **PDFium 156.0.8076.0**, extracted from the SHA-256-pinned pypdfium2 5.14.0 Windows x64 wheel. Historical PDFium 126 / pypdfium2 4.30 development reports are different artifacts. The app's Rust worker does not require Python.

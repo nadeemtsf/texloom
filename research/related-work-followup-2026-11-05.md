@@ -1,6 +1,6 @@
 # Related-work follow-up - 5 November 2026
 
-This is a scoped primary-source follow-up, not an exhaustive search or a novelty finding. No application tests, experiments or competitor software runs were performed. The compiled v5 report and its fourteen references are unchanged. Additional editable bibliography records are in `report/followup-references.bib`; they are not yet included in `main.tex`.
+This is a scoped primary-source follow-up, not an exhaustive search or a novelty finding. No application tests, experiments or competitor software runs were performed. The compiled v5 report and its fourteen references are unchanged. Additional editable bibliography records are in `report/followup-references.bib`; the later uncompiled report source now includes them and the inspection limits below. The Matching Lenses PDF and Hu/FuseDM/Biparsers abstract pages were reopened during integration; that did not expand the abstract-only/full-text review claims.
 
 ## Sources and inspected scope
 

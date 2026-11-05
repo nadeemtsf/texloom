@@ -29,6 +29,10 @@ prior work against any claim that editing typeset LaTeX pages is itself new.
 The inspected text is a historical 2011 distribution description, not evidence
 of current availability, internal algorithms or preservation guarantees.
 Those questions require additional primary documentation or experiments.
+The vendor's archived version history also records source/proof interaction
+and selection/synchronization fixes~\cite{bakomahistory}. This historical
+evidence strengthens the workflow comparison without revealing complete
+transformation invariants or establishing present-day availability.
 
 Overleaf documents code/visual editing alongside a compiled PDF preview and
 source/PDF navigation~\cite{overleaf}. An interface mode or synchronization
@@ -57,6 +61,47 @@ and checks compiled candidates. It does not implement a reverse evaluator for
 general TeX. Any later contribution would need to explain what is learned
 about this particular preservation/refusal/cost trade-off beyond assembling
 known ideas.
+
+\subsection{Alignment, structured documents and exact source recovery}
+Barbosa et al. explicitly separate alignment from reconstruction in matching
+lenses~\cite{barbosa2010matching}. Their framework parameterizes matching
+strategies and studies how reordered or edited view pieces correspond to
+source/complement pieces. Selected introductory examples and combinator
+sections of the author-hosted conference paper were inspected, without a
+proof audit. Texloom's repeated-text problem belongs to an established
+alignment problem; a conservative PDF/source probe is not a new general
+solution to view alignment.
+
+Hu, Mu and Takeichi describe a programmable structured-document editor whose
+view edits derive source and a transformation~\cite{hu2008programmable}.
+Only the publisher abstract and metadata were accessible in this review.
+The abstract establishes relevant prior document-view-to-source work, but
+does not establish equivalent compiled-LaTeX support, exact unrelated bytes
+or Texloom's particular refusal policy.
+
+The author-lab abstract for FuseDM describes a manipulation-delta language,
+fusion into functional source and an SVG editor~\cite{zhang2024fusing}. The
+authors report a correctness proof; that proof and the artifact were not
+inspected here. Operation-directed source updating therefore has close prior
+work, but this review cannot compare its complete preservation policy or error
+frequency with Texloom.
+
+The author-hosted Biparsers talk abstract describes lens-based parser/printer
+synchronization and exact source recovery with non-injective parsing, including
+JSON/YAML subsets~\cite{xie2025biparsers}. Publisher-deposited metadata fixes
+the paper's identity; the full paper was not reviewed. Preserving original
+source has relevant foundations, while parsing/printing data and translating
+LaTeX to a rendered PDF are different relations. No correctness transfer
+between them is assumed.
+
+These sources were followed from lenses and output-directed programming
+through targeted author, publisher and archive pages. The search can miss
+systems described with other terminology or inaccessible documentation. The
+POPL 2005 and expanded TOPLAS 2007 lens papers were distinguished through
+their separate publisher-deposited DOI records; unavailable journal full text
+was not silently replaced by conference text. The follow-up notes retain
+retrieval failures and inspection limits. This remains a scoped review,
+not evidence that no competing system exists.
 
 \subsection{Validation and document differences}
 Translation validation checks individual translations rather than relying

@@ -6,7 +6,8 @@ harness are different artifacts. A successful check on one cannot silently
 become an observation of another.
 
 \subsection{Version and input binding}
-The current product source is \code{5e59e77}. The native-entry harness was
+The last tested product source is \code{5e59e77}; newer source-only changes
+are not in the recorded r4 binaries. The native-entry harness was
 committed at \code{cb3cd11}; the corrected reference/health code at
 \code{b5edb9d}. The exact debug harness executable is unchanged across the two
 native attempts. Both protocols snapshot executed helper/native source and
@@ -14,6 +15,14 @@ record fingerprints before execution. The evaluator refuses an existing run
 directory, changed implementation snapshots or changed protocol/runner.
 These controls preserve provenance; they do not independently establish the
 correctness of the supplied reference.
+
+Source-only follow-up commits are \code{c2ef008} (commit/presentation and
+cleanup), \code{391332d} (source highlighting, reset and editor presentation),
+\code{2f6eb9c} (record/reference/timing infrastructure and collector schema 2)
+\code{4e403ca} (guarding double-click after selection refusal) and
+\code{8e23d15} (checking bitmap-background initialization). None has
+new build/test evidence. Their receipts identify source bytes rather than
+observed product behavior.
 
 The pre-expansion Git evidence checkpoint contains 46 JSON receipts, all
 parsed and fingerprint-checked against working files and Git blobs. Reading,
@@ -31,6 +40,25 @@ checkout; running the native harness requires the full recorded repository and
 its prepared resources. Reproduction commands and archive scope are in the
 appendices.
 
+\subsection{Declared records and byte-reference checks}
+The unexecuted v1 record implementation separates canonical commit from a
+component predicate, presentation, Save, terminal event and unresolved commit
+status. Correctness case, shared intent and document identities have separate
+denominators; timing repetitions cannot manufacture independent correctness
+requests. Required postconditions and reviewed annotations remain explicit,
+with null observations unresolved rather than passing.
+
+A separate unexecuted reference-checking draft reads only declared files
+under a controlled root and compares observed byte lengths/hashes. Fixture
+and oracle manifests must agree with their declared input lists. This can
+establish declared file consistency when exercised; it cannot establish
+actual execution, complete engine/font dependency capture, correct labels,
+independent review, pre-run sealing or a source-to-binary relationship. It
+always withholds final-evaluation admission. Both drafts use bounded strict
+JSON and exclusive report creation, and execute no manifest commands.
+\path{research/REFERENCE-ADMISSION.md} states their limits. These are new
+infrastructure sources without diagnostic or experimental results.
+
 \subsection{Machine, engines and fonts}
 A development environment collector fingerprints explicitly chosen tools,
 font files and inputs without compiling or launching the application. The
@@ -45,6 +73,14 @@ for the later native pilot retain recorder output, but complete engine/driver/
 OS font binding still needs review before a final freeze. Source documents,
 font acquisition and permission to redistribute standalone font files must be
 handled separately; the collector does not copy or license those files.
+
+A later read-only Windows inventory records reported CPU/RAM, OS build,
+registered WebView2 and graphics-controller fields. It did not launch Texloom
+or an engine. Registry availability is not the loaded application runtime;
+controller resolution/refresh is not observed per-monitor DPI or topology.
+This posthoc inventory cannot fill earlier run bindings or establish clean
+setup, display acceptance, power state or load during an experiment. Those
+fields remain pending for the actual final run.
 
 For a final run, seal the source/analysis commits or exact diffs, executables,
 worker/DLL, lockfiles, support packages, actual engine/bibliography/font inputs,
@@ -96,6 +132,41 @@ field is not proof of no vulnerabilities. The worker's checked paths, held DLL,
 immutable bounded inputs, separate process and time/memory budgets likewise
 do not constitute an operating-system sandbox. Nested provenance/build,
 vulnerability/version and license review remain public-distribution work.
+
+The later build-source review found null PDFium source-hash metadata and an
+empty build-flags list in the pinned wheel metadata. A pinned build-repository
+workflow names a Chromium branch and configuration defaults, but these are
+not an attested PDFium source revision and flag set for the actual DLL.
+Likewise a license collector's possible unknown-component warnings do not
+prove missing notices in this package. No upstream script, rebuild, pin
+upgrade or complete component/advisory/license audit was performed during
+that review. The nested provenance gap remains explicit.
+
+A subsequent advisory review changes the release assessment. The Chrome
+team's notice identifies CVE-2026-110155 and bug 570167922~\cite{chromepdfium2026advisory};
+the corresponding immutable PDFium commit repairs AGG initialization~\cite{pdfiumagg2026fix}.
+An acknowledged upstream report links the pinned distributor build to the
+missing fix. Captured branch-8076 source retains the earlier initialization,
+corroborating a source-level concern without independently recovering the
+DLL's full build relation or demonstrating a Texloom exploit. Public
+distribution is blocked pending remediation and exact-artifact validation.
+The historical pin is retained for reproduction, not declared secure.
+Other primary fix commits are follow-up leads, not a complete applicability
+audit. No replacement binary, exploit or scanner was run. The detailed
+scope and remaining work are in \path{docs/DEPENDENCY-ADVISORY-REVIEW.md}.
+
+Read-only intake of the distributor's old and newer Windows archives adds
+one useful byte relationship: the old archive's DLL matches the wheel's
+recorded DLL digest. The newer archive is a review candidate, not an adopted
+dependency. Its extra notice files show why replacement packaging needs a new
+inventory. Distributor-supplied build arguments and identical selected C
+declaration texts narrow inspection questions but do not establish runtime
+compatibility or complete build provenance. Header reading also found the
+worker's discarded boolean result from bitmap initialization; the new guard
+remains unbuilt and does not remediate the AGG advisory. Failed source-path
+retrieval and an initial overbroad header lookup are retained as reading-tool
+limits, not counted as application failures. See
+\path{docs/DEPENDENCY-CANDIDATE-INTAKE.md}.
 
 \subsection{Final freeze rule}
 \path{research/evaluation/freeze.json} remains \code{not\_frozen}. The final

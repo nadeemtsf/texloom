@@ -19,6 +19,8 @@ Updated 5 November 2026 after the owner asked to keep implementing while tests s
 
 ## Details of the newly completed source gaps
 
+A later source-only guard changes object double-click so the editor opens only for the selection returned by a successful selection call. An early refusal cannot reuse a previous selected object. This was found by reading the handler; no native failure was reproduced and no passing fix is claimed. The normal and refused double-click paths remain pending with the other UI acceptance gates.
+
 Automatic source highlighting uses the already validated BOM-free, LF-normalized UTF-16 ranges returned by the native protocol. It checks file/range/current-source identity, uses Monaco decorations rather than a source edit, and preserves PDF-frame focus. File activation restores the previous editor/file pairing if display setup fails; if restoration cannot be completed, the existing synchronization-error state stops further writes. Ordinary source typing, file changes, selection clearing and Read text mode clear the decoration. Explicit Show source remains a separate keyboard-focus/navigation action. No string-search guess or source transformation is added by highlighting.
 
 Reset position requests zero horizontal/vertical displacement through the existing checked movement path. It preserves the current text and movement capability. Remove positioning uses the existing detach operation and preserves current content. Neither is Undo, and clicking reset must not restore an older name. Reset is unavailable for an unwrapped source selection or an already-zero object.

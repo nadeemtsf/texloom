@@ -63,11 +63,37 @@ published, refused, stale, cancelled and compile-failed are not independent
 correctness labels. A stopped unfinished operation remains incomplete rather
 than becoming a pass.
 
-Headless checks test clock sampling disabled in ordinary mode, bounded storage,
+The next, unbuilt source revision exports schema 2 with a local random
+per-launch collector ID, clear epochs and issued-ID boundaries. Explicit
+discards, invalid-clock starts and cumulative cleared-row counts are retained.
+A missing random-ID facility leaves identity unresolved; no project identifier
+is substituted. Ordinary disabled collection does not request randomness.
+These changes have not been tested, and old schema-1 traces are not relabelled
+as new exports.
+
+An unexecuted analysis draft reads hashed snapshot files under an explicit
+controlled root. Planned trial IDs, warmup roles and missing traces are
+separate from collector record IDs. Overlapping snapshots cannot count the
+same retained record twice. Context groups separate source/executable,
+protocol, environment, workload, document, engine, language, cache state and
+operation category. Loss, pending work, unclaimed main-category records or
+missing planned samples suppress distributions for the affected current
+epochs. Clear history does not prove earlier epochs were exported.
+
+For complete current epochs the proposed summaries separate outcomes and
+endpoints. Median and nearest-rank p95 describe only observed samples;
+censored frame states retain counts, never zero-filled latency. A conditional
+frame p95 does not describe every requested action. The analysis computes
+neither independent correctness nor physical presentation or tracing overhead.
+Its source and specification are in \path{research/tools/timing_records.py}
+and \path{research/TIMING-RECORDS.md}; no invocation has run.
+
+Previously recorded headless checks cover clock sampling disabled in ordinary mode, bounded storage,
 failure/pending accounting and real-shell milestone plumbing with synthetic
 animation callbacks. Review found and corrected an early publication freshness
 check that ran before the busy flag was released. None of those diagnostics
 measures an actual Windows presentation boundary or acceptable overhead.
+Those earlier checks do not validate the source-only schema-2 changes.
 
 \subsection{Required timing and resource experiment}
 First validate boundaries against actual actions on the exact ordinary and

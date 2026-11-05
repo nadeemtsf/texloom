@@ -1,11 +1,23 @@
 {
   "schema": 1,
   "kind": "development_evidence_inventory_not_evaluation_results",
-  "recorded_utc": "2026-11-05T12:10:25.963061+00:00",
-  "audited_head": "c2ef008ddee53b6ea06028122f60ddbc0f00f2bb",
+  "recorded_utc": "2026-11-05T13:27:15.092726+00:00",
+  "audited_head": "8e23d1546639bccd8e09afb68f11acd61973d824",
   "working_tree_note": "Uncommitted report/evidence changes may be present; see the session checkpoint.",
   "final_evaluation_executed": false,
   "entries": [
+    {
+      "path": "docs/evidence/bitmap-initialization-source-only-2026-11-05.json",
+      "bytes": 1204,
+      "sha256": "454da47bd13c3b64b1961fb54dba1c108866bdb48c8964ebbf450e4ee13bd34b",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "untested_unbuilt_owner_paused_all_tests",
+      "recorded_utc": "2026-11-05T13:25:34.6098214Z",
+      "release_ready": false,
+      "parse_status": "ok"
+    },
     {
       "path": "docs/evidence/build-first-run.json",
       "bytes": 2534,
@@ -69,6 +81,32 @@
       "schema": 1,
       "source_commit": "2700d3462c3c6762c6e1053e5646ca7191a1935c",
       "date": "2026-11-04",
+      "release_ready": false,
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/dependency-advisory-review-2026-11-05.json",
+      "bytes": 3773,
+      "sha256": "7ebf2cd2f5d538cb38e1a05d19d29fe751cf51d26e446ee81079c7120dc66f2f",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "public_distribution_blocked_pending_remediation_and_validation",
+      "source_commit": "2f6eb9caaa4a65de1807581028d01b491e40b03c",
+      "recorded_utc": "2026-11-05T13:15:09.4889404Z",
+      "release_ready": false,
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/dependency-candidate-intake-2026-11-05.json",
+      "bytes": 6062,
+      "sha256": "92e5a661e9d7618df3c7586f24490766b4d80436d381a1dd6cd50e9bdb776fae",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "candidate_only_public_distribution_still_blocked",
+      "source_commit": "8e23d1546639bccd8e09afb68f11acd61973d824",
+      "recorded_utc": "2026-11-05T13:26:43.2289671Z",
       "release_ready": false,
       "parse_status": "ok"
     },
@@ -266,6 +304,18 @@
       "parse_status": "ok"
     },
     {
+      "path": "docs/evidence/object-double-click-source-only-2026-11-05.json",
+      "bytes": 912,
+      "sha256": "4b54684aae2d21adb826246b3286d91b145a15ee44da871d51e32bbd00d94cc2",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "untested_unbuilt_owner_paused_all_tests",
+      "recorded_utc": "2026-11-05T13:17:59.4292681Z",
+      "release_ready": false,
+      "parse_status": "ok"
+    },
+    {
       "path": "docs/evidence/oracle-feasibility-2026-11-04.json",
       "bytes": 38022,
       "sha256": "e4c8ea9ea7580269368171df73386d1cb40d217f6f333c219b96039ba30c0302",
@@ -392,6 +442,18 @@
       "parse_status": "ok"
     },
     {
+      "path": "docs/evidence/report-source-followup-2026-11-05.json",
+      "bytes": 4112,
+      "sha256": "785393096b1a14afdcc0bfa0ed74b568a68bce5d3671d6e0da25511b38471429",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "uncompiled_unrendered_owner_paused_all_tests",
+      "recorded_utc": "2026-11-05T13:27:13.2879180Z",
+      "release_ready": false,
+      "parse_status": "ok"
+    },
+    {
       "path": "docs/evidence/research-analysis-prototype-2026-11-04.json",
       "bytes": 1061,
       "sha256": "19768b2f63fcca066e348ae93ba24560163db7fb3732f382ed80e1706c045eed",
@@ -411,6 +473,18 @@
       "schema": 1,
       "product_source_commit": "5e59e77282fd5e4b4f70440437b8f841ccea1364",
       "recorded_utc": "2026-11-04T22:10:34.850781+00:00",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/research-reference-timing-source-only-2026-11-05.json",
+      "bytes": 3037,
+      "sha256": "50e1bc9bd55f1863ebb47e681f05b47bc0d0710ce8ffb2c8096ba5bdecd3a43f",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "unexecuted_unbuilt_owner_paused_all_tests",
+      "recorded_utc": "2026-11-05T13:14:06.2680147Z",
+      "release_ready": false,
       "parse_status": "ok"
     },
     {
@@ -506,6 +580,18 @@
       "schema": 1,
       "status": "untested_unbuilt_owner_paused_all_tests",
       "recorded_utc": "2026-11-05T11:54:54.729747+00:00",
+      "release_ready": false,
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/source-only-interaction-completion-2026-11-05.json",
+      "bytes": 2638,
+      "sha256": "dcd8f3ccc87ae775cf4c96e8eb3b654b1e133c697742a5ad2bdc4f6af5fb556c",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "untested_unbuilt_unrendered_owner_paused_all_tests",
+      "recorded_utc": "2026-11-05T12:35:12.809394+00:00",
       "release_ready": false,
       "parse_status": "ok"
     },
