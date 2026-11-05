@@ -1,5 +1,9 @@
 # Current validation status - 5 November 2026
 
+## Active resumed validation
+
+The owner explicitly resumed pending tests. [Resumed validation](docs/RESUMED-VALIDATION-2026-11-05.md) records actual current passes, retained failures, the exact rebuilt native smoke sequence and remaining gates. Pause statements below are historical. Dependency remediation and full native/final-study gates remain open.
+
 ## All tests paused - latest continuation
 
 The owner now requests development/research **except tests**. New commit/presentation/uncertain-acknowledgement and cleanup handling is implemented in source but **untested and unbuilt**. See docs/COMMIT-PRESENTATION.md. No automated suite, engine/native check, experiment or app launch ran for this change. Earlier pass counts below retain their original source/artifact identity and are not current validation of the new code.

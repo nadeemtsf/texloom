@@ -1,5 +1,7 @@
 # Current remaining work - 5 November 2026
 
+**Latest instruction supersedes the pause:** run pending tests, then continue remaining implementation. [Resumed validation](RESUMED-VALIDATION-2026-11-05.md) records current automated, engine and native observations. Earlier pause/unbuilt statements below describe the previous checkpoint. Physical/native and dependency gates remain; no release or final-study completion is claimed.
+
 The initial supported workflow is implemented: open/compile sources, select supported PDF text, move or edit it through checked candidates, Undo/Redo, explicit Save/export and recovery. Project transfer, encodings, templates, image import and bounded image/table/typography/spacing controls are present. Implemented scope is narrower than arbitrary visual LaTeX editing.
 
 Latest instruction: continue development/research **except tests**. All test execution is now paused, including automated and headless checks. Later local source adds commit/presentation/uncertain-response handling, interaction completion and schema-2 diagnostic identity, but is **untested and unbuilt**. The last tested product source remains `5e59e77`; saved r4 binaries are unchanged. See COMMIT-PRESENTATION.md and FEATURE-SOURCE-COVERAGE.md. Do not promote old pass totals to the new source.

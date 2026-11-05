@@ -27,38 +27,38 @@ function setup({scale=1,mode='select',revision=0}={}){
 }
 test('pointer movement renders only an outline and release invokes exactly one edit',async()=>{
  const t=setup();t.c.drag(t.event,t.frame,t.selection);assert.equal(t.frame.capture,7);assert.deepEqual(t.frame.focused,{preventScroll:true});
- for(let n=0;n<20;n++)t.frame.events.get('pointermove')({clientX:30+n,clientY:40,altKey:false});
+ for(let n=0;n<20;n++)t.frame.events.get('pointermove')({pointerId:7,clientX:30+n,clientY:40,altKey:false});
  assert.equal(t.operations.length,0);assert.equal(t.generated.length,0);assert.notEqual(t.frame.style.transform,'');
- const up=t.frame.events.get('pointerup');await up();assert.equal(t.operations.length,1);assert.equal(t.operations[0][0],t.selection);
+ const up=t.frame.events.get('pointerup');await up({pointerId:7});assert.equal(t.operations.length,1);assert.equal(t.operations[0][0],t.selection);
  assert.equal(t.frame.events.size,0);assert.equal(t.frame.style.transform,'');assert.ok(t.generated.every(e=>e.removed));
 });
 test('click jitter creates no candidate or ghost',async()=>{
- const t=setup();t.c.drag(t.event,t.frame,t.selection);t.frame.events.get('pointermove')({clientX:11,clientY:21,altKey:false});await t.frame.events.get('pointerup')();
+ const t=setup();t.c.drag(t.event,t.frame,t.selection);t.frame.events.get('pointermove')({pointerId:7,clientX:11,clientY:21,altKey:false});await t.frame.events.get('pointerup')({pointerId:7});
  assert.equal(t.operations.length,0);assert.equal(t.generated.length,0);
 });
 test('Escape clears the gesture and restores its visual state without an edit',()=>{
- const t=setup();t.c.drag(t.event,t.frame,t.selection);t.frame.events.get('pointermove')({clientX:45,clientY:65,altKey:false});t.c.onEscape({key:'Escape'});
+ const t=setup();t.c.drag(t.event,t.frame,t.selection);t.frame.events.get('pointermove')({pointerId:7,clientX:45,clientY:65,altKey:false});t.c.onEscape({key:'Escape'});
  assert.equal(t.operations.length,0);assert.equal(t.c.selection,null);assert.equal(t.frame.events.size,0);assert.equal(t.frame.style.transform,'');assert.ok(t.generated.every(e=>e.removed));
 });
 test('pointer cancellation never executes the pending movement',()=>{
- const t=setup();t.c.drag(t.event,t.frame,t.selection);t.frame.events.get('pointermove')({clientX:45,clientY:65,altKey:false});t.frame.events.get('pointercancel')();
+ const t=setup();t.c.drag(t.event,t.frame,t.selection);t.frame.events.get('pointermove')({pointerId:7,clientX:45,clientY:65,altKey:false});t.frame.events.get('pointercancel')();
  assert.equal(t.operations.length,0);assert.equal(t.frame.events.size,0);assert.ok(t.generated.every(e=>e.removed));
 });
 
 test('losing pointer capture cancels the outline without editing source',()=>{
- const t=setup();t.c.drag(t.event,t.frame,t.selection);t.frame.events.get('pointermove')({clientX:45,clientY:65,altKey:false});
+ const t=setup();t.c.drag(t.event,t.frame,t.selection);t.frame.events.get('pointermove')({pointerId:7,clientX:45,clientY:65,altKey:false});
  t.frame.events.get('lostpointercapture')();assert.equal(t.operations.length,0);assert.equal(t.frame.events.size,0);assert.equal(t.frame.style.transform,'');
 });
 test('switching windows cancels a held drag and a later deliberate drag still works',async()=>{
  const t=setup();t.c.drag(t.event,t.frame,t.selection);
- t.frame.events.get('pointermove')({clientX:45,clientY:65,altKey:false});
+ t.frame.events.get('pointermove')({pointerId:7,clientX:45,clientY:65,altKey:false});
  t.eventWindow.events.get('blur')();
  assert.equal(t.operations.length,0);assert.equal(t.frame.events.size,0);
  assert.equal(t.frame.style.transform,'');assert.equal(t.c.selection,t.selection);
  assert.equal(t.c.cancelGesture,null);
  t.c.drag(t.event,t.frame,t.selection);
- t.frame.events.get('pointermove')({clientX:30,clientY:40,altKey:false});
- await t.frame.events.get('pointerup')();assert.equal(t.operations.length,1);
+ t.frame.events.get('pointermove')({pointerId:7,clientX:30,clientY:40,altKey:false});
+ await t.frame.events.get('pointerup')({pointerId:7});assert.equal(t.operations.length,1);
 });
 
 test('disposing a controller releases its window listener and active gesture',()=>{
@@ -71,15 +71,15 @@ test('switching windows removes a marquee without resolving or replacing the sel
  shell.getBoundingClientRect=()=>({left:0,top:0});shell.append=()=>{};
  t.c.resolve=async()=>{resolutions++};
  t.c.marquee({...t.event,target:{closest:()=>null}},shell,[],1);
- shell.events.get('pointermove')({clientX:80,clientY:90});
+ shell.events.get('pointermove')({pointerId:7,clientX:80,clientY:90});
  assert.equal(t.generated.length,1);assert.equal(t.generated[0].removed,false);
  t.eventWindow.events.get('blur')();
  assert.equal(t.generated[0].removed,true);assert.equal(shell.events.size,0);
  assert.equal(t.c.selection,t.selection);assert.equal(resolutions,0);assert.equal(t.operations.length,0);
 });
 test('zoom and free movement preserve PDF-point deltas',async()=>{
- const t=setup({scale:2});t.c.drag(t.event,t.frame,t.selection);t.frame.events.get('pointermove')({clientX:31,clientY:45,altKey:true});
- assert.equal(t.operations.length,0);await t.frame.events.get('pointerup')();assert.equal(t.operations[0][1],10.5);assert.equal(t.operations[0][2],12.5);
+ const t=setup({scale:2});t.c.drag(t.event,t.frame,t.selection);t.frame.events.get('pointermove')({pointerId:7,clientX:31,clientY:45,altKey:true});
+ assert.equal(t.operations.length,0);await t.frame.events.get('pointerup')({pointerId:7});assert.equal(t.operations[0][1],10.5);assert.equal(t.operations[0][2],12.5);
 });
 test('stale and reading surfaces do not start a drag',()=>{
  for(const options of [{mode:'read'},{revision:1}]){const t=setup(options);t.c.drag(t.event,t.frame,t.selection);assert.equal(t.frame.events.size,0);assert.equal(t.frame.capture,undefined);assert.equal(t.operations.length,0);}
@@ -89,4 +89,21 @@ test('selecting the verified movable object restores keyboard focus after a PDF 
  t.c.view.result.objects=[object];t.c.view.objects=new Map([[object.id,{page:1,instances:1,pages:new Set([1])}]]);t.c.view.pages=[{number:1}];
  t.c.drawFrame=()=>t.frame;t.c.selectObject(object.id);
  assert.equal(t.c.selection.id,object.id);assert.deepEqual(t.frame.focused,{preventScroll:true});
+});
+
+test('another pointer cannot move, release or cancel the active drag',async()=>{
+  const t=setup();t.c.drag(t.event,t.frame,t.selection);
+  t.frame.events.get('pointermove')({pointerId:8,clientX:100,clientY:100});
+  await t.frame.events.get('pointerup')({pointerId:8});t.frame.events.get('pointercancel')({pointerId:8});
+  assert.equal(t.operations.length,0);assert.equal(t.frame.events.has('pointerup'),true);
+  t.frame.events.get('pointermove')({pointerId:7,clientX:30,clientY:40,altKey:false});
+  await t.frame.events.get('pointerup')({pointerId:7});assert.equal(t.operations.length,1);
+});
+
+test('marquee lost capture removes its listeners and cannot resolve a later release',()=>{
+  const t=setup(),shell=new Element();let resolved=0;shell.getBoundingClientRect=()=>({left:0,top:0});shell.append=()=>{};
+  t.c.resolve=async()=>{resolved++};t.c.marquee({...t.event,target:{closest:()=>null}},shell,[],1);
+  shell.events.get('pointermove')({pointerId:7,clientX:80,clientY:90});
+  shell.events.get('lostpointercapture')({pointerId:7});assert.equal(shell.events.size,0);
+  assert.equal(t.generated[0].removed,true);assert.equal(resolved,0);assert.equal(t.c.cancelGesture,null);
 });

@@ -1,5 +1,7 @@
 # Implementation and acceptance status
 
+**Resumed validation:** the owner has now authorized pending automated, engine and native tests. See [the current record](RESUMED-VALIDATION-2026-11-05.md); the earlier pause statements below are historical. The exact ordinary build has bounded native workflow evidence, while physical/environment/release and final-study gates remain open.
+
 Updated 5 November 2026. Scope: APPROVED-IMPLEMENTATION-PLAN.md and the owner's current English/Arabic/Hebrew language scope. The latest continuation adds commit/presentation failure and cleanup handling in source only; **all tests are now paused by the owner**, and this change is unbuilt/unexecuted. See COMMIT-PRESENTATION.md. The last tested product source is 5e59e77; its 252 frontend/88 default core and ordinary/diagnostic Windows builds passed. Its native/installation checks also remain pending. The project is not release-complete. Historical deferral notes elsewhere do not override the current all-tests pause.
 
 Further source implementation fills four approved interaction gaps: automatic PDF-to-source highlighting, a dedicated Reset position distinct from Remove positioning, formatted/direction-aware literal fields with visible protected commands, and a viewport-bounded editor near the selected unit. These changes have not been rendered, built or tested. FEATURE-SOURCE-COVERAGE.md maps the original feature list to source and explicitly separates that from acceptance.

@@ -1,4 +1,4 @@
-"""Bounded local research data I/O. Unexecuted implementation; no commands run.
+"""Bounded local research data I/O; synthetic infrastructure checks are recorded.
 
 These checks help detect mistakes in controlled artifact directories. They are
 not an OS sandbox against hostile concurrent filesystem changes.
@@ -72,7 +72,13 @@ def read_fingerprint(path, *, retain=False, limit=MAX_FILE_BYTES):
             if retain:
                 chunks.append(chunk)
         after = os.fstat(stream.fileno())
-    require(identity(before) == identity(after) == identity(path.stat()) and count == after.st_size,
+    path_after = path.stat()
+    # Windows fstat/stat can expose different ctime semantics for the same
+    # unchanged file. Compare ctime within the handle API, and stable file ID,
+    # size and mtime across handle/path APIs. POSIX retains the full comparison.
+    path_matches = (identity(after)[:4] == identity(path_after)[:4] if os.name == "nt"
+                    else identity(after) == identity(path_after))
+    require(identity(before) == identity(after) and path_matches and count == after.st_size,
             "Artifact changed during fingerprinting")
     return {"bytes": count, "sha256": digest.hexdigest()}, b"".join(chunks) if retain else None
 

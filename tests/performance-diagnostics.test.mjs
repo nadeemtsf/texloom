@@ -12,9 +12,26 @@ function harness(options={}){
 }
 
 test('ordinary builds do not sample clocks or expose a diagnostic API',()=>{
-  const host={},diagnostics=installPerformanceDiagnostics({host,enabled:false,now:()=>assert.fail('Disabled diagnostics sampled a clock')});
+  const host={},diagnostics=installPerformanceDiagnostics({host,enabled:false,now:()=>assert.fail('Disabled diagnostics sampled a clock'),newCollectorId:()=>assert.fail('Disabled diagnostics requested randomness')});
   assert.equal(diagnostics.begin('text-move'),null);assert.equal(host.texloomPerformance,undefined);
   assert.equal(diagnostics.snapshot().records.length,0);
+});
+
+test('collector identity and clear epochs preserve lost-row accounting and never reuse IDs',()=>{
+  const id='12345678-1234-4123-8123-123456789abc',h=harness({newCollectorId:()=>id});
+  h.diagnostics.begin('text-move').finish('published');h.diagnostics.begin('text-edit');
+  h.diagnostics.clear();const after=h.diagnostics.snapshot();
+  assert.equal(after.schema,2);assert.equal(after.collector_id,id);assert.equal(after.epoch,1);
+  assert.deepEqual(after.clear_history,{completed:1,pending:1});assert.equal(after.first_id,3);assert.equal(after.last_id,2);
+  h.diagnostics.begin('text-edit').finish('refused');assert.equal(h.diagnostics.snapshot().records[0].id,3);
+});
+
+test('failed random identity stays explicitly unknown and invalid/discarded starts are counted',()=>{
+  const h=harness({newCollectorId:()=>{throw Error('No randomness')}});
+  assert.equal(h.diagnostics.snapshot().collector_id,null);
+  h.at(NaN);assert.equal(h.diagnostics.begin('text-edit'),null);h.at(100);
+  h.diagnostics.begin('text-move').discard();const snapshot=h.diagnostics.snapshot();
+  assert.equal(snapshot.invalid_starts,1);assert.equal(snapshot.discarded,1);assert.equal(snapshot.records.length,0);
 });
 
 test('publication and the two-frame opportunity are distinct, bounded timestamps',()=>{

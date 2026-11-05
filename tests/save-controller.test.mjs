@@ -4,7 +4,7 @@ import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
 
 const app=await readFile(new URL('../web/app.js',import.meta.url),'utf8');
-const begin=app.indexOf('async function saveProject(){'),end=app.indexOf('function compileCandidate(){',begin);
+const begin=app.indexOf('async function saveProject(){'),end=app.indexOf('const selectionProofs=new WeakMap();',begin);
 assert.ok(begin>=0&&end>begin);
 function setup({failure=null,parent='COPY-PARENT',busy=false,drafts=[],confirmed=true}={}){
   const events=[],classes=[],elements=new Map();

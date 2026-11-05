@@ -10,6 +10,9 @@ import {ProjectControls} from '../web/core/project-controls.js';
 import {PDFSearch} from '../web/core/pdf-search.js';
 import {SetupHelp} from '../web/core/setup-help.js';
 import {installPerformanceDiagnostics,performanceOutcome} from '../web/core/performance-diagnostics.js';
+import {SourceHighlight,selectionSourceRange} from '../web/core/source-highlight.js';
+import {applyTextInputAppearance,renderProtectedCommands} from '../web/core/text-input-appearance.js';
+import {positionDialogNear,clearDialogPosition} from '../web/core/dialog-anchor.js';
 
 const [app,html]=await Promise.all(['app.js','index.html'].map(name=>readFile(new URL('../web/'+name,import.meta.url),'utf8')));
 
@@ -19,7 +22,7 @@ function boot({markup=html,openFailure=null,badSnapshot=false,adapterFailure=nul
   const calls=[],elements=new Map(),options={},handlers={};
   function element(id=''){
     const classes=new Set();
-    return {id,value:'',textContent:'',disabled:false,checked:false,open:false,children:[],
+    return {id,value:'',textContent:'',disabled:false,checked:false,open:false,children:[],style:{},
       classList:{add:n=>classes.add(n),remove:n=>classes.delete(n),contains:n=>classes.has(n),
         toggle(n,force){const enabled=force??!classes.has(n);if(enabled)classes.add(n);else classes.delete(n);return enabled}},
       setAttribute(){},addEventListener(){},replaceChildren(...children){this.children=children},
@@ -36,7 +39,7 @@ function boot({markup=html,openFailure=null,badSnapshot=false,adapterFailure=nul
   const editor={createContextKey:()=>({set(){}}),updateOptions:o=>Object.assign(options,o),
     onDidChangeModelContent(){},onDidChangeCursorPosition(){},onDidChangeCursorSelection(){},
     addAction(){},addCommand(){},getDomNode:()=>element(),getSelections:()=>[],hasTextFocus:()=>false};
-  const context={...transactions,DocumentClient,editorText,sameSources,TypingRecoveryController,createWorkspaceInvoke,ProjectControls,PDFSearch,SetupHelp,installPerformanceDiagnostics,performanceOutcome,structuredClone,console,
+  const context={...transactions,SourceHighlight,selectionSourceRange,applyTextInputAppearance,renderProtectedCommands,positionDialogNear,clearDialogPosition,DocumentClient,editorText,sameSources,TypingRecoveryController,createWorkspaceInvoke,ProjectControls,PDFSearch,SetupHelp,installPerformanceDiagnostics,performanceOutcome,structuredClone,console,
     self:{},pdfjs:{GlobalWorkerOptions:{}},pdfWorkerURL:'test-worker',EditorWorker:class{},
     monaco:{languages:{register(){},setMonarchTokensProvider(){},setLanguageConfiguration(){}},
       editor:{defineTheme(){},createModel:()=>model,create:()=>editor,EndOfLineSequence:{LF:0}},

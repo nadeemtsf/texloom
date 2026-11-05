@@ -13,8 +13,11 @@ async function setup({tracing=false,presentation=false}={}){
  const {PDFSearch}=await import('../web/core/pdf-search.js');
  const {SetupHelp}=await import('../web/core/setup-help.js');
  const {installPerformanceDiagnostics,performanceOutcome}=await import('../web/core/performance-diagnostics.js');
+ const {SourceHighlight,selectionSourceRange}=await import('../web/core/source-highlight.js');
+ const {applyTextInputAppearance,renderProtectedCommands}=await import('../web/core/text-input-appearance.js');
+ const {positionDialogNear,clearDialogPosition}=await import('../web/core/dialog-anchor.js');
  const elements=new Map();
- function element(id){if(!elements.has(id))elements.set(id,{value:'',checked:false,disabled:false,open:false,textContent:'',classList:{add(){},remove(){},toggle(){}},setAttribute(){},replaceChildren(){},append(){},addEventListener(){},focus(){},showModal(){this.open=true},close(){this.open=false}});return elements.get(id)}
+ function element(id){if(!elements.has(id))elements.set(id,{value:'',checked:false,disabled:false,open:false,textContent:'',style:{},classList:{add(){},remove(){},toggle(){}},setAttribute(){},replaceChildren(){},append(){},addEventListener(){},focus(){},showModal(){this.open=true},close(){this.open=false}});return elements.get(id)}
  const model={setValue(){},setEOL(){},getValue:()=>'',getOffsetAt:p=>p.column-1};
  const composition={};
  const editor={onDidChangeModelContent(fn){control.onEdit=fn},onDidChangeCursorPosition(){},onDidChangeCursorSelection(fn){control.onSelection=fn},addCommand(){},
@@ -33,7 +36,7 @@ async function setup({tracing=false,presentation=false}={}){
   return {frame,listeners,original};
  }
  const context=vm.createContext({
-  ...transactions,...selectionProof,validateSelectionProbe:(...args)=>control.prove?control.prove(...args):selectionProof.validateSelectionProbe(...args),DocumentClient,editorText,sameSources,TypingRecoveryController,createWorkspaceInvoke,ProjectControls,PDFSearch,SetupHelp,installPerformanceDiagnostics,performanceOutcome,initialSnapshot:native.snapshot(),inside:()=>true,self:{},EditorWorker:class{},pdfWorkerURL:'test-worker',
+  ...transactions,...selectionProof,SourceHighlight,selectionSourceRange,applyTextInputAppearance,renderProtectedCommands,positionDialogNear,clearDialogPosition,validateSelectionProbe:(...args)=>control.prove?control.prove(...args):selectionProof.validateSelectionProbe(...args),DocumentClient,editorText,sameSources,TypingRecoveryController,createWorkspaceInvoke,ProjectControls,PDFSearch,SetupHelp,installPerformanceDiagnostics,performanceOutcome,initialSnapshot:native.snapshot(),inside:()=>true,self:{},EditorWorker:class{},pdfWorkerURL:'test-worker',
   CanvasController:class{clear(){}bind(){}selectObject(){}},
   monaco:{languages:{register(){},setMonarchTokensProvider(){},setLanguageConfiguration(){}},editor:{defineTheme(){},createModel:()=>model,create:()=>editor,EndOfLineSequence:{LF:0}},KeyMod:{CtrlCmd:1,Shift:2},KeyCode:{KeyS:1,Enter:2,KeyZ:3,KeyY:4}},
   pdfjs:{GlobalWorkerOptions:{}},structuredClone,crypto:require('node:crypto').webcrypto,
@@ -48,7 +51,7 @@ async function setup({tracing=false,presentation=false}={}){
  let script=fs.readFileSync(require('node:path').join(__dirname,'../web/app.js'),'utf8').replace(/^import .*;\r?$/gm,'');
  script=script.replace(/\nopenProject\(\);\s*$/,'\n');vm.runInContext(script,context);
  const run=s=>vm.runInContext(s,context);
- run("state.project={id:'test',main:'main.tex'};state.compileApproved=true;state.sources={'main.tex':'Original source','studio.sty':'Style source'};state.saved=structuredClone(state.sources);state.file='main.tex';state.revision=0;state.compiled=0;state.result={build_id:'last-good',blocks:[]};state.view={pageCount:1};syncEditor=()=>{};renderOverlays=()=>{};renderInspector=()=>{};publishPrepared=(prepared,result)=>{state.pdf=prepared.pdf;state.result=result;state.compiled=state.revision};");
+ run("state.project={id:'test',main:'main.tex'};state.compileApproved=true;state.sources={'main.tex':'Original source','studio.sty':'Style source'};state.saved=structuredClone(state.sources);state.file='main.tex';state.revision=0;state.compiled=0;state.result={build_id:'last-good',blocks:[]};state.view={pageCount:1,pages:[],scale:1};syncEditor=()=>{};renderOverlays=()=>{};renderInspector=()=>{};publishPrepared=(prepared,result)=>{state.pdf=prepared.pdf;state.result=result;state.compiled=state.revision};");
  run("state.client=new DocumentClient(invoke,'test',initialSnapshot,{changed:acceptDocument,failed:syncFailed});");
  return {run,control,native,model,composition,legacyGesture};
 }
@@ -58,16 +61,45 @@ for(const failure of ['prepare','compile'])test(`legacy movement preview restore
  if(failure==='prepare')t.control.prepareFailure='Native preparation refused';
  else t.control.compile=async()=>({ok:false,log:'Compilation failed'});
  const g=t.legacyGesture();
- for(let n=0;n<10;n++)g.listeners.get('pointermove')({clientX:30+n,clientY:40,altKey:false});
+ for(let n=0;n<10;n++)g.listeners.get('pointermove')({pointerId:1,clientX:30+n,clientY:40,altKey:false});
  assert.notEqual(g.frame.style.left,g.original.left);assert.equal(t.native.pending.size,0);assert.equal(t.native.history.length,0);
- await g.listeners.get('pointerup')();
+ await g.listeners.get('pointerup')({pointerId:1});
  assert.deepEqual(g.frame.style,g.original);assert.equal(g.listeners.size,0);
  assert.equal(t.run("state.sources['main.tex']"),'Original source');assert.equal(t.run('state.result.build_id'),'last-good');
  assert.equal(t.native.history.length,0);assert.equal(t.native.pending.size,0);
 });
 
+test('a native commit followed by publication failure remains a commit and preserves an adopted PDF',async()=>{
+ const t=await setup({tracing:true});let destroyed=0;
+ t.control.prepare=async result=>({result,pdf:{destroy:async()=>{destroyed++}},pageCount:1,objects:new Map(),unclosed:new Set()});
+ t.run("publishPrepared=prepared=>{state.pdf=prepared.pdf;throw Error('Synthetic presentation failure')}");
+ await assert.rejects(t.run("commitSources({...state.sources,'main.tex':'Changed source'})"),{name:'CommittedPresentationFailure'});
+ assert.equal(t.native.history.length,1);assert.equal(t.native.sources['main.tex'],'Changed source');
+ assert.equal(t.run("state.sources['main.tex']"),'Changed source');assert.equal(t.run('state.compiled'),-1);
+ assert.equal(t.run('state.busy||state.mutating'),false);assert.equal(destroyed,0);
+});
+
+test('a lost acknowledgement after native commit stops replica writes instead of retrying or declaring refusal',async()=>{
+ const t=await setup(),original=t.native.invoke.bind(t.native);let commits=0;
+ t.native.invoke=async(name,args)=>{const result=await original(name,args);if(name==='document_commit'){commits++;throw Error('Synthetic acknowledgement loss')}return result};
+ await assert.rejects(t.run("commitSources({...state.sources,'main.tex':'Changed source'})"),{name:'CommitStatusUnknown'});
+ assert.equal(commits,1);assert.equal(t.native.history.length,1);assert.equal(t.native.sources['main.tex'],'Changed source');
+ assert.equal(t.run('state.client.error.name'),'CommitStatusUnknown');assert.equal(t.run('state.busy||state.mutating'),false);
+ await assert.rejects(t.run("state.client.edit('main.tex',[{offset:0,length:0,text:'Must not apply'}])"));
+ assert.equal(t.native.sources['main.tex'],'Changed source');
+});
+
+test('an ordinary compile waiting for an old client never compiles a newly opened unapproved project',async()=>{
+ const t=await setup();let calls=0;
+ t.control.compile=async()=>{calls++;throw Error('Obsolete request reached compilation')};
+ t.run('state.client.flush=()=>new Promise(resolve=>{self.releaseCompileFlush=resolve})');
+ const pending=t.run('compile()');
+ t.run("state.client={error:null,compile(){throw Error('New unapproved client was compiled')}};state.compileApproved=false;self.releaseCompileFlush()");
+ await pending;assert.equal(calls,0);assert.equal(t.run('state.busy'),false);
+});
+
 for(const cancellation of ['pointercancel','lostpointercapture','gesture-hook'])test(`legacy resize cancellation (${cancellation}) restores its accepted width without a transaction`,async()=>{
- const t=await setup();const g=t.legacyGesture(true);g.listeners.get('pointermove')({clientX:75,clientY:10,altKey:false});
+ const t=await setup();const g=t.legacyGesture(true);g.listeners.get('pointermove')({pointerId:1,clientX:75,clientY:10,altKey:false});
  assert.notEqual(g.frame.style.width,g.original.width);
  if(cancellation==='gesture-hook')t.run('canvas.cancelGesture()');else g.listeners.get(cancellation)();
  assert.deepEqual(g.frame.style,g.original);assert.equal(g.listeners.size,0);assert.equal(t.native.history.length,0);assert.equal(t.native.pending.size,0);
