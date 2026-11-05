@@ -224,8 +224,11 @@ fn inspect(request: &Request, prefix: &Path) -> Result<Value> {
             unsafe { (api.FPDFBitmap_CreateEx)(w as i32, h as i32, 2, std::ptr::null_mut(), 0) },
             api.FPDFBitmap_Destroy,
         )?;
+        check(
+            unsafe { (api.FPDFBitmap_FillRect)(bitmap.raw, 0, 0, w as i32, h as i32, 0xffffffff) } != 0,
+            "PDFium could not initialize the raster background",
+        )?;
         unsafe {
-            (api.FPDFBitmap_FillRect)(bitmap.raw, 0, 0, w as i32, h as i32, 0xffffffff);
             (api.FPDF_RenderPageBitmap)(bitmap.raw, page.raw, 0, 0, w as i32, h as i32, 0, 1);
         }
         let stride = usize::try_from(unsafe { (api.FPDFBitmap_GetStride)(bitmap.raw) })

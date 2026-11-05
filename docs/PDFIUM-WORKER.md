@@ -1,5 +1,7 @@
 # P6 native inspection experiment
 
+5 November 2026 source-only follow-up: reading the actual distributor headers for the pinned PDFium156 archive found `FPDFBitmap_FillRect` returns `FPDF_BOOL`, while the Rust declaration discarded its return. New source declares the integer result and refuses inspection if background initialization fails, before rendering or reading pixels. This is **unbuilt and untested**; no failure was reproduced and no DLL/pin changed. It does not remediate the separate PDFium advisory blocker. Historical experiment/CI descriptions below retain their own versions; see DEPENDENCY-CANDIDATE-INTAKE.md and DEPENDENCY-ADVISORY-REVIEW.md for current limits.
+
 The Windows x64 `pdfium_worker` binary inspects PDFs in a separate Rust process. It does not require Python to run. Its checked parent is now connected to supported document transactions; see NATIVE-LAYOUT-GATE.md. Native interaction, broader compatibility and installer acceptance remain open.
 
 The worker loads one development PDFium DLL by absolute path with restricted Windows library search flags. It verifies the DLL SHA-256 before loading and holds a read handle that disallows writes/deletion. The ABI surface is explicit and bound to that exact binary. PDFium handles close before the library unloads. The application process never loads PDFium through this code.
