@@ -4,6 +4,8 @@ Implemented 4 November 2026; native measurements and overhead evaluation are pen
 
 5 November source-only continuation adds `committed-ui-failed` and `commit-unknown` outcomes. A later UI error does not erase a native commit or an already recorded publication milestone; an unusable commit response is not proof of refusal. These new categories and their handling are **untested** because the owner paused every test run. Earlier diagnostic build/check receipts apply to the preceding implementation, not these additions. See COMMIT-PRESENTATION.md.
 
+Later source changes add automatic source highlighting/file activation before the controller's `selection-ready` boundary. Its cost is therefore inside future selection traces on that source version; it was absent from earlier build receipts. Reset position uses the `text-move` category and must be identified by the declared workload condition, not inferred from an unlabelled timing record. No latency or overhead measurement accompanies either change.
+
 The collector records static event categories, sequence numbers and `performance.now()` offsets. It does not record source text, document names, paths, selection content, error messages or identifiers from projects. No trace is automatically saved or transmitted. A snapshot is a detached copy; the evaluator must export it and record its hash before resetting the collector.
 
 ## Measurement boundaries

@@ -4,6 +4,8 @@ The initial supported workflow is implemented: open/compile sources, select supp
 
 Latest instruction: continue development/research **except tests**. All test execution is now paused, including automated and headless checks. Local product source `c2ef008` adds known-commit/presentation failure, uncertain commit response and cleanup handling, but is **untested and unbuilt**. The last tested product source remains `5e59e77`; saved r4 binaries are unchanged. See COMMIT-PRESENTATION.md. Do not promote old pass totals to the new source.
 
+The continued source audit found and implemented automatic PDF-to-source highlighting, explicit Reset position versus Remove positioning, formatting/bidirectional editing hints with protected-command display, and editor placement near the selected PDF unit with a centered fallback. They remain unbuilt/unrendered/untested. See FEATURE-SOURCE-COVERAGE.md; source presence does not close any acceptance gate.
+
 ## Implementation and engineering
 
 - Read-only prerequisite guidance is now implemented, including contextual compiler/package/font help. Native appearance, keyboard use and clean Windows setup acceptance remain pending; a developer-account install is insufficient evidence. See SETUP-HELP.md.

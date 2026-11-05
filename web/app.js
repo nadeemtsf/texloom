@@ -21,6 +21,9 @@ import {ProjectControls} from './core/project-controls.js';
 import {PDFSearch} from './core/pdf-search.js';
 import {SetupHelp} from './core/setup-help.js';
 import {installPerformanceDiagnostics,performanceOutcome} from './core/performance-diagnostics.js';
+import {SourceHighlight,selectionSourceRange} from './core/source-highlight.js';
+import {applyTextInputAppearance,renderProtectedCommands} from './core/text-input-appearance.js';
+import {positionDialogNear,clearDialogPosition} from './core/dialog-anchor.js';
 
 const invoke=createWorkspaceInvoke(nativeInvoke);
 const diagnostics=installPerformanceDiagnostics();
@@ -59,6 +62,7 @@ const state={
 const undoContext=editor.createContextKey('texloomCanUndo',false);
 const redoContext=editor.createContextKey('texloomCanRedo',false);
 const surfaceElements={pages:$('pages'),scroller:$('preview-scroll'),count:$('page-count'),empty:$('empty')};
+const sourceHighlight=new SourceHighlight({editor,getState:()=>state,isCurrent:()=>fresh()&&state.mode==='select',activateFile:activateSourceFile});
 const setupHelp=new SetupHelp({document});
 const pdfSearch=new PDFSearch({document,getView:()=>state.view,notify:toast});
 const canvas=new CanvasController({
@@ -102,10 +106,26 @@ function syncFailed(error){
   $('banner').classList.remove('hidden');updateControls();
 }
 function syncEditor(){
+  sourceHighlight.clear();
   state.suppress=true;
   try{model.setValue(editorText(state.sources[state.file]||''));model.setEOL(monaco.editor.EndOfLineSequence.LF)}
   finally{state.suppress=false}
   $('active-file').textContent=state.file;renderFiles();
+}
+function activateSourceFile(file){
+  if(!Object.hasOwn(state.sources,file))throw Error('This source file is no longer available.');
+  const previous=state.file;
+  if(file!==previous)state.lastHistory=0;
+  try{state.file=file;syncEditor()}
+  catch(error){
+    state.file=previous;
+    try{syncEditor()}catch{
+      // Keep the replica stopped if editor/file correspondence cannot be restored.
+      if(state.client)state.client.error=error instanceof Error?error:new Error(String(error));
+      syncFailed(error);
+    }
+    throw error;
+  }
 }
 function fresh(){return !!state.result&&state.result.verification_eligible!==false&&state.revision===state.compiled&&!state.busy&&!state.client?.pending&&!state.client?.error&&!state.mutating&&!state.saving&&!state.composing&&!state.opening}
 function updateControls(){
@@ -115,6 +135,7 @@ function updateControls(){
   for(const id of ['apply-position','apply-size','apply-content','edit-block','delete-block'])$(id).disabled=!legacy;
   for(const id of ['object-apply','object-edit','object-source'])$(id).disabled=!object;
   $('object-detach').disabled=!object||state.objectSelection?.kind!=='object';
+  $('object-reset').disabled=!object||state.objectSelection?.kind!=='object'||(!state.objectSelection.dx&&!state.objectSelection.dy);
   $('compile').disabled=state.busy||!!state.saving||!!state.client?.error;
   $('save').disabled=!!state.saving||state.busy||state.composing||!!state.client?.error;
   $('open').disabled=!!state.saving||state.mutating;
@@ -210,7 +231,7 @@ function renderDiagnostics(diagnostics){
     const el=document.createElement(d.file?'button':'p');
     el.className='diagnostic '+d.severity;el.textContent=(d.file?d.file+(d.line?':'+d.line:'')+' — ':'')+d.message;
     if(d.file)el.onclick=async()=>{try{await state.client.flush();if(state.sources[d.file]===undefined)return;
-      state.file=d.file;state.lastHistory=0;syncEditor();editor.setPosition({lineNumber:Math.min(d.line||1,model.getLineCount()),column:1});editor.focus();sendSelection();
+      state.lastHistory=0;activateSourceFile(d.file);editor.setPosition({lineNumber:Math.min(d.line||1,model.getLineCount()),column:1});editor.focus();sendSelection();
     }catch(error){syncFailed(error)}};
     $('diagnostics').append(el);
   }
@@ -225,7 +246,7 @@ function renderFiles(){
   for(const name of Object.keys(state.sources).sort()){
     const button=document.createElement('button');button.textContent=name;button.title=name;
     button.classList.toggle('active',name===state.file);
-    button.onclick=async()=>{try{await state.client.flush();state.lastHistory=0;state.file=name;syncEditor();sendSelection()}catch(error){syncFailed(error)}};$('file-list').append(button);
+    button.onclick=async()=>{try{await state.client.flush();state.lastHistory=0;activateSourceFile(name);sendSelection()}catch(error){syncFailed(error)}};$('file-list').append(button);
   }
   $('main-file').replaceChildren();
   for(const name of Object.keys(state.sources).filter(n=>n.endsWith('.tex'))){
@@ -577,11 +598,14 @@ async function editText(selection=state.objectSelection){
   state.dialog={kind:'text-object',selection:clone(selection),identity,literalInputs:[],spacingInputs:[]};
   const simple=typeof selection.plain_text==='string';
   showEditor('Edit selected text',simple?selection.plain_text:selection.content,simple,!simple);
+  if(simple&&textModel?.runs?.length===1&&textModel.runs[0].text===selection.plain_text)
+    applyTextInputAppearance($('edit-text'),{styles:textModel.runs[0].styles});
   if(textModel&&((!simple&&textModel.runs?.length)||textModel.spacing?.length)){
     state.dialog.literalMode=true;
     for(const run of textModel.runs){
       const label=document.createElement('label'),title=document.createElement('span'),input=document.createElement('textarea');
       title.textContent=run.styles.length?run.styles.join(' / '):'Text';input.value=run.text;input.rows=2;
+      applyTextInputAppearance(input,{styles:run.styles});
       input.setAttribute('aria-label',title.textContent+' '+(run.id+1));label.className='literal-run-field';label.append(title,input);$('literal-fields').append(label);
       state.dialog.literalInputs.push({id:run.id,initial:run.text,input});
     }
@@ -595,9 +619,11 @@ async function editText(selection=state.objectSelection){
     }
     $('spacing-fields').classList.toggle('hidden',!textModel.spacing?.length);
     $('literal-fields').classList.remove('hidden');$('edit-text').classList.add('hidden');$('plain-label').classList.add('hidden');$('edit-latex').classList.remove('hidden');
-    $('edit-help').textContent='Formatting and macros stay unchanged. Line-gap changes adjust existing spacing and may reflow following content.';
+    renderProtectedCommands(document,$('protected-fields'),textModel.protected);
+    $('edit-help').textContent='Edit the words below; listed commands stay unchanged. Line-gap changes may reflow following content. Check the PDF for exact appearance.';
     (state.dialog.literalInputs[0]||state.dialog.spacingInputs[0])?.input.focus();
   }
+  positionTextEditor();
 }
 function literalChanges(context){return context.literalInputs.filter(run=>run.input.value!==run.initial).map(run=>({id:run.id,text:run.input.value}))}
 function spacingChanges(context){return (context.spacingInputs||[]).filter(run=>!run.input.value.trim()||Number(run.input.value)!==Number(run.initial)).map(run=>({id:run.id,value:run.input.value}))}
@@ -613,11 +639,14 @@ function showObjectInspector(selection){
     $('object-dy').value=((selection.dy||0)/PT_PER_MM).toFixed(2);
     $('object-preview').textContent=selection.plain_text??selection.content;
   }else if(!state.selected)$('no-selection').classList.remove('hidden');
-  updateControls();
+  sourceHighlight.update(selection);updateControls();
 }
 function showSource(selection){
-  if(!selection)return;state.file=selection.file;syncEditor();
-  const start=model.getPositionAt(selection.start),end=model.getPositionAt(selection.end);
+  if(!selection)return;
+  const target=selectionSourceRange(selection,state.sources);
+  if(!fresh()||!target)return toast('Compile the current source and select the text again.');
+  try{activateSourceFile(target.file)}catch(error){toast(message(error));return}
+  const start=model.getPositionAt(target.start),end=model.getPositionAt(target.end);
   editor.setSelection(new monaco.Selection(start.lineNumber,start.column,end.lineNumber,end.column));
   editor.revealRangeInCenter(new monaco.Range(start.lineNumber,start.column,end.lineNumber,end.column));editor.focus();
 }
@@ -689,11 +718,27 @@ function startBlockDrag(event,block,el,page){
   const up=async()=>{clean();try{if(changes)await patchBlock(changes,block)}finally{reset();renderOverlays()}},cancel=()=>{clean();reset();renderOverlays()};
   canvas.cancelGesture=cancel;el.addEventListener('pointermove',move);el.addEventListener('pointerup',up);el.addEventListener('pointercancel',cancel);el.addEventListener('lostpointercapture',cancel);
 }
+function positionTextEditor(){
+  const dialog=$('edit-dialog');if(!dialog.open)return;
+  const selected=state.dialog?.selection||state.dialog?.block;
+  const page=selected&&state.view?.pages.find(page=>page.number===selected.page);
+  let target=null;
+  if(page&&[selected.x,selected.y,selected.width,selected.height,state.view.scale].every(Number.isFinite)){
+    const box=page.shell.getBoundingClientRect(),scale=state.view.scale;
+    target={left:box.left+selected.x*scale,top:box.top+selected.y*scale,
+      right:box.left+(selected.x+selected.width)*scale,bottom:box.top+(selected.y+selected.height)*scale};
+  }
+  positionDialogNear(dialog,target);
+}
 function showEditor(title,value,plain,locked=false){
+  clearDialogPosition($('edit-dialog'));
+  $('protected-fields').replaceChildren();$('protected-fields').classList.add('hidden');
   $('spacing-fields').replaceChildren();$('spacing-fields').classList.add('hidden');
   $('literal-fields').replaceChildren();$('literal-fields').classList.add('hidden');$('edit-latex').classList.add('hidden');$('edit-text').classList.remove('hidden');$('plain-label').classList.remove('hidden');
-  $('edit-help').textContent='Formatted content opens as LaTeX so its commands are preserved.';
+  $('edit-help').textContent=plain?'Edit the visible text. Supported formatting is retained; the PDF shows the typeset result.':'Edit the selected LaTeX fragment. Keep the commands needed for its formatting.';
+  applyTextInputAppearance($('edit-text'),{plain});
   $('edit-title').textContent=title;$('edit-text').value=value;$('plain').checked=plain;$('plain').disabled=locked;$('edit-dialog').showModal();$('edit-text').focus();
+  positionTextEditor();
 }
 function editBlock(block=state.selected){
   if(!block)return;state.dialog={kind:'block',block:{...block},original:state.sources[block.file]};
@@ -743,6 +788,7 @@ function escapeLatex(text){
 }
 function setMode(value){
   state.mode=value;$('pages').classList.toggle('read-mode',value==='read');
+  if(value==='read')sourceHighlight.clear();else sourceHighlight.update(state.objectSelection);
   $('select-mode').classList.toggle('active',value==='select');$('read-mode').classList.toggle('active',value==='read');
   $('select-mode').setAttribute('aria-pressed',String(value==='select'));$('read-mode').setAttribute('aria-pressed',String(value==='read'));
   updateControls();
@@ -798,6 +844,13 @@ $('edit-form').onsubmit=async event=>{
   }
 };
 $('cancel-edit').onclick=()=>$('edit-dialog').close();
+$('edit-dialog').addEventListener('close',()=>clearDialogPosition($('edit-dialog')));
+window.addEventListener('resize',positionTextEditor);
+if(globalThis.ResizeObserver)new ResizeObserver(positionTextEditor).observe($('edit-dialog'));
+$('plain').onchange=()=>{
+  const plain=$('plain').checked;applyTextInputAppearance($('edit-text'),{plain});
+  $('edit-help').textContent=plain?'Special LaTeX characters are inserted as visible text. Check the PDF for the typeset result.':'Edit the LaTeX fragment, including its formatting commands.';
+};
 $('edit-latex').onclick=async()=>{
   const context=state.dialog;if(!context?.literalMode)return;$('edit-latex').disabled=true;
   context.switching=true;for(const run of editInputs(context))run.input.disabled=true;
@@ -805,6 +858,8 @@ $('edit-latex').onclick=async()=>{
     const content=await invoke('preview_text_edit',{content:context.selection.content,document:state.sources[state.project.main],edits:literalChanges(context),spacingEdits:spacingChanges(context)});
     if(context!==state.dialog||context.identity!==sessionIdentity(state))throw new StaleCandidate();
     context.literalMode=false;$('edit-text').value=content;$('edit-text').classList.remove('hidden');$('literal-fields').classList.add('hidden');$('spacing-fields').classList.add('hidden');$('edit-latex').classList.add('hidden');
+    $('protected-fields').classList.add('hidden');applyTextInputAppearance($('edit-text'),{plain:false});
+    positionTextEditor();
     $('plain-label').classList.remove('hidden');$('plain').checked=false;$('plain').disabled=true;$('edit-help').textContent='LaTeX mode: edit commands carefully. Changes are compiled before acceptance.';$('edit-text').focus();
   }catch(error){toast(message(error))}finally{context.switching=false;for(const run of editInputs(context))run.input.disabled=false;$('edit-latex').disabled=false}
 };
@@ -841,6 +896,7 @@ $('delete-block').onclick=async()=>{const block=state.selected;if(!block||!fresh
 $('object-edit').onclick=()=>editText();
 $('object-source').onclick=()=>showSource(state.objectSelection);
 $('object-detach').onclick=()=>textOperation(state.objectSelection,{detach:true});
+$('object-reset').onclick=()=>{const selection=state.objectSelection;if(selection?.kind==='object')moveText(selection,-selection.dx,-selection.dy)};
 $('object-apply').onclick=()=>{const selection=state.objectSelection;if(!selection)return;
   moveText(selection,Number($('object-dx').value)*PT_PER_MM-(selection.dx||0),Number($('object-dy').value)*PT_PER_MM-(selection.dy||0))};
 $('select-mode').onclick=()=>setMode('select');$('read-mode').onclick=()=>setMode('read');
