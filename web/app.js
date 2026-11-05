@@ -211,7 +211,12 @@ async function applyLayoutControl(context,edit){
     if(await commitSources(plan.sources,{file:context.file,operation:{kind:'adapter',request},expectedIdentity:context.identity}))layoutContext=null;
   }catch(error){layoutFeedback(message(error))}
 }
-function scheduleCompile(){clearTimeout(state.compileTimer);if($('auto').checked)state.compileTimer=setTimeout(()=>compile('auto'),800)}
+function scheduleCompile(){
+  clearTimeout(state.compileTimer);const client=state.client,epoch=state.buildEpoch;
+  if($('auto').checked)state.compileTimer=setTimeout(()=>{
+    if($('auto').checked&&state.client===client&&state.buildEpoch===epoch)compile('auto');
+  },800);
+}
 function showFailure(error){
   if(error instanceof CommittedPresentationFailure||error instanceof CommitStatusUnknown){
     $('banner').textContent=error.message;$('banner').classList.remove('hidden');return;
@@ -258,7 +263,7 @@ async function openProject(path=null,supplied=null){
   if((state.busy||state.opening||state.saving)&&!supplied)return toast('Wait for the current operation before opening another project.');
   if(state.client&&!state.client.error)await state.client.flush();
   if(!supplied&&state.project&&dirty()&&!await confirm('Discard the current unsaved edits before opening another project?',{title:'Unsaved source',kind:'warning'}))return;
-  state.opening=true;editorReadOnly();
+  state.opening=true;state.pending=false;clearTimeout(state.compileTimer);editorReadOnly();
   try{
     const project=supplied||await invoke('open_project',{path});
     const snapshot=await invoke('document_snapshot',{projectId:project.id});
@@ -386,7 +391,6 @@ async function discardSaveRecovery(){
   }catch(error){toast(message(error))}
   finally{state.saving=false;editorReadOnly();updateControls()}
 }
-function compileCandidate(){return state.client.compile();}
 const selectionProofs=new WeakMap();
 async function resolveSourceSelection({buildId,page,points,hits,trace=null}){
   if(!fresh()||buildId!==state.result.build_id)throw new StaleCandidate();
@@ -466,18 +470,27 @@ function publishPrepared(prepared,result){
 }
 async function compile(reason='manual'){
   if(!state.project)return;clearTimeout(state.compileTimer);
-  if(state.composing||state.saving)return;
+  if(state.composing||state.saving||state.opening||state.mutating)return;
+  if(reason==='auto'&&!$('auto').checked)return;
   if(!state.compileApproved&&reason!=='manual')return;
   if(reason==='manual')state.compileApproved=true;
   if(state.busy){if(reason==='manual'||!state.pending)state.pending=reason;return}
+  const client=state.client,epoch=state.buildEpoch;
   const trace=diagnostics.begin(reason==='manual'?'compile-manual':'compile-auto');
-  try{await state.client.flush();trace?.mark('sync-flushed')}catch(error){trace?.finish(performanceOutcome(error));return syncFailed(error)}
+  try{await client.flush();trace?.mark('sync-flushed')}catch(error){
+    if(state.client!==client){trace?.finish('superseded');return}
+    trace?.finish(performanceOutcome(error));return syncFailed(error);
+  }
+  // Flushing yields to project/trust, cancellation, history and save actions.
+  // A request made for the old client must never compile the newly opened one.
+  if(state.client!==client||state.buildEpoch!==epoch||state.opening||state.saving||state.mutating||state.composing||
+    !state.compileApproved||reason==='auto'&&!$('auto').checked){trace?.finish('superseded');return}
   if(state.busy){trace?.finish('superseded');if(reason==='manual'||!state.pending)state.pending=reason;return}
   const identity=sessionIdentity(state),revision=state.revision;state.busy=true;state.cancelRequested=false;updateControls();
   let prepared=null;
   try{
     const candidate=await stageCandidate({sources:clone(state.sources),revision,identity,getIdentity:()=>sessionIdentity(state),
-        compile:compileCandidate,prepare:prepareResult,policy:null,previousPageCount:state.view?.pageCount,verify:result=>state.client.verify(result.build_id),trace});
+        compile:()=>client.compile(),prepare:prepareResult,policy:null,previousPageCount:state.view?.pageCount,verify:result=>client.verify(result.build_id),trace});
     prepared=candidate.prepared;
     publishPrepared(candidate.prepared,candidate.result);
     const view=state.view;trace?.mark('published');trace?.finish('published',{paint:!view.lazy,isCurrent:()=>state.view===view&&sessionIdentity(state)===identity});
@@ -495,7 +508,11 @@ async function compile(reason='manual'){
 }
 function finishJob(){
   state.busy=false;updateControls();
-  if(state.pending){const reason=state.pending;state.pending=false;if(reason==='manual')setTimeout(()=>compile(),0);else scheduleCompile()}
+  if(state.pending){
+    const reason=state.pending,client=state.client,epoch=state.buildEpoch;state.pending=false;
+    if(reason==='manual')setTimeout(()=>{if(state.client===client&&state.buildEpoch===epoch)compile()},0);
+    else scheduleCompile();
+  }
 }
 async function commitSources(sources,{file=state.file,policy=null,operation=null,expectedIdentity=sessionIdentity(state),trace=null}={}){
   if(!fresh()||sessionIdentity(state)!==expectedIdentity)return toast('Compile the latest source before applying this edit.');

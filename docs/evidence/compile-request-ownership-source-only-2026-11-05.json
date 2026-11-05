@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-05T16:34:58.8966829Z",
+  "kind": "source_only_compile_request_ownership_not_validation",
+  "status": "unbuilt_unexecuted_owner_paused_all_tests",
+  "base_head": "929a46171848445439f66064b54da5c762250d8c",
+  "source": {
+    "path": "web/app.js",
+    "bytes": 69577,
+    "sha256": "f6d99a53c9e30a857e77b70451d4ede55920ccf5a5664a679c931ed6f1c8b7d6"
+  },
+  "source_finding": "Ordinary compile captured request identity after asynchronous flush; timers/retries used the then-current client",
+  "changes": [
+    "Capture client/cancellation generation before flush and use captured client for build/recheck",
+    "Recheck ownership and permission/locks after flush; ignore obsolete old-client errors",
+    "Bind debounce/manual retry dispatch to originating client/generation",
+    "Recheck Auto setting before automatic dispatch; opening clears pending/debounce"
+  ],
+  "runtime_incident_reproduced": false,
+  "tests_run": false,
+  "type_or_syntax_checks_run": false,
+  "app_build_run": false,
+  "app_opened": false,
+  "binaries_changed": false,
+  "final_evaluation_executed": false,
+  "release_ready": false,
+  "document": "docs/COMPILE-REQUEST-OWNERSHIP.md"
+}
