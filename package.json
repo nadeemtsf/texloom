@@ -8,7 +8,7 @@
     "dev": "npm run protocol:emit && node scripts/prepare-assets.mjs && vite --host 127.0.0.1 --port 1420 --strictPort",
     "build": "npm run protocol:check && node scripts/prepare-assets.mjs && vite build",
     "desktop:dev": "node scripts/prepare-native-verifier.mjs && tauri dev",
-    "desktop:build": "node scripts/prepare-native-verifier.mjs && node scripts/prepare-distribution-notices.mjs && tauri build",
+    "desktop:build": "node scripts/prepare-native-verifier.mjs && node scripts/prepare-distribution-notices.mjs && node scripts/build-desktop.mjs",
     "test:core": "cargo test -p texloom-core",
     "protocol:emit": "node scripts/check-protocol.mjs --write",
     "protocol:check": "node scripts/check-protocol.mjs --check",

@@ -2,7 +2,8 @@ param(
     [string]$CargoSourceRoot = $env:CARGO_HOME,
     [string]$ArtifactRoot,
     [Parameter(Mandatory = $true)][string]$DesktopExecutable,
-    [Parameter(Mandatory = $true)][ValidatePattern('^[a-fA-F0-9]{64}$')][string]$ExpectedDesktopSha256
+    [Parameter(Mandatory = $true)][ValidatePattern('^[a-fA-F0-9]{64}$')][string]$ExpectedDesktopSha256,
+    [string]$BuildReceipt
 )
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
@@ -11,6 +12,21 @@ if (-not $ArtifactRoot) { $ArtifactRoot = Join-Path $projectRoot 'artifacts' }
 $layout = New-PortableOutputLayout -ArtifactRoot $ArtifactRoot
 $packageRoot = $layout.PackageRoot
 $files = [Collections.Generic.List[object]]::new()
+if (-not $BuildReceipt) { $BuildReceipt = $DesktopExecutable + '.texloom-build.json' }
+$bindingIdentity = Get-PortableFileReceipt -Path $BuildReceipt -RelativePath 'BUILD-RECEIPT.json'
+if ($bindingIdentity.bytes -gt 65536) { throw 'Desktop build receipt exceeds size limit.' }
+$binding = Get-Content -LiteralPath $BuildReceipt -Raw | ConvertFrom-Json
+if ($binding.schema -ne 1 -or $binding.kind -ne 'desktop_build_pairing_receipt' -or $binding.status -ne 'complete' -or
+    $binding.desktop.sha256 -ne $ExpectedDesktopSha256.ToLowerInvariant() -or
+    $binding.desktop.bytes -ne (Get-Item -LiteralPath $DesktopExecutable).Length) { throw 'Desktop build pairing does not match the selected executable.' }
+$expectedNames = @('PDFIUM-NOTICE.txt', 'pdfium.dll', 'pdfium_worker.exe', 'verifier-manifest.json')
+$declaredNames = @($binding.resources.PSObject.Properties.Name)
+if ($declaredNames.Count -ne $expectedNames.Count -or @($expectedNames | Where-Object { $declaredNames -cnotcontains $_ }).Count -ne 0) { throw 'Incomplete verifier build pairing.' }
+foreach ($name in $expectedNames) {
+    $actual = Get-PortableFileReceipt -Path (Join-Path $projectRoot ('src-tauri/resources/verification/' + $name)) -RelativePath $name
+    $expected = $binding.resources.$name
+    if ($expected.sha256 -notmatch '^[a-f0-9]{64}$' -or $actual.sha256 -ne $expected.sha256 -or $actual.bytes -ne $expected.bytes) { throw "Verifier build pairing mismatch: $name" }
+}
 
 function Copy-PackageFile {
     param([string]$Source, [string]$Name, [string]$ExpectedHash)
@@ -29,6 +45,7 @@ function Copy-PackageFile {
 # Tauri can build target/release or a target-triple subfolder. Never silently
 # select a stale binary from a different build directory.
 Copy-PackageFile (Resolve-Path -LiteralPath $DesktopExecutable).Path 'Texloom.exe' $ExpectedDesktopSha256.ToLowerInvariant()
+Copy-PackageFile $BuildReceipt 'BUILD-RECEIPT.json' $bindingIdentity.sha256
 foreach ($name in @('VALIDATION.md', 'LICENSE', 'README.md')) { Copy-PackageFile (Join-Path $projectRoot $name) $name }
 $verifierSource = Join-Path $projectRoot 'src-tauri/resources/verification'
 $manifestPath = Join-Path $verifierSource 'verifier-manifest.json'

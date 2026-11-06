@@ -87,7 +87,7 @@ try {
     if ($Portable) {
         $executable = Join-Path $PSScriptRoot 'target\x86_64-pc-windows-msvc\release\texloom-desktop.exe'
         if (-not (Test-Path -LiteralPath $executable)) { throw 'The build returned success but its executable was not found.' }
-        $package = & (Join-Path $PSScriptRoot 'scripts/package-portable.ps1')
+        $package = & (Join-Path $PSScriptRoot 'scripts/package-portable.ps1') -DesktopExecutable $executable -ExpectedDesktopSha256 (Get-FileHash -LiteralPath $executable -Algorithm SHA256).Hash
         Write-Host ('Portable package: ' + $package.ArchivePath)
         Write-Host 'Keep the verification folder beside the executable. This build needs WebView2 and a local LaTeX installation.'
         exit 0
