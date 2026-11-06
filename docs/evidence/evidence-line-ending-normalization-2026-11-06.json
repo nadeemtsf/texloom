@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "kind": "evidence_byte_representation_normalization_not_experiment",
+  "recorded_utc": "2026-11-06T10:30:42.179915+00:00",
+  "path": "docs/evidence/research-reference-timing-source-only-2026-11-05.json",
+  "reason": "Working CRLF bytes differed from committed LF bytes although Git regarded content as unchanged. The catalog must reproduce on checkout.",
+  "original_working_sha256": "50e1bc9bd55f1863ebb47e681f05b47bc0d0710ce8ffb2c8096ba5bdecd3a43f",
+  "canonical_committed_sha256": "dfb691acd51a0c776975b38deeba162a7cba2db5692564463c666136025ce6ff",
+  "json_payload_unchanged": true,
+  "only_crlf_to_lf": true,
+  "original_bytes_retained_at": "artifacts/native-resume-20261106-r5/source-only-receipt-original-bytes.json",
+  "product_behavior_changed": false,
+  "experiments_executed_by_normalization": false
+}

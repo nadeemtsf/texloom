@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "kind": "development_evidence_inventory_not_evaluation_results",
-  "recorded_utc": "2026-11-06T10:27:39.794556+00:00",
-  "audited_head": "7a0e597c9b6f3e8e1f87334fac23a61ad19813e8",
+  "recorded_utc": "2026-11-06T10:30:42.652211+00:00",
+  "audited_head": "9b186e70f65cd02d2eecbf1942b57ec454108f2e",
   "working_tree_note": "Uncommitted report/evidence changes may be present; see the session checkpoint.",
   "final_evaluation_executed": false,
   "entries": [
@@ -211,6 +211,16 @@
       "schema": 1,
       "status": "canonical_git_line_endings_preserving_payloads",
       "recorded_utc": "2026-11-04T18:24:28.570166+00:00",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/evidence-line-ending-normalization-2026-11-06.json",
+      "bytes": 831,
+      "sha256": "23901e192703686bfe3842514744906a8bc8048c5ead5efdd63add7553d351f3",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "recorded_utc": "2026-11-06T10:30:42.179915+00:00",
       "parse_status": "ok"
     },
     {
@@ -524,8 +534,8 @@
     },
     {
       "path": "docs/evidence/research-reference-timing-source-only-2026-11-05.json",
-      "bytes": 3037,
-      "sha256": "50e1bc9bd55f1863ebb47e681f05b47bc0d0710ce8ffb2c8096ba5bdecd3a43f",
+      "bytes": 2966,
+      "sha256": "dfb691acd51a0c776975b38deeba162a7cba2db5692564463c666136025ce6ff",
       "audit_action": "read_parse_fingerprint_only",
       "experiment_reproduced_by_this_audit": false,
       "schema": 1,
