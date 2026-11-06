@@ -1,5 +1,7 @@
 # Development verifier upgrade to PDFium 159
 
+6 November current status: the replacement engine matrix and ordinary/NSIS/portable builds completed; older pending statements below describe their earlier checkpoints. The later build-pairing guard and independently checked 16-entry portable archives supersede the earlier 15-entry packaging format. The r7 follow-up also passes both explicit native verifier checks, three-language zero probes, four RTL moves and nine Latin fractional moves; actual r7 installed/UI acceptance and wider provenance/license/security gates remain pending. See OWNER-FOLLOWUP-2026-11-06.md. No public release is certified.
+
 The active development pin selects distributor `chromium/8138`, version metadata 159.0.8138.0. Archive SHA-256: `8d48973e3eb472dda0f5f2435e595ac043f9f2219dd71883392f549445afa8a5`; DLL SHA-256: `71a3e63e6ab8f5746a0fc9de9bc3d0c0dc07eb60990dfd37d9db7fc891821943`. Old binaries, failures and references remain historical evidence.
 
 ## Implemented

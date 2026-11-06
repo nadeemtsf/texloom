@@ -8,6 +8,7 @@ async function setup({tracing=false,presentation=false}={}){
  const selectionProof=await import('../web/core/selection-proof.js');
  const {DocumentClient,editorText,sameSources}=await import('../web/core/document-client.js');
  const {TypingRecoveryController}=await import('../web/core/typing-recovery.js');
+ const {CloseController}=await import('../web/core/close-controller.js');
  const {createWorkspaceInvoke}=await import('../web/core/workspace-protocol.js');
  const {ProjectControls}=await import('../web/core/project-controls.js');
  const {PDFSearch}=await import('../web/core/pdf-search.js');
@@ -36,7 +37,7 @@ async function setup({tracing=false,presentation=false}={}){
   return {frame,listeners,original};
  }
  const context=vm.createContext({
-  ...transactions,...selectionProof,SourceHighlight,selectionSourceRange,applyTextInputAppearance,renderProtectedCommands,positionDialogNear,clearDialogPosition,validateSelectionProbe:(...args)=>control.prove?control.prove(...args):selectionProof.validateSelectionProbe(...args),DocumentClient,editorText,sameSources,TypingRecoveryController,createWorkspaceInvoke,ProjectControls,PDFSearch,SetupHelp,installPerformanceDiagnostics,performanceOutcome,initialSnapshot:native.snapshot(),inside:()=>true,self:{},EditorWorker:class{},pdfWorkerURL:'test-worker',
+  ...transactions,...selectionProof,SourceHighlight,selectionSourceRange,applyTextInputAppearance,renderProtectedCommands,positionDialogNear,clearDialogPosition,validateSelectionProbe:(...args)=>control.prove?control.prove(...args):selectionProof.validateSelectionProbe(...args),DocumentClient,editorText,sameSources,TypingRecoveryController,CloseController,createWorkspaceInvoke,ProjectControls,PDFSearch,SetupHelp,installPerformanceDiagnostics,performanceOutcome,initialSnapshot:native.snapshot(),inside:()=>true,self:{},EditorWorker:class{},pdfWorkerURL:'test-worker',
   CanvasController:class{clear(){}bind(){}selectObject(){}},
   monaco:{languages:{register(){},setMonarchTokensProvider(){},setLanguageConfiguration(){}},editor:{defineTheme(){},createModel:()=>model,create:()=>editor,EndOfLineSequence:{LF:0}},KeyMod:{CtrlCmd:1,Shift:2},KeyCode:{KeyS:1,Enter:2,KeyZ:3,KeyY:4}},
   pdfjs:{GlobalWorkerOptions:{}},structuredClone,crypto:require('node:crypto').webcrypto,
@@ -131,12 +132,11 @@ test('a stale native close refusal keeps the editor available and does not mark 
  assert.equal(t.run("state.sources['main.tex']"),'Original source');
 });
 
-test('explicitly closing an unsynchronized editor retains its native draft without asserting a stale revision',async()=>{
- const t=await setup();t.run("quitting=true;state.client.error=new Error('Acknowledgement failed')");let prevented=false;
+test('an unsynchronized editor cannot close while claiming the latest text is protected',async()=>{
+ const t=await setup();t.run("state.client.error=new Error('Acknowledgement failed');state.sources['main.tex']='Unsynchronized local edit';closeController.keepDraft=true");let prevented=false;
  await t.control.onClose({preventDefault(){prevented=true}});
- assert.equal(prevented,false);assert.equal(t.control.cleanExits,1);
- assert.equal(t.control.closedRequests[0].projectId,'test');assert.equal(t.control.closedRequests[0].revision,undefined);
- assert.equal(t.control.closedRequests[0].discardRecovery,undefined);
+ assert.equal(prevented,true);assert.equal(t.control.cleanExits,undefined);assert.equal(t.control.closedRequests,undefined);
+ assert.equal(t.run("state.sources['main.tex']"),'Unsynchronized local edit');
 });
 
 test('compiler failure leaves source, history, revision and last good PDF intact',async()=>{

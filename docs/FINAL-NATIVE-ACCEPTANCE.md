@@ -1,5 +1,7 @@
 ## Current continuation - 6 November 2026
 
+Latest owner follow-up supersedes the stop rule and pending classifications in the historical paragraphs below. The active usage floor is 10% remaining. Signature/history/Save/reopen and repeated-occurrence results were reported by the owner; exact installed version was not established. Arabic/Hebrew target refusal was reproduced and corrected in synthetic checks. Dirty close now keeps a protected draft and recovery requires explicit project selection; rebuilt native acceptance remains pending. The owner also reported held-drag Escape/Alt+Tab cancellation passed on an earlier named copy. See OWNER-FOLLOWUP-2026-11-06.md and MANUAL-FOLLOWUP-R7-2026-11-06.md. Agent-controlled mouse/keyboard input remains prohibited.
+
 Tests have resumed. The owner now reserves all further mouse/keyboard control for their own manual tests after the coding run stops at50%five-hour usage. Do not operate the app to complete those cases. Earlier pause/owner-away notes below are historical. The exact r5 portable copy has observed grouped selection/move/protected edit/Save evidence and independent source/Poppler checks; Undo/Redo/reopen, multilingual, installation/recovery and physical-environment cases still need the owner's results on the final named candidate. See the later validation receipt and manual checklist. No final study or release acceptance is implied.
 
 # Native acceptance in progress

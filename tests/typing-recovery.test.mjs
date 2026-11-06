@@ -10,7 +10,7 @@ function setup({dirty=false,confirmed=true,invoke=null}={}){
   if(!elements.has(id)){
    const classes=new Set();elements.set(id,{value:'',textContent:'',children:[],disabled:false,open:false,
     classList:{toggle(name,yes){if(yes)classes.add(name);else classes.delete(name)},contains:name=>classes.has(name)},
-    addEventListener(){},replaceChildren(){this.children=[];this.value=''},append(option){this.children.push(option);if(!this.value)this.value=option.value},
+    addEventListener(){},replaceChildren(){this.children=[];this.value=''},append(option){this.children.push(option);if(this.children.length===1)this.value=option.value},
     showModal(){this.open=true},close(){this.open=false}});
   }return elements.get(id);
  };
@@ -43,19 +43,20 @@ test('recovery protection warnings persist independently of compilation and neve
 
 test('reviewing a crash inventory lists project identity but never restores automatically',async()=>{
  const t=setup();await t.controller.show();assert.equal(t.element('draft-dialog').open,true);
+ assert.equal(t.element('draft-details').textContent,'');t.element('draft-choice').value=draft.id;t.controller.renderDetails();
  assert.match(t.element('draft-details').textContent,/P:\/Project.*\n2 source files/);
  assert.deepEqual(t.events.filter(e=>Array.isArray(e)&&e[0]==='open_typing_draft'),[]);
 });
 
 test('declining replacement or discard leaves editor sources and native drafts untouched',async()=>{
- const t=setup({dirty:true,confirmed:false});await t.controller.show();
+ const t=setup({dirty:true,confirmed:false});await t.controller.show();t.element('draft-choice').value=draft.id;t.controller.renderDetails();
  await t.controller.restore();await t.controller.discard();
  assert.equal(t.state.sources['main.tex'],'CURRENT');assert.ok(!t.events.includes('lock'));
  assert.ok(!t.events.some(e=>Array.isArray(e)&&['open_typing_draft','discard_typing_draft'].includes(e[0])));
 });
 
 test('recovery adoption flushes the active editor, sends only the draft ID and releases locking',async()=>{
- const t=setup({dirty:true});await t.controller.show();await t.controller.restore();
+ const t=setup({dirty:true});await t.controller.show();t.element('draft-choice').value=draft.id;t.controller.renderDetails();await t.controller.restore();
  assert.equal(t.state.project.id,'recovered');assert.equal(t.state.saving,false);
  const open=t.events.find(e=>Array.isArray(e)&&e[0]==='open_typing_draft');assert.deepEqual(open[1],{draftId:draft.id});
  assert.ok(t.events.indexOf('flush')<t.events.indexOf(open));assert.ok(t.events.indexOf('lock')<t.events.indexOf('flush'));
@@ -67,7 +68,7 @@ test('a delayed recovery result cannot replace a different current project and i
   if(name==='typing_drafts')return {drafts:[draft],errors:[]};
   if(name==='open_typing_draft')return new Promise(resolve=>finish=resolve);
  }});
- await t.controller.show();const restoring=t.controller.restore();await new Promise(setImmediate);
+ await t.controller.show();t.element('draft-choice').value=draft.id;t.controller.renderDetails();const restoring=t.controller.restore();await new Promise(setImmediate);
  t.state.client={};t.state.project={id:'new-current'};finish({id:'late-recovered'});await restoring;
  assert.equal(t.state.project.id,'new-current');assert.equal(t.state.sources['main.tex'],'CURRENT');
  const closed=t.events.find(e=>Array.isArray(e)&&e[0]==='close_document');
@@ -83,7 +84,7 @@ test('unreadable recovery evidence is visible and cannot enable restoration or d
 });
 
 test('explicit draft discard changes neither current buffers nor project files through the frontend',async()=>{
- const t=setup();await t.controller.show();const sources=t.state.sources;await t.controller.discard();
+ const t=setup();await t.controller.show();t.element('draft-choice').value=draft.id;t.controller.renderDetails();const sources=t.state.sources;await t.controller.discard();
  assert.equal(t.state.sources,sources);assert.equal(t.state.project.id,'active');assert.equal(t.state.saving,false);
  assert.deepEqual(t.events.find(e=>Array.isArray(e)&&e[0]==='discard_typing_draft')[1],{draftId:draft.id});
  assert.equal(t.element('draft-dialog').open,false);
@@ -92,4 +93,20 @@ test('explicit draft discard changes neither current buffers nor project files t
 test('busy/composing/saving operations fence recovery and retry uses the ordered source client',async()=>{
  const t=setup();t.state.composing=true;await t.controller.show();assert.ok(!t.events.some(e=>Array.isArray(e)&&e[0]==='typing_drafts'));
  t.state.composing=false;await t.controller.retry();assert.ok(t.events.includes('retry'));assert.equal(t.state.saving,false);
+});
+
+test('recovery never defaults to the first unrelated project',async()=>{
+  const t=setup();await t.controller.show();
+  assert.equal(t.element('draft-choice').value,'');assert.equal(t.element('draft-restore').disabled,true);
+  await t.controller.restore();assert.ok(!t.events.some(e=>e[0]==='open_typing_draft'));
+  t.element('draft-choice').value=draft.id;t.controller.renderDetails();assert.equal(t.element('draft-restore').disabled,false);
+});
+test('switching project invalidates a previous recovery choice',async()=>{
+  const t=setup();await t.controller.show();t.element('draft-choice').value=draft.id;t.controller.renderDetails();
+  t.state.project={id:'another'};await t.controller.refresh();
+  assert.equal(t.element('draft-choice').value,'');assert.equal(t.element('draft-restore').disabled,true);
+});
+test('reopening recovery asks for an explicit project choice again',async()=>{
+  const t=setup();await t.controller.show();t.element('draft-choice').value=draft.id;t.controller.renderDetails();
+  t.element('draft-dialog').close();await t.controller.show();assert.equal(t.element('draft-choice').value,'');
 });

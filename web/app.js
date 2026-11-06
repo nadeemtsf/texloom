@@ -15,6 +15,7 @@ import {stageCandidate,sessionIdentity,StaleCandidate,CompilationFailure,Committ
 import {inside,intersects} from './core/geometry.js';
 import {DocumentClient,editorText,sameSources} from './core/document-client.js';
 import {TypingRecoveryController} from './core/typing-recovery.js';
+import {CloseController} from './core/close-controller.js';
 import {validateSelectionProbe} from './core/selection-proof.js';
 import {createWorkspaceInvoke} from './core/workspace-protocol.js';
 import {ProjectControls} from './core/project-controls.js';
@@ -944,25 +945,11 @@ $('fit').onclick=()=>{state.zoom=0;renderPDF()};
 let resizeTimer;window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{if(!state.zoom)renderPDF()},180)});
 $('log-toggle').onclick=()=>$('log-panel').classList.toggle('hidden');$('close-log').onclick=()=>$('log-panel').classList.add('hidden');
 $('banner').onclick=()=>$('log-panel').classList.remove('hidden');
-let quitting=false;getCurrentWindow().onCloseRequested(async event=>{
-  if(state.saving){event.preventDefault();toast('Wait for Save or recovery to finish before closing.');return}
-  if(quitting||!dirty()){
-    state.saving=true;editorReadOnly();updateControls();
-    try {
-      if(quitting&&state.client?.error){
-        // An explicit discard may close an unsynchronized editor. Keep its
-        // native draft because the last acknowledged revision may be stale.
-        if(state.project)await invoke('close_document',{projectId:state.project.id});
-      }else{
-        await state.client?.flush();
-        if(state.project){const reply=await invoke('close_document',{projectId:state.project.id,revision:state.client.snapshot.revision,discardRecovery:true});if(reply?.warning)toast(reply.warning)}
-      }
-      await invoke('mark_clean_exit');
-    }catch(error){event.preventDefault();quitting=false;state.saving=false;editorReadOnly();updateControls();toast(message(error))}
-    return;
-  }event.preventDefault();
-  if(await confirm('Close Texloom and discard unsaved source edits?',{title:'Unsaved source',kind:'warning'})){quitting=true;await getCurrentWindow().close()}
-});
+const closeController=new CloseController({getState:()=>state,isDirty:dirty,confirm,invoke,notify:toast,
+  closeWindow:()=>getCurrentWindow().close(),
+  lock:()=>{state.saving=true;editorReadOnly();updateControls()},
+  unlock:()=>{state.saving=false;editorReadOnly();updateControls()}});
+getCurrentWindow().onCloseRequested(event=>closeController.handle(event));
 document.addEventListener('keydown',event=>{
   if(editor.hasTextFocus()||document.querySelectorAll('dialog[open]').length||event.target.closest('input,textarea,select'))return;
   if(event.ctrlKey||event.metaKey){

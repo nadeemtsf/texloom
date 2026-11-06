@@ -401,15 +401,7 @@ pub fn plan_object_edit(mut request: ObjectEditRequest) -> Result<ObjectPlan> {
     request
         .sources
         .insert(request.main, texloom_core::ensure_objects_package(main)?);
-    if let Some(existing) = request.sources.get("texloom-objects.sty") {
-        if existing != OBJECT_STYLE {
-            return Err("This project has a different texloom-objects.sty. Keep its version consistent before visual editing.".into());
-        }
-    } else {
-        request
-            .sources
-            .insert("texloom-objects.sty".into(), OBJECT_STYLE.into());
-    }
+    prepare_object_style(&mut request.sources)?;
     let mut ids = std::collections::HashSet::new();
     for (name, source) in &request.sources {
         if name.ends_with(".tex") {
@@ -508,5 +500,40 @@ impl Backend {
             plain_text,
             rectangles: Vec::new(),
         })
+    }
+}
+
+// Upgrade only an exact generated legacy file; never replace customized styles.
+fn prepare_object_style(sources: &mut BTreeMap<String, String>) -> Result<()> {
+    if let Some(existing) = sources.get("texloom-objects.sty") {
+        let normalized = existing.replace("\r\n", "\n");
+        if normalized == OBJECT_STYLE.replace("\r\n", "\n") { return Ok(()); }
+        if normalized != LEGACY_OBJECT_STYLE.replace("\r\n", "\n") {
+            return Err("This project has a customized texloom-objects.sty. Its contents were kept; review its version before visual editing.".into());
+        }
+    }
+    sources.insert("texloom-objects.sty".into(), OBJECT_STYLE.into());
+    Ok(())
+}
+#[cfg(test)]
+mod object_style_migration_tests {
+    use super::*;
+    #[test]
+    fn exact_legacy_style_upgrades_without_changing_other_sources() {
+        let mut sources = BTreeMap::from([("main.tex".into(), "UNCHANGED".into()), ("texloom-objects.sty".into(), LEGACY_OBJECT_STYLE.into())]);
+        prepare_object_style(&mut sources).unwrap();
+        assert_eq!(sources["main.tex"], "UNCHANGED"); assert_eq!(sources["texloom-objects.sty"], OBJECT_STYLE);
+    }
+    #[test]
+    fn customized_style_is_retained_and_refused() {
+        let custom = format!("{LEGACY_OBJECT_STYLE}\n% owner customization\n");
+        let mut sources = BTreeMap::from([("texloom-objects.sty".into(), custom.clone())]);
+        assert!(prepare_object_style(&mut sources).is_err()); assert_eq!(sources["texloom-objects.sty"], custom);
+    }
+    #[test]
+    fn current_style_with_different_line_endings_is_not_rewritten() {
+        let current = OBJECT_STYLE.replace("\r\n", "\n").replace("\n", "\r\n");
+        let mut sources = BTreeMap::from([("texloom-objects.sty".into(), current.clone())]);
+        prepare_object_style(&mut sources).unwrap(); assert_eq!(sources["texloom-objects.sty"], current);
     }
 }

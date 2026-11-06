@@ -25,8 +25,11 @@ export class TypingRecoveryController {
   }
   selected() { return this.inventory.drafts.find(draft=>draft.id===this.ui.choice.value); }
   render() {
-    const selected=this.ui.choice.value;
+    const project=this.getState().project?.id;
+    const selected=this.choiceProject===project?this.ui.choice.value:'';this.choiceProject=project;
     this.ui.choice.replaceChildren();
+    const placeholder=this.document.createElement('option');placeholder.value='';placeholder.textContent='Choose a project to recover';
+    this.ui.choice.append(placeholder);
     for(const draft of this.inventory.drafts){
       const option=this.document.createElement('option');option.value=draft.id;
       option.textContent=draft.main+' — revision '+draft.revision+' — '+draft.project;
@@ -35,10 +38,11 @@ export class TypingRecoveryController {
     if(this.inventory.drafts.some(draft=>draft.id===selected))this.ui.choice.value=selected;
     this.ui.trigger.classList.toggle('hidden',!this.inventory.drafts.length&&!this.inventory.errors.length);
     this.ui.errors.textContent=this.inventory.errors.join('\n');
-    this.ui.restore.disabled=this.ui.discard.disabled=!this.selected();this.renderDetails();
+    this.renderDetails();
   }
   renderDetails() {
     const draft=this.selected();
+    this.ui.restore.disabled=this.ui.discard.disabled=!draft;
     this.ui.details.textContent=draft?draft.project+'\n'+draft.files+' source files, '+draft.source_bytes+' bytes\n'+
       (draft.warning||'The last complete verified recovery state will open for review.'):'';
   }
@@ -51,6 +55,7 @@ export class TypingRecoveryController {
   blocked() {const state=this.getState();return state.saving||state.opening||state.mutating||state.composing||state.busy;}
   async show() {
     if(this.blocked())return this.notify('Wait for the current operation before reviewing recovery.');
+    this.ui.choice.value='';
     await this.refresh();
     if(this.blocked())return;
     if(!this.inventory.drafts.length&&!this.inventory.errors.length)return this.notify('No unsaved-work drafts need recovery.');

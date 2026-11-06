@@ -39,6 +39,7 @@ pub use visual::{ObjectEditRequest, ObjectPlan, ResolvedSelection, SelectionPoin
 const STYLE: &str = include_str!("../../resources/studio.sty");
 const EXAMPLE: &str = include_str!("../../resources/main.tex");
 const OBJECT_STYLE: &str = include_str!("../../resources/texloom-objects.sty");
+const LEGACY_OBJECT_STYLE: &str = include_str!("../../resources/legacy/texloom-objects-v03.sty");
 const MAX_FILES: usize = 600;
 const MAX_PROJECT_BYTES: u64 = 60 * 1024 * 1024;
 

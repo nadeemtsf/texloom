@@ -44,6 +44,27 @@ fn change(
 }
 
 #[test]
+fn clean_exit_after_keep_draft_close_preserves_unsaved_source_and_history() {
+    let (backend, project, root) = fixture();
+    let original = project.sources.clone();
+    let edited = change(&backend, &project.id, "Name", "Kept draft", None);
+    assert_eq!(edited.recovery.protected_revision, Some(edited.revision));
+    backend.close_document_checked(&project.id, edited.revision, false).unwrap();
+    backend.mark_clean_exit().unwrap();
+    drop(backend);
+    let backend = Backend::new(root.join("app"));
+    let inventory = backend.typing_drafts().unwrap();
+    assert_eq!(inventory.drafts.len(), 1);
+    let restored = backend.open_typing_draft(&inventory.drafts[0].id).unwrap();
+    assert_eq!(restored.sources, edited.sources);
+    let undone = backend.document_history(&restored.id, edited.revision, false).unwrap();
+    assert_eq!(undone.sources, original);
+    assert_eq!(fs::read_to_string(root.join("project/main.tex")).unwrap(), original["main.tex"]);
+    drop(backend);
+    fs::remove_dir_all(root).unwrap();
+}
+
+#[test]
 fn native_typing_survives_a_new_backend_and_recovers_one_exact_history_without_pdf_authority() {
     let (backend, project, root) = fixture();
     let original = project.sources.clone();

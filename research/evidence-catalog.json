@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "kind": "development_evidence_inventory_not_evaluation_results",
-  "recorded_utc": "2026-11-06T10:30:42.652211+00:00",
-  "audited_head": "9b186e70f65cd02d2eecbf1942b57ec454108f2e",
+  "recorded_utc": "2026-11-06T13:30:45.041760+00:00",
+  "audited_head": "3e2176281eef1ebed930267eb8772b09e607e334",
   "working_tree_note": "Uncommitted report/evidence changes may be present; see the session checkpoint.",
   "final_evaluation_executed": false,
   "entries": [
@@ -370,6 +370,27 @@
       "schema": 1,
       "status": "pass",
       "recorded_utc": "2026-11-04T17:59:55.012962+00:00",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/owner-followup-2026-11-06.json",
+      "bytes": 67228,
+      "sha256": "48b6a8c3d4fd40b71a4fdf2226438656bb1395df7760bd62bc32149bb1ba939a",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "recorded_utc": "2026-11-06T13:30:44.147094+00:00",
+      "release_ready": false,
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/owner-followup-report-v8-2026-11-06.json",
+      "bytes": 4196,
+      "sha256": "ca14feb448e73f274802d05f1cb41110006e2a5e37b38f653f3c96d58c762607",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "recorded_utc": "2026-11-06T13:30:44.147094+00:00",
       "parse_status": "ok"
     },
     {

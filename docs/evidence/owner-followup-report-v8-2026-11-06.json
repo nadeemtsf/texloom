@@ -1,0 +1,107 @@
+{
+  "schema": 1,
+  "kind": "technical_report_draft_v8_document_validation_not_product_acceptance",
+  "recorded_utc": "2026-11-06T13:30:44.147094+00:00",
+  "pages": 25,
+  "references": 21,
+  "final_evaluation_executed": false,
+  "pdf": {
+    "path": "artifacts/research-report/20261106-v8/main.pdf",
+    "bytes": 593483,
+    "sha256": "411bff1a8b4b639ea6c61cbbdf09288f12a4fc871572bdb5593a7ee1b93db361"
+  },
+  "latex_log": {
+    "path": "artifacts/research-report/20261106-v8/main.log",
+    "bytes": 27632,
+    "sha256": "bbee87609e0e11911610cc7f9834833c08ec9c12bf900cc553537d38b22b316d"
+  },
+  "source_files": [
+    {
+      "path": "research/report/followup-references.bib",
+      "bytes": 3976,
+      "sha256": "d731c32c61a174f28d266440caaccb781a0f82374eea7492f41f9f77db515405"
+    },
+    {
+      "path": "research/report/main.tex",
+      "bytes": 3900,
+      "sha256": "1d81fb808aa6325b0a645d19a405d8668891e02dfac497f3912842d769e3b2c5"
+    },
+    {
+      "path": "research/report/README.md",
+      "bytes": 5421,
+      "sha256": "c9f6d376757d7f63e1cffa2fd54e211dd34a82737eb668f43c1d8f42a3a42103"
+    },
+    {
+      "path": "research/report/references.bib",
+      "bytes": 4362,
+      "sha256": "1c6bef9292f8599cbc86bb610e9b1e3b44a604b3db66370c8e9604a849121493"
+    },
+    {
+      "path": "research/report/sections/01-scope.tex",
+      "bytes": 4905,
+      "sha256": "8a081ce27cdd63ca9a623512aa0fc12ca7686477759b3f3de307ea7a9c701196"
+    },
+    {
+      "path": "research/report/sections/02-workflow.tex",
+      "bytes": 10155,
+      "sha256": "48cecf2ee16fe95d836315198693d4c41a9bf30bffafc2016816d2e74e9428e9"
+    },
+    {
+      "path": "research/report/sections/03-contracts.tex",
+      "bytes": 6192,
+      "sha256": "b848afe215aebd9c00bd9d72ed5cbea9eb2f6fdd009d832a37d5e206f0428755"
+    },
+    {
+      "path": "research/report/sections/04-related-work.tex",
+      "bytes": 8053,
+      "sha256": "75eee322ec02e28ab5ca06e34e329b67aca47f08eeea916b95bdd00c751ab312"
+    },
+    {
+      "path": "research/report/sections/05-evaluation.tex",
+      "bytes": 9967,
+      "sha256": "71346c4c1e896eed0fed97844a50ea35a626cc7604f7fb96d4884ad2fb021bf3"
+    },
+    {
+      "path": "research/report/sections/06-development-evidence.tex",
+      "bytes": 17170,
+      "sha256": "eae10d7dc96bca0e076339650b538eafa4563ce22041d9ce5190a85ba29a5eb3"
+    },
+    {
+      "path": "research/report/sections/07-timing.tex",
+      "bytes": 7993,
+      "sha256": "95438068db4136ef03cea70ca2f8bebc39a16ca5259a819515bc06d441d02712"
+    },
+    {
+      "path": "research/report/sections/08-reproducibility.tex",
+      "bytes": 12434,
+      "sha256": "0ffd64716e740127446d6907ada8d7cb796cde3716dfa4ee6878c1c455c35193"
+    },
+    {
+      "path": "research/report/sections/09-limitations.tex",
+      "bytes": 7013,
+      "sha256": "464bac7d2b2d4ca017566a96c27f6dd4d4ef21bd1b17d143d65bf43cbe0d98a5"
+    },
+    {
+      "path": "research/report/sections/appendix-artifacts.tex",
+      "bytes": 4221,
+      "sha256": "1103435984b8602108063e4d669a3474e0140b165f3f739d2630563b7a13616e"
+    },
+    {
+      "path": "research/report/sections/appendix-protocol.tex",
+      "bytes": 4851,
+      "sha256": "941e7098b5bda83b5078268c6abbbbc11e2124c35141c7531165a8fba62c00da"
+    },
+    {
+      "path": "research/report/sections/appendix-reproduction.tex",
+      "bytes": 5138,
+      "sha256": "e9ccc827af5177e892947e85cf3a19689b7cf1cd0fb98bfa6cfa3cb0177b8b20"
+    }
+  ],
+  "render_review": "All25 pages rendered with Poppler; initial all-page contact sheets plus readable new-section/bibliography views inspected. Final added support-migration paragraph: rerendered all25, pixel-compared to initial, inspected final changed-page contact sheets and readable page11. No clipping/overlap observed.",
+  "warnings": "No overfull, undefined reference/citation, LaTeX warning or missing-character matches in final log",
+  "preserved_failures": [
+    "First optional renderer failed: fitz unavailable; switched to installed Poppler",
+    "First final-render command lacked output directory; no pages produced; corrected run succeeded"
+  ],
+  "scope": "Methods/limitations/development findings only; neither final study nor native usability evidence"
+}

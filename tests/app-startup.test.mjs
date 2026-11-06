@@ -5,6 +5,7 @@ import vm from 'node:vm';
 import * as transactions from '../web/core/transactions.js';
 import {DocumentClient,editorText,sameSources} from '../web/core/document-client.js';
 import {TypingRecoveryController} from '../web/core/typing-recovery.js';
+import {CloseController} from '../web/core/close-controller.js';
 import {createWorkspaceInvoke} from '../web/core/workspace-protocol.js';
 import {ProjectControls} from '../web/core/project-controls.js';
 import {PDFSearch} from '../web/core/pdf-search.js';
@@ -39,7 +40,7 @@ function boot({markup=html,openFailure=null,badSnapshot=false,adapterFailure=nul
   const editor={createContextKey:()=>({set(){}}),updateOptions:o=>Object.assign(options,o),
     onDidChangeModelContent(){},onDidChangeCursorPosition(){},onDidChangeCursorSelection(){},
     addAction(){},addCommand(){},getDomNode:()=>element(),getSelections:()=>[],hasTextFocus:()=>false};
-  const context={...transactions,SourceHighlight,selectionSourceRange,applyTextInputAppearance,renderProtectedCommands,positionDialogNear,clearDialogPosition,DocumentClient,editorText,sameSources,TypingRecoveryController,createWorkspaceInvoke,ProjectControls,PDFSearch,SetupHelp,installPerformanceDiagnostics,performanceOutcome,structuredClone,console,
+  const context={...transactions,SourceHighlight,selectionSourceRange,applyTextInputAppearance,renderProtectedCommands,positionDialogNear,clearDialogPosition,DocumentClient,editorText,sameSources,TypingRecoveryController,CloseController,createWorkspaceInvoke,ProjectControls,PDFSearch,SetupHelp,installPerformanceDiagnostics,performanceOutcome,structuredClone,console,
     self:{},pdfjs:{GlobalWorkerOptions:{}},pdfWorkerURL:'test-worker',EditorWorker:class{},
     monaco:{languages:{register(){},setMonarchTokensProvider(){},setLanguageConfiguration(){}},
       editor:{defineTheme(){},createModel:()=>model,create:()=>editor,EndOfLineSequence:{LF:0}},
