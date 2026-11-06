@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "kind": "development_evidence_inventory_not_evaluation_results",
-  "recorded_utc": "2026-11-05T16:38:32.027246+00:00",
-  "audited_head": "ccc760b6fe056e8ae17c7db481c8cd8e941b31c3",
+  "recorded_utc": "2026-11-06T10:27:39.794556+00:00",
+  "audited_head": "7a0e597c9b6f3e8e1f87334fac23a61ad19813e8",
   "working_tree_note": "Uncommitted report/evidence changes may be present; see the session checkpoint.",
   "final_evaluation_executed": false,
   "entries": [
@@ -273,6 +273,17 @@
       "parse_status": "ok"
     },
     {
+      "path": "docs/evidence/native-build-pairing-2026-11-06.json",
+      "bytes": 9062,
+      "sha256": "c9eb78dee9564d439896bacde744698b5f9be9f3ae9af3584c58926cc80a1367",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "recorded_utc": "2026-11-06T10:26:57.864349+00:00",
+      "release_ready": false,
+      "parse_status": "ok"
+    },
+    {
       "path": "docs/evidence/native-layout-local.json",
       "bytes": 2086,
       "sha256": "be200cde083c63fa6df091ba91b7ab0422e033a14b63730743b9e46f1906ecce",
@@ -533,6 +544,18 @@
       "status": "study_record_implementation_unexecuted_owner_paused_tests",
       "product_source_commit": "c2ef008ddee53b6ea06028122f60ddbc0f00f2bb",
       "recorded_utc": "2026-11-05T12:10:25.241348+00:00",
+      "release_ready": false,
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/resumed-validation-2026-11-05.json",
+      "bytes": 7020,
+      "sha256": "3f75ad15af27352cf2351044efa73e9bebc40b014534875e92436a50d55dc4f0",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "product_source_commit": "d267118",
+      "recorded_utc": "2026-11-05T17:44:42.389780+00:00",
       "release_ready": false,
       "parse_status": "ok"
     },

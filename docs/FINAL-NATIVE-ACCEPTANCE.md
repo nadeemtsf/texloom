@@ -1,3 +1,7 @@
+## Current continuation - 6 November 2026
+
+Tests have resumed. The owner now reserves all further mouse/keyboard control for their own manual tests after the coding run stops at50%five-hour usage. Do not operate the app to complete those cases. Earlier pause/owner-away notes below are historical. The exact r5 portable copy has observed grouped selection/move/protected edit/Save evidence and independent source/Poppler checks; Undo/Redo/reopen, multilingual, installation/recovery and physical-environment cases still need the owner's results on the final named candidate. See the later validation receipt and manual checklist. No final study or release acceptance is implied.
+
 # Native acceptance in progress
 
 5 November supplement: product source `5e59e77282fd5e4b4f70440437b8f841ccea1364` adds setup help and optional timing plumbing. 252 frontend/88 default core checks and the ordinary Windows release/NSIS build pass. No new native/UI/setup/installation or performance observation was made. Both the ordinary and diagnostic variants need their own recorded native checks after the owner returns. The owner-away deferral below continues to apply.

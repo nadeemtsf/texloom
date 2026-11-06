@@ -2,7 +2,7 @@
 
 Status: **technical report draft and evaluation design, not a paper or a completed evaluation**. Started 4 November 2026. Application development remains the priority. Nothing in this directory authorizes publication or submission.
 
-Latest continuation: the owner paused **all tests**. Product source `c2ef008` adds commit/presentation/uncertain-response and cleanup handling but has not been built or executed. New v1 annotation-record code is also unexecuted. Read-only literature, dependency-source and Windows inventory work supplies methods/context only. The compiled v5 PDF remains a record of its earlier source/evidence snapshot, not a new report of results for `c2ef008`.
+Current continuation, 6 November: automated and real-engine checks have resumed. The report now incorporates bounded resumed validation, the PDFium159 replacement, an independent saved-signature source/render probe and the reproduced mixed-build packaging gap/fix. The expanded editable v7 draft has no page cap. The owner will perform all remaining mouse/keyboard tests after this coding run; those outputs are pending. Final evaluation remains unfrozen and unrun. Old sources/PDFs and historical receipts retain their original scope.
 
 The audit baseline is product commit `c26a23851155f7e4e542eef80fae92e35c51f707`. It is a development baseline, **not the final evaluation freeze**. Its three CI workflows were observed successful. Current working-tree/document changes and executable receipts must accompany any later claim.
 

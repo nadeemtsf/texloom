@@ -6,8 +6,9 @@ harness are different artifacts. A successful check on one cannot silently
 become an observation of another.
 
 \subsection{Version and input binding}
-The last tested product source is \code{5e59e77}; newer source-only changes
-are not in the recorded r4 binaries. The native-entry harness was
+The historical r4 source is \code{5e59e77}. Later product/dependency source
+\code{d267118} and checkpoint \code{a120086} have separate r5 artifacts and
+resumed engineering evidence; old r4 binaries are unchanged. The native-entry harness was
 committed at \code{cb3cd11}; the corrected reference/health code at
 \code{b5edb9d}. The exact debug harness executable is unchanged across the two
 native attempts. Both protocols snapshot executed helper/native source and
@@ -41,14 +42,14 @@ its prepared resources. Reproduction commands and archive scope are in the
 appendices.
 
 \subsection{Declared records and byte-reference checks}
-The unexecuted v1 record implementation separates canonical commit from a
+The v1 record implementation separates canonical commit from a
 component predicate, presentation, Save, terminal event and unresolved commit
 status. Correctness case, shared intent and document identities have separate
 denominators; timing repetitions cannot manufacture independent correctness
 requests. Required postconditions and reviewed annotations remain explicit,
 with null observations unresolved rather than passing.
 
-A separate unexecuted reference-checking draft reads only declared files
+A separate reference-checking implementation reads only declared files
 under a controlled root and compares observed byte lengths/hashes. Fixture
 and oracle manifests must agree with their declared input lists. This can
 establish declared file consistency when exercised; it cannot establish
@@ -56,8 +57,10 @@ actual execution, complete engine/font dependency capture, correct labels,
 independent review, pre-run sealing or a source-to-binary relationship. It
 always withholds final-evaluation admission. Both drafts use bounded strict
 JSON and exclusive report creation, and execute no manifest commands.
-\path{research/REFERENCE-ADMISSION.md} states their limits. These are new
-infrastructure sources without diagnostic or experimental results.
+\path{research/REFERENCE-ADMISSION.md} states their limits. Resumed synthetic
+checks exercise record denominators, unresolved observations, changed/omitted
+references and input parsing. They do not admit a final evaluation or validate
+the final case labels.
 
 \subsection{Machine, engines and fonts}
 A development environment collector fingerprints explicitly chosen tools,
@@ -89,8 +92,9 @@ budgets before execution. Document cold/warm and background-load conditions.
 Do not generalize one Windows machine's pixels or latency to every installation.
 
 \subsection{The bundled independent verifier}
-The packaged verifier uses PDFium 156.0.8076.0 from the pinned pypdfium2 5.14.0
-Windows x64 wheel. Historical reports naming PDFium 126 or pypdfium2 4.30 concern
+The historical packaged verifier used PDFium 156.0.8076.0 from the pinned pypdfium2 5.14.0
+Windows x64 wheel; the resumed replacement uses distributor PDFium 159.0.8138.0
+as described below. Historical reports naming PDFium 126 or pypdfium2 4.30 concern
 other artifacts. The Rust worker does not require Python at application runtime.
 The recorded wheel digest, extracted DLL and packaged DLL match; pinned notices
 are included. The index's latest-version observation was made on 4 November
@@ -152,21 +156,37 @@ DLL's full build relation or demonstrating a Texloom exploit. Public
 distribution is blocked pending remediation and exact-artifact validation.
 The historical pin is retained for reproduction, not declared secure.
 Other primary fix commits are follow-up leads, not a complete applicability
-audit. No replacement binary, exploit or scanner was run. The detailed
+audit. No exploit or scanner was run during that source-only review. The detailed
 scope and remaining work are in \path{docs/DEPENDENCY-ADVISORY-REVIEW.md}.
 
 Read-only intake of the distributor's old and newer Windows archives adds
 one useful byte relationship: the old archive's DLL matches the wheel's
-recorded DLL digest. The newer archive is a review candidate, not an adopted
-dependency. Its extra notice files show why replacement packaging needs a new
+recorded DLL digest. That intake initially treated the newer archive as a review
+candidate. Its extra notice files show why replacement packaging needs a new
 inventory. Distributor-supplied build arguments and identical selected C
 declaration texts narrow inspection questions but do not establish runtime
 compatibility or complete build provenance. Header reading also found the
 worker's discarded boolean result from bitmap initialization; the new guard
-remains unbuilt and does not remediate the AGG advisory. Failed source-path
+was subsequently built and exercised, but does not itself remediate the AGG advisory. Failed source-path
 retrieval and an initial overbroad header lookup are retained as reading-tool
 limits, not counted as application failures. See
 \path{docs/DEPENDENCY-CANDIDATE-INTAKE.md}.
+
+\paragraph{Resumed replacement, distinct from the initial intake.}
+The active development pin now selects the exact distributor archive for
+159.0.8138.0, with a separate historical Python-reference pin for 156. A bounded
+reader checks the compressed identity and all 49 declared member digests;
+packaging retains the root license and 18 component notice files. Parent and
+worker use the same new DLL/version identity. GitHub CLI verified the archive's
+SLSA statement against the expected repository, workflow and build-repository
+commit; wrong-repository and changed-byte controls failed. These checks attest
+the distributor publication identity within that statement's scope, not the
+complete nested source-to-DLL derivation. The observed newer source ref has
+the corrected AGG initialization; this is not a universal vulnerability claim.
+The worker/reference, native approval and engine checks described in
+Section~\ref{sec:development} passed. Replacement GUI, installation and remaining
+provenance/license/security gates require their own evidence. See
+\path{docs/PDFIUM159-UPGRADE.md}; public release remains unapproved.
 
 \subsection{Final freeze rule}
 \path{research/evaluation/freeze.json} remains \code{not\_frozen}. The final

@@ -23,7 +23,7 @@
 \fancyhf{}
 \fancyhead[L]{\small Texloom: methods and evidence}
 \fancyhead[R]{\small TECHNICAL REPORT DRAFT}
-\fancyfoot[L]{\small 5 November 2026; final evaluation pending}
+\fancyfoot[L]{\small 6 November 2026; final evaluation pending}
 \fancyfoot[R]{\small\thepage}
 \renewcommand{\headrulewidth}{0.3pt}
 \newcommand{\pending}{\textit{Pending: no final evaluation has been run.}}
@@ -31,7 +31,7 @@
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 \title{\vspace{-1.7em}Texloom: Checking Source-Preserving Visual Edits\\to Compiled \LaTeX\ Documents}
 \author{Texloom Project\\\small Technical report draft; methods, development evidence and evaluation design}
-\date{5 November 2026}
+\date{6 November 2026}
 
 \begin{document}
 \maketitle
@@ -57,12 +57,12 @@ No novelty, universal correctness or publication-readiness claim is made.
 \end{abstract}
 
 \paragraph{Source revision notice.}
-This editable revision includes source-only follow-up work completed after
-the reviewed v5 PDF. All tests are currently paused. The newer UI, failure
-handling, collector and record-analysis code are unbuilt or unexecuted; the
-last tested product source remains \code{5e59e77}. The v5 PDF is the last
-compiled/rendered report, not a rendering of these revised sources. No new
-experimental result or final-evaluation pass is implied.
+This revision incorporates resumed development validation from 5--6 November.
+The replacement verifier source is \code{d267118}; the recorded checkpoint is
+\code{a120086}. Automated and real-engine checks, exact native artifacts and
+human-reported gesture observations have different scopes. New engineering
+passes do not fill final-evaluation cells. The final version, held-out inputs
+and independent labels remain unfrozen, and no final evaluation has run.
 
 \input{sections/01-scope}
 \input{sections/02-workflow}
@@ -82,8 +82,8 @@ experimental result or final-evaluation pass is implied.
 
 \clearpage
 \begingroup
-\small
-\setlength{\parskip}{3pt}
+\footnotesize
+\setlength{\parskip}{1pt}
 \bibliographystyle{plain}
 \bibliography{references,followup-references}
 \endgroup

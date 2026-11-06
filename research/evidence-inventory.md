@@ -1,5 +1,7 @@
 # Evidence inventory
 
+6 November update: see `docs/evidence/resumed-validation-2026-11-05.json` and the later native/build-pairing receipt for actual resumed checks. The initially unfinished replacement engine suite completed all four explicit invocations. UI observations and independent saved-source/Poppler checks remain bounded development evidence; owner-run manual cases and the final study are pending. Historical rows below retain their original dates and do not override the resumed authorization. Repeated checks/configurations are not added into an accuracy denominator.
+
 Audit date: 4 November 2026. The generated `evidence-catalog.json` records file hashes, dates/source identifiers when present, and top-level outcome metadata. Its audit action is **read/parse/fingerprint**, not a rerun. Do not sum repeated suites, different commits or different test layers into one accuracy denominator.
 
 5 November source-only continuation: the catalog now also includes untested development, primary-source review and later read-only Windows inventory receipts. These additions are not passing tests. The owner paused all test execution; new product source `c2ef008` and v1 study-record code have no new build/runtime validation. The existing v5 PDF and r4 binaries retain their earlier identities.

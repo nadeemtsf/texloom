@@ -134,13 +134,14 @@ reduces the chance of a presentation failure after commit, but this cross-proces
 workflow is not claimed as a filesystem/UI-wide atomic transaction. Native
 acceptance and a displayed frame are recorded separately in the proposed study.
 
-The subsequent untested failure-handling revision distinguishes a known
+The subsequent failure-handling revision distinguishes a known
 native commit followed by presentation/reselection failure from a refusal
 before commit. If an attempted commit has no usable acknowledgement or
 confirming state, the replica stops new writes and records uncertainty rather
 than automatically retrying. Cleanup failures must not clear the busy state
-incorrectly or destroy an adopted PDF. These are implementation intentions
-with source changes, not newly reproduced passing recovery cases. Native
+incorrectly or destroy an adopted PDF. Resumed controller tests exercise
+acknowledged-commit publication failure, unknown acknowledgement and control
+release; they are not injected failures in a running Windows process. Native
 history, view publication, original-file Save and exact reopen still require
 separate observations.
 

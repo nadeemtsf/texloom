@@ -1,3 +1,7 @@
+# Current validation update - 6 November 2026
+
+277 frontend and88 required core checks pass. The packaging build-pairing gap was reproduced/fixed and independently checked; the saved grouped-signature source/render probe passed within its one-fixture scope. Replacement engine gates finished. All further desktop-control tests are reserved for the owner at the usage stop. See current remaining work, the new dated receipt and manual packet; historical pause/build statements below retain their original dates. No final study or release acceptance is claimed.
+
 # Current validation status - 5 November 2026
 
 ## Active resumed validation
