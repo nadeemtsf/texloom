@@ -1,0 +1,312 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-07T08:27:43.883076+00:00",
+  "kind": "headless_native_mapping_development_pilot",
+  "source_base": "93bf7cf2e2255c3d8b04d702566e63e993dbffd6",
+  "source_state": "new opt-in harness exact bytes below; no desktop rebuild or release claim",
+  "final_evaluation_executed": false,
+  "native_ui_input": false,
+  "result": {
+    "schema": 1,
+    "protocol": "RTL-MAPPING-PILOT-v1",
+    "status": "pass",
+    "created_at": "2026-11-07T08:21:55.883Z",
+    "cases": [
+      {
+        "language": "arabic",
+        "status": "pass",
+        "point": {
+          "x": 474.28523750000005,
+          "y": 134.056815
+        },
+        "attempts": [
+          {
+            "candidate": 0,
+            "native_status": "probe",
+            "probe_accepted": true
+          }
+        ],
+        "source_file": "main.tex",
+        "source_lines": [
+          20,
+          20
+        ],
+        "wrong_target_controls_refused": 2
+      },
+      {
+        "language": "hebrew",
+        "status": "pass",
+        "point": {
+          "x": 457.49643335,
+          "y": 155.575815
+        },
+        "attempts": [
+          {
+            "candidate": 0,
+            "native_status": "probe",
+            "probe_accepted": true
+          }
+        ],
+        "source_file": "main.tex",
+        "source_lines": [
+          24,
+          24
+        ],
+        "wrong_target_controls_refused": 2
+      },
+      {
+        "language": "english",
+        "status": "pass",
+        "point": {
+          "x": 274.89344275,
+          "y": 112.53681500000002
+        },
+        "attempts": [
+          {
+            "candidate": 0,
+            "native_status": "probe",
+            "probe_accepted": true
+          }
+        ],
+        "source_file": "main.tex",
+        "source_lines": [
+          17,
+          17
+        ],
+        "wrong_target_controls_refused": 2
+      }
+    ],
+    "limitations": [
+      "Reused synthetic template, not held-out final evaluation.",
+      "Actual native resolver/planner/compile plus PDF.js probe checks; no frontend candidate loop or native pointer input.",
+      "No move commit, Save, latency, general RTL or usability result."
+    ]
+  },
+  "source_fingerprints": [
+    {
+      "path": "src-tauri/src/lib.rs",
+      "bytes": 20206,
+      "sha256": "8b6cd1d38b4ca20d7338a398763e50d5752676183567cd7f9665e3274bf3c3f5"
+    },
+    {
+      "path": "src-tauri/Cargo.toml",
+      "bytes": 1030,
+      "sha256": "d07b71ea4e2cd9f7bb1bc199ed95bf5502db901627035b24bff8383073dc7e04"
+    },
+    {
+      "path": "src-tauri/examples/native_selection_development.rs",
+      "bytes": 5333,
+      "sha256": "35193f1515e74c3579acaec80f2156d1f3917e2f70a27b57181e32b889fd9fba"
+    },
+    {
+      "path": "scripts/proof-pdf-view.mjs",
+      "bytes": 1706,
+      "sha256": "5b5328645214e0dac58381f5117bf30e81654300d4292eb4610c106d4afd4db0"
+    },
+    {
+      "path": "scripts/rtl-mapping-proof.mjs",
+      "bytes": 5004,
+      "sha256": "53b5669dec42b36081ac09130e28daf6bcf30bc47cc60db06ec4ffb1b7368b4f"
+    },
+    {
+      "path": "research/RTL-MAPPING-PILOT.md",
+      "bytes": 3920,
+      "sha256": "ad98321fc6af13499b91a31516a09e98da3d40a204ab0d483de09abf13bf36c9"
+    }
+  ],
+  "raw_evidence": [
+    {
+      "path": "artifacts/continuation-20261107/core.log",
+      "bytes": 7903,
+      "sha256": "ae3e1b472883adbbeb48866fbbfe98f4e262cbe617273779fe6d50268247ce54"
+    },
+    {
+      "path": "artifacts/continuation-20261107/frontend.log",
+      "bytes": 27224,
+      "sha256": "1954913101c7fec2a16edd0b13dc6b97d641f01a2bc226cc95b5946a7f9f3579"
+    },
+    {
+      "path": "artifacts/continuation-20261107/native.log",
+      "bytes": 9446,
+      "sha256": "1f42e041afe7d5a1bb28b384d78d681582f11bf91622bbdbc78819bc60be6451"
+    },
+    {
+      "path": "artifacts/continuation-20261107/rtl-native-mapping-v1/native-stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/continuation-20261107/rtl-native-mapping-v1-r2/arabic-0-native.json",
+      "bytes": 1891,
+      "sha256": "374e5419bfd602baa8938a9b14b1266baaa1b8ef55d5aa1001c31cbef677b870"
+    },
+    {
+      "path": "artifacts/continuation-20261107/rtl-native-mapping-v1-r2/english-0-native.json",
+      "bytes": 1931,
+      "sha256": "ccead244e5b61570635a56d43103f3fa9d245c04bb16cbdcb6f278e4e52ecd7b"
+    },
+    {
+      "path": "artifacts/continuation-20261107/rtl-native-mapping-v1-r2/hebrew-0-native.json",
+      "bytes": 1887,
+      "sha256": "a8f57fea58ae0820a5262f28846cab854b8566e4d860c820654e4e8212c68f4f"
+    },
+    {
+      "path": "artifacts/continuation-20261107/rtl-native-mapping-v1-r2/native/baseline.log",
+      "bytes": 11275,
+      "sha256": "000dcb22a3aa822751754a9bdb512792388797499349e89d014ea2a6dabf84e4"
+    },
+    {
+      "path": "artifacts/continuation-20261107/rtl-native-mapping-v1-r2/native/baseline.pdf",
+      "bytes": 43102,
+      "sha256": "0070f132c0c772767dec6c77a0acc3fb689587870723e238716f39e3cabecf59"
+    },
+    {
+      "path": "artifacts/continuation-20261107/rtl-native-mapping-v1-r2/native/cache/builds/p3-f467edd208a2425b84a205699b761bcf/0d4cd22fd2e746caadc855f2af98f8bb/.out/preview.log",
+      "bytes": 21599,
+      "sha256": "214ec84cc844f423642631cc32fe8aad23cd4b384a0a0a7040c2a8960b71d046"
+    },
+    {
+      "path": "artifacts/continuation-20261107/rtl-native-mapping-v1-r2/native/cache/builds/p3-f467edd208a2425b84a205699b761bcf/0d4cd22fd2e746caadc855f2af98f8bb/.out/preview.pdf",
+      "bytes": 43154,
+      "sha256": "daf8b534c8b23f2e0d40e36fdad55995879778cb0e9f675ba27c3649cdac58ff"
+    },
+    {
+      "path": "artifacts/continuation-20261107/rtl-native-mapping-v1-r2/native/cache/builds/p3-f467edd208a2425b84a205699b761bcf/0d4cd22fd2e746caadc855f2af98f8bb/texloom-build-manifest.json",
+      "bytes": 18513,
+      "sha256": "68b61d94d3e86f6dc9659b8ec504b0d13039d83281441eab74e37c8911f3530a"
+    },
+    {
+      "path": "artifacts/continuation-20261107/rtl-native-mapping-v1-r2/native/cache/builds/p3-f467edd208a2425b84a205699b761bcf/7e8a7d5e5488401b9bea29517bc510df/.out/preview.log",
+      "bytes": 21599,
+      "sha256": "ef78ef2683d16cda027b11a0b1c89b2f0b1a0e4804bd381d7723d426230a3c7c"
+    },
+    {
+      "path": "artifacts/continuation-20261107/rtl-native-mapping-v1-r2/native/cache/builds/p3-f467edd208a2425b84a205699b761bcf/7e8a7d5e5488401b9bea29517bc510df/.out/preview.pdf",
+      "bytes": 43153,
+      "sha256": "4a3a917c136aa077457c892a641a06727a661bc98381b8d52f73aeafb6187ae0"
+    },
+    {
+      "path": "artifacts/continuation-20261107/rtl-native-mapping-v1-r2/native/cache/builds/p3-f467edd208a2425b84a205699b761bcf/7e8a7d5e5488401b9bea29517bc510df/texloom-build-manifest.json",
+      "bytes": 18513,
+      "sha256": "718cffc28314be7b799aa7b8b81ac401bb01681c0b8eb5bd7bbe1011bf70203e"
+    },
+    {
+      "path": "artifacts/continuation-20261107/rtl-native-mapping-v1-r2/native/cache/builds/p3-f467edd208a2425b84a205699b761bcf/bd264af532cf4f6d8fc7efc2a1957612/.out/preview.log",
+      "bytes": 21495,
+      "sha256": "a64a9f6ca06f411ad1f8a9e16e65a9702cfd45ef8e09c58ef715a956eadd6053"
+    },
+    {
+      "path": "artifacts/continuation-20261107/rtl-native-mapping-v1-r2/native/cache/builds/p3-f467edd208a2425b84a205699b761bcf/bd264af532cf4f6d8fc7efc2a1957612/.out/preview.pdf",
+      "bytes": 43102,
+      "sha256": "0070f132c0c772767dec6c77a0acc3fb689587870723e238716f39e3cabecf59"
+    },
+    {
+      "path": "artifacts/continuation-20261107/rtl-native-mapping-v1-r2/native/cache/builds/p3-f467edd208a2425b84a205699b761bcf/bd264af532cf4f6d8fc7efc2a1957612/texloom-build-manifest.json",
+      "bytes": 18486,
+      "sha256": "7c4bdd41a684228693866f4fd4976677b47ea7e829643f7e6a2ba79ae4fee497"
+    },
+    {
+      "path": "artifacts/continuation-20261107/rtl-native-mapping-v1-r2/native/cache/builds/p3-f467edd208a2425b84a205699b761bcf/cf931c59e4d64cedb5907a676e0c8bf4/.out/preview.log",
+      "bytes": 21599,
+      "sha256": "87527641aa0d25a037cce13436fbed44002137b3b33fcea907124d159ba307e6"
+    },
+    {
+      "path": "artifacts/continuation-20261107/rtl-native-mapping-v1-r2/native/cache/builds/p3-f467edd208a2425b84a205699b761bcf/cf931c59e4d64cedb5907a676e0c8bf4/.out/preview.pdf",
+      "bytes": 43147,
+      "sha256": "c726d6be1d33fe1bda6fb0b8b14f2df364ceeae5c2db163cb2a53dc6a1c40e1c"
+    },
+    {
+      "path": "artifacts/continuation-20261107/rtl-native-mapping-v1-r2/native/cache/builds/p3-f467edd208a2425b84a205699b761bcf/cf931c59e4d64cedb5907a676e0c8bf4/texloom-build-manifest.json",
+      "bytes": 18513,
+      "sha256": "1a0df8688a3245dcfbe512d91a89bacb0c76f11e808a7178be921cc085e5ae6f"
+    },
+    {
+      "path": "artifacts/continuation-20261107/rtl-native-mapping-v1-r2/native/cache/recent-projects.json",
+      "bytes": 250,
+      "sha256": "24ea3a314697a38d95d7756beb1cdbeac6497ef9c652fad41a92ae00db58a1b0"
+    },
+    {
+      "path": "artifacts/continuation-20261107/rtl-native-mapping-v1-r2/native/mapped-arabic-0.log",
+      "bytes": 11319,
+      "sha256": "852929510aa20b18020af621db98084498859df526b3da6ac3a9f2b575585f66"
+    },
+    {
+      "path": "artifacts/continuation-20261107/rtl-native-mapping-v1-r2/native/mapped-arabic-0.pdf",
+      "bytes": 43153,
+      "sha256": "4a3a917c136aa077457c892a641a06727a661bc98381b8d52f73aeafb6187ae0"
+    },
+    {
+      "path": "artifacts/continuation-20261107/rtl-native-mapping-v1-r2/native/mapped-english-0.log",
+      "bytes": 11319,
+      "sha256": "191eaf8fac0e7572fc142940c09b345eca9721952de25ce6afce112389f3b9ea"
+    },
+    {
+      "path": "artifacts/continuation-20261107/rtl-native-mapping-v1-r2/native/mapped-english-0.pdf",
+      "bytes": 43147,
+      "sha256": "c726d6be1d33fe1bda6fb0b8b14f2df364ceeae5c2db163cb2a53dc6a1c40e1c"
+    },
+    {
+      "path": "artifacts/continuation-20261107/rtl-native-mapping-v1-r2/native/mapped-hebrew-0.log",
+      "bytes": 11319,
+      "sha256": "014a17933dd4160a15b8fef877816f5c7fcea8c5367cb519e6c94d230d1ff11b"
+    },
+    {
+      "path": "artifacts/continuation-20261107/rtl-native-mapping-v1-r2/native/mapped-hebrew-0.pdf",
+      "bytes": 43154,
+      "sha256": "daf8b534c8b23f2e0d40e36fdad55995879778cb0e9f675ba27c3649cdac58ff"
+    },
+    {
+      "path": "artifacts/continuation-20261107/rtl-native-mapping-v1-r2/native-stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/continuation-20261107/rtl-native-mapping-v1-r2/report.json",
+      "bytes": 1683,
+      "sha256": "41027e5e8fac0ab5f479ba29ee7ecd18891961892b96d58ca26abd9ffa5cc984"
+    },
+    {
+      "path": "artifacts/continuation-20261107/rtl-native-mapping-v1-r2.log",
+      "bytes": 1101,
+      "sha256": "030d02515ddebbb206ce2df0af6f8a1ea5a582972df2ebf73e748e50860512cb"
+    },
+    {
+      "path": "artifacts/continuation-20261107/rtl-native-mapping-v1.log",
+      "bytes": 885,
+      "sha256": "15063e4df1edb584594d29eb69b2080b8afdfc102a36fb2bdbb483009dcd41bc"
+    },
+    {
+      "path": "artifacts/continuation-20261107/selection-harness-build-r2.log",
+      "bytes": 3234,
+      "sha256": "349ac44d5b80b1860cfd68a3d0abb34a0a599a3defe2fa1e400b7afb455c29e8"
+    },
+    {
+      "path": "artifacts/continuation-20261107/selection-harness-build.log",
+      "bytes": 4092,
+      "sha256": "8586c4f2786d78437c415f1a10dcb494cfbed2e41f15ac1ea9bc2dc6b6b837d2"
+    }
+  ],
+  "regression_checks": {
+    "frontend": {
+      "pass": 287,
+      "skip": 0
+    },
+    "core_default": {
+      "unit": 70,
+      "integration": 18
+    },
+    "native_default": {
+      "pass": 53,
+      "ignored": 2
+    }
+  },
+  "limitations": [
+    "No pointer, frontend candidate-loop, movement commit, Save or final accuracy/latency result",
+    "The two ignored native checks retain earlier explicit receipts; not relabelled as executed by this default run"
+  ],
+  "retained_failures": [
+    "Initial harness used test-only document_prepare and failed to build",
+    "First launch found no executable; guarded before retry"
+  ],
+  "production_candidate": "r7 unchanged; new exports/example are benchmark-feature only"
+}

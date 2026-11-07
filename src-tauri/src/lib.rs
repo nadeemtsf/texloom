@@ -9,6 +9,7 @@ pub use document_protocol::bindings as protocol_bindings;
 #[cfg(feature = "benchmark")]
 pub mod benchmark {
     pub use crate::service::{Backend, DocumentSnapshot, EditorChange, SourceEditReply};
+    pub use crate::service::{visual_plan, ObjectEditRequest, SelectionPoint};
 }
 use service::{
     Backend, CloseReply, CompileResult, DocumentSnapshot, EditorChange, EditorRange, ObjectEditRequest,

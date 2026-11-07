@@ -1,5 +1,7 @@
 # Current remaining work - 6 November 2026
 
+7 November follow-up: all17 child tasks are tracked by GitHub issue#25; see PROJECT-TRACKING.md. The real headless native RTL source-mapping pilot passed three intended zero-probe targets and six wrong-target controls without changing canonical source/history or original disk source. It does not close owner acceptance or final-study gates. The active usage floor is now60%remaining in the five-hour window, replacing older stop rules below. Mouse/keyboard tests remain owner-run.
+
 The initial bounded workflow is implemented. Current development evidence covers ordinary projects, compiled PDF selection, grouped movement, protected text edits, source preservation, history/recovery machinery and bounded adapters. This is not arbitrary visual editing of every LaTeX structure, and the project is not release-complete.
 
 ## Completed in the resumed continuation

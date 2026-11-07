@@ -1,0 +1,119 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-07T08:27:43.883076+00:00",
+  "kind": "github_backlog_initialization",
+  "tracker": {
+    "number": 25,
+    "url": "https://github.com/nadeemtsf/texloom/issues/25"
+  },
+  "milestones": {
+    "core": {
+      "number": 1,
+      "url": "https://github.com/nadeemtsf/texloom/milestone/1"
+    },
+    "release": {
+      "number": 2,
+      "url": "https://github.com/nadeemtsf/texloom/milestone/2"
+    },
+    "research": {
+      "number": 3,
+      "url": "https://github.com/nadeemtsf/texloom/milestone/3"
+    }
+  },
+  "issues": {
+    "tracker": {
+      "number": 25,
+      "url": "https://github.com/nadeemtsf/texloom/issues/25"
+    },
+    "Validate exact r7 installation and launch": {
+      "number": 26,
+      "url": "https://github.com/nadeemtsf/texloom/issues/26",
+      "state": "open"
+    },
+    "Accept Arabic/Hebrew paragraph selection and movement in r7": {
+      "number": 27,
+      "url": "https://github.com/nadeemtsf/texloom/issues/27",
+      "state": "open"
+    },
+    "Confirm current-build multilingual typing, render, search and copy": {
+      "number": 28,
+      "url": "https://github.com/nadeemtsf/texloom/issues/28",
+      "state": "open"
+    },
+    "Accept Keep draft and close and explicit recovery selection": {
+      "number": 29,
+      "url": "https://github.com/nadeemtsf/texloom/issues/29",
+      "state": "open"
+    },
+    "Confirm successful PDF publication after correcting a compile failure": {
+      "number": 30,
+      "url": "https://github.com/nadeemtsf/texloom/issues/30",
+      "state": "open"
+    },
+    "Complete final-build supported workflow and portability smoke check": {
+      "number": 31,
+      "url": "https://github.com/nadeemtsf/texloom/issues/31",
+      "state": "open"
+    },
+    "Validate Windows timing boundaries and record a controlled performance baseline": {
+      "number": 32,
+      "url": "https://github.com/nadeemtsf/texloom/issues/32",
+      "state": "open"
+    },
+    "Verify DPI and multi-monitor transitions": {
+      "number": 33,
+      "url": "https://github.com/nadeemtsf/texloom/issues/33",
+      "state": "open"
+    },
+    "Validate clean Windows setup and uninstall preservation": {
+      "number": 34,
+      "url": "https://github.com/nadeemtsf/texloom/issues/34",
+      "state": "open"
+    },
+    "Complete bounded verifier dependency provenance and license/advisory review": {
+      "number": 35,
+      "url": "https://github.com/nadeemtsf/texloom/issues/35",
+      "state": "open"
+    },
+    "Record unassisted usability findings and distribution decisions": {
+      "number": 36,
+      "url": "https://github.com/nadeemtsf/texloom/issues/36",
+      "state": "open"
+    },
+    "Freeze independently reviewed evaluation version and synthetic manifests": {
+      "number": 37,
+      "url": "https://github.com/nadeemtsf/texloom/issues/37",
+      "state": "open"
+    },
+    "Execute fixed-version evaluation and feasible paired baselines": {
+      "number": 38,
+      "url": "https://github.com/nadeemtsf/texloom/issues/38",
+      "state": "open"
+    },
+    "Analyze measured results and update the technical report": {
+      "number": 39,
+      "url": "https://github.com/nadeemtsf/texloom/issues/39",
+      "state": "open"
+    },
+    "Implement and headlessly verify the XeTeX RTL marker-order correction": {
+      "number": 40,
+      "url": "https://github.com/nadeemtsf/texloom/issues/40",
+      "state": "closed"
+    },
+    "Implement and headlessly verify protected close and explicit recovery choice": {
+      "number": 41,
+      "url": "https://github.com/nadeemtsf/texloom/issues/41",
+      "state": "closed"
+    },
+    "Future feature inbox after core acceptance": {
+      "number": 42,
+      "url": "https://github.com/nadeemtsf/texloom/issues/42",
+      "state": "open"
+    }
+  },
+  "child_tasks": 17,
+  "closed_implementation_tasks": 2,
+  "all_owner_acceptance_remains_open": true,
+  "source_or_binary_or_report_pushed": false,
+  "note": "Creation/update responses verified through GitHub connector; no source publication or native acceptance implied"
+}
