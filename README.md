@@ -85,11 +85,11 @@ Select a movable PDF block to drag or resize it. The inspector allows exact posi
 
 ## Private project and development roadmap
 
-The owner intends to keep Texloom private, with no public distribution or Microsoft Store release in the roadmap. Internal Windows installation and development packaging remain supported. Existing Store-specific configuration is retained as historical material,not an active delivery target.
+The owner intends to keep Texloom private, with no public distribution or Microsoft Store release in the roadmap. Internal Windows installation and development packaging remain supported. Existing Store-specific configuration is retained as historical material, not an active delivery target.
 
-The project-level license,MIT package declarations and contribution guide have been removed. Third-party dependency notices remain separate and are retained. Earlier versions of removed files remain recoverable from Git history.
+The project-level license, MIT package declarations and contribution guide have been removed. Third-party dependency notices remain separate and are retained. Earlier versions of removed files remain recoverable from Git history.
 
-The broader visual-authoring architecture and future backlog are tracked in [roadmap #44](https://github.com/nadeemtsf/texloom/issues/44). This is planned work,not a declaration that those features are implemented.
+The broader visual-authoring architecture and future backlog are tracked in [roadmap #44](https://github.com/nadeemtsf/texloom/issues/44). This is planned work, not a declaration that those features are implemented.
 
 ## Project structure
 
