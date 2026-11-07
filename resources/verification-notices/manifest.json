@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "kind": "supplemental_pdfium_component_notices",
+  "source_scope": "Dependency revisions from observed PDFium commit5f092b52993bfd98f94f04deff391918fe0fdcfd; exact DLL nested checkout remains unresolved. Include conservatively for components compiled in matching upstream Windows job; not a complete component/license audit.",
+  "notices": [
+    {
+      "component": "brotli",
+      "file": "brotli-LICENSE.txt",
+      "bytes": 1084,
+      "sha256": "3d180008e36922a4e8daec11c34c7af264fed5962d07924aea928c38e8663c94",
+      "source_url": "https://chromium.googlesource.com/chromium/src/third_party/brotli/+/803ac71664ad62af1de39ff55e63ebbe07006fc8/LICENSE?format=TEXT",
+      "source_revision": "803ac71664ad62af1de39ff55e63ebbe07006fc8"
+    },
+    {
+      "component": "libyuv",
+      "file": "libyuv-LICENSE.txt",
+      "bytes": 1506,
+      "sha256": "2b2cc1180c7e6988328ad2033b04b80117419db9c4c584918bbb3cfec7e9364f",
+      "source_url": "https://chromium.googlesource.com/libyuv/libyuv/+/1e2e3a35993609da1d89ac170b907719d555f4b3/LICENSE?format=TEXT",
+      "source_revision": "1e2e3a35993609da1d89ac170b907719d555f4b3"
+    }
+  ]
+}

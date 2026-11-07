@@ -43,14 +43,15 @@ def document(engine, language, mode):
     return "\ufeff" + text.replace("\r\n", "\n").replace("\n", "\r\n")
 
 
-def condition(engine, language, style):
+def condition(engine, language, style, target_style=None):
     baseline = {"main.tex": document(engine, language, "baseline"),
                 "texloom-objects.sty": style, "notes.sty": "% Unchanged support file. مرحبا שלום\r\n"}
     original = baseline["main.tex"]
     assert original.count(TARGET) == original.count(FIRST) == 1
-    correct = {**baseline, "main.tex": original.replace(TARGET, MOVED)}
+    correct = {**baseline, "main.tex": original.replace(TARGET, MOVED),
+               "texloom-objects.sty": style if target_style is None else target_style}
     variants = {
-        "wrong_first_occurrence": {**baseline, "main.tex": original.replace(FIRST, FIRST.replace("{0}{0}", "{12}{0}"))},
+        "wrong_first_occurrence": {**correct, "main.tex": original.replace(FIRST, FIRST.replace("{0}{0}", "{12}{0}"))},
         "unrelated_text_changed": {**correct, "main.tex": correct["main.tex"].replace("Unchanged unrelated neighbor.", "Changed unrelated neighbor.")},
         "appearance_changed": {**correct, "main.tex": correct["main.tex"].replace(MOVED, MOVED.replace("{Repeated target}", r"{\textcolor{red}{Repeated target}}"))},
         "duplicate_ink": {**correct, "main.tex": correct["main.tex"].replace(MOVED, MOVED.replace("{Repeated target}", r"{\rlap{Repeated target}Repeated target}"))},
@@ -74,11 +75,15 @@ def save_json(path, value):
         stream.write("\n")
 
 
-def prepare(root):
+def prepare(root, support_style="current"):
     root.mkdir(parents=True, exist_ok=False)
     # Preserve the actual distribution bytes, including line endings.
-    style = (ROOT/"resources/texloom-objects.sty").read_bytes().decode("utf-8")
-    protocol = {"schema": 1, "kind": "native_candidate_boundary_development_v1", "protocol_revision": 2,
+    target_style = (ROOT/"resources/texloom-objects.sty").read_bytes().decode("utf-8")
+    style = ((ROOT/"resources/legacy/texloom-objects-v03.sty").read_bytes().decode("utf-8")
+             if support_style == "legacy" else target_style)
+    protocol = {"schema": 1, "kind": "native_candidate_boundary_development_v1", "protocol_revision": 3,
+        "support_style": support_style,
+        "support_style_contract": "Exact declared v0.3-to-current migration" if support_style == "legacy" else "Already-current support bytes unchanged",
         "recorded_before_execution_utc": datetime.now(timezone.utc).isoformat(),
         "repository_head_before_preparation": subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip(),
         "entry_layer": "proposed_sources_plus_move_request_at_native_prepare",
@@ -92,7 +97,7 @@ def prepare(root):
             "Existing wrapped objects; no PDF.js input/mapping/frontend selection probe or physical UI",
             "Source-plan rejection is not evidence that the independent renderer saw a fault",
             "No latency benchmark, general acceptance rate or final held-out claim"],
-        "conditions": [condition(engine, language, style) for engine, language in CONDITIONS]}
+        "conditions": [condition(engine, language, style, target_style) for engine, language in CONDITIONS]}
     code_paths=[Path(__file__),Path(__file__).with_name("reference_oracle.py"),Path(__file__).with_name("source_contract.py"),
                 Path(__file__).with_name("oracle_feasibility.py"),ROOT/"src-tauri/examples/native_reference_development.rs"]
     protocol["implementation_files_sha256"]={path.relative_to(ROOT).as_posix():digest(path) for path in code_paths}
@@ -232,9 +237,11 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action",choices=("prepare","evaluate"));parser.add_argument("output",type=Path)
     parser.add_argument("--native-runner",type=Path);parser.add_argument("--pdftotext");parser.add_argument("--pdftoppm")
+    parser.add_argument("--support-style", choices=("current", "legacy"), default="current",
+                        help="Preparation only: declare already-current or exact legacy support migration")
     args=parser.parse_args();root=args.output.resolve()
     if args.action=="prepare":
-        protocol=prepare(root);print(f"Protocol written before execution: {len(protocol['conditions'])} conditions; no compilation or app launch.")
+        protocol=prepare(root,args.support_style);print(f"Protocol written before execution: {len(protocol['conditions'])} conditions; support={args.support_style}; no compilation or app launch.")
     else:
         if args.native_runner is None:parser.error("--native-runner is required")
         report=evaluate(root,args.native_runner.resolve(),{"text":executable(args.pdftotext,"pdftotext"),"raster":executable(args.pdftoppm,"pdftoppm")})

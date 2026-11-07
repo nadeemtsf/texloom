@@ -5,6 +5,7 @@ import {spawnSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {resolve,join,dirname} from 'node:path';
 import {readPinnedPdfiumTar} from './pinned-pdfium-tar.mjs';
+import {supplementalPdfiumNotices} from './pdfium-supplemental-notices.mjs';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const require=(ok,message)=>{if(!ok)throw Error(message)};
@@ -34,8 +35,10 @@ try{
   require(dll&&hash(dll)===pin.dll_sha256,'Pinned DLL checksum mismatch');
   const expectedNotices=['LICENSE',...pin.files.map(f=>f.path).filter(name=>name.startsWith('licenses/'))].sort();
   require(JSON.stringify(pin.notices)===JSON.stringify(expectedNotices),'Incomplete distributor notice inventory');
-  const notice=Buffer.from(pin.notices.map(name=>'===== '+name+' =====\n'+
+  const supplemental=await supplementalPdfiumNotices(join(root,'resources/verification-notices'));
+  const distributor=Buffer.from(pin.notices.map(name=>'===== '+name+' =====\n'+
     new TextDecoder(pin.notice_encodings[name]||'utf-8',{fatal:true}).decode(entries.get(name))).join('\n\n'));
+  const notice=Buffer.concat([distributor,Buffer.from('\n\n'),supplemental.bytes]);
   const built=spawnSync('cargo.exe',['build','--locked','--release','-p','texloom-build','--bin','pdfium_worker','--target','x86_64-pc-windows-msvc'],
     {cwd:root,stdio:'inherit',windowsHide:true,timeout:180_000});
   require(!built.error&&built.status===0,'Building the native verifier failed');
@@ -46,7 +49,8 @@ try{
   const manifest={schema:2,protocol:3,purpose:'Pinned isolated layout verification dependency; development build',platform:'windows-x86_64',
     pdfium:pin.pdfium,binding_source:pin.distributor+'@'+pin.tag,archive_sha256:pin.archive_sha256,
     build_repository_commit:pin.build_repository_commit,dll_sha256:pin.dll_sha256,
-    worker_sha256:hash(await readFile(program)),notice_sha256:hash(notice)};
+    worker_sha256:hash(await readFile(program)),notice_sha256:hash(notice),
+    supplemental_notices:supplemental.metadata,supplemental_notice_scope:supplemental.source_scope};
   await writeFile(join(resources,'verifier-manifest.json'),JSON.stringify(manifest,null,2)+'\n');
-  console.log('Prepared checked PDFium '+pin.pdfium+' verifier and '+pin.notices.length+' distributor notices.');
+  console.log('Prepared checked PDFium '+pin.pdfium+' verifier, '+pin.notices.length+' distributor and '+supplemental.metadata.length+' supplemental notices.');
 }catch(error){console.error(error.message);process.exitCode=1}
