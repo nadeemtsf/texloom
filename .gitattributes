@@ -12,3 +12,5 @@
 *.cmd text eol=crlf
 *.pdf binary
 *.ico binary
+# Preserve downloaded upstream license bytes used by checksum declarations.
+resources/verification-notices/*.txt -text
