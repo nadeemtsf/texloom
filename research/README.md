@@ -2,7 +2,7 @@
 
 Status: **technical report draft and evaluation design, not a paper or a completed evaluation**. Started 4 November 2026. Application development remains the priority. Nothing in this directory authorizes publication or submission.
 
-Current continuation, 6 November: automated and real-engine checks have resumed. The report now incorporates bounded resumed validation, the PDFium159 replacement, an independent saved-signature source/render probe and the reproduced mixed-build packaging gap/fix. The expanded editable v7 draft has no page cap. The owner will perform all remaining mouse/keyboard tests after this coding run; those outputs are pending. Final evaluation remains unfrozen and unrun. Old sources/PDFs and historical receipts retain their original scope.
+Current continuation, 7 November: automated and real-engine checks have resumed. The v10 technical report draft has 26 pages and 21 references, with no page cap. It adds the bounded legacy-support migration pilot and matched PDFium artifact/notice evidence to earlier development findings. The prepared app candidate is r8; installation and hands-on acceptance remain owner-run and pending. See the dated reconciliation at the top of [the implementation audit](implementation-audit.md). Final evaluation remains unfrozen and unrun. Old sources/PDFs and historical receipts retain their original scope.
 
 The audit baseline is product commit `c26a23851155f7e4e542eef80fae92e35c51f707`. It is a development baseline, **not the final evaluation freeze**. Its three CI workflows were observed successful. Current working-tree/document changes and executable receipts must accompany any later claim.
 
@@ -31,4 +31,4 @@ Files:
 
 Keep development fixtures in their existing directories. Do not populate or run the final held-out set yet. Future final inputs, labels, executable, dependencies, engine/font versions, machine description and analysis code must be sealed together. Any product fix during final evaluation requires a new version and a separately labelled run; failures remain preserved.
 
-Compile only the explicitly named `.tex` report, with shell escape disabled. Never compile `.text` files. Generated PDFs/logs/renders stay outside tracked research source, under ignored `artifacts/research-report/`; a review copy may be placed in the chat outputs. The expanded v5 draft has 21 pages without a page cap; recorded development results and failures are included, while final-study results remain pending.
+Compile only the explicitly named `.tex` report, with shell escape disabled. Never compile `.text` files. Generated PDFs/logs/renders stay outside tracked research source, under ignored `artifacts/research-report/`; a review copy may be placed in the chat outputs. Current v10 has 26 reviewed pages; historical v5 had 21. Recorded development results and failures are included, while final-study results remain pending.

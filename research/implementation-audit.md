@@ -1,5 +1,22 @@
 # Implementation audit - 4 November 2026
 
+## 7 November status reconciliation
+
+The baseline audit below is historical; it is not a final freeze. Current prepared artifact r8 has ordinary executable SHA-256 `60ef2e8ea6e790c570f0cb3c15f87741c5cc4976deda78f28763233f28dfad9b`. The following later evidence supersedes only the corresponding older status. No new Windows app input or installation was performed in this continuation.
+
+| Area | Implemented change or current policy | Executed evidence and remaining boundary |
+| --- | --- | --- |
+| RTL paragraph identity | The XeTeX wrapper orders directional markers without relaxing the selection proof. | [Owner-follow-up regressions](../docs/evidence/owner-followup-2026-11-06.json) retain PDF.js identity checks and real-engine movement cases. The [headless native mapping pilot](../docs/evidence/rtl-native-mapping-2026-11-07.json) found three declared targets and refused six wrong-target controls. Actual Arabic/Hebrew pointer selection in r8 is pending. |
+| Protected close and recovery | Dirty close keeps a protected draft; restoring requires an explicit project choice. | Automated checks are recorded in the owner-follow-up receipt. Earlier normal-close discard is not evidence of crash loss. Owner confirmation of the replacement close/recovery flow is pending. |
+| Legacy support migration | Only an exact owned legacy support file is eligible for the current upgrade; modified files retain their separate refusal policy. | [Legacy pilot](../docs/evidence/legacy-support-pilot-2026-11-07.json): five intended native moves met source, independent-render, Undo and unchanged-disk conditions; 25 corrupted packets were refused before compilation. These reuse development conditions, not new accuracy samples or RTL-target moves. |
+| Independent verifier packaging | The PDFium worker/DLL match r7. Packaging retains all distributor notice bytes and two checked supplemental texts. | [Matched artifact evidence](../docs/evidence/pdfium-matched-artifact-notices-2026-11-07.json) and [r8 validation](../docs/evidence/r8-build-validation-2026-11-07.json) bind the bytes. Exact nested checkout provenance and broader component/advisory review remain unresolved. |
+| Gesture cancellation | Escape and loss of focus cancel an active held drag. | The owner reported both held-drag Escape and Alt+Tab cancellation on an earlier named disposable project. This is an owner observation on that copy, not a new r8 test. |
+| Compile failure and publication | Failed candidates should preserve the accepted PDF; a corrected compile should publish a new one. | Earlier owner evidence covers the failure/last-good-preview half. A [fresh fixture preflight](../docs/evidence/compile-followup-fixture-preflight-2026-11-07.json) confirms intended TeX success/error/correction states independently. Actual corrected publication in Texloom remains pending. |
+
+Current required regressions record 291 frontend, 70 core unit, 18 core integration, 40 research-helper and two explicit native-verifier passes. These counts overlap with historical suites and are not an end-to-end accuracy denominator. Clippy completed with warnings retained. Current manual instructions are [the r8 checklist](../docs/MANUAL-FOLLOWUP-R8-2026-11-07.md). Methods, success criteria and the unfrozen final-study boundary are unchanged by this status reconciliation.
+
+## Historical baseline audit
+
 Audited product baseline: `c26a23851155f7e4e542eef80fae92e35c51f707`. This is a source/code audit plus a bounded review of recorded evidence. It is not a new correctness experiment or a final evaluation.
 
 Supplement: local `0576198` adds a window-blur listener that cancels the active canvas gesture while retaining the accepted selection. Controller drag/marquee regressions pass; actual Windows input remains pending because the owner is away. The native acceptance, source planning and verification policies audited below are unchanged. The later independent-reference development pilot is documented separately in ORACLE-PILOT.md.
