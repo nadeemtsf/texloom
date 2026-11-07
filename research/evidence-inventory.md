@@ -63,4 +63,3 @@ Keep historical development evidence as motivation, mechanism checks and regress
 # Later 7 November provenance addendum
 
 `docs/evidence/pdfium-distributor-patches-2026-11-07.json` identifies four patch invocations and 11 successful hunks in the previously matched Windows job, with five immutable captures verified against Git blob identities. It preserves an initial trailing-blank-line capture failure and the corrected data retrieval. No upstream patch/script was executed; full nested checkout/source-to-DLL closure is unresolved. This addendum postdates the immutable v10 report export and is not a new correctness/accuracy experiment.
-
