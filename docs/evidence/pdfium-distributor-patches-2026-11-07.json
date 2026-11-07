@@ -1,0 +1,105 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-07T11:52:04.256598+00:00",
+  "kind": "read_only_matched_distributor_patch_inventory_not_source_binary_reproduction",
+  "distributor_commit": "0eb94b28c2252d2baae3dfe15dc6b237131d8cd8",
+  "matched_job": {
+    "run": 41803647331,
+    "job": 126485258606,
+    "url": "https://github.com/bblanchon/pdfium-binaries/actions/runs/41803647331/job/126485258606"
+  },
+  "captures": [
+    {
+      "repository_path": "steps/03-patch.sh",
+      "git_blob": "d873d143f96a63754c427e9aadd61f8bf19746db",
+      "url": "https://github.com/bblanchon/pdfium-binaries/blob/0eb94b28c2252d2baae3dfe15dc6b237131d8cd8/steps/03-patch.sh",
+      "local": "artifacts/continuation-20261107-weekly57/distributor-patches/steps__03-patch.sh",
+      "bytes": 2238,
+      "sha256": "280b9d912250f84926143c9bff830ea028e1a77d45bcab544899edea105610c2",
+      "git_blob_identity": "pass"
+    },
+    {
+      "repository_path": "patches/shared_library.patch",
+      "git_blob": "5e50fda7bbb868d812c441639fe4d42a9f4bd82e",
+      "url": "https://github.com/bblanchon/pdfium-binaries/blob/0eb94b28c2252d2baae3dfe15dc6b237131d8cd8/patches/shared_library.patch",
+      "local": "artifacts/continuation-20261107-weekly57/distributor-patches/patches__shared_library.patch",
+      "bytes": 1233,
+      "sha256": "0fbc6207a5c9da8528914418598a494a3ed358ccb8ee91c8b3f8c1f95ab84057",
+      "git_blob_identity": "pass"
+    },
+    {
+      "repository_path": "patches/public_headers.patch",
+      "git_blob": "dcafa5b978dace50185221b7ed7f7e1745d0539b",
+      "url": "https://github.com/bblanchon/pdfium-binaries/blob/0eb94b28c2252d2baae3dfe15dc6b237131d8cd8/patches/public_headers.patch",
+      "local": "artifacts/continuation-20261107-weekly57/distributor-patches/patches__public_headers.patch",
+      "bytes": 1280,
+      "sha256": "b21cedea243ced82977251000e356240de038712b8cf8721b3dda3d595c6affd",
+      "git_blob_identity": "pass"
+    },
+    {
+      "repository_path": "patches/clang_rt.patch",
+      "git_blob": "9825d8e188cc03f06a8e7d8dc6f40a86bc0863cd",
+      "url": "https://github.com/bblanchon/pdfium-binaries/blob/0eb94b28c2252d2baae3dfe15dc6b237131d8cd8/patches/clang_rt.patch",
+      "local": "artifacts/continuation-20261107-weekly57/distributor-patches/patches__clang_rt.patch",
+      "bytes": 1941,
+      "sha256": "45a4f7b5796c381bbf4cd74c54d613d63b8644df96ab3fa32ad7d9132b21f151",
+      "git_blob_identity": "pass"
+    },
+    {
+      "repository_path": "patches/win/build.patch",
+      "git_blob": "aecd8d2423688e241a3d4504dbd46733ef38ac5e",
+      "url": "https://github.com/bblanchon/pdfium-binaries/blob/0eb94b28c2252d2baae3dfe15dc6b237131d8cd8/patches/win/build.patch",
+      "local": "artifacts/continuation-20261107-weekly57/distributor-patches/patches__win__build.patch",
+      "bytes": 685,
+      "sha256": "614c50bac5266255266b48950a949bc08186ff47b052d507f83635a5f15751ad",
+      "git_blob_identity": "pass"
+    }
+  ],
+  "logged_patch_invocations": [
+    "/d/a/pdfium-binaries/pdfium-binaries/patches/shared_library.patch",
+    "/d/a/pdfium-binaries/pdfium-binaries/patches/public_headers.patch",
+    "/d/a/pdfium-binaries/pdfium-binaries/patches/clang_rt.patch build",
+    "/d/a/pdfium-binaries/pdfium-binaries/patches/win/build.patch build"
+  ],
+  "logged_patch_targets": [
+    "BUILD.gn",
+    "public/fpdfview.h",
+    "public/cpp/fpdf_deleters.h",
+    "public/cpp/fpdf_scopers.h",
+    "config/clang/BUILD.gn",
+    "toolchain/win/toolchain.gni"
+  ],
+  "logged_successful_hunks": [
+    "Hunk #1 succeeded at 229 (offset -112 lines).",
+    "Hunk #2 succeeded at 267 (offset -114 lines).",
+    "Hunk #1 succeeded at 197 (offset 21 lines).",
+    "Hunk #2 succeeded at 210 (offset 21 lines).",
+    "Hunk #1 succeeded at 5.",
+    "Hunk #1 succeeded at 8.",
+    "Hunk #1 succeeded at 202 (offset 19 lines).",
+    "Hunk #2 succeeded at 224 (offset 19 lines).",
+    "Hunk #3 succeeded at 232 (offset 19 lines).",
+    "Hunk #4 succeeded at 247 (offset 19 lines).",
+    "Hunk #1 succeeded at 264 (offset 12 lines)."
+  ],
+  "patch_step_log_sha256": "c020f616689500f2ffeaab788001a50bb18a7ece8341b29889fd82b0c2fb81b8",
+  "recorded_configuration": {
+    "PDFium_BUILD_TYPE": "shared",
+    "PDFium_TARGET_OS": "win",
+    "PDFium_TARGET_CPU": "x64",
+    "PDFium_ENABLE_V8": "false",
+    "PDFium_VERSION": "159.0.8138.0"
+  },
+  "interpretation": "Immutable patch bytes are identified and matching job records four invocations with11successful hunks over6relative target paths. Several hunks applied with offsets. This is recorded build provenance,not replay or independent full-tree/source-to-DLL reproduction.",
+  "remaining": [
+    "Exact resolved PDFium and nested gclient revisions remain unresolved.",
+    "The patch step also generated Windows resources.rc with envsubst; exact rendered file is not recovered here.",
+    "Complete component/license/advisory applicability and binary reachability are not established."
+  ],
+  "capture_failure_preserved": "First local capture trimmed trailing blank lines; Git blob mismatch stopped receipt creation. First capture preserved in ignored distributor-patches/first-capture-preserved; exact connector strings restored and all five Git blob checks passed.",
+  "upstream_scripts_or_patches_executed": false,
+  "application_opened_or_installed": false,
+  "dll_changed": false,
+  "release_ready": false,
+  "final_evaluation_executed": false
+}

@@ -1,5 +1,7 @@
 # Bounded dependency build review — 7 November 2026
 
+Further read-only review identifies the four patches recorded by the matched Windows job and verifies five immutable script/patch captures against Git blob identities. See PDFIUM-DISTRIBUTOR-PATCHES-2026-11-07.md. This narrows patch identity only; resolved nested checkout and source-to-DLL closure remain open.
+
 Later matched-artifact review is in PDFIUM-NOTICE-FOLLOWUP-2026-11-07.md: the exact Windows x64 job's artifact matches all49 active archive files, including args.gn, and exposes two concrete license-collector warnings. The source-only uncertainty statements below retain their original scope. Conservative supplemental notices are now retained; exact nested checkout and wider review remain open.
 
 This read-only follow-up checks the distributor build repository at the previously verified attestation's commit `0eb94b28c2252d2baae3dfe15dc6b237131d8cd8`. No upstream script was executed, DLL changed, exploit run or security clearance issued. GitHub issue#35 remains open.

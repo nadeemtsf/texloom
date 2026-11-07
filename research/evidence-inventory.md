@@ -60,3 +60,7 @@ Tracked JSON evidence uses Git's LF line endings. Initial Windows working copies
 For a final quantitative claim require a run ID, exact source and executable hashes, sealed fixture/oracle manifests, engine/font/renderer versions, machine/runtime state, command or interaction trace, raw decisions and analysis version. A screenshot alone does not prove exact bytes; an exact source hash alone does not prove the visible interaction. Pair them where appropriate.
 
 Keep historical development evidence as motivation, mechanism checks and regression examples. Leave final accuracy/coverage/latency cells empty until a fixed version is evaluated. No independent reviewer, clean-account installation, held-gesture input or final held-out trial is implied by an automated build.
+# Later 7 November provenance addendum
+
+`docs/evidence/pdfium-distributor-patches-2026-11-07.json` identifies four patch invocations and 11 successful hunks in the previously matched Windows job, with five immutable captures verified against Git blob identities. It preserves an initial trailing-blank-line capture failure and the corrected data retrieval. No upstream patch/script was executed; full nested checkout/source-to-DLL closure is unresolved. This addendum postdates the immutable v10 report export and is not a new correctness/accuracy experiment.
+
