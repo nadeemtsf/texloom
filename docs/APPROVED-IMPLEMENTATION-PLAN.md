@@ -1,5 +1,7 @@
 # Visual LaTeX desktop editor — implementation and acceptance plan
 
+7 November planning extension: the owner specified a broader Word-like authoring goal and requested architecture analysis and a complete backlog. See [the proposed architecture and roadmap](architecture/README.md) and GitHub roadmap #44. This adds a planned evolution path; it does not silently label future features implemented or extend this earlier approval into permission to start new application code now. Preserve the current baseline and acceptance evidence while preparing the shared editing foundation.
+
 **Approved by the owner on 1 November 2026. Implementation begins with P0/P1.**
 
 Primary repository: https://github.com/nadeemtsf/texloom  

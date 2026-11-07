@@ -1,0 +1,247 @@
+{
+  "schema": 1,
+  "date": "2026-11-07",
+  "kind": "planned_github_roadmap_not_implemented",
+  "audit_source_commit": "6f55baca3100ef8af48d0a3cadb419855c125339",
+  "repository": "nadeemtsf/texloom",
+  "parent": {
+    "number": 44,
+    "url": "https://github.com/nadeemtsf/texloom/issues/44",
+    "state": "open"
+  },
+  "milestones": {
+    "foundation": {
+      "number": 4,
+      "title": "Extensible visual editor foundation",
+      "url": "https://github.com/nadeemtsf/texloom/milestone/4"
+    },
+    "source_native": {
+      "number": 5,
+      "title": "Source-native visual editing",
+      "url": "https://github.com/nadeemtsf/texloom/milestone/5"
+    },
+    "authoring": {
+      "number": 6,
+      "title": "Visual typing and document editing",
+      "url": "https://github.com/nadeemtsf/texloom/milestone/6"
+    },
+    "product": {
+      "number": 7,
+      "title": "Word-like workflow acceptance",
+      "url": "https://github.com/nadeemtsf/texloom/milestone/7"
+    }
+  },
+  "tasks": [
+    {
+      "id": "ARCH-01",
+      "number": 45,
+      "url": "https://github.com/nadeemtsf/texloom/issues/45",
+      "state": "open",
+      "phase": "foundation",
+      "title": "[ARCH-01] Define the visual editor capability and saved-source contract"
+    },
+    {
+      "id": "ARCH-02",
+      "number": 46,
+      "url": "https://github.com/nadeemtsf/texloom/issues/46",
+      "state": "open",
+      "phase": "foundation",
+      "title": "[ARCH-02] Add a partial lossless source projection and capability registry"
+    },
+    {
+      "id": "ARCH-03",
+      "number": 47,
+      "url": "https://github.com/nadeemtsf/texloom/issues/47",
+      "state": "open",
+      "phase": "foundation",
+      "title": "[ARCH-03] Introduce typed anchors, insertion positions and change mappings"
+    },
+    {
+      "id": "ARCH-04",
+      "number": 48,
+      "url": "https://github.com/nadeemtsf/texloom/issues/48",
+      "state": "open",
+      "phase": "foundation",
+      "title": "[ARCH-04] Generalize typed native editing intents and minimal patch planning"
+    },
+    {
+      "id": "ARCH-05",
+      "number": 49,
+      "url": "https://github.com/nadeemtsf/texloom/issues/49",
+      "state": "open",
+      "phase": "foundation",
+      "title": "[ARCH-05] Model draft input and verified rendered publication as separate lifecycles"
+    },
+    {
+      "id": "ARCH-06",
+      "number": 50,
+      "url": "https://github.com/nadeemtsf/texloom/issues/50",
+      "state": "open",
+      "phase": "foundation",
+      "title": "[ARCH-06] Extend shared history with semantic grouping and selection restoration"
+    },
+    {
+      "id": "ARCH-07",
+      "number": 51,
+      "url": "https://github.com/nadeemtsf/texloom/issues/51",
+      "state": "open",
+      "phase": "foundation",
+      "title": "[ARCH-07] Separate frontend session, selection, input and preview orchestration"
+    },
+    {
+      "id": "ARCH-08",
+      "number": 52,
+      "url": "https://github.com/nadeemtsf/texloom/issues/52",
+      "state": "open",
+      "phase": "foundation",
+      "title": "[ARCH-08] Design staged asset references and recoverable object transactions"
+    },
+    {
+      "id": "ARCH-09",
+      "number": 53,
+      "url": "https://github.com/nadeemtsf/texloom/issues/53",
+      "state": "open",
+      "phase": "foundation",
+      "title": "[ARCH-09] Define operation-specific source and rendered-output verification"
+    },
+    {
+      "id": "ARCH-10",
+      "number": 54,
+      "url": "https://github.com/nadeemtsf/texloom/issues/54",
+      "state": "open",
+      "phase": "foundation",
+      "title": "[ARCH-10] Decouple source-native selection identity from persisted object markers"
+    },
+    {
+      "id": "CORE-01",
+      "number": 55,
+      "url": "https://github.com/nadeemtsf/texloom/issues/55",
+      "state": "open",
+      "phase": "source_native",
+      "title": "[CORE-01] Deliver generalized visual deletion for supported source entities"
+    },
+    {
+      "id": "CORE-02",
+      "number": 56,
+      "url": "https://github.com/nadeemtsf/texloom/issues/56",
+      "state": "open",
+      "phase": "source_native",
+      "title": "[CORE-02] Implement source-native flow reordering with explicit destinations"
+    },
+    {
+      "id": "CORE-03",
+      "number": 57,
+      "url": "https://github.com/nadeemtsf/texloom/issues/57",
+      "state": "open",
+      "phase": "source_native",
+      "title": "[CORE-03] Connect visual spacing adjustments to ordinary LaTeX parameters"
+    },
+    {
+      "id": "CORE-04",
+      "number": 58,
+      "url": "https://github.com/nadeemtsf/texloom/issues/58",
+      "state": "open",
+      "phase": "source_native",
+      "title": "[CORE-04] Move visual replacement and formatting onto shared source-native commands"
+    },
+    {
+      "id": "CORE-05",
+      "number": 59,
+      "url": "https://github.com/nadeemtsf/texloom/issues/59",
+      "state": "open",
+      "phase": "source_native",
+      "title": "[CORE-05] Provide explicit legacy-project compatibility and safe source-native conversion"
+    },
+    {
+      "id": "TYPE-01",
+      "number": 60,
+      "url": "https://github.com/nadeemtsf/texloom/issues/60",
+      "state": "open",
+      "phase": "authoring",
+      "title": "[TYPE-01] De-risk visual input host and provisional caret/layout behavior"
+    },
+    {
+      "id": "TYPE-02",
+      "number": 61,
+      "url": "https://github.com/nadeemtsf/texloom/issues/61",
+      "state": "open",
+      "phase": "authoring",
+      "title": "[TYPE-02] Add logical visual caret, text ranges and insertion-point navigation"
+    },
+    {
+      "id": "TYPE-03",
+      "number": 62,
+      "url": "https://github.com/nadeemtsf/texloom/issues/62",
+      "state": "open",
+      "phase": "authoring",
+      "title": "[TYPE-03] Implement visual typing and composition through the shared draft lane"
+    },
+    {
+      "id": "TYPE-04",
+      "number": 63,
+      "url": "https://github.com/nadeemtsf/texloom/issues/63",
+      "state": "open",
+      "phase": "authoring",
+      "title": "[TYPE-04] Add source-safe visual cut, copy, paste and selection replacement"
+    },
+    {
+      "id": "TYPE-05",
+      "number": 64,
+      "url": "https://github.com/nadeemtsf/texloom/issues/64",
+      "state": "open",
+      "phase": "authoring",
+      "title": "[TYPE-05] Support paragraph split/join, headings, lists and bounded formatting"
+    },
+    {
+      "id": "OBJECT-01",
+      "number": 65,
+      "url": "https://github.com/nadeemtsf/texloom/issues/65",
+      "state": "open",
+      "phase": "authoring",
+      "title": "[OBJECT-01] Complete supported image and caption authoring with asset-safe history"
+    },
+    {
+      "id": "OBJECT-02",
+      "number": 66,
+      "url": "https://github.com/nadeemtsf/texloom/issues/66",
+      "state": "open",
+      "phase": "authoring",
+      "title": "[OBJECT-02] Add bounded visual table-cell and structural editing adapters"
+    },
+    {
+      "id": "QUALITY-01",
+      "number": 67,
+      "url": "https://github.com/nadeemtsf/texloom/issues/67",
+      "state": "open",
+      "phase": "product",
+      "title": "[QUALITY-01] Accept keyboard, accessibility and non-drag pointer authoring workflows"
+    },
+    {
+      "id": "QUALITY-02",
+      "number": 68,
+      "url": "https://github.com/nadeemtsf/texloom/issues/68",
+      "state": "open",
+      "phase": "product",
+      "title": "[QUALITY-02] Accept the declared Word-like product scope on a recorded release candidate"
+    }
+  ],
+  "native_relationships": {
+    "parent_issue": 44,
+    "sub_issues_read_back": 24,
+    "blocking_edges_read_back": 97,
+    "method": "Three bounded GitHub CLI batches with per-issue blocked_by read-back; all planned dependencies checked against backlog.json"
+  },
+  "application_tests_run": true,
+  "application_test_scope": "Existing 291 frontend and70+18 core regressions after private-project metadata cleanup; no proposed-feature acceptance",
+  "planned_features_validated": false,
+  "app_opened_or_controlled": false,
+  "unpublished_application_feature_branch_pushed": false,
+  "remote_project_cleanup": {
+    "branch": "main",
+    "deleted": ["LICENSE", "CONTRIBUTING.md"],
+    "metadata_updated": ["crates/texloom-core/Cargo.toml", "src-tauri/Cargo.toml"],
+    "readme_private_policy_updated": true,
+    "repository_private_read_back": true,
+    "third_party_notices_retained": true
+  }
+}
