@@ -87,21 +87,16 @@ Automatic recovery is separate from Save. Protection status stays visible beside
 - BibTeX and Biber run declared local recipes with fixed arguments. Remote bibliography sources, project configuration scripts and shell-escape recipes are refused.
 - Image dimensions, supported table column widths, explicit lengths, margins, font size/leading, line factors, styles and float placement have source controls. Unsupported grammars retain source access.
 - Imported projects open for source review before Compile runs LaTeX under the user's Windows account. Turning shell escape off is not an operating-system isolation boundary.
-- Portable and NSIS development packages include the dependency inventory, source-availability notices and pinned PDFium notices. They are unsigned. Clean-machine installation/uninstall and a human usability trial remain release gates. Signing and Store submission are separate owner decisions.
+- Portable and NSIS development packages include the dependency inventory, source-availability notices and pinned PDFium notices. They are unsigned. Clean-machine installation/uninstall and a human usability trial remain private release gates. Public distribution and Store submission are outside the roadmap.
 - Automated and real-engine results do not substitute for the exact native acceptance matrix. Current status and measured performance limits are documented rather than inferred from a successful build.
 
-## Microsoft Store planning
+## Private project and development roadmap
 
-As checked on 30 October 2026, Microsoft's developer-account documentation states that new Individual and Company accounts have no registration fee when created through the new flow at https://storedeveloper.microsoft.com/ . Start there; legacy entry points can show a different onboarding flow. Identity or business verification still applies.
+The owner intends to keep Texloom private, with no public distribution or Microsoft Store release in the roadmap. Internal Windows installation and development packaging remain supported. Existing Store-specific configuration is retained as historical material, not an active delivery target.
 
-Tauri documents a Microsoft Store route for EXE/MSI installers. It requires an offline installer, silent-install support, appropriate publisher details, and code signing. Registration being free does not establish that every signing or distribution choice will be free. Code signing, compiler redistribution, dependency installation, licensing, and certification need to be resolved before submission.
+The project-level license, MIT package declarations and contribution guide have been removed. Third-party dependency notices remain separate and are retained. Earlier versions of removed files remain recoverable from Git history.
 
-`src-tauri/tauri.microsoftstore.conf.json` contains the offline-WebView2 build override. It is a packaging starting point, not a complete Store submission configuration.
-
-Sources:
-- https://learn.microsoft.com/en-us/windows/apps/publish/partner-center/open-a-developer-account
-- https://v2.tauri.app/distribute/microsoft-store/
-- https://v2.tauri.app/start/prerequisites/
+The broader visual-authoring architecture and future backlog are tracked in [roadmap #44](https://github.com/nadeemtsf/texloom/issues/44). This is planned work, not a declaration that those features are implemented.
 
 ## Project structure
 
