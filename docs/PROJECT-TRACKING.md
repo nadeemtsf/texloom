@@ -1,6 +1,8 @@
 # Project tracking
 
-The live task source is [GitHub tracker #25](https://github.com/nadeemtsf/texloom/issues/25). It links 17 child issues across core acceptance, Windows release readiness, final research and future ideas. The tracker includes the dated iteration log. Milestones represent completion goals, not promised dates.
+The live task source is [GitHub tracker #25](https://github.com/nadeemtsf/texloom/issues/25). It links 18 child issues across core acceptance, Windows release readiness, final research and future ideas. The tracker includes the dated iteration log. Milestones represent completion goals, not promised dates.
+
+The later notice-inventory finding adds child#43, now closed for its bounded packaging acceptance. There are18child tasks and3scoped implementation closures in total. Broader dependency issue#35 and native owner checks remain open. r8 is the latest prepared development package; r7 results retain their earlier artifact scope.
 
 Use `status:backlog`, `status:in-progress`, `status:awaiting-owner` and `status:done`. Only close an issue after its own declared acceptance has evidence. Record source/artifact identity, synthetic fixture, method, actual result, failed attempts and limitations. An implementation pass does not close a separate native acceptance issue. Linked checkboxes follow issue closure.
 

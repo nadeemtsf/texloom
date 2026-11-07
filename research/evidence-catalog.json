@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "kind": "development_evidence_inventory_not_evaluation_results",
-  "recorded_utc": "2026-11-07T08:27:45.610058+00:00",
-  "audited_head": "93bf7cf2e2255c3d8b04d702566e63e993dbffd6",
+  "recorded_utc": "2026-11-07T11:39:18.890100+00:00",
+  "audited_head": "2a7860a4fb4c8ec1be63be9be8c7aa7d6b732d24",
   "working_tree_note": "Uncommitted report/evidence changes may be present; see the session checkpoint.",
   "final_evaluation_executed": false,
   "entries": [
@@ -293,6 +293,16 @@
       "parse_status": "ok"
     },
     {
+      "path": "docs/evidence/legacy-support-pilot-2026-11-07.json",
+      "bytes": 54723,
+      "sha256": "df4b8905ff719e70b9eb3a4180dff5cc8050fb37a720655c64e235eccf442471",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "recorded_utc": "2026-11-07T11:39:16.792885+00:00",
+      "parse_status": "ok"
+    },
+    {
       "path": "docs/evidence/morning-ci-2700.json",
       "bytes": 16715,
       "sha256": "1cfba815c77997abc1e376fea4dddb750e7f7b86cc6c38bfad0151259a347059",
@@ -427,6 +437,17 @@
       "parse_status": "ok"
     },
     {
+      "path": "docs/evidence/pdfium-matched-artifact-notices-2026-11-07.json",
+      "bytes": 4692,
+      "sha256": "7dc26a8ef6d488819dd9bc644de8b6a7d5bc4bc4eba416315e1985fad3893b96",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "recorded_utc": "2026-11-07T11:39:16.792885+00:00",
+      "release_ready": false,
+      "parse_status": "ok"
+    },
+    {
       "path": "docs/evidence/portable-packaging-local.json",
       "bytes": 5718,
       "sha256": "715c8493155d20a61e1d2f94f3aad20cb39023cad7ec746bacb1cf5b8cc25f11",
@@ -483,6 +504,16 @@
       "case_status_counts_as_recorded": {
         "pass": 3
       },
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/r8-build-validation-2026-11-07.json",
+      "bytes": 5322,
+      "sha256": "d36bf72910d57077ff5d9670ff6b462db43fd1281460d65cff22c1909a221d14",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "recorded_utc": "2026-11-07T11:39:16.792885+00:00",
       "parse_status": "ok"
     },
     {
@@ -751,6 +782,16 @@
       "case_status_counts_as_recorded": {
         "pass": 6
       },
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/technical-report-v10-2026-11-07.json",
+      "bytes": 3607,
+      "sha256": "97afce66ee5b9171f798324fc7fea7dedf3e2f84a73fe3a3dada0ff2bd3349bd",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "recorded_utc": "2026-11-07T11:39:16.792885+00:00",
       "parse_status": "ok"
     },
     {

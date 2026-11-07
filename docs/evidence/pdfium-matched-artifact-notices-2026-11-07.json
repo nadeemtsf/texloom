@@ -1,0 +1,127 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-07T11:39:16.792885+00:00",
+  "kind": "matched_upstream_build_artifact_and_conservative_notice_retention",
+  "artifact_comparison": {
+    "artifact_id": 13309513718,
+    "workflow_run": 41803647331,
+    "job_id": 126485258606,
+    "zip_sha256": "5cabaa06b4056ea11f72ccdf3fa26d54fdcf73305c6eb055f2709d6ff33df33d",
+    "exact_matching_archive_files": [
+      "LICENSE",
+      "PDFiumConfig.cmake",
+      "VERSION",
+      "args.gn",
+      "bin/pdfium.dll",
+      "include/fpdf_transformpage.h",
+      "include/fpdf_searchex.h",
+      "include/fpdf_save.h",
+      "include/fpdf_text.h",
+      "include/fpdf_formfill.h",
+      "include/fpdf_ext.h",
+      "include/fpdf_fwlevent.h",
+      "include/fpdf_attachment.h",
+      "include/fpdf_sysfontinfo.h",
+      "include/fpdfview.h",
+      "include/fpdf_ppo.h",
+      "include/fpdf_doc.h",
+      "include/fpdf_progressive.h",
+      "include/fpdf_edit.h",
+      "include/fpdf_annot.h",
+      "include/fpdf_flatten.h",
+      "include/fpdf_structtree.h",
+      "include/fpdf_catalog.h",
+      "include/fpdf_signature.h",
+      "include/fpdf_javascript.h",
+      "include/fpdf_thumbnail.h",
+      "include/cpp/fpdf_deleters.h",
+      "include/cpp/fpdf_scopers.h",
+      "include/fpdf_dataavail.h",
+      "include/fpdfview.h.orig",
+      "lib/pdfium.dll.lib",
+      "licenses/abseil.txt",
+      "licenses/lcms.txt",
+      "licenses/highway.txt",
+      "licenses/harfbuzz.txt",
+      "licenses/simdutf.txt",
+      "licenses/dragonbox-Apache2-LLVM.txt",
+      "licenses/llvm-libc.txt",
+      "licenses/libopenjpeg.txt",
+      "licenses/libpng.txt",
+      "licenses/dragonbox-Boost.txt",
+      "licenses/agg23.txt",
+      "licenses/fast_float.txt",
+      "licenses/freetype.txt",
+      "licenses/pdfium.txt",
+      "licenses/libjpeg_turbo.ijg",
+      "licenses/icu.txt",
+      "licenses/libjpeg_turbo.md",
+      "licenses/zlib.txt"
+    ],
+    "artifact_extra_entries": [],
+    "conclusion": "Same DLL,args.gn,headers,library and notices as the active release archive; exact nested checkout still unrecorded"
+  },
+  "job_url": "https://github.com/bblanchon/pdfium-binaries/actions/runs/41803647331/job/126485258606",
+  "job_log": {
+    "path": "artifacts/continuation-20261107-weekly57/pdfium-win-x64-build.log",
+    "bytes": 185117,
+    "sha256": "5b94150ce96c21a9205c4bbe2ce6c220f3ca3d5f6a8d3b566dc7aef15e677e00"
+  },
+  "captured_deps": {
+    "path": "artifacts/continuation-20261107-weekly57/pdfium-observed-source-DEPS.txt",
+    "bytes": 41933,
+    "sha256": "457d0d33262cc65f8ab89ad141cb9d10626457e3e1ecf8cec54c64abc2d2485b"
+  },
+  "declared_component_inputs": {
+    "schema": 1,
+    "kind": "supplemental_pdfium_component_notices",
+    "source_scope": "Dependency revisions from observed PDFium commit5f092b52993bfd98f94f04deff391918fe0fdcfd; exact DLL nested checkout remains unresolved. Include conservatively for components compiled in matching upstream Windows job; not a complete component/license audit.",
+    "notices": [
+      {
+        "component": "brotli",
+        "file": "brotli-LICENSE.txt",
+        "bytes": 1084,
+        "sha256": "3d180008e36922a4e8daec11c34c7af264fed5962d07924aea928c38e8663c94",
+        "source_url": "https://chromium.googlesource.com/chromium/src/third_party/brotli/+/803ac71664ad62af1de39ff55e63ebbe07006fc8/LICENSE?format=TEXT",
+        "source_revision": "803ac71664ad62af1de39ff55e63ebbe07006fc8"
+      },
+      {
+        "component": "libyuv",
+        "file": "libyuv-LICENSE.txt",
+        "bytes": 1506,
+        "sha256": "2b2cc1180c7e6988328ad2033b04b80117419db9c4c584918bbb3cfec7e9364f",
+        "source_url": "https://chromium.googlesource.com/libyuv/libyuv/+/1e2e3a35993609da1d89ac170b907719d555f4b3/LICENSE?format=TEXT",
+        "source_revision": "1e2e3a35993609da1d89ac170b907719d555f4b3"
+      }
+    ]
+  },
+  "license_inputs": [
+    {
+      "path": "resources/verification-notices/brotli-LICENSE.txt",
+      "bytes": 1084,
+      "sha256": "3d180008e36922a4e8daec11c34c7af264fed5962d07924aea928c38e8663c94"
+    },
+    {
+      "path": "resources/verification-notices/libyuv-LICENSE.txt",
+      "bytes": 1506,
+      "sha256": "2b2cc1180c7e6988328ad2033b04b80117419db9c4c584918bbb3cfec7e9364f"
+    }
+  ],
+  "recorded_build_args": {
+    "pdf_enable_v8": false,
+    "pdf_enable_xfa": false,
+    "target_cpu": "x64",
+    "target_os": "win",
+    "is_debug": false
+  },
+  "collector_warnings": [
+    "Unknown library brotli",
+    "Unknown library libyuv"
+  ],
+  "release_ready": false,
+  "upstream_code_executed": false,
+  "remaining": [
+    "Exact resolved PDFium/nested checkout not established",
+    "Complete component/license/advisory review remains open"
+  ]
+}

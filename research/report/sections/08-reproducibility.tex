@@ -188,6 +188,19 @@ Section~\ref{sec:development} passed. Replacement GUI, installation and remainin
 provenance/license/security gates require their own evidence. See
 \path{docs/PDFIUM159-UPGRADE.md}; public release remains unapproved.
 
+\subsection{Matched distributor artifact and notice follow-up}
+A subsequent read obtained the Windows x64 job's artifact and verified its
+published ZIP digest. All49 files matched the adopted release archive exactly,
+including the DLL, headers, notices and \code{args.gn}. The archived arguments
+and job log record V8/XFA disabled. This is recorded build configuration, not
+reverse-engineered feature absence or full source-to-binary reproducibility.
+The collector warned about Brotli and libyuv while their objects were compiled;
+neither name occurs in the archived notices. The development package now
+conservatively appends two immutable upstream license texts with checked hashes
+and an explicit source-scope limitation. Exact nested checkout/DEPS and a
+complete component/license/advisory review remain unresolved. The raw job and
+artifact identities are in \path{docs/PDFIUM-NOTICE-FOLLOWUP-2026-11-07.md}.
+
 \subsection{Final freeze rule}
 \path{research/evaluation/freeze.json} remains \code{not\_frozen}. The final
 fixture directory has no executed held-out cases. Freeze only after the core
