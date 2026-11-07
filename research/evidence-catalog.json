@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "kind": "development_evidence_inventory_not_evaluation_results",
-  "recorded_utc": "2026-11-07T11:39:18.890100+00:00",
-  "audited_head": "2a7860a4fb4c8ec1be63be9be8c7aa7d6b732d24",
+  "recorded_utc": "2026-11-07T11:45:32.997045+00:00",
+  "audited_head": "932233f24df820e7ba88e3237e0dbf4469058c08",
   "working_tree_note": "Uncommitted report/evidence changes may be present; see the session checkpoint.",
   "final_evaluation_executed": false,
   "entries": [
@@ -73,6 +73,16 @@
       "source_commit": "ccc760b6fe056e8ae17c7db481c8cd8e941b31c3",
       "recorded_utc": "2026-11-05T16:37:13.1060515Z",
       "release_ready": false,
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/compile-followup-fixture-preflight-2026-11-07.json",
+      "bytes": 2273,
+      "sha256": "ed2fdae28a5b34d699d6f3872269ed096dae40455582baf8cffcdfaa4c2ff4ce",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "recorded_utc": "2026-11-07T11:45:16.779584+00:00",
       "parse_status": "ok"
     },
     {

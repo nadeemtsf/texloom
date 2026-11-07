@@ -1,4 +1,4 @@
-# Texloom r8 follow-up checks
+# Texloom r8 follow-up checks — revision 2
 
 Run these after coding stops, when you are ready. You control all input. Ordinary build: `Texloom-0.3.0-x64-development-2026-11-07-r8-setup.exe`. Save any real work first. Install this exact file and open its shortcut; report whether installation and launch worked. Keep any delete-application-data option unchecked. Do not uninstall or clear existing drafts for these checks.
 
@@ -20,7 +20,13 @@ Do not select an unrelated draft or discard any entries. Leave the recovered pro
 
 ## 3. Good PDF after a failed compile
 
-The earlier failure/last-good-preview behavior was reported. The remaining detail is whether removing the bad command and pressing Compile publishes a successful new PDF and clears the error. Use only the earlier disposable compile-failure project if you still have it. Otherwise leave this case pending.
+Open the fresh `compile-recovery/main.tex`, choose pdfLaTeX and Compile. Check that the preview says `BEFORE R8 PDF PUBLICATION`.
+
+In source mode, change only `BEFORE` to `AFTER` and add a new line containing `\TexloomDeliberateCompileError` immediately after `\begin{document}`. Compile. This is an intentional error: report the message and whether the last successful `BEFORE` PDF remains visible.
+
+Remove only the `\TexloomDeliberateCompileError` line, leaving `AFTER` in the source, and Compile again. The preview should now say `AFTER R8 PDF PUBLICATION`, and the compile error should clear. Report the failure and correction separately. Do not save changes to a real project.
+
+The fixture was preflighted with an independent TeX command and PDF text extractor: the baseline and correction compiled with the expected text; the deliberate undefined command failed as intended. These checks do not establish Texloom preview retention or corrected publication. Those remain pending until your report.
 
 Report normal sentences with what passed, failed or was refused; no special answer format is needed. Another monitor, clean-machine installation, uninstall preservation and an unassisted usability trial remain separate pending gates.
 
