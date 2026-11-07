@@ -24,7 +24,7 @@ Files:
 - [Editable report](report/main.tex), with [bibliography](report/references.bib).
 - [Independent-reference pilot](ORACLE-PILOT.md) and [prototype byte-level source oracle](SOURCE-CONTRACT.md): executed development diagnostics, separate from final study results.
 - [Development annotation analysis](ANALYSIS.md): tested denominators, unresolved/unrun handling and separate evidence strata; no final data summarized.
-- [Study records v1](RECORDS.md) and [adjudication procedure](ADJUDICATION.md): new unexecuted implementation and detailed proposed intent/source/output review, with commit/display/Save and component entry layers separated.
+- [Study records v1](RECORDS.md) and [adjudication procedure](ADJUDICATION.md): synthetic-tested helper rules and proposed intent/source/output review, with commit/display/Save and component entry layers separated. The 13 combined infrastructure checks are part of the existing 40-helper suite; no final review or real timing observation follows from those passes.
 - [Environment records](ENVIRONMENT.md): explicit tool/font/input hashes, posthoc versus preflight limits and remaining final-freeze requirements.
 - [Native candidate-boundary pilot](NATIVE-REFERENCE-PILOT.md): real native source-plan/build/approval/commit/Undo plus separate source/Poppler references. The first invalid-reference run is retained; a corrected protocol passes five intended cases and refuses 25 source-corrupt packets. No mouse-mapping, app accuracy rate or final evaluation is implied.
 - [Freeze record](evaluation/freeze.json): deliberately unset until the core workflow and protocol are stable.

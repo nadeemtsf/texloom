@@ -1,10 +1,10 @@
-# Timing records - unexecuted development implementation
+# Timing records - development analysis protocol
 
-Prepared 5 November 2026 while **all tests are paused**. Neither `tools/timing_records.py` nor the revised collector has been invoked, imported for a diagnostic, built, rendered or exercised in Texloom. No new timing observations exist. Earlier diagnostic build receipts apply to the earlier collector, not this schema revision. Final evaluation remains `not_frozen`.
+Prepared 5 November 2026 during the earlier test pause. Updated 7 November: the analysis helpers are exercised by `tests/test_study_records_v1.py`, including three timing checks within its 13 passing synthetic tests. These are a subset of the already passing 40-helper suite, not additional independent experiments. They check separate endpoints, suppression for a missing trial and overlapping-export rejection. No actual Windows latency, collector-boundary or tracing-overhead measurement is established. Final evaluation remains `not_frozen`.
 
 ## Collector identity and loss accounting
 
-The source-only collector revision exports schema 2. An enabled diagnostic collector requests a local random UUID v4 once per launch; an ordinary disabled collector requests neither randomness nor clock values. The identifier is unrelated to projects and is not sent anywhere. If UUID creation fails, it stays null; the analysis draft declines that export instead of inventing an identity. An evaluator must still bind the actual diagnostic executable, flags and environment separately.
+The collector exports schema 2. An enabled diagnostic collector requests a local random UUID v4 once per launch; an ordinary disabled collector requests neither randomness nor clock values. The identifier is unrelated to projects and is not sent anywhere. If UUID creation fails, it stays null; the analysis draft declines that export instead of inventing an identity. An evaluator must still bind the actual diagnostic executable, flags and environment separately.
 
 Record IDs increase within a launch. `epoch` increases on `.clear()`; `first_id`/`last_id` describe IDs issued in that epoch. Completed and active rows have distinct storage. Per-epoch counters retain evictions, capacity drops, explicit discards and invalid-clock starts. Cumulative `clear_history` counts completed/pending rows erased by clear. These counters describe tracing, not failed or successful user edits. Clear does not save a batch or prove that erased rows were exported.
 
@@ -22,7 +22,7 @@ Export small, disjoint batches. Do not submit multiple cumulative snapshots cont
 
 The checker uses bounded, read-only local inputs, strict JSON, relative-path checks and exclusive output creation from `evidence_io.py`. It does not run commands, load the app, compile documents, collect trials or alter the final freeze record. Controlled directories are required; this is not an operating-system security boundary against a hostile filesystem. Byte identity does not authenticate supplied context, pre-run planning, execution or source-to-executable provenance.
 
-Each snapshot's declared byte length is its read ceiling as well as an expected identity. Oversized/changed inputs remain unresolved; declaring many tiny files cannot authorize reading a full maximum-sized file at every path. These checks are source-only and have not run.
+Each snapshot's declared byte length is its read ceiling as well as an expected identity. Oversized/changed inputs remain unresolved; declaring many tiny files cannot authorize reading a full maximum-sized file at every path. The synthetic infrastructure checks cover a bounded subset of the helper rules; they are not exhaustive validation of every budget or filesystem condition.
 
 ## Analysis rules fixed before collection
 
@@ -36,7 +36,7 @@ The module computes no correctness, human usability, hardware input-to-display l
 
 ## Deferred use
 
-After the owner resumes tests, review and exercise the collector and analysis on synthetic diagnostics before app trials. A future development-only invocation is:
+Before app trials, review the actual diagnostic collector and its analysis on a named build with controlled synthetic projects. Helper-test results do not complete Windows measurement admission. A future development-only invocation is:
 
 ```powershell
 python research/tools/timing_records.py <batch-manifest.json> <new-report.json> --root <controlled-evidence-root> --development

@@ -1,6 +1,6 @@
 # Independent intent and preservation annotation - proposed procedure
 
-Prepared 5 November 2026. This is a protocol draft, not an executed experiment, a sealed final set or independent review evidence. All tests remain paused. It develops the evaluation plan and `RECORDS.md`; it creates no final fixture documents. The report has no page cap, but its compiled v5 copy is unchanged.
+Prepared 5 November 2026; status reconciled 7 November. This is a protocol draft, not an executed adjudication, a sealed final set or independent review evidence. Synthetic helper tests now exercise record/admission/timing rules; actual app interaction and independent final review remain separate. This document develops the evaluation plan and `RECORDS.md`; it creates no final fixture documents. The current technical report is v10 with no page cap; final-study results remain pending.
 
 ## 1. Record intention before asking the system
 
@@ -61,4 +61,4 @@ After execution is authorized, record native commit or uncertainty, displayed re
 
 Unreviewed positive labels cannot become established successes. Any unrun case remains unrun; no final cells are filled from regression totals or component pilots. Publish raw counts by entry layer, basis, engine, family and document cluster with unknown/failed/cancelled outcomes. Zero accepted cases means no accepted-error fraction, not a zero-error editor. Keep deterministic adjudication bounds separate from statistical uncertainty.
 
-The new v1 record code is unexecuted and needs its own review and diagnostics after the pause. No fixture freeze, independent reviewer, experiment, performance sample or usability result is established by writing this procedure.
+The v1 record code has bounded synthetic regression evidence and still needs review against actual experiment records before final use. No fixture freeze, independent reviewer, performance sample or usability result is established by writing this procedure or passing those helper tests.

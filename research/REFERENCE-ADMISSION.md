@@ -1,6 +1,6 @@
-# Declared artifact-reference checking - unexecuted development implementation
+# Declared artifact-reference checking - development implementation
 
-Prepared 5 November 2026. The owner paused all tests. `tools/evidence_io.py` and `tools/admit_records.py` are new code that has **not been executed or validated**. `study_records.py` now shares bounded/strict JSON reading and record grouping with them; its new version also remains unexecuted. No observation records, final inputs, experiment or final admission result were created.
+Prepared 5 November 2026 during the earlier test pause. Updated 7 November: `tests/test_study_records_v1.py` exercises these helpers with synthetic records/files. Its 13 passing checks include three reference-admission and two fingerprint checks; these overlap the existing 40-helper suite. They establish bounded regression behavior, not actual app execution, reviewed labels, sealed final inputs or a final admission result. The full coverage reconciliation is recorded in `docs/evidence/research-infrastructure-coverage-2026-11-07.json`.
 
 ## Purpose and limits
 
@@ -32,7 +32,7 @@ The implementation commit is a declared identifier. Neither a forty-character st
 
 The checker reads only declared paths beneath one explicit root. It refuses absolute/traversal/ADS/device names, case-colliding declarations, linked/reparse-point components and changed/nonregular files. File identities are compared before/after hashing. No arbitrary directory scan or manifest command execution is used. The implementation budgets are 10,000 declared files, 128 MiB per general file, 50 MiB per JSON input and 2 GiB declared total.
 
-The later source revision also uses each declared byte length as that file's read ceiling. A larger actual file remains unresolved rather than consuming a maximum-sized read for every understated declaration. Smaller changed files can still yield an observed mismatching digest. The aggregate declared budget therefore bounds successful input reads; this mechanism remains unexecuted.
+The later source revision also uses each declared byte length as that file's read ceiling. A larger actual file remains unresolved rather than consuming a maximum-sized read for every understated declaration. Smaller changed files can still yield an observed mismatching digest. The aggregate declared budget therefore bounds successful input reads. Synthetic regression coverage does not establish exhaustive handling of every budget, race or filesystem condition.
 
 These are accidental-misrouting/change checks for a controlled research directory. They are not an OS security boundary against hostile concurrent path replacement, a proof of input immutability for the original execution, or protection obtained merely by calling a directory synthetic. Actual documents remain outside the experimental corpus. Source bytes are only read; `.text` files must never be compiled.
 

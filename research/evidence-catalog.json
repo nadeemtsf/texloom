@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "kind": "development_evidence_inventory_not_evaluation_results",
-  "recorded_utc": "2026-11-07T11:52:44.507571+00:00",
-  "audited_head": "e82db7f73e3b38e15260d1c44334e0c1f092960b",
+  "recorded_utc": "2026-11-07T11:58:56.491452+00:00",
+  "audited_head": "2a50c596fb6f4827f8de595beecf6b582e24e969",
   "working_tree_note": "Uncommitted report/evidence changes may be present; see the session checkpoint.",
   "final_evaluation_executed": false,
   "entries": [
@@ -624,6 +624,16 @@
       "schema": 1,
       "product_source_commit": "5e59e77282fd5e4b4f70440437b8f841ccea1364",
       "recorded_utc": "2026-11-04T22:10:34.850781+00:00",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/research-infrastructure-coverage-2026-11-07.json",
+      "bytes": 3245,
+      "sha256": "40e714df52f4819de6ac09507eae6f5f4e7984e81a41627c8bd234753b5423dc",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "recorded_utc": "2026-11-07T11:58:56.272827+00:00",
       "parse_status": "ok"
     },
     {
