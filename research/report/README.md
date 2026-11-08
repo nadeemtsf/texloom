@@ -42,3 +42,7 @@ The reviewed v5 PDF cites fourteen primary references; the revised source includ
 Each numbered section and appendix has its own source file so later excerpts can be selected without treating an eight-page budget as a completeness criterion. A selected short version will need its references/cross-references and claims checked again.
 
 Future measured results require the freeze, fixture/oracle manifests and run records described in `../evaluation-plan.md`. Do not fill result cells from regression-test totals.
+# Latest source/evidence status — 8 November 2026
+
+The latest prepared report PDF is v10: 26 pages and 21 references, with its named-source compilation/render review recorded in `docs/evidence/technical-report-v10-2026-11-07.json`. There is no page limit. The 8 November [foundation development note](../FOUNDATION-DEVELOPMENT-2026-11-08.md) is a separate working methods/evidence supplement; it did not rebuild or silently update that PDF. Final evaluation remains unfrozen/unrun. Earlier v5/source-only statements below describe historical revisions and do not override this status.
+

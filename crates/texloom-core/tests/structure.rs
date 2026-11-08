@@ -325,3 +325,60 @@ fn unknown_control_flow_cannot_expose_apparently_plain_following_text() {
         assert!(candidates(&p).is_empty());
     }
 }
+
+#[test]
+fn mixed_unicode_and_structural_fragments_preserve_every_source_boundary() {
+    // Deterministic development corpus, not a held-out accuracy sample or a
+    // rendering oracle. Exercise interactions beyond the named syntax cases.
+    let fragments = [
+        "Plain",
+        "مَرْحَبًا",
+        "שָׁלוֹם",
+        "😀",
+        "\u{200d}",
+        "\u{feff}",
+        " ",
+        "\t",
+        "\r\n",
+        "\n\n",
+        "{",
+        "}",
+        "% comment\r\n",
+        "\\%",
+        "\\{",
+        "\\}",
+        "\\textbf{",
+        "\\Unknown",
+        "\\",
+        "\\begin{quote}",
+        "\\end{quote}",
+        "\\begin{document}",
+        "\\end{document}",
+        "\\verb|",
+        "|",
+        "\\verb*😀",
+        "$",
+        "^^5c",
+    ];
+    let mut state = 0x7465786c6f6f6d_u64;
+    for case in 0..512 {
+        let mut body = String::new();
+        for _ in 0..1 + case % 97 {
+            state = state.wrapping_mul(6364136223846793005).wrapping_add(1);
+            body.push_str(fragments[(state >> 32) as usize % fragments.len()]);
+        }
+        let source = if case % 2 == 0 { document(&body) } else { body };
+        let s = session(&source);
+        let p = s.source_projection("main.tex").unwrap();
+        exact_partition(&p, &source);
+        for index in candidates(&p) {
+            let reference = p.entity_reference(index).unwrap();
+            let resolved = s.resolve_entity_reference(&reference).unwrap();
+            assert_eq!(resolved.range(), p.regions()[index].range());
+            assert_eq!(resolved.text(), p.text(index).unwrap());
+        }
+        assert_eq!(s.sources()["main.tex"], source);
+        assert_eq!(s.history_len(), 0);
+        assert_eq!(s.revision(), Revision(0));
+    }
+}
