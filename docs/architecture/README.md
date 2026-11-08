@@ -19,6 +19,8 @@ Original LaTeX and assets remain authoritative. New supported source-native oper
 
 The live issue index is recorded in [github-roadmap.json](github-roadmap.json) after synchronization. Existing tracker #25 and current-build acceptance issues #26–#39 retain their own scopes. New implementation tasks remain open/backlogged; completing this planning package does not complete them.
 
+8 November implementation continuation: [foundation contract v1](FOUNDATION-CONTRACT.md) records the adopted capability/output contract and the first read-only native source projection. ARCH-02 is in progress; new visual command handlers, change mappings and caret/input are not yet enabled. The existing owner-created GitHub Project is retained; its API lookup currently lacks `read:project`, so no duplicate board was created or board-status update claimed.
+
 ## Current versus intended
 
 The current app already has source editing, native source/history authority, guarded visual transactions, independent inspection, recovery, bounded parameter adapters, and legacy positioned-block insertion/deletion. Normal text-object editing and movement exist. General source-backed visual deletion, a visual caret, in-flow typing, and the generalized operation/anchor layer are proposed work.

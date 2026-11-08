@@ -8,6 +8,7 @@ use std::{
 };
 pub mod projection;
 pub mod recovery;
+pub mod structure;
 mod source_edit;
 pub use source_edit::PreparedSourceEdit;
 

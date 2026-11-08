@@ -24,6 +24,8 @@ Status: planning decisions and proposals, 7 November 2026. "Retain" means the cu
 | D18 | Scope boundary | No CRDT/collaboration, DOCX fidelity, track changes, arbitrary TeX/TikZ/math editing or universal Word parity implied | Separate owner requirements and feasibility work before adding these to a release promise |
 | D19 | Owner decision | Repository remains private now and in the future; no public distribution or Store release planned | Retain internal packaging/Windows acceptance and dependency notices; remove project license/contribution files and own MIT declarations |
 
+8 November contract adoption: the owner's implementation request activates the staged foundation work. [Foundation contract v1](FOUNDATION-CONTRACT.md) makes D06/D08 concrete: no new saved Texloom macros/support package for source-native operations, ordinary LaTeX constructs permitted under the declared contract, and explicit reorder versus spacing intentions. No new command is enabled by this policy alone. D07 source-native proof strategy and D09 input host still require their planned investigations.
+
 ## Required architecture review before implementation
 
 Confirm entity families and operation capabilities, the saved-output policy, draft versus verified publication behavior, selection invalidation, migration safety, accessibility/input fallback and the exact first vertical slice. Resolve each high-risk decision with a small bounded synthetic feasibility study once implementation/testing is requested. Preserve negative outcomes and select a different design if the approach fails; do not silently reduce the user-facing guarantee.
