@@ -1,10 +1,10 @@
 # Execution backlog for the visual editor roadmap
 
-Planning baseline: 7 November 2026, application source `6f55baca3100ef8af48d0a3cadb419855c125339`. All tasks below are **planned and open**, not implemented or accepted by this document. P0/P1/P2 indicate relative priority, not severity or promised dates. Dependencies establish execution order; existing GH issues retain their named-version scope. See [the roadmap](ROADMAP.md) and [the architecture](ARCHITECTURE.md).
+Planning baseline: 7 November 2026, application source `6f55baca3100ef8af48d0a3cadb419855c125339`. The 8 November continuation began ARCH-01/02 in local commit `171830a`; all issues remain open. Other tasks remain planned. See the [foundation contract](FOUNDATION-CONTRACT.md) and [executed engineering receipt](foundation-validation-2026-11-08.json) for the bounded implemented slice; neither establishes product acceptance. P0/P1/P2 indicate relative priority, not severity or promised dates. Dependencies establish execution order; existing GH issues retain their named-version scope. See [the roadmap](ROADMAP.md) and [the architecture](ARCHITECTURE.md).
 
 ## ARCH-01: Define the visual editor capability and saved-source contract
 
-GitHub: [#45](https://github.com/nadeemtsf/texloom/issues/45) — open/backlog.
+GitHub: [#45](https://github.com/nadeemtsf/texloom/issues/45) — open/in progress. Contract and matrix written; owner design review remains pending.
 
 Phase: foundation; priority: P0; type: design.
 
@@ -30,7 +30,7 @@ Current source anchors: `docs/APPROVED-IMPLEMENTATION-PLAN.md:5`, `src-tauri/src
 
 ## ARCH-02: Add a partial lossless source projection and capability registry
 
-GitHub: [#46](https://github.com/nadeemtsf/texloom/issues/46) — open/backlog.
+GitHub: [#46](https://github.com/nadeemtsf/texloom/issues/46) — open/in progress. Read-only literal-paragraph projection and strict snapshot references implemented; richer context/entities and command integration remain pending.
 
 Phase: foundation; priority: P0; type: design.
 

@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "date": "2026-11-07",
-  "kind": "planned_github_roadmap_not_implemented",
+  "kind": "github_roadmap_with_bounded_implementation_progress",
   "audit_source_commit": "6f55baca3100ef8af48d0a3cadb419855c125339",
   "repository": "nadeemtsf/texloom",
   "parent": {
@@ -38,7 +38,9 @@
       "url": "https://github.com/nadeemtsf/texloom/issues/45",
       "state": "open",
       "phase": "foundation",
-      "title": "[ARCH-01] Define the visual editor capability and saved-source contract"
+      "title": "[ARCH-01] Define the visual editor capability and saved-source contract",
+      "status": "in-progress",
+      "local_implementation_commit": "171830a1854929b1ca35133b8d2013d4e54b3a15"
     },
     {
       "id": "ARCH-02",
@@ -46,7 +48,9 @@
       "url": "https://github.com/nadeemtsf/texloom/issues/46",
       "state": "open",
       "phase": "foundation",
-      "title": "[ARCH-02] Add a partial lossless source projection and capability registry"
+      "title": "[ARCH-02] Add a partial lossless source projection and capability registry",
+      "status": "in-progress",
+      "local_implementation_commit": "171830a1854929b1ca35133b8d2013d4e54b3a15"
     },
     {
       "id": "ARCH-03",
@@ -238,10 +242,17 @@
   "unpublished_application_feature_branch_pushed": false,
   "remote_project_cleanup": {
     "branch": "main",
-    "deleted": ["LICENSE", "CONTRIBUTING.md"],
-    "metadata_updated": ["crates/texloom-core/Cargo.toml", "src-tauri/Cargo.toml"],
+    "deleted": [
+      "LICENSE",
+      "CONTRIBUTING.md"
+    ],
+    "metadata_updated": [
+      "crates/texloom-core/Cargo.toml",
+      "src-tauri/Cargo.toml"
+    ],
     "readme_private_policy_updated": true,
     "repository_private_read_back": true,
     "third_party_notices_retained": true
-  }
+  },
+  "progress_date": "2026-11-08"
 }
