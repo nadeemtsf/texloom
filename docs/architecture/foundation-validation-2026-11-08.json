@@ -6,6 +6,20 @@
   "source_sha256": "68859b02ddffff7334a910ea81ae141e2772bc532e92261826de75725365c060",
   "integration_test_sha256": "f66eb3bde90435726028bbb25ece834946b49bf39316a05929cae99708183ae4",
   "scope": "Read-only exact-source partition and revision/session-bound paragraph references; no new UI command or render approval.",
+  "last_completed_check": {
+    "source_commit": "d7aa88af493ca22d4afafeb58b04467ced34f709",
+    "command": "cargo test --offline --locked -p texloom-core",
+    "log": "artifacts/foundation-20261108/core-boundaries.log",
+    "log_sha256": "2c2f1c7a79c58686a9a566aa296a9ab960611cde77b3b515bef417151f93ea09",
+    "integration_test_sha256": "b882ecdcec4e06d0b3c45be88dd5871ae54d5d1883ab0aeb4a84327e2e0319aa",
+    "result": "passed",
+    "unit_pass": 70,
+    "existing_integration_pass": 18,
+    "new_projection_pass": 18,
+    "fail": 0,
+    "ignored": 0,
+    "additional_coverage": "One deterministic development invariant check uses 512 mixed Unicode/structural inputs to check exact partitions, valid source-reference ranges and absence of source/history mutation. These inputs are not independent final-study trials. Product source is unchanged from the source_commit at the top of this receipt."
+  },
   "checks": [
     {
       "command": "cargo test --offline --locked -p texloom-core",

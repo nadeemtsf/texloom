@@ -1,5 +1,7 @@
 # Editable technical report draft
 
+8 November source/evidence supplement: [foundation development note](../FOUNDATION-DEVELOPMENT-2026-11-08.md) adds bounded headless engineering evidence and future diagnostic comparisons. It did not rebuild or silently update the v10 PDF described below. Final evaluation remains unfrozen/unrun.
+
 Latest7November artifact: v10 has26pages/21references and includes the legacy-support migration pilot plus matched-artifact/notice follow-up. All26pages were rendered/reviewed, with readable review of the new evidence sections. No overfull/undefined/missing-character/LaTeX-warning matches occur in the final log. This remains a technical draft; final evaluation and native owner/performance acceptance are pending. Earlier versioned notes below retain their historical scope.
 
 Latest artifact (7 November): v9 is a25-page,21-reference draft including the headless native mapping pilot. All pages were rendered/reviewed; after the date-only correction pages2–25 body pixels stayed exact and the final title page was reviewed. No final-log overfull/undefined/missing-character/LaTeX-warning matches were found. Final evaluation, native owner acceptance and performance remain pending. Earlier artifact notes below retain their historical scope.
@@ -42,7 +44,3 @@ The reviewed v5 PDF cites fourteen primary references; the revised source includ
 Each numbered section and appendix has its own source file so later excerpts can be selected without treating an eight-page budget as a completeness criterion. A selected short version will need its references/cross-references and claims checked again.
 
 Future measured results require the freeze, fixture/oracle manifests and run records described in `../evaluation-plan.md`. Do not fill result cells from regression-test totals.
-# Latest source/evidence status — 8 November 2026
-
-The latest prepared report PDF is v10: 26 pages and 21 references, with its named-source compilation/render review recorded in `docs/evidence/technical-report-v10-2026-11-07.json`. There is no page limit. The 8 November [foundation development note](../FOUNDATION-DEVELOPMENT-2026-11-08.md) is a separate working methods/evidence supplement; it did not rebuild or silently update that PDF. Final evaluation remains unfrozen/unrun. Earlier v5/source-only statements below describe historical revisions and do not override this status.
-
