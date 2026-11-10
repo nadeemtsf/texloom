@@ -56,7 +56,7 @@ Current source anchors: `crates/texloom-core/src/objects.rs:17`, `crates/texloom
 
 ## ARCH-03: Introduce typed anchors, insertion positions and change mappings
 
-GitHub: [#47](https://github.com/nadeemtsf/texloom/issues/47) — open/backlog.
+GitHub: [#47](https://github.com/nadeemtsf/texloom/issues/47) — open/in progress. Typed source/editor coordinates, transient forward/inverse maps and canonical selection/history integration are implemented in the [first slice](POSITION-MAPPING.md). Structured move identity, grapheme/bidi caret geometry and actual Windows input remain pending.
 
 Phase: foundation; priority: P0; type: design.
 
@@ -82,7 +82,7 @@ Current source anchors: `crates/texloom-core/src/document.rs:110`, `crates/texlo
 
 ## ARCH-04: Generalize typed native editing intents and minimal patch planning
 
-GitHub: [#48](https://github.com/nadeemtsf/texloom/issues/48) — open/backlog.
+GitHub: [#48](https://github.com/nadeemtsf/texloom/issues/48) — open/in progress. [Read-only literal Replace/Delete planning](SOURCE-INTENT-PLANNING.md) emits exact ordinary-LaTeX candidates and proof obligations. Native verification/IPC/operation-ID handling and visual UI integration remain pending.
 
 Phase: foundation; priority: P0; type: design.
 

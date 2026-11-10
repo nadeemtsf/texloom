@@ -1,3 +1,7 @@
+# Foundation continuation - 10 November 2026
+
+The final default core run passed 70 unit, 18 prior integration, 13 position-map, 8 intent-plan and 19 source-projection checks. The preceding recovery-serde run passed 71+18+13+7+18 before the final literal-spelling guard/test additions. Twenty headless native document/recovery checks and 291 frontend checks passed with their recorded snapshot limits; five existing Rust warnings remain. Nine external compile/text checks passed for one English baseline/Replace/Delete fixture across three installed engines. Failures are retained. See `docs/architecture/foundation-continuation-validation-2026-11-10.json` and the two new architecture notes. These results do not enable a new visual command, validate physical input or make a release ready. The app was not opened/installed, and r8 owner acceptance and the unfrozen final study remain pending. Historical entries below retain their dated scopes.
+
 # Current validation update - 6 November 2026
 
 277 frontend and88 required core checks pass. The packaging build-pairing gap was reproduced/fixed and independently checked; the saved grouped-signature source/render probe passed within its one-fixture scope. Replacement engine gates finished. All further desktop-control tests are reserved for the owner at the usage stop. See current remaining work, the new dated receipt and manual packet; historical pause/build statements below retain their original dates. No final study or release acceptance is claimed.

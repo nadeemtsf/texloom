@@ -145,6 +145,29 @@ release; they are not injected failures in a running Windows process. Native
 history, view publication, original-file Save and exact reopen still require
 separate observations.
 
+\subsection{Source-model extension under development}
+The 10 November core adds typed source-byte and editor-UTF-16 coordinates,
+logical insertion affinity and transient change maps. Unmodified selections
+map through preceding changes; replacement through a selected interval clears
+identity instead of retaining numerically valid offsets over different text.
+All secondary ranges must survive, and recorded history restores the selection
+with its source snapshot. Scalar boundaries are not grapheme or visual caret
+stops. Existing entity references remain session/revision-bound and become
+stale after any changed revision; the coordinate map does not revive them or
+revalidate old rendered geometry.
+
+A conservative source projection retains unsupported syntax as opaque bytes.
+The first typed intent planner prepares literal paragraph replacement and
+paragraph-content deletion against exact current references. It emits ordinary
+\LaTeX, changes one rederived source range and preserves other files/profile.
+Escaped input is distinct from raw source; structural input requires a different
+intent. The plan records a rendered-content proof obligation and declared
+document reflow, with no visual-acceptance method. Native verification,
+source-to-PDF identity, protocol/idempotency and UI integration remain open.
+The projection can decline an entire macro-defined document, including the
+current template, so useful editable coverage is unresolved. This first slice
+is not the full Word-like authoring workflow.
+
 \subsection{History, Save and recovery}
 Source edits and accepted visual edits share native Undo/Redo history. Typing
 may coalesce; an accepted visual transaction has its own entry. Undo restores

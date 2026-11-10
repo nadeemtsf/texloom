@@ -58,7 +58,9 @@
       "url": "https://github.com/nadeemtsf/texloom/issues/47",
       "state": "open",
       "phase": "foundation",
-      "title": "[ARCH-03] Introduce typed anchors, insertion positions and change mappings"
+      "title": "[ARCH-03] Introduce typed anchors, insertion positions and change mappings",
+      "status": "in-progress",
+      "local_implementation_commit": "5ca1eb6bd461114ce39049364138536803e08e24"
     },
     {
       "id": "ARCH-04",
@@ -66,7 +68,9 @@
       "url": "https://github.com/nadeemtsf/texloom/issues/48",
       "state": "open",
       "phase": "foundation",
-      "title": "[ARCH-04] Generalize typed native editing intents and minimal patch planning"
+      "title": "[ARCH-04] Generalize typed native editing intents and minimal patch planning",
+      "status": "in-progress",
+      "local_implementation_commit": "5ca1eb6bd461114ce39049364138536803e08e24"
     },
     {
       "id": "ARCH-05",
@@ -254,5 +258,5 @@
     "repository_private_read_back": true,
     "third_party_notices_retained": true
   },
-  "progress_date": "2026-11-08"
+  "progress_date": "2026-11-10"
 }

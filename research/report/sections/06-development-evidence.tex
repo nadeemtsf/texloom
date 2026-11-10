@@ -5,6 +5,43 @@ Engineering checks, post-compilation predicate replay and native candidate
 entry are different evidence types. Their counts are not summed into an
 application accuracy denominator. The final held-out set remains unused.
 
+\subsection{Source-coordinate and paragraph-intent development checks}
+At \code{5ca1eb6}, the required default core run passed 70 unit, 18 pre-existing
+integration, 13 position-map, 8 intent-plan and 19 source-projection checks.
+These overlapping engineering layers are not independent document samples or
+an edit-acceptance denominator. The position tests include a tagged-character
+splice oracle: original tags distinguish repeated/equal text from inserted
+text, and expected preserved ranges are derived without the implementation's
+coordinate-delta formulas. Unicode checks concern exact source/editor
+boundaries, not shaped output or actual Arabic/Hebrew caret behavior.
+
+Three pre-fix tests reproduced incorrect selection retention after a prefix
+insertion, selected-content deletion and partial destruction of a multi-range
+selection. Their failed run is preserved. A later test showed that escaping
+backslash/tilde/caret input could make the candidate unrecognizable on the next
+projection; exact standard literal-command recognition fixed this case, while
+malformed/nonempty terminators remain unsupported. A recovery-test fixture
+that assumed a replaced selection survived was corrected to inject its invalid
+BOM boundary explicitly; recovery rejection was not weakened. The dated
+engineering receipt binds these runs and their limitations.
+
+A separate fixture bridge at \code{479f826} used the actual read-only planner
+to generate replacement/deletion source. All nine external compile/text checks
+passed: baseline, replacement and deletion for one English document under each
+of pdf\LaTeX, Xe\LaTeX\ and Lua\LaTeX. Normalized extracted document text matched
+the independently declared expectation, including the replacement's ampersand
+and percent; the original fixture remained byte-identical. This reused case
+checks compilation and text portability, not glyph geometry, unrelated-render
+preservation under general reflow, RTL rendering or a held-out success rate.
+It bypasses application PDF selection and native visual acceptance.
+
+Separately, 20 headless native document/recovery checks passed at the preceding
+planner snapshot; one verifies UTF-16 selection replies, repeated-occurrence
+retention and Undo/Redo after a Unicode prefix edit. The unchanged frontend
+suite passed 291 checks. These are not Windows input observations. The prepared
+r8 application was not rebuilt, opened or installed for this work, and final
+evaluation remains unfrozen/unrun.
+
 \subsection{Owner follow-up and RTL target regression}
 On 6 November the owner reported successful signature grouping, movement,
 replacement, history and Save/reopen, plus movement of the intended repeated

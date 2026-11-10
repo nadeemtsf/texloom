@@ -1,5 +1,7 @@
 # Editable technical report draft
 
+Latest 10 November artifact: v11 is a 26-page technical report draft with 21 references. It adds typed source-position/selection mapping, conservative literal intent planning, preserved regressions and a one-document three-engine compile/text pilot. It was compiled, all pages rendered, first 20 pages checked byte-identical against their reviewed render and final six reviewed; changed method/evidence pages were inspected at readable size. No overfull/undefined/missing-character/LaTeX-warning matches were found in the final log. The v11 engineering/artifact receipt is `docs/architecture/foundation-continuation-validation-2026-11-10.json`. Final evaluation and owner app acceptance remain pending; older artifacts below retain their named-version scope.
+
 8 November source/evidence supplement: [foundation development note](../FOUNDATION-DEVELOPMENT-2026-11-08.md) adds bounded headless engineering evidence and future diagnostic comparisons. It did not rebuild or silently update the v10 PDF described below. Final evaluation remains unfrozen/unrun.
 
 Latest7November artifact: v10 has26pages/21references and includes the legacy-support migration pilot plus matched-artifact/notice follow-up. All26pages were rendered/reviewed, with readable review of the new evidence sections. No overfull/undefined/missing-character/LaTeX-warning matches occur in the final log. This remains a technical draft; final evaluation and native owner/performance acceptance are pending. Earlier versioned notes below retain their historical scope.

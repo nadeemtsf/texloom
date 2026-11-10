@@ -23,6 +23,8 @@ The live issue index is recorded in [github-roadmap.json](github-roadmap.json) a
 
 ## Current versus intended
 
+10 November continuation: [position mapping](POSITION-MAPPING.md) now keeps canonical source selections attached through unchanged intervals and invalidates destructive edits in both commit paths. [Typed source-intent planning](SOURCE-INTENT-PLANNING.md) prepares literal paragraph Replace/Delete candidates without visual authority. ARCH-02/03/04 remain in progress. The dated continuation receipt separates domain/native-API checks, one English three-engine compile/text pilot, the v11 technical-report artifact and unrun app acceptance.
+
 The current app already has source editing, native source/history authority, guarded visual transactions, independent inspection, recovery, bounded parameter adapters, and legacy positioned-block insertion/deletion. Normal text-object editing and movement exist. General source-backed visual deletion, a visual caret, in-flow typing, and the generalized operation/anchor layer are proposed work.
 
 The old bounded-core completion statements describe the earlier movement/editing release scope. They do not mean the expanded Word-like product is complete. The prepared r8 build remains unaccepted by the owner; no new app launch, installation, input, engine experiment or final evaluation was performed for this architecture exercise.
