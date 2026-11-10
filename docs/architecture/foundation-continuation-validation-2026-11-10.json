@@ -73,10 +73,10 @@
       "result": "passed",
       "scope": "Position implementation before intent additions; frontend files unchanged",
       "summaries": [
-        "ℹ tests 291",
-        "ℹ pass 291",
-        "ℹ fail 0",
-        "ℹ skipped 0"
+        "â„¹ tests 291",
+        "â„¹ pass 291",
+        "â„¹ fail 0",
+        "â„¹ skipped 0"
       ],
       "failed": 0,
       "log_sha256": "b32c669d7261b404c42218e53ef4da9aadf25f0b1cf02cbd50ff467cb74974df"
@@ -148,7 +148,12 @@
     "sha256": "51a8da3d67e7bd83b4b46b41e8f7e2b76417cc0bc5e2987161f1ba5cd4ae0e12",
     "final_log_sha256": "b50c2744cb67e4b902302dff86193d0e4f3ac8fabd27f8814baf7b6eb15adc51",
     "references": 21,
-    "final_evaluation": "not_frozen/unrun"
+    "final_evaluation": "not_frozen/unrun",
+    "editable_zip_verification": {
+      "members": 16,
+      "crc": "passed",
+      "member_source_bytes": "all match current report files"
+    }
   },
   "native_app_opened": false,
   "new_visual_commands_enabled": false,
@@ -174,5 +179,10 @@
       "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-technical-report-editable-sources-2026-11-10-v11.zip",
       "bytes": 55933
     }
-  ]
+  ],
+  "committed_source_fingerprint_check": {
+    "files_checked": 26,
+    "mismatches": [],
+    "basis": "Compared executed working-file SHA-256 values against current committed Git blobs; no tests rerun."
+  }
 }
