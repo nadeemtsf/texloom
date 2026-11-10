@@ -7,6 +7,7 @@ use std::{
     sync::Arc,
 };
 pub mod projection;
+pub mod position;
 pub mod recovery;
 pub mod structure;
 mod source_edit;
@@ -266,10 +267,16 @@ impl Session {
             return Ok(self.revision);
         }
         let revision = self.next_revision()?;
-        let after_selection = self
-            .selection
-            .clone()
-            .filter(|s| validate_selection(&prepared.sources, s).is_ok());
+        let after_selection = self.selection.as_ref().and_then(|selection| {
+            let selected_change = prepared.forward.files.iter().find(|change| change.file() == selection.file);
+            match selected_change {
+                Some(FileChange::Edit { file, edits }) => position::ChangeMap::from_prepared(
+                    self.sources.get(file)?, prepared.sources.get(file)?, edits,
+                ).map_selection(selection),
+                Some(FileChange::Remove { .. }) => None,
+                _ => validate_selection(&prepared.sources, selection).ok().map(|_| selection.clone()),
+            }
+        });
         self.record_history(
             prepared.forward,
             prepared.inverse,

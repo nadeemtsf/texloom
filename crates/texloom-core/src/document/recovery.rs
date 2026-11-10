@@ -276,7 +276,10 @@ mod tests {
         }
         assert!(Session::from_checkpoint(bad).is_err());
         let mut bad = state.checkpoint();
-        bad.selection.as_mut().unwrap().anchor = 1;
+        // Replacement now invalidates the old selection. Inject a malformed
+        // selection explicitly so this still tests a split UTF-8 BOM boundary.
+        bad.selection = Some(Selection { file: "main.tex".into(), anchor: 1,
+            head: 1, secondary: vec![] });
         assert!(Session::from_checkpoint(bad).is_err());
         let mut bad = state.checkpoint();
         bad.history[0].inverses.clear();

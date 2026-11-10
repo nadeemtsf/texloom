@@ -1,6 +1,7 @@
 //! Monaco sees LF text without the leading UTF-8 BOM. Canonical buffers keep
 //! their exact bytes; each edit is mapped back, never a whole-file serialization.
 use super::{EditError, EditResult, Replacement};
+use super::position::{EditorUtf16Offset, SourceByteOffset};
 
 pub struct EditorProjection<'a> {
     source: &'a str,
@@ -41,6 +42,12 @@ impl<'a> EditorProjection<'a> {
     }
     pub fn text(&self) -> &str {
         &self.text
+    }
+    pub fn source_position(&self, offset: EditorUtf16Offset) -> EditResult<SourceByteOffset> {
+        SourceByteOffset::checked(self.source, self.source_offset(offset.get())?)
+    }
+    pub fn editor_position(&self, offset: SourceByteOffset) -> EditResult<EditorUtf16Offset> {
+        self.editor_offset(offset.get()).map(EditorUtf16Offset::new)
     }
     pub fn source_offset(&self, utf16: usize) -> EditResult<usize> {
         self.boundaries

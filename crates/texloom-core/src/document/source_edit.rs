@@ -93,11 +93,13 @@ impl Session {
             return Ok(self.revision);
         }
         let revision = self.next_revision()?;
-        let after_selection = self.selection.clone().filter(|selection| {
+        let after_selection = self.selection.as_ref().and_then(|selection| {
             if selection.file == prepared.file {
-                validate_selection_text(&prepared.text, selection).is_ok()
+                let FileChange::Edit { edits, .. } = &prepared.forward.files[0] else { return None; };
+                position::ChangeMap::from_prepared(self.sources.get(&prepared.file)?, &prepared.text, edits)
+                    .map_selection(selection)
             } else {
-                validate_selection(&self.sources, selection).is_ok()
+                validate_selection(&self.sources, selection).ok().map(|_| selection.clone())
             }
         });
         self.record_history(

@@ -747,6 +747,31 @@ fn diff_sources(
 mod tests {
     use super::*;
     #[test]
+    fn source_delta_maps_repeated_text_selection_through_unicode_and_history() {
+        // In-memory document; no app, engine, Save or real project is opened.
+        let b = backend("\u{feff}😀\r\nsame same");
+        b.document_selection("test", 0, "main.tex".into(), 12, 8, vec![]).unwrap();
+        let changed = b.document_edit_delta("test", 0, "main.tex", vec![EditorChange {
+            offset: 0, length: 0, text: "ש\n".into(),
+        }], None).unwrap();
+        let mapped = changed.selection.unwrap();
+        assert_eq!((mapped.anchor, mapped.head), (14, 10));
+        assert_eq!(changed.sources["main.tex"], "\u{feff}ש\r\n😀\r\nsame same");
+        let undo = b.document_history("test", 1, false).unwrap();
+        let original = undo.selection.unwrap();
+        assert_eq!((original.anchor, original.head), (12, 8));
+        let redo = b.document_history("test", 2, true).unwrap();
+        let mapped = redo.selection.unwrap();
+        assert_eq!((mapped.anchor, mapped.head), (14, 10));
+        let deleted = b.document_edit_delta("test", 3, "main.tex", vec![EditorChange {
+            offset: 10, length: 4, text: String::new(),
+        }], None).unwrap();
+        assert!(deleted.selection.is_none());
+        assert_eq!(deleted.sources["main.tex"], "\u{feff}ש\r\n😀\r\nsame ");
+        let restored = b.document_history("test", 4, false).unwrap().selection.unwrap();
+        assert_eq!((restored.anchor, restored.head), (14, 10));
+    }
+    #[test]
     fn source_delta_preserves_other_files_and_the_full_shared_history() {
         let original = "\u{feff}A\r\n\u{1f600}B\r\n";
         let b = Backend::new(PathBuf::from("."));
