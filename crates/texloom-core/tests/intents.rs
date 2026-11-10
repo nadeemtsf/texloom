@@ -217,3 +217,36 @@ fn unsupported_formatted_or_dynamic_source_cannot_mint_a_literal_target() {
         assert!((0..projection.regions().len()).all(|i| projection.entity_reference(i).is_none()));
     }
 }
+
+#[test]
+fn escaped_literal_candidates_can_be_projected_and_replaced_again() {
+    let mut s = state("Before.\r\n\r\nTarget.\r\n\r\nAfter.");
+    let original = s.sources()["main.tex"].clone();
+    let first = s
+        .plan_source_intent(SourceIntent::ReplaceLiteralParagraph {
+            target: target(&s, 1),
+            text: "\\literal {x} ~ ^ & # _ $ %".into(),
+        })
+        .unwrap();
+    let draft = s.prepare(first.source_patch()).unwrap();
+    s.commit(draft, Origin::Source, None).unwrap();
+    let projection = s.source_projection("main.tex").unwrap();
+    assert_eq!(
+        projection
+            .regions()
+            .iter()
+            .filter(|r| r.kind() == RegionKind::PlainParagraph)
+            .count(),
+        3
+    );
+    let next = s
+        .plan_source_intent(SourceIntent::ReplaceLiteralParagraph {
+            target: target(&s, 1),
+            text: "Second update.".into(),
+        })
+        .unwrap();
+    assert_eq!(
+        next.candidate_sources()["main.tex"],
+        original.replace("Target.", "Second update.")
+    );
+}

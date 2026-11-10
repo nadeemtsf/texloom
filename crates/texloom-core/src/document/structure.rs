@@ -257,6 +257,16 @@ fn envelope(source: &str) -> Result<Envelope, OpaqueReason> {
                 {
                     return Err(OpaqueReason::DynamicSyntax);
                 }
+                // Exact kernel spellings emitted by escape_text. Recognize
+                // only their empty terminator group, not arbitrary arguments
+                // or command expansion. They still need context/render proof.
+                if ["\\textbackslash", "\\textasciitilde", "\\textasciicircum"].contains(&command) {
+                    if source[end..].starts_with("{}") {
+                        i = end + 2;
+                        continue;
+                    }
+                    return Err(OpaqueReason::UnsupportedSyntax);
+                }
                 if let Some(after) = crate::skip_literal(source, command, end) {
                     blocked.push(i..after);
                     i = after;

@@ -382,3 +382,21 @@ fn mixed_unicode_and_structural_fragments_preserve_every_source_boundary() {
         assert_eq!(s.revision(), Revision(0));
     }
 }
+
+#[test]
+fn known_literal_command_spellings_require_exact_empty_terminators() {
+    for name in ["\\textbackslash", "\\textasciitilde", "\\textasciicircum"] {
+        let source = document(&format!("Before.\n\n{name}{{}} literal.\n\nAfter."));
+        let s = session(&source);
+        let p = s.source_projection("main.tex").unwrap();
+        exact_partition(&p, &source);
+        assert_eq!(candidates(&p).len(), 3);
+        for suffix in ["{not empty}", "{", "", " {}"] {
+            let source = document(&format!("{name}{suffix}\n\nLooks plain."));
+            let s = session(&source);
+            let p = s.source_projection("main.tex").unwrap();
+            exact_partition(&p, &source);
+            assert!(candidates(&p).is_empty());
+        }
+    }
+}
