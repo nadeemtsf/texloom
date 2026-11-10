@@ -12,6 +12,8 @@
 
 ## Evidence and limits
 
+The r9 Windows release build is source `5a506aa1923fcdcc980a98c102f5eac99f1b8266`, with executable SHA-256 `7ec277eff23ba3ad4d1075891c0232957f71ea0a15a8d18c4b30cb8e4232b6c7`. The portable ZIP has 15 independently checked members/CRCs; executable/verifier pairing agrees. Final frontend checks: 300 passed; default/recovery core: 128/129 passed. The owner packet includes independently preflighted six- and 25-page synthetic documents and exact-build instructions. These do not establish native input or installation acceptance. See `docs/evidence/pdf-navigation-2026-11-10.json`.
+
 The first full frontend run retained in `artifacts/anchors-20261110/frontend-scroll.log` failed because two VM-based app tests strip imports and had not injected the new module. The harnesses now use the real adapter. This was a test integration failure, not a reproduced Windows input observation. Separate adapter/controller tests cover fractional two-axis input, mouse line/page units, boundaries, zoom coalescing/limits, teardown and absence of source/history/compile effects. Final counts and build/artifact identities are recorded separately after checks finish.
 
 Actual mouse-wheel, precision-trackpad/pinch feel, source/selection preservation and held-drag cancellation must still be observed by the owner in the exact rebuilt app. A headless test or successful web/native build cannot complete that gate. The agent does not open/control/install Texloom.

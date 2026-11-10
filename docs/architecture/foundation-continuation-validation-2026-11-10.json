@@ -166,7 +166,10 @@
     "engines": 3,
     "receipt": "docs/architecture/source-intent-portability-2026-11-10.json",
     "glyph_geometry_checked": false,
-    "sha256": "a7ce42ceff6929130d27506e8228dc13a08798f683e2d725767854d8eb2a0698"
+    "sha256": "04ab64feebd349efd9828a878b035a1bc9278a525b6c74b3b3443757f2b3724c",
+    "raw_receipt": "artifacts/anchors-20261110/portability-pilot/receipt.json",
+    "raw_receipt_sha256": "a7ce42ceff6929130d27506e8228dc13a08798f683e2d725767854d8eb2a0698",
+    "canonicalization": "Only CRLF to LF; JSON payload unchanged. Original raw receipt retained. Canonical checksum matches committed/source checkout bytes."
   },
   "exports": [
     {
