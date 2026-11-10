@@ -488,3 +488,313 @@ fn range_maps_match_an_independent_tagged_character_edit_oracle() {
         }
     }
 }
+
+fn tracked_edit(s: &mut Session, file: &str, edits: Vec<Replacement>) -> SourceChangeReceipt {
+    let prepared = s.prepare_source_edit(s.revision(), file, edits).unwrap();
+    s.commit_source_edit_with_mapping(prepared, None).unwrap()
+}
+
+#[test]
+fn source_anchor_checks_the_actual_file_and_session_not_just_numeric_offset() {
+    let s = state("😀");
+    assert!(matches!(
+        s.source_anchor("main.tex", point("abc", 1), Affinity::After),
+        Err(EditError::InvalidBoundary)
+    ));
+    assert!(matches!(
+        s.source_anchor("missing.tex", point("", 0), Affinity::After),
+        Err(EditError::MissingFile(_))
+    ));
+    let anchor = s
+        .source_anchor("main.tex", point("😀", 4), Affinity::Before)
+        .unwrap();
+    assert_eq!(anchor.file(), "main.tex");
+    assert_eq!(anchor.revision(), Revision(0));
+    assert_eq!(anchor.affinity(), Affinity::Before);
+    assert_eq!(s.resolve_source_anchor(&anchor).unwrap().get(), 4);
+    assert_eq!(
+        state("😀").resolve_source_anchor(&anchor),
+        Err(EditError::ForeignSession)
+    );
+}
+
+#[test]
+fn owned_map_remains_valid_after_the_original_borrowed_source_is_dropped() {
+    let map = {
+        let source = String::from("same same");
+        ChangeMap::new(&source, &[replacement(&source, 0..0, "😀")])
+            .unwrap()
+            .into_owned()
+    };
+    assert_eq!(map.before(), "same same");
+    assert_eq!(map.after(), "😀same same");
+    assert_eq!(
+        map.map_range(logical(map.before(), 5, 9)).unwrap(),
+        Some(logical(map.after(), 9, 13))
+    );
+}
+
+#[test]
+fn committed_receipt_advances_exact_occurrence_but_old_snapshot_anchor_stays_stale() {
+    let mut s = state("same same");
+    let anchor = s
+        .source_anchor("main.tex", point("same same", 5), Affinity::After)
+        .unwrap();
+    let receipt = tracked_edit(
+        &mut s,
+        "main.tex",
+        vec![replacement("same same", 0..0, "X ")],
+    );
+    assert_eq!(receipt.from_revision(), Revision(0));
+    assert_eq!(receipt.to_revision(), Revision(1));
+    assert!(receipt.changed());
+    assert_eq!(
+        s.resolve_source_anchor(&anchor),
+        Err(EditError::StaleRevision)
+    );
+    let mapped = receipt.map_anchor(&anchor).unwrap().unwrap();
+    assert_eq!(s.resolve_source_anchor(&mapped).unwrap().get(), 7);
+    assert_eq!(&s.sources()["main.tex"][7..], "same");
+    assert_eq!(s.history_len(), 1);
+}
+
+#[test]
+fn committed_receipt_respects_insertion_affinity() {
+    let mut s = state("same same");
+    let before = s
+        .source_anchor("main.tex", point("same same", 5), Affinity::Before)
+        .unwrap();
+    let after = s
+        .source_anchor("main.tex", point("same same", 5), Affinity::After)
+        .unwrap();
+    let receipt = tracked_edit(
+        &mut s,
+        "main.tex",
+        vec![replacement("same same", 5..5, "New ")],
+    );
+    assert_eq!(
+        s.resolve_source_anchor(&receipt.map_anchor(&before).unwrap().unwrap())
+            .unwrap()
+            .get(),
+        5
+    );
+    assert_eq!(
+        s.resolve_source_anchor(&receipt.map_anchor(&after).unwrap().unwrap())
+            .unwrap()
+            .get(),
+        9
+    );
+}
+
+#[test]
+fn removed_point_identity_is_not_recreated_from_remaining_equal_text() {
+    let mut s = state("same same");
+    let anchor = s
+        .source_anchor("main.tex", point("same same", 2), Affinity::After)
+        .unwrap();
+    let receipt = tracked_edit(&mut s, "main.tex", vec![replacement("same same", 0..4, "")]);
+    assert!(receipt.map_anchor(&anchor).unwrap().is_none());
+    assert_eq!(s.sources()["main.tex"], " same");
+    assert_eq!(
+        s.resolve_source_anchor(&anchor),
+        Err(EditError::StaleRevision)
+    );
+}
+
+#[test]
+fn one_file_commit_can_advance_an_unchanged_other_file_anchor_revision() {
+    let mut s = Session::new(
+        BTreeMap::from([
+            ("main.tex".into(), "Main".into()),
+            ("part.tex".into(), "سلام".into()),
+        ]),
+        Profile {
+            main: "main.tex".into(),
+            engine: "auto".into(),
+        },
+    )
+    .unwrap();
+    let anchor = s
+        .source_anchor("part.tex", point("سلام", 4), Affinity::After)
+        .unwrap();
+    let receipt = tracked_edit(&mut s, "main.tex", vec![replacement("Main", 0..0, "X")]);
+    let mapped = receipt.map_anchor(&anchor).unwrap().unwrap();
+    assert_eq!(mapped.file(), "part.tex");
+    assert_eq!(mapped.revision(), Revision(1));
+    assert_eq!(s.resolve_source_anchor(&mapped).unwrap().get(), 4);
+    assert_eq!(
+        s.resolve_source_anchor(&anchor),
+        Err(EditError::StaleRevision)
+    );
+}
+
+#[test]
+fn no_op_receipt_keeps_revision_history_and_current_anchors() {
+    let mut s = state("Target");
+    let anchor = s
+        .source_anchor("main.tex", point("Target", 3), Affinity::Before)
+        .unwrap();
+    let receipt = tracked_edit(
+        &mut s,
+        "main.tex",
+        vec![replacement("Target", 0..6, "Target")],
+    );
+    assert!(!receipt.changed());
+    assert_eq!(receipt.from_revision(), receipt.to_revision());
+    assert_eq!(s.resolve_source_anchor(&anchor).unwrap().get(), 3);
+    assert_eq!(
+        s.resolve_source_anchor(&receipt.map_anchor(&anchor).unwrap().unwrap())
+            .unwrap()
+            .get(),
+        3
+    );
+    assert_eq!(s.history_len(), 0);
+}
+
+#[test]
+fn foreign_and_stale_receipts_and_preparations_refuse_without_mutation() {
+    let mut s = state("A");
+    let other = state("A");
+    let foreign = other
+        .prepare_source_edit(Revision(0), "main.tex", vec![replacement("A", 0..1, "B")])
+        .unwrap();
+    assert!(matches!(
+        s.commit_source_edit_with_mapping(foreign, None),
+        Err(EditError::ForeignSession)
+    ));
+    assert_eq!(s.revision(), Revision(0));
+    let foreign_anchor = other
+        .source_anchor("main.tex", point("A", 0), Affinity::After)
+        .unwrap();
+    let old = s
+        .source_anchor("main.tex", point("A", 0), Affinity::After)
+        .unwrap();
+    let stale = s
+        .prepare_source_edit(Revision(0), "main.tex", vec![replacement("A", 0..1, "C")])
+        .unwrap();
+    let receipt = tracked_edit(&mut s, "main.tex", vec![replacement("A", 0..0, "X")]);
+    assert!(matches!(
+        receipt.map_anchor(&foreign_anchor),
+        Err(EditError::ForeignSession)
+    ));
+    let fresh = receipt.map_anchor(&old).unwrap().unwrap();
+    assert!(matches!(
+        receipt.map_anchor(&fresh),
+        Err(EditError::StaleRevision)
+    ));
+    assert!(matches!(
+        s.commit_source_edit_with_mapping(stale, None),
+        Err(EditError::StaleRevision)
+    ));
+    assert_eq!(s.sources()["main.tex"], "XA");
+    assert_eq!(s.history_len(), 1);
+}
+
+#[test]
+fn receipt_chain_requires_each_revision_and_undo_does_not_revive_external_anchors() {
+    let mut s = state("same same");
+    let anchor = s
+        .source_anchor("main.tex", point("same same", 5), Affinity::After)
+        .unwrap();
+    let first = tracked_edit(
+        &mut s,
+        "main.tex",
+        vec![replacement("same same", 0..0, "X ")],
+    );
+    let next = first.map_anchor(&anchor).unwrap().unwrap();
+    let second = tracked_edit(
+        &mut s,
+        "main.tex",
+        vec![replacement("X same same", 0..0, "😀")],
+    );
+    assert!(matches!(
+        second.map_anchor(&anchor),
+        Err(EditError::StaleRevision)
+    ));
+    let final_anchor = second.map_anchor(&next).unwrap().unwrap();
+    assert_eq!(s.resolve_source_anchor(&final_anchor).unwrap().get(), 11);
+    s.undo().unwrap();
+    assert_eq!(
+        s.resolve_source_anchor(&next),
+        Err(EditError::StaleRevision)
+    );
+    assert_eq!(
+        s.resolve_source_anchor(&final_anchor),
+        Err(EditError::StaleRevision)
+    );
+    s.redo().unwrap();
+    assert_eq!(
+        s.resolve_source_anchor(&final_anchor),
+        Err(EditError::StaleRevision)
+    );
+}
+
+#[test]
+fn restored_session_rejects_old_anchor_even_after_receipt_mapping() {
+    let mut s = state("שלום");
+    let anchor = s
+        .source_anchor("main.tex", point("שלום", 2), Affinity::After)
+        .unwrap();
+    let receipt = tracked_edit(&mut s, "main.tex", vec![replacement("שלום", 0..0, "X")]);
+    let mapped = receipt.map_anchor(&anchor).unwrap().unwrap();
+    let recovered = Session::from_checkpoint(s.checkpoint()).unwrap();
+    assert_eq!(
+        recovered.resolve_source_anchor(&mapped),
+        Err(EditError::ForeignSession)
+    );
+    let fresh = recovered
+        .source_anchor(
+            "main.tex",
+            point(&recovered.sources()["main.tex"], 3),
+            Affinity::After,
+        )
+        .unwrap();
+    assert_eq!(recovered.resolve_source_anchor(&fresh).unwrap().get(), 3);
+}
+
+#[test]
+fn mapped_point_endpoints_do_not_preserve_replaced_entity_or_range_identity() {
+    use texloom_core::document::{
+        intent::{PlanError, SourceIntent},
+        structure::RegionKind,
+    };
+    let source = "\\documentclass{article}\n\\begin{document}\ntarget\n\\end{document}";
+    let mut s = state(source);
+    let projection = s.source_projection("main.tex").unwrap();
+    let index = projection
+        .regions()
+        .iter()
+        .position(|region| region.kind() == RegionKind::PlainParagraph)
+        .unwrap();
+    let entity = projection.entity_reference(index).unwrap();
+    let start = source.find("target").unwrap();
+    let left = s
+        .source_anchor("main.tex", point(source, start), Affinity::After)
+        .unwrap();
+    let right = s
+        .source_anchor("main.tex", point(source, start + 6), Affinity::Before)
+        .unwrap();
+    let edit = replacement(source, start..start + 6, "other!");
+    let map = ChangeMap::new(source, &[edit.clone()]).unwrap();
+    assert!(map
+        .map_range(logical(source, start, start + 6))
+        .unwrap()
+        .is_none());
+    let receipt = tracked_edit(&mut s, "main.tex", vec![edit]);
+    assert_eq!(
+        s.resolve_source_anchor(&receipt.map_anchor(&left).unwrap().unwrap())
+            .unwrap()
+            .get(),
+        start
+    );
+    assert_eq!(
+        s.resolve_source_anchor(&receipt.map_anchor(&right).unwrap().unwrap())
+            .unwrap()
+            .get(),
+        start + 6
+    );
+    assert!(matches!(
+        s.plan_source_intent(SourceIntent::DeleteParagraphContent { target: entity }),
+        Err(PlanError::Source(EditError::StaleRevision))
+    ));
+}

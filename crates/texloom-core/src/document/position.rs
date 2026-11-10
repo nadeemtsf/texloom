@@ -1,6 +1,9 @@
 //! Source-coordinate mapping, not a grapheme/caret/PDF identity or edit grant.
-use super::{apply_replacements, EditError, EditResult, Replacement, Selection};
-use std::{borrow::Cow, ops::Range};
+use super::{
+    apply_replacements, EditError, EditResult, FileChange, PreparedSourceEdit, Replacement,
+    Revision, Selection, Session, TypingGroup,
+};
+use std::{borrow::Cow, ops::Range, sync::Arc};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct SourceByteOffset(usize);
@@ -50,7 +53,7 @@ struct Change {
 /// An exact, transient map between two source snapshots. It does not re-resolve
 /// entity references, follow moved content, or bind a file/session/revision.
 pub struct ChangeMap<'a> {
-    before: &'a str,
+    before: Cow<'a, str>,
     after: Cow<'a, str>,
     changes: Vec<Change>,
 }
@@ -83,16 +86,25 @@ impl<'a> ChangeMap<'a> {
             new_cursor = end;
         }
         Self {
-            before,
+            before: Cow::Borrowed(before),
             after,
             changes,
         }
     }
     pub fn before(&self) -> &str {
-        self.before
+        &self.before
     }
     pub fn after(&self) -> &str {
         &self.after
+    }
+    /// Opt-in owned snapshot for mapping after source buffers are replaced.
+    /// Normal selection mapping continues to borrow the current/candidate text.
+    pub fn into_owned(self) -> ChangeMap<'static> {
+        ChangeMap {
+            before: Cow::Owned(self.before.into_owned()),
+            after: Cow::Owned(self.after.into_owned()),
+            changes: self.changes,
+        }
     }
 
     /// None means the point was inside removed/replaced content. Insertion
@@ -102,7 +114,7 @@ impl<'a> ChangeMap<'a> {
         position: SourceByteOffset,
         affinity: Affinity,
     ) -> EditResult<Option<SourceByteOffset>> {
-        let position = SourceByteOffset::checked(self.before, position.get())?.get();
+        let position = SourceByteOffset::checked(&self.before, position.get())?.get();
         // Skip completed replacements, but retain an insertion at the same
         // boundary. Each lookup stays logarithmic in the patch count.
         let index = self.changes.partition_point(|change| {
@@ -137,8 +149,8 @@ impl<'a> ChangeMap<'a> {
     /// insertions stay outside a nonempty range. Any affected secondary range
     /// invalidates a multi-selection rather than silently dropping part of it.
     pub fn map_range(&self, range: LogicalRange) -> EditResult<Option<LogicalRange>> {
-        let a = SourceByteOffset::checked(self.before, range.anchor.get())?.get();
-        let h = SourceByteOffset::checked(self.before, range.head.get())?.get();
+        let a = SourceByteOffset::checked(&self.before, range.anchor.get())?.get();
+        let h = SourceByteOffset::checked(&self.before, range.head.get())?.get();
         if a == h {
             return Ok(self
                 .map_position(range.anchor, Affinity::After)?
@@ -199,8 +211,8 @@ impl<'a> ChangeMap<'a> {
             }
         }
         ChangeMap {
-            before: &self.after,
-            after: Cow::Borrowed(self.before),
+            before: Cow::Borrowed(&self.after),
+            after: Cow::Borrowed(&self.before),
             changes,
         }
     }
@@ -208,8 +220,8 @@ impl<'a> ChangeMap<'a> {
     pub(super) fn map_selection(&self, selection: &Selection) -> Option<Selection> {
         let pair = |a, h| {
             let range = LogicalRange {
-                anchor: SourceByteOffset::checked(self.before, a).ok()?,
-                head: SourceByteOffset::checked(self.before, h).ok()?,
+                anchor: SourceByteOffset::checked(&self.before, a).ok()?,
+                head: SourceByteOffset::checked(&self.before, h).ok()?,
             };
             let mapped = self.map_range(range).ok()??;
             Some((mapped.anchor.get(), mapped.head.get()))
@@ -225,6 +237,146 @@ impl<'a> ChangeMap<'a> {
             anchor,
             head,
             secondary,
+        })
+    }
+}
+
+/// Private, snapshot-bound source point; never an IPC or visual capability.
+#[derive(Clone, Debug)]
+pub struct SourceAnchor {
+    owner: Arc<()>,
+    file: String,
+    revision: Revision,
+    position: SourceByteOffset,
+    affinity: Affinity,
+}
+impl SourceAnchor {
+    pub fn file(&self) -> &str {
+        &self.file
+    }
+    pub fn revision(&self) -> Revision {
+        self.revision
+    }
+    pub fn affinity(&self) -> Affinity {
+        self.affinity
+    }
+}
+
+/// Minted only after the guarded one-file source commit succeeds. An opt-in
+/// receipt owns only that file's before/after bytes and change metadata. It is
+/// not stored in history; callers must release obsolete maps. No render proof.
+pub struct SourceChangeReceipt {
+    owner: Arc<()>,
+    file: String,
+    from: Revision,
+    to: Revision,
+    map: Option<ChangeMap<'static>>,
+}
+impl SourceChangeReceipt {
+    pub fn from_revision(&self) -> Revision {
+        self.from
+    }
+    pub fn to_revision(&self) -> Revision {
+        self.to
+    }
+    pub fn changed(&self) -> bool {
+        self.from != self.to
+    }
+    pub fn map_anchor(&self, anchor: &SourceAnchor) -> EditResult<Option<SourceAnchor>> {
+        if !Arc::ptr_eq(&self.owner, &anchor.owner) {
+            return Err(EditError::ForeignSession);
+        }
+        if anchor.revision != self.from {
+            return Err(EditError::StaleRevision);
+        }
+        let position = if anchor.file == self.file {
+            if let Some(map) = &self.map {
+                let Some(position) = map.map_position(anchor.position, anchor.affinity)? else {
+                    return Ok(None);
+                };
+                position
+            } else {
+                anchor.position
+            }
+        } else {
+            // This source-edit lane changes one existing file only. Membership,
+            // profile and other files are unchanged by its guarded commit.
+            anchor.position
+        };
+        Ok(Some(SourceAnchor {
+            owner: self.owner.clone(),
+            file: anchor.file.clone(),
+            revision: self.to,
+            position,
+            affinity: anchor.affinity,
+        }))
+    }
+}
+
+impl Session {
+    pub fn source_anchor(
+        &self,
+        file: &str,
+        position: SourceByteOffset,
+        affinity: Affinity,
+    ) -> EditResult<SourceAnchor> {
+        let source = self
+            .sources
+            .get(file)
+            .ok_or_else(|| EditError::MissingFile(file.into()))?;
+        let position = SourceByteOffset::checked(source, position.get())?;
+        Ok(SourceAnchor {
+            owner: self.owner.clone(),
+            file: file.into(),
+            revision: self.revision,
+            position,
+            affinity,
+        })
+    }
+    pub fn resolve_source_anchor(&self, anchor: &SourceAnchor) -> EditResult<SourceByteOffset> {
+        if !Arc::ptr_eq(&self.owner, &anchor.owner) {
+            return Err(EditError::ForeignSession);
+        }
+        if anchor.revision != self.revision {
+            return Err(EditError::StaleRevision);
+        }
+        let source = self
+            .sources
+            .get(&anchor.file)
+            .ok_or_else(|| EditError::MissingFile(anchor.file.clone()))?;
+        SourceByteOffset::checked(source, anchor.position.get())
+    }
+    pub fn commit_source_edit_with_mapping(
+        &mut self,
+        prepared: PreparedSourceEdit,
+        group: Option<TypingGroup>,
+    ) -> EditResult<SourceChangeReceipt> {
+        prepared.validate_for(self)?;
+        let base = self.revision;
+        // No extra snapshots on the existing fast path. This explicit opt-in
+        // path captures all fallible mapping inputs before committing source.
+        if prepared.changed() {
+            self.next_revision()?;
+        }
+        let patch = prepared.recovery_patch();
+        let [FileChange::Edit { file, edits }] = patch.files.as_slice() else {
+            return Err(EditError::InvalidRange);
+        };
+        let before = self
+            .sources
+            .get(file)
+            .ok_or_else(|| EditError::MissingFile(file.clone()))?;
+        let map = prepared
+            .changed()
+            .then(|| ChangeMap::from_prepared(before, prepared.text(), edits).into_owned());
+        let file = file.clone();
+        let revision = self.commit_source_edit(prepared, group)?;
+        Ok(SourceChangeReceipt {
+            owner: self.owner.clone(),
+            file,
+            from: base,
+            to: revision,
+            map,
         })
     }
 }

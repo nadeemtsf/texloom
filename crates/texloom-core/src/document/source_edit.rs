@@ -13,6 +13,11 @@ pub struct PreparedSourceEdit {
     changed: bool,
 }
 impl PreparedSourceEdit {
+    pub(super) fn validate_for(&self, session: &Session) -> EditResult<()> {
+        if !Arc::ptr_eq(&session.owner, &self.owner) { return Err(EditError::ForeignSession); }
+        if self.base != session.revision { return Err(EditError::StaleRevision); }
+        Ok(())
+    }
     pub fn changed(&self) -> bool {
         self.changed
     }
@@ -83,12 +88,7 @@ impl Session {
         prepared: PreparedSourceEdit,
         group: Option<TypingGroup>,
     ) -> EditResult<Revision> {
-        if !Arc::ptr_eq(&self.owner, &prepared.owner) {
-            return Err(EditError::ForeignSession);
-        }
-        if prepared.base != self.revision {
-            return Err(EditError::StaleRevision);
-        }
+        prepared.validate_for(self)?;
         if !prepared.changed {
             return Ok(self.revision);
         }

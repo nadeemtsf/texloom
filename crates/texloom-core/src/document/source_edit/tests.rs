@@ -195,6 +195,12 @@ fn validation_refuses_bad_boundaries_expected_text_overlap_missing_files_and_exh
         Err(EditError::RevisionExhausted)
     );
     assert_eq!(session.sources()["main.tex"], "\u{feff}A\u{1f600}B");
+    let mapped_plan = session.prepare_source_edit(session.revision(), "main.tex",
+        vec![edit(&session, "A", "X")]).unwrap();
+    assert!(matches!(session.commit_source_edit_with_mapping(mapped_plan, None),
+        Err(EditError::RevisionExhausted)));
+    assert_eq!(session.sources()["main.tex"], "\u{feff}A\u{1f600}B");
+    assert_eq!(session.history_len(), 0);
 }
 
 #[test]
