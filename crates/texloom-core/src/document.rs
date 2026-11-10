@@ -8,6 +8,7 @@ use std::{
 };
 pub mod projection;
 pub mod position;
+pub mod intent;
 pub mod recovery;
 pub mod structure;
 mod source_edit;
