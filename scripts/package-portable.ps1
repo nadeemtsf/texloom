@@ -46,7 +46,7 @@ function Copy-PackageFile {
 # select a stale binary from a different build directory.
 Copy-PackageFile (Resolve-Path -LiteralPath $DesktopExecutable).Path 'Texloom.exe' $ExpectedDesktopSha256.ToLowerInvariant()
 Copy-PackageFile $BuildReceipt 'BUILD-RECEIPT.json' $bindingIdentity.sha256
-foreach ($name in @('VALIDATION.md', 'LICENSE', 'README.md')) { Copy-PackageFile (Join-Path $projectRoot $name) $name }
+foreach ($name in @('VALIDATION.md', 'README.md')) { Copy-PackageFile (Join-Path $projectRoot $name) $name }
 $verifierSource = Join-Path $projectRoot 'src-tauri/resources/verification'
 $manifestPath = Join-Path $verifierSource 'verifier-manifest.json'
 $manifestReceipt = Get-PortableFileReceipt -Path $manifestPath -RelativePath 'verification/verifier-manifest.json'

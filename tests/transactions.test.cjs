@@ -5,6 +5,7 @@ const vm=require('node:vm');
 
 async function setup({tracing=false,presentation=false}={}){
  const transactions=await import('../web/core/transactions.js');
+ const {bindPDFScrolling}=await import('../web/core/pdf-scroll.js');
  const selectionProof=await import('../web/core/selection-proof.js');
  const {DocumentClient,editorText,sameSources}=await import('../web/core/document-client.js');
  const {TypingRecoveryController}=await import('../web/core/typing-recovery.js');
@@ -18,7 +19,7 @@ async function setup({tracing=false,presentation=false}={}){
  const {applyTextInputAppearance,renderProtectedCommands}=await import('../web/core/text-input-appearance.js');
  const {positionDialogNear,clearDialogPosition}=await import('../web/core/dialog-anchor.js');
  const elements=new Map();
- function element(id){if(!elements.has(id))elements.set(id,{value:'',checked:false,disabled:false,open:false,textContent:'',style:{},classList:{add(){},remove(){},toggle(){}},setAttribute(){},replaceChildren(){},append(){},addEventListener(){},focus(){},showModal(){this.open=true},close(){this.open=false}});return elements.get(id)}
+ function element(id){if(!elements.has(id))elements.set(id,{value:'',checked:false,disabled:false,open:false,textContent:'',style:{},classList:{add(){},remove(){},toggle(){}},setAttribute(){},replaceChildren(){},append(){},listeners:new Map(),addEventListener(name,fn){this.listeners.set(name,fn)},removeEventListener(name,fn){if(this.listeners.get(name)===fn)this.listeners.delete(name)},focus(){},showModal(){this.open=true},close(){this.open=false}});return elements.get(id)}
  const model={setValue(){},setEOL(){},getValue:()=>'',getOffsetAt:p=>p.column-1};
  const composition={};
  const editor={onDidChangeModelContent(fn){control.onEdit=fn},onDidChangeCursorPosition(){},onDidChangeCursorSelection(fn){control.onSelection=fn},addCommand(){},
@@ -37,7 +38,7 @@ async function setup({tracing=false,presentation=false}={}){
   return {frame,listeners,original};
  }
  const context=vm.createContext({
-  ...transactions,...selectionProof,SourceHighlight,selectionSourceRange,applyTextInputAppearance,renderProtectedCommands,positionDialogNear,clearDialogPosition,validateSelectionProbe:(...args)=>control.prove?control.prove(...args):selectionProof.validateSelectionProbe(...args),DocumentClient,editorText,sameSources,TypingRecoveryController,CloseController,createWorkspaceInvoke,ProjectControls,PDFSearch,SetupHelp,installPerformanceDiagnostics,performanceOutcome,initialSnapshot:native.snapshot(),inside:()=>true,self:{},EditorWorker:class{},pdfWorkerURL:'test-worker',
+  ...transactions,...selectionProof,bindPDFScrolling,SourceHighlight,selectionSourceRange,applyTextInputAppearance,renderProtectedCommands,positionDialogNear,clearDialogPosition,validateSelectionProbe:(...args)=>control.prove?control.prove(...args):selectionProof.validateSelectionProbe(...args),DocumentClient,editorText,sameSources,TypingRecoveryController,CloseController,createWorkspaceInvoke,ProjectControls,PDFSearch,SetupHelp,installPerformanceDiagnostics,performanceOutcome,initialSnapshot:native.snapshot(),inside:()=>true,self:{},EditorWorker:class{},pdfWorkerURL:'test-worker',
   CanvasController:class{clear(){}bind(){}selectObject(){}},
   monaco:{languages:{register(){},setMonarchTokensProvider(){},setLanguageConfiguration(){}},editor:{defineTheme(){},createModel:()=>model,create:()=>editor,EndOfLineSequence:{LF:0}},KeyMod:{CtrlCmd:1,Shift:2},KeyCode:{KeyS:1,Enter:2,KeyZ:3,KeyY:4}},
   pdfjs:{GlobalWorkerOptions:{}},structuredClone,crypto:require('node:crypto').webcrypto,
@@ -54,8 +55,21 @@ async function setup({tracing=false,presentation=false}={}){
  const run=s=>vm.runInContext(s,context);
  run("state.project={id:'test',main:'main.tex'};state.compileApproved=true;state.sources={'main.tex':'Original source','studio.sty':'Style source'};state.saved=structuredClone(state.sources);state.file='main.tex';state.revision=0;state.compiled=0;state.result={build_id:'last-good',blocks:[]};state.view={pageCount:1,pages:[],scale:1};syncEditor=()=>{};renderOverlays=()=>{};renderInspector=()=>{};publishPrepared=(prepared,result)=>{state.pdf=prepared.pdf;state.result=result;state.compiled=state.revision};");
  run("state.client=new DocumentClient(invoke,'test',initialSnapshot,{changed:acceptDocument,failed:syncFailed});");
- return {run,control,native,model,composition,legacyGesture};
+ return {run,control,native,model,composition,legacyGesture,elements};
 }
+
+test('PDF wheel scrolling and Ctrl zoom never compile or mutate native document history',async()=>{
+ const t=await setup();let compiles=0;t.control.compile=async()=>{compiles++;throw Error('unexpected compile')};
+ t.run('state.pdf={};state.view={scale:1,pages:[]};state.busy=false');
+ const before=JSON.stringify(t.native.snapshot()),viewport=t.elements.get('preview-scroll');
+ Object.assign(viewport,{clientWidth:400,clientHeight:600,scrollWidth:1000,scrollHeight:3000,scrollLeft:0,scrollTop:0});
+ const wheel=values=>{const event={deltaY:40,deltaX:0,deltaMode:0,cancelable:true,preventDefault(){this.prevented=true},...values};viewport.listeners.get('wheel')(event);return event};
+ assert.equal(wheel({}).prevented,true);assert.equal(viewport.scrollTop,40);
+ assert.equal(wheel({ctrlKey:true,deltaY:-50}).prevented,true);assert.ok(t.run('state.zoom')>1);
+ t.run('pdfNavigation.cancelZoom()');
+ assert.equal(viewport.scrollTop,40);assert.equal(compiles,0);
+ assert.equal(JSON.stringify(t.native.snapshot()),before);assert.equal(t.native.history.length,0);
+});
 
 for(const failure of ['prepare','compile'])test(`legacy movement preview restores accepted bounds after ${failure} rejection`,async()=>{
  const t=await setup();t.control.transform=async()=> 'Moved source';

@@ -9,6 +9,7 @@ import {CloseController} from '../web/core/close-controller.js';
 import {createWorkspaceInvoke} from '../web/core/workspace-protocol.js';
 import {ProjectControls} from '../web/core/project-controls.js';
 import {PDFSearch} from '../web/core/pdf-search.js';
+import {bindPDFScrolling} from '../web/core/pdf-scroll.js';
 import {SetupHelp} from '../web/core/setup-help.js';
 import {installPerformanceDiagnostics,performanceOutcome} from '../web/core/performance-diagnostics.js';
 import {SourceHighlight,selectionSourceRange} from '../web/core/source-highlight.js';
@@ -40,7 +41,7 @@ function boot({markup=html,openFailure=null,badSnapshot=false,adapterFailure=nul
   const editor={createContextKey:()=>({set(){}}),updateOptions:o=>Object.assign(options,o),
     onDidChangeModelContent(){},onDidChangeCursorPosition(){},onDidChangeCursorSelection(){},
     addAction(){},addCommand(){},getDomNode:()=>element(),getSelections:()=>[],hasTextFocus:()=>false};
-  const context={...transactions,SourceHighlight,selectionSourceRange,applyTextInputAppearance,renderProtectedCommands,positionDialogNear,clearDialogPosition,DocumentClient,editorText,sameSources,TypingRecoveryController,CloseController,createWorkspaceInvoke,ProjectControls,PDFSearch,SetupHelp,installPerformanceDiagnostics,performanceOutcome,structuredClone,console,
+  const context={...transactions,bindPDFScrolling,SourceHighlight,selectionSourceRange,applyTextInputAppearance,renderProtectedCommands,positionDialogNear,clearDialogPosition,DocumentClient,editorText,sameSources,TypingRecoveryController,CloseController,createWorkspaceInvoke,ProjectControls,PDFSearch,SetupHelp,installPerformanceDiagnostics,performanceOutcome,structuredClone,console,
     self:{},pdfjs:{GlobalWorkerOptions:{}},pdfWorkerURL:'test-worker',EditorWorker:class{},
     monaco:{languages:{register(){},setMonarchTokensProvider(){},setLanguageConfiguration(){}},
       editor:{defineTheme(){},createModel:()=>model,create:()=>editor,EndOfLineSequence:{LF:0}},

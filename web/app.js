@@ -11,6 +11,7 @@ import {getCurrentWindow} from '@tauri-apps/api/window';
 import {open,save,confirm} from '@tauri-apps/plugin-dialog';
 import {preparePDFView,prepareLoadedPDF,publishPDFView} from './core/pdf-surface.js';
 import {CanvasController} from './core/canvas-controller.js';
+import {bindPDFScrolling} from './core/pdf-scroll.js';
 import {stageCandidate,sessionIdentity,StaleCandidate,CompilationFailure,CommittedPresentationFailure,CommitStatusUnknown,compileDiagnostic} from './core/transactions.js';
 import {inside,intersects} from './core/geometry.js';
 import {DocumentClient,editorText,sameSources} from './core/document-client.js';
@@ -63,6 +64,12 @@ const state={
 const undoContext=editor.createContextKey('texloomCanUndo',false);
 const redoContext=editor.createContextKey('texloomCanRedo',false);
 const surfaceElements={pages:$('pages'),scroller:$('preview-scroll'),count:$('page-count'),empty:$('empty')};
+const pdfNavigation=bindPDFScrolling(surfaceElements.scroller,{
+  getScale:()=>state.pdf&&state.result&&state.view&&!state.busy?(state.zoom||state.view.scale):null,
+  onZoom:scale=>{state.zoom=scale;$('fit').textContent=Math.round(scale*100)+'%'},
+  onNavigate:()=>canvas.cancelGesture?.(),
+  renderZoom:()=>renderPDF(),setTimer:(fn,delay)=>setTimeout(fn,delay),clearTimer:id=>clearTimeout(id)
+});
 const sourceHighlight=new SourceHighlight({editor,getState:()=>state,isCurrent:()=>fresh()&&state.mode==='select',activateFile:activateSourceFile});
 const setupHelp=new SetupHelp({document});
 const pdfSearch=new PDFSearch({document,getView:()=>state.view,notify:toast});
@@ -939,9 +946,9 @@ $('object-reset').onclick=()=>{const selection=state.objectSelection;if(selectio
 $('object-apply').onclick=()=>{const selection=state.objectSelection;if(!selection)return;
   moveText(selection,Number($('object-dx').value)*PT_PER_MM-(selection.dx||0),Number($('object-dy').value)*PT_PER_MM-(selection.dy||0))};
 $('select-mode').onclick=()=>setMode('select');$('read-mode').onclick=()=>setMode('read');
-$('zoom-in').onclick=()=>{state.zoom=Math.min(2.5,(state.zoom||state.view?.scale||1)+0.1);renderPDF()};
-$('zoom-out').onclick=()=>{state.zoom=Math.max(0.2,(state.zoom||state.view?.scale||1)-0.1);renderPDF()};
-$('fit').onclick=()=>{state.zoom=0;renderPDF()};
+$('zoom-in').onclick=()=>{pdfNavigation.cancelZoom();state.zoom=Math.min(2.5,(state.zoom||state.view?.scale||1)+0.1);renderPDF()};
+$('zoom-out').onclick=()=>{pdfNavigation.cancelZoom();state.zoom=Math.max(0.2,(state.zoom||state.view?.scale||1)-0.1);renderPDF()};
+$('fit').onclick=()=>{pdfNavigation.cancelZoom();state.zoom=0;renderPDF()};
 let resizeTimer;window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{if(!state.zoom)renderPDF()},180)});
 $('log-toggle').onclick=()=>$('log-panel').classList.toggle('hidden');$('close-log').onclick=()=>$('log-panel').classList.add('hidden');
 $('banner').onclick=()=>$('log-panel').classList.remove('hidden');

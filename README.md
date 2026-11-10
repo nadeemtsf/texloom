@@ -13,6 +13,7 @@ Version 0.3 is under development in the primary repository, https://github.com/n
 - A native Tauri 2 window, with a Rust backend and no Python HTTP server.
 - Monaco for source editing, including highlighting, find, keyboard editing, and shared source/canvas history.
 - PDF.js for rendering actual compiler output inside the desktop window.
+- Mouse-wheel/two-finger PDF scrolling, horizontal trackpad/Shift-wheel navigation and Ctrl-wheel PDF-only zoom. New-build device acceptance remains pending; see docs/PDF-NAVIGATION.md.
 - Native file dialogs for opening a main .tex file and exporting a PDF.
 - Projects dialog with direct paths, recents, bounded ZIP import/export, encoding review and new Article/Letter/CV/multilingual templates.
 - Declared local BibTeX/Biber builds, image import and source-preserving image/table/typography/spacing controls.
