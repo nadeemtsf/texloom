@@ -2,7 +2,7 @@
   "schema": 1,
   "recorded_utc": "2026-11-12T16:10:19.983839+00:00",
   "kind": "targeted_pdf_navigation_owner_followup_and_r11_correction",
-  "status": "source_checked_windows_build_pending_owner_gate",
+  "status": "built_owner_acceptance_pending",
   "base_commit": "9e6670c389acd3f74a797c9fcbeb56292e2acc1e",
   "owner_report": {
     "provenance": "Owner reply to named r10 portable test request; no independent running-process inspection",
@@ -62,6 +62,13 @@
       "receipt": "artifacts/r11-20261112/engine-browser/results.json",
       "sha256": "6719e9da539348332ffcf182e6652454630a9ae93e8b51ec0a606146aa2b0a5c",
       "browser": "157.0.4341.46"
+    },
+    {
+      "command": "npm run desktop:build -- --ci",
+      "result": "passed",
+      "scope": "Optimized Windows EXE and NSIS setup; not launched/installed",
+      "log": "artifacts/r11-20261112/desktop-build.log",
+      "sha256": "ac6185b4f6773783d87c5b8fe4f158fc6d945f1db573585b2e12cd7c7d0c4adc"
     }
   ],
   "preserved_failures": [
@@ -97,8 +104,7 @@
     "tests/browser/pdf-navigation.html": "63b3a8c1b72dc42f4b9703489ff9010e9fa73ee3669e7b642d5f7988a053bc69"
   },
   "primary_sources": [
-    "https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2settings.ispinchzoomenabled",
-    "https://github.com/tauri-apps/wry/blob/wry-v0.57.1/src/webview2/mod.rs"
+    "https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2settings.ispinchzoomenabled"
   ],
   "limits": [
     "No Texloom opened/controlled/installed by agent. Physical laptop pinch/scroll/selection remains owner-required.",
@@ -106,5 +112,16 @@
     "Source remains unchanged by selection/probe; application end-to-end and Save are not established by this corpus.",
     "No new research/report/other-feature continuation; finish current feature only, then stop after owner acceptance.",
     "Explain branch/push status only after feature passes; no push authorized."
-  ]
+  ],
+  "source_commit": "e215bb694ecbd6981ea662eb6c5544a27ca69fb0",
+  "artifact_receipt": "docs/evidence/pdf-navigation-r11-artifacts-2026-11-12.json",
+  "pinned_native_source": {
+    "path": "C:\\Users\\thebe\\Gtihub Repos\\Mine\\texloom\\.tools\\cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\wry-0.57.1\\src\\webview2\\mod.rs",
+    "sha256": "9ef674af12e52bc3519b0e300752c1042798b7f336e0e0dafca6a8944f348888",
+    "inspected_calls": [
+      "SetIsZoomControlEnabled(attributes.zoom_hotkeys_enabled)",
+      "SetIsPinchZoomEnabled(attributes.zoom_hotkeys_enabled)"
+    ],
+    "remote_source_retrieval": "Versioned docs.rs mirror could not be retrieved; actual compiled local crate source inspected instead."
+  }
 }

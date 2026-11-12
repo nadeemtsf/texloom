@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "kind": "development_evidence_inventory_not_evaluation_results",
-  "recorded_utc": "2026-11-12T16:10:20.408688+00:00",
-  "audited_head": "9e6670c389acd3f74a797c9fcbeb56292e2acc1e",
+  "recorded_utc": "2026-11-12T16:19:32.158342+00:00",
+  "audited_head": "e215bb694ecbd6981ea662eb6c5544a27ca69fb0",
   "working_tree_note": "Uncommitted report/evidence changes may be present; see the session checkpoint.",
   "final_evaluation_executed": false,
   "entries": [
@@ -460,12 +460,13 @@
     },
     {
       "path": "docs/evidence/pdf-navigation-owner-followup-2026-11-12.json",
-      "bytes": 7261,
-      "sha256": "b9016f67da9fe663dbfa6b838fb139dd07a3734bbc7214bece6c9d90b37be86b",
+      "bytes": 8193,
+      "sha256": "d76c4775e4bcf4126de2cc28b7843af4f789eadcdf8a8709b00e9dd6016c8d98",
       "audit_action": "read_parse_fingerprint_only",
       "experiment_reproduced_by_this_audit": false,
       "schema": 1,
-      "status": "source_checked_windows_build_pending_owner_gate",
+      "status": "built_owner_acceptance_pending",
+      "source_commit": "e215bb694ecbd6981ea662eb6c5544a27ca69fb0",
       "recorded_utc": "2026-11-12T16:10:19.983839+00:00",
       "parse_status": "ok"
     },
@@ -479,6 +480,18 @@
       "status": "owner_scroll_acceptable_selection_and_pinch_failed",
       "source_commit": "663b7e28307374f266fa04010810ac0c8997a651",
       "date": "2026-11-12",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/pdf-navigation-r11-artifacts-2026-11-12.json",
+      "bytes": 2494,
+      "sha256": "66e007cd0c1aeb0f9e4b47b1cbf10f865f12a54d02a51dd78ebe756587bcdb5d",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "owner_acceptance_pending",
+      "source_commit": "e215bb694ecbd6981ea662eb6c5544a27ca69fb0",
+      "recorded_utc": "2026-11-12T16:16:58.610414+00:00",
       "parse_status": "ok"
     },
     {
