@@ -5,6 +5,8 @@ import 'monaco-editor/esm/vs/editor/contrib/multicursor/browser/multicursor.js';
 import 'monaco-editor/esm/vs/editor/contrib/clipboard/browser/clipboard.js';
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
+import {PDFPageView,EventBus,SimpleLinkService} from 'pdfjs-dist/legacy/web/pdf_viewer.mjs';
+import 'pdfjs-dist/web/pdf_viewer.css';
 import pdfWorkerURL from 'pdfjs-dist/legacy/build/pdf.worker.min.mjs?url';
 import {invoke as nativeInvoke} from '@tauri-apps/api/core';
 import {getCurrentWindow} from '@tauri-apps/api/window';
@@ -27,6 +29,7 @@ import {SourceHighlight,selectionSourceRange} from './core/source-highlight.js';
 import {applyTextInputAppearance,renderProtectedCommands} from './core/text-input-appearance.js';
 import {positionDialogNear,clearDialogPosition} from './core/dialog-anchor.js';
 
+const pdfViewLibrary={...pdfjs,PDFPageView,EventBus,SimpleLinkService};
 const invoke=createWorkspaceInvoke(nativeInvoke);
 const diagnostics=installPerformanceDiagnostics();
 
@@ -58,7 +61,7 @@ const state={
   canUndo:false,canRedo:false,opening:false,mutating:false,composing:false,
   buildEpoch:0,cancelRequested:false,
   recovery:null,restoredDirty:false,
-  busy:false,pending:false,zoom:0,mode:'select',compileTimer:null,renderSerial:0,renderAbort:null,dialog:null,compileApproved:false
+  busy:false,pending:false,previewZooming:false,zoom:0,mode:'select',compileTimer:null,renderSerial:0,renderAbort:null,dialog:null,compileApproved:false
 };
 // Dedicated keys follow native history even when setValue clears Monaco's stack.
 const undoContext=editor.createContextKey('texloomCanUndo',false);
@@ -66,9 +69,9 @@ const redoContext=editor.createContextKey('texloomCanRedo',false);
 const surfaceElements={pages:$('pages'),scroller:$('preview-scroll'),count:$('page-count'),empty:$('empty')};
 const pdfNavigation=bindPDFScrolling(surfaceElements.scroller,{
   getScale:()=>state.pdf&&state.result&&state.view&&!state.busy?(state.zoom||state.view.scale):null,
-  onZoom:scale=>{state.zoom=scale;$('fit').textContent=Math.round(scale*100)+'%'},
+  onZoom:(scale,origin)=>zoomPDF(scale,origin),
   onNavigate:()=>canvas.cancelGesture?.(),
-  renderZoom:()=>renderPDF(),setTimer:(fn,delay)=>setTimeout(fn,delay),clearTimer:id=>clearTimeout(id)
+  renderZoom:()=>finishPDFZoom(),setTimer:(fn,delay)=>setTimeout(fn,delay),clearTimer:id=>clearTimeout(id)
 });
 const sourceHighlight=new SourceHighlight({editor,getState:()=>state,isCurrent:()=>fresh()&&state.mode==='select',activateFile:activateSourceFile});
 const setupHelp=new SetupHelp({document});
@@ -135,7 +138,7 @@ function activateSourceFile(file){
     throw error;
   }
 }
-function fresh(){return !!state.result&&state.result.verification_eligible!==false&&state.revision===state.compiled&&!state.busy&&!state.client?.pending&&!state.client?.error&&!state.mutating&&!state.saving&&!state.composing&&!state.opening}
+function fresh(){return !!state.result&&state.result.verification_eligible!==false&&state.revision===state.compiled&&!state.previewZooming&&!state.busy&&!state.client?.pending&&!state.client?.error&&!state.mutating&&!state.saving&&!state.composing&&!state.opening}
 function updateControls(){
   typingRecovery.renderProtection();
   const ready=fresh(),legacy=ready&&!!state.selected,object=ready&&!!state.objectSelection;
@@ -276,7 +279,7 @@ async function openProject(path=null,supplied=null){
     const project=supplied||await invoke('open_project',{path});
     const snapshot=await invoke('document_snapshot',{projectId:project.id});
     const client=new DocumentClient(invoke,project.id,snapshot,{changed:next=>{if(state.client===client)acceptDocument(next)},failed:syncFailed});
-    state.renderAbort?.abort();state.view?.dispose?.();pdfSearch.reset();canvas.clear();const previous=state.pdf,previousProject=state.project?.id,previousRevision=state.client?.snapshot.revision;
+    pdfNavigation.cancelZoom();state.previewZooming=false;surfaceElements.pages.classList.remove('zooming');state.renderAbort?.abort();state.view?.dispose?.();pdfSearch.reset();canvas.clear();const previous=state.pdf,previousProject=state.project?.id,previousRevision=state.client?.snapshot.revision;
     Object.assign(state,{project,sources:{...project.sources},saved:{...project.sources},file:project.main,
       revision:snapshot.revision,compiled:-1,result:null,pdf:null,view:null,selected:null,lastHistory:0,canUndo:false,canRedo:false,
       recovery:snapshot.recovery,restoredDirty:!!project.restored});
@@ -432,7 +435,7 @@ async function resolveSourceSelection({buildId,page,points,hits,trace=null}){
         const candidate=await client.prepare(plan.sources,buildId);token=candidate.token;
         trace?.mark('native-prepared');
         const staged=await stageCandidate({sources:plan.sources,revision:candidate.revision,identity,getIdentity:()=>sessionIdentity(state),
-          compile:()=>client.compile(token),prepare:result=>preparePDFView(pdfjs,result,{width:$('preview-scroll').clientWidth,zoom:baseline.scale,mode:state.mode}),
+          compile:()=>client.compile(token),prepare:result=>preparePDFView(pdfViewLibrary,result,{width:$('preview-scroll').clientWidth,zoom:baseline.scale,mode:state.mode}),
           requireVerified:true,verify:result=>client.verify(result.build_id),trace});
         prepared=staged.prepared;
         const proof=validateSelectionProbe(baseline,prepared,id,hits,page);
@@ -455,14 +458,14 @@ async function resolveSourceSelection({buildId,page,points,hits,trace=null}){
   }finally{finishJob()}
 }
 function prepareResult(result){
-  return preparePDFView(pdfjs,result,{width:$('preview-scroll').clientWidth,zoom:state.zoom,mode:state.mode,lazy:true});
+  return preparePDFView(pdfViewLibrary,result,{width:$('preview-scroll').clientWidth,zoom:state.zoom,mode:state.mode,lazy:true});
 }
 function publishPrepared(prepared,result){
   const previous=state.pdf;
   state.renderSerial++;state.renderAbort?.abort();
   state.view?.dispose?.();pdfSearch.reset();
   state.pdf=prepared.pdf;state.result={...result,pdf:[]};state.compiled=state.revision;
-  prepared.result=state.result;prepared.mode=state.mode;state.view=prepared;
+  prepared.result=state.result;prepared.mode=state.mode;state.view=prepared;state.previewZooming=false;surfaceElements.pages.classList.remove('zooming');
   publishPDFView(prepared,surfaceElements);canvas.bind(prepared);
   $('fit').textContent=state.zoom?Math.round(prepared.scale*100)+'%':'Fit';
   $('log').textContent=result.log;$('banner').classList.add('hidden');
@@ -690,16 +693,31 @@ function showSource(selection){
   editor.setSelection(new monaco.Selection(start.lineNumber,start.column,end.lineNumber,end.column));
   editor.revealRangeInCenter(new monaco.Range(start.lineNumber,start.column,end.lineNumber,end.column));editor.focus();
 }
-async function renderPDF(){
-  if(!state.pdf||!state.result)return;
-  state.renderAbort?.abort();const abort=new AbortController();state.renderAbort=abort;
-  const serial=++state.renderSerial,pdf=state.pdf,result=state.result;
+function zoomPDF(scale,origin){
+  const view=state.view;if(!view?.zoomTo||state.busy)return;
+  if(!state.previewZooming){canvas.clear();state.previewZooming=true;surfaceElements.pages.classList.add('zooming')}
+  state.zoom=scale;
+  // PDF.js stretches its existing canvas synchronously; no compilation or view replacement.
+  view.zoomTo(scale,surfaceElements,origin);
+  $('fit').textContent=Math.round(scale*100)+'%';updateControls();
+}
+async function finishPDFZoom(){
+  const view=state.view;if(!view?.finishZoom)return;
   try{
-    const view=await prepareLoadedPDF(pdfjs,pdf,result,{width:$('preview-scroll').clientWidth,zoom:state.zoom,mode:state.mode,signal:abort.signal,lazy:true});
-    if(serial!==state.renderSerial||pdf!==state.pdf)return;
-    state.view?.dispose?.();pdfSearch.reset();state.view=view;publishPDFView(view,surfaceElements,{preserveAnchor:true});canvas.bind(view);
-    $('fit').textContent=state.zoom?Math.round(view.scale*100)+'%':'Fit';renderOverlays();updateControls();
-  }catch(error){if(!abort.signal.aborted)toast(message(error))}
+    if(!await view.finishZoom()||state.view!==view)return;
+    state.previewZooming=false;surfaceElements.pages.classList.remove('zooming');
+    canvas.bind(view);renderOverlays();updateControls();
+  }catch(error){
+    if(state.view!==view||/superseded|closed|Rendering cancelled/i.test(message(error)))return;
+    // Keep layout commands fenced if the displayed geometry did not finish preparing.
+    toast(message(error));
+  }
+}
+function renderPDF(){
+  if(!state.view||!state.pdf||!state.result||state.busy)return;
+  const first=state.view.pageSizes.get(1);
+  const scale=state.zoom||Math.max(0.2,Math.min(1.5,(surfaceElements.scroller.clientWidth-48)/first.width));
+  const fit=!state.zoom;zoomPDF(scale);if(fit)state.zoom=0;return finishPDFZoom().then(()=>{$('fit').textContent=state.zoom?Math.round(scale*100)+'%':'Fit'});
 }
 
 // Legacy absolute-positioned blocks retain their existing dimension controls.

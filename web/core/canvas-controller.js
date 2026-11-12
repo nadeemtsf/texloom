@@ -6,7 +6,7 @@ export class CanvasController {
   constructor({getSession,resolve,move,edit,selected,notify,eventWindow=globalThis.window,diagnostics=null}) {
     Object.assign(this,{getSession,resolve,move,edit,onSelected:selected,notify,eventWindow,diagnostics});
     this.view=null;this.selection=null;this.pending=0;this.hits=[];
-    this.cancelGesture=null;
+    this.cancelGesture=null;this.pageHandlers=new Map();
     this.onEscape=e=>{if(e.key==='Escape'){this.cancelGesture?.();this.clear()}};
     document.addEventListener('keydown',this.onEscape);
     // Switching windows need not deliver pointercancel before the next release.
@@ -16,7 +16,7 @@ export class CanvasController {
   }
   clear(){this.cancelGesture?.();this.pending++;this.selection=null;this.hits=[];this.drawFrame();this.onSelected(null)}
   bind(view) {
-    this.cancelGesture?.();this.view=view;this.pending++;this.hits=[];
+    this.cancelGesture?.();this.unbindPages();this.view=view;this.pending++;this.hits=[];
     for(const {shell,lines,number} of view.pages){
       for(const line of lines){
         const hit=document.createElement('button');hit.type='button';hit.className='line-hit';hit.tabIndex=-1;
@@ -25,7 +25,8 @@ export class CanvasController {
         hit.onclick=e=>{e.stopPropagation();this.lastClick={time:performance.now(),x:e.clientX,y:e.clientY};this.selectHits(e.shiftKey?[...this.hits,line]:[line],number)};
         hit.ondblclick=e=>{e.stopPropagation();this.selectHits([line],number,true)};
       }
-      shell.addEventListener('pointerdown',event=>this.marquee(event,shell,lines,number));
+      const handler=event=>this.marquee(event,shell,lines,number);
+      shell.addEventListener('pointerdown',handler);this.pageHandlers.set(shell,handler);
     }
     if(this.selection?.kind==='object'){
       const object=(view.result.objects||[]).find(o=>o.id===this.selection.id),bounds=view.objects.get(this.selection.id);
@@ -33,8 +34,12 @@ export class CanvasController {
     }else this.selection=null;
     this.drawFrame();this.onSelected(this.selection);
   }
+  unbindPages(){
+    for(const [shell,handler] of this.pageHandlers){shell.removeEventListener('pointerdown',handler);shell.querySelectorAll('.line-hit').forEach(hit=>hit.remove())}
+    this.pageHandlers.clear();
+  }
   position(el,r,scale){Object.assign(el.style,{left:r.x*scale+'px',top:r.y*scale+'px',width:Math.max(3,r.width*scale)+'px',height:Math.max(8,r.height*scale)+'px'})}
-  fresh(){const s=this.getSession();return !!this.view&&s.result?.verification_eligible!==false&&!s.busy&&s.revision===s.compiled&&!s.client?.pending&&!s.client?.error&&!s.mutating&&!s.composing&&!s.opening}
+  fresh(){const s=this.getSession();return !!this.view&&s.result?.verification_eligible!==false&&!s.previewZooming&&!s.busy&&s.revision===s.compiled&&!s.client?.pending&&!s.client?.error&&!s.mutating&&!s.composing&&!s.opening}
   async selectHits(hits,page,edit=false){
     if(this.getSession().mode==='read')return;
     if(!this.fresh())return this.notify('Compile the current source before selecting layout objects. Read text remains available.');
@@ -137,5 +142,5 @@ export class CanvasController {
     const cancel=e=>{if(e&&e.pointerId!==pointerId)return;clean()};const up=e=>{if(e.pointerId!==pointerId)return;clean();if(bounds&&bounds.width*scale>5&&bounds.height*scale>5)this.selectHits(lines.filter(l=>intersects(l,bounds)),page);else this.clear()};
     this.cancelGesture=cancel;shell.addEventListener('pointermove',move);shell.addEventListener('pointerup',up);shell.addEventListener('pointercancel',cancel);shell.addEventListener('lostpointercapture',cancel);
   }
-  destroy(){this.cancelGesture?.();document.removeEventListener('keydown',this.onEscape);this.eventWindow?.removeEventListener('blur',this.onBlur);this.view=null;this.selection=null}
+  destroy(){this.cancelGesture?.();this.unbindPages();document.removeEventListener('keydown',this.onEscape);this.eventWindow?.removeEventListener('blur',this.onBlur);this.view=null;this.selection=null}
 }

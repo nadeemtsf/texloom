@@ -15,13 +15,21 @@ test('zoom preserves the page and fraction at the reading viewport center',()=>{
  const before=scroller.scrollTop;restorePDFScrollAnchor(elements,{page:'missing',fraction:0.5});assert.equal(scroller.scrollTop,before);
  elements.pages.children=[];assert.equal(capturePDFScrollAnchor(elements),null);
 });
+const fakeViewer={AnnotationMode:{ENABLE:1},SimpleLinkService:class{},
+ EventBus:class{constructor(){this.events=new Map()}on(n,fn){this.events.set(n,fn)}off(n){this.events.delete(n)}},
+ PDFPageView:class{
+  constructor(o){this.o=o;this.div=element();this.viewport=o.defaultViewport;this.renderingState=0;o.container.append(this.div)}
+  setPdfPage(p){this.page=p}update(){this.renderingState=0}reset(){this.div.replaceChildren();this.renderingState=0}
+  async draw(){await this.page.render().promise;this.div.append(element());this.renderingState=3;this.o.eventBus.events.get('textlayerrendered')?.({source:this})}
+  destroy(){this.reset()}
+ }};
 test('a 100-page view paints on demand, evicts old canvases and disposes without destroying the shared PDF',async()=>{
  const previous=globalThis.document;let painted=0,destroyed=0;globalThis.document={createElement:element,createDocumentFragment:element,getSelection:()=>null};globalThis.devicePixelRatio=1;
  const pdf={numPages:100,destroy(){destroyed++},getPage:async number=>({getViewport:({scale})=>({width:300*scale,height:400*scale}),getTextContent:async()=>({items:[{str:'Page '+number}]}),render(){painted++;return {promise:Promise.resolve(),cancel(){}}}})};
- try{const view=await prepareLongPDF({TextLayer:class{render(){return Promise.resolve()}cancel(){}}},pdf,{}, {width:400});
+ try{const view=await prepareLongPDF(fakeViewer,pdf,{}, {width:400});
   assert.equal(view.pages.length,100);assert.equal(painted,1);assert.ok(view.pages.every(p=>p.selectionReason));
   for(let n=2;n<=15;n++)await view.ensurePage(n);assert.equal(painted,15);
-  assert.equal(view.pages.filter(p=>p.shell.children.length).length,6,'only six raster/text pairs are retained');
+  assert.equal(view.pages.filter(p=>p.pageView.div.children.length).length,6,'only six raster/text pairs are retained');
   await view.ensurePage(15);assert.equal(painted,15);await view.ensurePage(1);assert.equal(painted,16,'an evicted page repaints');
   view.dispose();view.dispose();assert.equal(destroyed,0);await assert.rejects(view.ensurePage(90),/closed/);
  }finally{globalThis.document=previous;delete globalThis.devicePixelRatio;}

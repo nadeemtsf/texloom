@@ -3,10 +3,8 @@
 .monaco-editor .texloom-source-match{background:#c6d9a94d;border-bottom:1px solid #62885299}
 .protected-command{display:inline-block;max-width:100%;overflow-wrap:anywhere;margin:2px 5px 2px 0;padding:3px 6px;border:1px solid #d5e0c8;border-radius:4px;font:11px Consolas,monospace}#protected-fields{margin:10px 0 15px}#edit-dialog{max-height:calc(100dvh - 32px);overflow:auto}
 @media (forced-colors:active){.monaco-editor .texloom-source-match{outline:1px solid Highlight;background:transparent}}
-.textLayer{position:absolute;inset:0;text-align:initial;overflow:clip;opacity:1;line-height:1;text-size-adjust:none;forced-color-adjust:none;transform-origin:0 0;caret-color:CanvasText;--min-font-size:1;--text-scale-factor:calc(var(--total-scale-factor)*var(--min-font-size));--min-font-size-inv:calc(1/var(--min-font-size));pointer-events:none;user-select:none}
-.textLayer :is(span,br){color:transparent;position:absolute;white-space:pre;cursor:text;transform-origin:0 0}
-.textLayer>:not(.markedContent),.textLayer .markedContent span:not(.markedContent){z-index:1;--font-height:0;font-size:calc(var(--text-scale-factor)*var(--font-height));--scale-x:1;--rotate:0deg;transform:rotate(var(--rotate)) scaleX(var(--scale-x)) scale(var(--min-font-size-inv))}
-.textLayer .markedContent{display:contents}
+/* Placement and transforms come from the matching PDF.js viewer stylesheet. */
+.textLayer{pointer-events:none;user-select:none}
 .textLayer ::selection{background:#7aa26455;color:transparent}
 .read-mode .textLayer{pointer-events:auto;user-select:text}
 .line-hit,.text-object-hit,.text-object-frame{position:absolute;border:1px solid transparent;border-radius:1px;background:transparent;padding:0;min-height:0;touch-action:none}
@@ -47,3 +45,11 @@ header{gap:7px;padding:0 12px}header #project-name{max-width:160px;overflow:hidd
 .setup-error-help{position:fixed;bottom:38px;right:20px;z-index:21;font-size:11px;background:#f5e9d9}
 #preview-scroll{min-height:0;min-width:0;overscroll-behavior:contain}
 .preview{min-height:0}
+
+/* The outer PDF-point shell owns Texloom overlays. PDF.js owns its inner page. */
+#pages.pdfViewer{padding:0;--page-border:0;--page-margin:0}
+#pages.pdfViewer .pdf-page>.page{margin:0;border:0;box-shadow:none;overflow:hidden}
+#pages.pdfViewer .canvasWrapper{position:absolute;inset:0}
+#pages .annotationLayer,#pages .annotationLayer *,#pages .annotationEditorLayer{pointer-events:none!important}
+#pages.zooming :is(.line-hit,.text-object-hit,.source-selection-frame,.block){visibility:hidden;pointer-events:none}
+#preview-scroll{overflow-anchor:none;scrollbar-gutter:stable}

@@ -71,3 +71,11 @@ test('navigation cancels an in-progress gesture only when the viewport actually 
  viewport.scrollTop=2400;send({deltaY:20});assert.equal(cancellations,1);
  send({deltaY:-20});assert.equal(cancellations,2);
 });
+
+
+test('Ctrl zoom forwards the cursor origin immediately and defers sharp drawing for 400 ms',()=>{
+ let observed,delay,draws=0;const {send,binding}=fixture({getScale:()=>1,
+  onZoom:(scale,origin)=>observed={scale,origin},renderZoom:()=>draws++,setTimer:(_fn,ms)=>{delay=ms;return 1},clearTimer(){}});
+ send({ctrlKey:true,deltaY:-40,clientX:351.5,clientY:204.25});
+ assert.deepEqual(observed.origin,[351.5,204.25]);assert.ok(observed.scale>1);assert.equal(delay,400);assert.equal(draws,0);binding.dispose();
+});

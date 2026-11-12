@@ -1,3 +1,4 @@
+import {PDF_ZOOM_DELAY} from './pdf-page-view.js';
 /** Wheel/trackpad input belongs to the persistent PDF viewport, not a page or
  * source edit. Preserve fractional deltas and let the device supply momentum. */
 function wheelDelta(event,viewport,lineSize=20){
@@ -26,8 +27,8 @@ export function bindPDFScrolling(viewport,{getScale=()=>null,onZoom=null,renderZ
       const scale=getScale();if(!Number.isFinite(scale)||scale<=0)return;
       const next=Math.max(0.2,Math.min(2.5,scale*Math.exp(-delta.y*0.0015)));
       if(next===scale)return;
-      onNavigate();onZoom(next);cancelZoom();
-      zoomTimer=setTimer(()=>{zoomTimer=null;renderZoom()},80);
+      onNavigate();onZoom(next,[event.clientX,event.clientY]);cancelZoom();
+      zoomTimer=setTimer(()=>{zoomTimer=null;renderZoom()},PDF_ZOOM_DELAY);
       return;
     }
     const delta=pdfWheelDelta(event,viewport);if(!delta)return;

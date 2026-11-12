@@ -69,3 +69,10 @@ Keep historical development evidence as motivation, mechanism checks and regress
 # Later 7 November provenance addendum
 
 `docs/evidence/pdfium-distributor-patches-2026-11-07.json` identifies four patch invocations and 11 successful hunks in the previously matched Windows job, with five immutable captures verified against Git blob identities. It preserves an initial trailing-blank-line capture failure and the corrected data retrieval. No upstream patch/script was executed; full nested checkout/source-to-DLL closure is unresolved. This addendum postdates the immutable v10 report export and is not a new correctness/accuracy experiment.
+
+
+## 12 November continuation: navigation and source anchors
+
+The r9 owner zoom report is a failed usability observation (qualitative choppiness and missing pointer anchoring), retained alongside its automated/build passes. The corrected viewer's 303 frontend and 21 headless renderer checks concern navigation mechanics, not visual-edit correctness or native FPS. See `docs/evidence/pdf-navigation-correction-2026-11-12.json`; actual new-build Windows acceptance remains owner-pending. These rows must not enter any editing accuracy denominator.
+
+`docs/architecture/source-anchor-validation-2026-11-12.json` separately reuses the 10 November snapshot-bound source-anchor checks (139 default, 140 recovery-serde; 20 native document/recovery checks with 36 filtered). It introduces no new experiment or UI/caret claim. The core API is distinct from rendered identity. Report v11 still names its earlier source/evidence boundary; no final evaluation is frozen or executed by this inventory update.

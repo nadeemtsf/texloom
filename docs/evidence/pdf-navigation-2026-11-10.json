@@ -3,7 +3,7 @@
   "recorded_utc": "2026-11-10T16:39:57.082447+00:00",
   "kind": "pdf_navigation_implementation_build_not_native_input_acceptance",
   "source_commit": "5a506aa1923fcdcc980a98c102f5eac99f1b8266",
-  "status": "built_owner_input_pending",
+  "status": "built_owner_zoom_usability_failed",
   "github_issue": 69,
   "features": [
     "mouse/two-finger scroll",
@@ -201,5 +201,15 @@
     "resolution": "The corrected checker requires that exact common prefix and still verifies every path, member byte, hash and CRC.",
     "original_checker_fingerprint": null,
     "scope": "Checker failure, not a native app or package creation failure. No app opened, and no exports had been created at the failure point."
+  },
+  "owner_followup": {
+    "recorded_date": "2026-11-12",
+    "observation_date": "2026-11-10",
+    "provenance": "Owner reply to exact r9 portable navigation instructions",
+    "zoom_usability": "failed: very choppy and does not zoom at cursor",
+    "fps": "Qualitative owner description, not an instrumented frame-rate measurement",
+    "other_cases": "not established by this report",
+    "historical_build_and_automated_results": "retained at their original snapshot and do not supersede owner failure",
+    "replacement": "PDF.js page-renderer correction prepared separately; issue69 remains open"
   }
 }

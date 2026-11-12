@@ -1,6 +1,7 @@
 import {extractTextGeometry,union} from './geometry.js';
 import {loadPDFDocument} from './pdf-document.js';
 import {prepareLongPDF} from './long-pdf.js';
+import {preparePagedPDF} from './pdf-page-view.js';
 
 export function selectionReasonForPage(page,viewport){
   return viewport.rotation!==0||page.view[0]!==0||page.view[1]!==0||page.userUnit!==1?
@@ -18,40 +19,17 @@ export async function preparePDFView(pdfjs,result,{width,zoom=0,mode='select',si
 
 export async function prepareLoadedPDF(pdfjs,pdf,result,{width,zoom=0,mode='select',signal,lazy=false}={}) {
   if(lazy&&pdf.numPages>20)return prepareLongPDF(pdfjs,pdf,result,{width,zoom,mode,signal});
-  const fragment=document.createDocumentFragment(),pages=[],objects=new Map(),unclosed=new Set(),pageSizes=new Map();
-  const first=await pdf.getPage(1),scale=zoom||Math.max(0.2,Math.min(1.5,(width-48)/first.getViewport({scale:1}).width));
-  let totalPixels=0;
-  for(let n=1;n<=pdf.numPages;n++){
-    if(signal?.aborted)throw new Error('PDF rendering was superseded.');
-    const page=await pdf.getPage(n),base=page.getViewport({scale:1}),viewport=page.getViewport({scale});
-    pageSizes.set(n,{width:base.width,height:base.height});
-    const shell=document.createElement('div');shell.className='pdf-page';
-    Object.assign(shell.dataset,{page:String(n),scale:String(scale),pdfWidth:String(base.width),pdfHeight:String(base.height)});
-    Object.assign(shell.style,{width:viewport.width+'px',height:viewport.height+'px'});
-    shell.style.setProperty('--total-scale-factor',String(scale));shell.style.setProperty('--scale-factor',String(scale));
-    const canvas=document.createElement('canvas'),ratio=Math.min(2.5,devicePixelRatio||1);
-    const pixelWidth=Math.ceil(viewport.width*ratio),pixelHeight=Math.ceil(viewport.height*ratio);totalPixels+=pixelWidth*pixelHeight;
-    if(pixelWidth*pixelHeight>16_000_000||totalPixels>64_000_000)throw Error('This preview exceeds its raster limit. Reduce the zoom.');
-    canvas.width=pixelWidth;canvas.height=pixelHeight;
-    canvas.style.width=viewport.width+'px';canvas.style.height=viewport.height+'px';shell.append(canvas);
-    const rendering=page.render({canvas,canvasContext:canvas.getContext('2d'),viewport,transform:[ratio,0,0,ratio,0,0]});
-    const abort=()=>rendering.cancel();signal?.addEventListener('abort',abort,{once:true});
-    try{await rendering.promise}finally{signal?.removeEventListener('abort',abort)}
+  return preparePagedPDF(pdfjs,pdf,result,{width,zoom,mode,signal,geometry:async(page,base,item,view)=>{
     const text=await page.getTextContent({includeMarkedContent:true});
-    const layer=document.createElement('div');layer.className='textLayer';shell.append(layer);
-    await new pdfjs.TextLayer({textContentSource:text,container:layer,viewport}).render();
-    const geometry=extractTextGeometry(text.items,text.styles,n,base.height);
-    for(const id of geometry.unclosed)unclosed.add(id);
+    const geometry=extractTextGeometry(text.items,text.styles,item.number,base.height);
+    for(const id of geometry.unclosed)view.unclosed.add(id);
     for(const [id,bounds] of geometry.objects){
-      const existing=objects.get(id);
-      if(existing){existing.pages.add(n);Object.assign(existing,union([existing,bounds]));existing.runs.push(...bounds.runs);existing.instances+=bounds.instances}
-      else objects.set(id,{...bounds,pages:new Set([n])});
+      const existing=view.objects.get(id);
+      if(existing){existing.pages.add(item.number);Object.assign(existing,union([existing,bounds]));existing.runs.push(...bounds.runs);existing.instances+=bounds.instances}
+      else view.objects.set(id,{...bounds,pages:new Set([item.number])});
     }
-    const selectionReason=selectionReasonForPage(page,base);
-    pages.push({number:n,shell,lines:geometry.lines,runs:geometry.runs,selectionReason});fragment.append(shell);
-  }
-  if(signal?.aborted)throw new Error('PDF rendering was superseded.');
-  return {pdf,result,fragment,pages,objects,unclosed,pageSizes,pageCount:pdf.numPages,scale,mode};
+    Object.assign(item,{lines:geometry.lines,runs:geometry.runs,selectionReason:selectionReasonForPage(page,base)});
+  }});
 }
 
 export function capturePDFScrollAnchor(elements){

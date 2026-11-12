@@ -38,7 +38,7 @@ async function setup({tracing=false,presentation=false}={}){
   return {frame,listeners,original};
  }
  const context=vm.createContext({
-  ...transactions,...selectionProof,bindPDFScrolling,SourceHighlight,selectionSourceRange,applyTextInputAppearance,renderProtectedCommands,positionDialogNear,clearDialogPosition,validateSelectionProbe:(...args)=>control.prove?control.prove(...args):selectionProof.validateSelectionProbe(...args),DocumentClient,editorText,sameSources,TypingRecoveryController,CloseController,createWorkspaceInvoke,ProjectControls,PDFSearch,SetupHelp,installPerformanceDiagnostics,performanceOutcome,initialSnapshot:native.snapshot(),inside:()=>true,self:{},EditorWorker:class{},pdfWorkerURL:'test-worker',
+  ...transactions,...selectionProof,bindPDFScrolling,SourceHighlight,selectionSourceRange,applyTextInputAppearance,renderProtectedCommands,positionDialogNear,clearDialogPosition,validateSelectionProbe:(...args)=>control.prove?control.prove(...args):selectionProof.validateSelectionProbe(...args),DocumentClient,editorText,sameSources,TypingRecoveryController,CloseController,createWorkspaceInvoke,ProjectControls,PDFSearch,SetupHelp,installPerformanceDiagnostics,performanceOutcome,initialSnapshot:native.snapshot(),inside:()=>true,PDFPageView:class{},EventBus:class{},SimpleLinkService:class{},self:{},EditorWorker:class{},pdfWorkerURL:'test-worker',
   CanvasController:class{clear(){}bind(){}selectObject(){}},
   monaco:{languages:{register(){},setMonarchTokensProvider(){},setLanguageConfiguration(){}},editor:{defineTheme(){},createModel:()=>model,create:()=>editor,EndOfLineSequence:{LF:0}},KeyMod:{CtrlCmd:1,Shift:2},KeyCode:{KeyS:1,Enter:2,KeyZ:3,KeyY:4}},
   pdfjs:{GlobalWorkerOptions:{}},structuredClone,crypto:require('node:crypto').webcrypto,
@@ -60,7 +60,7 @@ async function setup({tracing=false,presentation=false}={}){
 
 test('PDF wheel scrolling and Ctrl zoom never compile or mutate native document history',async()=>{
  const t=await setup();let compiles=0;t.control.compile=async()=>{compiles++;throw Error('unexpected compile')};
- t.run('state.pdf={};state.view={scale:1,pages:[]};state.busy=false');
+ t.run('state.pdf={};state.view={scale:1,pages:[],zoomTo(scale){this.scale=scale},finishZoom:async()=>true};state.busy=false');
  const before=JSON.stringify(t.native.snapshot()),viewport=t.elements.get('preview-scroll');
  Object.assign(viewport,{clientWidth:400,clientHeight:600,scrollWidth:1000,scrollHeight:3000,scrollLeft:0,scrollTop:0});
  const wheel=values=>{const event={deltaY:40,deltaX:0,deltaMode:0,cancelable:true,preventDefault(){this.prevented=true},...values};viewport.listeners.get('wheel')(event);return event};

@@ -8,6 +8,7 @@ class Element{
  constructor(){this.style={};this.events=new Map();this.classList={add(){},remove(){}};this.removed=false;this.width=0;this.height=0;}
  addEventListener(name,fn){this.events.set(name,fn)}
  removeEventListener(name,fn){if(this.events.get(name)===fn)this.events.delete(name)}
+ setAttribute(){}
  setPointerCapture(id){this.capture=id}
  focus(options){this.focused=options}
  getContext(){return {drawImage(){}}}
@@ -23,7 +24,7 @@ function setup({scale=1,mode='select',revision=0}={}){
  const page={querySelector:()=>canvas,append(){}};const frame=new Element();frame.closest=()=>page;
  const selection={kind:'source',page:1,x:20,y:50,width:100,height:20};c.selection=selection;c.view={scale,result:state.result};
  const event={button:0,pointerId:7,clientX:10,clientY:20,preventDefault(){},stopPropagation(){}};
- return {c,state,frame,selection,event,operations,generated,notifications,eventWindow};
+ return {state,c,frame,selection,event,operations,generated,notifications,eventWindow};
 }
 test('pointer movement renders only an outline and release invokes exactly one edit',async()=>{
  const t=setup();t.c.drag(t.event,t.frame,t.selection);assert.equal(t.frame.capture,7);assert.deepEqual(t.frame.focused,{preventScroll:true});
@@ -106,4 +107,21 @@ test('marquee lost capture removes its listeners and cannot resolve a later rele
   shell.events.get('pointermove')({pointerId:7,clientX:80,clientY:90});
   shell.events.get('lostpointercapture')({pointerId:7});assert.equal(shell.events.size,0);
   assert.equal(t.generated[0].removed,true);assert.equal(resolved,0);assert.equal(t.c.cancelGesture,null);
+});
+
+
+test('zoom refinement fences held drags and selection until the view is ready',()=>{
+ const t=setup();t.state.previewZooming=true;
+ t.c.drag(t.event,t.frame,t.selection);assert.equal(t.frame.events.size,0);assert.equal(t.operations.length,0);
+ t.state.previewZooming=false;t.c.drag(t.event,t.frame,t.selection);assert.equal(t.frame.events.has('pointermove'),true);t.c.destroy();
+});
+
+test('rebinding reused PDF page shells removes old hits and pointer handlers',()=>{
+ const t=setup(),shell=new Element(),hits=[];let removed=0,oldHandler;
+ shell.append=hit=>hits.push(hit);shell.querySelectorAll=()=>hits.splice(0).map(hit=>({remove(){removed++}}));
+ const view={scale:1,pages:[{number:1,shell,lines:[{text:'same line',x:10,y:20,width:50,height:15}]}]};
+ // bind must own one handler and one hit per source line on every zoom.
+ t.generated.length=0;t.c.bind(view);oldHandler=shell.events.get('pointerdown');
+ t.c.bind(view);assert.notEqual(shell.events.get('pointerdown'),oldHandler);assert.equal(hits.length,1);assert.equal(removed,1);
+ t.c.destroy();assert.equal(shell.events.has('pointerdown'),false);assert.equal(hits.length,0);
 });
