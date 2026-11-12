@@ -50,7 +50,7 @@
       "phase": "foundation",
       "title": "[ARCH-02] Add a partial lossless source projection and capability registry",
       "status": "in-progress",
-      "local_implementation_commit": "171830a1854929b1ca35133b8d2013d4e54b3a15"
+      "local_implementation_commit": "897c121197c0b7ffdd71805e402bb677c9d550c6"
     },
     {
       "id": "ARCH-03",
@@ -60,7 +60,7 @@
       "phase": "foundation",
       "title": "[ARCH-03] Introduce typed anchors, insertion positions and change mappings",
       "status": "in-progress",
-      "local_implementation_commit": "5ca1eb6bd461114ce39049364138536803e08e24"
+      "local_implementation_commit": "02cd27182238ce23e8e631d4831cf4c900cf2050"
     },
     {
       "id": "ARCH-04",
@@ -70,7 +70,7 @@
       "phase": "foundation",
       "title": "[ARCH-04] Generalize typed native editing intents and minimal patch planning",
       "status": "in-progress",
-      "local_implementation_commit": "5ca1eb6bd461114ce39049364138536803e08e24"
+      "local_implementation_commit": "897c121197c0b7ffdd71805e402bb677c9d550c6"
     },
     {
       "id": "ARCH-05",
@@ -258,5 +258,6 @@
     "repository_private_read_back": true,
     "third_party_notices_retained": true
   },
-  "progress_date": "2026-11-10"
+  "progress_date": "2026-11-12",
+  "latest_progress_scope": "Core-only typed draft history and bounded preamble subset; no new UI/IPC/visual approval. r10 navigation owner-pending; source/reference pilot is development evidence, not final evaluation."
 }

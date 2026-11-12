@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "kind": "development_evidence_inventory_not_evaluation_results",
-  "recorded_utc": "2026-11-12T15:21:57.712671+00:00",
-  "audited_head": "663b7e28307374f266fa04010810ac0c8997a651",
+  "recorded_utc": "2026-11-12T15:40:20.686882+00:00",
+  "audited_head": "897c121197c0b7ffdd71805e402bb677c9d550c6",
   "working_tree_note": "Uncommitted report/evidence changes may be present; see the session checkpoint.",
   "final_evaluation_executed": false,
   "entries": [
@@ -448,8 +448,8 @@
     },
     {
       "path": "docs/evidence/pdf-navigation-correction-2026-11-12.json",
-      "bytes": 9587,
-      "sha256": "7ab85bfe1cf094d103367d6d4427fef9b4d2378e4eb5078ec52f66d42a1b3eab",
+      "bytes": 9711,
+      "sha256": "d98d7663e489ce7554a9b4038f45e2dc7197b1cb1089c7ff57ecfe3311d2d02d",
       "audit_action": "read_parse_fingerprint_only",
       "experiment_reproduced_by_this_audit": false,
       "schema": 1,
@@ -460,8 +460,8 @@
     },
     {
       "path": "docs/evidence/pdf-navigation-r10-artifacts-2026-11-12.json",
-      "bytes": 3124,
-      "sha256": "8f6f63aa93504b30184d94704f8c283a507309f0730b3fccbf18a3da3f4eabe8",
+      "bytes": 3180,
+      "sha256": "6bcc84c7e91c03c62ce02849ec4bbb1b2f2e9e0c73b3a1bfcebb1426f033e1f9",
       "audit_action": "read_parse_fingerprint_only",
       "experiment_reproduced_by_this_audit": false,
       "schema": 1,
@@ -604,6 +604,17 @@
       "schema": 1,
       "product_source_commit": "5e59e77282fd5e4b4f70440437b8f841ccea1364",
       "recorded_utc": "2026-11-04T22:49:56.397561+00:00",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/report-full-draft-v12-2026-11-12.json",
+      "bytes": 5171,
+      "sha256": "4307179760ddf4a1688b5cca68b6773b03890d0f1d0dd9617882caf00d46c3eb",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "built_rendered_reviewed_not_final_evaluation",
+      "recorded_utc": "2026-11-12T15:37:41.293422+00:00",
       "parse_status": "ok"
     },
     {
@@ -788,6 +799,22 @@
       "schema": 1,
       "status": "prototype_diagnostics_pass_not_final_evaluation",
       "recorded_utc": "2026-11-04T18:12:26.390093+00:00",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/source-intent-reference-2026-11-12.json",
+      "bytes": 24967,
+      "sha256": "7cf258d8916eacede0dc2e2123c9e05aefde0810b9effaf3b2dd2d43252f8fca",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "corrective_protocol_complete_with_original_failures_retained",
+      "source_commit": "897c121197c0b7ffdd71805e402bb677c9d550c6",
+      "date": "2026-11-12",
+      "recorded_case_rows": 24,
+      "case_status_counts_as_recorded": {
+        "not_recorded": 24
+      },
       "parse_status": "ok"
     },
     {

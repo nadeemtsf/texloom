@@ -59,5 +59,6 @@
     "path": "C:\\Users\\thebe\\Gtihub Repos\\Mine\\texloom\\artifacts\\continuation-20261112\\core.log",
     "bytes": 12520,
     "sha256": "308581a1ac73bce3d9c2945ce75ea9f76094237b5822eca3be34a628bb780f41"
-  }
+  },
+  "independent_pe_header_check": "passed AMD64 0x8664"
 }

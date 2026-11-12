@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "date": "2026-11-12",
+  "kind": "typed_source_draft_and_preamble_engineering_checks",
+  "status": "core_only_no_ipc_ui",
+  "source_commit": "897c121197c0b7ffdd71805e402bb677c9d550c6",
+  "draft_source_commit": "b8b30441b679857c2a81dfeb16ed8038977105de",
+  "checks": [
+    {
+      "command": "cargo test --locked --offline -p texloom-core",
+      "passed": 146,
+      "failed": 0,
+      "log": "artifacts/continuation-20261112/core-preamble.log",
+      "sha256": "442559b35413220d34f86d373e0799fdd446dbd05435d50767fc32124031f828"
+    },
+    {
+      "command": "cargo test --locked --offline -p texloom-core --features recovery-serde",
+      "passed": 147,
+      "failed": 0,
+      "log": "artifacts/continuation-20261112/core-preamble-recovery.log",
+      "sha256": "0ea15475a3013acf72e45699d5d391b1a4b2c5ae589267e60973c4e90bcb0bac"
+    },
+    {
+      "command": "npm test",
+      "passed": 303,
+      "failed": 0,
+      "log": "artifacts/continuation-20261112/frontend-preamble.log",
+      "sha256": "424e38744df3523d17ea9c58346197c3359de3bc7870a907aca81f7773f97685"
+    }
+  ],
+  "failure_retained": {
+    "log": "artifacts/continuation-20261112/draft-intents-initial.log",
+    "sha256": "b46a1baccb685ffac01d913ba420882183a4b69617461478c1d7215d0acf8309",
+    "reason": "New test fixture passed Option<Selection> to Selection-only setter; compiler error corrected without changing production guard"
+  },
+  "not_in_r10": true,
+  "limitations": [
+    "No new source-native visual command, typed IPC or verifier integration",
+    "No source auto-save or visual proof pass from applying a draft",
+    "No performance or final study claim"
+  ]
+}

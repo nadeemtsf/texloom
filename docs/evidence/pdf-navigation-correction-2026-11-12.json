@@ -11,7 +11,7 @@
     "renderer": "public PDFPageView/EventBus/SimpleLinkService from existing pinned pdfjs-dist6.2.108, matching viewer CSS",
     "zoom": "synchronous cached-canvas CSS scaling; 400ms inactivity before nearby sharp repaint",
     "origin": "PDF.js getPagePoint and viewport conversion preserve pointer PDF coordinate; center for buttons/Fit; physical scroll edges clamp",
-    "resources": "two active page jobs; six retained reading pages excluding visible/selected/active pages; per-page16Mpx, short-view64Mpx total allocation budget via SDK downscaling",
+    "resources": "Two active page jobs; reading cache aims at six retained pages, except visible/selected/active pages. SDK per newly rendered page cap is16Mpx or64Mpx/short-page-count. Retained old bitmaps and in-progress redraws are additional transient memory; this is not a measured process-memory cap.",
     "authority": "No source/compiler/history operation; pending zoom fences layout commands; old hit handlers cleaned on rebind",
     "out_of_scope": "No new source-native editing command or caret feature"
   },

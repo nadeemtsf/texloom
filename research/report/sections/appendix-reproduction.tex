@@ -5,6 +5,17 @@ Texloom checkout at the recorded commits, prepared verifier resources and the
 declared dependencies. A report-source ZIP alone is not that checkout. Use
 fresh synthetic output directories and preserve every prior failed attempt.
 
+The predeclared occurrence diagnostic uses the actual Rust
+\code{source\_intent\_candidate} example and
+\path{research/tools/source_intent_reference.py}. Its plan, recorded before
+the first run and amended before the corrective run, is
+\path{research/SOURCE-INTENT-REFERENCE-PLAN.md}. A complete checkout and the
+declared compiler/Poppler/Python dependencies are required; the editable report
+archive alone is not an executable experiment package. Use a new output directory
+under \path{artifacts/}; the runner refuses to overwrite a prior one. The two
+original/corrective runs are diagnostic development work and cannot serve as
+untouched final-evaluation fixtures.
+
 \subsection{Required engineering commands}
 The repository requires frontend and default-core checks for source changes:
 \begin{verbatim}

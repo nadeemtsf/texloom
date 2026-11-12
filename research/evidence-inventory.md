@@ -76,3 +76,10 @@ Keep historical development evidence as motivation, mechanism checks and regress
 The r9 owner zoom report is a failed usability observation (qualitative choppiness and missing pointer anchoring), retained alongside its automated/build passes. The corrected viewer's 303 frontend and 21 headless renderer checks concern navigation mechanics, not visual-edit correctness or native FPS. See `docs/evidence/pdf-navigation-correction-2026-11-12.json`; actual new-build Windows acceptance remains owner-pending. These rows must not enter any editing accuracy denominator.
 
 `docs/architecture/source-anchor-validation-2026-11-12.json` separately reuses the 10 November snapshot-bound source-anchor checks (139 default, 140 recovery-serde; 20 native document/recovery checks with 36 filtered). It introduces no new experiment or UI/caret claim. The core API is distinct from rendered identity. Report v11 still names its earlier source/evidence boundary; no final evaluation is frozen or executed by this inventory update.
+
+
+## Source-intent occurrence/reference diagnostic — 12 November
+
+`docs/evidence/source-intent-reference-2026-11-12.json` records the predeclared initial failure and corrective four-condition diagnostic. Eight intended candidates match source plus complete render; four wrong deletions match render while disagreeing with source; twelve other faulty rows differ, and two deliberate compile failures remain failures. No app selection/approval ran. These are decision-layer controls, not a production accuracy denominator. The first six planner refusals and unavailable Hebrew/LuaTeX package are retained; corrected conditions do not pass that setup. See `SOURCE-INTENT-REFERENCE-RESULTS.md`.
+
+The separate `docs/architecture/source-draft-validation-2026-11-12.json` records146/147 default/recovery core and303 frontend checks for typed draft/shared-history behavior and the bounded preamble subset. Core-only API changes after frozen r10 are not new app UI features or native-input results. Final evaluation is still unfrozen/unrun.

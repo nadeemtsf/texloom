@@ -42,6 +42,84 @@ suite passed 291 checks. These are not Windows input observations. The prepared
 r8 application was not rebuilt, opened or installed for this work, and final
 evaluation remains unfrozen/unrun.
 
+\subsection{Source intent and rendered-reference ambiguity}
+\label{sec:occurrence-reference}
+The predeclared 12 November diagnostic asks whether the actual read-only
+paragraph planner changes the requested second equal occurrence, and what an
+independent full rendered-reference check can establish after reflow. Expected
+complete source is assembled from declared segments without planner offsets
+or app escaping logic. Candidate sources retain BOM/CRLF and unrelated bytes;
+an ampersand and percent have explicitly declared expected escaping. Poppler
+compares page contracts, word multiplicities/bounds within 0.02 bp and exact
+whole-page RGB pixels at 144 dpi against independently compiled references.
+No PDF selection, native transaction approval, source commit/Save or UI is run.
+
+The first protocol at \code{b8b3044} retained 18 rows with only eight meeting
+their declared criteria. All six actual planning calls refused the then-unknown
+font/language/length preambles; the Hebrew/Lua\LaTeX\ setup also failed because
+\code{unibidi-lua.sty} was unavailable. Controls are not successful planned
+edits. Those failures remain available, and no package was installed. The
+bounded preamble extension followed this coverage finding without weakening
+visual acceptance. Before the corrective run, a recorded amendment substituted
+Hebrew/Xe\LaTeX\ and added English/Lua\LaTeX. This reused development cases
+under a corrected protocol and is not independent replication.
+
+The corrective source \code{897c121} covers English/pdf\LaTeX,
+English/Lua\LaTeX, Arabic/Xe\LaTeX\ and Hebrew/Xe\LaTeX: four conditions,
+not a language/engine cross product. All eight intended Replace/Delete
+candidates matched the exact expected source and full rendered reference;
+original fixtures remained unchanged and no missing-character warning was
+observed. Two deliberate undefined-command candidates retained nonzero compile
+exits and are not successful edits. Representative Arabic/Hebrew renders were
+visually inspected for visible text and layout; this is not independent
+linguistic/shaping adjudication or physical editing evidence.
+
+\begin{table}[htbp]
+\small
+\begin{tabularx}{\linewidth}{@{}Yrrr@{}}
+\toprule
+Candidate family & Rows & Source matches & PDF matches\\
+\midrule
+Intended Replace/Delete & 8 & 8 & 8\\
+Delete wrong equal occurrence & 4 & 0 & 4\\
+Replace wrong equal occurrence & 4 & 0 & 0\\
+Change unrelated tail & 8 & 0 & 0\\
+\bottomrule
+\end{tabularx}
+\caption{Corrective development diagnostic, not production acceptance.
+Each condition reuses its document across operations and fault controls.}
+\label{tab:occurrence-reference}
+\end{table}
+
+The four wrong-occurrence deletions are visually indistinguishable even under
+the full-page oracle, while their exact source patches disagree. Replaying a
+compiler-only predicate would admit all 24 compiled controls; a rendered-reference
+predicate would admit 12, including the four wrong deletions. Conjoining the
+declared exact-source predicate leaves eight intended cases. These are offline
+decision-layer comparisons on purpose-built examples, not production decisions,
+measured incorrect-acceptance rates or an estimate over real documents. The
+source/reference labels have not had independent human review. The missing
+Hebrew/Lua\LaTeX\ setup remains unresolved, and exact host-specific raster
+agreement does not establish portability or every multilingual context.
+
+\subsection{Navigation usability and later engineering evidence}
+The owner rejected r9 zoom as choppy and not anchored at the pointer. That is
+a qualitative failed usability observation, not a measured frame rate. The
+r10 correction reuses the pinned PDF.js page renderer's cached-canvas CSS
+scaling, pointer coordinates and delayed nearby drawing. It passed 303 frontend
+and 21 headless real-renderer checks across two synthetic document lengths and
+three display scales. Windows/NSIS build and all 15 portable member checks pass;
+the actual r10 app/input test remains owner-pending. These observations do not
+enter an editing-accuracy denominator or establish physical responsiveness.
+
+Later core checks pass 146 default and 147 recovery-serde cases, including
+typed draft history, provenance/no-op/redo/exhaustion and narrow positive/negative
+preamble forms. They are overlapping engineering checks, not independent
+document samples. The first draft test compile used an incorrect selection
+argument and is retained as a test-fixture compile failure. The existing
+26-page v11 draft remains preserved; this report revision records the later
+evidence without filling final-evaluation cells.
+
 \subsection{Owner follow-up and RTL target regression}
 On 6 November the owner reported successful signature grouping, movement,
 replacement, history and Save/reopen, plus movement of the intended repeated

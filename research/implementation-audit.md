@@ -1,5 +1,11 @@
 # Implementation audit - 4 November 2026
 
+## 12 November continuation
+
+The latest zoom test was an owner-reported r9 failure; a corrected r10 now uses PDF.js's page renderer/cached-canvas pointer zoom. Its source is `663b7e2`, executable SHA-256 starts `12056133f162`, and portable members/build pairing verify. Actual r10 input remains owner-pending. No app was opened/installed/controlled by the agent.
+
+Later core `897c121` adds explicit typed source-draft history receipts and narrow current-language/font/paragraph-dimension preamble recognition. Neither is a new IPC/UI handler or visual approval; r10 predates them. New core146/147 and frontend303 checks pass. The occurrence/reference experiment gives eight correct source/render matches and four wrong-occurrence deletions with identical rendered output, retaining its failed first protocol and missing Hebrew/LuaTeX setup. See `SOURCE-INTENT-REFERENCE-RESULTS.md` and the dated receipts. No app accuracy or final evaluation is inferred. Historical audit sections below retain their named scopes.
+
 ## 7 November status reconciliation
 
 The baseline audit below is historical; it is not a final freeze. Current prepared artifact r8 has ordinary executable SHA-256 `60ef2e8ea6e790c570f0cb3c15f87741c5cc4976deda78f28763233f28dfad9b`. The following later evidence supersedes only the corresponding older status. No new Windows app input or installation was performed in this continuation.
