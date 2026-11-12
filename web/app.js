@@ -91,7 +91,7 @@ const typingRecovery=new TypingRecoveryController({invoke,document,getState:()=>
   unlock:()=>{state.saving=false;editorReadOnly();updateControls()}});
 const projectControls=new ProjectControls({document,invoke,getState:()=>state,flush:()=>state.client?.flush(),isDirty:dirty,
   lock:()=>{state.saving=true;editorReadOnly();updateControls()},unlock:()=>{state.saving=false;editorReadOnly();updateControls()},
-  confirm,open,save,adopt:project=>openProject(null,project),compile,notify:toast,
+  confirm,open,save,adopt:(project,options)=>openProject(null,project,options),compile,notify:toast,
   cursor:()=>{const selection=editor.getSelection();return selection?{file:state.file,source:state.sources[state.file],selection:[model.getOffsetAt(selection.getEndPosition()),model.getOffsetAt(selection.getEndPosition())]}:null},
   insertImage:async(context,asset)=>{const request={sources:clone(state.sources),main:state.project.main,file:context.file,expected_source:context.source,control:null,selection:context.selection,key:'insert_image',value:asset};
     const identity=sessionIdentity(state),plan=await invoke('plan_adapter',{request});if(identity!==sessionIdentity(state))throw new StaleCandidate();
@@ -270,7 +270,7 @@ function renderFiles(){
   }
   $('main-file').value=state.project.main;$('engine').value=state.engine;
 }
-async function openProject(path=null,supplied=null){
+async function openProject(path=null,supplied=null,{compileOnOpen=false}={}){
   if((state.busy||state.opening||state.saving)&&!supplied)return toast('Wait for the current operation before opening another project.');
   if(state.client&&!state.client.error)await state.client.flush();
   if(!supplied&&state.project&&dirty()&&!await confirm('Discard the current unsaved edits before opening another project?',{title:'Unsaved source',kind:'warning'}))return;
@@ -306,7 +306,11 @@ async function openProject(path=null,supplied=null){
     if(!supplied&&(project.recoveries?.length||project.recovery_error)){
       $('save-copy').classList.remove('hidden');await showSaveRecovery();return;
     }
-    if(!state.compileApproved){$('banner').textContent='Project source opened. Review it before choosing Compile. LaTeX runs locally and can access files using your account.';$('banner').classList.remove('hidden');return;}
+    if(!state.compileApproved){
+      // Projects' explicit existing-path open compiles after its lock releases.
+      if(!compileOnOpen){$('banner').textContent='Project source opened. Review it before choosing Compile. LaTeX runs locally and can access files using your account.';$('banner').classList.remove('hidden')}
+      return;
+    }
     await compile();
   }catch(error){
     toast(message(error));

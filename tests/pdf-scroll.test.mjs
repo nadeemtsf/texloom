@@ -80,6 +80,12 @@ test('Ctrl zoom forwards the cursor origin immediately and defers sharp drawing 
  assert.deepEqual(observed.origin,[351.5,204.25]);assert.ok(observed.scale>1);assert.equal(delay,400);assert.equal(draws,0);binding.dispose();
 });
 
+test('gesture gain is 25 percent stronger than r11 and remains reversible',()=>{
+ let scale=1;const {send,dispose}=fixture({getScale:()=>scale,onZoom:value=>{scale=value}});
+ send({ctrlKey:true,deltaY:-40});assert.ok(Math.abs(scale-1.0778841508846315)<1e-12);
+ send({ctrlKey:true,deltaY:40});assert.ok(Math.abs(scale-1)<1e-12);dispose();
+});
+
 test('browser zoom input is routed to the PDF and blocked elsewhere without swallowing ordinary scroll',()=>{
  const handlers=new Map(),eventRoot={addEventListener(n,fn){handlers.set(n,fn)},removeEventListener(n){handlers.delete(n)}};
  const {viewport,send,binding}=fixture({eventRoot,getScale:()=>1,onZoom(){}});

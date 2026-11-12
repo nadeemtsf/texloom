@@ -1,0 +1,94 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-12T17:23:31.347475+00:00",
+  "kind": "r11_owner_acceptance_and_r12_zoom_project_open_amendments",
+  "status": "checks_passed_windows_build_pending",
+  "r11_owner_report": {
+    "provenance": "Owner reply to exact r11 portable checklist; no agent running-process inspection",
+    "source_commit": "e215bb694ecbd6981ea662eb6c5544a27ca69fb0",
+    "exe_sha256": "a2479afe19f846245b87c131b521e0b0689f6add77afa0863822b09de276470c",
+    "quote": "everything is working correctly",
+    "reported_passes": [
+      "Fit selection before/after page break",
+      "moderate zoom and reselection without old errors",
+      "physical pinch and Ctrl plus two-finger scrolling zoom only PDF",
+      "ordinary scrolling, pointer anchoring and Fit",
+      "Read text/copy and source/Undo unchanged",
+      "held-drag navigation cancellation",
+      "long-document navigation around page 12"
+    ],
+    "requested_amendments": [
+      "25 percent stronger finger/touchpad zoom",
+      "Automatically compile valid existing project opened through Projects"
+    ]
+  },
+  "implementation": {
+    "gesture_gain": "Shared pinch/Ctrl-wheel exponential coefficient increases from .0015 to .001875, 25 percent; normal scroll and toolbar steps unchanged",
+    "project_open": "Projects path, Browse file/folder and recent-project opens request one normal preview compile only after native load/adoption succeeds and switching lock is released. Auto typing checkbox need not be enabled. Current project/client are rechecked before requesting compilation.",
+    "excluded_auto_compile": "Source-only/restored/recovery-pending/non-.tex projects, create/import/conversion routes; missing paths leave current project untouched. No .text compilation.",
+    "scope": "Targeted feature only; research and other project work remain on hold. No source push."
+  },
+  "checks": [
+    {
+      "command": "npm test",
+      "passed": 315,
+      "failed": 0,
+      "path": "artifacts\\r12-20261112\\frontend-final.log",
+      "sha256": "31af906a9c0977641e9b4b7a3ad976b48e3420e70aab3e57ea5d949429576c12"
+    },
+    {
+      "command": "cargo test --locked --offline -p texloom-core",
+      "passed": 147,
+      "failed": 0,
+      "path": "artifacts\\r12-20261112\\core.log",
+      "sha256": "266fea9959a17fde18c650b229b7d251e364de9be0bb565dc13ca4e1e1caf206"
+    },
+    {
+      "kind": "headless_edge_navigation",
+      "passed": 33,
+      "failed": 0,
+      "browser": "157.0.4341.46",
+      "scope": "Shared production PDF renderer/gesture handler at DPR 1/1.5/2 plus emulated density changes; no physical input",
+      "path": "artifacts\\r12-20261112\\browser-final\\browser-results.json",
+      "sha256": "52358d58f7d9efab80999524709e785849758cf443e85c10474f31b7328c7f9e"
+    }
+  ],
+  "preserved_attempts": [
+    {
+      "result": "New VM integration test initially expected hidden banner even though its compiler mock deliberately fails. Corrected to assert the visible compiler error and absence of old review prompt. Production behavior unchanged.",
+      "path": "artifacts\\r12-20261112\\app-integration.log",
+      "sha256": "56b885e87ef7a391d27558cee148f5ef692137511b6d3bcdb0396445de984e8c"
+    },
+    {
+      "result": "Stronger gesture plus highest emulated DPR crossed unchanged 96 MiB whole-document selection limit. Refusal preserved. Density invalidation check now independently sets moderate zoom1.1 before changing DPR; no product budget/proof tolerance relaxed.",
+      "path": "artifacts\\r12-20261112\\browser.log",
+      "sha256": "966ee208da15ad6d24fc4eaff7284ad1f67cebd773ff73907b86c4e92e62f4c6"
+    }
+  ],
+  "reused_evidence": [
+    {
+      "receipt": "docs/evidence/pdf-navigation-owner-followup-2026-11-12.json",
+      "scope": "147/148 core and six strict zero-probe PDF pairs from nine actual TeX engine compiles belong to r11. Core/selection implementation unchanged in r12. These checks were not rerun as r12 experiments."
+    }
+  ],
+  "source_fingerprints": {
+    "web/app.js": "f2705e051ada04be400bd7c65d7b57eb3d642cfc38c8da9f580fe645ab914e38",
+    "web/core/project-controls.js": "6ec3a0428b9442d7143631b53f41b71e24911e4c0fb9ecf29de7e2961d274646",
+    "web/core/pdf-scroll.js": "a26276e0bb6891b3084ba8aa82e7e8b603bccfeeaaf88ef3e874552592b7d649",
+    "web/core/pdf-page-view.js": "299dc86e549afe779aa9163a71b78da7434e23e99cfa03c1814862ea8accb99e",
+    "web/core/selection-proof.js": "0d226e60259c9c53536439db9cfac96f1e00504882d5bf2c933ce613c3cfc33e",
+    "tests/app-startup.test.mjs": "32180500479080726777ab242ce85b9a2ba76fed67c46f992f52b9684adfeaf8",
+    "tests/project-controls.test.mjs": "3f3cbbd774697bce170af4613a01dfd259ec4a7d5fec337d8dd544da48502ef1",
+    "tests/pdf-scroll.test.mjs": "7aca2dfa76d73bf016a49bb7e86fae111ace4c86dacbe2f5fc696840dc805888",
+    "scripts/check-pdf-navigation.mjs": "bfa4bffec6e82944a4273ac2abdc33a77df69fefee2f6d75c8824f05ec276d34"
+  },
+  "pending": [
+    "Exact Windows build, packaging verification and owner-focused r12 retest"
+  ],
+  "constraints": [
+    "No agent Texloom GUI launch/control/install",
+    "Synthetic fixtures only; no original documents changed",
+    "Stop after owner accepts final amended feature; explain deferred branch/push status then, read-only",
+    "No release/final evaluation or universal performance claim"
+  ]
+}

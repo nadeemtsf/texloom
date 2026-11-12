@@ -74,6 +74,10 @@ try{
     await page.keyboard.press('Control+=');await page.waitForTimeout(80);
     assert.deepEqual(await page.evaluate(()=>({scale:fixture.view.scale,width:innerWidth,pageScale:visualViewport.scale})),afterPDF);
     checks.push({deviceScaleFactor,case:'browser-injected Ctrl-wheel zooms only PDF; outside wheel and keyboard cannot zoom shell',passed:true});
+    // Test density invalidation independently of gesture gain. The stronger
+    // wheel curve plus the highest emulated DPR can exceed the unchanged
+    // 96 MiB document selection budget; that refusal is not a stale-DPR error.
+    await page.evaluate(async()=>{fixture.zoom(1.1,[450,310]);await fixture.finish()});
     const cdp=await context.newCDPSession(page);
     await cdp.send('Emulation.setDeviceMetricsOverride',{width:1100,height:800,mobile:false,deviceScaleFactor:deviceScaleFactor+0.25});
     const densityProof=await page.evaluate(()=>fixture.proveSelection());assert.equal(densityProof.page,3);

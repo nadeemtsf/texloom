@@ -20,8 +20,8 @@ const [app,html]=await Promise.all(['app.js','index.html'].map(name=>readFile(ne
 
 // Run the complete production shell. IDs come only from the shipped HTML;
 // looking up a missing control returns null, as it does in the actual WebView.
-function boot({markup=html,openFailure=null,badSnapshot=false,adapterFailure=null}={}){
-  const calls=[],elements=new Map(),options={},handlers={};
+function boot({markup=html,openFailure=null,pathFailure=null,badSnapshot=false,adapterFailure=null}={}){
+  const calls=[],compileStates=[],elements=new Map(),options={},handlers={};
   function element(id=''){
     const classes=new Set();
     return {id,value:'',textContent:'',disabled:false,checked:false,open:false,children:[],style:{},
@@ -54,15 +54,21 @@ function boot({markup=html,openFailure=null,badSnapshot=false,adapterFailure=nul
     open:async()=>null,save:async()=>null,confirm:async()=>true,
     nativeInvoke:async(name,args)=>{
       calls.push([name,args]);
-      if(name==='open_project'){if(openFailure)throw Error(openFailure);return project}
+      if(name==='open_project'){
+        if(openFailure)throw Error(openFailure);
+        if(args.path&&pathFailure)throw Error(pathFailure);
+        return args.path?{...project,id:'opened-path',name:'Opened path'}:project;
+      }
       if(name==='document_snapshot')return badSnapshot?{...snapshot,sources:null}:snapshot;
       if(name==='typing_drafts')return {drafts:[],errors:[]};
+      if(name==='close_document')return {};
+      if(name==='compile_document')compileStates.push({saving:context.shell.state.saving,opening:context.shell.state.opening,projectId:context.shell.state.project.id});
       if(name==='plan_adapter'&&adapterFailure)throw Error(adapterFailure);
       throw Error('Test compiler unavailable');
     }};
   const script=app.replace(/^import .*;\r?$/gm,'').replace(/openProject\(\);\s*$/,'globalThis.startup = openProject();');
-  vm.runInNewContext(script+'\nglobalThis.shell={state,updateControls,applyLayoutControl,showFailure};',context,{filename:'web/app.js'});
-  return {context,calls,elements,options,model,handlers};
+  vm.runInNewContext(script+'\nglobalThis.shell={state,updateControls,applyLayoutControl,showFailure,projectControls};',context,{filename:'web/app.js'});
+  return {context,calls,compileStates,elements,options,model,handlers};
 }
 
 test('the complete shipped shell opens a project and enables source editing',async()=>{
@@ -75,6 +81,36 @@ test('the complete shipped shell opens a project and enables source editing',asy
   assert.equal(typeof t.elements.get('open').onclick,'function');
   assert.equal(typeof t.handlers.close,'function');
   assert.equal(t.elements.get('cancel-compile').disabled,true);
+});
+
+test('Projects open path requests exactly one compile after adopting and unlocking, even with Auto off',async()=>{
+  const t=boot();await t.context.startup;
+  const before=t.compileStates.length;t.elements.get('auto').checked=false;
+  t.elements.get('project-path').value='C:/synthetic/main.tex';
+  await t.context.shell.projectControls.openPath();
+  assert.equal(t.compileStates.length,before+1);
+  assert.deepEqual(t.compileStates.at(-1),{saving:false,opening:false,projectId:'opened-path'});
+  const request=t.calls.filter(([name])=>name==='compile_document').at(-1)[1];
+  assert.equal(request.projectId,'opened-path');assert.equal(request.purpose,'preview');
+  assert.equal(t.context.shell.state.compileApproved,true);
+  assert.equal(t.context.shell.state.busy,false);assert.equal(t.context.shell.state.saving,false);
+  assert.equal(t.context.shell.state.project.id,'opened-path');
+  // The deliberately unavailable compiler must show its error, not the old
+  // review-before-Compile prompt. This does not claim a real renderer pass.
+  assert.equal(t.elements.get('banner').classList.contains('hidden'),false);
+  assert.match(t.elements.get('banner').textContent,/Test compiler unavailable/);
+  assert.doesNotMatch(t.elements.get('banner').textContent,/Review it before choosing Compile/);
+  assert.equal(t.context.shell.state.canUndo,false);assert.equal(t.context.shell.state.canRedo,false);
+});
+
+test('a missing Projects path retains the displayed source and never requests another compile',async()=>{
+  const t=boot({pathFailure:'Project path does not exist'});await t.context.startup;
+  const before=t.compileStates.length,source=t.model.value,client=t.context.shell.state.client;
+  t.elements.get('project-path').value='C:/missing/main.tex';
+  await t.elements.get('project-open-path').onclick();
+  assert.equal(t.compileStates.length,before);assert.equal(t.context.shell.state.client,client);
+  assert.equal(t.model.value,source);assert.equal(t.context.shell.state.saving,false);
+  assert.match(t.elements.get('toast').textContent,/does not exist/);
 });
 
 test('removing the cancel control reproduces the native startup regression',()=>{

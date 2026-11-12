@@ -25,20 +25,27 @@ export class ProjectControls {
     const list=this.$('project-recents');list.replaceChildren();
     for(const entry of recent){const button=this.document.createElement('button');button.type='button';
       button.textContent=entry.name+' · '+entry.main;button.title=entry.path;
-      button.onclick=()=>this.run(()=>this.switchProject(()=>this.invoke('open_recent',{path:entry.path})));list.append(button)}
+      button.onclick=()=>this.run(()=>this.switchProject(()=>this.invoke('open_recent',{path:entry.path}),{compileOnOpen:true}));list.append(button)}
     if(!recent.length)list.textContent='Projects you open will appear here.';
   }
   path(){const path=this.$('project-path').value.trim().replace(/^"(.*)"$/u,'$1');if(!path)throw Error('Enter a project file or folder path.');return path;}
-  async switchProject(load) {
+  canCompileOpened(project){return !!project&&!project.source_only&&!project.restored&&!project.recovery_error&&!project.recoveries?.length&&typeof project.main==='string'&&project.main.endsWith('.tex');}
+  async switchProject(load,{compileOnOpen=false}={}) {
     this.ready();await this.flush();
     if(this.isDirty()&&!await this.confirm('Open another project and discard the current unsaved editor version? Save a copy first to retain it.',{title:'Unsaved source',kind:'warning'}))return;
-    this.lock();let project=null,adopted=false;
-    try{project=await load();await this.adopt(project);adopted=this.getState().project?.id===project.id;
+    this.lock();let project=null,adopted=false,client=null,shouldCompile=false;
+    try{project=await load();shouldCompile=compileOnOpen&&this.canCompileOpened(project);await this.adopt(project,{compileOnOpen:shouldCompile});adopted=this.getState().project?.id===project.id;
+      client=this.getState().client;
       if(!adopted)throw Error('The project could not be displayed.');this.$('project-dialog').close();this.$('encoding-dialog').close();
     }finally{if(project&&!adopted)await this.invoke('close_document',{projectId:project.id}).catch(()=>{});this.unlock()}
-    if(adopted&&!project.source_only)this.notify('Project source opened. Review it, then choose Compile to build its PDF.');
+    if(shouldCompile){
+      // Native loading/adoption must succeed, and the switching lock must be
+      // released before compilation. Never compile a replacement project.
+      const current=this.getState();
+      if(current.project?.id===project.id&&current.client===client&&this.canCompileOpened(project))await this.compile('manual');
+    }else if(adopted&&!project.source_only)this.notify('Project source opened. Review it, then choose Compile to build its PDF.');
   }
-  openPath(){const path=this.path();return this.switchProject(()=>this.invoke('open_project',{path}));}
+  openPath(){const path=this.path();return this.switchProject(()=>this.invoke('open_project',{path}),{compileOnOpen:true});}
   async chooseParent(){this.ready();const parent=await this.open({directory:true,multiple:false,title:'Choose a parent folder for a new project'});if(typeof parent==='string')this.$('project-parent').value=parent;}
   async create(){
     const template=this.$('project-template').value,name=this.$('project-new-name').value.trim(),parent=this.$('project-parent').value.trim()||null;

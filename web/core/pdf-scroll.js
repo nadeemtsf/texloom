@@ -34,7 +34,8 @@ export function bindPDFScrolling(viewport,{getScale=()=>null,onZoom=null,renderZ
       const delta=wheelDelta(event,viewport);if(!delta||!delta.y)return;
       event.preventDefault(); // Ctrl/pinch must zoom this PDF, never the app shell.
       const scale=getScale();if(!Number.isFinite(scale)||scale<=0)return;
-      const next=Math.max(0.2,Math.min(2.5,scale*Math.exp(-delta.y*0.0015)));
+      // Shared pinch/Ctrl-wheel gesture gain: 25% stronger than the r11 curve.
+      const next=Math.max(0.2,Math.min(2.5,scale*Math.exp(-delta.y*0.001875)));
       if(next===scale)return;
       onNavigate();onZoom(next,[event.clientX,event.clientY]);cancelZoom();
       zoomTimer=setTimer(()=>{zoomTimer=null;renderZoom()},PDF_ZOOM_DELAY);
