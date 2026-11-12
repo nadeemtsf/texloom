@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "kind": "development_evidence_inventory_not_evaluation_results",
-  "recorded_utc": "2026-11-12T16:19:32.158342+00:00",
-  "audited_head": "e215bb694ecbd6981ea662eb6c5544a27ca69fb0",
+  "recorded_utc": "2026-11-12T16:22:13.361308+00:00",
+  "audited_head": "4fefcb0d4037d54da79f7b5405957862c470ddac",
   "working_tree_note": "Uncommitted report/evidence changes may be present; see the session checkpoint.",
   "final_evaluation_executed": false,
   "entries": [
@@ -472,8 +472,8 @@
     },
     {
       "path": "docs/evidence/pdf-navigation-r10-artifacts-2026-11-12.json",
-      "bytes": 3291,
-      "sha256": "b451e956e58393638c0f7b52e6f7896d760b9c5224e6950f02e3094f3b405971",
+      "bytes": 3439,
+      "sha256": "a8cca851329c1539b91bcde22e79ce876c1b6cccdacdfdbdb064f98f3c81e408",
       "audit_action": "read_parse_fingerprint_only",
       "experiment_reproduced_by_this_audit": false,
       "schema": 1,
