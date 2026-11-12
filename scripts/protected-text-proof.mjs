@@ -6,7 +6,7 @@ import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
 import {loadPDFDocument} from '../web/core/pdf-document.js';
 import {inspectPdfjs} from './proof/pdfjs-inspector.mjs';
 import {targetRecords} from './proof/layout-check.mjs';
-const root=resolve(dirname(fileURLToPath(import.meta.url)),'..'),output=join(root,'artifacts/protected-text');await mkdir(output,{recursive:true});
+const root=resolve(dirname(fileURLToPath(import.meta.url)),'..'),output=process.env.TEXLOOM_PROTECTED_TEXT_REPORT_DIR?resolve(process.env.TEXLOOM_PROTECTED_TEXT_REPORT_DIR):join(root,'artifacts/protected-text');await mkdir(output,{recursive:true});
 function run(file,args,cwd=root){const r=spawnSync(file,args,{cwd,encoding:'utf8',windowsHide:true,timeout:90_000,maxBuffer:8*1024*1024});if(r.error||r.status!==0)throw new Error(r.error?.message||(r.stderr+r.stdout).slice(-1500));return r.stdout}
 const file=join(root,'tests/fixtures/proof/formatting/main.tex'),original=await readFile(file,'utf8');
 const candidate=run(join(root,'target/debug/examples/literal_candidate'+(process.platform==='win32'?'.exe':'')),[file,file,'1','strong & stable']);

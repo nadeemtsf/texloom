@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "hooks:install": "git config --local core.hooksPath .githooks",
+    "ci:local": "node scripts/pre-commit.mjs",
     "test": "npm run protocol:check && node --test tests/*.test.cjs tests/*.test.mjs",
     "dev": "npm run protocol:emit && node scripts/prepare-assets.mjs && vite --host 127.0.0.1 --port 1420 --strictPort",
     "build": "npm run protocol:check && node scripts/prepare-assets.mjs && vite build",

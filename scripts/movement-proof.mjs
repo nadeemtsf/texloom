@@ -6,7 +6,7 @@ import {createHash} from 'node:crypto';
 import {inspectPdfjs} from './proof/pdfjs-inspector.mjs';
 import {checkTranslation,checkRaster,checkTargetRaster,targetRecords} from './proof/layout-check.mjs';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
-const output=join(root,'artifacts','proof');
+const output=process.env.TEXLOOM_PROOF_REPORT_DIR?resolve(process.env.TEXLOOM_PROOF_REPORT_DIR):join(root,'artifacts','proof');
 const python=process.env.PYTHON ?? (process.platform==='win32'?'python':'python3');
 const manifest=JSON.parse(await readFile(join(root,'tests/fixtures/proof/manifest.json'),'utf8'));
 const report={schema:1,createdAt:new Date().toISOString(),status:'pending',baselineCommit:'e7b6d1eb334c879a4aa28c4f22b984fb3c17532b',

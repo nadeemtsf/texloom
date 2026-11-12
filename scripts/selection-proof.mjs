@@ -11,7 +11,7 @@ import {validateSelectionProbe} from '../web/core/selection-proof.js';
 const require=createRequire(import.meta.url);
 // The pinned optional Node renderer shipped with pdfjs-dist, already in lockfile.
 const {createCanvas}=require('@napi-rs/canvas');
-const root=resolve(dirname(fileURLToPath(import.meta.url)),'..'),base=join(root,'artifacts/proof');
+const root=resolve(dirname(fileURLToPath(import.meta.url)),'..'),base=process.env.TEXLOOM_PROOF_REPORT_DIR?resolve(process.env.TEXLOOM_PROOF_REPORT_DIR):join(root,'artifacts/proof');
 const manifest=JSON.parse(await readFile(join(root,'tests/fixtures/proof/manifest.json'),'utf8'));
 const movement=JSON.parse(await readFile(join(base,'report.json'),'utf8'));
 const output=process.env.TEXLOOM_SELECTION_REPORT_DIR ? resolve(process.env.TEXLOOM_SELECTION_REPORT_DIR) : join(root,'artifacts/selection');await mkdir(output,{recursive:true});
