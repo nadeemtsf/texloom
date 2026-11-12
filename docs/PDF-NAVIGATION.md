@@ -14,7 +14,7 @@ Candidate views still prepare their complete supported short PDF before publicat
 
 ## Evidence and limits
 
-303 frontend tests pass. The real headless Edge renderer passes 21 development checks on deterministic six- and 25-page English PDFs at display scales 1, 1.5 and 2. They check cached-canvas reuse/no immediate paint, pointer coordinates, nearby sharp drawing, rapid Ctrl-event coalescing, subsequent scroll, text-layer alignment, Fit/edge clamping and replacement of a document during redraw. Final native artifact identity is recorded separately. The unchanged core's preceding 139 checks are reused, not counted as a new execution.
+303 frontend tests pass. The real headless Edge renderer passes 21 development checks on deterministic six- and 25-page English PDFs at display scales 1, 1.5 and 2. They check cached-canvas reuse/no immediate paint, pointer coordinates, nearby sharp drawing, rapid Ctrl-event coalescing, subsequent scroll, text-layer alignment, Fit/edge clamping and replacement of a document during redraw. A new 139-check core run and Windows/NSIS build pass. Exact r10 source is `663b7e2`; EXE SHA-256 starts `12056133f162`. All 15 portable members and executable/verifier binding pass independent checks. The setup file is hashed; its embedded payload was not separately extracted. [Artifact receipt](evidence/pdf-navigation-r10-artifacts-2026-11-12.json).
 
 Receipts: [corrected viewer](evidence/pdf-navigation-correction-2026-11-12.json), [r9 including owner failure](evidence/pdf-navigation-2026-11-10.json). Retained development failures distinguish missing VM exports and corrected browser rounding assertions from product observations. Screenshot review confirms the synthetic text rendering; it does not establish physical input quality.
 

@@ -2,9 +2,9 @@
   "schema": 1,
   "recorded_utc": "2026-11-12T15:12:26.480186+00:00",
   "kind": "pdf_navigation_standard_renderer_development_checks",
-  "status": "source_verified_windows_build_pending",
+  "status": "built_owner_acceptance_pending",
   "base_commit": "02cd27182238ce23e8e631d4831cf4c900cf2050",
-  "source_note": "Uncommitted renderer implementation at receipt creation; exact working-file hashes below and later build receipt identify source",
+  "source_note": "Committed exact r10 source. Working-file byte hashes below precede Git CRLF normalization and are retained as executed inputs.",
   "github_issue": 69,
   "previous_owner_result": "r9 zoom usability failed; qualitative choppiness and missing pointer anchoring preserved in 10 November receipt",
   "implementation": {
@@ -193,11 +193,18 @@
     },
     {
       "command": "cargo test --offline --locked -p texloom-core",
-      "result": "reused earlier unchanged core source run",
+      "result": "passed",
       "passed": 139,
-      "log": "artifacts/anchors-20261110/zoom-core.log",
-      "sha256": "a38f571c1d928ac0f070456661bc2c50d033096017945243127077dd80a7e2f5",
-      "new_execution": false
+      "new_execution": true,
+      "log": "artifacts/continuation-20261112/core.log",
+      "sha256": "308581a1ac73bce3d9c2945ce75ea9f76094237b5822eca3be34a628bb780f41"
+    },
+    {
+      "command": "npm run desktop:build -- --ci",
+      "result": "passed",
+      "scope": "Production web build, optimized native Windows EXE and NSIS setup; no launch/install",
+      "log": "artifacts/continuation-20261112/desktop-build.log",
+      "sha256": "e2f218407fafda6d844e7ee657a067ce5b6b1e564ff98b9b82b7aef5fb9652ad"
     }
   ],
   "preserved_failures": [
@@ -227,5 +234,7 @@
     "No Texloom launch/install/control; owner must test exact new packaged build",
     "No universal FPS/native usability/installer or release-readiness claim",
     "Final evaluation remains unfrozen/unrun; v11 report retains its named earlier evidence scope"
-  ]
+  ],
+  "source_commit": "663b7e28307374f266fa04010810ac0c8997a651",
+  "build_artifact_receipt": "docs/evidence/pdf-navigation-r10-artifacts-2026-11-12.json"
 }

@@ -1,4 +1,4 @@
-//! Typed read-only candidate planning. No UI, compilation or visual commit.
+//! Typed candidate planning and explicit source drafts. No UI, compilation or visual commit.
 use super::{
     structure::{EntityReference, OperationKind, RegionKind},
     *,
@@ -50,6 +50,37 @@ pub struct IntentPlan {
     prepared: Prepared,
     required_proof: RequiredProof,
 }
+
+/// A source draft was applied through shared history. This does not attest to
+/// compilation, rendered identity, layout preservation or visual acceptance.
+/// RequiredProof stays unresolved and belongs to this exact source revision.
+pub struct DraftIntentReceipt {
+    kind: OperationKind,
+    from_revision: Revision,
+    revision: Revision,
+    changed: bool,
+    required_proof: RequiredProof,
+}
+impl DraftIntentReceipt {
+    pub fn kind(&self) -> OperationKind {
+        self.kind
+    }
+    pub fn from_revision(&self) -> Revision {
+        self.from_revision
+    }
+    pub fn revision(&self) -> Revision {
+        self.revision
+    }
+    pub fn changed(&self) -> bool {
+        self.changed
+    }
+    pub fn required_proof(&self) -> &RequiredProof {
+        &self.required_proof
+    }
+    pub fn layout_effect(&self) -> LayoutEffect {
+        LayoutEffect::DocumentReflowRequiringVerification
+    }
+}
 impl IntentPlan {
     pub fn kind(&self) -> OperationKind {
         self.kind
@@ -75,6 +106,34 @@ impl IntentPlan {
 }
 
 impl Session {
+    /// Explicit source-draft lane, analogous to typing in the source editor.
+    /// Callers must invalidate rendered editing capabilities, retain the last
+    /// good PDF, and journal the plan's source_patch before applying it. A
+    /// verified visual transaction must use its separate native approval lane.
+    /// This consumes a privately constructed plan, never a raw replacement.
+    pub fn apply_source_intent_draft(
+        &mut self,
+        plan: IntentPlan,
+    ) -> EditResult<DraftIntentReceipt> {
+        let IntentPlan {
+            kind,
+            prepared,
+            required_proof,
+        } = plan;
+        let from_revision = prepared.base();
+        let changed = prepared.changed();
+        // commit rechecks private session ownership and base revision before
+        // any mutation; no-op plans must pass the same provenance guards.
+        let revision = self.commit(prepared, Origin::Source, None)?;
+        Ok(DraftIntentReceipt {
+            kind,
+            from_revision,
+            revision,
+            changed,
+            required_proof,
+        })
+    }
+
     pub fn plan_source_intent(&self, intent: SourceIntent) -> Result<IntentPlan, PlanError> {
         let (target, text) = match &intent {
             SourceIntent::ReplaceLiteralParagraph { target, text } => (target, Some(text)),
@@ -136,5 +195,42 @@ impl Session {
             prepared: self.prepare(patch)?,
             required_proof,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn revision_exhaustion_leaves_a_typed_draft_and_shared_history_unchanged() {
+        let source = "\\documentclass{article}\n\\begin{document}\nTarget.\n\\end{document}\n";
+        let mut session = Session::new(
+            Sources::from([("main.tex".into(), source.into())]),
+            Profile {
+                main: "main.tex".into(),
+                engine: "auto".into(),
+            },
+        )
+        .unwrap();
+        session.revision = Revision(u64::MAX);
+        let projection = session.source_projection("main.tex").unwrap();
+        let target = projection
+            .regions()
+            .iter()
+            .enumerate()
+            .find_map(|(index, _)| projection.entity_reference(index))
+            .unwrap();
+        let plan = session
+            .plan_source_intent(SourceIntent::DeleteParagraphContent { target })
+            .unwrap();
+        assert!(matches!(
+            session.apply_source_intent_draft(plan),
+            Err(EditError::RevisionExhausted)
+        ));
+        assert_eq!(session.sources()["main.tex"], source);
+        assert_eq!(session.revision(), Revision(u64::MAX));
+        assert_eq!(session.history_len(), 0);
+        assert!(!session.can_undo());
     }
 }
