@@ -50,6 +50,51 @@ fn exact_multilingual_bom_crlf_partition_does_not_change_history() {
 }
 
 #[test]
+fn bounded_multilingual_preambles_preserve_bytes_and_offer_only_candidate_regions() {
+    for (language, switch, script, body) in [
+        ("arabic", "arabicfont", "Arabic", "مرحبا بالعالم."),
+        ("hebrew", "hebrewfont", "Hebrew", "שלום עולם."),
+    ] {
+        let source = format!("\u{feff}\\documentclass{{article}}\r\n\\usepackage{{fontspec}}\r\n\\usepackage{{polyglossia}}\r\n\\setdefaultlanguage{{{language}}}\r\n\\setmainfont{{Arial}}\r\n\\newfontfamily\\{switch}[Script={script}]{{Arial}}\r\n\\setlength{{\\parindent}}{{0pt}}\r\n\\begin{{document}}\r\n{body}\r\n\r\n{body}\r\n\\end{{document}}\r\n");
+        let s = session(&source);let p = s.source_projection("main.tex").unwrap();
+        exact_partition(&p, &source);assert_eq!(candidates(&p).len(), 2);
+        for i in candidates(&p) {
+            assert_eq!(p.text(i), Some(body));
+            assert_eq!(p.regions()[i].readiness(OperationKind::ReplaceText), Readiness::CandidateRequiringPlanAndProof);
+        }
+        assert_eq!(s.history_len(), 0);assert_eq!(s.sources()["main.tex"], source);
+    }
+    for preamble in ["\\setdefaultlanguage{english}\n\\setmainfont{Times New Roman}", "\\setlength{\\parskip}{1.5bp}"] {
+        let source = format!("{preamble}\n{}", document("Text."));
+        assert_eq!(candidates(&session(&source).source_projection("main.tex").unwrap()).len(), 1);
+    }
+}
+
+#[test]
+fn computed_font_language_and_length_forms_or_body_changes_stay_opaque() {
+    for setup in [
+        "\\setmainfont[Color=red]{Arial}", "\\setmainfont{Arial}[Color=red]",
+        "\\setmainfont{\\selectedfont}", "\\setmainfont{{Arial}}", "\\setmainfont{Arial%comment\n}",
+        "\\setdefaultlanguage[variant=modern]{arabic}", "\\setdefaultlanguage{french}",
+        "\\newfontfamily\\begin[Script=Arabic]{Arial}", "\\newfontfamily\\arabicfont[Script=Hebrew]{Arial}",
+        "\\newfontfamily\\arabicfont[Script=Arabic,Color=red]{Arial}", "\\newfontfamily\\hebrewfont{Arial}",
+        "\\newfontfamily\\hebrewfont[Script=Hebrew]{Arial}[Color=red]",
+        "\\setlength{\\parindent}{\\textwidth}", "\\setlength{\\catcode}{0pt}",
+        "\\setlength{\\parindent}{1pt plus 2pt}", "\\setlength{\\parindent}{1e3pt}",
+        "\\setlength{\\parskip}{1..5pt}", "\\setlength{\\parskip}{pt}",
+    ] {
+        let source = format!("{setup}\n{}", document("Text."));let s = session(&source);let p = s.source_projection("main.tex").unwrap();
+        exact_partition(&p, &source);assert!(candidates(&p).is_empty(), "{setup}");
+    }
+    for body in ["\\setmainfont{Arial}\n\nText.", "{\\setdefaultlanguage{hebrew}}\n\nText.", "\\newfontfamily\\arabicfont[Script=Arabic]{Arial}\n\nText."] {
+        let source = document(body);let s = session(&source);let p = s.source_projection("main.tex").unwrap();
+        assert!(candidates(&p).is_empty(), "{body}");
+    }
+    let source = format!("\\setmainfont{{Arial}}\n\\newcommand{{\\x}}{{bad}}\n{}", document("Text."));
+    assert!(candidates(&session(&source).source_projection("main.tex").unwrap()).is_empty());
+}
+
+#[test]
 fn opaque_markup_does_not_become_an_editable_paragraph() {
     let source = document("Before.\n\n\\textbf{Keep {nested} markup}.\n\nAfter.");
     let s = session(&source);

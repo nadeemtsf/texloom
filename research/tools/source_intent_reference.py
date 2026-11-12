@@ -22,11 +22,14 @@ CASES = (
      "same": "مرحبا بالعالم.", "tail": "هذا نص ثابت.",
      "changed_tail": "هذا نص مختلف.", "literal": "نص جديد & تجربة 50%.",
      "escaped": r"نص جديد \& تجربة 50\%."},
-    {"id": "hebrew-luatex", "engine": "lualatex", "language": "hebrew",
+    {"id": "hebrew-xetex", "engine": "xelatex", "language": "hebrew",
      "same": "שלום עולם.", "tail": "זהו טקסט קבוע.",
      "changed_tail": "זהו טקסט שונה.", "literal": "טקסט חדש & בדיקה 50%.",
      "escaped": r"טקסט חדש \& בדיקה 50\%."},
 )
+CASES = (*CASES, {**CASES[0], "id": "english-luatex", "engine": "lualatex"})
+EXPECTED_ROWS = len(CASES) * 6
+
 
 
 def document(case: dict, first: str, second: str, tail: str) -> bytes:
@@ -84,13 +87,13 @@ def main() -> int:
     tools = {"text": executable(None, "pdftotext"), "raster": executable(None, "pdftoppm")}
     output.mkdir(parents=True, exist_ok=False)
     plan = ROOT / "research/SOURCE-INTENT-REFERENCE-PLAN.md"
-    record = {"schema": 1, "kind": "development_source_intent_occurrence_reference_not_app_acceptance",
+    record = {"schema": 1, "protocol_version": 2, "kind": "development_source_intent_occurrence_reference_not_app_acceptance",
               "recorded_utc": datetime.now(timezone.utc).isoformat(),
               "source_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
               "binary_sha256": digest(binary), "runner_sha256": digest(Path(__file__)),
               "plan_sha256": digest(plan), "conditions": list(CASES), "tools": {}, "rows": [], "compile_failure_controls": [],
               "originals_unchanged": False, "complete": False, "app_acceptance_executed": False,
-              "limitations": ["Three language/engine conditions, not their full cross product; one Windows host.",
+              "limitations": ["Four language/engine conditions, not their full cross product; one Windows host; corrected protocol reuses development cases.",
                               "Read-only planner/CLI entry: no PDF selection, native approval, source/history/Save or UI.",
                               "No held-out data, final accuracy/FPS/latency or universal language/rendering claim.",
                               "Expected source/labels have no independent human review; exact raster equality is host/tool specific.",
@@ -159,7 +162,7 @@ def main() -> int:
         record["interruption"] = f"{type(error).__name__}: {error}"
     finally:
         record["expectations_met"] = sum(bool(row["expectation_met"]) for row in record["rows"])
-        record["complete"] = (len(record["rows"]) == 18 and record["expectations_met"] == 18 and
+        record["complete"] = (len(record["rows"]) == EXPECTED_ROWS and record["expectations_met"] == EXPECTED_ROWS and
             len(record["compile_failure_controls"]) == 2 and all(row["expectation_met"] for row in record["compile_failure_controls"]) and
             record["originals_unchanged"] and "interruption" not in record)
         (output / "receipt.json").write_text(json.dumps(record, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")

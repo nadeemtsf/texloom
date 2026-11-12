@@ -208,6 +208,100 @@ struct Envelope {
     body: Range<usize>,
     blocked: Vec<Range<usize>>,
 }
+
+/// Bounded lexical forms in the preamble only. This preserves their bytes and
+/// does not establish package/font semantics, compilation or visual authority.
+/// Unknown options, computed arguments and general macro definitions stay opaque.
+fn preamble_form(source: &str, command: &str, end: usize) -> Option<Result<usize, OpaqueReason>> {
+    fn argument(source: &str, at: usize) -> Result<(&str, usize), OpaqueReason> {
+        let (range, end) =
+            crate::argument(source, at).map_err(|_| OpaqueReason::IncompleteStructure)?;
+        Ok((&source[range], end))
+    }
+    fn font_name(name: &str) -> bool {
+        !name.is_empty()
+            && name.len() <= 128
+            && name
+                .bytes()
+                .all(|c| c.is_ascii_alphanumeric() || matches!(c, b' ' | b'-'))
+    }
+    let parsed = || -> Result<usize, OpaqueReason> {
+        let unsupported = OpaqueReason::UnsupportedSyntax;
+        match command {
+            "\\setmainfont" => {
+                let (name, after) = argument(source, end)?;
+                if !font_name(name) {
+                    return Err(unsupported);
+                }
+                // fontspec also permits trailing options; they are outside this subset.
+                if source[crate::skip_space(source, after)..].starts_with('[') {
+                    return Err(unsupported);
+                }
+                Ok(after)
+            }
+            "\\setdefaultlanguage" => {
+                let (language, after) = argument(source, end)?;
+                if !["english", "arabic", "hebrew"].contains(&language) {
+                    return Err(unsupported);
+                }
+                Ok(after)
+            }
+            "\\newfontfamily" => {
+                let at = crate::skip_space(source, end);
+                if !source[at..].starts_with('\\') {
+                    return Err(unsupported);
+                }
+                let (switch, after_switch) = crate::command(source, at);
+                let options = match switch {
+                    "\\arabicfont" => "[Script=Arabic]",
+                    "\\hebrewfont" => "[Script=Hebrew]",
+                    _ => return Err(unsupported),
+                };
+                let at = crate::skip_space(source, after_switch);
+                if !source[at..].starts_with(options) {
+                    return Err(unsupported);
+                }
+                let (name, after) = argument(source, at + options.len())?;
+                if !font_name(name) || source[crate::skip_space(source, after)..].starts_with('[') {
+                    return Err(unsupported);
+                }
+                Ok(after)
+            }
+            "\\setlength" => {
+                let (register, after) = argument(source, end)?;
+                if !["\\parindent", "\\parskip"].contains(&register) {
+                    return Err(unsupported);
+                }
+                let (dimension, after) = argument(source, after)?;
+                if dimension.len() > 32 {
+                    return Err(unsupported);
+                }
+                let number = ["pt", "bp", "mm", "cm"]
+                    .iter()
+                    .find_map(|unit| dimension.strip_suffix(unit));
+                let valid = number.is_some_and(|s| {
+                    !s.is_empty()
+                        && s.bytes().all(|c| c.is_ascii_digit() || c == b'.')
+                        && s.bytes().filter(|&c| c == b'.').count() <= 1
+                        && s.parse::<f64>().is_ok_and(f64::is_finite)
+                });
+                if !valid {
+                    return Err(unsupported);
+                }
+                Ok(after)
+            }
+            _ => unreachable!(),
+        }
+    };
+    [
+        "\\setmainfont",
+        "\\setdefaultlanguage",
+        "\\newfontfamily",
+        "\\setlength",
+    ]
+    .contains(&command)
+    .then(parsed)
+}
 fn envelope(source: &str) -> Result<Envelope, OpaqueReason> {
     let mut i = 0;
     let mut steps = 0;
@@ -256,6 +350,14 @@ fn envelope(source: &str) -> Result<Envelope, OpaqueReason> {
                     || command.starts_with("\\if")
                 {
                     return Err(OpaqueReason::DynamicSyntax);
+                }
+                if begin.is_none() && groups.is_empty() && envs.is_empty() {
+                    if let Some(parsed) = preamble_form(source, command, end) {
+                        let after = parsed?;
+                        blocked.push(i..after);
+                        i = after;
+                        continue;
+                    }
                 }
                 // Exact kernel spellings emitted by escape_text. Recognize
                 // only their empty terminator group, not arbitrary arguments

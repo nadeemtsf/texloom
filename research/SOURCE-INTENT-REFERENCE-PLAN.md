@@ -77,3 +77,33 @@ font proof. RTL reference matching does not alone prove linguistically correct
 shaping; inspect representative reference renders separately and retain that limit.
 No latency, FPS, final accuracy denominator, novel-system or publication-readiness
 claim follows. Development fixtures are excluded from the future held-out set.
+
+
+## Protocol amendment before corrective run — 12 November
+
+The first run at `b8b3044` is preserved under
+`artifacts/continuation-20261112/source-intent-reference/`: 18 rows, 8 meeting
+expectations, two deliberate compiler failures retained. All six actual-planner
+calls refused because the document-wide conservative parser did not recognize
+`setlength` or the font/language preamble commands. The Hebrew/LuaLaTeX
+reference/control setup also failed because `unibidi-lua.sty` is unavailable.
+These are observed limits, not passing multilingual edits. The wrong-occurrence
+English/Arabic deletion controls nevertheless matched the rendered references
+while disagreeing with the declared source edit.
+
+A narrow source-model extension will recognize only checked preamble forms for
+plain font names, current default languages, the Arabic/Hebrew font switches with
+exact Script options, and literal `parindent`/`parskip` dimensions. Unknown and
+computed forms, arbitrary definitions, options and body context changes remain
+opaque; recognized paragraphs still require a plan and render proof. Do not
+change the existing visual acceptance policy or install packages.
+
+Before the corrective run, the runner's conditions are amended to English with
+pdfLaTeX and LuaLaTeX, Arabic with XeLaTeX, and Hebrew with XeLaTeX. The missing
+Hebrew/LuaTeX setup remains a retained environmental gate; the alternative
+XeLaTeX condition does not resolve or pass it. The four-condition run expects
+24 comparisons plus the same two deliberate English/pdfLaTeX compile failures.
+The three variants/criteria above are unchanged. Original and corrected inputs,
+plan/runner/code hashes and outcomes remain distinct. This is a corrective
+protocol using reused development cases, not an independent replication or a
+full language/engine cross product.
