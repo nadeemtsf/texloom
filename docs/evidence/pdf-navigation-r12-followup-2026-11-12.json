@@ -105,5 +105,11 @@
     "No release/final evaluation or universal performance claim"
   ],
   "source_commit": "c93799b5cce542db3f7fdc04882d424f797c07f5",
-  "artifact_receipt": "docs/evidence/pdf-navigation-r12-artifacts-2026-11-12.json"
+  "artifact_receipt": "docs/evidence/pdf-navigation-r12-artifacts-2026-11-12.json",
+  "packaging_review": {
+    "result": "Corrected bundled UTF-8 notes before owner handoff, then regenerated and verified the portable package. Application EXE unchanged. The superseded pre-delivery exports/receipt remain in work/r12-preflight-exports-encoding in the chat workspace.",
+    "distribution_docs_head": "2affe32191ddf00daa53e6b0834a9ca1f65069aa",
+    "bundled_notes": "VALIDATION.md and README.md checked byte-identical to repository inputs during export; historical UTF-8 text restored from pre-amendment commit.",
+    "application_diff_from_built_source": "git diff c93799b -- web crates src-tauri resources is empty"
+  }
 }

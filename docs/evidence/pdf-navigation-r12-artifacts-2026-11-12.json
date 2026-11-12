@@ -1,9 +1,10 @@
 {
   "schema": 1,
-  "recorded_utc": "2026-11-12T17:26:30.227672+00:00",
+  "recorded_utc": "2026-11-12T17:29:01.411543+00:00",
   "kind": "r12_navigation_selection_artifact_verification",
   "status": "owner_acceptance_pending",
   "source_commit": "c93799b5cce542db3f7fdc04882d424f797c07f5",
+  "distribution_docs_head": "2affe32191ddf00daa53e6b0834a9ca1f65069aa",
   "exe": {
     "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-r12-Windows-x64-2026-11-12\\Texloom.exe",
     "bytes": 17058304,
@@ -12,8 +13,8 @@
   "exports": [
     {
       "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-Windows-x64-development-2026-11-12-r12.zip",
-      "bytes": 12127931,
-      "sha256": "294bd3eb6d4553065fab9f87e4c2eeac6b7dbc468cdd7c6b16af1a0cf6e969ac"
+      "bytes": 12128000,
+      "sha256": "08f40dda7556881e9556a2525b00f3cfa2b62bf12c3b2ffccef0c242fbed3ef3"
     },
     {
       "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-0.3.0-x64-development-2026-11-12-r12-setup.exe",
