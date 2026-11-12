@@ -405,8 +405,8 @@ async function discardSaveRecovery(){
 const selectionProofs=new WeakMap();
 async function resolveSourceSelection({buildId,page,points,hits,trace=null}){
   if(!fresh()||buildId!==state.result.build_id)throw new StaleCandidate();
-  const identity=sessionIdentity(state),baseline=state.view,client=state.client,seen=new Set();
-  const assertCurrent=()=>{if(sessionIdentity(state)!==identity||state.view!==baseline)throw new StaleCandidate()};
+  const identity=sessionIdentity(state),baseline=state.view,scale=baseline.scale,dpr=globalThis.devicePixelRatio||1,client=state.client,seen=new Set();
+  const assertCurrent=()=>{if(sessionIdentity(state)!==identity||state.view!==baseline||baseline.scale!==scale||(globalThis.devicePixelRatio||1)!==dpr||state.previewZooming)throw new StaleCandidate()};
   const variants=[points,...[0.5,0.85].map(fraction=>hits.map(h=>({x:h.x+h.width*fraction,y:h.baseline-h.height*0.35})))];
   state.busy=true;state.cancelRequested=false;clearTimeout(state.compileTimer);updateControls();
   try{
@@ -432,6 +432,7 @@ async function resolveSourceSelection({buildId,page,points,hits,trace=null}){
         const plan=await invoke('plan_text_object',{request:{sources:clone(state.sources),main:state.project.main,file:resolved.file,
           action:'wrap',id,selection:[resolved.start,resolved.end],expected:resolved.content,dx:0,dy:0}});
         assertCurrent();
+        await baseline.prepareSelectionProof();assertCurrent();
         const candidate=await client.prepare(plan.sources,buildId);token=candidate.token;
         trace?.mark('native-prepared');
         const staged=await stageCandidate({sources:plan.sources,revision:candidate.revision,identity,getIdentity:()=>sessionIdentity(state),

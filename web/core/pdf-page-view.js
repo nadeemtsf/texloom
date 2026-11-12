@@ -37,8 +37,9 @@ export async function preparePagedPDF(pdfjs,pdf,result,{width,zoom=0,mode='selec
   const bus=new pdfjs.EventBus(),cache=new Map(),running=new Map(),waiting=new Map(),queue=[],visible=new Set();
   let disposed=false,observer=null,scroller=null,notify=()=>{},clock=0,version=0,zooming=false;
   const view={pdf,result,fragment,pages,objects,unclosed,pageSizes,pageCount:pdf.numPages,scale,mode,
-    lazy:readingOnly,ensurePage,mount,dispose,zoomTo,finishZoom};
+    lazy:readingOnly,ensurePage,mount,dispose,zoomTo,finishZoom,prepareSelectionProof};
   const check=()=>{if(disposed||signal?.aborted)throw Error('PDF view was closed.')};
+  const pixelRatio=()=>globalThis.devicePixelRatio||1;
   const syncSize=item=>{
     const {viewport}=item.pageView;
     Object.assign(item.shell.style,{width:viewport.width+'px',height:viewport.height+'px'});
@@ -54,12 +55,15 @@ export async function preparePagedPDF(pdfjs,pdf,result,{width,zoom=0,mode='selec
       const linkService=new pdfjs.SimpleLinkService();linkService.externalLinkEnabled=false;
       const pageView=new pdfjs.PDFPageView({container:shell,id:n,eventBus:bus,scale:scale/CSS_UNITS,
         defaultViewport:page.getViewport({scale}),enableDetailCanvas:false,enableAutoLinking:false,
+        // Use the declared budgets below, not a screen-area heuristic that can
+        // allocate unequal proof canvases after a display/metrics transition.
+        capCanvasAreaFactor:-1,
         maxCanvasPixels:readingOnly?16_000_000:Math.min(16_000_000,Math.floor(64_000_000/pdf.numPages)),
         annotationMode:pdfjs.AnnotationMode.ENABLE,
         layerProperties:{linkService,enableScripting:false,annotationEditorUIManager:null},
         optionalContentConfigPromise:pdf.getOptionalContentConfig?.({intent:'display'})});
       pageView.setPdfPage(page);
-      const item={number:n,shell,pageView,lines:[],runs:[],paintedVersion:-1,
+      const item={number:n,shell,pageView,lines:[],runs:[],paintedVersion:-1,paintedDpr:0,
         selectionReason:readingOnly?'This long document supports reading and source editing. Layout verification is limited to 20 pages.':null};
       pages.push(item);pageSizes.set(n,{width:base.width,height:base.height});syncSize(item);fragment.append(shell);
       if(geometry)await geometry(page,base,item,view);
@@ -71,8 +75,8 @@ export async function preparePagedPDF(pdfjs,pdf,result,{width,zoom=0,mode='selec
   }catch(error){dispose();throw error}
 
   async function paint(item,atVersion){
-    check();const pv=item.pageView;
-    if(pv.renderingState!==0)pv.update({scale:view.scale/CSS_UNITS});
+    check();const pv=item.pageView,ratio=pixelRatio();
+    pv.update({scale:view.scale/CSS_UNITS});
     // draw() resolves the raster before every text-layer promise; require both.
     let settle;const textReady=new Promise((resolve,reject)=>{settle={resolve,reject}});
     const onText=event=>{if(event.source===pv){event.error?settle.reject(event.error):settle.resolve()}};
@@ -80,8 +84,8 @@ export async function preparePagedPDF(pdfjs,pdf,result,{width,zoom=0,mode='selec
     bus.on('textlayerrendered',onText);const task=running.get(item.number);task.cancel=cancel;
     try{
       await Promise.all([pv.draw(),textReady]);check();
-      if(atVersion!==version)throw Error('PDF rendering was superseded.');
-      item.paintedVersion=atVersion;item.shell.classList.remove('pending-page');cache.set(item.number,++clock);evict(item.number);
+      if(atVersion!==version||ratio!==pixelRatio())throw Error('PDF rendering was superseded.');
+      item.paintedVersion=atVersion;item.paintedDpr=ratio;item.shell.classList.remove('pending-page');cache.set(item.number,++clock);evict(item.number);
       return item;
     }finally{bus.off('textlayerrendered',onText);cancel()}
   }
@@ -102,7 +106,7 @@ export async function preparePagedPDF(pdfjs,pdf,result,{width,zoom=0,mode='selec
   function ensurePage(number){
     try{check()}catch(error){return Promise.reject(error)}
     const item=pages[number-1];if(!item)return Promise.reject(Error('PDF page does not exist.'));
-    if(item.paintedVersion===version){cache.set(number,++clock);return Promise.resolve(item)}
+    if(item.paintedVersion===version&&item.paintedDpr===pixelRatio()){cache.set(number,++clock);return Promise.resolve(item)}
     const key=version+':'+number;if(waiting.has(key))return waiting.get(key);
     const promise=new Promise((resolve,reject)=>queue.push({number,version,resolve,reject}));waiting.set(key,promise);
     promise.finally(()=>waiting.delete(key)).catch(()=>{});pump();return promise;
@@ -133,6 +137,16 @@ export async function preparePagedPDF(pdfjs,pdf,result,{width,zoom=0,mode='selec
     check();const atVersion=version;zooming=false;
     // Offscreen pages retain their scaled bitmap until approached; no full-PDF repaint.
     await Promise.all(nearPages().map(ensurePage));check();return atVersion===version;
+  }
+  async function prepareSelectionProof(){
+    check();
+    if(readingOnly)throw Error('This long document supports reading and source editing only.');
+    const atVersion=version,ratio=pixelRatio();
+    // Zoom deliberately leaves offscreen bitmaps at their previous resolution.
+    // An identity proof compares EVERY page, so first paint the entire bounded
+    // short view at its current scale. No resampling or relaxed pixel comparison.
+    await Promise.all(pages.map(item=>ensurePage(item.number)));check();
+    if(atVersion!==version||ratio!==pixelRatio())throw Error('PDF rendering was superseded.');
   }
   function dispose(){
     if(disposed)return;disposed=true;observer?.disconnect();signal?.removeEventListener('abort',dispose);

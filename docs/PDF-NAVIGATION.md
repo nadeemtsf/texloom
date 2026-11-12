@@ -28,3 +28,18 @@ The final owner check must use the newly named r10 build, not the installed shor
 - [Mozilla PDF.js viewer, pinned v6.2.108](https://github.com/mozilla/pdf.js/blob/v6.2.108/web/pdf_viewer.js): zoom origin, page-location and viewport scaling patterns.
 
 No Overleaf application code is copied. Texloom uses its already included PDF.js dependency, with Mozilla notices retained in the distribution.
+
+
+## Owner r10 follow-up and targeted correction
+
+The owner reports ordinary scrolling is good enough, but Select objects fails with either preview-scale or normal-document-flow errors, and laptop touchpad zoom fails with or without Ctrl. Other checklist outcomes are not assumed. The r10 feature is not accepted. Its source/artifact remains immutable.
+
+The first error is reproduced: nearby-only zoom refinement left offscreen canvases at old resolutions, but selection identity compares the entire short PDF against a freshly rendered probe. Before a new identity proof, the shared renderer now paints all bounded short-view pages at the captured scale/current DPR. Exact pixels, glyphs, markers, page structure, budgets and wrong-occurrence checks are retained. The canonical PDFPageView canvas is used, zero-size canvases refuse, and a changed scale/DPR/source during proof preparation invalidates it. Explicit existing raster budgets replace the SDK's changing screen-area heuristic; retained/in-progress old bitmaps are additional transient memory, not an advertised memory cap.
+
+The second error is reproduced before a page break: the unit resolver swallowed standalone page-flow commands. Exact newpage/clearpage/cleardoublepage/pagebreak/nopagebreak commands now bound the paragraph without entering its wrapper. Inline structural content and grouping across the command still refuse.
+
+For laptop pinch, pinned Tauri/wry disabled native zoom input by default. The configuration now enables that delivery path. Browser-default wheel zoom outside the PDF and browser zoom keys are canceled, while the PDF's Ctrl-wheel handler consumes its own events. This is SDK configuration and existing input routing, not a new gesture recognizer. [Microsoft documents the separate pinch setting](https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2settings.ispinchzoomenabled). Actual hardware behavior requires owner confirmation.
+
+306 frontend,147 core and148 recovery-serde checks pass. The expanded headless suite passes33 cases, including initial/post-zoom selection, emulated density change, outside-pane zoom suppression and rejection of offscreen non-text changes. A separate six-pair corpus compiles nine baseline/probe PDFs under all three engines and passes strict PDF.js identity for text immediately before/after page breaks after zoom. It bypasses native SyncTeX/UI interaction and does not establish physical gestures. The dated owner-follow-up receipt preserves the original failures and test-harness corrections. The exact next Windows artifact and owner acceptance are recorded separately.
+
+Owner scope: finish this feature and exposed selection regressions only; wait for owner tests and fix failures until they pass, then stop. Other implementation/research work is on hold. The branch/push question is deferred until this feature passes; no push is authorized.

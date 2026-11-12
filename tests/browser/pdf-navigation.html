@@ -12,18 +12,19 @@ import {prepareLoadedPDF,publishPDFView} from '/web/core/pdf-surface.js';
 import {loadPDFDocument} from '/web/core/pdf-document.js';
 import {capturePDFZoomAnchor} from '/web/core/pdf-page-view.js';
 import {bindPDFScrolling} from '/web/core/pdf-scroll.js';
+import {validateSelectionProbe} from '/web/core/selection-proof.js';
 pdfjs.GlobalWorkerOptions.workerSrc=worker;
 const library={...pdfjs,PDFPageView,EventBus,SimpleLinkService};
 const scroller=document.getElementById('preview-scroll');
 const elements={scroller,pages:document.getElementById('pages'),count:document.getElementById('count'),empty:document.getElementById('empty')};
 // Deterministic, shareable PDF: distinct English pages, vector grid, mixed sizes.
-function syntheticPDF(count){
+function syntheticPDF(count,{inkFault=false}={}){
  const objects=['<< /Type /Catalog /Pages 2 0 R >>','', '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>'];
  const kids=[];
  for(let n=1;n<=count;n++){
   const id=objects.length+1,w=n%2?600:720,h=n%2?800:900;kids.push(`${id} 0 R`);
-  const lines=Array.from({length:20},(_,i)=>`BT /F1 14 Tf 70 ${h-80-i*30} Td (Page ${n} anchor line ${i+1}) Tj ET`).join('\n');
-  const content=`0.4 w 0.2 0.4 0.6 RG 50 50 ${w-100} ${h-100} re S\n${lines}\n`;
+  const lines=Array.from({length:20},(_,i)=>`${n===3&&i===8?'/Texloom_navtarget BMC ':''}BT /F1 14 Tf 70 ${h-80-i*30} Td (Page ${n} anchor line ${i+1}) Tj ET${n===3&&i===8?' EMC':''}`).join('\n');
+  const content=`0.4 w 0.2 0.4 0.6 RG 50 50 ${w-100} ${h-100} re S\n${lines}\n${inkFault&&n===count?'0 0 0 rg 10 10 10 10 re f\n':''}`;
   objects.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${w} ${h}] /Resources << /Font << /F1 3 0 R >> >> /Contents ${id+1} 0 R >>`);
   objects.push(`<< /Length ${content.length} >>\nstream\n${content}endstream`);
  }
@@ -36,9 +37,13 @@ function syntheticPDF(count){
  return new TextEncoder().encode(text);
 }
 let view,pdf,binding,paintCalls=0,refinements=0,lastRefinement=Promise.resolve();
-async function open(count){
+async function fixturePDF(data){
+ return loadPDFDocument(pdfjs,{data,cMapUrl:'/web/public/pdfjs/cmaps/',cMapPacked:true,
+  standardFontDataUrl:'/web/public/pdfjs/standard_fonts/',wasmUrl:'/web/public/pdfjs/wasm/'});
+}
+async function open(count,{url=null}={}){
  binding?.dispose();view?.dispose();await pdf?.destroy();
- pdf=await loadPDFDocument(pdfjs,{data:syntheticPDF(count)});
+ pdf=await fixturePDF(url?new Uint8Array(await (await fetch(url)).arrayBuffer()):syntheticPDF(count));count=pdf.numPages;
  for(let n=1;n<=count;n++){
   const page=await pdf.getPage(n),render=page.render.bind(page);
   page.render=(...args)=>{paintCalls++;return render(...args)};
@@ -54,7 +59,19 @@ function status(){return {scale:view.scale,paintCalls,refinements,pageCount:view
  text:[...document.querySelectorAll('.textLayer span')].map(s=>s.textContent).join(' '),
  scrollTop:scroller.scrollTop,scrollLeft:scroller.scrollLeft,clientWidth:scroller.clientWidth};}
 function point(origin){const a=capturePDFZoomAnchor(view,scroller,origin);return {page:a.item.number,pdf:a.point};}
+async function proveSelection({inkFault=false,prepare=true,url=null,id='navtarget',page=3,hitText='anchor line 9'}={}){
+ const probePDF=await fixturePDF(url?new Uint8Array(await (await fetch(url)).arrayBuffer()):syntheticPDF(view.pageCount,{inkFault}));let probe;
+ try{
+  if(prepare)await view.prepareSelectionProof();
+  probe=await prepareLoadedPDF(library,probePDF,{objects:[]},{width:scroller.clientWidth,zoom:view.scale,mode:'select'});
+  const hit=view.pages[page-1].lines.find(line=>line.text.includes(hitText));
+  if(!hit)throw Error('Fixture target line missing: '+hitText);
+  const proof=validateSelectionProbe(view,probe,id,[hit],page);
+  return {schema:proof.schema,page:proof.page,lines:proof.lines.length};
+ }finally{probe?.dispose();await probePDF.destroy()}
+}
 window.fixture={open,status,point,elements,get view(){return view},
+ proveSelection,
  zoom:(scale,origin)=>view.zoomTo(scale,elements,origin),finish:()=>view.finishZoom(),
  wheel:options=>scroller.dispatchEvent(new WheelEvent('wheel',{bubbles:true,cancelable:true,...options})),
  waitRefinement:()=>lastRefinement,

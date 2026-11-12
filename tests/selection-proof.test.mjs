@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {validateSelectionProbe} from '../web/core/selection-proof.js';
+import {validateSelectionProbe,canvasRaster} from '../web/core/selection-proof.js';
 import {extractTextGeometry} from '../web/core/geometry.js';
 
 const run=(text,x,y=50)=>({text,x,y,width:80,height:12,baseline:y+10,size:12,page:1});
@@ -54,4 +54,10 @@ test('unsupported page coordinates and verification memory limits fail explicitl
 test('PDF marker extraction counts distinct occurrences instead of silently merging them',()=>{
  const items=[];for(let i=0;i<2;i++)items.push({type:'beginMarkedContent',tag:'Texloom_repeat'},{str:'Text',transform:[12,0,0,12,20,700-i*20],width:30,fontName:'a'},{type:'endMarkedContent'});
  assert.equal(extractTextGeometry(items,{},1,800).objects.get('repeat').instances,2);
+});
+
+test('identity reads the page renderer canvas and refuses an unpainted zero-sized bitmap',()=>{
+ const canvas={width:2,height:1,getContext:()=>({getImageData:()=>({data:new Uint8Array(8)})})};
+ const page={pageView:{canvas},shell:{querySelector(){throw Error('must not select an auxiliary canvas')}}};
+ assert.equal(canvasRaster(page).width,2);canvas.width=0;assert.throws(()=>canvasRaster(page),/verification limit/);
 });

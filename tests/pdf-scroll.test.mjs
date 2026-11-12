@@ -79,3 +79,16 @@ test('Ctrl zoom forwards the cursor origin immediately and defers sharp drawing 
  send({ctrlKey:true,deltaY:-40,clientX:351.5,clientY:204.25});
  assert.deepEqual(observed.origin,[351.5,204.25]);assert.ok(observed.scale>1);assert.equal(delay,400);assert.equal(draws,0);binding.dispose();
 });
+
+test('browser zoom input is routed to the PDF and blocked elsewhere without swallowing ordinary scroll',()=>{
+ const handlers=new Map(),eventRoot={addEventListener(n,fn){handlers.set(n,fn)},removeEventListener(n){handlers.delete(n)}};
+ const {viewport,send,binding}=fixture({eventRoot,getScale:()=>1,onZoom(){}});
+ const outside={ctrlKey:true,cancelable:true,target:{},preventDefault(){this.prevented=true}};
+ handlers.get('wheel')(outside);assert.equal(outside.prevented,true);
+ const inside={...outside,prevented:false,composedPath:()=>[viewport,eventRoot]};
+ handlers.get('wheel')(inside);assert.equal(inside.prevented,false);assert.equal(send({ctrlKey:true,deltaY:-20}).prevented,true);
+ const ordinary={...outside,ctrlKey:false,prevented:false};handlers.get('wheel')(ordinary);assert.equal(ordinary.prevented,false);
+ for(const key of ['+','=','-','0']){const e={...outside,key,prevented:false};handlers.get('keydown')(e);assert.equal(e.prevented,true)}
+ const find={...outside,key:'f',prevented:false};handlers.get('keydown')(find);assert.equal(find.prevented,false);
+ binding.dispose();assert.equal(handlers.size,0);
+});

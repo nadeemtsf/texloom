@@ -10,7 +10,7 @@
     "frontendDist": "../dist"
   },
   "app": {
-    "windows": [{ "label": "main", "title": "Texloom — Source & canvas", "width": 1480, "height": 950, "minWidth": 1024, "minHeight": 680 }],
+    "windows": [{ "label": "main", "title": "Texloom — Source & canvas", "width": 1480, "height": 950, "minWidth": 1024, "minHeight": 680, "zoomHotkeysEnabled": true }],
     "security": {
       "csp": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; worker-src 'self' blob:; connect-src 'self' ipc: http://ipc.localhost; object-src 'none'; base-uri 'none'; frame-src 'none'"
     }

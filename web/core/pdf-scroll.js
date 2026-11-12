@@ -16,10 +16,19 @@ export function pdfWheelDelta(event,viewport,lineSize=20){
   return event.ctrlKey||event.metaKey?null:wheelDelta(event,viewport,lineSize);
 }
 
-export function bindPDFScrolling(viewport,{getScale=()=>null,onZoom=null,renderZoom=()=>{},onNavigate=()=>{},
+export function bindPDFScrolling(viewport,{getScale=()=>null,onZoom=null,renderZoom=()=>{},onNavigate=()=>{},eventRoot=viewport.ownerDocument,
   setTimer=(fn,delay)=>globalThis.setTimeout(fn,delay),clearTimer=id=>globalThis.clearTimeout(id)}={}){
   let zoomTimer=null;
   const cancelZoom=()=>{if(zoomTimer!==null){clearTimer(zoomTimer);zoomTimer=null}};
+  // WebView2 must allow zoom input to deliver precision-touchpad pinch events.
+  // Cancel its browser defaults so only the PDF handler consumes those events.
+  const withinPDF=event=>event.composedPath?.().includes(viewport)||event.target===viewport||viewport.contains?.(event.target);
+  const shellWheel=event=>{
+    if((event.ctrlKey||event.metaKey)&&event.cancelable!==false&&!withinPDF(event))event.preventDefault();
+  };
+  const shellKey=event=>{
+    if((event.ctrlKey||event.metaKey)&&!event.altKey&&['+','=','-','0','Add','Subtract'].includes(event.key)&&event.cancelable!==false)event.preventDefault();
+  };
   const wheel=event=>{
     if(event.ctrlKey&&onZoom){
       const delta=wheelDelta(event,viewport);if(!delta||!delta.y)return;
@@ -41,5 +50,7 @@ export function bindPDFScrolling(viewport,{getScale=()=>null,onZoom=null,renderZ
     viewport.scrollTop=nextTop;viewport.scrollLeft=nextLeft;
   };
   viewport.addEventListener('wheel',wheel,{passive:false});
-  return {cancelZoom,dispose(){cancelZoom();viewport.removeEventListener('wheel',wheel)}};
+  eventRoot?.addEventListener('wheel',shellWheel,{capture:true,passive:false});
+  eventRoot?.addEventListener('keydown',shellKey,{capture:true});
+  return {cancelZoom,dispose(){cancelZoom();viewport.removeEventListener('wheel',wheel);eventRoot?.removeEventListener('wheel',shellWheel,true);eventRoot?.removeEventListener('keydown',shellKey,true)}};
 }

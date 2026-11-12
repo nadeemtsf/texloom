@@ -8,8 +8,8 @@ function pairRuns(before,after){
   for(let i=0;i<before.length;i++)if(!sameRun(before[i],after[i]))throw new Error('The selection probe changed text or layout. Use source editing.');
 }
 export function canvasRaster(page){
-  const canvas=page.shell.querySelector('canvas');
-  if(!canvas||canvas.width*canvas.height>16*1024*1024)throw new Error('This page exceeds the selection verification limit. Use source editing.');
+  const canvas=page.pageView?.canvas||page.shell.querySelector('canvas');
+  if(!canvas||!canvas.width||!canvas.height||canvas.width*canvas.height>16*1024*1024)throw new Error('This page exceeds the selection verification limit. Use source editing.');
   return {width:canvas.width,height:canvas.height,data:canvas.getContext('2d',{willReadFrequently:true}).getImageData(0,0,canvas.width,canvas.height).data};
 }
 

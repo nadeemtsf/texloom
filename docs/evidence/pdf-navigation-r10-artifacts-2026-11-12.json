@@ -2,7 +2,7 @@
   "schema": 1,
   "date": "2026-11-12",
   "kind": "r10_windows_navigation_artifact_verification_not_native_acceptance",
-  "status": "built_owner_acceptance_pending",
+  "status": "owner_scroll_acceptable_selection_and_pinch_failed",
   "source_commit": "663b7e28307374f266fa04010810ac0c8997a651",
   "all_portable_members_bytes_hashes_crc": "passed",
   "portable_members": 15,
@@ -60,5 +60,6 @@
     "bytes": 12520,
     "sha256": "308581a1ac73bce3d9c2945ce75ea9f76094237b5822eca3be34a628bb780f41"
   },
-  "independent_pe_header_check": "passed AMD64 0x8664"
+  "independent_pe_header_check": "passed AMD64 0x8664",
+  "owner_followup_receipt": "docs/evidence/pdf-navigation-owner-followup-2026-11-12.json"
 }

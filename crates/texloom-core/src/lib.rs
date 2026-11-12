@@ -131,6 +131,10 @@ pub fn blocks(s: &str) -> Vec<Block> {
     result
 }
 
+fn page_flow_command(cmd: &str) -> bool {
+    matches!(cmd, "\\newpage" | "\\clearpage" | "\\cleardoublepage" | "\\pagebreak" | "\\nopagebreak")
+}
+
 pub fn validate_fragment(s: &str) -> Result<()> {
     let mut envs: Vec<String> = Vec::new();
     let mut braces = 0usize;
@@ -141,7 +145,7 @@ pub fn validate_fragment(s: &str) -> Result<()> {
             b'\\' => {
                 let (cmd, end) = command(s, i);
                 if let Some(after) = skip_literal(s, cmd, end) { i = after; continue; }
-                if ["\\newpage", "\\clearpage", "\\pagebreak", "\\input", "\\include", "\\usepackage", "\\documentclass", "\\AddToHook"].contains(&cmd) {
+                if page_flow_command(cmd) || ["\\input", "\\include", "\\usepackage", "\\documentclass", "\\AddToHook"].contains(&cmd) {
                     return Err("Page and project commands must remain in normal document flow".into());
                 }
                 if cmd == "\\begin" || cmd == "\\end" {

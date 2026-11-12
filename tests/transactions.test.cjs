@@ -53,7 +53,7 @@ async function setup({tracing=false,presentation=false}={}){
  let script=fs.readFileSync(require('node:path').join(__dirname,'../web/app.js'),'utf8').replace(/^import .*;\r?$/gm,'');
  script=script.replace(/\nopenProject\(\);\s*$/,'\n');vm.runInContext(script,context);
  const run=s=>vm.runInContext(s,context);
- run("state.project={id:'test',main:'main.tex'};state.compileApproved=true;state.sources={'main.tex':'Original source','studio.sty':'Style source'};state.saved=structuredClone(state.sources);state.file='main.tex';state.revision=0;state.compiled=0;state.result={build_id:'last-good',blocks:[]};state.view={pageCount:1,pages:[],scale:1};syncEditor=()=>{};renderOverlays=()=>{};renderInspector=()=>{};publishPrepared=(prepared,result)=>{state.pdf=prepared.pdf;state.result=result;state.compiled=state.revision};");
+ run("state.project={id:'test',main:'main.tex'};state.compileApproved=true;state.sources={'main.tex':'Original source','studio.sty':'Style source'};state.saved=structuredClone(state.sources);state.file='main.tex';state.revision=0;state.compiled=0;state.result={build_id:'last-good',blocks:[]};state.view={pageCount:1,pages:[],scale:1,prepareSelectionProof:async()=>{}};syncEditor=()=>{};renderOverlays=()=>{};renderInspector=()=>{};publishPrepared=(prepared,result)=>{state.pdf=prepared.pdf;state.result=result;state.compiled=state.revision};");
  run("state.client=new DocumentClient(invoke,'test',initialSnapshot,{changed:acceptDocument,failed:syncFailed});");
  return {run,control,native,model,composition,legacyGesture,elements};
 }
@@ -350,6 +350,13 @@ test('a selection proof failure destroys the private PDF and discards its source
  const t=await probeSetup();let destroyed=false;t.control.prepare=async()=>({pdf:{destroy:async()=>{destroyed=true}}});t.control.prove=()=>{throw new Error('Wrong source occurrence')};
  await assert.rejects(t.run("resolveSourceSelection({buildId:'last-good',page:1,points:[],hits:[]})"),/Wrong source occurrence/);
  assert.equal(destroyed,true);assert.equal(t.native.pending.size,0);assert.equal(t.native.history.length,0);assert.equal(t.run('state.result.build_id'),'last-good');
+});
+
+test('a scale change during full-page proof preparation cannot compile or authorize a stale selection',async()=>{
+ const t=await probeSetup();let builds=0;t.control.compile=async()=>{builds++;throw Error('unexpected compile')};
+ t.run('state.view.prepareSelectionProof=async()=>{state.view.scale=1.2}');
+ await assert.rejects(t.run("resolveSourceSelection({buildId:'last-good',page:1,points:[],hits:[]})"),/changed|superseded|stale/i);
+ assert.equal(builds,0);assert.equal(t.native.pending.size,0);assert.equal(t.native.history.length,0);assert.equal(t.run('state.busy'),false);
 });
 
 test('a wrong-source mapping cannot plan, compile, select or mutate the displayed document',async()=>{
