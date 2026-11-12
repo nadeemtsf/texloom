@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "kind": "development_evidence_inventory_not_evaluation_results",
-  "recorded_utc": "2026-11-12T16:22:13.361308+00:00",
-  "audited_head": "4fefcb0d4037d54da79f7b5405957862c470ddac",
+  "recorded_utc": "2026-11-12T17:27:25.433813+00:00",
+  "audited_head": "c93799b5cce542db3f7fdc04882d424f797c07f5",
   "working_tree_note": "Uncommitted report/evidence changes may be present; see the session checkpoint.",
   "final_evaluation_executed": false,
   "entries": [
@@ -460,12 +460,12 @@
     },
     {
       "path": "docs/evidence/pdf-navigation-owner-followup-2026-11-12.json",
-      "bytes": 8193,
-      "sha256": "d76c4775e4bcf4126de2cc28b7843af4f789eadcdf8a8709b00e9dd6016c8d98",
+      "bytes": 8482,
+      "sha256": "585cded47b1154d283bf208e93dda9bba5415b1bda4011092c75ca9431958a84",
       "audit_action": "read_parse_fingerprint_only",
       "experiment_reproduced_by_this_audit": false,
       "schema": 1,
-      "status": "built_owner_acceptance_pending",
+      "status": "r11_owner_checks_passed_r12_amendment_retest_pending",
       "source_commit": "e215bb694ecbd6981ea662eb6c5544a27ca69fb0",
       "recorded_utc": "2026-11-12T16:10:19.983839+00:00",
       "parse_status": "ok"
@@ -492,6 +492,30 @@
       "status": "owner_acceptance_pending",
       "source_commit": "e215bb694ecbd6981ea662eb6c5544a27ca69fb0",
       "recorded_utc": "2026-11-12T16:16:58.610414+00:00",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/pdf-navigation-r12-artifacts-2026-11-12.json",
+      "bytes": 2494,
+      "sha256": "0f306f9570a16c6187e4dbeda3cda0cea78e6bfc56a05a9b859743d472d4be12",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "owner_acceptance_pending",
+      "source_commit": "c93799b5cce542db3f7fdc04882d424f797c07f5",
+      "recorded_utc": "2026-11-12T17:26:30.227672+00:00",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/pdf-navigation-r12-followup-2026-11-12.json",
+      "bytes": 6184,
+      "sha256": "fc98ee7308aa321041d41b385ff724d10acdb9f621f99035e521a533e499d88e",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "built_owner_amendment_retest_pending",
+      "source_commit": "c93799b5cce542db3f7fdc04882d424f797c07f5",
+      "recorded_utc": "2026-11-12T17:27:25.029227+00:00",
       "parse_status": "ok"
     },
     {

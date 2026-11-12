@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-12T17:26:30.227672+00:00",
+  "kind": "r12_navigation_selection_artifact_verification",
+  "status": "owner_acceptance_pending",
+  "source_commit": "c93799b5cce542db3f7fdc04882d424f797c07f5",
+  "exe": {
+    "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-r12-Windows-x64-2026-11-12\\Texloom.exe",
+    "bytes": 17058304,
+    "sha256": "941799c70c2fddd8450d94bdc57497e61073e0b618c9a92fe4789e1dc289963e"
+  },
+  "exports": [
+    {
+      "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-Windows-x64-development-2026-11-12-r12.zip",
+      "bytes": 12127931,
+      "sha256": "294bd3eb6d4553065fab9f87e4c2eeac6b7dbc468cdd7c6b16af1a0cf6e969ac"
+    },
+    {
+      "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-0.3.0-x64-development-2026-11-12-r12-setup.exe",
+      "bytes": 9561166,
+      "sha256": "aace81709ee91d603550a6cd2ad09440c88b61ff807f85f55e88c9c2f817acae"
+    },
+    {
+      "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-r12-navigation-checklist-2026-11-12.md",
+      "bytes": 3305,
+      "sha256": "5feb162d4131d6ced3ad871cedede24c2b800db2dac9483ff65beb7e97d82d70"
+    }
+  ],
+  "portable_members": 15,
+  "crc_member_bytes_hashes_verifier_pairing": "passed",
+  "amd64_header": "passed",
+  "fixtures": [
+    {
+      "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-r12-navigation-fixtures-2026-11-12\\short-document\\main.tex",
+      "bytes": 1577,
+      "sha256": "03e3ab78ac4168cd6c0107002e35134e29110f2e89e6efde9f9e0a450113efb1",
+      "reused_identical_byte_cli_page_count": 6
+    },
+    {
+      "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-r12-navigation-fixtures-2026-11-12\\long-document\\main.tex",
+      "bytes": 6197,
+      "sha256": "03030290ddbf36155f7faf920e06e7164ccbcbc46e0e15ac5753ee07b20eb8db",
+      "reused_identical_byte_cli_page_count": 25
+    }
+  ],
+  "agent_opened_app": false,
+  "installed": false,
+  "physical_input": "pending_owner",
+  "installer_payload": "Build/file hash checked; embedded setup payload not independently extracted",
+  "build_log": {
+    "path": "C:\\Users\\thebe\\Gtihub Repos\\Mine\\texloom\\artifacts\\r12-20261112\\desktop-build.log",
+    "bytes": 7656,
+    "sha256": "e4cf5fcf9b7dc26965f00598c6f6daddd40b1427cbbf40f92ac593da1ef4809a"
+  }
+}

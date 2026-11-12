@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "recorded_utc": "2026-11-12T17:23:31.347475+00:00",
+  "recorded_utc": "2026-11-12T17:27:25.029227+00:00",
   "kind": "r11_owner_acceptance_and_r12_zoom_project_open_amendments",
-  "status": "checks_passed_windows_build_pending",
+  "status": "built_owner_amendment_retest_pending",
   "r11_owner_report": {
     "provenance": "Owner reply to exact r11 portable checklist; no agent running-process inspection",
     "source_commit": "e215bb694ecbd6981ea662eb6c5544a27ca69fb0",
@@ -51,6 +51,19 @@
       "scope": "Shared production PDF renderer/gesture handler at DPR 1/1.5/2 plus emulated density changes; no physical input",
       "path": "artifacts\\r12-20261112\\browser-final\\browser-results.json",
       "sha256": "52358d58f7d9efab80999524709e785849758cf443e85c10474f31b7328c7f9e"
+    },
+    {
+      "command": "npm run desktop:build -- --ci",
+      "result": "passed",
+      "scope": "Windows optimized EXE and NSIS setup, no agent launch/install",
+      "path": "artifacts/r12-20261112/desktop-build.log",
+      "sha256": "e4cf5fcf9b7dc26965f00598c6f6daddd40b1427cbbf40f92ac593da1ef4809a"
+    },
+    {
+      "kind": "independent_portable_verification",
+      "passed": 15,
+      "scope": "ZIP CRCs, member bytes/hashes, self-excluding manifest, desktop/verifier pairing and AMD64 header. Setup file hashed; embedded payload not separately extracted.",
+      "receipt": "docs/evidence/pdf-navigation-r12-artifacts-2026-11-12.json"
     }
   ],
   "preserved_attempts": [
@@ -83,12 +96,14 @@
     "scripts/check-pdf-navigation.mjs": "bfa4bffec6e82944a4273ac2abdc33a77df69fefee2f6d75c8824f05ec276d34"
   },
   "pending": [
-    "Exact Windows build, packaging verification and owner-focused r12 retest"
+    "Owner-focused r12 retest: stronger pinch, automatic existing project open (path/recent), missing-path retention and short selection smoke check"
   ],
   "constraints": [
     "No agent Texloom GUI launch/control/install",
     "Synthetic fixtures only; no original documents changed",
     "Stop after owner accepts final amended feature; explain deferred branch/push status then, read-only",
     "No release/final evaluation or universal performance claim"
-  ]
+  ],
+  "source_commit": "c93799b5cce542db3f7fdc04882d424f797c07f5",
+  "artifact_receipt": "docs/evidence/pdf-navigation-r12-artifacts-2026-11-12.json"
 }
