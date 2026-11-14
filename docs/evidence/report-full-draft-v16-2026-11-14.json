@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-14T16:12:58.331447+00:00",
+  "kind": "technical_report_v16_build_visual_review",
+  "evidence_commit": "403d6972a0d94b6320b91ccebd874c38d279d7c1",
+  "report_pages": 33,
+  "references": 25,
+  "pdf": {
+    "file": "Texloom-technical-report-full-draft-2026-11-14-v16.pdf",
+    "bytes": 650383,
+    "sha256": "cba4878f6aff7aa48c636808ca1705a2576604da25c5450a331390adce39a08e"
+  },
+  "editable_sources": {
+    "file": "Texloom-technical-report-editable-sources-2026-11-14-v16.zip",
+    "bytes": 70038,
+    "sha256": "469b91be02fd9b882698dbe6b91425893d0a9440dc5c77d114fb311b49232374",
+    "members": 16
+  },
+  "visual_review": {
+    "pages": 33,
+    "detailed_pages": [
+      20,
+      21
+    ],
+    "clipping_or_overlap_seen": false
+  },
+  "build_review": {
+    "underfull_notices": 4,
+    "overfull_missing_undefined_or_latex_warnings": 0
+  },
+  "source_hashes": {
+    "README.md": "4bd3660d8325226d032008ffd95ada1258824f39e446a3fdee816b6484b01f7c",
+    "main.tex": "2c9ce38859205577f262a4adcdb330417dfee1d94dc30686a914c6bcd3d555ef",
+    "followup-references.bib": "80ab1cf9c1230933b149813e969d3757e2dab40be1fbed18c61cc60a5570a2e7",
+    "references.bib": "1c6bef9292f8599cbc86bb610e9b1e3b44a604b3db66370c8e9604a849121493",
+    "sections/01-scope.tex": "8a081ce27cdd63ca9a623512aa0fc12ca7686477759b3f3de307ea7a9c701196",
+    "sections/02-workflow.tex": "ec6d7c640050e864421a33b05e54b2a278299e76a695ac570faca4a9388ddf5d",
+    "sections/03-contracts.tex": "46fc40be341983f0fd993ce675bbc1253fe9ab937538cc81eadb39e3b93e4c19",
+    "sections/04-related-work.tex": "a2225909003758d3c4262168bc12821c02ed9edc118f4ed83685107abdadf23e",
+    "sections/05-evaluation.tex": "71346c4c1e896eed0fed97844a50ea35a626cc7604f7fb96d4884ad2fb021bf3",
+    "sections/06-development-evidence.tex": "981da2cbae6fe869aab39ed2b2403088f60d3fe73afa1858def96e40a88934a4",
+    "sections/07-timing.tex": "2468e96913198ea5ceafe577a300f902205f36b04cec83b6f65589a2a830597a",
+    "sections/08-reproducibility.tex": "683c95e3224da775acd9c4c1baf722eb51078edd17ed7d68e52e84a533125c49",
+    "sections/09-limitations.tex": "5c57086b0dfa3a9af349cf032b653ed1e6c6b7f2b6ff192e505bf386586c862e",
+    "sections/appendix-artifacts.tex": "e00e2105b8b70e7e514a29c3cf90d7aa1e75c8c2ad82f64af2eef21e5cfdf2c2",
+    "sections/appendix-protocol.tex": "941e7098b5bda83b5078268c6abbbbc11e2124c35141c7531165a8fba62c00da",
+    "sections/appendix-reproduction.tex": "fc7de0591a8ea68c44135651fefee871a71c0816804353ee1ed709f258649188"
+  },
+  "scope": "Technical draft. Recorded headless service observations with correlated repeats. Final evaluation pending."
+}

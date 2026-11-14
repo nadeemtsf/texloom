@@ -95,7 +95,7 @@ New saved source-native operations must work without Texloom macros/support file
 
 Existing wrapped/positioned projects open without silent conversion. Convert on a protected copy or explicit reviewed transaction, verify equivalence or disclose changed layout, preserve customized styles and dependencies still in use, and support rollback. Deleting content must not be confused with deleting its placement wrapper or shared media bytes.
 
-A private release candidate needs the relevant old Windows gates plus new authoring workflow tests. The owner intends to keep the repository private now and in the future; public distribution, Store submission and associated signing work are outside this roadmap. Internal installation/updates still need project-preservation and artifact-identity checks. Dependency provenance and process supervision are not blanket safety certification.
+A private release candidate needs the relevant old Windows gates plus new authoring workflow tests. The repository is public for source inspection. The product roadmap covers internal builds. Internal installation/updates still need project-preservation and artifact-identity checks. Dependency provenance and process supervision are not blanket safety certification.
 
 ## 8. Research runs and future revisions
 

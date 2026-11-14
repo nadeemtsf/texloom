@@ -86,6 +86,52 @@ analysis are bound by \path{docs/evidence/source-intent-cost-2026-11-14.json}.
 Protection and rendered-approval requirements remain intact; optimization
 requires more specific profiling and a separately validated production protocol.
 
+\subsection{Live-session preflight follow-up}
+\label{sec:trusted-preflight}
+The service used to create an in-memory checkpoint from its live state, then
+validate and replay the history to reconstruct a session.
+The follow-up at \code{403d697} copies the already validated source, profile,
+history and selection into a session with its own owner identity. It
+prepares and applies the same candidate to that copy before writing recovery
+protection and publishing the canonical draft. Serialized checkpoints still
+take the full validation and replay path. Three core controls exercised
+separate ownership, exact history, selection and redo, and 13 native controls
+covered draft acknowledgement, refusal and recovery.
+
+The predeclared follow-up reused the release workload, size groups and three
+arms. All 315 recorded rows met the exact-source, single Undo, protection and
+original-file checks. An independent calculation reproduced the summary.
+Table~\ref{tab:trusted-preflight} records the combined service and encoding
+p95 for this run. Full-snapshot reply sizes at 32 MiB remained 33,555,471 bytes,
+with 30.781 ms p95 spent in encoding.
+
+\begin{table}[htbp]
+\small\centering
+\begin{tabular}{@{}rrrr@{}}
+\toprule
+Project MiB & Source delta & Typed changed-file & Typed full\\
+\midrule
+1 & 2.397 & 4.730 & 4.441\\
+8 & 2.427 & 11.745 & 20.456\\
+32 & 3.026 & 41.779 & 79.426\\
+\bottomrule
+\end{tabular}
+\caption{Live-session preflight follow-up. Combined native service and JSON
+encoding p95 in milliseconds, 30 repeated measurements per cell.}
+\label{tab:trusted-preflight}
+\end{table}
+
+The earlier full-reply results at 32 MiB were 115.345 and 217.754 ms.
+Each result describes its own execution under uncontrolled background load
+and filesystem cache state. The implementation removes replay of retained
+history from this path. The timings describe the whole service interval and
+leave the cost of the remaining copies unresolved. The experimental reply
+arm still measures a smaller payload within the typed path. The source
+delta arm uses the existing editor's distinct mutation contract. All three
+arms omit WebView transport and input-to-visible latency. The predeclared
+method and exact run identities are in
+\path{docs/evidence/trusted-preflight-fork-2026-11-14.json}.
+
 \subsection{Implemented optional instrumentation}
 Ordinary builds disable diagnostics. A separate build with
 \code{VITE\_TEXLOOM\_PERFORMANCE=1} records static categories, sequence numbers

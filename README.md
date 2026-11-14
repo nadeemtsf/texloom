@@ -91,11 +91,11 @@ Automatic recovery is separate from Save. Protection status stays visible beside
 - Portable and NSIS development packages include the dependency inventory, source-availability notices and pinned PDFium notices. They are unsigned. Clean-machine installation/uninstall and a human usability trial remain private release gates. Public distribution and Store submission are outside the roadmap.
 - Automated and real-engine results do not substitute for the exact native acceptance matrix. Current status and measured performance limits are documented rather than inferred from a successful build.
 
-## Private project and development roadmap
+## Source access and development roadmap
 
-The owner intends to keep Texloom private, with no public distribution or Microsoft Store release in the roadmap. Internal Windows installation and development packaging remain supported. Existing Store-specific configuration is retained as historical material, not an active delivery target.
+Texloom's source is public on GitHub for inspection. Windows packages are development builds for internal use. Existing Store configuration is kept for historical reference.
 
-The project-level license, MIT package declarations and contribution guide have been removed. Third-party dependency notices remain separate and are retained. Earlier versions of removed files remain recoverable from Git history.
+All rights are reserved for the current project code. See [LICENSE](LICENSE) for permission requirements, GitHub's viewing and forking terms, third-party licenses and earlier MIT-licensed revisions.
 
 The broader visual-authoring architecture and future backlog are tracked in [roadmap #44](https://github.com/nadeemtsf/texloom/issues/44). This is planned work, not a declaration that those features are implemented.
 

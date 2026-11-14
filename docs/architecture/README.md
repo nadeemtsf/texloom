@@ -4,7 +4,7 @@ Planning baseline: 7 November 2026, application source `6f55baca3100ef8af48d0a3c
 
 The product goal is a familiar, Word-like visual authoring experience backed by ordinary LaTeX: select, replace, delete, reorder, adjust spacing and formatting, and eventually place a caret and type directly in the visual document. Images and tables need their own supported editing capabilities. Dragging is one input method, not the document model.
 
-The owner intends to keep the repository private now and in the future. The product roadmap targets private authoring/internal Windows packaging, with no public distribution or Store work. Project-level license/contribution files and MIT package declarations are removed separately; dependency notices remain retained.
+The repository is public for source inspection. See [LICENSE](../../LICENSE) for code permissions. The product roadmap targets internal Windows builds and retains all third-party notices.
 
 Original LaTeX and assets remain authoritative. New supported source-native operations should not require Texloom macros or a Texloom support package in saved output. Ordinary classes, fonts, packages, bibliography files and assets remain normal project dependencies. Existing Texloom-object projects need explicit compatibility and migration behavior.
 
