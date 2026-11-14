@@ -112,6 +112,21 @@ pub struct SourceDraftReply {
     /// Always current. Cached receipts must never republish an old source/PDF.
     pub snapshot: DocumentSnapshot,
 }
+/// A development-only reply-shape ablation, never registered as Tauri IPC.
+#[cfg(feature = "benchmark")]
+#[derive(Serialize)]
+#[serde(tag = "kind", rename_all = "snake_case")]
+pub enum SourceDraftCostState {
+    Delta { delta: SourceEditReply },
+    Snapshot { snapshot: DocumentSnapshot },
+}
+#[cfg(feature = "benchmark")]
+#[derive(Serialize)]
+pub struct SourceDraftCostReply {
+    pub operation_id: String,
+    pub outcome: SourceDraftOutcome,
+    pub state: SourceDraftCostState,
+}
 struct Entry { base: u64, intent: DraftSourceIntent, outcome: SourceDraftOutcome }
 #[derive(Default)]
 pub(super) struct IntentState {
@@ -135,12 +150,12 @@ impl DocumentSlot {
         let target = self.source_intents.targets.get(intent.target()).ok_or(SourceDraftRefusalReason::TargetUnavailable)?.clone();
         self.session.plan_source_intent(intent.core(target)).map_err(Into::into)
     }
-    fn finish_source_intent(&mut self, base: u64, operation_id: &str, intent: DraftSourceIntent, outcome: SourceDraftOutcome) -> SourceDraftReply {
+    fn finish_source_intent(&mut self, base: u64, operation_id: &str, intent: DraftSourceIntent, outcome: SourceDraftOutcome) -> SourceDraftOutcome {
         self.source_intents.operation_bytes += intent.bytes();
         self.source_intents.operations.insert(operation_id.into(), Entry { base, intent, outcome: outcome.clone() });
-        SourceDraftReply { operation_id: operation_id.into(), outcome, snapshot: self.snapshot() }
+        outcome
     }
-    fn refuse_source_intent(&mut self, base: u64, operation_id: &str, intent: DraftSourceIntent, reason: SourceDraftRefusalReason) -> SourceDraftReply {
+    fn refuse_source_intent(&mut self, base: u64, operation_id: &str, intent: DraftSourceIntent, reason: SourceDraftRefusalReason) -> SourceDraftOutcome {
         let outcome = SourceDraftOutcome::SourceDraftRefused { requested_revision: base, observed_revision: self.revision(), reason };
         self.finish_source_intent(base, operation_id, intent, outcome)
     }
@@ -202,6 +217,25 @@ impl Backend {
     }
 
     pub fn document_source_intent(&self, id: &str, base: u64, operation_id: &str, intent: DraftSourceIntent) -> Result<SourceDraftReply> {
+        self.source_intent_with(id, base, operation_id, intent, |slot,outcome,_| SourceDraftReply {
+            operation_id: operation_id.into(), outcome, snapshot: slot.snapshot(),
+        })
+    }
+    #[cfg(feature = "benchmark")]
+    pub fn benchmark_source_intent_delta(&self, id: &str, base: u64, operation_id: &str, intent: DraftSourceIntent) -> Result<SourceDraftCostReply> {
+        self.source_intent_with(id, base, operation_id, intent, |slot,outcome,changed_file| {
+            let current=slot.revision();
+            let state=if current==base {
+                SourceDraftCostState::Delta { delta: slot.source_reply(base, "") }
+            } else if changed_file.is_some() && matches!(&outcome,SourceDraftOutcome::SourceDraftApplied {
+                from_revision,revision,changed:true,..} if *from_revision==base && *revision==current && current==base+1) {
+                SourceDraftCostState::Delta { delta: slot.source_reply(base, changed_file.unwrap()) }
+            } else { SourceDraftCostState::Snapshot { snapshot: slot.snapshot() } };
+            SourceDraftCostReply { operation_id:operation_id.into(),outcome,state }
+        })
+    }
+    fn source_intent_with<R>(&self, id: &str, base: u64, operation_id: &str, intent: DraftSourceIntent,
+        reply: impl Fn(&DocumentSlot,SourceDraftOutcome,Option<&str>)->R) -> Result<R> {
         safe_revision(base)?;
         if !valid_id(operation_id) || !valid_id(intent.target()) { return Err("Invalid operation ID or source target".into()); }
         let mut docs = self.documents.lock().map_err(fail)?;
@@ -210,7 +244,7 @@ impl Backend {
         // immutable receipt alongside today's snapshot, without executing again.
         if let Some(entry) = slot.source_intents.operations.get(operation_id) {
             if entry.base != base || entry.intent != intent { return Err("Operation ID already belongs to a different request".into()); }
-            return Ok(SourceDraftReply { operation_id: operation_id.into(), outcome: entry.outcome.clone(), snapshot: slot.snapshot() });
+            return Ok(reply(slot,entry.outcome.clone(),None));
         }
         slot.require_resolved_source_intents()?;
         if slot.source_intents.operations.len() >= MAX_OPERATIONS ||
@@ -219,13 +253,18 @@ impl Backend {
         }
         let plan = match slot.prepare_source_intent(base, &intent) {
             Ok(plan) => plan,
-            Err(reason) => return Ok(slot.refuse_source_intent(base, operation_id, intent, reason)),
+            Err(reason) => {let outcome=slot.refuse_source_intent(base,operation_id,intent,reason);return Ok(reply(slot,outcome,None));},
         };
         let changed = plan.changed();
+        let patch = plan.source_patch();
+        let changed_file = match patch.files.as_slice() {
+            [FileChange::Edit {file,..}] if changed => Some(file.clone()),
+            _ if !changed => None,
+            _ => {let outcome=slot.refuse_source_intent(base,operation_id,intent,SourceDraftRefusalReason::SourceGuardRejected);return Ok(reply(slot,outcome,None));},
+        };
         let outcome = if changed {
             // Preflight every fallible core guard on the exact future state.
             // Reconstructing history adds no visual or disk-save authority.
-            let patch = plan.source_patch();
             let proposed = (|| -> Result<core::Session> {
                 let mut proposed = core::Session::from_checkpoint(slot.session.checkpoint()).map_err(fail)?;
                 let candidate = proposed.prepare(patch.clone()).map_err(fail)?;
@@ -236,7 +275,7 @@ impl Backend {
             })();
             let proposed = match proposed {
                 Ok(proposed) => proposed,
-                Err(_) => return Ok(slot.refuse_source_intent(base, operation_id, intent, SourceDraftRefusalReason::SourceGuardRejected)),
+                Err(_) => {let outcome=slot.refuse_source_intent(base,operation_id,intent,SourceDraftRefusalReason::SourceGuardRejected);return Ok(reply(slot,outcome,None));},
             };
             match self.protect_source_intent(id, slot, base, patch, &proposed) {
                 Ok(()) => {
@@ -257,12 +296,13 @@ impl Backend {
         } else {
             let receipt = match slot.session.apply_source_intent_draft(plan) {
                 Ok(receipt) => receipt,
-                Err(_) => return Ok(slot.refuse_source_intent(base, operation_id, intent, SourceDraftRefusalReason::SourceGuardRejected)),
+                Err(_) => {let outcome=slot.refuse_source_intent(base,operation_id,intent,SourceDraftRefusalReason::SourceGuardRejected);return Ok(reply(slot,outcome,None));},
             };
             SourceDraftOutcome::SourceDraftApplied { from_revision: receipt.from_revision().0,
                 revision: receipt.revision().0, changed: false, render_verification: "unresolved" }
         };
-        Ok(slot.finish_source_intent(base, operation_id, intent, outcome))
+        let outcome=slot.finish_source_intent(base,operation_id,intent,outcome);
+        Ok(reply(slot,outcome,changed_file.as_deref()))
     }
 }
 

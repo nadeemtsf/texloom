@@ -4,6 +4,88 @@ measurement has run. Existing compiler/service timings omit important parts
 of interaction. Debug native-harness execution is not a substitute for a
 release application's input-to-visible-result measurement.
 
+\subsection{Headless source-draft cost diagnostic, 14 November}
+The protocol \path{research/SOURCE-INTENT-COST-PLAN.md} was recorded before
+the harness and initial two-arm run. That run retained 210 rows: five warmups
+and 30 measured replacement/Undo trials for each of two arms at each of
+1, 8 and 32 MiB. A subsequent amendment, recorded before its code and run,
+adds a third, benchmark-only changed-file reply to the typed endpoint.
+Its separate 315 rows comprise 45 warmup and 270 measured observations;
+they are not pooled with the first run or treated as independent documents.
+
+Each synthetic project has a 16 KiB BOM/CRLF main file with two equal plain
+paragraphs. Unreferenced comment-only auxiliary files, each at most 1 MiB,
+produce the exact total sizes. All arms replace the second occurrence with
+the same independently declared escaped source. Complete canonical source,
+one-step Undo and protected acknowledgements passed for every trial;
+original files stayed unchanged. There were no failed or dropped planned
+trials. Independent Python calculations matched the native summaries, with
+input hashes unchanged during each run. No compiler or app window ran.
+
+The release executable uses separately equivalent projects, seeded interleaved
+arm order and blocked size order. The recorded machine is Windows 11 Pro
+build 26300, Intel i7-11370H, 16,856,203,264 bytes RAM, existing Balanced power
+scheme and rustc 1.99.1. Background workload, filesystem caches and run-to-run
+machine state were uncontrolled. Rust \code{Instant} brackets the native call
+through reply construction, then JSON UTF-8 encoding. Its maintained API
+documentation describes clock/platform limitations, rather than a guaranteed
+steady physical clock~\cite{rustinstant}. Target discovery has a separate
+interval. The main interval excludes assertions, reply destruction, Undo,
+original-file checks, WebView transport, input dispatch and visible paint.
+
+\begin{table}[htbp]
+\small\centering
+\begin{tabular}{@{}rlrrrr@{}}
+\toprule
+MiB & Arm & Native & JSON & Combined & Reply bytes\\
+\midrule
+1 & Source delta & 2.438 & 0.033 & 2.456 & 16,666\\
+1 & Typed changed-file & 4.633 & 0.037 & 4.675 & 16,878\\
+1 & Typed full & 4.701 & 0.731 & 5.325 & 1,049,026\\
+8 & Source delta & 5.316 & 0.058 & 5.340 & 16,666\\
+8 & Typed changed-file & 47.167 & 0.085 & 47.252 & 16,878\\
+8 & Typed full & 54.677 & 12.915 & 66.705 & 8,389,191\\
+32 & Source delta & 4.012 & 0.022 & 4.022 & 16,666\\
+32 & Typed changed-file & 139.286 & 0.066 & 139.328 & 16,878\\
+32 & Typed full & 171.722 & 42.415 & 217.754 & 33,555,471\\
+\bottomrule
+\end{tabular}
+\caption{Amended headless development run: nearest-rank p95 in milliseconds
+from 30 measured trials per row; reply size is the median. Combined p95 is
+computed from complete observed intervals, never by adding component p95s.
+These are service observations, not physical input or final-study results.}
+\label{tab:source-cost}
+\end{table}
+
+The two typed arms use the same planner, strict recovery preflight/write,
+canonical transaction, shared history and operation ledger. Only reply
+construction/encoding differs. The smaller variant is benchmark-feature-only,
+with no Tauri command; cached/history cases unable to form a safe delta fall
+back to a current full snapshot. Thirteen native controls passed, including
+retry after Undo and metadata-only refusal. Production keeps its existing
+full-snapshot protocol. The ordinary source-edit arm has different planning
+and after-commit protection semantics; equal source outcomes do not make it
+an interchangeable safe substitute.
+
+Table~\ref{tab:source-cost} shows that the smaller typed reply removes the
+project-sized payload and most encoding work, yet its native service still
+grows with unrelated project bytes. Encoding alone does not explain the
+remaining cost under these conditions. Project preparation, checkpointing
+and future-session preflight remain candidates for component profiling;
+this experiment does not isolate their individual contributions. Differences
+between service p95s are not an exact causal effect under uncontrolled load.
+
+The initial typed-full combined p95 was 4.941/36.400/115.345 ms at 1/8/32 MiB;
+the amended values were 5.325/66.705/217.754 ms. This substantial variation is
+retained, not hidden by selecting a faster run or claiming a reproducible
+speedup. Thirty correlated repetitions provide a descriptive p95, not a
+population estimate or rare-tail guarantee. Neither run measures memory,
+tracing overhead, rendered acceptance, human responsiveness or realistic
+included-file compilation. The raw rows, pre-run provenance and independent
+analysis are bound by \path{docs/evidence/source-intent-cost-2026-11-14.json}.
+Protection and rendered-approval requirements remain intact; optimization
+requires more specific profiling and a separately validated production protocol.
+
 \subsection{Implemented optional instrumentation}
 Ordinary builds disable diagnostics. A separate build with
 \code{VITE\_TEXLOOM\_PERFORMANCE=1} records static categories, sequence numbers

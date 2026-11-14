@@ -1,0 +1,694 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-14T09:39:58.199866+00:00",
+  "kind": "headless_source_draft_cost_development_diagnostic",
+  "status": "two_runs_completed_not_final_evaluation",
+  "protocol": "research/SOURCE-INTENT-COST-PLAN.md",
+  "results": "research/RESULTS-SOURCE-INTENT-COST-2026-11-14.md",
+  "entry": "release_native_service_plus_serde_json_not_tauri_or_app_input",
+  "runs": [
+    {
+      "name": "run-1",
+      "arms": 2,
+      "raw_rows": 210,
+      "measured_rows": 180,
+      "warmup_rows": 30,
+      "status": "all_planned_trials_passed_no_drops",
+      "pre_run_utc": "2026-11-14T09:17:09.657341+00:00",
+      "binary_sha256": "8bbc07fd6f178ce5f62cd98259b15db0b6f6a70f7eb685d8f59e76fb7479edaa",
+      "build_log_sha256": "23e5240de9a929bdba3d2508503be81da2dadc96ca53fb3c23f3036820834ef3",
+      "implementation_base": "7c693ea34567ad21cdccde005d864cb98850e59f",
+      "source_sha256": {
+        "research/tools/source_intent_cost.py": "ad6013d658dede3d794101da3c5cd7e97e8dd8de73621e74935ed8153adcca31",
+        "research/SOURCE-INTENT-COST-PLAN.md": "bbe734216b91b6b54aade452f128399374e08c8c8e965fb32492619f5e307db0",
+        "Cargo.lock": "c0a08b67ef59e6fad685975754c24dcae80b454d592a1bf386f33c3339e5b124",
+        "src-tauri/Cargo.toml": "c9e80dfde5ee37b211c4f3613390ff5a9fd274f4f4d143ed687a2e1a6a6b5669",
+        "src-tauri/examples/source_intent_cost_development.rs": "0c92a58872657632840be7b8d80cea987b781c4b07f2b2c4ce39a1208c5265bc",
+        "src-tauri/src/build_protocol.rs": "953867511e4a197e70ae5dc310ebc4a54b8adb51485d7cbc1095e455b403c35f",
+        "src-tauri/src/document_protocol/bindings.rs": "ea5b7138df0207f10fc8e5bd4ef1a51bb9c1defc7bb66abc5902ade1ee1ea367",
+        "src-tauri/src/document_protocol.rs": "771869cfa753927d3cd69d4a26d60145dbc8f24d76929ca2531cd18c48bb17c6",
+        "src-tauri/src/lib.rs": "5bfa81d0e807914614ed4c2dd9ea1093771a5a571cf02afa0dd835e0216093cc",
+        "src-tauri/src/main.rs": "b0d48f87686a53718fbeb902c0e2be1e967f927f1f9381864dda4adaf79d3b84",
+        "src-tauri/src/service/adapters.rs": "8918a795c43fef7611ce4650cb4dd3ec39fb38f0b0ec6e7346bbdc0da4278809",
+        "src-tauri/src/service/build_cache.rs": "92baa4edf4d6bd743cdef2c86ad8f1801085408ff8d3bdab20a5c4620b5f3940",
+        "src-tauri/src/service/document/source_intent/tests.rs": "c06c72ad55ced4e081ed9124899e753cdebac00797d90b8be02a3841f069358b",
+        "src-tauri/src/service/document/source_intent.rs": "c11451183c8b27e88537aa5723eb726d402ab71f516d906ccdd0eb26562281c9",
+        "src-tauri/src/service/document/typing_recovery/tests.rs": "3b20eef59d5fb27cf22bfc6c97875cf541fc8f40e4a29f10c78fe9ad08114c84",
+        "src-tauri/src/service/document/typing_recovery.rs": "5741fb883240bef2ca4c3dac44cbe9617bbf753fc3a97d0c7839009eab116529",
+        "src-tauri/src/service/document.rs": "9d17b6f2b7b5fbf14d7b575555997a694feebda452d8671eb0512de31210d352",
+        "src-tauri/src/service/layout_gate/tests.rs": "6ec73c7e70e66e7ff6a13a53f4f2760a25806f74c3c0d2a2343f1b28f91629be",
+        "src-tauri/src/service/layout_gate.rs": "e204892866ecf5fbaf72c770474c6c0492f011d3282f9564db91212a36fa74ad",
+        "src-tauri/src/service/project_workflows.rs": "600a13d8fb34e2f04426c29172f997bb1461f81a0cb8a944c44506e83c1a4236",
+        "src-tauri/src/service/synctex.rs": "8217356c9073db9ebecda9c93b3cac8bcd51ae59600d0a436066ff1d95805d6b",
+        "src-tauri/src/service/visual.rs": "71bbc7257e13b839d3fd2a6bf23baa8c42ec78be5aa8e2ccda49cf4d830c3736",
+        "src-tauri/src/service.rs": "d344dc1fbf2128615b9807837208ab1fef80cbe55440ee166f7407200f918403",
+        "src-tauri/src/workspace_protocol.rs": "132f9859db72211a413a1353c5b59b46e9457a1fd92d3268e877968a45f5280c",
+        "crates/texloom-core/src/adapters.rs": "4a46df024e3318fdf5bfbce0879ed324fd2555a6b4355215c6913f27a85577f8",
+        "crates/texloom-core/src/document/intent.rs": "b285a5e322975a2d9ac660cfcbd9c0fe40eb8a30fe160a44687c85814d4e597a",
+        "crates/texloom-core/src/document/position.rs": "c1cee69d974aaa53c788ac26f4260aa4b8305d824863a02f1f3cf5b9a08df6d4",
+        "crates/texloom-core/src/document/projection.rs": "91230a8c1d6be73c3d4d0f2d77d37b449799f4be95020799e6504b5a2f06e96f",
+        "crates/texloom-core/src/document/recovery.rs": "d1d65482305a5afb804fd875420546ccc00c635091b6e640f7b3edfce4bc161b",
+        "crates/texloom-core/src/document/source_edit/tests.rs": "18b35da6df657fc6106ce5fbff91aed6edc1916d4002113599ade5928d43a52c",
+        "crates/texloom-core/src/document/source_edit.rs": "a3df4f6327c70c341d63be4a44ce1703dd07372fa71d465301409f450c49919e",
+        "crates/texloom-core/src/document/structure.rs": "a99fc8da8d1b4ec4b5513ec31e544e522b57fd47f963a60a8b1dd03ab7918d09",
+        "crates/texloom-core/src/document.rs": "0e0ab1fd933cc62b3b055ce21f6506370d1695c2d8a0acc0acd2fcf3623ce957",
+        "crates/texloom-core/src/lib.rs": "dd4a16e1ff2b12a1c292da707e2b73e7bdff51b7bd2b420cf97eb57f1bdfbda3",
+        "crates/texloom-core/src/literal_text.rs": "55aeecd3dab322e4538ff018cb13e007406e76d8ba0eb0499903402fcaf4d4f0",
+        "crates/texloom-core/src/objects.rs": "1866eb43ac4c7a4b3dd92a3890fe804a0b0710d34a898c435d23feb21bb7f09a",
+        "crates/texloom-core/src/selection_hints.rs": "7335af18644e45e8200a1ae017c92b5eb5c35e6536d5ed325334a01b51091963",
+        "crates/texloom-core/src/spacing.rs": "5a43ac719e84ef5b03e3d99e0bacc89baecf48e1fb1eb1fe2863408ea7d688fd",
+        "crates/texloom-core/src/templates.rs": "2709b7ac002fa025c7e97481368746499a8be5ff44ebc48637afb8caed08c1f3",
+        "crates/texloom-build/src/bibliography.rs": "054fe257c78ba396f8e13967da7487060725b769b9892eaa33586f10c910bfd2",
+        "crates/texloom-build/src/bin/pdfium_worker/api.rs": "d7d4a0b96ece9138f7b3fe52f65dd0e6600ad387f64480651c5f0706a265163a",
+        "crates/texloom-build/src/bin/pdfium_worker/mod.rs": "37b87d716926d93e457f0ff3731cc8eaa4228631a2aa40426a24fa9cfb9976a2",
+        "crates/texloom-build/src/bin/pdfium_worker/target.rs": "311d02fc899996267187a1f986bf27f553740e4caf3856b458fa7836219cd67c",
+        "crates/texloom-build/src/bin/pdfium_worker.rs": "0d25c3a19c5e73231e35dde46bb0251c390992adfd40932372856f25f7833d36",
+        "crates/texloom-build/src/bin/process_fixture.rs": "9c2b5c4591e259bcc82651b9f4e1a5b07adcc0f8a42d8fa460cfedd03a1c073b",
+        "crates/texloom-build/src/engine.rs": "f5392a650bd3fb302f5196a3257605ad952d0ce0aa8287d257d312ff59f66e17",
+        "crates/texloom-build/src/inspection_worker.rs": "86e1b7ec6c42f78f381ee71f2abe0deafe1487f2dd59da03e84de433c1085378",
+        "crates/texloom-build/src/lib.rs": "124db1ecbb625a46ce04e22d80283afb1dd462416a673bae6b963a01a0b3e730",
+        "crates/texloom-build/src/persistence/tests.rs": "76237a646ed547554b8547894aee6fc86cc2ade2fa821d6b84497c6bef0b4add",
+        "crates/texloom-build/src/persistence.rs": "1fe394b5f1860b38d003e6d630d875430ce3926c87f458d861cab75b4b80c882",
+        "crates/texloom-build/src/process/unix.rs": "4fcec5609d047c9dd96cf874bdee377e9001c6d9de9dcdb1a03790aac101c814",
+        "crates/texloom-build/src/process/windows.rs": "44271df34eddcc89b5e87574c550812ba09e3e70d61a3455ed5199099ae50c71",
+        "crates/texloom-build/src/process.rs": "216bcf71b7e307c46662645d34cddea7390d6c2ab4cb267918aab1136928fe27",
+        "crates/texloom-build/src/project_io.rs": "c1f26d97b95b074fa6cfd2208261265216c3439d2a4bb64600d5274ace30bacd",
+        "crates/texloom-build/src/recovery/tests.rs": "6e647823baf406ecaee17dbd569542924f701a628d057847c2400e45093fe749",
+        "crates/texloom-build/src/recovery.rs": "bc67c8a42fda6e1b9214fbbb922055dfc3f15c34d8e41ed386f9cf570b7610cd",
+        "crates/texloom-build/src/scheduler.rs": "6489e909299868d504dfefea963b13effb7edb979768e4a8a8de91750f71280b",
+        "crates/texloom-build/src/snapshot.rs": "ac949d9a0a7de3d9a00e811d29afe6c9c404ae87e95a61995ac9a27dadb3c645",
+        "crates/texloom-build/src/verification.rs": "6ab198cc9faa0cfba3b8cda55fc87254fff30e8b9cb6bdb05b2300a6e0baac25"
+      },
+      "hardware": {
+        "command": [
+          "pwsh",
+          "-NoProfile",
+          "-Command",
+          "[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false);[ordered]@{cpu=(Get-CimInstance Win32_Processor|Select-Object -First 1).Name;ram_bytes=(Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory;os=(Get-CimInstance Win32_OperatingSystem).Caption;os_build=(Get-CimInstance Win32_OperatingSystem).BuildNumber;active_power_scheme=(powercfg /getactivescheme)}|ConvertTo-Json -Compress"
+        ],
+        "exit": 0,
+        "stdout": "{\"cpu\":\"11th Gen Intel(R) Core(TM) i7-11370H @ 3.30GHz\",\"ram_bytes\":16856203264,\"os\":\"Microsoft Windows 11 Pro\",\"os_build\":\"26300\",\"active_power_scheme\":\"Power Scheme GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (Balanced)\"}",
+        "stderr": ""
+      },
+      "rustc": {
+        "command": [
+          "rustc",
+          "-Vv"
+        ],
+        "exit": 0,
+        "stdout": "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-pc-windows-msvc\nrelease: 1.99.1\nLLVM version: 23.1.1",
+        "stderr": ""
+      },
+      "summaries": [
+        {
+          "project_source_bytes": 1048576,
+          "mode": "source_edit_delta",
+          "samples": 30,
+          "native_service_and_reply_ms": {
+            "median": 1.93305,
+            "p95": 2.2639,
+            "max": 2.3479
+          },
+          "reply_json_encoding_ms": {
+            "median": 0.013649999999999999,
+            "p95": 0.016399999999999998,
+            "max": 0.0192
+          },
+          "native_service_through_encoding_ms": {
+            "median": 1.94625,
+            "p95": 2.2794,
+            "max": 2.3626
+          },
+          "response_bytes": {
+            "median": 16666.0,
+            "p95": 16666.0,
+            "max": 16666.0
+          }
+        },
+        {
+          "project_source_bytes": 1048576,
+          "mode": "typed_preprotected_full_snapshot",
+          "samples": 30,
+          "native_service_and_reply_ms": {
+            "median": 3.86235,
+            "p95": 4.3332,
+            "max": 5.1409
+          },
+          "reply_json_encoding_ms": {
+            "median": 0.551,
+            "p95": 0.6756000000000001,
+            "max": 0.6981999999999999
+          },
+          "native_service_through_encoding_ms": {
+            "median": 4.3988499999999995,
+            "p95": 4.941199999999999,
+            "max": 5.7095
+          },
+          "response_bytes": {
+            "median": 1049026.0,
+            "p95": 1049026.0,
+            "max": 1049026.0
+          }
+        },
+        {
+          "project_source_bytes": 8388608,
+          "mode": "source_edit_delta",
+          "samples": 30,
+          "native_service_and_reply_ms": {
+            "median": 2.2994000000000003,
+            "p95": 2.5793,
+            "max": 2.6281
+          },
+          "reply_json_encoding_ms": {
+            "median": 0.0148,
+            "p95": 0.0173,
+            "max": 0.017499999999999998
+          },
+          "native_service_through_encoding_ms": {
+            "median": 2.31435,
+            "p95": 2.5943,
+            "max": 2.6434
+          },
+          "response_bytes": {
+            "median": 16666.0,
+            "p95": 16666.0,
+            "max": 16666.0
+          }
+        },
+        {
+          "project_source_bytes": 8388608,
+          "mode": "typed_preprotected_full_snapshot",
+          "samples": 30,
+          "native_service_and_reply_ms": {
+            "median": 21.564799999999998,
+            "p95": 29.418300000000002,
+            "max": 29.957
+          },
+          "reply_json_encoding_ms": {
+            "median": 5.2521,
+            "p95": 7.253500000000001,
+            "max": 7.8765
+          },
+          "native_service_through_encoding_ms": {
+            "median": 26.961350000000003,
+            "p95": 36.3996,
+            "max": 37.833800000000004
+          },
+          "response_bytes": {
+            "median": 8389191.0,
+            "p95": 8389191.0,
+            "max": 8389191.0
+          }
+        },
+        {
+          "project_source_bytes": 33554432,
+          "mode": "source_edit_delta",
+          "samples": 30,
+          "native_service_and_reply_ms": {
+            "median": 2.61425,
+            "p95": 3.3011999999999997,
+            "max": 3.4001
+          },
+          "reply_json_encoding_ms": {
+            "median": 0.0165,
+            "p95": 0.0343,
+            "max": 0.0346
+          },
+          "native_service_through_encoding_ms": {
+            "median": 2.63075,
+            "p95": 3.3228,
+            "max": 3.4211
+          },
+          "response_bytes": {
+            "median": 16666.0,
+            "p95": 16666.0,
+            "max": 16666.0
+          }
+        },
+        {
+          "project_source_bytes": 33554432,
+          "mode": "typed_preprotected_full_snapshot",
+          "samples": 30,
+          "native_service_and_reply_ms": {
+            "median": 77.09735,
+            "p95": 93.5188,
+            "max": 100.9052
+          },
+          "reply_json_encoding_ms": {
+            "median": 21.830550000000002,
+            "p95": 26.5477,
+            "max": 27.0966
+          },
+          "native_service_through_encoding_ms": {
+            "median": 98.74315000000001,
+            "p95": 115.3451,
+            "max": 123.61949999999999
+          },
+          "response_bytes": {
+            "median": 33555471.0,
+            "p95": 33555471.0,
+            "max": 33555471.0
+          }
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\intent-cost-20261114\\run-1\\results.json",
+          "bytes": 5929,
+          "sha256": "463f40e3e8d194a2e39ba64bb998943e98ac1f1264d5a0cef617c69391f7b3ba"
+        },
+        {
+          "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\intent-cost-20261114\\run-1\\analysis.json",
+          "bytes": 20975,
+          "sha256": "2da900fa23bf93d084975596da9754e6648360c5838b291bcfb3708fdcffb763"
+        },
+        {
+          "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\intent-cost-20261114\\run-1\\samples.jsonl",
+          "bytes": 91970,
+          "sha256": "ab7670899ca7ab6659f1e2e03fdc30515269ea3d25b2b092f6679c28eb842014"
+        },
+        {
+          "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\intent-cost-20261114\\run-1-pre-run.json",
+          "bytes": 8380,
+          "sha256": "6e478814c105f4b310dedbedd766bc58587e856b3b21c666cbb05fc43b078718"
+        },
+        {
+          "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\intent-cost-20261114\\run-1-stdout.log",
+          "bytes": 271,
+          "sha256": "001308e1ea7172061d1fe924d7cb9b5c4d6a47cf1aac1cea304024f8bdf7b84c"
+        }
+      ],
+      "independent_summary_matches": true,
+      "source_changed_during_run": []
+    },
+    {
+      "name": "run-2-ablation",
+      "arms": 3,
+      "raw_rows": 315,
+      "measured_rows": 270,
+      "warmup_rows": 45,
+      "status": "all_planned_trials_passed_no_drops",
+      "pre_run_utc": "2026-11-14T09:32:19.255822+00:00",
+      "binary_sha256": "41faadf9e714db0b27dd893189f1d951ce18968a46a401f294140b1062142dd3",
+      "build_log_sha256": "a2d084b2bbecdf1e77682198e541b329df74f42a4251905ba26c9524e79d76fe",
+      "implementation_base": "7c693ea34567ad21cdccde005d864cb98850e59f",
+      "source_sha256": {
+        "research/tools/source_intent_cost.py": "715e7759c6480318c2e7430125e7973464332f1b32a900fc876df8f9c99acf21",
+        "research/SOURCE-INTENT-COST-PLAN.md": "7e4b34fcce2d4781129668a53c54190ba72e873e925f90314ec3938219b2e6f5",
+        "Cargo.lock": "c0a08b67ef59e6fad685975754c24dcae80b454d592a1bf386f33c3339e5b124",
+        "src-tauri/Cargo.toml": "c9e80dfde5ee37b211c4f3613390ff5a9fd274f4f4d143ed687a2e1a6a6b5669",
+        "src-tauri/examples/source_intent_cost_development.rs": "fae9566239ed4a230fd92b9048de93e7ef549598cd197945f411fa7c32d951bf",
+        "src-tauri/src/build_protocol.rs": "953867511e4a197e70ae5dc310ebc4a54b8adb51485d7cbc1095e455b403c35f",
+        "src-tauri/src/document_protocol/bindings.rs": "ea5b7138df0207f10fc8e5bd4ef1a51bb9c1defc7bb66abc5902ade1ee1ea367",
+        "src-tauri/src/document_protocol.rs": "771869cfa753927d3cd69d4a26d60145dbc8f24d76929ca2531cd18c48bb17c6",
+        "src-tauri/src/lib.rs": "22e4d5b117d421c5c0550f03a8a86e6bf23cf23278f08b5dbf23ac80b9651eda",
+        "src-tauri/src/main.rs": "b0d48f87686a53718fbeb902c0e2be1e967f927f1f9381864dda4adaf79d3b84",
+        "src-tauri/src/service/adapters.rs": "8918a795c43fef7611ce4650cb4dd3ec39fb38f0b0ec6e7346bbdc0da4278809",
+        "src-tauri/src/service/build_cache.rs": "92baa4edf4d6bd743cdef2c86ad8f1801085408ff8d3bdab20a5c4620b5f3940",
+        "src-tauri/src/service/document/source_intent/tests.rs": "249bb5950ae2392a79a5b03532c91c0b1445bf300b42f23a1c2756f245fe7dfb",
+        "src-tauri/src/service/document/source_intent.rs": "1f12aa084c07c7173662f4afa842eb12fd87e4b313c3619445678e093735dd62",
+        "src-tauri/src/service/document/typing_recovery/tests.rs": "3b20eef59d5fb27cf22bfc6c97875cf541fc8f40e4a29f10c78fe9ad08114c84",
+        "src-tauri/src/service/document/typing_recovery.rs": "5741fb883240bef2ca4c3dac44cbe9617bbf753fc3a97d0c7839009eab116529",
+        "src-tauri/src/service/document.rs": "c79614444bd94630bf3c271d874fe13c0f8c3d045fa7962835543067f0d9085f",
+        "src-tauri/src/service/layout_gate/tests.rs": "6ec73c7e70e66e7ff6a13a53f4f2760a25806f74c3c0d2a2343f1b28f91629be",
+        "src-tauri/src/service/layout_gate.rs": "e204892866ecf5fbaf72c770474c6c0492f011d3282f9564db91212a36fa74ad",
+        "src-tauri/src/service/project_workflows.rs": "600a13d8fb34e2f04426c29172f997bb1461f81a0cb8a944c44506e83c1a4236",
+        "src-tauri/src/service/synctex.rs": "8217356c9073db9ebecda9c93b3cac8bcd51ae59600d0a436066ff1d95805d6b",
+        "src-tauri/src/service/visual.rs": "71bbc7257e13b839d3fd2a6bf23baa8c42ec78be5aa8e2ccda49cf4d830c3736",
+        "src-tauri/src/service.rs": "c5aef4fa3f11e068ed2f3770fa36208aa5e75b49cf71ea38c30af9f7065e3a20",
+        "src-tauri/src/workspace_protocol.rs": "132f9859db72211a413a1353c5b59b46e9457a1fd92d3268e877968a45f5280c",
+        "crates/texloom-core/src/adapters.rs": "4a46df024e3318fdf5bfbce0879ed324fd2555a6b4355215c6913f27a85577f8",
+        "crates/texloom-core/src/document/intent.rs": "b285a5e322975a2d9ac660cfcbd9c0fe40eb8a30fe160a44687c85814d4e597a",
+        "crates/texloom-core/src/document/position.rs": "c1cee69d974aaa53c788ac26f4260aa4b8305d824863a02f1f3cf5b9a08df6d4",
+        "crates/texloom-core/src/document/projection.rs": "91230a8c1d6be73c3d4d0f2d77d37b449799f4be95020799e6504b5a2f06e96f",
+        "crates/texloom-core/src/document/recovery.rs": "d1d65482305a5afb804fd875420546ccc00c635091b6e640f7b3edfce4bc161b",
+        "crates/texloom-core/src/document/source_edit/tests.rs": "18b35da6df657fc6106ce5fbff91aed6edc1916d4002113599ade5928d43a52c",
+        "crates/texloom-core/src/document/source_edit.rs": "a3df4f6327c70c341d63be4a44ce1703dd07372fa71d465301409f450c49919e",
+        "crates/texloom-core/src/document/structure.rs": "a99fc8da8d1b4ec4b5513ec31e544e522b57fd47f963a60a8b1dd03ab7918d09",
+        "crates/texloom-core/src/document.rs": "0e0ab1fd933cc62b3b055ce21f6506370d1695c2d8a0acc0acd2fcf3623ce957",
+        "crates/texloom-core/src/lib.rs": "dd4a16e1ff2b12a1c292da707e2b73e7bdff51b7bd2b420cf97eb57f1bdfbda3",
+        "crates/texloom-core/src/literal_text.rs": "55aeecd3dab322e4538ff018cb13e007406e76d8ba0eb0499903402fcaf4d4f0",
+        "crates/texloom-core/src/objects.rs": "1866eb43ac4c7a4b3dd92a3890fe804a0b0710d34a898c435d23feb21bb7f09a",
+        "crates/texloom-core/src/selection_hints.rs": "7335af18644e45e8200a1ae017c92b5eb5c35e6536d5ed325334a01b51091963",
+        "crates/texloom-core/src/spacing.rs": "5a43ac719e84ef5b03e3d99e0bacc89baecf48e1fb1eb1fe2863408ea7d688fd",
+        "crates/texloom-core/src/templates.rs": "2709b7ac002fa025c7e97481368746499a8be5ff44ebc48637afb8caed08c1f3",
+        "crates/texloom-build/src/bibliography.rs": "054fe257c78ba396f8e13967da7487060725b769b9892eaa33586f10c910bfd2",
+        "crates/texloom-build/src/bin/pdfium_worker/api.rs": "d7d4a0b96ece9138f7b3fe52f65dd0e6600ad387f64480651c5f0706a265163a",
+        "crates/texloom-build/src/bin/pdfium_worker/mod.rs": "37b87d716926d93e457f0ff3731cc8eaa4228631a2aa40426a24fa9cfb9976a2",
+        "crates/texloom-build/src/bin/pdfium_worker/target.rs": "311d02fc899996267187a1f986bf27f553740e4caf3856b458fa7836219cd67c",
+        "crates/texloom-build/src/bin/pdfium_worker.rs": "0d25c3a19c5e73231e35dde46bb0251c390992adfd40932372856f25f7833d36",
+        "crates/texloom-build/src/bin/process_fixture.rs": "9c2b5c4591e259bcc82651b9f4e1a5b07adcc0f8a42d8fa460cfedd03a1c073b",
+        "crates/texloom-build/src/engine.rs": "f5392a650bd3fb302f5196a3257605ad952d0ce0aa8287d257d312ff59f66e17",
+        "crates/texloom-build/src/inspection_worker.rs": "86e1b7ec6c42f78f381ee71f2abe0deafe1487f2dd59da03e84de433c1085378",
+        "crates/texloom-build/src/lib.rs": "124db1ecbb625a46ce04e22d80283afb1dd462416a673bae6b963a01a0b3e730",
+        "crates/texloom-build/src/persistence/tests.rs": "76237a646ed547554b8547894aee6fc86cc2ade2fa821d6b84497c6bef0b4add",
+        "crates/texloom-build/src/persistence.rs": "1fe394b5f1860b38d003e6d630d875430ce3926c87f458d861cab75b4b80c882",
+        "crates/texloom-build/src/process/unix.rs": "4fcec5609d047c9dd96cf874bdee377e9001c6d9de9dcdb1a03790aac101c814",
+        "crates/texloom-build/src/process/windows.rs": "44271df34eddcc89b5e87574c550812ba09e3e70d61a3455ed5199099ae50c71",
+        "crates/texloom-build/src/process.rs": "216bcf71b7e307c46662645d34cddea7390d6c2ab4cb267918aab1136928fe27",
+        "crates/texloom-build/src/project_io.rs": "c1f26d97b95b074fa6cfd2208261265216c3439d2a4bb64600d5274ace30bacd",
+        "crates/texloom-build/src/recovery/tests.rs": "6e647823baf406ecaee17dbd569542924f701a628d057847c2400e45093fe749",
+        "crates/texloom-build/src/recovery.rs": "bc67c8a42fda6e1b9214fbbb922055dfc3f15c34d8e41ed386f9cf570b7610cd",
+        "crates/texloom-build/src/scheduler.rs": "6489e909299868d504dfefea963b13effb7edb979768e4a8a8de91750f71280b",
+        "crates/texloom-build/src/snapshot.rs": "ac949d9a0a7de3d9a00e811d29afe6c9c404ae87e95a61995ac9a27dadb3c645",
+        "crates/texloom-build/src/verification.rs": "6ab198cc9faa0cfba3b8cda55fc87254fff30e8b9cb6bdb05b2300a6e0baac25"
+      },
+      "hardware": {
+        "command": [
+          "pwsh",
+          "-NoProfile",
+          "-Command",
+          "[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false);[ordered]@{cpu=(Get-CimInstance Win32_Processor|Select-Object -First 1).Name;ram_bytes=(Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory;os=(Get-CimInstance Win32_OperatingSystem).Caption;os_build=(Get-CimInstance Win32_OperatingSystem).BuildNumber;active_power_scheme=(powercfg /getactivescheme)}|ConvertTo-Json -Compress"
+        ],
+        "exit": 0,
+        "stdout": "{\"cpu\":\"11th Gen Intel(R) Core(TM) i7-11370H @ 3.30GHz\",\"ram_bytes\":16856203264,\"os\":\"Microsoft Windows 11 Pro\",\"os_build\":\"26300\",\"active_power_scheme\":\"Power Scheme GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (Balanced)\"}",
+        "stderr": ""
+      },
+      "rustc": {
+        "command": [
+          "rustc",
+          "-Vv"
+        ],
+        "exit": 0,
+        "stdout": "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-pc-windows-msvc\nrelease: 1.99.1\nLLVM version: 23.1.1",
+        "stderr": ""
+      },
+      "summaries": [
+        {
+          "project_source_bytes": 1048576,
+          "mode": "source_edit_delta",
+          "samples": 30,
+          "native_service_and_reply_ms": {
+            "median": 2.0227500000000003,
+            "p95": 2.4379,
+            "max": 2.4906
+          },
+          "reply_json_encoding_ms": {
+            "median": 0.01475,
+            "p95": 0.032799999999999996,
+            "max": 0.0383
+          },
+          "native_service_through_encoding_ms": {
+            "median": 2.0361000000000002,
+            "p95": 2.456,
+            "max": 2.5008
+          },
+          "response_bytes": {
+            "median": 16666.0,
+            "p95": 16666.0,
+            "max": 16666.0
+          }
+        },
+        {
+          "project_source_bytes": 1048576,
+          "mode": "typed_preprotected_changed_file",
+          "samples": 30,
+          "native_service_and_reply_ms": {
+            "median": 3.88255,
+            "p95": 4.6326,
+            "max": 4.9946
+          },
+          "reply_json_encoding_ms": {
+            "median": 0.017900000000000003,
+            "p95": 0.036699999999999997,
+            "max": 0.041699999999999994
+          },
+          "native_service_through_encoding_ms": {
+            "median": 3.89935,
+            "p95": 4.6745,
+            "max": 5.013
+          },
+          "response_bytes": {
+            "median": 16878.0,
+            "p95": 16878.0,
+            "max": 16878.0
+          }
+        },
+        {
+          "project_source_bytes": 1048576,
+          "mode": "typed_preprotected_full_snapshot",
+          "samples": 30,
+          "native_service_and_reply_ms": {
+            "median": 4.07105,
+            "p95": 4.7009,
+            "max": 4.7159
+          },
+          "reply_json_encoding_ms": {
+            "median": 0.639,
+            "p95": 0.7314,
+            "max": 0.8701
+          },
+          "native_service_through_encoding_ms": {
+            "median": 4.7343,
+            "p95": 5.3245000000000005,
+            "max": 5.4475
+          },
+          "response_bytes": {
+            "median": 1049026.0,
+            "p95": 1049026.0,
+            "max": 1049026.0
+          }
+        },
+        {
+          "project_source_bytes": 8388608,
+          "mode": "source_edit_delta",
+          "samples": 30,
+          "native_service_and_reply_ms": {
+            "median": 2.3920500000000002,
+            "p95": 5.3156,
+            "max": 5.4928
+          },
+          "reply_json_encoding_ms": {
+            "median": 0.015300000000000001,
+            "p95": 0.0577,
+            "max": 0.0719
+          },
+          "native_service_through_encoding_ms": {
+            "median": 2.4111000000000002,
+            "p95": 5.34,
+            "max": 5.5118
+          },
+          "response_bytes": {
+            "median": 16666.0,
+            "p95": 16666.0,
+            "max": 16666.0
+          }
+        },
+        {
+          "project_source_bytes": 8388608,
+          "mode": "typed_preprotected_changed_file",
+          "samples": 30,
+          "native_service_and_reply_ms": {
+            "median": 21.39015,
+            "p95": 47.167100000000005,
+            "max": 47.8868
+          },
+          "reply_json_encoding_ms": {
+            "median": 0.041550000000000004,
+            "p95": 0.0852,
+            "max": 0.1138
+          },
+          "native_service_through_encoding_ms": {
+            "median": 21.42025,
+            "p95": 47.2524,
+            "max": 47.9718
+          },
+          "response_bytes": {
+            "median": 16878.0,
+            "p95": 16878.0,
+            "max": 16878.0
+          }
+        },
+        {
+          "project_source_bytes": 8388608,
+          "mode": "typed_preprotected_full_snapshot",
+          "samples": 30,
+          "native_service_and_reply_ms": {
+            "median": 23.02115,
+            "p95": 54.6766,
+            "max": 55.5413
+          },
+          "reply_json_encoding_ms": {
+            "median": 5.9675,
+            "p95": 12.9152,
+            "max": 13.075
+          },
+          "native_service_through_encoding_ms": {
+            "median": 28.8087,
+            "p95": 66.7047,
+            "max": 68.61670000000001
+          },
+          "response_bytes": {
+            "median": 8389191.0,
+            "p95": 8389191.0,
+            "max": 8389191.0
+          }
+        },
+        {
+          "project_source_bytes": 33554432,
+          "mode": "source_edit_delta",
+          "samples": 30,
+          "native_service_and_reply_ms": {
+            "median": 2.70395,
+            "p95": 4.0123,
+            "max": 4.0401
+          },
+          "reply_json_encoding_ms": {
+            "median": 0.011,
+            "p95": 0.0216,
+            "max": 0.026
+          },
+          "native_service_through_encoding_ms": {
+            "median": 2.71675,
+            "p95": 4.0224,
+            "max": 4.0598
+          },
+          "response_bytes": {
+            "median": 16666.0,
+            "p95": 16666.0,
+            "max": 16666.0
+          }
+        },
+        {
+          "project_source_bytes": 33554432,
+          "mode": "typed_preprotected_changed_file",
+          "samples": 30,
+          "native_service_and_reply_ms": {
+            "median": 82.0438,
+            "p95": 139.28640000000001,
+            "max": 156.2104
+          },
+          "reply_json_encoding_ms": {
+            "median": 0.042800000000000005,
+            "p95": 0.066,
+            "max": 0.1103
+          },
+          "native_service_through_encoding_ms": {
+            "median": 82.0644,
+            "p95": 139.3279,
+            "max": 156.32080000000002
+          },
+          "response_bytes": {
+            "median": 16878.0,
+            "p95": 16878.0,
+            "max": 16878.0
+          }
+        },
+        {
+          "project_source_bytes": 33554432,
+          "mode": "typed_preprotected_full_snapshot",
+          "samples": 30,
+          "native_service_and_reply_ms": {
+            "median": 93.3152,
+            "p95": 171.7215,
+            "max": 189.6453
+          },
+          "reply_json_encoding_ms": {
+            "median": 25.63295,
+            "p95": 42.4146,
+            "max": 46.0323
+          },
+          "native_service_through_encoding_ms": {
+            "median": 120.79075,
+            "p95": 217.7542,
+            "max": 232.06029999999998
+          },
+          "response_bytes": {
+            "median": 33555471.0,
+            "p95": 33555471.0,
+            "max": 33555471.0
+          }
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\intent-cost-20261114\\run-2-ablation\\results.json",
+          "bytes": 8640,
+          "sha256": "2c4660ae952693321d32cf6b2eeeebdce4ca3e70dc36239759be8a62c57aec0e"
+        },
+        {
+          "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\intent-cost-20261114\\run-2-ablation\\analysis.json",
+          "bytes": 31421,
+          "sha256": "762c798391d32ae555f9bd2928f80494e3416450a2f861e73040d25b0fe89e5c"
+        },
+        {
+          "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\intent-cost-20261114\\run-2-ablation\\samples.jsonl",
+          "bytes": 138224,
+          "sha256": "7f412ce3b986834f26f7e0ce483fd574d2badbb6914bd675f2530e5b7fea53e0"
+        },
+        {
+          "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\intent-cost-20261114\\run-2-ablation-pre-run.json",
+          "bytes": 8380,
+          "sha256": "a4d29f2dd3c72ed6723132e443e6b7d81fb79e9fa46080033080618e94ad0dd3"
+        },
+        {
+          "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\intent-cost-20261114\\run-2-ablation-stdout.log",
+          "bytes": 274,
+          "sha256": "10ced76d04a2040fc248b8c4152939e40a88842dc84f99b6d47fd76b3684facf"
+        }
+      ],
+      "independent_summary_matches": true,
+      "source_changed_during_run": []
+    }
+  ],
+  "focused_native_controls": {
+    "passed": 13,
+    "log": {
+      "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\intent-cost-20261114\\ablation-native-tests.log",
+      "bytes": 4164,
+      "sha256": "274f09ac35ea23a59431c0d95a1f1875aaf90a549341a6feb66d08d814145bbd"
+    }
+  },
+  "prior_refusal_checkpoint": {
+    "commit": "7c693ea34567ad21cdccde005d864cb98850e59f",
+    "all_five_triggered_hosted_checks": "passed",
+    "check_evidence": {
+      "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\intent-cost-20261114\\refusal-hosted-checks.json",
+      "bytes": 2887,
+      "sha256": "7e3f4bd348d64f223fbe2f5b92f4e41e007c5293a8a45415c44f007760da5fd8"
+    }
+  },
+  "initial_inputs_preserved": [
+    {
+      "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\intent-cost-20261114\\first-inputs\\Cargo.toml",
+      "bytes": 1217,
+      "sha256": "c9e80dfde5ee37b211c4f3613390ff5a9fd274f4f4d143ed687a2e1a6a6b5669"
+    },
+    {
+      "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\intent-cost-20261114\\first-inputs\\SOURCE-INTENT-COST-PLAN.md",
+      "bytes": 3426,
+      "sha256": "bbe734216b91b6b54aade452f128399374e08c8c8e965fb32492619f5e307db0"
+    },
+    {
+      "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\intent-cost-20261114\\first-inputs\\source_intent_cost.py",
+      "bytes": 6401,
+      "sha256": "ad6013d658dede3d794101da3c5cd7e97e8dd8de73621e74935ed8153adcca31"
+    },
+    {
+      "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\intent-cost-20261114\\first-inputs\\source_intent_cost_development.exe",
+      "bytes": 1049088,
+      "sha256": "8bbc07fd6f178ce5f62cd98259b15db0b6f6a70f7eb685d8f59e76fb7479edaa"
+    },
+    {
+      "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\intent-cost-20261114\\first-inputs\\source_intent_cost_development.rs",
+      "bytes": 11520,
+      "sha256": "0c92a58872657632840be7b8d80cea987b781c4b07f2b2c4ce39a1208c5265bc"
+    }
+  ],
+  "literature": {
+    "source": "https://doc.rust-lang.org/std/time/struct.Instant.html",
+    "read_utc_date": "2026-11-14",
+    "displayed_documentation": "1.100.0",
+    "measured_rustc": "1.99.1",
+    "use": "Timer API/platform caveats only; not attestation of measured implementation or clock precision"
+  },
+  "interpretation": "Smaller typed reply removes project-sized payload and most encoding cost; native cost still grows. Component contributions are not isolated. Source edit uses a different protection/planning contract.",
+  "production_protocol": "unchanged_full_snapshot; changed-file mode benchmark-only with safe snapshot fallback",
+  "limits": [
+    "One machine, correlated repeats, blocked size order, uncontrolled background/cache",
+    "Runs retained separately; no pooling or causal speedup claim",
+    "No physical input, WebView transport/display, TeX, rendered approval, Save, memory profile or tracing-overhead estimate",
+    "No final freeze, accuracy rate, rare-tail guarantee or release acceptance"
+  ],
+  "failures": "No failed/dropped planned trials. One ad-hoc analysis command typo was corrected without changing or rerunning measurements."
+}

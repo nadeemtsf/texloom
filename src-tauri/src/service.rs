@@ -29,6 +29,8 @@ pub use document::{
 };
 #[cfg(feature = "typegen")]
 pub use document::{EditorSelection, RecoveryStatus};
+#[cfg(feature = "benchmark")]
+pub use document::{SourceDraftCostReply, SourceDraftCostState};
 pub use visual::plan_object_edit as visual_plan;
 pub use visual::{
     describe_text_edit, preview_edit_parameters, LiteralEditRequest, SpacingEditRequest,

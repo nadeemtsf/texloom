@@ -36,6 +36,25 @@ These examples use PowerShell backtick continuation syntax. The recorded
 run used the resulting Windows debug example. Do not substitute an ordinary
 or diagnostic GUI executable for this CLI harness.
 
+\begin{minipage}{\linewidth}
+\subsection{Source-draft service cost diagnostic}
+The opt-in release example and standard-library Python wrapper reproduce the
+amended three-arm protocol in a new directory under \path{artifacts/}:
+\begin{verbatim}
+cargo build --locked --release -p texloom-desktop `
+  --features benchmark --example source_intent_cost_development
+python research/tools/source_intent_cost.py `
+  --binary <recorded-release-example.exe> `
+  --build-log <captured-build.log> `
+  --output artifacts/<fresh-cost-run> --expected-arms 3
+\end{verbatim}
+Set the recorded local Cargo/toolchain paths before building. The wrapper
+records pre-run hardware, compiler and source/binary hashes, retains all raw
+rows, and independently verifies summaries. Use the preserved initial inputs
+for the historical two-arm protocol; the current executable has three arms.
+Do not replay this source-only CLI as a GUI or physical-latency measurement.
+\end{minipage}
+
 \subsection{Preparing and executing a development pilot}
 The Python research requirements pin Pillow and pypdf. With the complete
 recorded source, prepare an unused output directory:

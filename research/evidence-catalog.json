@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "kind": "development_evidence_inventory_not_evaluation_results",
-  "recorded_utc": "2026-11-14T08:56:43.614504+00:00",
-  "audited_head": "76b2228a71f6eeeaba1dd0ffcc11eca894b21327",
+  "recorded_utc": "2026-11-14T09:42:39.662594+00:00",
+  "audited_head": "7c693ea34567ad21cdccde005d864cb98850e59f",
   "working_tree_note": "Uncommitted report/evidence changes may be present; see the session checkpoint.",
   "final_evaluation_executed": false,
   "entries": [
@@ -712,6 +712,18 @@
       "parse_status": "ok"
     },
     {
+      "path": "docs/evidence/report-full-draft-v15-2026-11-14.json",
+      "bytes": 6053,
+      "sha256": "a422e5435c0620fcdf5658a6410dc406ad862ef17b058dee6723a772fded8bd9",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "built_rendered_reviewed_not_final_evaluation",
+      "implementation_base": "7c693ea34567ad21cdccde005d864cb98850e59f",
+      "recorded_utc": "2026-11-14T09:42:38.364121+00:00",
+      "parse_status": "ok"
+    },
+    {
       "path": "docs/evidence/report-full-draft-v5-2026-11-05.json",
       "bytes": 5635,
       "sha256": "059770bba89cc127304418bfbb3f62ecf79cb913a25bddc28f2b2af8185b50e8",
@@ -893,6 +905,17 @@
       "schema": 1,
       "status": "prototype_diagnostics_pass_not_final_evaluation",
       "recorded_utc": "2026-11-04T18:12:26.390093+00:00",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/source-intent-cost-2026-11-14.json",
+      "bytes": 34596,
+      "sha256": "d3cff6cad41dbe5f5f8ae03ed2c1b64b9a251b419d55abdfe56176fad1361f7b",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "two_runs_completed_not_final_evaluation",
+      "recorded_utc": "2026-11-14T09:39:58.199866+00:00",
       "parse_status": "ok"
     },
     {

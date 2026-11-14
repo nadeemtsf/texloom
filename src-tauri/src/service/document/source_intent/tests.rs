@@ -290,3 +290,29 @@ fn revision_refusals_bind_the_observed_revision_and_remain_resolvable_at_capacit
         assert!(matches!(b.document_source_intent_status(&p.id,&"f".repeat(32)).unwrap().outcome,SourceDraftOutcome::Unknown));
     });
 }
+
+#[cfg(feature = "benchmark")]
+#[test]
+fn benchmark_reply_ablation_uses_same_source_transaction_and_falls_back_after_cached_history() {
+    fixture(|b,p,_| {
+        let target=targets(b,p,0)[1].handle.clone();
+        let op="a".repeat(32);
+        let intent=DraftSourceIntent::DeleteParagraphContent {target};
+        let reply=b.benchmark_source_intent_delta(&p.id,0,&op,intent.clone()).unwrap();
+        assert!(matches!(reply.outcome,SourceDraftOutcome::SourceDraftApplied {from_revision:0,revision:1,changed:true,..}));
+        let SourceDraftCostState::Delta {delta}=reply.state else {panic!("Expected fresh delta")};
+        assert_eq!(delta.base_revision,0);assert_eq!(delta.revision,1);assert_eq!(delta.sources.len(),1);
+        assert_eq!(delta.sources["main.tex"],b.document_snapshot(&p.id).unwrap().sources["main.tex"]);
+        assert_eq!(delta.recovery.protected_revision,Some(1));
+        b.document_history(&p.id,1,false).unwrap();
+        let old=b.benchmark_source_intent_delta(&p.id,0,&op,intent).unwrap();
+        assert!(matches!(old.outcome,SourceDraftOutcome::SourceDraftApplied {from_revision:0,revision:1,..}));
+        let SourceDraftCostState::Snapshot {snapshot}=old.state else {panic!("Old receipt requires current full snapshot")};
+        assert_eq!(snapshot.revision,2);assert_eq!(snapshot.sources["main.tex"],SOURCE);assert!(snapshot.can_redo);
+        let target=targets(b,p,2)[0].handle.clone();
+        let refused=b.benchmark_source_intent_delta(&p.id,2,&"b".repeat(32),DraftSourceIntent::ReplaceLiteralParagraph {target,text:"\n".into()}).unwrap();
+        assert!(matches!(refused.outcome,SourceDraftOutcome::SourceDraftRefused {reason:SourceDraftRefusalReason::ParagraphBreak,..}));
+        let SourceDraftCostState::Delta {delta}=refused.state else {panic!("Unchanged refusal needs metadata only")};
+        assert_eq!(delta.revision,2);assert!(delta.sources.is_empty());assert!(delta.can_redo);
+    });
+}

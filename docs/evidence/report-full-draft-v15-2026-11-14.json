@@ -1,0 +1,109 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-14T09:42:38.364121+00:00",
+  "kind": "technical_report_draft_v15_build_visual_review",
+  "status": "built_rendered_reviewed_not_final_evaluation",
+  "implementation_base": "7c693ea34567ad21cdccde005d864cb98850e59f",
+  "pages": 33,
+  "references": 25,
+  "pdf": {
+    "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-14\\texloom-continuation\\outputs\\Texloom-technical-report-full-draft-2026-11-14-v15.pdf",
+    "bytes": 647374,
+    "sha256": "0e5d3c456a6c0eea9117e631436a62c474803ac374463212bf84eac4eb6117a0"
+  },
+  "editable_sources": {
+    "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-14\\texloom-continuation\\outputs\\Texloom-technical-report-editable-sources-2026-11-14-v15.zip",
+    "bytes": 69158,
+    "sha256": "3a1adc9b7708c72bcac4714d6ff2b1bfa923d5b424fd92eb5120711ab71f5a2f"
+  },
+  "editable_files": 16,
+  "synthetic_evidence": {
+    "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-14\\texloom-continuation\\outputs\\Texloom-source-intent-cost-development-evidence-2026-11-14.zip",
+    "bytes": 98315,
+    "sha256": "0db87a86ed6e0fac0103093e999c6f73febf0e15e65a6e8840ed85cfd7d20b1e"
+  },
+  "synthetic_evidence_files": 30,
+  "all_archive_crc_member_hashes": "passed",
+  "visual_review": {
+    "all_pages_rendered": 33,
+    "all_contact_sheets_reviewed": true,
+    "readable_page_reviews": [
+      1,
+      20,
+      30,
+      31,
+      33
+    ],
+    "no_overfull_missing_undefined_latex_warnings": true,
+    "underfull_notices": 4,
+    "no_clipping_or_overlap_seen": true,
+    "new_command_block_kept_together": true
+  },
+  "build_logs": {
+    "bibtex.stdout.log": {
+      "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\research-report\\20261114-v15\\bibtex.stdout.log",
+      "bytes": 268,
+      "sha256": "7c939f000a8b154f138f4b1d3a25874b714692fba90fc7ec3ea8625d67144ac9"
+    },
+    "latex-1.stdout.log": {
+      "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\research-report\\20261114-v15\\latex-1.stdout.log",
+      "bytes": 13148,
+      "sha256": "a50e4b5ae76d192f1118c8d8fd3c9cc78c1b0607b579c70f9c2e4330da79879d"
+    },
+    "latex-2.stdout.log": {
+      "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\research-report\\20261114-v15\\latex-2.stdout.log",
+      "bytes": 11923,
+      "sha256": "649b3d98b7bba4b3a3fa0c1e872f6fe41260d1f8c2b277b9a1d1222a28731af9"
+    },
+    "latex-3.stdout.log": {
+      "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\research-report\\20261114-v15\\latex-3.stdout.log",
+      "bytes": 9695,
+      "sha256": "d2f1db6db74d80811e0ccf333970d045a3dc83a2adafcee887a3aa0061530efc"
+    },
+    "latex-4.stdout.log": {
+      "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\research-report\\20261114-v15\\latex-4.stdout.log",
+      "bytes": 9695,
+      "sha256": "30fde551c2aaa37344d093b4cd7140056570b72f265fbd0672623c6e4484ee00"
+    },
+    "latex-5.stdout.log": {
+      "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\research-report\\20261114-v15\\latex-5.stdout.log",
+      "bytes": 9695,
+      "sha256": "30fde551c2aaa37344d093b4cd7140056570b72f265fbd0672623c6e4484ee00"
+    },
+    "main.log": {
+      "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\research-report\\20261114-v15\\main.log",
+      "bytes": 27624,
+      "sha256": "c4e364f3df7d849a941e9a52a6a2bf73785dbcd29db1035b7c898f7f97e52361"
+    },
+    "render.log": {
+      "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\research-report\\20261114-v15\\render.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "source_sha256": {
+    "research/report/main.tex": "1de586dc4763a027bf83db34f7794471b51e4f3d0df2044e0ecba95547c023a5",
+    "research/report/followup-references.bib": "80ab1cf9c1230933b149813e969d3757e2dab40be1fbed18c61cc60a5570a2e7",
+    "research/report/references.bib": "1c6bef9292f8599cbc86bb610e9b1e3b44a604b3db66370c8e9604a849121493",
+    "research/report/sections/01-scope.tex": "8a081ce27cdd63ca9a623512aa0fc12ca7686477759b3f3de307ea7a9c701196",
+    "research/report/sections/02-workflow.tex": "ec6d7c640050e864421a33b05e54b2a278299e76a695ac570faca4a9388ddf5d",
+    "research/report/sections/03-contracts.tex": "46fc40be341983f0fd993ce675bbc1253fe9ab937538cc81eadb39e3b93e4c19",
+    "research/report/sections/04-related-work.tex": "a2225909003758d3c4262168bc12821c02ed9edc118f4ed83685107abdadf23e",
+    "research/report/sections/05-evaluation.tex": "71346c4c1e896eed0fed97844a50ea35a626cc7604f7fb96d4884ad2fb021bf3",
+    "research/report/sections/06-development-evidence.tex": "981da2cbae6fe869aab39ed2b2403088f60d3fe73afa1858def96e40a88934a4",
+    "research/report/sections/07-timing.tex": "c09cc77b357ad8d62385511f45e34f78256e2e40cf1532fa5c8d7fe6caef477c",
+    "research/report/sections/08-reproducibility.tex": "683c95e3224da775acd9c4c1baf722eb51078edd17ed7d68e52e84a533125c49",
+    "research/report/sections/09-limitations.tex": "5c57086b0dfa3a9af349cf032b653ed1e6c6b7f2b6ff192e505bf386586c862e",
+    "research/report/sections/appendix-artifacts.tex": "e00e2105b8b70e7e514a29c3cf90d7aa1e75c8c2ad82f64af2eef21e5cfdf2c2",
+    "research/report/sections/appendix-protocol.tex": "941e7098b5bda83b5078268c6abbbbc11e2124c35141c7531165a8fba62c00da",
+    "research/report/sections/appendix-reproduction.tex": "fc7de0591a8ea68c44135651fefee871a71c0816804353ee1ed709f258649188",
+    "research/report/README.md": "df11092850d9ba449cf6766896534ecea6acd8774f3f5325fcf36a90044e5d87"
+  },
+  "cost_receipt": {
+    "path": "C:\\Users\\thebe\\texloom-intent-20261113\\docs\\evidence\\source-intent-cost-2026-11-14.json",
+    "bytes": 34596,
+    "sha256": "d3cff6cad41dbe5f5f8ae03ed2c1b64b9a251b419d55abdfe56176fad1361f7b"
+  },
+  "build_scope": "Existing MiKTeX; no installer, shell escape, new package/font/language or .text compilation",
+  "limits": "Document QA and source-only service development evidence; no final study, physical input latency, app GUI or publication"
+}

@@ -1,3 +1,5 @@
+14 November continuation: v15 is the latest compiled report (33 pages, 25 references). The release headless cost diagnostic retains separate initial/amended runs and benchmark-only reply ablation; see `RESULTS-SOURCE-INTENT-COST-2026-11-14.md`. These service observations do not fill final interaction-performance or correctness cells.
+
 # Texloom research workspace
 
 Status: **technical report draft and evaluation design, not a paper or a completed evaluation**. Started 4 November 2026. Application development remains the priority. Nothing in this directory authorizes publication or submission.

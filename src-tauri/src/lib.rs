@@ -11,6 +11,7 @@ pub mod benchmark {
     pub use crate::service::{Backend, DocumentSnapshot, EditorChange, SourceEditReply};
     pub use crate::service::{visual_plan, ObjectEditRequest, SelectionPoint};
     pub use crate::service::{DraftSourceIntent, SourceDraftOutcome, SourceDraftReply, SourceTarget, SourceTargetsReply};
+    pub use crate::service::{SourceDraftCostReply, SourceDraftCostState};
 }
 use service::{
     Backend, CloseReply, CompileResult, DocumentSnapshot, EditorChange, EditorRange, ObjectEditRequest,

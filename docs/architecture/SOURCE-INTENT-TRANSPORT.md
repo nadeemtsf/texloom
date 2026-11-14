@@ -87,3 +87,17 @@ PDF output can hide a wrong source-occurrence deletion. ARCH-04 remains open
 for broader intents/integration and ARCH-09/10 for rendered proof and visual
 target identity. No final evaluation, release or publication follows from this
 source-draft boundary.
+
+## Headless cost follow-up, 14 November
+
+The predeclared release source-draft diagnostic and reply-shape ablation are
+recorded in `research/RESULTS-SOURCE-INTENT-COST-2026-11-14.md` and the dated
+JSON receipt. Two typed reply modes share the same mutation/protection/ledger
+path; the changed-file mode is benchmark-feature-only and not Tauri IPC. The
+production full-snapshot contract is unchanged. Cached/history cases fall
+back to a current full snapshot. Thirteen focused native controls passed.
+
+The smaller reply removed project-sized serialization but native service
+cost still grew with unrelated source bytes. Profile project-sized planning/
+checkpoint/preflight work before changing it; preserve strict protection and
+exact-source semantics. This is not physical typing latency or a final study.

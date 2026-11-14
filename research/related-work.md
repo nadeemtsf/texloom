@@ -32,3 +32,5 @@ These four primary documentation sources support the timing/provenance methods; 
 
 
 12 November implementation-source follow-up: the [maintained fontspec user-command summary](https://latex3.github.io/fontspec/user.html) and [Polyglossia manual](https://tug.ctan.org/macros/unicodetex/latex/polyglossia/doc/polyglossia.pdf) were checked for font/language setup syntax. They motivate a narrow preamble parser subset, not a TeX standard conformance or rendering guarantee. The new equal-deletion diagnostic is a concrete instance of non-injective views and alignment already covered above; it does not establish a novel bidirectional-transformation result.
+
+14 November timing-method follow-up: the [Rust Instant API documentation](https://doc.rust-lang.org/std/time/struct.Instant.html), displaying 1.100.0, was read for monotonic-clock and platform caveats. The measured release example separately records rustc 1.99.1. The API page does not attest that executable, guarantee clock steadiness/precision or turn native service intervals into physical input latency. No external timing or comparative-system result is inferred.

@@ -29,6 +29,10 @@ name = "source_intent_transport_development"
 required-features = ["benchmark"]
 
 [[example]]
+name = "source_intent_cost_development"
+required-features = ["benchmark"]
+
+[[example]]
 name = "document_bindings"
 required-features = ["typegen"]
 
