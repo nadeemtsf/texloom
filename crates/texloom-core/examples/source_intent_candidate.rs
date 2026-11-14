@@ -42,7 +42,8 @@ fn run() -> Result<String, String> {
     let plan = session
         .plan_source_intent(intent)
         .map_err(|e| format!("{e:?}"))?;
-    Ok(plan.candidate_sources()["main.tex"].clone())
+    let mut sources = plan.candidate_sources(&session).map_err(|e| e.to_string())?;
+    sources.remove("main.tex").ok_or_else(|| "Missing candidate main source".into())
 }
 fn main() -> ExitCode {
     match run() {

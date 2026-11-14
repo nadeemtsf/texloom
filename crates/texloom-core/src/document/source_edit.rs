@@ -27,6 +27,9 @@ impl PreparedSourceEdit {
     pub fn text(&self) -> &str {
         &self.text
     }
+    pub(super) fn file(&self) -> &str {
+        &self.file
+    }
     pub fn recovery_patch(&self) -> Patch {
         Patch {
             base: self.base,

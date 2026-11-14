@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "kind": "development_evidence_inventory_not_evaluation_results",
-  "recorded_utc": "2026-11-14T16:12:59.097403+00:00",
-  "audited_head": "21784d935754b42ef6f5836d6c5b6900cb1187b2",
+  "recorded_utc": "2026-11-14T16:30:02.535288+00:00",
+  "audited_head": "deed4228453a0e8e1d13758ebcc69f23d788cb3e",
   "working_tree_note": "Uncommitted report/evidence changes may be present; see the session checkpoint.",
   "final_evaluation_executed": false,
   "entries": [
@@ -954,6 +954,18 @@
       "status": "diagnostic_and_focused_tests_passed_full_commit_gate_separate",
       "implementation_base": "76b2228a71f6eeeaba1dd0ffcc11eca894b21327",
       "recorded_utc": "2026-11-14T08:45:23.863051+00:00",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/source-intent-single-file-2026-11-14.json",
+      "bytes": 14233,
+      "sha256": "9e9c00c081da20aca911bed813c9c7ff7a23904f475b460b3050d69386737d5f",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "focused_tests_and_run_passed",
+      "implementation_base": "deed4228453a0e8e1d13758ebcc69f23d788cb3e",
+      "recorded_utc": "2026-11-14T16:30:02.372675+00:00",
       "parse_status": "ok"
     },
     {
