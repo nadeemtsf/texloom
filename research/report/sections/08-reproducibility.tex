@@ -21,9 +21,24 @@ Source-only follow-up commits are \code{c2ef008} (commit/presentation and
 cleanup), \code{391332d} (source highlighting, reset and editor presentation),
 \code{2f6eb9c} (record/reference/timing infrastructure and collector schema 2)
 \code{4e403ca} (guarding double-click after selection refusal) and
-\code{8e23d15} (checking bitmap-background initialization). None has
-new build/test evidence. Their receipts identify source bytes rather than
-observed product behavior.
+\code{8e23d15} (checking bitmap-background initialization). Their original
+receipts identify source bytes rather than observed product behavior. Later
+engineering checks cover descendants of those revisions; they are not new
+independent experiments on every historical commit.
+
+\paragraph{Enforced engineering checkpoint.}
+At \code{4cfe461}, the installed pre-commit hook binds checks to the staged
+tree and rejects untracked inputs, partial staging, or source/HEAD changes
+during validation. All 27 local steps passed before that commit, and the
+recorded push produced six successful hosted checks, including the external
+security check. Windows local results and hosted Windows/Linux results have
+different scopes. Neither supplies independent study labels, a final freeze,
+physical input acceptance or a security certification. The first preflight
+was cancelled to correct checkout line endings; a later packaging attempt
+failed because a Windows PowerShell child could not load its hashing command.
+The hook blocked that commit. A PowerShell 7 packaging correction passed the
+subsequent full gate. Retaining these attempts distinguishes corrected
+infrastructure from an uninterrupted successful run.
 
 The pre-expansion Git evidence checkpoint contains 46 JSON receipts, all
 parsed and fingerprint-checked against working files and Git blobs. Reading,

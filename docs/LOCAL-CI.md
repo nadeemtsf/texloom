@@ -36,3 +36,10 @@ Local checks cannot establish a clean GitHub Windows/Linux runner result,
 GitHub artifact transfer, external security checks or physical UI behavior.
 After pushing, inspect the hosted checks and resolve failures before merging.
 Keep the workflow and local check lists aligned when adding new CI steps.
+
+The synthetic Git repositories in the gate tests remove inherited `GIT_*`
+settings from both their Git commands and their staged-tree check. Linked
+worktree hooks can provide absolute repository/index paths; passing those into
+a disposable fixture would operate on the owning checkout instead. The real
+gate keeps the committing process's environment, including its actual staged
+index. This isolation changes no source-check or hook requirement.

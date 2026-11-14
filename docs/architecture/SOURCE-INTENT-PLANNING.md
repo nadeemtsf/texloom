@@ -1,5 +1,11 @@
 # Source-native intent planning: first ARCH-04 slice
 
+13 November continuation: the native source-draft transport now has a separate
+[contract](SOURCE-INTENT-TRANSPORT.md) for session/revision-bound source handles,
+strict Replace/Delete requests, recovery protection and operation lookup. The
+dated sections below retain their earlier scope. No new PDF-selection or
+rendered-approval command is implied; general visual integration remains open.
+
 10 November 2026. `document::intent` prepares read-only candidates for literal paragraph replacement and paragraph-content deletion. This is a contract/domain slice, not a completed native command, visual editing feature or publication path.
 
 `Session::plan_source_intent` accepts a typed `SourceIntent` containing a private entity reference. It resolves session/revision ownership, rederives the recognized paragraph range from canonical source and creates one exact replacement in one existing file. It accepts no frontend-supplied raw offset or arbitrary supporting-file write. Repeated text retains its particular occurrence. Foreign/stale references refuse, including after Undo restores equal bytes.

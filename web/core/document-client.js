@@ -1,8 +1,16 @@
 // Generated from frontend/protocol/document-client.ts. Run npm run protocol:emit; do not edit.
 import { acceptCompilation, acceptSourceLocation, acceptSourceRectangle, acceptResolvedSelection, assertSourceLine, BuildProtocolError, invokeUnit, requestBuild } from './build-protocol.js';
-import { acceptReply, assertRevision, assertSnapshot, DocumentProtocolError, preparedReply, } from './document-protocol.js';
+import { acceptReply, assertRevision, assertSnapshot, DocumentProtocolError, preparedReply, sourceTargetsReply, sourceDraftReply, assertSourceOperationId, assertDraftSourceIntent, sameSources, } from './document-protocol.js';
 export { editorText, sameSources } from './document-protocol.js';
 function errorOf(value) { return value instanceof Error ? value : new Error(String(value)); }
+export class SourceIntentResolutionRequired extends Error {
+    operationId;
+    constructor(operationId) {
+        super('Source operation status is unresolved. Resolve it or reopen the project before editing.');
+        this.operationId = operationId;
+        this.name = 'SourceIntentResolutionRequired';
+    }
+}
 export class DocumentClient {
     invoke;
     projectId;
@@ -18,6 +26,7 @@ export class DocumentClient {
     candidates = new Map();
     changed;
     failed;
+    unresolvedSourceIntent = null;
     constructor(invoke, projectId, snapshot, options = {}) {
         this.invoke = invoke;
         this.projectId = projectId;
@@ -37,6 +46,8 @@ export class DocumentClient {
                 this.queuedSelection = null;
             if (this.error)
                 throw this.error;
+            if (this.unresolvedSourceIntent)
+                throw new SourceIntentResolutionRequired(this.unresolvedSourceIntent);
             // Caller arguments cannot replace queue-owned project/revision identity.
             const request = { ...args, projectId: this.projectId };
             if (name !== 'document_commit')
@@ -51,7 +62,7 @@ export class DocumentClient {
             return this.snapshot;
         }).catch((value) => {
             const error = errorOf(value);
-            if ((fatal || error instanceof DocumentProtocolError) && !this.error) {
+            if (!(error instanceof SourceIntentResolutionRequired) && (fatal || error instanceof DocumentProtocolError) && !this.error) {
                 this.error = error;
                 this.failed(error);
             }
@@ -74,9 +85,78 @@ export class DocumentClient {
             await tail;
             if (this.error)
                 throw this.error;
+            if (this.unresolvedSourceIntent)
+                throw new SourceIntentResolutionRequired(this.unresolvedSourceIntent);
             if (tail === this.tail && !this.outstanding)
                 return this.snapshot;
         }
+    }
+    async sourceTargets(file) {
+        const snapshot = await this.flush();
+        const reply = await this.invoke('document_source_targets', { request: { projectId: this.projectId, revision: snapshot.revision, file } });
+        this.assertMappingCurrent(snapshot);
+        return sourceTargetsReply(reply, snapshot, file);
+    }
+    sourceIntentJob(work) {
+        this.queuedSelection = null;
+        this.outstanding++;
+        this.pending++;
+        const job = this.tail.then(async () => { if (this.error)
+            throw this.error; return work(); }).finally(() => {
+            this.outstanding--;
+            this.pending--;
+            if (!this.outstanding && !this.error && this.unpublished) {
+                this.unpublished = false;
+                this.changed(this.snapshot);
+            }
+        });
+        this.tail = job.catch(() => { });
+        return job;
+    }
+    adoptSourceReply(reply) {
+        assertSnapshot(reply.snapshot);
+        const previous = this.snapshot, next = reply.snapshot;
+        const changed = next.revision !== previous.revision || !sameSources(next.sources, previous.sources) ||
+            next.main !== previous.main || next.engine !== previous.engine || next.can_undo !== previous.can_undo || next.can_redo !== previous.can_redo ||
+            JSON.stringify(next.selection) !== JSON.stringify(previous.selection) ||
+            next.recovery.draft_id !== previous.recovery.draft_id || next.recovery.protected_revision !== previous.recovery.protected_revision ||
+            next.recovery.error !== previous.recovery.error;
+        if (next.revision !== previous.revision)
+            this.candidates.clear();
+        if (changed) {
+            this.snapshot = next;
+            this.unpublished = true;
+        }
+    }
+    sourceIntent(baseRevision, operationId, intent) {
+        assertRevision(baseRevision);
+        assertSourceOperationId(operationId);
+        assertDraftSourceIntent(intent);
+        const request = { projectId: this.projectId, revision: baseRevision, operationId, intent: { ...intent } };
+        return this.sourceIntentJob(async () => {
+            if (this.unresolvedSourceIntent)
+                throw new SourceIntentResolutionRequired(this.unresolvedSourceIntent);
+            this.unresolvedSourceIntent = operationId;
+            // A rejected promise or malformed acknowledgement cannot establish that
+            // native source stayed unchanged. There is deliberately no retry here.
+            const reply = sourceDraftReply(await this.invoke('document_source_intent', { request }), operationId, this.snapshot, baseRevision);
+            this.adoptSourceReply(reply);
+            if (reply.outcome.status === 'source_draft_applied')
+                this.unresolvedSourceIntent = null;
+            return reply;
+        });
+    }
+    resolveSourceIntent(operationId) {
+        assertSourceOperationId(operationId);
+        return this.sourceIntentJob(async () => {
+            if (this.unresolvedSourceIntent && this.unresolvedSourceIntent !== operationId)
+                throw new SourceIntentResolutionRequired(this.unresolvedSourceIntent);
+            const reply = sourceDraftReply(await this.invoke('document_source_intent_status', { request: { projectId: this.projectId, operationId } }), operationId, this.snapshot);
+            this.adoptSourceReply(reply);
+            if (reply.outcome.status === 'source_draft_applied' && this.unresolvedSourceIntent === operationId)
+                this.unresolvedSourceIntent = null;
+            return reply;
+        });
     }
     edit(file, changes, group = null) {
         return this.enqueue('document_edit', { file, changes, group });

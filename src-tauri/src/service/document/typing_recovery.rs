@@ -56,6 +56,25 @@ impl DocumentSlot {
     }
 }
 impl Backend {
+    /// Durably accept a proposed source draft before publishing canonical RAM.
+    /// Failure may follow partial OS writes, so the caller caches an uncertain
+    /// outcome and must not claim this was a clean transactional refusal.
+    pub(super) fn protect_source_intent(&self, id: &str, slot: &mut DocumentSlot,
+        base: u64, patch: Patch, proposed: &core::Session) -> Result<()> {
+        let result = (|| {
+            let snapshots = self.disk_snapshots.lock().map_err(fail)?;
+            let disk = snapshots.get(id).ok_or("The saved project baseline is missing")?;
+            let store = Store::open(&self.root.join(".source-recovery"))?;
+            if slot.protection.journal.is_none() {
+                slot.protection.attempted = true;
+                slot.protection.journal = Some(store.begin(disk, &slot.session)?);
+            }
+            slot.protection.journal.as_mut().ok_or("Recovery protection is unavailable")?.record(
+                &store, base, Mutation::Patch { patch, origin: Origin::Source, group: None }, proposed, disk)
+        })();
+        slot.protection.error = result.as_ref().err().cloned();
+        result
+    }
     pub(super) fn record_typing_recovery(
         &self,
         id: &str,
@@ -108,6 +127,7 @@ impl Backend {
     pub fn retry_typing_recovery(&self, id: &str, base: u64) -> Result<RecoveryReply> {
         let mut documents = self.documents.lock().map_err(fail)?;
         let slot = documents.get_mut(id).ok_or("Reopen this project")?;
+        slot.require_resolved_source_intents()?;
         if slot.session.revision() != Revision(base) {
             return Err("The source changed before retrying recovery protection".into());
         }
@@ -143,6 +163,7 @@ impl Backend {
             session: recovered.session,
             pending: HashMap::new(),
             protection: Default::default(),
+            source_intents: Default::default(),
         };
         slot.start_typing_recovery(&self.root, &recovered.disk);
         let (recoveries, recovery_error) = match if source_only {
@@ -203,6 +224,7 @@ impl Backend {
         if slot.session.revision() != Revision(base) {
             return Err("The source changed before closing; it was retained".into());
         }
+        if discard { slot.require_resolved_source_intents()?; }
         let root = self.project_root(id)?;
         let journal = documents
             .remove(id)

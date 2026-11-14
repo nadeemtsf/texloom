@@ -129,3 +129,65 @@ export function preparedReply(value, base) {
     require(typeof value.token === 'string' && value.token.length > 0, 'Invalid prepared candidate token');
     return { token: value.token, revision: value.revision };
 }
+const sourceId = (value) => typeof value === 'string' && /^[0-9a-f]{32}$/u.test(value);
+export function assertSourceOperationId(value) { require(sourceId(value), 'Invalid source operation ID'); }
+export function assertDraftSourceIntent(value) {
+    record(value);
+    if (value.kind === 'replace_literal_paragraph') {
+        record(value, ['kind', 'target', 'text']);
+        require(typeof value.text === 'string', 'Invalid source replacement literal');
+    }
+    else {
+        record(value, ['kind', 'target']);
+        require(value.kind === 'delete_paragraph_content', 'Invalid source intent kind');
+    }
+    require(sourceId(value.target), 'Invalid native source target handle');
+}
+export function sourceTargetsReply(value, previous, file) {
+    record(value, ['revision', 'file', 'targets']);
+    require(value.revision === previous.revision && value.file === file && Array.isArray(value.targets) && value.targets.length <= 4096, 'Invalid source target snapshot');
+    const source = previous.sources[file];
+    require(typeof source === 'string', 'Invalid source target file');
+    const text = editorText(source), handles = new Set();
+    let end = 0;
+    for (const target of value.targets) {
+        record(target, ['handle', 'text', 'start', 'end']);
+        require(sourceId(target.handle) && !handles.has(target.handle) && typeof target.text === 'string' &&
+            boundary(text, target.start) && boundary(text, target.end) && target.start >= end && target.end > target.start &&
+            editorText(target.text) === text.slice(target.start, target.end), 'Invalid source paragraph target');
+        handles.add(target.handle);
+        end = target.end;
+    }
+    return value;
+}
+export function sourceDraftReply(value, operationId, previous, base) {
+    record(value, ['operation_id', 'outcome', 'snapshot']);
+    require(sourceId(value.operation_id) && value.operation_id === operationId, 'Source operation acknowledgement identity mismatch');
+    assertSnapshot(value.snapshot);
+    const current = value.snapshot;
+    require(current.revision >= previous.revision, 'Source operation snapshot moved backward');
+    if (current.revision === previous.revision)
+        require(sameSources(current.sources, previous.sources) &&
+            current.main === previous.main && current.engine === previous.engine && current.can_undo === previous.can_undo &&
+            current.can_redo === previous.can_redo, 'Unchanged source operation revision changed canonical state');
+    record(value.outcome);
+    if (value.outcome.status === 'source_draft_applied') {
+        record(value.outcome, ['status', 'from_revision', 'revision', 'changed', 'render_verification']);
+        assertRevision(value.outcome.from_revision);
+        assertRevision(value.outcome.revision);
+        require(typeof value.outcome.changed === 'boolean' && value.outcome.render_verification === 'unresolved' &&
+            value.outcome.revision === value.outcome.from_revision + Number(value.outcome.changed) &&
+            value.outcome.revision <= current.revision && (base === undefined || value.outcome.from_revision === base), 'Invalid source draft receipt or rendered authority');
+    }
+    else if (value.outcome.status === 'protection_uncertain') {
+        record(value.outcome, ['status', 'from_revision', 'error']);
+        assertRevision(value.outcome.from_revision);
+        require(typeof value.outcome.error === 'string' && value.outcome.error.length > 0 &&
+            value.outcome.from_revision <= current.revision && (base === undefined || value.outcome.from_revision === base), 'Invalid uncertain source protection receipt');
+    }
+    else {
+        record(value.outcome, ['status']);
+        require(value.outcome.status === 'unknown' && base === undefined, 'Invalid source operation outcome');
+    }
+    return value;
+}

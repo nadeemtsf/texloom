@@ -1,15 +1,21 @@
 /** Ordered browser replica. Rust owns text/history and visual approvals. */
-import type { DocumentRequests, EditorChange, EditorRange, BuildPurpose, CompileResult, SourceLocation, SourceRectangle, SelectionPoint, ResolvedSelection } from '../../web/generated/document-ipc.js';
+import type { DocumentRequests, EditorChange, EditorRange, BuildPurpose, CompileResult, SourceLocation, SourceRectangle, SelectionPoint, ResolvedSelection, DraftSourceIntent, SourceDraftReply, SourceTargetsReply } from '../../web/generated/document-ipc.js';
 import { acceptCompilation, acceptSourceLocation, acceptSourceRectangle, acceptResolvedSelection, assertSourceLine, BuildProtocolError, invokeUnit, requestBuild } from './build-protocol.js';
 import type { CompileContext } from './build-protocol.js';
 import {
   acceptReply, assertRevision, assertSnapshot, DocumentProtocolError, preparedReply,
+  sourceTargetsReply, sourceDraftReply,
+  assertSourceOperationId, assertDraftSourceIntent,
+  sameSources,
 } from './document-protocol.js';
 import type { Command, NativeInvoke, Snapshot, Sources } from './document-protocol.js';
 export { editorText, sameSources } from './document-protocol.js';
 type Args<C extends Command> = Omit<DocumentRequests[C], 'projectId' | 'revision'>;
 type Options = { changed?: (snapshot: Snapshot) => void; failed?: (error: Error) => void };
 function errorOf(value: unknown): Error { return value instanceof Error ? value : new Error(String(value)); }
+export class SourceIntentResolutionRequired extends Error {
+  constructor(readonly operationId: string) { super('Source operation status is unresolved. Resolve it or reopen the project before editing.'); this.name = 'SourceIntentResolutionRequired'; }
+}
 
 export class DocumentClient {
   snapshot: Snapshot;
@@ -24,6 +30,7 @@ export class DocumentClient {
   private readonly candidates = new Map<string, { base: number; context: CompileContext }>();
   private readonly changed: (snapshot: Snapshot) => void;
   private readonly failed: (error: Error) => void;
+  private unresolvedSourceIntent: string | null = null;
   constructor(private readonly invoke: NativeInvoke, readonly projectId: string, snapshot: unknown, options: Options = {}) {
     assertSnapshot(snapshot); this.snapshot = snapshot;
     this.changed = options.changed ?? (() => {}); this.failed = options.failed ?? (() => {});
@@ -34,6 +41,7 @@ export class DocumentClient {
     const job = this.tail.then(async () => {
       if (this.queuedSelection?.args === args) this.queuedSelection = null;
       if (this.error) throw this.error;
+      if (this.unresolvedSourceIntent) throw new SourceIntentResolutionRequired(this.unresolvedSourceIntent);
       // Caller arguments cannot replace queue-owned project/revision identity.
       const request: Record<string, unknown> = { ...args, projectId: this.projectId };
       if (name !== 'document_commit') request.revision = this.snapshot.revision;
@@ -45,7 +53,7 @@ export class DocumentClient {
       return this.snapshot;
     }).catch((value: unknown) => {
       const error = errorOf(value);
-      if ((fatal || error instanceof DocumentProtocolError) && !this.error) { this.error = error; this.failed(error); }
+      if (!(error instanceof SourceIntentResolutionRequired) && (fatal || error instanceof DocumentProtocolError) && !this.error) { this.error = error; this.failed(error); }
       throw error;
     }).finally(() => {
       this.outstanding--; if (mutating) this.pending--;
@@ -58,8 +66,59 @@ export class DocumentClient {
     for (;;) {
       const tail = this.tail; await tail;
       if (this.error) throw this.error;
+      if (this.unresolvedSourceIntent) throw new SourceIntentResolutionRequired(this.unresolvedSourceIntent);
       if (tail === this.tail && !this.outstanding) return this.snapshot;
     }
+  }
+  async sourceTargets(file: string): Promise<SourceTargetsReply> {
+    const snapshot = await this.flush();
+    const reply = await this.invoke('document_source_targets', {request:{projectId:this.projectId,revision:snapshot.revision,file}});
+    this.assertMappingCurrent(snapshot);
+    return sourceTargetsReply(reply,snapshot,file);
+  }
+  private sourceIntentJob<T>(work: () => Promise<T>): Promise<T> {
+    this.queuedSelection=null;
+    this.outstanding++; this.pending++;
+    const job = this.tail.then(async () => { if (this.error) throw this.error; return work(); }).finally(() => {
+      this.outstanding--; this.pending--;
+      if (!this.outstanding && !this.error && this.unpublished) { this.unpublished=false; this.changed(this.snapshot); }
+    });
+    this.tail=job.catch(()=>{}); return job;
+  }
+  private adoptSourceReply(reply: SourceDraftReply): void {
+    assertSnapshot(reply.snapshot);
+    const previous=this.snapshot, next=reply.snapshot;
+    const changed=next.revision !== previous.revision || !sameSources(next.sources,previous.sources) ||
+      next.main !== previous.main || next.engine !== previous.engine || next.can_undo !== previous.can_undo || next.can_redo !== previous.can_redo ||
+      JSON.stringify(next.selection) !== JSON.stringify(previous.selection) ||
+      next.recovery.draft_id !== previous.recovery.draft_id || next.recovery.protected_revision !== previous.recovery.protected_revision ||
+      next.recovery.error !== previous.recovery.error;
+    if (next.revision !== previous.revision) this.candidates.clear();
+    if (changed) { this.snapshot=next; this.unpublished=true; }
+  }
+  sourceIntent(baseRevision: number, operationId: string, intent: DraftSourceIntent): Promise<SourceDraftReply> {
+    assertRevision(baseRevision); assertSourceOperationId(operationId); assertDraftSourceIntent(intent);
+    const request = {projectId:this.projectId,revision:baseRevision,operationId,intent:{...intent}};
+    return this.sourceIntentJob(async () => {
+      if (this.unresolvedSourceIntent) throw new SourceIntentResolutionRequired(this.unresolvedSourceIntent);
+      this.unresolvedSourceIntent=operationId;
+      // A rejected promise or malformed acknowledgement cannot establish that
+      // native source stayed unchanged. There is deliberately no retry here.
+      const reply=sourceDraftReply(await this.invoke('document_source_intent',{request}),operationId,this.snapshot,baseRevision);
+      this.adoptSourceReply(reply);
+      if (reply.outcome.status === 'source_draft_applied') this.unresolvedSourceIntent=null;
+      return reply;
+    });
+  }
+  resolveSourceIntent(operationId: string): Promise<SourceDraftReply> {
+    assertSourceOperationId(operationId);
+    return this.sourceIntentJob(async () => {
+      if (this.unresolvedSourceIntent && this.unresolvedSourceIntent !== operationId) throw new SourceIntentResolutionRequired(this.unresolvedSourceIntent);
+      const reply=sourceDraftReply(await this.invoke('document_source_intent_status',{request:{projectId:this.projectId,operationId}}),operationId,this.snapshot);
+      this.adoptSourceReply(reply);
+      if (reply.outcome.status === 'source_draft_applied' && this.unresolvedSourceIntent === operationId) this.unresolvedSourceIntent=null;
+      return reply;
+    });
   }
   edit(file: string, changes: EditorChange[], group: number | null = null): Promise<Snapshot> {
     return this.enqueue('document_edit', { file, changes, group });

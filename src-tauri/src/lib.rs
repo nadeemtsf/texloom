@@ -10,6 +10,7 @@ pub use document_protocol::bindings as protocol_bindings;
 pub mod benchmark {
     pub use crate::service::{Backend, DocumentSnapshot, EditorChange, SourceEditReply};
     pub use crate::service::{visual_plan, ObjectEditRequest, SelectionPoint};
+    pub use crate::service::{DraftSourceIntent, SourceDraftOutcome, SourceDraftReply, SourceTarget, SourceTargetsReply};
 }
 use service::{
     Backend, CloseReply, CompileResult, DocumentSnapshot, EditorChange, EditorRange, ObjectEditRequest,
@@ -226,6 +227,21 @@ fn document_snapshot(
     let request=workspace_protocol::ProjectRequest{project_id};state.document_snapshot(&request.project_id)
 }
 #[tauri::command]
+async fn document_source_targets(state: State<'_, Arc<Backend>>, request: document_protocol::SourceTargetsRequest) -> Result<service::SourceTargetsReply, String> {
+    let backend = state.inner().clone();
+    background(move || backend.document_source_targets(&request.project_id, request.revision, &request.file)).await
+}
+#[tauri::command]
+async fn document_source_intent(state: State<'_, Arc<Backend>>, request: document_protocol::SourceIntentRequest) -> Result<service::SourceDraftReply, String> {
+    let backend = state.inner().clone();
+    background(move || backend.document_source_intent(&request.project_id, request.revision, &request.operation_id, request.intent)).await
+}
+#[tauri::command]
+async fn document_source_intent_status(state: State<'_, Arc<Backend>>, request: document_protocol::SourceIntentStatusRequest) -> Result<service::SourceDraftReply, String> {
+    let backend = state.inner().clone();
+    background(move || backend.document_source_intent_status(&request.project_id, &request.operation_id)).await
+}
+#[tauri::command]
 async fn document_selection(
     state: State<'_, Arc<Backend>>,
     project_id: String,
@@ -407,6 +423,9 @@ pub fn run() {
             verify_build,
             export_document_build,
             document_snapshot,
+            document_source_targets,
+            document_source_intent,
+            document_source_intent_status,
             document_selection,
             document_edit,
             document_profile,

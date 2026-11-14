@@ -7,6 +7,7 @@ use crate::service::{
     CloseReply, DocumentSnapshot, EditorSelection, PreparedReply, RecoveryReply, RecoveryStatus,
     SelectionReply, SourceEditReply, CompileResult, PositionedBlock, MappedTextObject,
     SourceLocation, SourceRectangle, SelectionPoint, ResolvedSelection,
+    DraftSourceIntent, SourceDraftOutcome, SourceDraftReply, SourceTarget, SourceTargetsReply,
 };
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
@@ -34,6 +35,9 @@ pub fn declarations() -> String {
         ProfileRequest,
         HistoryRequest,
         CommitRequest,
+        DraftSourceIntent, SourceDraftOutcome, SourceDraftReply, SourceTarget, SourceTargetsReply,
+        SourceTargetsRequest, SourceIntentRequest, SourceIntentStatusRequest,
+        SourceTargetsCommand, SourceIntentCommand, SourceIntentStatusCommand,
         texloom_build::engine::Severity,
         texloom_build::engine::Diagnostic,
         PositionedBlock,
@@ -76,6 +80,20 @@ pub fn declarations() -> String {
         save_document: RevisionRequest => RecoveryReply,
         retry_typing_recovery: RevisionRequest => RecoveryReply,
     );
+    text.push_str("}\n\nexport interface SourceIntentRequests {\n");
+    macro_rules! source_commands {
+        ($($name:ident: $request:ty => $reply:ty),+ $(,)?) => {
+            $(let _ = crate::$name;
+              text.push_str(&format!("  {}: {};\n", stringify!($name), <$request>::ident()));)+
+            text.push_str("}\n\nexport interface SourceIntentReplies {\n");
+            $(text.push_str(&format!("  {}: {};\n", stringify!($name), <$reply>::ident()));)+
+        };
+    }
+    source_commands!(
+        document_source_targets: SourceTargetsCommand => SourceTargetsReply,
+        document_source_intent: SourceIntentCommand => SourceDraftReply,
+        document_source_intent_status: SourceIntentStatusCommand => SourceDraftReply,
+    );
     text.push_str("}\n\nexport interface BuildRequests {\n");
     macro_rules! build_commands {
         ($($name:ident: $request:ty => $reply:ty),+ $(,)?) => {
@@ -116,7 +134,7 @@ pub fn declarations() -> String {
         describe_adapters:SourceControlsRequest=>Vec<AdapterControl>,plan_adapter:AdapterCommandRequest=>AdapterPlan,transform:TransformCommandRequest=>String,plan_text_object:ObjectCommandRequest=>ObjectPlan,describe_text_edit:TextModelRequest=>TextEditModel,preview_text_edit:TextPreviewRequest=>String,
     );
     text.push_str("}\n");
-    text
+    text.lines().map(str::trim_end).collect::<Vec<_>>().join("\n") + "\n"
 }
 
 fn protection(revision: u64) -> RecoveryStatus {
@@ -147,6 +165,14 @@ pub fn fixtures() -> Value {
         "selection_reply": SelectionReply { revision: 8, selection: Some(selection()), recovery: protection(8) },
         "recovery_reply": RecoveryReply { revision: 8, recovery: protection(8) },
         "prepared_reply": PreparedReply { token: "b".repeat(32), revision: 9 },
+        "source_targets_reply": SourceTargetsReply { revision: 7, file: "main.tex".into(),
+            targets: vec![SourceTarget { handle: "b".repeat(32), text: "A".into(), start: 0, end: 1 }] },
+        "source_draft_reply": SourceDraftReply { operation_id: "d".repeat(32),
+            outcome: SourceDraftOutcome::SourceDraftApplied { from_revision: 7, revision: 8, changed: true, render_verification: "unresolved" },
+            snapshot: DocumentSnapshot { revision: 8,
+                sources: BTreeMap::from([("main.tex".into(), "\u{feff}B\r\n\u{1f600}\r\n".into()), ("style.sty".into(), "% keep\r\n".into())]),
+                main: "main.tex".into(), engine: "auto".into(), can_undo: true, can_redo: false,
+                selection: Some(selection()), recovery: protection(8) } },
         "close_reply": CloseReply { warning: None },
         "project": Project {id:"project".into(),name:"Fixture".into(),main:"main.tex".into(),sources:BTreeMap::from([("main.tex".into(),"\u{feff}A\r\n\u{1f600}\r\n".into())]),recoveries:vec![],recovery_error:None,restored:false,draft_warning:None,source_only:false},
         "pending_saves": vec![texloom_build::persistence::PendingSave{id:"b".repeat(32),state:texloom_build::persistence::SaveState::Committing,files:vec!["main.tex".into()]}],

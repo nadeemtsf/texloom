@@ -23,7 +23,7 @@
 \fancyhf{}
 \fancyhead[L]{\small Texloom: methods and evidence}
 \fancyhead[R]{\small TECHNICAL REPORT DRAFT}
-\fancyfoot[L]{\small 12 November 2026; final evaluation pending}
+\fancyfoot[L]{\small 13 November 2026; final evaluation pending}
 \fancyfoot[R]{\small\thepage}
 \renewcommand{\headrulewidth}{0.3pt}
 \newcommand{\pending}{\textit{Pending: no final evaluation has been run.}}
@@ -31,7 +31,7 @@
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 \title{\vspace{-1.7em}Texloom: Checking Source-Preserving Visual Edits\\to Compiled \LaTeX\ Documents}
 \author{Texloom Project\\\small Technical report draft; methods, development evidence and evaluation design}
-\date{12 November 2026}
+\date{13 November 2026}
 
 \begin{document}
 \maketitle
@@ -60,7 +60,7 @@ No novelty, universal correctness or publication-readiness claim is made.
 \end{abstract}
 
 \paragraph{Source revision notice.}
-This revision incorporates resumed development validation from 5--12 November.
+This revision incorporates resumed development validation from 5--13 November.
 The replacement verifier source is \code{d267118}; the recorded checkpoint is
 \code{a120086}. Automated and real-engine checks, exact native artifacts and
 human-reported gesture observations have different scopes. New engineering
@@ -71,6 +71,11 @@ The 10 November foundation extension adds source-coordinate mapping and
 read-only paragraph-intent planning at \code{5ca1eb6}. Its domain regressions
 and external compile/text checks are reported separately from the existing
 visual editing path; they do not establish new visual command acceptance.
+
+Later navigation observations distinguish the owner-rejected r9/r10 behavior
+from the owner's reported r11/r12 acceptance. The subsequent \code{4cfe461}
+checkpoint adds enforced staged-tree validation and successful hosted checks;
+these are engineering and provenance evidence, not a frozen research study.
 
 \input{sections/01-scope}
 \input{sections/02-workflow}

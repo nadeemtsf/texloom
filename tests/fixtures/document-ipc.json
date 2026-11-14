@@ -313,6 +313,43 @@
       "main.tex": "﻿B\r\n😀\r\n"
     }
   },
+  "source_draft_reply": {
+    "operation_id": "dddddddddddddddddddddddddddddddd",
+    "outcome": {
+      "changed": true,
+      "from_revision": 7,
+      "render_verification": "unresolved",
+      "revision": 8,
+      "status": "source_draft_applied"
+    },
+    "snapshot": {
+      "can_redo": false,
+      "can_undo": true,
+      "engine": "auto",
+      "main": "main.tex",
+      "recovery": {
+        "draft_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "error": null,
+        "protected_revision": 8
+      },
+      "revision": 8,
+      "selection": {
+        "anchor": 0,
+        "file": "main.tex",
+        "head": 1,
+        "secondary": [
+          {
+            "anchor": 4,
+            "head": 4
+          }
+        ]
+      },
+      "sources": {
+        "main.tex": "﻿B\r\n😀\r\n",
+        "style.sty": "% keep\r\n"
+      }
+    }
+  },
   "source_location": {
     "file": "main.tex",
     "line": 2
@@ -323,6 +360,18 @@
     "width": 1.25,
     "x": 12.0,
     "y": -3.0
+  },
+  "source_targets_reply": {
+    "file": "main.tex",
+    "revision": 7,
+    "targets": [
+      {
+        "end": 1,
+        "handle": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "start": 0,
+        "text": "A"
+      }
+    ]
   },
   "text_model": {
     "protected": [

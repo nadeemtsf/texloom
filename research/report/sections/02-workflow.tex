@@ -34,8 +34,9 @@ It also adds a distinct reset-to-zero action that retains the movable wrapper,
 separate from removing positioning. Literal editing shows bounded formatting,
 direction and protected-command hints; these are not a TeX font/shaping preview.
 The modal is placed beside the selected unit only when it fits the viewport,
-with a centered fallback. These additions have not been built or exercised;
-their source presence does not establish current Windows usability.
+with a centered fallback. The original source-only receipt did not establish
+Windows usability. Later builds and the separately recorded owner observations
+have narrower, named scopes; source presence alone remains insufficient.
 
 For unwrapped text, the resolver asks native SyncTeX for file/line evidence
 and examines conservative source units. It can enumerate bounded alternatives;
@@ -126,8 +127,9 @@ while a visual candidate compiles, the newer source is preserved and the old
 candidate is discarded. Preparation failure destroys the private prepared
 view rather than adding history. Dragging updates an outline and does not
 compile on pointer movement; release requests an edit. Event-boundary tests
-cover Escape, capture loss and focus-loss cancellation, while actual held-input
-Windows acceptance remains a separate pending gate.
+cover Escape, capture loss and focus-loss cancellation. The owner later reported
+the named r11 held-drag cancellation checklist passed. That guided observation
+does not cover every capture-loss interleaving or Windows display transition.
 
 Native commit occurs before final frontend publication. Offscreen preparation
 reduces the chance of a presentation failure after commit, but this cross-process
@@ -162,8 +164,9 @@ paragraph-content deletion against exact current references. It emits ordinary
 \LaTeX, changes one rederived source range and preserves other files/profile.
 Escaped input is distinct from raw source; structural input requires a different
 intent. The plan records a rendered-content proof obligation and declared
-document reflow, with no visual-acceptance method. Native verification,
-source-to-PDF identity, protocol/idempotency and UI integration remain open.
+document reflow, with no visual-acceptance method. Native rendered verification,
+source-to-PDF identity and UI integration remain open. The later native draft
+transport has a separately bounded acknowledgement contract described below.
 The projection can decline an entire macro-defined document, including the
 current template, so useful editable coverage is unresolved. This first slice
 is not the full Word-like authoring workflow.
@@ -181,11 +184,57 @@ constructed plan through existing source/history authority. Its receipt records
 the source revision and a still-required render proof. Foreign/stale plans and
 revision exhaustion cannot mutate source; no-op drafts retain selection/history.
 This is the source-editor lifecycle, requiring journaling and invalidation of
-rendered editing capabilities at the integration layer. No new IPC/UI handler,
-visual approval or automatic Save is provided by that API. The r10 navigation
-artifact predates these later core additions.
+rendered editing capabilities at the integration layer. The core API alone
+provides no IPC/UI handler, visual approval or automatic Save. The r10
+navigation artifact predates these later core additions.
+
+\paragraph{Native draft transport and acknowledgement resolution.}
+The 13 November continuation supplies native-issued, session/revision-bound
+paragraph handles and strict tagged Replace/Delete draft requests. Caller
+offsets cannot substitute for those private references. The native service
+rederives the core plan, validates its proposed history state and protects
+changed drafts before publishing canonical memory. Pending visual candidates
+and obsolete compilation are invalidated only for actual changes. This adds
+neither a PDF-selection command nor rendered approval.
+
+An operation ID identifies one exact request within an open session. Up to 128
+receipts and 4 MB of request payload are retained without eviction; capacity
+refuses new requests rather than forgetting a destructive outcome. A duplicate
+returns the immutable original outcome and a separately current snapshot, so
+retry after Undo cannot silently redo the operation. A conflicting payload
+refuses. Status lookup performs no source edit.
+
+Receipts and handles do not survive session reopen. Unknown lookup then means
+that this session has no receipt, not that the previous process did not act.
+The caller must reconcile current/recovered source instead of automatically
+issuing a new request. A journal-write error can also follow partial filesystem
+writes: canonical memory remains unchanged, but the cached outcome is explicitly
+uncertain rather than claiming no draft could later recover. Thus the contract
+is bounded session idempotency and protected draft recovery, not durable
+exactly-once execution across crashes. No automatic original-file Save follows.
 
 \subsection{History, Save and recovery}
+Table~\ref{tab:authority-levels} separates source progress from the stronger
+claims that a later stage would need. A new transport method changes how a
+draft is requested; it does not itself establish rendered identity or Save.
+
+\begin{table}[htbp]
+\small\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{.19\linewidth}YYY@{}}
+\toprule
+Entry / outcome & Canonical source/history & Rendered authority & Persistence\\
+\midrule
+Read-only typed plan & Unchanged & Obligation only & None\\
+Explicit source draft & Exact guarded shared-history change & Unresolved; last-good view remains older & Protected draft; original files unchanged\\
+Transport receipt or lookup & Records an outcome; lookup performs no edit & No PDF target/approval evidence & Session receipt; unknown after reopen\\
+Compiled candidate & Not a commit & Parse/compile success alone insufficient & Private build artifacts\\
+Approved visual transaction & Consumes exact native candidate & Named policy and current dependencies & History/recovery; still separate from Save\\
+Explicit Save & Current source retained & No additional render proof & Guarded original-file replacement\\
+\bottomrule
+\end{tabularx}
+\caption{Authority is specific to an entry layer and outcome, rather than a
+single success flag.}\label{tab:authority-levels}
+\end{table}
+
 Source edits and accepted visual edits share native Undo/Redo history. Typing
 may coalesce; an accepted visual transaction has its own entry. Undo restores
 source state while advancing revision and invalidating old layout authority.

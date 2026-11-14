@@ -1,6 +1,15 @@
+# Editable technical report draft
+
+Latest artifact: 13 November 2026, v13, **30 pages and 23 references**. It adds native source-draft transport/acknowledgement methods, the predeclared three-condition/75-assertion headless service diagnostic, and the later owner-reported r11/r12 navigation acceptance and completed `4cfe461` CI checkpoint. All30 pages were rendered and layout-reviewed; pages5/13/23/30 were checked at readable resolution. The final log has no overfull boxes, unresolved references/citations, missing-character or LaTeX-warning matches. Four underfull-box notices remain; visual review found no clipping or overlap. These are document-quality checks, not final-study results. The receipt is `docs/evidence/report-full-draft-v13-2026-11-13.json`; earlier PDFs and evidence remain unchanged.
+
+The source-intent transport continuation is a source-draft boundary. Any new evidence must distinguish exact native service calls, JSON/type checks, Tauri dispatch, PDF selection, rendered approval, recovery and original-file Save. `../SOURCE-INTENT-TRANSPORT-PLAN.md` predeclares the development diagnostic before execution. Final evaluation remains unfrozen/unrun; no publication or submission is authorized.
+
+## Historical artifact notes
+
+The notes below preserve what was known at each dated checkpoint. Their uses of “latest”, “uncompiled”, “paused” and “pending” belong to those dates. They do not override the current status above or the later named acceptance receipts.
+
 12 November artifact: v12 is a 28-page technical report draft with 23 references. It adds the source-intent occurrence/reference diagnostic, its retained failed protocol/missing-package condition, bounded preamble coverage and typed source-draft history lifecycle. It also records the owner-rejected r9 zoom and separate r10 headless/build scope. All 28 pages were rendered and reviewed as contact sheets; changed pages 1/5/12 and references 28 were inspected at readable resolution. Final logs contain no overfull/undefined/missing-character/LaTeX-warning matches. Final evaluation and r10 owner input remain pending. This editable source archive is not the complete experiment checkout; use the exact recorded commits, tools and run receipts for reproduction. Earlier artifacts below retain their named scopes.
 
-# Editable technical report draft
 
 Latest 10 November artifact: v11 is a 26-page technical report draft with 21 references. It adds typed source-position/selection mapping, conservative literal intent planning, preserved regressions and a one-document three-engine compile/text pilot. It was compiled, all pages rendered, first 20 pages checked byte-identical against their reviewed render and final six reviewed; changed method/evidence pages were inspected at readable size. No overfull/undefined/missing-character/LaTeX-warning matches were found in the final log. The v11 engineering/artifact receipt is `docs/architecture/foundation-continuation-validation-2026-11-10.json`. Final evaluation and owner app acceptance remain pending; older artifacts below retain their named-version scope.
 

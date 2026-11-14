@@ -4,8 +4,13 @@ import {mkdtemp,writeFile,rm,readFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {spawnSync} from 'node:child_process';
-import {checkStagedTree} from '../scripts/pre-commit.mjs';
-function git(root,...args){const r=spawnSync('git',args,{cwd:root,encoding:'utf8',windowsHide:true});assert.equal(r.status,0,r.stderr);return r.stdout.trim()}
+import {checkStagedTree as checkTree} from '../scripts/pre-commit.mjs';
+// A hook can export absolute GIT_DIR/GIT_INDEX_FILE for a linked worktree.
+// Synthetic repositories must never inherit the owning commit's authority.
+const isolatedGitEnv=(env)=>Object.fromEntries(Object.entries(env).filter(([key])=>!key.toUpperCase().startsWith('GIT_')));
+const fixtureEnv=isolatedGitEnv(process.env);
+const checkStagedTree=(root,check)=>checkTree(root,check,fixtureEnv);
+function git(root,...args){const r=spawnSync('git',args,{cwd:root,env:fixtureEnv,encoding:'utf8',windowsHide:true});assert.equal(r.status,0,r.stderr);return r.stdout.trim()}
 async function fixture(fn){
  const root=await mkdtemp(join(tmpdir(),'texloom-gate-'));
  try{
@@ -29,6 +34,16 @@ test('pre-commit refuses partial staging and missing untracked inputs before tes
 }));
 test('pre-commit blocks staged changes made during an otherwise successful check',()=>fixture(async root=>{
  await assert.rejects(checkStagedTree(root,async()=>{await writeFile(join(root,'source.js'),'changed during test\n');git(root,'add','source.js');return 0}),/changed during CI/);
+}));
+test('synthetic gate repositories retain their own index and HEAD under inherited worktree hook settings',()=>fixture(async parent=>{
+ const before={tree:git(parent,'write-tree'),head:git(parent,'rev-parse','HEAD')};
+ const inherited={...fixtureEnv,GIT_DIR:join(parent,'.git'),GIT_WORK_TREE:parent,GIT_INDEX_FILE:join(parent,'.git','index')};
+ await fixture(async child=>{
+  await writeFile(join(child,'source.js'),'different child staged source\n');git(child,'add','source.js');
+  const checked=await checkTree(child,async()=>0,isolatedGitEnv(inherited));
+  assert.equal(checked.tree,git(child,'write-tree'));assert.notEqual(checked.tree,before.tree);
+ });
+ assert.deepEqual({tree:git(parent,'write-tree'),head:git(parent,'rev-parse','HEAD')},before);
 }));
 test('Windows CI uses the runtime pinned verifier preparation, never the obsolete Python DLL',async()=>{
  for(const name of ['ci.yml','proof.yml']){

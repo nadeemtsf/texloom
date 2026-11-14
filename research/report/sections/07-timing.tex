@@ -116,8 +116,9 @@ object selections as different workloads rather than infer support from speed.
 A controlled single-instance long-session workload is also needed. The older
 20-minute process-tree sample included shared WebView descendants from two
 instances and another crash/relaunch; it is not an isolated leak or resource
-stability pass. New application-opening/resource tests are deferred while the
-owner is away.
+stability pass. The later owner navigation acceptance does not supply a
+controlled single-instance resource run or a tracing-overhead measurement.
+Those measurements still require an exact candidate and recorded conditions.
 
 \subsection{Usability is a separate question}
 An unassisted task should ask a new user to identify a target, understand an

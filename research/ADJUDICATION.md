@@ -1,6 +1,6 @@
 # Independent intent and preservation annotation - proposed procedure
 
-Prepared 5 November 2026; status reconciled 7 November. This is a protocol draft, not an executed adjudication, a sealed final set or independent review evidence. Synthetic helper tests now exercise record/admission/timing rules; actual app interaction and independent final review remain separate. This document develops the evaluation plan and `RECORDS.md`; it creates no final fixture documents. The current technical report is v10 with no page cap; final-study results remain pending.
+Prepared 5 November 2026; status reconciled 13 November. This is a protocol draft, not an executed adjudication, a sealed final set or independent review evidence. Synthetic helper tests exercise record/admission/timing rules; actual app interaction and independent final review remain separate. This document develops the evaluation plan and `RECORDS.md`; it creates no final fixture documents. The latest compiled technical report is v13 (30 pages, 23 references), with no page cap; final-study results remain pending.
 
 ## 1. Record intention before asking the system
 

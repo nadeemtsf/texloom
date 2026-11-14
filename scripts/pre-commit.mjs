@@ -4,20 +4,22 @@ import {resolve,join} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {randomUUID} from 'node:crypto';
 
-function git(root,...args){
- const r=spawnSync('git',args,{cwd:root,encoding:'utf8',windowsHide:true});
+function gitWithEnv(root,env,...args){
+ const r=spawnSync('git',args,{cwd:root,env,encoding:'utf8',windowsHide:true});
  if(r.error||r.status!==0)throw Error(r.error?.message||r.stderr||'Git snapshot check failed');
  return r.stdout.trim();
 }
-function snapshot(root){
- if(git(root,'diff','--name-only'))throw Error('Stage all tracked changes before committing: CI must test the same files as the commit.');
- if(git(root,'ls-files','--others','--exclude-standard'))throw Error('Stage or ignore new files before committing: CI cannot rely on untracked files.');
- return {tree:git(root,'write-tree'),head:git(root,'rev-parse','HEAD')};
+function git(root,...args){return gitWithEnv(root,process.env,...args)}
+function snapshot(root,env){
+ const run=(...args)=>gitWithEnv(root,env,...args);
+ if(run('diff','--name-only'))throw Error('Stage all tracked changes before committing: CI must test the same files as the commit.');
+ if(run('ls-files','--others','--exclude-standard'))throw Error('Stage or ignore new files before committing: CI cannot rely on untracked files.');
+ return {tree:run('write-tree'),head:run('rev-parse','HEAD')};
 }
-export async function checkStagedTree(root,runChecks){
- const before=snapshot(root);
+export async function checkStagedTree(root,runChecks,env=process.env){
+ const before=snapshot(root,env);
  if(await runChecks(before)!==0)throw Error('Local CI failed. Commit blocked; inspect the saved step logs.');
- const after=snapshot(root);
+ const after=snapshot(root,env);
  if(after.tree!==before.tree||after.head!==before.head)throw Error('The staged tree or HEAD changed during CI. Commit blocked; stage and test again.');
  return before;
 }

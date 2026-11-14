@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "kind": "development_evidence_inventory_not_evaluation_results",
-  "recorded_utc": "2026-11-12T17:29:27.088753+00:00",
-  "audited_head": "2affe32191ddf00daa53e6b0834a9ca1f65069aa",
+  "recorded_utc": "2026-11-13T16:00:03.970644+00:00",
+  "audited_head": "4cfe4616c98e85a879e5a60296f5d3a8c09405dc",
   "working_tree_note": "Uncommitted report/evidence changes may be present; see the session checkpoint.",
   "final_evaluation_executed": false,
   "entries": [
@@ -313,6 +313,17 @@
       "parse_status": "ok"
     },
     {
+      "path": "docs/evidence/linked-worktree-gate-isolation-2026-11-13.json",
+      "bytes": 2441,
+      "sha256": "42f1b7f59b3877710b7a46bb4ca16349b197b39db26ccc2234156f70cc292f40",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "focused_regression_passed_full_gate_retry_separate",
+      "recorded_utc": "2026-11-13T15:35:22.335586+00:00",
+      "parse_status": "ok"
+    },
+    {
       "path": "docs/evidence/morning-ci-2700.json",
       "bytes": 16715,
       "sha256": "1cfba815c77997abc1e376fea4dddb750e7f7b86cc6c38bfad0151259a347059",
@@ -388,6 +399,17 @@
       "schema": 1,
       "recorded_utc": "2026-11-04T22:42:14.550806+00:00",
       "release_ready": false,
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/navigation-ci-status-2026-11-13.json",
+      "bytes": 3888,
+      "sha256": "4ad8275160105fb88bacb2219e034ffa88e1bf314c02e71dcb8b7df8768486e9",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "navigation_owner_reported_passed_ci_baseline_passed",
+      "recorded_utc": "2026-11-13T15:20:01.176169+00:00",
       "parse_status": "ok"
     },
     {
@@ -666,6 +688,18 @@
       "parse_status": "ok"
     },
     {
+      "path": "docs/evidence/report-full-draft-v13-2026-11-13.json",
+      "bytes": 5451,
+      "sha256": "8d7b8ed38db08c6455a5cdbecd502a1a8d0550cbfda0230b7d3a97966aa09008",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "built_rendered_reviewed_not_final_evaluation",
+      "implementation_base": "4cfe4616c98e85a879e5a60296f5d3a8c09405dc",
+      "recorded_utc": "2026-11-13T15:29:10.020140+00:00",
+      "parse_status": "ok"
+    },
+    {
       "path": "docs/evidence/report-full-draft-v5-2026-11-05.json",
       "bytes": 5635,
       "sha256": "059770bba89cc127304418bfbb3f62ecf79cb913a25bddc28f2b2af8185b50e8",
@@ -863,6 +897,18 @@
       "case_status_counts_as_recorded": {
         "not_recorded": 24
       },
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/source-intent-transport-2026-11-13.json",
+      "bytes": 10139,
+      "sha256": "68c4730d49d428fba02d2f610ec6085b5ed8b39375f31a12950c45f47feda9f1",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "native_diagnostic_and_focused_engineering_passed_full_commit_gate_separate",
+      "implementation_base": "4cfe4616c98e85a879e5a60296f5d3a8c09405dc",
+      "recorded_utc": "2026-11-13T15:26:21.768706+00:00",
       "parse_status": "ok"
     },
     {

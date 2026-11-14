@@ -33,6 +33,36 @@ export type HistoryRequest = { projectId: string, revision: number, redo: boolea
 
 export type CommitRequest = { projectId: string, token: string, buildId: string, };
 
+export type DraftSourceIntent = { "kind": "replace_literal_paragraph", target: string, text: string, } | { "kind": "delete_paragraph_content", target: string, };
+
+export type SourceDraftOutcome = { "status": "source_draft_applied", from_revision: number, revision: number, changed: boolean, render_verification: 'unresolved', } | { "status": "protection_uncertain", from_revision: number, error: string, } | { "status": "unknown" };
+
+export type SourceDraftReply = { operation_id: string, outcome: SourceDraftOutcome,
+/**
+ * Always current. Cached receipts must never republish an old source/PDF.
+ */
+snapshot: DocumentSnapshot, };
+
+export type SourceTarget = { handle: string, text: string,
+/**
+ * Informational editor UTF-16 coordinates; requests cannot supply ranges.
+ */
+start: number, end: number, };
+
+export type SourceTargetsReply = { revision: number, file: string, targets: Array<SourceTarget>, };
+
+export type SourceTargetsRequest = { projectId: string, revision: number, file: string, };
+
+export type SourceIntentRequest = { projectId: string, revision: number, operationId: string, intent: DraftSourceIntent, };
+
+export type SourceIntentStatusRequest = { projectId: string, operationId: string, };
+
+export type SourceTargetsCommand = { request: SourceTargetsRequest, };
+
+export type SourceIntentCommand = { request: SourceIntentRequest, };
+
+export type SourceIntentStatusCommand = { request: SourceIntentStatusRequest, };
+
 export type Severity = "error" | "warning" | "info";
 
 export type Diagnostic = { code: string, severity: Severity, message: string, file: string | null, line: number | null, };
@@ -179,6 +209,18 @@ export interface DocumentReplies {
   document_commit: DocumentSnapshot;
   save_document: RecoveryReply;
   retry_typing_recovery: RecoveryReply;
+}
+
+export interface SourceIntentRequests {
+  document_source_targets: SourceTargetsCommand;
+  document_source_intent: SourceIntentCommand;
+  document_source_intent_status: SourceIntentStatusCommand;
+}
+
+export interface SourceIntentReplies {
+  document_source_targets: SourceTargetsReply;
+  document_source_intent: SourceDraftReply;
+  document_source_intent_status: SourceDraftReply;
 }
 
 export interface BuildRequests {

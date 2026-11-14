@@ -6,12 +6,15 @@ use texloom_core::document::{
     Replacement, Revision, Selection, TypingGroup,
 };
 mod typing_recovery;
+mod source_intent;
 pub use typing_recovery::{CloseReply, RecoveryReply, RecoveryStatus};
+pub use source_intent::{DraftSourceIntent, SourceDraftOutcome, SourceDraftReply, SourceTarget, SourceTargetsReply};
 
 pub(super) struct DocumentSlot {
     session: core::Session,
     pub(super) pending: HashMap<String, Pending>,
     protection: typing_recovery::Protection,
+    source_intents: source_intent::IntentState,
 }
 pub(super) struct Pending {
     candidate: core::Prepared,
@@ -38,6 +41,7 @@ impl DocumentSlot {
             .map_err(fail)?,
             pending: HashMap::new(),
             protection: Default::default(),
+            source_intents: Default::default(),
         })
     }
     fn snapshot(&self) -> DocumentSnapshot {
@@ -232,6 +236,7 @@ impl Backend {
         }
         let mut docs = self.documents.lock().map_err(fail)?;
         let slot = docs.get_mut(id).ok_or("Reopen this project")?;
+        slot.require_resolved_source_intents()?;
         if slot.session.revision() != Revision(base) {
             return Err("The source revision changed".into());
         }
@@ -328,6 +333,7 @@ impl Backend {
         }
         let mut docs = self.documents.lock().map_err(fail)?;
         let slot = docs.get_mut(id).ok_or("Reopen this project")?;
+        slot.require_resolved_source_intents()?;
         if slot.session.revision() != Revision(base) {
             return Err("The source revision changed".into());
         }
@@ -371,6 +377,7 @@ impl Backend {
     ) -> Result<DocumentSnapshot> {
         let mut docs = self.documents.lock().map_err(fail)?;
         let slot = docs.get_mut(id).ok_or("Reopen this project")?;
+        slot.require_resolved_source_intents()?;
         let candidate = slot
             .session
             .prepare(Patch {
@@ -401,6 +408,7 @@ impl Backend {
     pub fn document_history(&self, id: &str, base: u64, redo: bool) -> Result<DocumentSnapshot> {
         let mut docs = self.documents.lock().map_err(fail)?;
         let slot = docs.get_mut(id).ok_or("Reopen this project")?;
+        slot.require_resolved_source_intents()?;
         if slot.session.revision() != Revision(base) {
             return Err("The source revision changed".into());
         }
@@ -458,6 +466,7 @@ impl Backend {
         }
         let mut docs = self.documents.lock().map_err(fail)?;
         let slot = docs.get_mut(id).ok_or("Reopen this project")?;
+        slot.require_resolved_source_intents()?;
         if slot.session.revision() != Revision(base) {
             return Err("The source revision changed".into());
         }
@@ -587,6 +596,7 @@ impl Backend {
     ) -> Result<DocumentSnapshot> {
         let mut docs = self.documents.lock().map_err(fail)?;
         let slot = docs.get_mut(id).ok_or("Reopen this project")?;
+        slot.require_resolved_source_intents()?;
         let pending = slot
             .pending
             .get(token)
@@ -629,6 +639,7 @@ impl Backend {
         let (root,profile) = {
             let documents=self.documents.lock().map_err(fail)?;
             let slot=documents.get(id).ok_or("Reopen this project")?;
+            slot.require_resolved_source_intents()?;
             if slot.session.revision()!=Revision(base){return Err("The editor changed before save recovery; try again".into());}
             let root=self.project_root(id)?;
             texloom_build::persistence::recover(&root,transaction,finish)?;
@@ -646,6 +657,7 @@ impl Backend {
     pub fn discard_document_recovery(&self,id:&str,base:u64,transaction:&str)->Result<Vec<texloom_build::persistence::PendingSave>> {
         let documents=self.documents.lock().map_err(fail)?;
         let slot=documents.get(id).ok_or("Reopen this project")?;
+        slot.require_resolved_source_intents()?;
         if slot.session.revision()!=Revision(base){return Err("The editor changed before discarding recovery data".into());}
         let root=self.project_root(id)?;
         texloom_build::persistence::discard_recovery(&root,transaction)?;
@@ -675,6 +687,7 @@ impl Backend {
         // source revision can be written under an earlier Save acknowledgement.
         let mut documents = self.documents.lock().map_err(fail)?;
         let slot = documents.get_mut(id).ok_or("Reopen this project")?;
+        slot.require_resolved_source_intents()?;
         if slot.session.revision() != Revision(base) {
             return Err("The source changed before Save; try again".into());
         }

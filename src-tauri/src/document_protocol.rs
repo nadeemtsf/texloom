@@ -1,6 +1,6 @@
 //! Request records used by the actual Tauri handlers. The opt-in generator
 //! exports these and the real response records; it adds no IPC commands.
-use crate::service::{EditorChange, EditorRange};
+use crate::service::{EditorChange, EditorRange, DraftSourceIntent};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
@@ -62,6 +62,47 @@ pub struct CommitRequest {
     pub token: String,
     pub build_id: String,
 }
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct SourceTargetsRequest {
+    pub project_id: String,
+    #[cfg_attr(feature = "typegen", ts(type = "number"))]
+    pub revision: u64,
+    pub file: String,
+}
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct SourceIntentRequest {
+    pub project_id: String,
+    #[cfg_attr(feature = "typegen", ts(type = "number"))]
+    pub revision: u64,
+    pub operation_id: String,
+    pub intent: DraftSourceIntent,
+}
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct SourceIntentStatusRequest {
+    pub project_id: String,
+    pub operation_id: String,
+}
+// A single strict record reaches Serde in the actual handler. Constructing a
+// record from separate Tauri arguments would silently drop unknown fields.
+#[derive(Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct SourceTargetsCommand { pub request: SourceTargetsRequest }
+#[derive(Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct SourceIntentCommand { pub request: SourceIntentRequest }
+#[derive(Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct SourceIntentStatusCommand { pub request: SourceIntentStatusRequest }
 
 #[cfg(feature = "typegen")]
 pub mod bindings;

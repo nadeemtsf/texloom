@@ -10,6 +10,13 @@ const edit: DocumentRequests['document_edit'] = {projectId: 'project', revision:
   changes: [{offset: 0, length: 1, text: 'B'}], group: null};
 void client.edit(edit.file, edit.changes, edit.group);
 void client.selection('main.tex', 0, 1, [{anchor: 1, head: 1}]);
+void client.sourceTargets('main.tex');
+void client.sourceIntent(0,'a'.repeat(32),{kind:'delete_paragraph_content',target:'b'.repeat(32)});
+void client.resolveSourceIntent('a'.repeat(32));
+// @ts-expect-error Delete cannot smuggle a replacement payload.
+void client.sourceIntent(0,'a'.repeat(32),{kind:'delete_paragraph_content',target:'b'.repeat(32),text:'unexpected'});
+// @ts-expect-error Literal replacement requires literal text.
+void client.sourceIntent(0,'a'.repeat(32),{kind:'replace_literal_paragraph',target:'b'.repeat(32)});
 // @ts-expect-error Editor changes require a UTF-16 length.
 void client.edit('main.tex', [{offset: 0, text: 'B'}]);
 // @ts-expect-error A typing group is numeric, not a source ID.
