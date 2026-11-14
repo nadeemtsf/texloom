@@ -1,0 +1,316 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-14T16:30:02.372675+00:00",
+  "kind": "single_file_source_draft_release_diagnostic",
+  "status": "focused_tests_and_run_passed",
+  "implementation_base": "deed4228453a0e8e1d13758ebcc69f23d788cb3e",
+  "protocol": "research/SOURCE-INTENT-COST-PLAN.md",
+  "run_scope": "Same three arms and identical unchanged headless workload. Project state 1, 8 and 32 MiB. Uncontrolled background and cache.",
+  "raw_rows": 315,
+  "checks": {
+    "core_passed": 12,
+    "native_passed": 13,
+    "independent_summary_matches": true,
+    "source_changed_during_run": false
+  },
+  "source_sha256": {
+    "research/tools/source_intent_cost.py": "c72a0efe27ad663a0723be9b369a822d31e1498986230f600c96cdd88696f965",
+    "research/SOURCE-INTENT-COST-PLAN.md": "7e4b34fcce2d4781129668a53c54190ba72e873e925f90314ec3938219b2e6f5",
+    "Cargo.lock": "c0a08b67ef59e6fad685975754c24dcae80b454d592a1bf386f33c3339e5b124",
+    "src-tauri/Cargo.toml": "c9e80dfde5ee37b211c4f3613390ff5a9fd274f4f4d143ed687a2e1a6a6b5669",
+    "src-tauri/examples/source_intent_cost_development.rs": "fae9566239ed4a230fd92b9048de93e7ef549598cd197945f411fa7c32d951bf",
+    "src-tauri/src/build_protocol.rs": "953867511e4a197e70ae5dc310ebc4a54b8adb51485d7cbc1095e455b403c35f",
+    "src-tauri/src/document_protocol/bindings.rs": "ea5b7138df0207f10fc8e5bd4ef1a51bb9c1defc7bb66abc5902ade1ee1ea367",
+    "src-tauri/src/document_protocol.rs": "771869cfa753927d3cd69d4a26d60145dbc8f24d76929ca2531cd18c48bb17c6",
+    "src-tauri/src/lib.rs": "22e4d5b117d421c5c0550f03a8a86e6bf23cf23278f08b5dbf23ac80b9651eda",
+    "src-tauri/src/main.rs": "b0d48f87686a53718fbeb902c0e2be1e967f927f1f9381864dda4adaf79d3b84",
+    "src-tauri/src/service/adapters.rs": "8918a795c43fef7611ce4650cb4dd3ec39fb38f0b0ec6e7346bbdc0da4278809",
+    "src-tauri/src/service/build_cache.rs": "92baa4edf4d6bd743cdef2c86ad8f1801085408ff8d3bdab20a5c4620b5f3940",
+    "src-tauri/src/service/document/source_intent/tests.rs": "249bb5950ae2392a79a5b03532c91c0b1445bf300b42f23a1c2756f245fe7dfb",
+    "src-tauri/src/service/document/source_intent.rs": "9ab96069d83078e7455fd81ab9305ddfac53296bb5015ff28b9eac68ec28ecbd",
+    "src-tauri/src/service/document/typing_recovery/tests.rs": "3b20eef59d5fb27cf22bfc6c97875cf541fc8f40e4a29f10c78fe9ad08114c84",
+    "src-tauri/src/service/document/typing_recovery.rs": "5741fb883240bef2ca4c3dac44cbe9617bbf753fc3a97d0c7839009eab116529",
+    "src-tauri/src/service/document.rs": "c79614444bd94630bf3c271d874fe13c0f8c3d045fa7962835543067f0d9085f",
+    "src-tauri/src/service/layout_gate/tests.rs": "6ec73c7e70e66e7ff6a13a53f4f2760a25806f74c3c0d2a2343f1b28f91629be",
+    "src-tauri/src/service/layout_gate.rs": "e204892866ecf5fbaf72c770474c6c0492f011d3282f9564db91212a36fa74ad",
+    "src-tauri/src/service/project_workflows.rs": "600a13d8fb34e2f04426c29172f997bb1461f81a0cb8a944c44506e83c1a4236",
+    "src-tauri/src/service/synctex.rs": "8217356c9073db9ebecda9c93b3cac8bcd51ae59600d0a436066ff1d95805d6b",
+    "src-tauri/src/service/visual.rs": "71bbc7257e13b839d3fd2a6bf23baa8c42ec78be5aa8e2ccda49cf4d830c3736",
+    "src-tauri/src/service.rs": "c5aef4fa3f11e068ed2f3770fa36208aa5e75b49cf71ea38c30af9f7065e3a20",
+    "src-tauri/src/workspace_protocol.rs": "132f9859db72211a413a1353c5b59b46e9457a1fd92d3268e877968a45f5280c",
+    "crates/texloom-core/src/adapters.rs": "4a46df024e3318fdf5bfbce0879ed324fd2555a6b4355215c6913f27a85577f8",
+    "crates/texloom-core/src/document/intent.rs": "5d9b3be93e61b131de0d0cf67e540fcab1b3aa6437b3bec25f8a23882682ead7",
+    "crates/texloom-core/src/document/position.rs": "c1cee69d974aaa53c788ac26f4260aa4b8305d824863a02f1f3cf5b9a08df6d4",
+    "crates/texloom-core/src/document/projection.rs": "91230a8c1d6be73c3d4d0f2d77d37b449799f4be95020799e6504b5a2f06e96f",
+    "crates/texloom-core/src/document/recovery.rs": "d1d65482305a5afb804fd875420546ccc00c635091b6e640f7b3edfce4bc161b",
+    "crates/texloom-core/src/document/source_edit/tests.rs": "18b35da6df657fc6106ce5fbff91aed6edc1916d4002113599ade5928d43a52c",
+    "crates/texloom-core/src/document/source_edit.rs": "959d60c36ce2b1254d6a6f405af85fe1182b38ceba3a8730590f4280e9bd71f0",
+    "crates/texloom-core/src/document/structure.rs": "a99fc8da8d1b4ec4b5513ec31e544e522b57fd47f963a60a8b1dd03ab7918d09",
+    "crates/texloom-core/src/document.rs": "e0cf767b2602610b3a7fa64b580c5be5fc5e3eb601bb193ad5b087e43a5ec088",
+    "crates/texloom-core/src/lib.rs": "dd4a16e1ff2b12a1c292da707e2b73e7bdff51b7bd2b420cf97eb57f1bdfbda3",
+    "crates/texloom-core/src/literal_text.rs": "55aeecd3dab322e4538ff018cb13e007406e76d8ba0eb0499903402fcaf4d4f0",
+    "crates/texloom-core/src/objects.rs": "1866eb43ac4c7a4b3dd92a3890fe804a0b0710d34a898c435d23feb21bb7f09a",
+    "crates/texloom-core/src/selection_hints.rs": "7335af18644e45e8200a1ae017c92b5eb5c35e6536d5ed325334a01b51091963",
+    "crates/texloom-core/src/spacing.rs": "5a43ac719e84ef5b03e3d99e0bacc89baecf48e1fb1eb1fe2863408ea7d688fd",
+    "crates/texloom-core/src/templates.rs": "2709b7ac002fa025c7e97481368746499a8be5ff44ebc48637afb8caed08c1f3",
+    "crates/texloom-build/src/bibliography.rs": "054fe257c78ba396f8e13967da7487060725b769b9892eaa33586f10c910bfd2",
+    "crates/texloom-build/src/bin/pdfium_worker/api.rs": "d7d4a0b96ece9138f7b3fe52f65dd0e6600ad387f64480651c5f0706a265163a",
+    "crates/texloom-build/src/bin/pdfium_worker/mod.rs": "37b87d716926d93e457f0ff3731cc8eaa4228631a2aa40426a24fa9cfb9976a2",
+    "crates/texloom-build/src/bin/pdfium_worker/target.rs": "311d02fc899996267187a1f986bf27f553740e4caf3856b458fa7836219cd67c",
+    "crates/texloom-build/src/bin/pdfium_worker.rs": "0d25c3a19c5e73231e35dde46bb0251c390992adfd40932372856f25f7833d36",
+    "crates/texloom-build/src/bin/process_fixture.rs": "9c2b5c4591e259bcc82651b9f4e1a5b07adcc0f8a42d8fa460cfedd03a1c073b",
+    "crates/texloom-build/src/engine.rs": "f5392a650bd3fb302f5196a3257605ad952d0ce0aa8287d257d312ff59f66e17",
+    "crates/texloom-build/src/inspection_worker.rs": "86e1b7ec6c42f78f381ee71f2abe0deafe1487f2dd59da03e84de433c1085378",
+    "crates/texloom-build/src/lib.rs": "124db1ecbb625a46ce04e22d80283afb1dd462416a673bae6b963a01a0b3e730",
+    "crates/texloom-build/src/persistence/tests.rs": "76237a646ed547554b8547894aee6fc86cc2ade2fa821d6b84497c6bef0b4add",
+    "crates/texloom-build/src/persistence.rs": "1fe394b5f1860b38d003e6d630d875430ce3926c87f458d861cab75b4b80c882",
+    "crates/texloom-build/src/process/unix.rs": "4fcec5609d047c9dd96cf874bdee377e9001c6d9de9dcdb1a03790aac101c814",
+    "crates/texloom-build/src/process/windows.rs": "44271df34eddcc89b5e87574c550812ba09e3e70d61a3455ed5199099ae50c71",
+    "crates/texloom-build/src/process.rs": "216bcf71b7e307c46662645d34cddea7390d6c2ab4cb267918aab1136928fe27",
+    "crates/texloom-build/src/project_io.rs": "c1f26d97b95b074fa6cfd2208261265216c3439d2a4bb64600d5274ace30bacd",
+    "crates/texloom-build/src/recovery/tests.rs": "6e647823baf406ecaee17dbd569542924f701a628d057847c2400e45093fe749",
+    "crates/texloom-build/src/recovery.rs": "bc67c8a42fda6e1b9214fbbb922055dfc3f15c34d8e41ed386f9cf570b7610cd",
+    "crates/texloom-build/src/scheduler.rs": "6489e909299868d504dfefea963b13effb7edb979768e4a8a8de91750f71280b",
+    "crates/texloom-build/src/snapshot.rs": "ac949d9a0a7de3d9a00e811d29afe6c9c404ae87e95a61995ac9a27dadb3c645",
+    "crates/texloom-build/src/verification.rs": "6ab198cc9faa0cfba3b8cda55fc87254fff30e8b9cb6bdb05b2300a6e0baac25",
+    "research/TRUSTED-PREFLIGHT-FORK-PLAN.md": "4d73ec623ae37dfcb258d909f531c167983d6101f8b2926651a708a076955c7f"
+  },
+  "binary_sha256": "e594a4926715e645c7a986593e2e7029c988e639b9e44db526b160f05887b075",
+  "summaries": [
+    {
+      "project_source_bytes": 1048576,
+      "mode": "source_edit_delta",
+      "samples": 30,
+      "native_service_and_reply_ms": {
+        "median": 2.2914000000000003,
+        "p95": 3.5168,
+        "max": 4.4691
+      },
+      "reply_json_encoding_ms": {
+        "median": 0.0191,
+        "p95": 0.0346,
+        "max": 0.0374
+      },
+      "native_service_through_encoding_ms": {
+        "median": 2.30835,
+        "p95": 3.5414000000000003,
+        "max": 4.489199999999999
+      },
+      "response_bytes": {
+        "median": 16666.0,
+        "p95": 16666.0,
+        "max": 16666.0
+      }
+    },
+    {
+      "project_source_bytes": 1048576,
+      "mode": "typed_preprotected_changed_file",
+      "samples": 30,
+      "native_service_and_reply_ms": {
+        "median": 2.4135,
+        "p95": 3.6497,
+        "max": 5.1691
+      },
+      "reply_json_encoding_ms": {
+        "median": 0.02205,
+        "p95": 0.0774,
+        "max": 0.10840000000000001
+      },
+      "native_service_through_encoding_ms": {
+        "median": 2.4372,
+        "p95": 3.7272,
+        "max": 5.2082
+      },
+      "response_bytes": {
+        "median": 16878.0,
+        "p95": 16878.0,
+        "max": 16878.0
+      }
+    },
+    {
+      "project_source_bytes": 1048576,
+      "mode": "typed_preprotected_full_snapshot",
+      "samples": 30,
+      "native_service_and_reply_ms": {
+        "median": 2.7539999999999996,
+        "p95": 5.819999999999999,
+        "max": 18.4807
+      },
+      "reply_json_encoding_ms": {
+        "median": 0.7516,
+        "p95": 1.1715,
+        "max": 1.3625
+      },
+      "native_service_through_encoding_ms": {
+        "median": 3.46375,
+        "p95": 7.1829,
+        "max": 19.1358
+      },
+      "response_bytes": {
+        "median": 1049026.0,
+        "p95": 1049026.0,
+        "max": 1049026.0
+      }
+    },
+    {
+      "project_source_bytes": 8388608,
+      "mode": "source_edit_delta",
+      "samples": 30,
+      "native_service_and_reply_ms": {
+        "median": 2.6443,
+        "p95": 7.6030999999999995,
+        "max": 9.592
+      },
+      "reply_json_encoding_ms": {
+        "median": 0.0131,
+        "p95": 0.0276,
+        "max": 0.0324
+      },
+      "native_service_through_encoding_ms": {
+        "median": 2.65575,
+        "p95": 7.6257,
+        "max": 9.6106
+      },
+      "response_bytes": {
+        "median": 16666.0,
+        "p95": 16666.0,
+        "max": 16666.0
+      }
+    },
+    {
+      "project_source_bytes": 8388608,
+      "mode": "typed_preprotected_changed_file",
+      "samples": 30,
+      "native_service_and_reply_ms": {
+        "median": 4.974,
+        "p95": 9.8107,
+        "max": 11.8446
+      },
+      "reply_json_encoding_ms": {
+        "median": 0.03935,
+        "p95": 0.1002,
+        "max": 0.11270000000000001
+      },
+      "native_service_through_encoding_ms": {
+        "median": 5.0188500000000005,
+        "p95": 9.8391,
+        "max": 11.945
+      },
+      "response_bytes": {
+        "median": 16878.0,
+        "p95": 16878.0,
+        "max": 16878.0
+      }
+    },
+    {
+      "project_source_bytes": 8388608,
+      "mode": "typed_preprotected_full_snapshot",
+      "samples": 30,
+      "native_service_and_reply_ms": {
+        "median": 7.47045,
+        "p95": 12.7313,
+        "max": 14.4141
+      },
+      "reply_json_encoding_ms": {
+        "median": 6.890499999999999,
+        "p95": 10.2051,
+        "max": 14.9791
+      },
+      "native_service_through_encoding_ms": {
+        "median": 13.895,
+        "p95": 22.8131,
+        "max": 29.3933
+      },
+      "response_bytes": {
+        "median": 8389191.0,
+        "p95": 8389191.0,
+        "max": 8389191.0
+      }
+    },
+    {
+      "project_source_bytes": 33554432,
+      "mode": "source_edit_delta",
+      "samples": 30,
+      "native_service_and_reply_ms": {
+        "median": 3.059,
+        "p95": 3.8823999999999996,
+        "max": 4.4973
+      },
+      "reply_json_encoding_ms": {
+        "median": 0.0135,
+        "p95": 0.031099999999999996,
+        "max": 0.0361
+      },
+      "native_service_through_encoding_ms": {
+        "median": 3.0722,
+        "p95": 3.8971999999999998,
+        "max": 4.5136
+      },
+      "response_bytes": {
+        "median": 16666.0,
+        "p95": 16666.0,
+        "max": 16666.0
+      }
+    },
+    {
+      "project_source_bytes": 33554432,
+      "mode": "typed_preprotected_changed_file",
+      "samples": 30,
+      "native_service_and_reply_ms": {
+        "median": 14.841550000000002,
+        "p95": 24.657,
+        "max": 24.8519
+      },
+      "reply_json_encoding_ms": {
+        "median": 0.031299999999999994,
+        "p95": 0.0711,
+        "max": 0.08339999999999999
+      },
+      "native_service_through_encoding_ms": {
+        "median": 14.8713,
+        "p95": 24.741300000000003,
+        "max": 24.8765
+      },
+      "response_bytes": {
+        "median": 16878.0,
+        "p95": 16878.0,
+        "max": 16878.0
+      }
+    },
+    {
+      "project_source_bytes": 33554432,
+      "mode": "typed_preprotected_full_snapshot",
+      "samples": 30,
+      "native_service_and_reply_ms": {
+        "median": 24.5259,
+        "p95": 56.1165,
+        "max": 59.27
+      },
+      "reply_json_encoding_ms": {
+        "median": 32.8039,
+        "p95": 60.8668,
+        "max": 72.0286
+      },
+      "native_service_through_encoding_ms": {
+        "median": 58.02095,
+        "p95": 102.9645,
+        "max": 106.7621
+      },
+      "response_bytes": {
+        "median": 33555471.0,
+        "p95": 33555471.0,
+        "max": 33555471.0
+      }
+    }
+  ],
+  "retained_artifacts": {
+    "artifacts/intent-cost-20261114/single-file-core.log": "45d408e19302e0282dbe8322350cbe013b6d12d2a32dc79cc3b9f90c93c818d3",
+    "artifacts/intent-cost-20261114/single-file-native.log": "629dda53482a25c3e65c905b975ddddd9f1cee2a8af11d1e3071532fbfcd1454",
+    "artifacts/intent-cost-20261114/build-single-file.log": "8b29e29ed00827ab6bfc7fc936eb1e3191992fd041fd6fe8b719b54f8681f760",
+    "artifacts/intent-cost-20261114/run-4-single-file-pre-run.json": "b39f0d64d9baf4e7824df248aa849043976e6e96d0b18d9718ac31ed332f1326",
+    "artifacts/intent-cost-20261114/run-4-single-file-stdout.log": "10ced76d04a2040fc248b8c4152939e40a88842dc84f99b6d47fd76b3684facf",
+    "artifacts/intent-cost-20261114/run-4-single-file/analysis.json": "42c4de809140dd75430bd0ee8cce0957573dfa344e0296439d597ff7bf1a55dc",
+    "artifacts/intent-cost-20261114/run-4-single-file/results.json": "286ba60867c6d479fadec10094aae6a2a4c81ad592b2c45580b8b99ed6c351b3",
+    "artifacts/intent-cost-20261114/run-4-single-file/samples.jsonl": "08bc9a9e47dff38a412a4d5f2722d5d651b76ae7179fcc196e8c5347d563228a"
+  }
+}

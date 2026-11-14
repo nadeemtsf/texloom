@@ -47,7 +47,7 @@ pub enum LayoutEffect {
 /// does not expose its Prepared object or a geometry-acceptance method.
 pub struct IntentPlan {
     kind: OperationKind,
-    prepared: Prepared,
+    prepared: PreparedSourceEdit,
     required_proof: RequiredProof,
 }
 
@@ -91,8 +91,12 @@ impl IntentPlan {
     pub fn changed(&self) -> bool {
         self.prepared.changed()
     }
-    pub fn candidate_sources(&self) -> &Sources {
-        self.prepared.sources()
+    /// Materialize a complete candidate only when a caller needs all files.
+    pub fn candidate_sources(&self, session: &Session) -> EditResult<Sources> {
+        self.prepared.validate_for(session)?;
+        let mut sources = session.sources().clone();
+        sources.insert(self.prepared.file().into(), self.prepared.text().into());
+        Ok(sources)
     }
     pub fn source_patch(&self) -> Patch {
         self.prepared.recovery_patch()
@@ -124,7 +128,7 @@ impl Session {
         let changed = prepared.changed();
         // commit rechecks private session ownership and base revision before
         // any mutation; no-op plans must pass the same provenance guards.
-        let revision = self.commit(prepared, Origin::Source, None)?;
+        let revision = self.commit_source_edit(prepared, None)?;
         Ok(DraftIntentReceipt {
             kind,
             from_revision,
@@ -178,21 +182,18 @@ impl Session {
                 RequiredProof::ParagraphContentDeletion,
             )
         };
-        let patch = Patch {
-            base: self.revision(),
-            files: vec![FileChange::Edit {
-                file: resolved.file().into(),
-                edits: vec![Replacement {
-                    range: resolved.range(),
-                    expected: resolved.text().into(),
-                    text: replacement,
-                }],
+        let prepared = self.prepare_source_edit(
+            self.revision(),
+            resolved.file(),
+            vec![Replacement {
+                range: resolved.range(),
+                expected: resolved.text().into(),
+                text: replacement,
             }],
-            profile: None,
-        };
+        )?;
         Ok(IntentPlan {
             kind,
-            prepared: self.prepare(patch)?,
+            prepared,
             required_proof,
         })
     }
