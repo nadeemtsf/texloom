@@ -1,0 +1,116 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-07T11:39:16.792885+00:00",
+  "kind": "development_notice_packaging_validation_not_native_acceptance",
+  "implementation_commit": "76591d4",
+  "checkout_byte_policy_commit": "2a7860a",
+  "frontend_pass": 291,
+  "core_unit_pass": 70,
+  "core_integration_pass": 18,
+  "research_helper_pass": 40,
+  "explicit_native_verifier_pass": 2,
+  "clippy": "workspace/all-targets completed with17warning lines and no errors. Warnings retained; spawn/wait warning belongs to deliberate process-tree test fixture.",
+  "verifier_manifest": {
+    "schema": 2,
+    "protocol": 3,
+    "purpose": "Pinned isolated layout verification dependency; development build",
+    "platform": "windows-x86_64",
+    "pdfium": "159.0.8138.0",
+    "binding_source": "bblanchon/pdfium-binaries@chromium/8138",
+    "archive_sha256": "8d48973e3eb472dda0f5f2435e595ac043f9f2219dd71883392f549445afa8a5",
+    "build_repository_commit": "0eb94b28c2252d2baae3dfe15dc6b237131d8cd8",
+    "dll_sha256": "71a3e63e6ab8f5746a0fc9de9bc3d0c0dc07eb60990dfd37d9db7fc891821943",
+    "worker_sha256": "f9aaecd73bd824361f026c7b9e1bff91e2f41a6f6e8a6031e6bfc095e96e1eff",
+    "notice_sha256": "5a84eda0edab5f2631a7dd1ee5826af905646745453fdb29627c5dc1b332a1db",
+    "supplemental_notices": [
+      {
+        "component": "brotli",
+        "file": "brotli-LICENSE.txt",
+        "bytes": 1084,
+        "sha256": "3d180008e36922a4e8daec11c34c7af264fed5962d07924aea928c38e8663c94",
+        "source_url": "https://chromium.googlesource.com/chromium/src/third_party/brotli/+/803ac71664ad62af1de39ff55e63ebbe07006fc8/LICENSE?format=TEXT",
+        "source_revision": "803ac71664ad62af1de39ff55e63ebbe07006fc8"
+      },
+      {
+        "component": "libyuv",
+        "file": "libyuv-LICENSE.txt",
+        "bytes": 1506,
+        "sha256": "2b2cc1180c7e6988328ad2033b04b80117419db9c4c584918bbb3cfec7e9364f",
+        "source_url": "https://chromium.googlesource.com/libyuv/libyuv/+/1e2e3a35993609da1d89ac170b907719d555f4b3/LICENSE?format=TEXT",
+        "source_revision": "1e2e3a35993609da1d89ac170b907719d555f4b3"
+      }
+    ],
+    "supplemental_notice_scope": "Dependency revisions from observed PDFium commit5f092b52993bfd98f94f04deff391918fe0fdcfd; exact DLL nested checkout remains unresolved. Include conservatively for components compiled in matching upstream Windows job; not a complete component/license audit."
+  },
+  "package_independent": {
+    "status": "pass",
+    "portable_entries": 16,
+    "crc_exact_names_all_hashes_pairing": "pass",
+    "dll_worker_unchanged_from_r7": true,
+    "all_prior_notice_bytes_retained": true,
+    "supplemental_notices": 2,
+    "exe_sha256": "60ef2e8ea6e790c570f0cb3c15f87741c5cc4976deda78f28763233f28dfad9b",
+    "zip_sha256": "656db6c33892034222dc5dbdbdaaf0862f3ea9335d553cd3ec7834432c46daa8",
+    "ui_or_installer_acceptance": "pending_owner"
+  },
+  "desktop_build_receipt": {
+    "path": "target/release/texloom-desktop.exe.texloom-build.json",
+    "bytes": 1046,
+    "sha256": "aabaa7594f47fcf033a0a79803b5d6e9a416b93b80a3b055bf10340d5ca41a02"
+  },
+  "installer": {
+    "path": "target/release/bundle/nsis/Texloom_0.3.0_x64-setup.exe",
+    "bytes": 9475781,
+    "sha256": "59d781c03c158c33a0e6852207ebf082f252fa6a1a59ecf1fd7300b56d24224b"
+  },
+  "logs": [
+    {
+      "path": "artifacts/continuation-20261107-weekly57/desktop-r8-build.log",
+      "bytes": 7502,
+      "sha256": "0ca3d2577552da5a680405a15f94234a36c5b3595a0d9d04213d7b4e32f53a72"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/frontend.log",
+      "bytes": 27561,
+      "sha256": "b45639e2c35a3fe685969666b3a2c22882d28ee349ab4ded076434c6eeef26a4"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/core.log",
+      "bytes": 7903,
+      "sha256": "03f1b34ac53c08ea302aeb77c8628d91ca0c35981ece027888d8b497fc39c827"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/research-tests.log",
+      "bytes": 408,
+      "sha256": "9171e60b9cda755a6ccc8cc6defb98c7cb5649960085f16ec616329d519b9c89"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/native-explicit.log",
+      "bytes": 3291,
+      "sha256": "160a5313b3d142e8bab8f651aa6dcfc1b4977f11ab92b131da1853065b39e2b2"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/clippy.log",
+      "bytes": 11292,
+      "sha256": "7f734585b1634fc4fbf652ebb442a5d85f462c4732510d46787edf204884d295"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/supplemental-notices-first.log",
+      "bytes": 1560,
+      "sha256": "bfe4ab8e625daa9d4876da73009a8d33d03b4835fc622365eb584f050e32b914"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/package-r8.log",
+      "bytes": 263,
+      "sha256": "f606fde4c1e52c57408039c322a7bf6d6710e8e70627422787c4a046ac903dcd"
+    }
+  ],
+  "preserved_failures": [
+    "Initial notice test did not decode URL spaces; corrected with fileURLToPath and291suite passed",
+    "Serena Rust backend unavailable; no edit applied and standard editing tools used",
+    "Long inline receipt command rejected before execution by command policy; rewritten as a local file and run directly"
+  ],
+  "fresh_windows_autocrlf_checkout_notice_hashes": "pass",
+  "native_ui_or_installer_acceptance": "pending_owner",
+  "final_evaluation_executed": false
+}

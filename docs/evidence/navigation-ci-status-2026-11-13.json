@@ -1,0 +1,84 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-13T15:20:01.176169+00:00",
+  "kind": "later_owner_navigation_acceptance_and_completed_ci_reconciliation",
+  "status": "navigation_owner_reported_passed_ci_baseline_passed",
+  "baseline_commit": "4cfe4616c98e85a879e5a60296f5d3a8c09405dc",
+  "owner_report_provenance": "Named portable checklists and later session checkpoint read on 13 November; no independent running-process observation",
+  "r11": {
+    "source_commit": "e215bb694ecbd6981ea662eb6c5544a27ca69fb0",
+    "exe_sha256": "a2479afe19f846245b87c131b521e0b0689f6add77afa0863822b09de276470c",
+    "quote": "everything is working correctly",
+    "scope": "All seven areas of exact r11 checklist reported passed: selection pre/post zoom/page break, physical pinch/Ctrl-two-finger, normal scroll/anchor/Fit, Read text/source/Undo preservation, held drag cancellation and long view. No agent process inspection."
+  },
+  "r12": {
+    "quote": "all of em worked perfectly",
+    "scope": "All four requested focused r12 checks",
+    "exe_sha256": "941799c70c2fddd8450d94bdc57497e61073e0b618c9a92fe4789e1dc289963e",
+    "source_commit": "c93799b5cce542db3f7fdc04882d424f797c07f5",
+    "reported_checks": [
+      "stronger pinch and PDF-only zoom",
+      "ordinary scroll/Fit and selection",
+      "auto compile valid existing Projects/Browse/recent opens",
+      "missing-path retention"
+    ],
+    "delivered_exe_hash_rechecked": true
+  },
+  "ci": {
+    "local_steps_passed": 27,
+    "local_staged_tree": "3807f2c792fe7dbc0d05b8518f43642d9a6641b3",
+    "local_gate_receipt_sha256": "7b84ccdf67e39bdb7caf1e879d9bb820b2376730e04f4b2e032a4fae3ad56a7e",
+    "local_steps_receipt_sha256": "f227344b530eec456265b61e11c030a889b624603a31055c050d224448110e73",
+    "hosted_checks": [
+      {
+        "link": "https://github.com/nadeemtsf/texloom/actions/runs/43292049233/job/131442925472",
+        "name": "windows-native-inspection",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/nadeemtsf/texloom/actions/runs/43292049233/job/131440527263",
+        "name": "source-and-pdf",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/nadeemtsf/texloom/actions/runs/43292048939/job/131440523803",
+        "name": "engines",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/nadeemtsf/texloom/actions/runs/43292049058/job/131440524482",
+        "name": "windows",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://github.com/nadeemtsf/texloom/actions/runs/43292033355/job/131440469362",
+        "name": "windows",
+        "state": "SUCCESS"
+      },
+      {
+        "link": "https://dashboard.gitguardian.com",
+        "name": "GitGuardian Security Checks",
+        "state": "SUCCESS"
+      }
+    ],
+    "retained_attempts": [
+      "Cancelled initial preflight to correct hook checkout LF attributes",
+      "Prior hook blocked commit after Windows PowerShell packaging-child hashing failure; corrected with PowerShell7"
+    ],
+    "hosted_checks_requeried_utc_date": "2026-11-13",
+    "hosted_checks_requeried_head": "4cfe4616c98e85a879e5a60296f5d3a8c09405dc",
+    "hosted_checks_requery_result": "All six completed/success, GitHub check diagnostics for PR24"
+  },
+  "supersedes_only_pending_status_in": [
+    "docs/evidence/pdf-navigation-owner-followup-2026-11-12.json",
+    "docs/evidence/pdf-navigation-r12-followup-2026-11-12.json",
+    "docs/evidence/pdf-navigation-r12-artifacts-2026-11-12.json"
+  ],
+  "limitations": [
+    "Guided owner report, not unassisted usability or measured latency",
+    "r12 is distinct from later CI binaries and new source-draft transport",
+    "No clean installation, Windows DPI/multimonitor or controlled performance pass inferred",
+    "Final study remains not_frozen and unrun",
+    "Historical receipts and immutable delivered artifacts preserved"
+  ]
+}

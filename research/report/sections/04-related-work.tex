@@ -1,0 +1,140 @@
+\section{Related work and a defensible contribution boundary}
+This is a scoped primary-source review, not an exhaustive novelty search.
+The bibliography identifies the versions inspected. Documentation establishes
+described workflows; it does not establish a competing system's error rate,
+the absence of an internal technique or Texloom's superiority.
+
+\subsection{Synchronization as evidence}
+Laurens' author-maintained SyncTeX API documents source/display queries,
+multiple query results, weak matching, line fallback when an exact column is
+unavailable and ambiguity involving PDF forms~\cite{synctex}. These are useful
+navigation facilities, not a specification for correct source updates.
+Texloom therefore uses synchronization as a candidate-generating layer and
+requires additional source and output evidence before committing an edit.
+The inspected API source is pinned to a commit. The 2008 TUGboat full text
+could not be retrieved reliably during this review, so the report does not
+claim a full-text review of that article.
+
+\subsection{Graphical scientific and LaTeX editing}
+LyX describes a graphical, structure-oriented document processor using
+TeX/LaTeX~\cite{lyx}. TeXmacs describes structured scientific editing with
+interactive high-quality typesetting~\cite{texmacs}. These systems already
+address the broad interface goal of editing scientific documents visually.
+Differences in document representation, source ownership and supported edits
+must be stated before any comparison.
+
+The archived BaKoMa distribution README describes TeXWord editing LaTeX source
+through a rendered-page interface~\cite{bakoma}. It is particularly relevant
+prior work against any claim that editing typeset LaTeX pages is itself new.
+The inspected text is a historical 2011 distribution description, not evidence
+of current availability, internal algorithms or preservation guarantees.
+Those questions require additional primary documentation or experiments.
+The vendor's archived version history also records source/proof interaction
+and selection/synchronization fixes~\cite{bakomahistory}. This historical
+evidence strengthens the workflow comparison without revealing complete
+transformation invariants or establishing present-day availability.
+
+Overleaf documents code/visual editing alongside a compiled PDF preview and
+source/PDF navigation~\cite{overleaf}. An interface mode or synchronization
+feature is not automatically the displacement contract studied here. Equally,
+the documentation's emphasis does not prove that an unmentioned technique is
+absent. This report makes workflow distinctions rather than a timing leaderboard.
+
+\subsection{Bidirectional transformations and output-directed programming}
+Foster et al. formulate bidirectional transformations using a view and a
+putback operation, with round-trip laws~\cite{foster2005}. As a conceptual
+analogy, desirable behavior includes leaving a source unchanged when its view
+is unchanged and producing an intended new view after a supported update.
+Texloom has no proof that arbitrary TeX/PDF behavior satisfies such laws.
+Compilation is not generally injective, and the source contains information
+that a rendered page cannot recover. Exact Undo is a property of retained
+history, not proof of a general bidirectional transformation law. The cited
+source is the POPL 2005 conference version, not the expanded 2007 journal paper.
+
+Mayer, Kuncak and Chugh update programs from manipulated output through
+bidirectional evaluation and custom lenses~\cite{mayer2018}. Hempel, Lubin and
+Chugh combine source and graphical operations in output-directed SVG
+programming~\cite{hempel2019}. This is close conceptual prior work: output
+manipulation can guide source updates, and provenance constrains the choices.
+Texloom instead applies bounded source plans around an existing TeX engine
+and checks compiled candidates. It does not implement a reverse evaluator for
+general TeX. Any later contribution would need to explain what is learned
+about this particular preservation/refusal/cost trade-off beyond assembling
+known ideas.
+
+\subsection{Alignment, structured documents and exact source recovery}
+Barbosa et al. explicitly separate alignment from reconstruction in matching
+lenses~\cite{barbosa2010matching}. Their framework parameterizes matching
+strategies and studies how reordered or edited view pieces correspond to
+source/complement pieces. Selected introductory examples and combinator
+sections of the author-hosted conference paper were inspected, without a
+proof audit. Texloom's repeated-text problem belongs to an established
+alignment problem; a conservative PDF/source probe is not a new general
+solution to view alignment.
+
+Hu, Mu and Takeichi describe a programmable structured-document editor whose
+view edits derive source and a transformation~\cite{hu2008programmable}.
+Only the publisher abstract and metadata were accessible in this review.
+The abstract establishes relevant prior document-view-to-source work, but
+does not establish equivalent compiled-LaTeX support, exact unrelated bytes
+or Texloom's particular refusal policy.
+
+The author-lab abstract for FuseDM describes a manipulation-delta language,
+fusion into functional source and an SVG editor~\cite{zhang2024fusing}. The
+authors report a correctness proof; that proof and the artifact were not
+inspected here. Operation-directed source updating therefore has close prior
+work, but this review cannot compare its complete preservation policy or error
+frequency with Texloom.
+
+The author-hosted Biparsers talk abstract describes lens-based parser/printer
+synchronization and exact source recovery with non-injective parsing, including
+JSON/YAML subsets~\cite{xie2025biparsers}. Publisher-deposited metadata fixes
+the paper's identity; the full paper was not reviewed. Preserving original
+source has relevant foundations, while parsing/printing data and translating
+LaTeX to a rendered PDF are different relations. No correctness transfer
+between them is assumed.
+
+These sources were followed from lenses and output-directed programming
+through targeted author, publisher and archive pages. The search can miss
+systems described with other terminology or inaccessible documentation. The
+POPL 2005 and expanded TOPLAS 2007 lens papers were distinguished through
+their separate publisher-deposited DOI records; unavailable journal full text
+was not silently replaced by conference text. The follow-up notes retain
+retrieval failures and inspection limits. This remains a scoped review,
+not evidence that no competing system exists.
+
+\subsection{Validation and document differences}
+Translation validation checks individual translations rather than relying
+only on trust in the translating implementation~\cite{pnueli1998}. The
+publisher abstract was inspected; the original formal method was not
+reproduced here. The useful analogy is checking each candidate. Texloom's
+finite source, geometry and raster predicates do not become that paper's
+semantic refinement proof.
+
+\emph{latexdiff} marks significant differences between LaTeX
+sources~\cite{latexdiff}. Such source review is complementary: it can expose
+unrequested edits, but does not by itself establish that unchanged source
+rendered identically or that the intended printed occurrence moved. The
+evaluation consequently combines declared source changes with independent
+rendered evidence and keeps their failure modes separate.
+
+\subsection{Call outcomes and duplicate suppression}
+Birrell and Nelson's RPC design separates a successful return from a failed
+call whose execution can remain unresolved, and uses call identifiers to match
+results and suppress duplicates~\cite{birrell1984rpc}. Texloom applies that
+established distinction to a local process boundary; it does not inherit the
+paper's protocol guarantees. Its finite session ledger and protected-draft
+recovery need their own checks, particularly after session reopen. Definite
+pre-write refusal is distinct from an unconfirmed operation or partial
+recovery write. These are established failure-handling concerns, not a claim
+of novel distributed-systems semantics.
+
+\subsection{Current contribution claim}
+The defensible present claim is a documented systems mechanism and a
+reproducible way to investigate it in a bounded setting. Potentially useful
+findings include which incorrect candidates escape weaker checks, where a
+strict contract refuses useful edits, and how much first-selection and
+verification cost. No claim of being the first visual LaTeX editor, of formal
+verification, of universal preservation or of superior performance follows
+from the current audit. A stronger research claim needs a deeper literature
+review, reviewed labels and substantive fixed-version comparisons.

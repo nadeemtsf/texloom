@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "date": "2026-11-12",
+  "kind": "core_source_anchor_engineering_receipt",
+  "source_commit": "02cd27182238ce23e8e631d4831cf4c900cf2050",
+  "status": "core_only_not_native_ui_feature",
+  "new_experiments_on_receipt_date": false,
+  "implementation": [
+    "Private session/file/revision bound SourceAnchor with scalar point/affinity",
+    "Guarded opt-in source-edit commit returns owned SourceChangeReceipt only after successful commit",
+    "Receipts map intact points forward or invalidate deleted interiors; original reference remains stale",
+    "No-op same revision/history; foreign/stale and post-history receipts refuse",
+    "Owned maps remain opt-in and outside persisted history"
+  ],
+  "checks": [
+    {
+      "scope": "default core",
+      "passed": 139,
+      "log": "artifacts/anchors-20261110/owned-anchor-final-core.log",
+      "sha256": "e29eb3aa18b256edeea99f4177945f1ecc7f18b7c8ff26e98d29ab8104c2835d",
+      "execution_date": "2026-11-10"
+    },
+    {
+      "scope": "core recovery-serde",
+      "passed": 140,
+      "log": "artifacts/anchors-20261110/owned-anchor-final-recovery.log",
+      "sha256": "3b2e558b17898c8f4cae3066895212b8a96e342c89ec8cd5f33fc0c71f8fe5d1",
+      "execution_date": "2026-11-10"
+    },
+    {
+      "scope": "headless native document/recovery,36 filtered",
+      "passed": 20,
+      "log": "artifacts/anchors-20261110/owned-anchor-native-document.log",
+      "sha256": "70e1f31c359f1dc4b403ae2887e8a5c19067da29726cdf8a2eecb6050fe34035",
+      "execution_date": "2026-11-10"
+    }
+  ],
+  "limitations": [
+    "Endpoints are not range-preservation proof",
+    "No grapheme/bidi/visual caret or geometric permission",
+    "No IPC/UI adoption, performance or final evaluation result"
+  ]
+}

@@ -1,0 +1,144 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-14T08:45:23.863051+00:00",
+  "kind": "admitted_source_draft_refusal_development_diagnostic",
+  "status": "diagnostic_and_focused_tests_passed_full_commit_gate_separate",
+  "implementation_base": "76b2228a71f6eeeaba1dd0ffcc11eca894b21327",
+  "protocol": "research/SOURCE-INTENT-REFUSAL-PLAN.md",
+  "entry": "headless_native_service_not_tauri_dispatch_or_pdf_selection",
+  "conditions": 3,
+  "assertions": 129,
+  "counts_note": "Repeated assertions in three reused development source conditions, not independent app requests or accuracy denominators",
+  "binary_sha256": "342ecf64366d560286d14c1a6c4db4164dd81fd5661a36a4a24b5afdcd896a2b",
+  "source_sha256": {
+    "research/tools/source_intent_refusal.py": "e984f59f712502916ba52bbbb53fba3b03173bababbb9f0bd95df56623df873f",
+    "research/tools/source_intent_transport.py": "2c3559b3d049b9d5bff61e1b429338403b359ec37b5e613671fdb5985030131c",
+    "research/SOURCE-INTENT-REFUSAL-PLAN.md": "7459f3e1c44bf72b74a81bc2283f1d91c1ed68e38fe4def3a7c2598d8688dd9f",
+    "Cargo.lock": "c0a08b67ef59e6fad685975754c24dcae80b454d592a1bf386f33c3339e5b124",
+    "src-tauri/Cargo.toml": "e318549cf3ad8f500eb78d08b605ac180b653818b5012c8ca97f3256adf744a7",
+    "src-tauri/examples/source_intent_transport_development.rs": "68516c8324bf630cd86aa0dcec45c63bf705b01560aad6a6d58e1430793bf42e",
+    "src-tauri/src/build_protocol.rs": "953867511e4a197e70ae5dc310ebc4a54b8adb51485d7cbc1095e455b403c35f",
+    "src-tauri/src/document_protocol/bindings.rs": "ea5b7138df0207f10fc8e5bd4ef1a51bb9c1defc7bb66abc5902ade1ee1ea367",
+    "src-tauri/src/document_protocol.rs": "771869cfa753927d3cd69d4a26d60145dbc8f24d76929ca2531cd18c48bb17c6",
+    "src-tauri/src/lib.rs": "5bfa81d0e807914614ed4c2dd9ea1093771a5a571cf02afa0dd835e0216093cc",
+    "src-tauri/src/main.rs": "b0d48f87686a53718fbeb902c0e2be1e967f927f1f9381864dda4adaf79d3b84",
+    "src-tauri/src/service/adapters.rs": "8918a795c43fef7611ce4650cb4dd3ec39fb38f0b0ec6e7346bbdc0da4278809",
+    "src-tauri/src/service/build_cache.rs": "92baa4edf4d6bd743cdef2c86ad8f1801085408ff8d3bdab20a5c4620b5f3940",
+    "src-tauri/src/service/document/source_intent/tests.rs": "c06c72ad55ced4e081ed9124899e753cdebac00797d90b8be02a3841f069358b",
+    "src-tauri/src/service/document/source_intent.rs": "c11451183c8b27e88537aa5723eb726d402ab71f516d906ccdd0eb26562281c9",
+    "src-tauri/src/service/document/typing_recovery/tests.rs": "3b20eef59d5fb27cf22bfc6c97875cf541fc8f40e4a29f10c78fe9ad08114c84",
+    "src-tauri/src/service/document/typing_recovery.rs": "5741fb883240bef2ca4c3dac44cbe9617bbf753fc3a97d0c7839009eab116529",
+    "src-tauri/src/service/document.rs": "9d17b6f2b7b5fbf14d7b575555997a694feebda452d8671eb0512de31210d352",
+    "src-tauri/src/service/layout_gate/tests.rs": "6ec73c7e70e66e7ff6a13a53f4f2760a25806f74c3c0d2a2343f1b28f91629be",
+    "src-tauri/src/service/layout_gate.rs": "e204892866ecf5fbaf72c770474c6c0492f011d3282f9564db91212a36fa74ad",
+    "src-tauri/src/service/project_workflows.rs": "600a13d8fb34e2f04426c29172f997bb1461f81a0cb8a944c44506e83c1a4236",
+    "src-tauri/src/service/synctex.rs": "8217356c9073db9ebecda9c93b3cac8bcd51ae59600d0a436066ff1d95805d6b",
+    "src-tauri/src/service/visual.rs": "71bbc7257e13b839d3fd2a6bf23baa8c42ec78be5aa8e2ccda49cf4d830c3736",
+    "src-tauri/src/service.rs": "d344dc1fbf2128615b9807837208ab1fef80cbe55440ee166f7407200f918403",
+    "src-tauri/src/workspace_protocol.rs": "132f9859db72211a413a1353c5b59b46e9457a1fd92d3268e877968a45f5280c",
+    "crates/texloom-core/src/adapters.rs": "4a46df024e3318fdf5bfbce0879ed324fd2555a6b4355215c6913f27a85577f8",
+    "crates/texloom-core/src/document/intent.rs": "b285a5e322975a2d9ac660cfcbd9c0fe40eb8a30fe160a44687c85814d4e597a",
+    "crates/texloom-core/src/document/position.rs": "c1cee69d974aaa53c788ac26f4260aa4b8305d824863a02f1f3cf5b9a08df6d4",
+    "crates/texloom-core/src/document/projection.rs": "91230a8c1d6be73c3d4d0f2d77d37b449799f4be95020799e6504b5a2f06e96f",
+    "crates/texloom-core/src/document/recovery.rs": "d1d65482305a5afb804fd875420546ccc00c635091b6e640f7b3edfce4bc161b",
+    "crates/texloom-core/src/document/source_edit/tests.rs": "18b35da6df657fc6106ce5fbff91aed6edc1916d4002113599ade5928d43a52c",
+    "crates/texloom-core/src/document/source_edit.rs": "a3df4f6327c70c341d63be4a44ce1703dd07372fa71d465301409f450c49919e",
+    "crates/texloom-core/src/document/structure.rs": "a99fc8da8d1b4ec4b5513ec31e544e522b57fd47f963a60a8b1dd03ab7918d09",
+    "crates/texloom-core/src/document.rs": "0e0ab1fd933cc62b3b055ce21f6506370d1695c2d8a0acc0acd2fcf3623ce957",
+    "crates/texloom-core/src/lib.rs": "dd4a16e1ff2b12a1c292da707e2b73e7bdff51b7bd2b420cf97eb57f1bdfbda3",
+    "crates/texloom-core/src/literal_text.rs": "55aeecd3dab322e4538ff018cb13e007406e76d8ba0eb0499903402fcaf4d4f0",
+    "crates/texloom-core/src/objects.rs": "1866eb43ac4c7a4b3dd92a3890fe804a0b0710d34a898c435d23feb21bb7f09a",
+    "crates/texloom-core/src/selection_hints.rs": "7335af18644e45e8200a1ae017c92b5eb5c35e6536d5ed325334a01b51091963",
+    "crates/texloom-core/src/spacing.rs": "5a43ac719e84ef5b03e3d99e0bacc89baecf48e1fb1eb1fe2863408ea7d688fd",
+    "crates/texloom-core/src/templates.rs": "2709b7ac002fa025c7e97481368746499a8be5ff44ebc48637afb8caed08c1f3"
+  },
+  "source_changed_during_run": [],
+  "focused_native_tests": 12,
+  "focused_client_tests": 13,
+  "frontend_full_tests": 336,
+  "retained_pre_fix_failures": [
+    "Native endpoint returned Err for the declared paragraph-break refusal; no stable lookup receipt",
+    "Older client validator refused the new definite-nonexecution outcome; dependent editing remained blocked"
+  ],
+  "raw_artifacts": {
+    "artifacts/intent-refusal-20261114/bridge-build.log": {
+      "bytes": 4251,
+      "sha256": "694d412640fefd342c91910d6bc337fb4b621aa8aca125e8105f6ae60e7f0900"
+    },
+    "artifacts/intent-refusal-20261114/client-after.log": {
+      "bytes": 1616,
+      "sha256": "df3a5f7392998c819284cc61b9dac63378cd4a51a07cdaabb7ec64816a195b52"
+    },
+    "artifacts/intent-refusal-20261114/client-before-fix.log": {
+      "bytes": 921,
+      "sha256": "ec70cab0029150b7bc87eda1a15a29dc8e8bf46302d99bb278a2a915bb3daeae"
+    },
+    "artifacts/intent-refusal-20261114/frontend-full.log": {
+      "bytes": 32049,
+      "sha256": "030c4a50599760cc5deef41a56cc5f6928c8dd97e61f74e25e41c45a29dcdfce"
+    },
+    "artifacts/intent-refusal-20261114/native-after.log": {
+      "bytes": 4019,
+      "sha256": "37f65c556a79be4dd6e0c2c40b1eed005ac5ac599a1918cc1b32c1c9d3c42e42"
+    },
+    "artifacts/intent-refusal-20261114/native-before-fix.log": {
+      "bytes": 3339,
+      "sha256": "3d596387209afa08f6db0d3236e560c39feb37cd8d99350ffe9dcf03a0a03b28"
+    },
+    "artifacts/intent-refusal-20261114/run-1/arabic-transcript.json": {
+      "bytes": 547445,
+      "sha256": "2a0122fc2d844e67b55959e65a47a09cfc9b15e400916196589f07350e5a5d87"
+    },
+    "artifacts/intent-refusal-20261114/run-1/english-transcript.json": {
+      "bytes": 547049,
+      "sha256": "f06e38d6ae950dee290ef4be652ef5f58e017b86986007bc15aab1a7d7c49d5e"
+    },
+    "artifacts/intent-refusal-20261114/run-1/hebrew-transcript.json": {
+      "bytes": 547003,
+      "sha256": "4403271e0d4da49e80f65a031074810e3e9e98ca4f44e7980558a64af890454a"
+    },
+    "artifacts/intent-refusal-20261114/run-1/pre-run.json": {
+      "bytes": 4851,
+      "sha256": "31339a68d3312c979c14ffad18866b81c9b41a757c076ff1bfe9a539990dfeae"
+    },
+    "artifacts/intent-refusal-20261114/run-1/results.json": {
+      "bytes": 123372,
+      "sha256": "dac77a6dccc7fc10f03a13a9553e7ca5cf7ee3d18131bd15c6caafbc3b1cf373"
+    },
+    "artifacts/intent-refusal-20261114/typegen-after.log": {
+      "bytes": 3046,
+      "sha256": "0642b288608193c811fdef40671408f51313d394048f1902bdb4c902ae375fd9"
+    },
+    "artifacts/intent-refusal-20261114/typescript-after.log": {
+      "bytes": 45,
+      "sha256": "92b4d41c3ef6649465bd953164462b801e8c229a5ec42a0fec4aa79591f2b713"
+    }
+  },
+  "service_test_only": [
+    "receipt_capacity",
+    "injected_recovery_failure",
+    "pending_build_and_selection_preservation"
+  ],
+  "limitations": [
+    "No running Tauri dispatch, WebView2, app input or Save",
+    "No TeX/font/render experiment; Unicode source bytes only",
+    "Uncertainty and unknown status still block dependent writes",
+    "Schema/session/conflict/capacity errors outside admitted refusal contract",
+    "No final freeze,evaluation,usability or latency result"
+  ],
+  "report_context_primary_source": {
+    "url": "https://web.eecs.umich.edu/~mosharaf/Readings/RPC.pdf",
+    "title": "Implementing Remote Procedure Calls",
+    "authors": [
+      "Andrew D. Birrell",
+      "Bruce Jay Nelson"
+    ],
+    "year": 1984,
+    "inspected": "Sections3.1/3.2 pp49-50; title/publication metadata",
+    "pdf_sha256": "20982d07692fd62d199e2b3357f4578250c1e05808512966a3fce2a959eed8a1",
+    "retrieval_limits": [
+      "AuthorPDF502; firstCMUmirror timeout; ACM403; MSBibtex timeout"
+    ],
+    "scope": "Established failure/call-identifier context, not proof of Texloom or novelty"
+  }
+}

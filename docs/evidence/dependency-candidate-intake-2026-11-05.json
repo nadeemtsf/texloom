@@ -1,0 +1,138 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-05T13:26:43.2289671Z",
+  "kind": "read_only_dependency_archive_and_header_intake_not_validation",
+  "status": "candidate_only_public_distribution_still_blocked",
+  "source_commit": "8e23d1546639bccd8e09afb68f11acd61973d824",
+  "old_distributor_archive": {
+    "tag": "chromium/8076",
+    "release_id": 399153339,
+    "asset_id": 598237732,
+    "bytes": 3826721,
+    "sha256": "808d36da9bc5a3104315fb307c80998121f565ee53953633bf33e80d7429e5ac",
+    "dll_sha256": "69f1e860f6742fbaafcc4db80e785eec9a4ee0da36ea6d1dc0867ea0f18baea6",
+    "same_dll_digest_as_recorded_wheel_pin": true,
+    "entries": 45
+  },
+  "review_candidate": {
+    "tag": "chromium/8138",
+    "release_id": 433886594,
+    "asset_id": 709415678,
+    "version_metadata": "159.0.8138.0",
+    "bytes": 4031929,
+    "sha256": "8d48973e3eb472dda0f5f2435e595ac043f9f2219dd71883392f549445afa8a5",
+    "dll_sha256": "71a3e63e6ab8f5746a0fc9de9bc3d0c0dc07eb60990dfd37d9db7fc891821943",
+    "entries": 49,
+    "build_repository_commit": "0eb94b28c2252d2baae3dfe15dc6b237131d8cd8",
+    "observed_pdfium_branch_commit": "5f092b52993bfd98f94f04deff391918fe0fdcfd",
+    "adopted": false
+  },
+  "observations": [
+    "Published archive digest agrees with observed downloaded bytes for each selected asset; not signed-build verification",
+    "Both archive args.gn records declare Windows x64 release with V8/XFA/partition allocator false; not independent feature attestation",
+    "New notice names include Highway, HarfBuzz and two Dragonbox notices",
+    "31 used C declaration texts agree across headers after corrected lookup; not runtime ABI or semantic compatibility",
+    "Manual header/Rust comparison found ignored bitmap-initialization boolean; source-only fix8e23d15 remains untested",
+    "Newer source AGG initialization and OpenJPEG image-header-copy handling inspected; full actual-DLL patch applicability remains open"
+  ],
+  "reading_limits_preserved": [
+    "Encoded release-tag connector route rejected; collection endpoint supplied numeric releases",
+    "Initial header lookup also matched comments; revision2 retained separately",
+    "Old OpenJPEG source path returned not-found; primary tree located src/image.c"
+  ],
+  "captures": [
+    {
+      "path": "artifacts/dependency-candidate-intake-20261105/agg-8138-source.base64.txt",
+      "bytes": 19512,
+      "sha256": "3e6a63b99b8855cf2276986aa6c3e5cfbb5b03f2c7e809d350aa7f2662f1f683"
+    },
+    {
+      "path": "artifacts/dependency-candidate-intake-20261105/archive-8076-inventory.json",
+      "bytes": 7636,
+      "sha256": "c197f3b7613c46d6206645728f2dd28f68bc093d320632190d02d0a822455709"
+    },
+    {
+      "path": "artifacts/dependency-candidate-intake-20261105/archive-8138-inventory.json",
+      "bytes": 8282,
+      "sha256": "0d7b7049f08675a290f8421e91205baea5061026d26421c7c1e2a2fbc7e31f7a"
+    },
+    {
+      "path": "artifacts/dependency-candidate-intake-20261105/branch-8138-commit.json.txt",
+      "bytes": 2452,
+      "sha256": "7306e19b383a5c56b7171c00a92f6ae2a5d72d398fe56c90098653c6d70f7275"
+    },
+    {
+      "path": "artifacts/dependency-candidate-intake-20261105/openjpeg-8138-readme.base64.txt",
+      "bytes": 3872,
+      "sha256": "91fccec77fd227d680ff4e62ba453c37aaf11773e3d7a29806d74a5342a1d038"
+    },
+    {
+      "path": "artifacts/dependency-candidate-intake-20261105/openjpeg-8138-src-image.base64.txt",
+      "bytes": 13324,
+      "sha256": "e166c1a20a08551e9767a8a3079ab6720b2d4a7b141e0d31f2b00c8fd3fb2e59"
+    },
+    {
+      "path": "artifacts/dependency-candidate-intake-20261105/openjpeg-8138-src-tree.json.txt",
+      "bytes": 6916,
+      "sha256": "2d11ee026fea4444e3a2f7bc8f7926b6bdc4d9199e27400e5e30808f23d6a0a0"
+    },
+    {
+      "path": "artifacts/dependency-candidate-intake-20261105/openjpeg-8138-tree.json.txt",
+      "bytes": 1338,
+      "sha256": "1f5bbbe5857c750bcccdf3023b8916ce4abc9b4829225844e8d50469ca6e0b35"
+    },
+    {
+      "path": "artifacts/dependency-candidate-intake-20261105/pdfium-8076-win-x64.tgz",
+      "bytes": 3826721,
+      "sha256": "808d36da9bc5a3104315fb307c80998121f565ee53953633bf33e80d7429e5ac"
+    },
+    {
+      "path": "artifacts/dependency-candidate-intake-20261105/pdfium-8138-win-x64.tgz",
+      "bytes": 4031929,
+      "sha256": "8d48973e3eb472dda0f5f2435e595ac043f9f2219dd71883392f549445afa8a5"
+    },
+    {
+      "path": "artifacts/dependency-candidate-intake-20261105/release-list-response.json",
+      "bytes": 1820870,
+      "sha256": "8f779e849a35730eb430c041b6d701e84e00af339355b9f330a86342f3e18f41"
+    },
+    {
+      "path": "artifacts/dependency-candidate-intake-20261105/retrieval-and-reading-limits.json",
+      "bytes": 698,
+      "sha256": "25690d052afd7745123f5cc88f23bf1c5767fd99c4ea6108ddf401809c5e88fb"
+    },
+    {
+      "path": "artifacts/dependency-candidate-intake-20261105/selected-header-declarations-v2.json",
+      "bytes": 18529,
+      "sha256": "9b34779fccc4118cd8c6704e8b9199650cc781dc219b32423244de3417c9020d"
+    },
+    {
+      "path": "artifacts/dependency-candidate-intake-20261105/selected-header-declarations.json",
+      "bytes": 71102,
+      "sha256": "d7696b24f2bd9db57ca2b29263cf3295cf88911683efba9292a5dbf4a6b9c64d"
+    },
+    {
+      "path": "artifacts/dependency-candidate-intake-20261105/source-captures.json",
+      "bytes": 621,
+      "sha256": "ab75c53fd92d59d3abffef9fa6c30e1115c5f2a15285bac55f29798b3985a598"
+    },
+    {
+      "path": "artifacts/dependency-candidate-intake-20261105/third-party-8138-tree.json.txt",
+      "bytes": 2844,
+      "sha256": "b977374a309d92ddb13d7eac17e4d31cb1d2d1a5a17c1ffadced208ca0bc53fe"
+    }
+  ],
+  "dll_loaded": false,
+  "archive_members_installed_or_extracted": false,
+  "tests_run": false,
+  "app_build_run": false,
+  "app_opened": false,
+  "exploit_run": false,
+  "scanner_run": false,
+  "dependency_pin_changed": false,
+  "compatibility_established": false,
+  "signed_build_provenance_verified": false,
+  "final_evaluation_executed": false,
+  "release_ready": false,
+  "document": "docs/DEPENDENCY-CANDIDATE-INTAKE.md"
+}

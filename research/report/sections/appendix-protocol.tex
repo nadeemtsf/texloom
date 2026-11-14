@@ -1,0 +1,84 @@
+\section{Record design and a concrete source contract}
+\label{app:protocol}
+The final-study record must preserve intent, entry layer, decisions and
+postconditions separately. Table~\ref{tab:record} gives required concepts.
+The current \path{research/evaluation/outcome-schema.json} is an unfilled
+specification, not measured data; native, frontend-presentation and Save
+observations need explicit binding when the full interactive study is built.
+Development raw schemas are not silently treated as final rows.
+
+\begin{table}[htbp]
+\small\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{.27\linewidth}Y@{}}
+\toprule
+Record concept & Required distinction\\
+\midrule
+Run/case/document/family & Unique request and shared document cluster; do not inflate cases with repeated timings\\
+Study arm and entry layer & Natural request versus injected candidate; selection, plan, build or comparator entry\\
+Contract and declared support & Displacement/reflow/semantic/legacy; support fixed before observing decisions\\
+Intent/oracle provenance & Exact occurrence, allowed source change, reference version, preparer/reviewer and unresolved labels\\
+Engine/language/artifacts & Actual engine/runtime/font context and immutable source/PDF/evidence hashes\\
+Native decision & Canonical commit or refusal, stage/reason, compile failure, cancellation, crash or not-run\\
+Presentation and Save & Published visible result, proxy/external endpoint, post-commit errors and original-source persistence recorded separately\\
+Independent postconditions & Source file set/bytes, target and unrelated rendering, Undo/Redo/Save/reopen under the declared contract\\
+Latency and availability & Boundary, warm/cache state, failures/censoring, trace losses and raw evidence paths\\
+\bottomrule
+\end{tabularx}
+\caption{A proposed final-record design. An unknown observation stays unknown.}
+\label{tab:record}
+\end{table}
+
+A native commit followed by a presentation failure remains a canonical
+acceptance. Independent source/render checks may still establish a correct
+canonical edit while the displayed interaction failed. Report these outcomes
+separately; do not count a post-commit error as a pre-commit refusal or as a
+successful end-to-end task. An accepted request with incomplete independent
+evidence remains unresolved for the corresponding correctness claim.
+
+\subsection{Existing-object example}
+The native-entry pilot's intended source change is small. In a complete
+synthetic document, the baseline contains these two distinct objects:
+\begin{verbatim}
+\TexloomObject{native-first}{0}{0}{Repeated target}
+...
+\TexloomObject{native-target}{0}{0}{Repeated target}
+\end{verbatim}
+The intended candidate changes only the second object's horizontal coordinate:
+\begin{verbatim}
+\TexloomObject{native-target}{12}{0}{Repeated target}
+\end{verbatim}
+These are explanatory excerpts, not executable full fixtures. The protocol
+contains the complete BOM/CRLF source map, unchanged notes/style files and
+full expected hashes. Repeated spelling alone does not select the source;
+the pilot deliberately starts after that problem, at a known object request.
+
+The gold moved reference uses a different placement construction. Its essential
+structure is:
+\begin{verbatim}
+\leavevmode
+\hbox to 0pt{\kern12bp Repeated target\hss}%
+\phantom{Repeated target}
+\end{verbatim}
+The first attempt omitted \code{leavevmode}. That distinction mattered because
+the initial box began in vertical mode and the phantom then contributed an
+extra line. Exact executed sources, rather than this formatted excerpt, remain
+the reproduction authority.
+
+\subsection{Byte-oracle responsibilities}
+For every declared source file, the contract supplies the expected baseline
+fingerprint and either an exact expected result or a restricted UTF-8 template.
+The template can permit one fresh \code{text-xxxxxxxx} binding while fixing
+the rest of the bytes and requiring a consistent, previously absent ID.
+Changing an unrelated supporting file, line ending or occurrence fails the
+source contract even if output looks unchanged. A stale baseline is unresolved,
+not a successful refusal. None of these byte checks proves that the declared
+change is semantically correct; the independent intent/reference annotation
+remains necessary.
+
+\subsection{Freeze review checklist}
+Before a final run, resolve every unfilled label and supported-domain decision,
+review the gold's target and unrelated-content obligations, bind all artifact/
+environment versions, seal the manifests and define treatment of failures.
+Confirm that the full interaction can identify the intended occurrence,
+publish the verified view and preserve explicit Save/Undo/recovery behavior.
+Keep development corrections out of a supposedly untouched holdout. The final
+run must not start merely because this report compiles successfully.

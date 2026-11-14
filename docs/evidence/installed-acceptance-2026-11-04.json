@@ -1,0 +1,164 @@
+{
+  "schema": 1,
+  "date": "2026-11-04",
+  "release_ready": false,
+  "product_source_commit": "2700d3462c3c6762c6e1053e5646ca7191a1935c",
+  "installer_sha256": "916356f24ef2be3765844fa1d62c8bae050ffeb844b0420c5cb2951877ab1421",
+  "installed_exe_sha256": "8b7bd9542ba78202451daa9a5db031b739870933f92822aab7ab17f15c6f3ae9",
+  "portable_exe_sha256": "fa022284f2f4fde6955dd068524f23aeecd4dc400e5c86508c06e21b44d8970d",
+  "binary_difference": {
+    "different_bytes": 3,
+    "offset": 13489842,
+    "installed_bundle_marker": "NSS",
+    "portable_bundle_marker": "UNK",
+    "all_other_bytes_identical": true
+  },
+  "host_scope": "Existing developer Windows account; Codex MSIX LocalCache redirection observed; not a clean account/machine",
+  "installation": {
+    "per_user_default_directory": "pass",
+    "uac_or_admin_prompt_observed": false,
+    "setup_success_and_launch": "pass",
+    "hkcu_uninstall_version": "0.3.0",
+    "desktop_and_start_menu_shortcuts_created": "pass",
+    "files": [
+      {
+        "path": "texloom-desktop.exe",
+        "bytes": 17010176,
+        "sha256": "8B7BD9542BA78202451DAA9A5DB031B739870933F92822AAB7AB17F15C6F3AE9"
+      },
+      {
+        "path": "uninstall.exe",
+        "bytes": 79553,
+        "sha256": "CFE843697AFC37F9F492F03DDEAC98BE0A702C7223EEAF5D00803129479C0BC1"
+      },
+      {
+        "path": "distribution/DEPENDENCIES.json",
+        "bytes": 54228,
+        "sha256": "8F405BEA107B986D5485E7A57453DC7C44271A792CA66FD092DCEDB6DAC95C4B"
+      },
+      {
+        "path": "distribution/README.md",
+        "bytes": 564,
+        "sha256": "3EE7F398B68A98DBABA5DF7A23586707417FBCAB8A54144117DF672458213323"
+      },
+      {
+        "path": "distribution/SOURCE-AVAILABILITY.txt",
+        "bytes": 1043,
+        "sha256": "17379CA3D3A4AC0DAFD49C23B47385476352B288A90E33D28FB2627BA3198F06"
+      },
+      {
+        "path": "distribution/THIRD-PARTY-NOTICES.txt",
+        "bytes": 2293879,
+        "sha256": "287285F7810B458EEE80EB8BDEC56DB3CCF3A8D2D9DBC6307A6B23B8BA2F4AE9"
+      },
+      {
+        "path": "verification/pdfium_worker.exe",
+        "bytes": 408576,
+        "sha256": "4C989986A8E1B89CAC4BA4BF25043B9719BE45B5EBEAD393D1D81BA027613840"
+      },
+      {
+        "path": "verification/PDFIUM-NOTICE.txt",
+        "bytes": 137226,
+        "sha256": "1A5618DD619455E03FB4757D3DCA9C8C0BE6C0D331F42277BCBF94859DED9A23"
+      },
+      {
+        "path": "verification/pdfium.dll",
+        "bytes": 7381504,
+        "sha256": "69F1E860F6742FBAAFCC4DB80E785EEC9A4EE0DA36EA6D1DC0867EA0F18BAEA6"
+      },
+      {
+        "path": "verification/README.md",
+        "bytes": 589,
+        "sha256": "4E3E72DFA03DE2239F42127F4DEA8BF3CEE6B96BB4F2F9A05DA1A8FBA30B392E"
+      },
+      {
+        "path": "verification/verifier-manifest.json",
+        "bytes": 542,
+        "sha256": "346A986B30C36CFF3B27C2071684F9CC9F20E8396E7E247E5EF36058D54D7A30"
+      }
+    ]
+  },
+  "native_passes": [
+    "external project opens without executing LaTeX",
+    "explicit pdfLaTeX compilation renders one page",
+    "name selection binds actual source through independent verifier",
+    "Right key commits exact +1bp displacement",
+    "disk unchanged until explicit Save",
+    "Save changes only package insertion and expected object wrapper",
+    "one Undo/Save restores all three original fixture files exactly",
+    "normal close leaves zero app/compiler/worker processes",
+    "installed relaunch, recent-project reopen and explicit recompile",
+    "close during confirmed running pdflatex leaves zero app/compiler/worker processes"
+  ],
+  "move": {
+    "result": "pass",
+    "dx_bp": 1,
+    "dy_bp": 0,
+    "source_sha256": "6d33c3c5a2abe2bd8d4a9d4e8fb76ab2272e45fbdb05d4338f9f2fefaf1a4341",
+    "only_expected_wrapper_and_package": true,
+    "original_sha256": "be4b2f182b2e16a8b10bd4d183818de6995b19be250f9fe1c29573fce1f984a7"
+  },
+  "interrupted_save_final_restore": {
+    "result": "pass",
+    "original_source_sha256": "855ACCEDA03EBAF42ED2E3DF21BC1864BFB7A5942EC5A58061E2085E1AC866E9",
+    "original_profile_sha256": "21F02480636EE0B59B05D48D6135FBD9799DE352AB01D3E9B63295649A2C9E8E",
+    "recovered_copy_sha256": "53E1A8B6F62B388FA6FD1F612CC7AC8988DB53249CB85863FEB9F9DEC0B9BACF",
+    "staged_journal_removed": true,
+    "rollback_kept_draft_until_separate_discard": true
+  },
+  "templates": [
+    {
+      "fixture": "Installed CV Acceptance-5e5df1de",
+      "engine": "pdflatex",
+      "native_creation_without_automatic_compile": "pass",
+      "explicit_compile": "pass",
+      "files": [
+        {
+          "file": "main.tex",
+          "bytes": 975,
+          "sha256": "197a41e13f5eab26c98c0c1bf43a48c9a0f7e87a6beba1bb79e37b1f431af660"
+        },
+        {
+          "file": "texloom-project.json",
+          "bytes": 63,
+          "sha256": "b51c7b8a5332f78f2da75b53f9d73afb0e8238214d4fdfaeb7f3d7f5938e18f7"
+        }
+      ]
+    },
+    {
+      "fixture": "Installed Letter Acceptance-178d0e08",
+      "engine": "pdflatex",
+      "native_creation_without_automatic_compile": "pass",
+      "explicit_compile": "pass",
+      "files": [
+        {
+          "file": "main.tex",
+          "bytes": 723,
+          "sha256": "21ae62ebe66263b4616334fb31a1924eb3b30289d99d8eb04cd6ad2988e458d9"
+        },
+        {
+          "file": "texloom-project.json",
+          "bytes": 63,
+          "sha256": "b51c7b8a5332f78f2da75b53f9d73afb0e8238214d4fdfaeb7f3d7f5938e18f7"
+        }
+      ]
+    }
+  ],
+  "uninstaller": {
+    "executed": false,
+    "reason": "Windows control tool rejected launch: product policy blocks this app. No alternative route attempted. App remains installed; project/recovery data preserved."
+  },
+  "new_regression_found": {
+    "case": "line spacing factor 4, outside supported 0.5 to 3 range",
+    "source_and_history_preserved": true,
+    "problem": "Error toast appears behind modal backdrop and is blurred. Corrected source and new native repeat are tracked separately."
+  },
+  "unresolved": [
+    "clean Windows machine/account and missing dependency setup",
+    "uninstall",
+    "real held-drag Escape/pointer cancellation/lost capture",
+    "Windows DPI/multiple-monitor transitions",
+    "reference-machine end-to-end latency distribution and human usability",
+    "owner signing/public-distribution decisions"
+  ]
+}

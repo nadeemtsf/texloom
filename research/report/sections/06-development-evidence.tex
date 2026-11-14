@@ -1,0 +1,518 @@
+\section{Recorded development evidence}
+\label{sec:development}
+This section reports executed development work with its scope intact.
+Engineering checks, post-compilation predicate replay and native candidate
+entry are different evidence types. Their counts are not summed into an
+application accuracy denominator. The final held-out set remains unused.
+
+\subsection{Source-coordinate and paragraph-intent development checks}
+At \code{5ca1eb6}, the required default core run passed 70 unit, 18 pre-existing
+integration, 13 position-map, 8 intent-plan and 19 source-projection checks.
+These overlapping engineering layers are not independent document samples or
+an edit-acceptance denominator. The position tests include a tagged-character
+splice oracle: original tags distinguish repeated/equal text from inserted
+text, and expected preserved ranges are derived without the implementation's
+coordinate-delta formulas. Unicode checks concern exact source/editor
+boundaries, not shaped output or actual Arabic/Hebrew caret behavior.
+
+Three pre-fix tests reproduced incorrect selection retention after a prefix
+insertion, selected-content deletion and partial destruction of a multi-range
+selection. Their failed run is preserved. A later test showed that escaping
+backslash/tilde/caret input could make the candidate unrecognizable on the next
+projection; exact standard literal-command recognition fixed this case, while
+malformed/nonempty terminators remain unsupported. A recovery-test fixture
+that assumed a replaced selection survived was corrected to inject its invalid
+BOM boundary explicitly; recovery rejection was not weakened. The dated
+engineering receipt binds these runs and their limitations.
+
+A separate fixture bridge at \code{479f826} used the actual read-only planner
+to generate replacement/deletion source. All nine external compile/text checks
+passed: baseline, replacement and deletion for one English document under each
+of pdf\LaTeX, Xe\LaTeX\ and Lua\LaTeX. Normalized extracted document text matched
+the independently declared expectation, including the replacement's ampersand
+and percent; the original fixture remained byte-identical. This reused case
+checks compilation and text portability, not glyph geometry, unrelated-render
+preservation under general reflow, RTL rendering or a held-out success rate.
+It bypasses application PDF selection and native visual acceptance.
+
+Separately, 20 headless native document/recovery checks passed at the preceding
+planner snapshot; one verifies UTF-16 selection replies, repeated-occurrence
+retention and Undo/Redo after a Unicode prefix edit. The unchanged frontend
+suite passed 291 checks. These are not Windows input observations. The prepared
+r8 application was not rebuilt, opened or installed for this work, and final
+evaluation remains unfrozen/unrun.
+
+\subsection{Source intent and rendered-reference ambiguity}
+\label{sec:occurrence-reference}
+The predeclared 12 November diagnostic asks whether the actual read-only
+paragraph planner changes the requested second equal occurrence, and what an
+independent full rendered-reference check can establish after reflow. Expected
+complete source is assembled from declared segments without planner offsets
+or app escaping logic. Candidate sources retain BOM/CRLF and unrelated bytes;
+an ampersand and percent have explicitly declared expected escaping. Poppler
+compares page contracts, word multiplicities/bounds within 0.02 bp and exact
+whole-page RGB pixels at 144 dpi against independently compiled references.
+No PDF selection, native transaction approval, source commit/Save or UI is run.
+
+The first protocol at \code{b8b3044} retained 18 rows with only eight meeting
+their declared criteria. All six actual planning calls refused the then-unknown
+font/language/length preambles; the Hebrew/Lua\LaTeX\ setup also failed because
+\code{unibidi-lua.sty} was unavailable. Controls are not successful planned
+edits. Those failures remain available, and no package was installed. The
+bounded preamble extension followed this coverage finding without weakening
+visual acceptance. Before the corrective run, a recorded amendment substituted
+Hebrew/Xe\LaTeX\ and added English/Lua\LaTeX. This reused development cases
+under a corrected protocol and is not independent replication.
+
+The corrective source \code{897c121} covers English/pdf\LaTeX,
+English/Lua\LaTeX, Arabic/Xe\LaTeX\ and Hebrew/Xe\LaTeX: four conditions,
+not a language/engine cross product. All eight intended Replace/Delete
+candidates matched the exact expected source and full rendered reference;
+original fixtures remained unchanged and no missing-character warning was
+observed. Two deliberate undefined-command candidates retained nonzero compile
+exits and are not successful edits. Representative Arabic/Hebrew renders were
+visually inspected for visible text and layout; this is not independent
+linguistic/shaping adjudication or physical editing evidence.
+
+\begin{table}[htbp]
+\small
+\begin{tabularx}{\linewidth}{@{}Yrrr@{}}
+\toprule
+Candidate family & Rows & Source matches & PDF matches\\
+\midrule
+Intended Replace/Delete & 8 & 8 & 8\\
+Delete wrong equal occurrence & 4 & 0 & 4\\
+Replace wrong equal occurrence & 4 & 0 & 0\\
+Change unrelated tail & 8 & 0 & 0\\
+\bottomrule
+\end{tabularx}
+\caption{Corrective development diagnostic, not production acceptance.
+Each condition reuses its document across operations and fault controls.}
+\label{tab:occurrence-reference}
+\end{table}
+
+The four wrong-occurrence deletions are visually indistinguishable even under
+the full-page oracle, while their exact source patches disagree. Replaying a
+compiler-only predicate would admit all 24 compiled controls; a rendered-reference
+predicate would admit 12, including the four wrong deletions. Conjoining the
+declared exact-source predicate leaves eight intended cases. These are offline
+decision-layer comparisons on purpose-built examples, not production decisions,
+measured incorrect-acceptance rates or an estimate over real documents. The
+source/reference labels have not had independent human review. The missing
+Hebrew/Lua\LaTeX\ setup remains unresolved, and exact host-specific raster
+agreement does not establish portability or every multilingual context.
+
+\subsection{Native source-draft transport diagnostic, 13 November}
+The separately recorded protocol in
+\path{research/SOURCE-INTENT-TRANSPORT-PLAN.md} preceded execution of the new
+headless bridge. It enters the actual native document service, including
+target enumeration, typed draft application, operation lookup, shared history
+and recovery. It does not dispatch through a running Tauri/WebView2 process.
+Strict JSON/type checks are a separate engineering layer.
+
+Three reused synthetic conditions contain English, Arabic or Hebrew literal
+paragraphs, with two equal occurrences, BOM/CRLF and a separate unchanged source
+file. Independently declared segments construct complete expected source maps;
+the expectation does not use planner offsets or returned candidate text.
+The replacement's ampersand/percent escaping is specified explicitly. The
+first diagnostic run met all 75 recorded assertions across these three
+conditions, including exact second-occurrence Replace/Delete, Undo/Redo,
+duplicate lookup, retry after Undo, conflicting payload refusal, stale/foreign/
+reopened handle refusal, no-op redo retention and protected-draft recovery.
+Original project-file bytes remained unchanged. These are repeated assertions
+within three purposive conditions, not 75 independent user requests or an
+application accuracy denominator.
+
+Source/runner/protocol and executable fingerprints were captured before the
+run and checked for source changes afterward. The run needed no TeX compiler,
+font installation or PDF; exact multilingual bytes therefore establish no
+shaping, bidi caret or rendered-language acceptance. Capacity, injected
+protection-write failure, pending-build cancellation and strict request schemas
+belong to separate native/protocol regressions, not additional runner cases.
+The per-session receipt contract cannot resolve all restart ambiguity, and
+rendered-content proof remains unresolved. The detailed receipt is
+\path{docs/evidence/source-intent-transport-2026-11-13.json}.
+
+\subsection{Admitted refusal follow-up, 14 November}
+The next protocol, \path{research/SOURCE-INTENT-REFUSAL-PLAN.md}, preceded the
+refusal extension. Two endpoint/client regressions first failed: the native
+paragraph-break request returned an exception with no stable outcome to look
+up, and the older client rejected a definite-refusal record. Both logs remain.
+The extension adds a finite, revision-bound refusal before source/recovery
+mutation. Confirmation through the direct response or later lookup permits a
+subsequent edit; unknown/protection-uncertain outcomes still block dependent
+writes. Twelve focused native and 13 client checks pass, including original
+transport controls. The complete frontend suite passes 336 checks; these
+overlapping totals are not summed into independent research samples.
+
+The separate native-service diagnostic met all 129 assertions in three reused
+English/Arabic/Hebrew source conditions. Four invalid literal classes produced
+their declared refusal reasons and unchanged complete canonical state. One
+returned acknowledgement was deliberately discarded by the helper before
+lookup; this is not an injected failure in Tauri. Later valid edits still
+changed only the second equal occurrence. Old refusals remained immutable
+after later edits/history while their accompanying source snapshot stayed
+current. Stale/future revisions and unknown/foreign/reopened handles refused;
+Undo/Redo/recovery and unchanged original-file bytes met their declared checks.
+
+The expected full source maps use separately declared segments and escaping.
+No TeX/font/PDF experiment ran, so these results concern source outcomes and
+cannot establish shaping, bidi caret behavior, natural selection accuracy or
+visual Delete acceptance. Receipt capacity, pending-job/selection retention
+and injected recovery failure are separate service-test conditions. Reused
+fixtures and many assertions within each condition are not independent
+replications or an accuracy denominator. The exact receipt is
+\path{docs/evidence/source-intent-refusal-2026-11-14.json}.
+
+\subsection{Navigation usability and later engineering evidence}
+The owner rejected r9 zoom as choppy and not anchored at the pointer. That is
+a qualitative failed usability observation, not a measured frame rate. The
+r10 correction reuses the pinned PDF.js page renderer's cached-canvas CSS
+scaling, pointer coordinates and delayed nearby drawing. It passed 303 frontend
+and 21 headless real-renderer checks across two synthetic document lengths and
+three display scales. Windows/NSIS build and all 15 portable member checks passed.
+The later owner follow-up found ordinary scrolling adequate, but selection
+could refuse after zoom or across page-flow commands, and physical touchpad
+zoom failed. Thus the headless pass did not establish the desired device behavior.
+
+The r11 correction retained common raster scale for strict whole-page selection
+probes, recognized standalone page-flow boundaries and enabled the native pinch
+delivery path. The owner reported all seven named checklist areas passed on
+the exact r11 packet, including physical pinch/Ctrl-wheel, selection before and
+after zoom/page breaks, ordinary navigation, source/Undo preservation and
+held-drag cancellation. A subsequent r12 amendment increased the shared gesture
+gain by 25\% and requested automatic preview compilation after valid existing
+project opens. The owner reported all four focused r12 checks passed, including
+PDF-only zoom, ordinary navigation/selection, valid opens and missing-path
+retention. The r12 source is \code{c93799b}; its executable fingerprint appears
+in Appendix~\ref{app:artifacts}.
+
+These are guided owner reports against named portable packets, without
+independent running-process inspection, measured latency distributions or
+unassisted tasks. Their scope is navigation acceptance, not general visual
+Delete/caret/typing, clean installation or final editing accuracy. Earlier
+pending fields remain historical; the reconciliation receipt is
+\path{docs/evidence/navigation-ci-status-2026-11-13.json}.
+
+Later core checks pass 146 default and 147 recovery-serde cases, including
+typed draft history, provenance/no-op/redo/exhaustion and narrow positive/negative
+preamble forms. They are overlapping engineering checks, not independent
+document samples. The first draft test compile used an incorrect selection
+argument and is retained as a test-fixture compile failure. The existing
+26-page v11 and 28-page v12 drafts remain preserved; this revision records later
+evidence without filling final-evaluation cells.
+
+\subsection{Owner follow-up and RTL target regression}
+On 6 November the owner reported successful signature grouping, movement,
+replacement, history and Save/reopen, plus movement of the intended repeated
+occurrence. These are guided human reports without independently established
+installed-build identity. The owner's replacement differed from the requested
+literal, so its ampersand condition is not counted as executed. Source typing,
+search and initial multilingual display correctness were not established.
+
+The owner reported refusal when selecting Arabic and Hebrew targets. A fresh
+synthetic XeLaTeX reproduction found empty object markers with glyphs outside
+them. A leavevmode-only attempt failed. The corrected owned wrapper retains
+RTL text within LTR marker/transform boundaries. Unchanged PDF.js probe checks
+passed for one Arabic, Hebrew and English target; independent PDFium prediction
+checks passed for two moves per RTL language, including fractional displacement.
+Zero-offset full-page paint stayed exact. Nine Latin fractional moves across
+three local engines passed. An initial conditional-scanning compile failure
+and a proof-script target-literal error are retained as separate failed runs.
+These are development regressions, not independently sampled accuracy evidence
+or actual native pointer acceptance. General mixed-direction/nested structures
+remain subject to refusal and require separate cases.
+
+An exact generated v0.3 support file may upgrade to v0.4 inside the declared
+candidate; customized versions are retained and refused. This support-file
+change is an explicit exception to target-only source changes. Evaluation
+contracts must declare its exact before/after bytes rather than calling the
+whole non-target source tree unchanged. Original project files still change
+only through explicit Save.
+
+The earlier normal-close dialog intentionally discarded unsaved drafts. Its
+reported recovery failure therefore does not establish crash-recovery loss.
+The revised flow retains an exactly protected draft on close without Save and
+requires an explicit recovery-project choice. A real native-backend test covers
+clean exit, restart, exact recovered source, Undo and unchanged original files.
+Native owner retesting remains pending. Full receipts and limitations appear in
+\path{docs/evidence/owner-followup-2026-11-06.json}.
+
+\subsection{Headless native mapping follow-up, 7 November}
+A subsequent development pilot used the actual native baseline PDF to label
+one intended paragraph in each of Arabic, Hebrew and English. At each midpoint,
+the real SyncTeX resolver and source-unit candidate search supplied a range;
+the native planner prepared a zero-offset wrapper and Backend compiled it
+privately. The unchanged PDF.js identity/appearance proof accepted candidate0
+for each language, and refused the two other intended-language lines as
+wrong-target controls. All six controls were refused. Canonical source,
+revision0, empty Undo history and original synthetic disk bytes stayed exact.
+
+The initial harness called a test-only method and failed to build; an attempted
+launch found no executable. Both failures are retained. The corrected harness
+uses the production prepare entry without a commit operation and checks
+executable existence before a run. This opt-in Rust harness starts no Tauri
+window and performs no pointer input, movement commit or Save. The fixture is
+the reused multilingual template, not fresh final-evaluation data. These three
+targets are not pooled with earlier probe runs as independent accuracy trials.
+The protocol and reproduction entry are in
+\path{research/RTL-MAPPING-PILOT.md}; actual r7 native owner acceptance remains open.
+
+\subsection{Declared legacy-support migration follow-up}
+Protocol3 reused the five native candidate-boundary conditions with an exact
+generated v0.3 support file in each baseline and the current support file in
+the declared candidate. The byte contract explicitly permits that one support
+upgrade while binding every other source byte. Each corrupted packet also
+carries the declared support upgrade, so missing migration cannot explain a
+wrong-occurrence or appearance refusal. All five intended moves met the native
+commit, exact source, independent Poppler reference, exact Undo and unchanged
+original-disk conditions. All25 corrupt packets were refused before compilation,
+with no unexpected prepare acceptance. The independent references use plain
+TeX placement and neither object macro. These are reused development cases,
+not new independent accuracy observations or actual native input tests. See
+\path{research/LEGACY-SUPPORT-PILOT.md}.
+
+\subsection{Implementation and artifact checkpoints}
+The audited baseline is \code{c26a238}; it is not the final evaluation freeze.
+Later product source \code{5e59e77} adds focus-loss hardening, setup guidance
+and optional timing instrumentation without changing the audited native
+acceptance policies. Table~\ref{tab:engineering} distinguishes recorded local
+checks from earlier versioned interaction evidence.
+
+\begin{table}[htbp]
+\small\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{.24\linewidth}YY@{}}
+\toprule
+Evidence & Recorded outcome & What remains outside it\\
+\midrule
+Frontend suite at \code{5e59e77} & 252 pass; zero failures/skips & Includes protocol, filesystem, fixture and simulated shell/controller boundaries; not 252 native UI tasks or validation of later source\\
+Default core suite & 70 unit plus 18 integration pass & Domain/history/byte checks; not a general TeX correctness proof\\
+Research helpers & 27 diagnostics pass & Oracle, source-contract, denominator, environment and reference-health infrastructure; not app accuracy trials\\
+Windows builds & Ordinary release/NSIS and separate diagnostic release pass & Neither new application variant opened or installed; no measured overhead\\
+Earlier real-engine/native receipts & Engine corpora and synthetic signature/source/history/recovery workflows on named candidates & Do not promote earlier installed/portable observations to the new r4 GUI build\\
+Earlier remote CI & Three c26a238 workflows succeeded & Later local commits remain unpushed; no new remote CI claim\\
+\bottomrule
+\end{tabularx}
+\caption{Versioned engineering evidence. Required suites repeated for changed
+source remain the same tests, not additional independent trials.}
+\label{tab:engineering}
+\end{table}
+
+The preceding table retains the older artifact identities. Resumed checks on
+the later implementation passed 273 frontend/protocol checks with zero skips,
+88 default core checks, 89 recovery-feature core checks and 40 research-tool
+infrastructure checks. Initial stale harnesses and a Windows handle/path
+timestamp-comparison failure were retained, then their affected checks repeated.
+The latter fix still rejects a controlled metadata change during reading.
+These counts overlap across configurations and are not summed into accuracy
+trials. The final study remains unfrozen.
+
+The replacement PDFium 159 build passed 55 build-library checks, five explicit
+worker checks and two explicit native approval checks. Four further explicit
+integration invocations completed across the installed engines: parameter
+adapters, fractional movement, template/document classes and marked-content
+inspection. The ordinary application and NSIS installer built, and the
+portable archive passed CRC, exact 15-entry coverage and per-file hash checks.
+A missing test-worker environment variable and two auditor path assumptions
+caused retained setup failures before corrected repeats; they did not require
+relaxing the product's acceptance predicates.
+
+An earlier exact ordinary copy, before the dependency replacement, demonstrated
+supported PDF selection, source decoration, keyboard movement, formatting-
+preserving replacement with escaped special characters, explicit Save,
+exact main-source Undo, Redo, Reset position and removal of positioning.
+The owner separately reported that held-drag Escape and Alt+Tab both restored
+the original position. This is human-reported cancellation evidence, not an
+instrumented trace or a replacement-build observation. Exact identities and
+failures are in \path{docs/evidence/resumed-validation-2026-11-05.json}.
+
+On 6 November, the exact replacement ordinary copy selected the complete
+three-line signature, accepted a 28\,bp mouse displacement and changed only
+the bold name through protected literal fields. Explicit Save produced the
+expected source. An independent byte check found the unrelated prefix/suffix
+exact after accounting for the declared support-package import and wrapper;
+the subsequent name change was the sole remaining byte difference.
+Standalone pdfLaTeX recompilation and Poppler inspection preserved non-target
+text and bounds, moved all three target lines by 28\,bp, and produced identical
+144\,dpi pixels outside the padded union of before/after target bounds.
+This is one purposive development probe with a hand-authored, non-blind oracle,
+not a held-out acceptance-rate estimate. Pre-run criteria, input copies,
+commands and the runner are retained. Subsequent mouse/keyboard tests were
+reserved for the owner and remain pending until their output is reported.
+
+A further packaging negative control bundled an older executable with newer
+verifier resources despite individually correct hashes. The runtime's separate
+worker binding is not an excuse to ship that inconsistent package. A new local
+successful-build pairing receipt binds the exact EXE and unchanged verifier
+resource set; the packager now rejects that mixed pair. A matched 16-entry ZIP
+passed independent CRC, coverage, byte-hash and resource-pair checks. Four new
+build-receipt checks bring the frontend total to 277, with no failures/skips;
+the required 88 core checks also passed. This local pairing is neither signed
+provenance nor proof of a clean or frozen source tree. Its Git-head field is
+contextual. The new built artifact still needs the owner's native acceptance.
+
+Historical Windows observations include signature workflows under all three
+engines, actual source/input and PDF reading/search, visual controls, failure/
+cancellation/concurrent typing, explicit Save, exact Undo/reopen and staged
+recovery. Approved installers were exercised on an existing developer account,
+not a clean machine. An interrupted Save retained original bytes and a separate
+recovered copy; later approved rollback and staged-draft removal were recorded
+as distinct actions.
+
+Native testing also exposed real issues: shaped-Arabic search, drag-label
+input, focus after PDF publication, zoom reading position and refusal text
+hidden behind a modal were corrected on recorded versions. One mixed-input
+source check lost a final CRLF and remains inconclusive; the controlled repeat
+preserved it. These failures are not erased or treated as current universal
+defects. Exact receipts in the evidence inventory take precedence over older
+status prose.
+
+\subsection{Pilot A: independent reference and predicate replay}
+The first component pilot compared manually specified TeX box placement with
+the movement wrapper. Criteria were recorded before compilation: Poppler word
+bounds within 0.02 bp and exact full-page pixels at 144 dpi. Five conditions
+covered Latin targets under pdfLaTeX, XeLaTeX and LuaLaTeX, plus Latin targets
+with Arabic/Hebrew neighbors under XeLaTeX/LuaLaTeX. The latter conditions do
+not establish movement of arbitrary shaped RTL target text.
+
+The executed controls were five intended candidates, 20 deliberate faulty
+PDFs and five deliberately invalid sources. All five intended candidates
+matched their reference; all 20 faulty PDFs differed; all five invalid sources
+failed compilation. The faults represented wrong repeated occurrence,
+unrelated-text change, changed appearance and duplicated ink.
+
+On these same artifacts, diagnostic predicate replay produced
+Table~\ref{tab:replay}. The checks do not replay the app's source-selection,
+native source-plan or canonical-commit path. In particular, the compiler-only
+column is not evidence that the production app accepted 20 incorrect edits.
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Predicate on compiled artifacts & Intended matches admitted & Known faults admitted\\
+\midrule
+Compiler success & 5 & 20\\
+Text plus word geometry & 5 & 5\\
+Full reference predicates & 5 & 0\\
+\bottomrule
+\end{tabular}
+\caption{Pilot A decision-layer replay. The five compile failures stay separate.
+All predicates use the same purpose-built development artifacts.}
+\label{tab:replay}
+\end{table}
+
+The color-only controls explain the geometry check's limitation: text and
+bounds can agree while appearance differs. The reference comparator does not
+check source intent; a separately declared source oracle is still needed.
+The simple reading order, same preparer and one host limit interpretation.
+Raw sources, logs, PDFs, rasters, criteria and both replay versions are retained.
+
+\subsection{Pilot B: the native candidate boundary}
+The next pilot connects the actual native prepare/build/independent-approval/
+commit/Undo path to separate source and Poppler references. It uses a
+development-only Rust example enabled by the existing \code{benchmark}
+feature. It starts no Tauri window and calls no Save. The executable is a
+debug harness, not the ordinary application's UI artifact or a performance
+benchmark.
+
+Entry is proposed source plus a fixed move request for an existing tagged
+object. Each synthetic baseline has two identical printed phrases with
+different object identifiers. The request moves the second object 12 bp right.
+The main source has a BOM/CRLF representation and an unchanged supporting file.
+Five conditions use the same engine/language strata as Pilot A, with separately
+constructed documents. PDF.js mouse mapping, its frontend identity probe and
+the normal frontend planner invocation are bypassed. Native prepare does
+rederive the permitted source plan.
+
+For each condition, five corrupted proposed-source packets precede the correct
+packet while baseline and revision remain current. The operation request stays
+fixed. Table~\ref{tab:packets} identifies the modifications. A packet rejected
+at prepare is not compiled. Any unexpectedly prepared packet would be recorded
+and discarded without commit, so even that event would not be a final edit
+acceptance.
+
+\begin{table}[htbp]
+\small\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{.29\linewidth}Yr@{}}
+\toprule
+Packet modification & Intended diagnostic & Conditions\\
+\midrule
+Move first occurrence & Source proposal disagrees with the requested second object & 5\\
+Change neighboring text & Unrelated source change accompanying a move & 5\\
+Change target color & Appearance edit absent from the move request & 5\\
+Duplicate target ink & Extra content absent from the move request & 5\\
+Change supporting file only & Source preservation beyond the printed target & 5\\
+\bottomrule
+\end{tabularx}
+\caption{Pilot B's 25 deliberate corruptions. These test source rederivation
+before compilation, not the renderer's sensitivity to the corruptions.}
+\label{tab:packets}
+\end{table}
+
+The intended candidate succeeds only if native commit completes, every source
+matches a manually declared byte contract, its PDF matches an independently
+authored TeX-box reference, Undo restores all source bytes and the original
+synthetic source files on disk remain unchanged. A plain-text zero reference
+first checks the native zero-offset baseline. The moved gold uses ordinary
+TeX boxes/phantom rather than the runtime movement transformation.
+
+\subsection{The failed reference is part of the result}
+The first attempt recorded zero of five intended moves meeting every declared
+postcondition. All five native commits, exact-source checks and Undo checks
+completed; all 25 corrupted packets were refused with a native operation-plan
+mismatch. The moved-reference comparisons failed because the manually authored
+gold changed unrelated layout.
+
+The zero-width reference box began in vertical mode. Its following phantom
+started another blank line. The intended target moved the correct 12 bp, but
+the gold's following neighbor moved down about 11.955 bp for Latin or
+11.956 bp in the multilingual conditions. Native candidate geometry retained
+the neighbor. Gold-only comparisons of the zero and moved references reproduce
+this error without consulting native output; a rendered pair was also inspected.
+
+The original protocol, executed-source snapshots, zero/five count, PDFs and
+comparison failures are unchanged. The failure is not retrospectively labelled
+a full application correctness pass, nor is the invalid gold treated as proof
+that the application accepted a wrong edit. A diagnosis was stored separately.
+
+Before another attempt, reference protocol revision 2 added \code{leavevmode}
+before the TeX box and a reference-only geometry health check. The declared
+second-occurrence words must move exactly; every other word bound must stay
+within 0.02 bp. Missing or reordered/ambiguous words remain unresolved. This
+health check is bounded word geometry, not a proof of every reference semantic
+or non-text property.
+
+\subsection{Corrected protocol results}
+The corrected run met all declared postconditions for all five intended moves.
+All five byte-source contracts and reference-health checks passed. All ten
+baseline/candidate full-page Poppler raster comparisons had zero changed
+pixels. Undo restored exact source and original project source files stayed
+unchanged in every condition. All 25 corrupt packets were refused before
+compilation with canonical source/history unchanged.
+
+\begin{table}[htbp]
+\small\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{.21\linewidth}YYY@{}}
+\toprule
+Engine / context & Source and Undo & Zero/moved reference pixels & Original source disk\\
+\midrule
+pdfLaTeX / Latin & Exact & Exact / exact & Unchanged\\
+XeLaTeX / Latin & Exact & Exact / exact & Unchanged\\
+LuaLaTeX / Latin & Exact & Exact / exact & Unchanged\\
+XeLaTeX / RTL neighbors & Exact & Exact / exact & Unchanged\\
+LuaLaTeX / RTL neighbors & Exact & Exact / exact & Unchanged\\
+\bottomrule
+\end{tabularx}
+\caption{Pilot B, corrected protocol only. Targets are Latin in all conditions;
+RTL neighbors do not establish arbitrary RTL target eligibility.}
+\label{tab:native-results}
+\end{table}
+
+The native executable, baseline sources, requests, candidate packets, source
+contracts and zero references are identical across both attempts. Only the
+moved reference and its health analysis changed. These are reused development
+cases, not ten independent intended requests or 50 distinct corrupted packets.
+No application behavior was changed to make the corrected result pass.
+
+The result supports this bounded native-entry path and shows that native source
+rederivation rejects these proposed-source corruptions. It does not establish
+full PDF-selection correctness, an independently labelled acceptance rate,
+native UI usability or latency. The final evaluation remains pending.

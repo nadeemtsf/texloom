@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "kind": "development_candidate_not_frozen",
+  "run_id": null,
+  "variant": null,
+  "bindings": {
+    "implementation_commit": null,
+    "runner_sha256": null,
+    "protocol_sha256": null,
+    "fixture_manifest_sha256": null,
+    "oracle_manifest_sha256": null
+  },
+  "files": []
+}

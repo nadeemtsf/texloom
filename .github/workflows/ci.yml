@@ -25,16 +25,64 @@ jobs:
         run: npm ci
       - name: Check Rust source model
         run: cargo test --locked -p texloom-core
+      - name: Check optional recovery checkpoint codec
+        run: cargo test --locked -p texloom-core --features recovery-serde
       - name: Check frontend transactions and PDF geometry
         run: npm test
+      - name: Check build scheduling, snapshots and process-tree cleanup
+        run: cargo test --locked -p texloom-build
+      - name: Check native document protocol
+        run: cargo test --locked -p texloom-desktop --features typegen --lib
+      - name: Prepare pinned development PDFium and independent reference
+        shell: pwsh
+        run: |
+          node scripts/prepare-native-verifier.mjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m pip install --disable-pip-version-check --target .tools/proof-python -r scripts/proof/requirements.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $env:PYTHONPATH = Join-Path (Get-Location) '.tools/proof-python'
+          python scripts/proof/inspect_pdf.py tests/fixtures/objects/baseline.pdf .tools/pdfium-reference/baseline.json
+      - name: Check isolated native PDF inspection against reference
+        shell: pwsh
+        run: |
+          $env:TEXLOOM_PDFIUM_TEST_DLL = Join-Path (Get-Location) 'src-tauri/resources/verification/pdfium.dll'
+          $env:TEXLOOM_PDFIUM_REFERENCE = Join-Path (Get-Location) '.tools/pdfium-reference/baseline.json'
+          cargo test --locked -p texloom-build --test pdfium_worker -- --ignored
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cargo build --locked --release -p texloom-build --bin pdfium_worker
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Check native document approval with the actual isolated renderer
+        shell: pwsh
+        run: |
+          node scripts/prepare-native-verifier.mjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $env:TEXLOOM_PDFIUM_TEST_DLL = Join-Path (Get-Location) 'src-tauri/resources/verification/pdfium.dll'
+          $env:TEXLOOM_PDFIUM_TEST_WORKER = Join-Path (Get-Location) 'src-tauri/resources/verification/pdfium_worker.exe'
+          cargo test --locked -p texloom-desktop --lib -- --ignored
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Build unsigned desktop executable
         run: npm run desktop:build -- --no-bundle --target x86_64-pc-windows-msvc
       - name: Package portable build with notices
         shell: pwsh
-        run: ./scripts/package-portable.ps1
+        id: portable
+        run: |
+          $executable = (Resolve-Path target/x86_64-pc-windows-msvc/release/texloom-desktop.exe).Path
+          $package = & ./scripts/package-portable.ps1 -DesktopExecutable $executable -ExpectedDesktopSha256 (Get-FileHash -LiteralPath $executable -Algorithm SHA256).Hash
+          "archive=$($package.ArchivePath)" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: Texloom-Windows-x64-development
-          path: artifacts/Texloom-Desktop-Windows-x64.zip
+          path: ${{ steps.portable.outputs.archive }}
           if-no-files-found: error
           retention-days: 14
+      - name: Measure native source editing and snapshot encoding
+        shell: pwsh
+        run: |
+          cargo run --locked --release -p texloom-desktop --features benchmark --example source_benchmark --target x86_64-pc-windows-msvc -- artifacts/source-benchmark
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: Texloom-Native-Service-Benchmark
+          path: artifacts/source-benchmark/report.json
+          if-no-files-found: error
+          retention-days: 30

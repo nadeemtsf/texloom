@@ -1,0 +1,213 @@
+{
+  "schema": 1,
+  "kind": "development_native_source_render_and_build_pairing_validation",
+  "recorded_utc": "2026-11-06T10:26:57.864349+00:00",
+  "packaging_source_commit": "7a0e597",
+  "runtime_source_anchor": "d267118",
+  "final_evaluation_executed": false,
+  "release_ready": false,
+  "current_frontend": {
+    "passed": 277,
+    "failed": 0,
+    "skipped": 0
+  },
+  "current_core": {
+    "unit_passed": 70,
+    "integration_passed": 18
+  },
+  "replacement_engine_gates_completed": 4,
+  "replacement_engine_log": {
+    "path": "artifacts/resumed-validation-20261105-run1/pdfium159-engine-gates.log",
+    "bytes": 12584,
+    "sha256": "580bbd42fd4a4a295a5f56a3216f901c236843716c2ade986474e962d1a63464"
+  },
+  "verifier_evidence_reuse": {
+    "worker_bytes_match_previously_tested_159": true,
+    "dll_bytes_match_previously_tested_159": true,
+    "notice_bytes_match": true,
+    "worker_sha256": "f9aaecd73bd824361f026c7b9e1bff91e2f41a6f6e8a6031e6bfc095e96e1eff"
+  },
+  "native_observation": {
+    "executable_sha256": "bb78dedc718b3a3c87931e9724561ea23d256b0601dce799fd8dfd1b79da85ae",
+    "observed": [
+      "source-only until explicit compile",
+      "grouped signature selected with source decoration",
+      "all three lines moved28bp by mouse release",
+      "protected literal editor changed only bold name and escaped ampersand",
+      "explicit Save"
+    ],
+    "not_observed": [
+      "new owner-run Undo/Redo/reopen",
+      "new installation",
+      "manual multilingual/recovery/physical environment"
+    ],
+    "control_rule": "Owner now performs all mouse/keyboard/control-taking tests after coding stop; no automated UI input after that instruction",
+    "interrupted_save_action": "One Save click refused by control tool after detected owner input; state reobserved, then Save succeeded. Stale disk snapshot retained separately; not a product failure."
+  },
+  "source_check": {
+    "kind": "independent_saved_signature_byte_check",
+    "checks": {
+      "original_target_retained": true,
+      "unrelated_prefix_exact": true,
+      "unrelated_suffix_exact": true,
+      "name_edit_only": true
+    },
+    "status": "pass",
+    "original_sha256": "817da48f1571b83c01665ad28503e39b90c733a2c6f378d7fe20d469b307d202",
+    "moved_sha256": "6a44bfd248fb500aa2ffd01994c6e5f9f66052ab1e9fe7e611442c7ae3a64c6d",
+    "edited_sha256": "5de4e2924221ba75550d8ed5ad943531f215793c48262f22505d6538fdbbd7ba",
+    "final_evaluation": false
+  },
+  "render_check": {
+    "status": "pass",
+    "pre_run_plan": {
+      "path": "artifacts\\native-resume-20261106-r5\\source-render-check\\plan.json",
+      "bytes": 1065,
+      "sha256": "6ae5449117375c91d384f0fd1ab244c51ea658353527432ccedbd7b192de854e"
+    },
+    "report": {
+      "path": "artifacts\\native-resume-20261106-r5\\source-render-check\\report.json",
+      "bytes": 3757,
+      "sha256": "205ffd1a01eb80edfb3bed1379f9a42875444ff331e29e497c4ce4ea3f33d1e3"
+    },
+    "scope": "One development fixture, pdfLaTeX and Poppler144dpi; no independent human annotation or final-study estimate"
+  },
+  "mixed_build_before": {
+    "kind": "mixed_application_and_verifier_packaging_negative_control",
+    "expected": "refuse",
+    "actual": "packaged",
+    "old_executable_sha256": "bb0c81317695ec52c95cef63784a7bc0c100b01f29d41ca4f5c7afd4fef0529c",
+    "active_pdfium": "159.0.8138.0",
+    "status": "guard_gap_reproduced",
+    "package_executed": false,
+    "user_projects_touched": false
+  },
+  "mixed_build_after": {
+    "expected": "refuse",
+    "actual": "refused",
+    "reason": "Desktop build pairing does not match the selected executable.",
+    "zip_created": false,
+    "status": "pass"
+  },
+  "portable_independent": {
+    "status": "pass",
+    "entries": 16,
+    "all_receipted_bytes": true,
+    "build_pairing_matches": true,
+    "desktop_sha256": "8ebba379decd21bda14a1acc20b3ef51598aa57c2d0a04948702bc507669fbb8",
+    "archive_sha256": "1c1dd161dc68868b21b6921e9b50d52976659a0c33ba130669617f6b5e44d1a0",
+    "native_tests_on_this_artifact": false,
+    "release_ready": false
+  },
+  "ordinary_build": "passed, NSIS produced, paired resource receipt completed",
+  "diagnostic_build": "passed, explicit Windows x64 no-bundle target and trace_enabled=true; no GUI/timing measurement",
+  "ci": "Callsite updated and explicit target arguments built locally; no push or remote CI execution",
+  "exports": [
+    {
+      "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-0.3.0-x64-development-2026-11-06-r6-setup.exe",
+      "name": "Texloom-0.3.0-x64-development-2026-11-06-r6-setup.exe",
+      "bytes": 9473238,
+      "sha256": "53dd67893abd222f8705cbc6e12c167d01a1aae64a5451e1026e4e415d73ff3a",
+      "native_acceptance": "pending_owner_test"
+    },
+    {
+      "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-Windows-x64-development-2026-11-06-r6.zip",
+      "name": "Texloom-Windows-x64-development-2026-11-06-r6.zip",
+      "bytes": 12055395,
+      "sha256": "3f440ea298e076864e7972678710c124f0036e9e56d4a261c3ee9d5f14510233",
+      "native_acceptance": "pending_owner_test",
+      "exe_sha256": "8ebba379decd21bda14a1acc20b3ef51598aa57c2d0a04948702bc507669fbb8",
+      "trace_enabled": false,
+      "zip_crc_and_pairing": "pass"
+    },
+    {
+      "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-Windows-x64-development-2026-11-06-r6-diagnostics.zip",
+      "name": "Texloom-Windows-x64-development-2026-11-06-r6-diagnostics.zip",
+      "bytes": 12055971,
+      "sha256": "670df80cffe1e9907dbe90ff48c3df9c9c409df9a6f98046f3473d2a45e8a323",
+      "native_acceptance": "pending_owner_test",
+      "exe_sha256": "aa3b1c3c7c7f054de4e78343cd2d077344b3aaf8981511f944718cd4028635d2",
+      "trace_enabled": true,
+      "zip_crc_and_pairing": "pass"
+    }
+  ],
+  "manual_cases": {
+    "status": "all_remaining_control_tests_deferred_to_owner_after_coding_stop",
+    "cases": {
+      "A": "pending",
+      "B": "pending",
+      "C": "pending",
+      "D": "pending",
+      "E": "pending",
+      "F": "pending",
+      "G": "pending"
+    },
+    "automated_input_authorized": false,
+    "owner_response_to_first_case": "Deferred until coding/usage stop; no result supplied",
+    "final_evaluation": false
+  },
+  "local_log_receipts": [
+    {
+      "path": "artifacts/native-resume-20261106-r5/frontend-build-pairing.log",
+      "bytes": 26438,
+      "sha256": "c79592f5086204e804c5d3599dd7d0bddd90de4e712a7527982ee66ad902388b"
+    },
+    {
+      "path": "artifacts/native-resume-20261106-r5/core-required.log",
+      "bytes": 7903,
+      "sha256": "07284799179efdf94e48ee998c62fc8eb6643a97b884fe7bd18a91443bff6f1a"
+    },
+    {
+      "path": "artifacts/native-resume-20261106-r5/recorded-desktop-build.log",
+      "bytes": 7838,
+      "sha256": "d9536fc12fbcb157b16664d7c77630b9dd3b7fd8731bc1f1afe68bf255489635"
+    },
+    {
+      "path": "artifacts/native-resume-20261106-r5/diagnostic-target-build.log",
+      "bytes": 7217,
+      "sha256": "f2c2a4ad4a71cba3ea21bbde6ad66b202eaf36b2d1e24919a37de80200b94a81"
+    },
+    {
+      "path": "artifacts/native-resume-20261106-r5/mixed-build-before.log",
+      "bytes": 263,
+      "sha256": "d035b6971ecaebd3e2bb2c282425a87864c086571474f05c549b07d0aa7fbb90"
+    },
+    {
+      "path": "artifacts/native-resume-20261106-r5/mixed-build-after.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/native-resume-20261106-r5/portable-bound.log",
+      "bytes": 263,
+      "sha256": "ae069dd1722456f3ec18bf1fdab592207828658c1acd75609822cbc34f3aa07b"
+    },
+    {
+      "path": "artifacts/native-resume-20261106-r5/portable-final.log",
+      "bytes": 263,
+      "sha256": "27043892c8d1f6d6ee957f99395ec0268a27761777cae7ada7d4f63a6aaf2dcc"
+    },
+    {
+      "path": "artifacts/native-resume-20261106-r5/diagnostic-package.log",
+      "bytes": 263,
+      "sha256": "aa4a001364a3d24d9f8639cb5f0985cb2dd7668e2f4f4380f3cc94a9950d278e"
+    }
+  ],
+  "report_draft": {
+    "pages": 25,
+    "references": 21,
+    "report_label": "Technical report draft; final evaluation pending",
+    "pdf": {
+      "bytes": 590630,
+      "sha256": "32a21f24f24e86ed31734b1938cfe02d20a1478df54574a3e337c85a7ac09b6e"
+    },
+    "latex_log": {
+      "bytes": 27680,
+      "sha256": "8d4cfc597c2607c7e2a5ad54ca1ee0f04e9c34c50d91fb178eaf2a1922f84c6e"
+    },
+    "warnings": "No overfull boxes, undefined references/citations or LaTeX warnings observed in final log",
+    "visual_review": "All page thumbnails reviewed; changed evidence and reference pages also inspected at readable resolution; no clipping/overlap observed",
+    "retained_first_build_failure": "BibTeX could not find relative databases from output folder; failed logs retained, rerun with explicit source BIBINPUTS succeeded"
+  },
+  "retained_tooling_setup_error": "Inventory first invocation passed unsupported --root argument and stopped before cataloging; corrected invocation uses its documented default root."
+}

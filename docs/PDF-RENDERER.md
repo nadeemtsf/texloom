@@ -1,0 +1,9 @@
+# PDF renderer update
+
+The locked PDF.js renderer is updated to the exact patched version 6.2.108. The dependency audit identified the previous lock in the affected range for [the maintainer's JavaScript-execution advisory](https://github.com/mozilla/pdf.js/security/advisories/GHSA-hq66-cqwq-w95j). The advisory describes conditions involving PDF scripting and missing script restrictions; this application already has a CSP and disables PDF.js eval support. The upgrade does not assert that this application was exploitable under those conditions.
+
+Both the app and worker use the matching legacy build, which supplies polyfills for newer JavaScript methods used by this PDF.js version. The configured WebView2 minimum is unchanged; that minimum still requires installed-artifact testing. Developers need Node.js 22.13 or newer; CI uses Node.js 24. End users do not need Node.
+
+PDF.js 6 disposes documents through their loading task instead of PDFDocumentProxy.destroy. The production loadPDFDocument helper owns that task and exposes only numPages, getPage and an idempotent destroy method to the existing surface/transaction lifetime. A failed load attempts disposal while preserving the original error. The helper does not modify third-party proxies. Application rendering and the movement, selection and protected-text proof tools use the same lifecycle.
+
+The first post-upgrade suite failed two existing real-PDF checks because their old proxy cleanup method had been removed. Those failures were fixed in the loader and all affected tools, without weakening geometry or pixel policies. New checks exercise idempotent cleanup, load failure and actual fixture painting/text extraction. A clean audit result is a dependency-database observation, not a complete security review. PDFium, other release dependency/license review and native/installed acceptance remain separate gates.

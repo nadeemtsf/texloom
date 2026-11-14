@@ -1,0 +1,528 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-03T07:53:58.812927+00:00",
+  "implementation_base": "c83dda1ece80758bbfdaddf89a78021857bae7cf",
+  "checks": {
+    "core_default": 69,
+    "native_default": 30,
+    "native_ignored_not_run": 2,
+    "frontend": 100,
+    "frontend_build": "passed",
+    "windows_x64_release_build": "passed"
+  },
+  "tested_source_sha256": {
+    "src-tauri/examples/source_benchmark.rs": "182c8a329b711400557b4b5d93b460951488ed3b40adcd824c216a488064bfba",
+    "src-tauri/src/lib.rs": "0b9d6fbefec3db106ec32b78961a60657cadac6a004484a8a7fc16450e30cf2e",
+    "src-tauri/src/service.rs": "e4c6eff5dd71d7e32f4004dc0da0f63aa7959f96c19eb2d4fa28161e449342b7",
+    "src-tauri/src/service/document.rs": "ad0a8253d3dff9c22671e6b8f456fa8eebb99487e303135bdb17820761b0a019",
+    "tests/app-startup.test.mjs": "66b597d297e4594ffc1c604ed1fd6a884530f7604c7bac479360b9d024a85e28",
+    "tests/document-client.test.mjs": "681a87759ad9d8a98ff5734d39b1f133be2f9fa8242a1571c3bb2bef65ecdb81",
+    "tests/native-document-double.cjs": "1781d936eb9ffae3a30d0c8da6ebb8af3744bfad9ee021490961308ae8c30b74",
+    "tests/save-controller.test.mjs": "3bc6d846f50700d491cec61301be4f31c0da4059455a85f2b1e14907fb3046a0",
+    "tests/transactions.test.cjs": "a913e7800ff819c6058cf56cd40f9818334e12def21059f55d573b8b3cd0b6a1",
+    "web/app.js": "5baf3d7030b8331ae90868e1e121e3db3e579e5fb70015dbe12a54a3c81d4265",
+    "web/core/document-client.js": "83a9987ba821c1050406d479904f818b5928cf0b5a84724b49c7668660bca111"
+  },
+  "log_sha256": {
+    "source-ack-core.log": "e5100959bb45888a49197737d3a6cd1ade6aab30f80829913ea50807672c20c8",
+    "source-ack-native.log": "3b53d0caf2753daeae4293c5665ee2884f19cea4f206f0acb533c16b9826c181",
+    "source-ack-frontend-final.log": "aa0487cee9605ad3dcc9d69a8505ff907e55fa99218534a1cda2393b945bb6d2",
+    "source-ack-build.log": "bb48ecbd4d37eb6f90bd54178fded93d0d45eaa3b8c9da2a8cb801d31764b8ba",
+    "source-ack-desktop-build.log": "decc9d026ba925a7f1e2443555c6184b867ac6c30f562b752112ce5de0e442e8",
+    "source-comparison.log": "bf4f9203af72a68eb6b268081cf94424989f905c21a6b382bde87f8f1ccd6de4"
+  },
+  "executable": {
+    "path": "target/x86_64-pc-windows-msvc/release/texloom-desktop.exe",
+    "sha256": "1c02d46da7227cddeea79b6c6295e0e3c0e4e8db468a664a25abe621d86e3349"
+  },
+  "initial_full_snapshot_local": {
+    "architecture": "x86_64",
+    "cases": [
+      {
+        "bytes_per_file": 16384,
+        "coalesced_undo_redo_exact": true,
+        "files": 1,
+        "measured_edits": 100,
+        "native_edit_and_snapshot": {
+          "max_ms": 0.5670000000000001,
+          "median_ms": 0.3357,
+          "p95_ms": 0.45080000000000003,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 0.5932999999999999,
+          "median_ms": 0.35195,
+          "p95_ms": 0.47459999999999997,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "project_source_bytes": 16384,
+        "response_bytes": 17004,
+        "snapshot_json_encoding": {
+          "max_ms": 0.032,
+          "median_ms": 0.0187,
+          "p95_ms": 0.023200000000000002,
+          "samples": 100
+        },
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 262144,
+        "coalesced_undo_redo_exact": true,
+        "files": 1,
+        "measured_edits": 100,
+        "native_edit_and_snapshot": {
+          "max_ms": 12.3583,
+          "median_ms": 8.70265,
+          "p95_ms": 11.2805,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 12.907200000000001,
+          "median_ms": 9.02255,
+          "p95_ms": 11.5752,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "project_source_bytes": 262144,
+        "response_bytes": 269320,
+        "snapshot_json_encoding": {
+          "max_ms": 0.6729,
+          "median_ms": 0.3511,
+          "p95_ms": 0.5405,
+          "samples": 100
+        },
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 65536,
+        "coalesced_undo_redo_exact": true,
+        "files": 16,
+        "measured_edits": 100,
+        "native_edit_and_snapshot": {
+          "max_ms": 4.6617999999999995,
+          "median_ms": 2.8316999999999997,
+          "p95_ms": 4.0811,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 6.7121,
+          "median_ms": 4.171900000000001,
+          "p95_ms": 5.5702,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "project_source_bytes": 1048576,
+        "response_bytes": 1077043,
+        "snapshot_json_encoding": {
+          "max_ms": 2.3606,
+          "median_ms": 1.2792,
+          "p95_ms": 1.7973,
+          "samples": 100
+        },
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 262144,
+        "coalesced_undo_redo_exact": true,
+        "files": 64,
+        "measured_edits": 100,
+        "native_edit_and_snapshot": {
+          "max_ms": 24.1939,
+          "median_ms": 14.805349999999999,
+          "p95_ms": 20.7992,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 51.513000000000005,
+          "median_ms": 39.797399999999996,
+          "p95_ms": 47.778,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "project_source_bytes": 16777216,
+        "response_bytes": 17226085,
+        "snapshot_json_encoding": {
+          "max_ms": 32.3074,
+          "median_ms": 24.1082,
+          "p95_ms": 28.0733,
+          "samples": 100
+        },
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 262144,
+        "coalesced_undo_redo_exact": true,
+        "files": 128,
+        "measured_edits": 100,
+        "native_edit_and_snapshot": {
+          "max_ms": 62.8745,
+          "median_ms": 20.892500000000002,
+          "p95_ms": 31.497600000000002,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 204.3095,
+          "median_ms": 68.76955,
+          "p95_ms": 90.2279,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "project_source_bytes": 33554432,
+        "response_bytes": 34452005,
+        "snapshot_json_encoding": {
+          "max_ms": 172.8115,
+          "median_ms": 47.602549999999994,
+          "p95_ms": 60.472,
+          "samples": 100
+        },
+        "warmup_edits": 10
+      }
+    ],
+    "github_ref_at_run": null,
+    "github_sha_at_run": null,
+    "implementation_base": "2f3d393a0350cc2c0d626e319486f6b621b12bcc",
+    "limitations": [
+      "Synthetic source projects; one run with uncontrolled background load",
+      "CI measurements describe the runner, not the user's laptop",
+      "No WebView IPC transport, JavaScript parsing, editor paint, native typing or IME measurement",
+      "No compiler job or initialized build cache; no recovery journal or disk save in measured edits",
+      "Response/snapshot destruction and transport are outside the measured interval",
+      "Not a native UI acceptance gate or a comparison to the 50 ms editor-paint target"
+    ],
+    "logical_processors_seen": 8,
+    "measured_api": "Production Backend::document_edit and production DocumentSnapshot serialization",
+    "os": "windows",
+    "profile": "release",
+    "schema": 1
+  },
+  "same_host_comparison_local": {
+    "architecture": "x86_64",
+    "cases": [
+      {
+        "bytes_per_file": 16384,
+        "coalesced_undo_redo_exact": true,
+        "files": 1,
+        "measured_edits": 100,
+        "native_edit_and_reply": {
+          "max_ms": 0.5807,
+          "median_ms": 0.33075,
+          "p95_ms": 0.5518,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 0.6130000000000001,
+          "median_ms": 0.3513,
+          "p95_ms": 0.5802999999999999,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "production_ipc": false,
+        "project_source_bytes": 16384,
+        "reply_json_encoding": {
+          "max_ms": 0.0344,
+          "median_ms": 0.0201,
+          "p95_ms": 0.0326,
+          "samples": 100
+        },
+        "response_bytes": 17004,
+        "response_mode": "full_snapshot",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 16384,
+        "coalesced_undo_redo_exact": true,
+        "files": 1,
+        "measured_edits": 100,
+        "native_edit_and_reply": {
+          "max_ms": 0.5594,
+          "median_ms": 0.3523,
+          "p95_ms": 0.4933,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 0.5917,
+          "median_ms": 0.3684,
+          "p95_ms": 0.514,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "production_ipc": true,
+        "project_source_bytes": 16384,
+        "reply_json_encoding": {
+          "max_ms": 0.0428,
+          "median_ms": 0.01185,
+          "p95_ms": 0.0247,
+          "samples": 100
+        },
+        "response_bytes": 17046,
+        "response_mode": "changed_file",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 262144,
+        "coalesced_undo_redo_exact": true,
+        "files": 1,
+        "measured_edits": 100,
+        "native_edit_and_reply": {
+          "max_ms": 11.2435,
+          "median_ms": 8.408100000000001,
+          "p95_ms": 9.5353,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 11.6006,
+          "median_ms": 8.74305,
+          "p95_ms": 10.0961,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "production_ipc": false,
+        "project_source_bytes": 262144,
+        "reply_json_encoding": {
+          "max_ms": 0.6095999999999999,
+          "median_ms": 0.30065,
+          "p95_ms": 0.46749999999999997,
+          "samples": 100
+        },
+        "response_bytes": 269320,
+        "response_mode": "full_snapshot",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 262144,
+        "coalesced_undo_redo_exact": true,
+        "files": 1,
+        "measured_edits": 100,
+        "native_edit_and_reply": {
+          "max_ms": 10.5367,
+          "median_ms": 8.2343,
+          "p95_ms": 8.8775,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 10.8355,
+          "median_ms": 8.56595,
+          "p95_ms": 9.254800000000001,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "production_ipc": true,
+        "project_source_bytes": 262144,
+        "reply_json_encoding": {
+          "max_ms": 0.626,
+          "median_ms": 0.29725,
+          "p95_ms": 0.39780000000000004,
+          "samples": 100
+        },
+        "response_bytes": 269362,
+        "response_mode": "changed_file",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 65536,
+        "coalesced_undo_redo_exact": true,
+        "files": 16,
+        "measured_edits": 100,
+        "native_edit_and_reply": {
+          "max_ms": 3.6412,
+          "median_ms": 2.78645,
+          "p95_ms": 3.3333999999999997,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 5.3968,
+          "median_ms": 4.1455,
+          "p95_ms": 5.0123,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "production_ipc": false,
+        "project_source_bytes": 1048576,
+        "reply_json_encoding": {
+          "max_ms": 1.8577000000000001,
+          "median_ms": 1.21245,
+          "p95_ms": 1.7559,
+          "samples": 100
+        },
+        "response_bytes": 1077043,
+        "response_mode": "full_snapshot",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 65536,
+        "coalesced_undo_redo_exact": true,
+        "files": 16,
+        "measured_edits": 100,
+        "native_edit_and_reply": {
+          "max_ms": 2.4163,
+          "median_ms": 1.5963,
+          "p95_ms": 2.1595999999999997,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 2.5387,
+          "median_ms": 1.65235,
+          "p95_ms": 2.2337,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "production_ipc": true,
+        "project_source_bytes": 1048576,
+        "reply_json_encoding": {
+          "max_ms": 0.14559999999999998,
+          "median_ms": 0.045649999999999996,
+          "p95_ms": 0.0761,
+          "samples": 100
+        },
+        "response_bytes": 67510,
+        "response_mode": "changed_file",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 262144,
+        "coalesced_undo_redo_exact": true,
+        "files": 64,
+        "measured_edits": 100,
+        "native_edit_and_reply": {
+          "max_ms": 39.0936,
+          "median_ms": 16.856450000000002,
+          "p95_ms": 24.5997,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 101.87519999999999,
+          "median_ms": 42.6294,
+          "p95_ms": 72.05749999999999,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "production_ipc": false,
+        "project_source_bytes": 16777216,
+        "reply_json_encoding": {
+          "max_ms": 65.7759,
+          "median_ms": 24.71525,
+          "p95_ms": 41.1141,
+          "samples": 100
+        },
+        "response_bytes": 17226085,
+        "response_mode": "full_snapshot",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 262144,
+        "coalesced_undo_redo_exact": true,
+        "files": 64,
+        "measured_edits": 100,
+        "native_edit_and_reply": {
+          "max_ms": 23.071,
+          "median_ms": 12.4322,
+          "p95_ms": 17.698800000000002,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 23.2727,
+          "median_ms": 12.6663,
+          "p95_ms": 17.9222,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "production_ipc": true,
+        "project_source_bytes": 16777216,
+        "reply_json_encoding": {
+          "max_ms": 0.4214,
+          "median_ms": 0.19485000000000002,
+          "p95_ms": 0.35550000000000004,
+          "samples": 100
+        },
+        "response_bytes": 269362,
+        "response_mode": "changed_file",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 262144,
+        "coalesced_undo_redo_exact": true,
+        "files": 128,
+        "measured_edits": 100,
+        "native_edit_and_reply": {
+          "max_ms": 32.3579,
+          "median_ms": 21.41055,
+          "p95_ms": 27.3588,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 81.7737,
+          "median_ms": 70.6961,
+          "p95_ms": 79.16539999999999,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "production_ipc": false,
+        "project_source_bytes": 33554432,
+        "reply_json_encoding": {
+          "max_ms": 58.6919,
+          "median_ms": 48.64665,
+          "p95_ms": 55.036500000000004,
+          "samples": 100
+        },
+        "response_bytes": 34452005,
+        "response_mode": "full_snapshot",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 262144,
+        "coalesced_undo_redo_exact": true,
+        "files": 128,
+        "measured_edits": 100,
+        "native_edit_and_reply": {
+          "max_ms": 22.454600000000003,
+          "median_ms": 17.10465,
+          "p95_ms": 19.5415,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 22.7867,
+          "median_ms": 17.29435,
+          "p95_ms": 19.7566,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "production_ipc": true,
+        "project_source_bytes": 33554432,
+        "reply_json_encoding": {
+          "max_ms": 0.4063,
+          "median_ms": 0.195,
+          "p95_ms": 0.3275,
+          "samples": 100
+        },
+        "response_bytes": 269362,
+        "response_mode": "changed_file",
+        "warmup_edits": 10
+      }
+    ],
+    "github_ref_at_run": null,
+    "github_sha_at_run": null,
+    "implementation_base": "c83dda1ece80758bbfdaddf89a78021857bae7cf",
+    "limitations": [
+      "Synthetic source projects; one run with uncontrolled background load",
+      "CI measurements describe the runner, not the user's laptop",
+      "No WebView IPC transport, JavaScript parsing, editor paint, native typing or IME measurement",
+      "No compiler job or initialized build cache; no recovery journal or disk save in measured edits",
+      "Response/snapshot destruction and transport are outside the measured interval",
+      "Not a native UI acceptance gate or a comparison to the 50 ms editor-paint target"
+    ],
+    "logical_processors_seen": 8,
+    "measured_api": "Shared native edit authority: full DocumentSnapshot reference vs production changed-file SourceEditReply",
+    "os": "windows",
+    "profile": "release",
+    "schema": 2
+  },
+  "limitations": [
+    "No native UI/typing/IME/mouse acceptance; owner deferred these until implementation is complete",
+    "Native full-snapshot and changed-file benchmark paths share one edit implementation",
+    "No WebView transport, JavaScript parsing, editor paint or initialized recovery journal in benchmark",
+    "Single runs with uncontrolled background load; no performance target inferred",
+    "Executable built but not launched; no new portable/installer package claimed",
+    "Local installed MiKTeX access-denied failures remain open; no permission/configuration bypass"
+  ]
+}

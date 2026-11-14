@@ -1,0 +1,1596 @@
+{
+  "schema": 1,
+  "kind": "owner_followup_development_regressions_not_final_evaluation",
+  "recorded_utc": "2026-11-06T13:30:44.147094+00:00",
+  "source_base_commit": "3e2176281eef1ebed930267eb8772b09e607e334",
+  "source_state": "uncommitted follow-up source; exact relevant bytes below",
+  "release_ready": false,
+  "final_evaluation_executed": false,
+  "native_input_by_agent": false,
+  "owner_results": {
+    "signature": "reported pass; changed literal does not establish ampersand test",
+    "repeated_occurrence": "reported intended middle occurrence moved",
+    "compile_failure": "reported expected error and retained last-good PDF; successful republish after removal unconfirmed",
+    "rtl_selection": "Arabic/Hebrew refusal reported; initial display correctness, source typing/search unconfirmed",
+    "recovery": "old normal-close discard; crash loss not established; different-project navigation reported",
+    "installation": "exact version unconfirmed",
+    "other_monitor": "unavailable",
+    "clean_machine_uninstall": "not reported"
+  },
+  "changes": [
+    "Dirty close retains exact protected current draft, otherwise blocks close",
+    "Recovery needs explicit project selection, reset across project/dialog transitions",
+    "XeTeX RTL wrapper ordering correction; no relaxed proof checks",
+    "Upgrade exact owned v0.3 support file; retain/refuse customized versions"
+  ],
+  "checks": {
+    "frontend": {
+      "pass": 287,
+      "fail": 0,
+      "skip": 0
+    },
+    "core_required": {
+      "unit_pass": 70,
+      "integration_pass": 18
+    },
+    "combined_library_configuration": {
+      "core_pass": 71,
+      "desktop_pass": 53,
+      "desktop_ignored_in_default_invocation": 2
+    },
+    "native_explicit": {
+      "passed": 2,
+      "failed": 0,
+      "ignored": 0
+    },
+    "adapter_matrix": {
+      "declared_outcomes": 27,
+      "passed": 27,
+      "engines": [
+        "pdflatex",
+        "lualatex",
+        "xelatex"
+      ]
+    }
+  },
+  "rtl_selection": {
+    "schema": 1,
+    "status": "pass",
+    "created_at": "2026-11-06T13:29:20.386Z",
+    "cases": [
+      {
+        "language": "arabic",
+        "status": "pass",
+        "mapped_lines": 1,
+        "mapped_runs": 1,
+        "wrong_target_controls_refused": 2
+      },
+      {
+        "language": "hebrew",
+        "status": "pass",
+        "mapped_lines": 1,
+        "mapped_runs": 1,
+        "wrong_target_controls_refused": 2
+      },
+      {
+        "language": "english",
+        "status": "pass",
+        "mapped_lines": 1,
+        "mapped_runs": 1,
+        "wrong_target_controls_refused": 2
+      }
+    ],
+    "limitations": [
+      "Synthetic development regression on this Windows/XeLaTeX machine.",
+      "Does not exercise the native pointer, SyncTeX candidate search or owner installation."
+    ]
+  },
+  "rtl_movement": [
+    {
+      "accepted": true,
+      "detail": "Ok(Verified { glyphs: 338, target_glyphs: 30, pixels: 1938816, max_geometry_error_bp: 0.0 })",
+      "dx": 0.0,
+      "dy": 8.0,
+      "engine": "xelatex",
+      "language": "arabic"
+    },
+    {
+      "accepted": true,
+      "detail": "Ok(Verified { glyphs: 338, target_glyphs: 30, pixels: 1938816, max_geometry_error_bp: 0.0 })",
+      "dx": 1.25,
+      "dy": 0.5,
+      "engine": "xelatex",
+      "language": "arabic"
+    },
+    {
+      "accepted": true,
+      "detail": "Ok(Verified { glyphs: 338, target_glyphs: 29, pixels: 1938816, max_geometry_error_bp: 0.0 })",
+      "dx": 0.0,
+      "dy": 8.0,
+      "engine": "xelatex",
+      "language": "hebrew"
+    },
+    {
+      "accepted": true,
+      "detail": "Ok(Verified { glyphs: 338, target_glyphs: 29, pixels: 1938816, max_geometry_error_bp: 0.0 })",
+      "dx": 1.25,
+      "dy": 0.5,
+      "engine": "xelatex",
+      "language": "hebrew"
+    }
+  ],
+  "latin_fractional_movement": [
+    {
+      "accepted": true,
+      "baseline_pdf_sha256": "34dfeb4da807a3a225f7313d63ed2cf6c662ee5957fbe0d38871c8ab1ffa9bf9",
+      "candidate_pdf_sha256": "96b38b95a6bbc03f365405e4513fe7c81c5132c0d73413330663dcf4b4eb6e28",
+      "detail": "Ok(Verified { glyphs: 72, target_glyphs: 30, pixels: 2005644, max_geometry_error_bp: 1.9531249989768185e-5 })",
+      "dx": 0.13,
+      "dy": 4.27,
+      "engine": "pdflatex"
+    },
+    {
+      "accepted": true,
+      "baseline_pdf_sha256": "34dfeb4da807a3a225f7313d63ed2cf6c662ee5957fbe0d38871c8ab1ffa9bf9",
+      "candidate_pdf_sha256": "8db12d63c3f1ca624fa7669f844bbc1e1ba1e71eb19141be95beb143063b1d4e",
+      "detail": "Ok(Verified { glyphs: 72, target_glyphs: 30, pixels: 2005644, max_geometry_error_bp: 4.882812532969183e-6 })",
+      "dx": -1.37,
+      "dy": 0.25,
+      "engine": "pdflatex"
+    },
+    {
+      "accepted": true,
+      "baseline_pdf_sha256": "34dfeb4da807a3a225f7313d63ed2cf6c662ee5957fbe0d38871c8ab1ffa9bf9",
+      "candidate_pdf_sha256": "5ae1decf30bd7b9717849c066e6f3918463cafd8880b8a2fd50835af0ceea470",
+      "detail": "Ok(Verified { glyphs: 72, target_glyphs: 30, pixels: 2005644, max_geometry_error_bp: 0.0 })",
+      "dx": 3.0,
+      "dy": 8.0,
+      "engine": "pdflatex"
+    },
+    {
+      "accepted": true,
+      "baseline_pdf_sha256": "7e9366833c99aa6745881774d85f3a6ea8a63dceea6731c22e9b3fd349148d13",
+      "candidate_pdf_sha256": "870f5a63dece16722643996629f74693c65b0ea871aaa2a26c09937b725a0508",
+      "detail": "Ok(Verified { glyphs: 72, target_glyphs: 30, pixels: 2005644, max_geometry_error_bp: 1.9531249989768185e-5 })",
+      "dx": 0.13,
+      "dy": 4.27,
+      "engine": "lualatex"
+    },
+    {
+      "accepted": true,
+      "baseline_pdf_sha256": "7e9366833c99aa6745881774d85f3a6ea8a63dceea6731c22e9b3fd349148d13",
+      "candidate_pdf_sha256": "ce7127ab895b90ab3ab67cec7e82b2a3faf10fbc872026f029ad87672bdd65c3",
+      "detail": "Ok(Verified { glyphs: 72, target_glyphs: 30, pixels: 2005644, max_geometry_error_bp: 4.8828125045474735e-6 })",
+      "dx": -1.37,
+      "dy": 0.25,
+      "engine": "lualatex"
+    },
+    {
+      "accepted": true,
+      "baseline_pdf_sha256": "7e9366833c99aa6745881774d85f3a6ea8a63dceea6731c22e9b3fd349148d13",
+      "candidate_pdf_sha256": "ad1f0403a28d6c977b9d2cc83a9ec0caed3ca07483a9435c1eae17f7ea1889b4",
+      "detail": "Ok(Verified { glyphs: 72, target_glyphs: 30, pixels: 2005644, max_geometry_error_bp: 0.0 })",
+      "dx": 3.0,
+      "dy": 8.0,
+      "engine": "lualatex"
+    },
+    {
+      "accepted": true,
+      "baseline_pdf_sha256": "f41c54b8c1c189077680cd7093b5eda073efc33cc57df20c2c8da7ee72171a62",
+      "candidate_pdf_sha256": "9356286b9d04f4dbe016a48fabd173b2fdeb8b56c4f8a170dcd7677553ec81e5",
+      "detail": "Ok(Verified { glyphs: 72, target_glyphs: 30, pixels: 2005644, max_geometry_error_bp: 2.5634765620452526e-5 })",
+      "dx": 0.13,
+      "dy": 4.27,
+      "engine": "xelatex"
+    },
+    {
+      "accepted": true,
+      "baseline_pdf_sha256": "f41c54b8c1c189077680cd7093b5eda073efc33cc57df20c2c8da7ee72171a62",
+      "candidate_pdf_sha256": "24d6036e9aa61be15dfaad947475746555641544f78452aef717cb078572df9d",
+      "detail": "Ok(Verified { glyphs: 72, target_glyphs: 30, pixels: 2005644, max_geometry_error_bp: 2.5634765620452526e-5 })",
+      "dx": -1.37,
+      "dy": 0.25,
+      "engine": "xelatex"
+    },
+    {
+      "accepted": true,
+      "baseline_pdf_sha256": "f41c54b8c1c189077680cd7093b5eda073efc33cc57df20c2c8da7ee72171a62",
+      "candidate_pdf_sha256": "892e1127c0e41db6d0a49c8a2666bdffac5f1638ce22fffb55baf89d7757e817",
+      "detail": "Ok(Verified { glyphs: 72, target_glyphs: 30, pixels: 2005644, max_geometry_error_bp: 2.842170943040401e-14 })",
+      "dx": 3.0,
+      "dy": 8.0,
+      "engine": "xelatex"
+    }
+  ],
+  "failures_preserved": [
+    "rtl-before: empty Arabic/Hebrew object markers and refused identity",
+    "rtl-leavevmode: incomplete marker experiment",
+    "real-engine-rtl-and-latin.log: first wrapper pdfLaTeX conditional-scanning failure",
+    "rtl-production-proof/report.json: absent English target literal in proof harness; Arabic/Hebrew passed before harness stopped"
+  ],
+  "limitations": [
+    "Reused synthetic development cases, not accuracy denominator",
+    "Local Windows/MiKTeX/PDFium/PDF.js only",
+    "Actual rebuilt-app pointer/installation/recovery checks remain owner gates",
+    "No final evaluation, latency distribution, general RTL or security certification"
+  ],
+  "source_fingerprints": [
+    {
+      "path": "resources/texloom-objects.sty",
+      "bytes": 1890,
+      "sha256": "73c58181127c60855b5f07d696576cc39fc9648370638e2b2bbd0a8573aae2af"
+    },
+    {
+      "path": "resources/legacy/texloom-objects-v03.sty",
+      "bytes": 1181,
+      "sha256": "9ee79b44802c003a73b99780407650accbe911663026e669e56d9da9fa1feafe"
+    },
+    {
+      "path": "src-tauri/src/service.rs",
+      "bytes": 31886,
+      "sha256": "b211ae308eed713a12d6e93e113b090d3250f3e953331f0c70228f076a47bebe"
+    },
+    {
+      "path": "src-tauri/src/service/visual.rs",
+      "bytes": 20919,
+      "sha256": "71bbc7257e13b839d3fd2a6bf23baa8c42ec78be5aa8e2ccda49cf4d830c3736"
+    },
+    {
+      "path": "src-tauri/src/service/document/typing_recovery/tests.rs",
+      "bytes": 10414,
+      "sha256": "3b20eef59d5fb27cf22bfc6c97875cf541fc8f40e4a29f10c78fe9ad08114c84"
+    },
+    {
+      "path": "web/core/close-controller.js",
+      "bytes": 2511,
+      "sha256": "b5cca078097b6a99b1e6df60887962cc7b56e7a8311cd6e40ac62513c43a9af8"
+    },
+    {
+      "path": "web/core/typing-recovery.js",
+      "bytes": 6298,
+      "sha256": "ec8d27f8f635fb8ed9f8d095b7fc4d562af078cc9551602fbd0d3938ee7197d2"
+    },
+    {
+      "path": "web/app.js",
+      "bytes": 68816,
+      "sha256": "f61cb4898775854d61979d48fc3ddd9d94a0d774e1a67f88b3b5ba4947760236"
+    },
+    {
+      "path": "web/index.html",
+      "bytes": 12925,
+      "sha256": "d83e35a5f9f2be06af6596600ba6ed8136485de4eb322de2d196d6e857683f82"
+    },
+    {
+      "path": "tests/close-controller.test.mjs",
+      "bytes": 3502,
+      "sha256": "87f28e9d36a2035f0b183caaf0307c9c9bc04a0a8895027d6e203a0c800d8d71"
+    },
+    {
+      "path": "tests/typing-recovery.test.mjs",
+      "bytes": 8275,
+      "sha256": "1750c0f5a257325369e8b622402696e331f10e1ec3697650f3bccbc277224f51"
+    },
+    {
+      "path": "crates/texloom-build/tests/rtl_text.rs",
+      "bytes": 5120,
+      "sha256": "b7f4828778b27256257f2a043c7a23a9e6b14950bd54550928404c5ff982d54d"
+    },
+    {
+      "path": "scripts/rtl-proof.mjs",
+      "bytes": 5646,
+      "sha256": "5a0bde6e87b80fcd760713f7f76d0454972b9d372469f449da328a7f10badd76"
+    },
+    {
+      "path": "resources/templates/multilingual.tex",
+      "bytes": 1078,
+      "sha256": "fd32918a1fb12f75a794e2e85b81d6968e98404c5fd51ba5bc1017ae8cdbfafb"
+    }
+  ],
+  "raw_evidence": [
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/lualatex/baseline/.out/preview.log",
+      "bytes": 10184,
+      "sha256": "64f666067f2468a715c113b758f2560bc164abb61aadb4b70bdf465965a15468"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/lualatex/baseline/.out/preview.pdf",
+      "bytes": 9367,
+      "sha256": "a5d502c636ca8bfb83a1d22354377ed97f830302d0d549e792ad7371b0731fdd"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/lualatex/baseline/texloom-build-manifest.json",
+      "bytes": 36006,
+      "sha256": "33c469d7176df45de91baba92e08e2f92ee45775f28a4252bfb69afb4223255c"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/lualatex/float/.out/preview.log",
+      "bytes": 10178,
+      "sha256": "57b553d24cb83a62bb27b7730d9ccaccda86974eb8db29f3e5840e953166ebf9"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/lualatex/float/.out/preview.pdf",
+      "bytes": 9360,
+      "sha256": "8a04e6f4067589fc56d353a8c8cb796dd54012005269f48355e3a59ab2d9e426"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/lualatex/float/texloom-build-manifest.json",
+      "bytes": 35994,
+      "sha256": "85b53401c9a6600f6794226943a1fa2c920b27eeb459ffd230a12323df3058f5"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/lualatex/image/.out/preview.log",
+      "bytes": 10181,
+      "sha256": "9b067efb3cc9971528ab62f27334dd74bf78c2b24a386f32b7048704f13983d2"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/lualatex/image/.out/preview.pdf",
+      "bytes": 9365,
+      "sha256": "8010d275f1f698a9d8922f1eebb3f686d8ccd36bfd4f5d3d1f880c3ce4676481"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/lualatex/image/texloom-build-manifest.json",
+      "bytes": 35994,
+      "sha256": "6d6ecfd00710a6214b505de49d82b0c334f770dbf2c50c490851602c0ad4b10f"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/lualatex/layout/.out/preview.log",
+      "bytes": 10183,
+      "sha256": "26dfa4291a30e70dee89b605880bfd6b04cd9dec2e4929be4b568caa1b56b917"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/lualatex/layout/.out/preview.pdf",
+      "bytes": 9369,
+      "sha256": "e52daca5e75e0581246de9ccc2a0a2e69f7753b4b70c5d1cd70ea6379f265d4f"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/lualatex/layout/texloom-build-manifest.json",
+      "bytes": 35998,
+      "sha256": "d12bd6278f00ee90896b564c79a90d2a842791c0e286c52ac85bc878fb011d30"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/lualatex/line-factor/.out/preview.log",
+      "bytes": 10190,
+      "sha256": "dc5878f925907719d0e75742a904e8d168556f0c6076a08548b397c6192ef188"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/lualatex/line-factor/.out/preview.pdf",
+      "bytes": 9369,
+      "sha256": "5a22091ec5a532c90a061742bb298df5ca95137f7cdee9fbe989ee6b78e52f20"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/lualatex/line-factor/texloom-build-manifest.json",
+      "bytes": 36018,
+      "sha256": "e6cb2fc17db77956f6be53f60a13a0e1830444e4e48163194b501487d024cfd4"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/lualatex/spacing/.out/preview.log",
+      "bytes": 10182,
+      "sha256": "6f80e28777af8a3831b2ad8df3e9a5ed3f7923209039a93d61b45e8176419a86"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/lualatex/spacing/.out/preview.pdf",
+      "bytes": 9367,
+      "sha256": "5d91fd026cebea29a1100eb668f3d43bc02f49675f5cb7038db7e0d024ecd8d2"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/lualatex/spacing/texloom-build-manifest.json",
+      "bytes": 36002,
+      "sha256": "72ff487cf87d3cee8263972187ddbf389fdb1fa3329ef04378be3cf4bbe45849"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/lualatex/style/.out/preview.log",
+      "bytes": 10175,
+      "sha256": "1fa506d1e59a50514d56119739972c6e1ca35a8f3e4c5148d3800e290f468cd0"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/lualatex/style/.out/preview.pdf",
+      "bytes": 9259,
+      "sha256": "25561fa6c6e436f98988c5630cf49efb71130ecaf16bc0e022e51655108ec3e3"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/lualatex/style/texloom-build-manifest.json",
+      "bytes": 36374,
+      "sha256": "2d55a7a4b7118bdf9d1dcea986e528e8aeba172105486bba12ae75619be1a381"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/lualatex/table/.out/preview.log",
+      "bytes": 10178,
+      "sha256": "37d2d73e3399ee525f0b8a6200f4d7f1bc4702c79dbd60c40d1164b726a0d53c"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/lualatex/table/.out/preview.pdf",
+      "bytes": 9368,
+      "sha256": "0f4fc44e906ffd119089b03931c107c3c8aed67546f550d4d61348edff964ef2"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/lualatex/table/texloom-build-manifest.json",
+      "bytes": 35994,
+      "sha256": "cd42bc5c905289c72597bec1148965f90f7b0841555134627bab3cc8ba962a80"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/lualatex/typography/.out/preview.log",
+      "bytes": 10188,
+      "sha256": "9ce55c6eb8b9f50bda56b966394cb9a88c872442ebad69a58c262f9c102e45bd"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/lualatex/typography/.out/preview.pdf",
+      "bytes": 9351,
+      "sha256": "b6fdd50a7cb19dca9b22d77e91f723747fd421304cfebd042ffd2447a28db833"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/lualatex/typography/texloom-build-manifest.json",
+      "bytes": 36014,
+      "sha256": "704cfbe9a69ddbaa3067aa22e4b94ffb7fee02328177a725424331e5e122635f"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/pdflatex/baseline/.out/preview.log",
+      "bytes": 7746,
+      "sha256": "0887a185c473fe01738faf75a2aef1a9f8297ca856f31c9b2a9fac9eb250de3d"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/pdflatex/baseline/.out/preview.pdf",
+      "bytes": 27213,
+      "sha256": "79f38584c263e6b5cdb6f399be5333a511d86ca3860305ee6a07408a0593472f"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/pdflatex/baseline/texloom-build-manifest.json",
+      "bytes": 11297,
+      "sha256": "8def99d4300954dca6bcad7f4a558afaf5a8b1c20c8ea3dd792723fbe864cbaf"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/pdflatex/float/.out/preview.log",
+      "bytes": 7737,
+      "sha256": "39c3e6d1ac17ed8a246c88f7681647573bf0e73d741ecd5879aa3a2579045d41"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/pdflatex/float/.out/preview.pdf",
+      "bytes": 27216,
+      "sha256": "672f2d1893333c4a7dd81a11b70e5b9a57a71322bcfd105279014fc6903c4ca7"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/pdflatex/float/texloom-build-manifest.json",
+      "bytes": 11285,
+      "sha256": "a09865afa8a8b61cda06baeccef49f1ab3513e0a1ba52d627af1ba26bda55d9c"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/pdflatex/image/.out/preview.log",
+      "bytes": 7740,
+      "sha256": "b4f7a92dc9074962b3ffc7a5375e0d62ec2989d9ca647c5b8eb3a3fcc15f2249"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/pdflatex/image/.out/preview.pdf",
+      "bytes": 27213,
+      "sha256": "c9b84e18ae0a4bfa30bdb5021f4804b09d6dd52cca5a928157bc2bb7e8dcf6c3"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/pdflatex/image/texloom-build-manifest.json",
+      "bytes": 11285,
+      "sha256": "5a794cecabf4a67bb39e35684970656df0e731f5cad3edcc4797816fbf2fa4ec"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/pdflatex/layout/.out/preview.log",
+      "bytes": 7743,
+      "sha256": "f5c2e5037c422c8283667a332a658cbc0bf10107753f82d810ee94642649d662"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/pdflatex/layout/.out/preview.pdf",
+      "bytes": 27212,
+      "sha256": "3c1314d3ae667bad3f48de660c6a217de7b60cc34809d4983ca46d852d270dfb"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/pdflatex/layout/texloom-build-manifest.json",
+      "bytes": 11289,
+      "sha256": "6082b7204722392d669f777eedddf474963e649b62f310d6df782f5c51f5ae3b"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/pdflatex/line-factor/.out/preview.log",
+      "bytes": 7755,
+      "sha256": "29ee11ee98666e81ee67b933f6212ffcc16c55d70ffcd415b9924f7b82870d3d"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/pdflatex/line-factor/.out/preview.pdf",
+      "bytes": 27210,
+      "sha256": "813cde485608fd62f40fdd8698d2a1970bd40996dd84e2728ff7c3e5953c22af"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/pdflatex/line-factor/texloom-build-manifest.json",
+      "bytes": 11309,
+      "sha256": "1d5f04c792e7cdec7bd9408fd7c227d00cb616cbc9c196de91caea8b1bc731f5"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/pdflatex/spacing/.out/preview.log",
+      "bytes": 7743,
+      "sha256": "79506f5bd871d272d507159116dfbb4540dc1af14c692200343109f50d883734"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/pdflatex/spacing/.out/preview.pdf",
+      "bytes": 27211,
+      "sha256": "c61143ebd076493831edc1dfcbf846b3406cad3ec927d571c51f416f75fde29e"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/pdflatex/spacing/texloom-build-manifest.json",
+      "bytes": 11293,
+      "sha256": "78860962fac2fbc0cdff3c995ffa622f623ddf32a59e721c3a93a54d91d2ed10"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/pdflatex/style/.out/preview.log",
+      "bytes": 7738,
+      "sha256": "253ebc57cd064431696870883e1eea73351d6dad7f7a1073e5d9f0a2dd5095bb"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/pdflatex/style/.out/preview.pdf",
+      "bytes": 27122,
+      "sha256": "11676142f6576afa98f072ca19858ef3e44ca780d8e6cc45d19aecd457870b76"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/pdflatex/style/texloom-build-manifest.json",
+      "bytes": 11647,
+      "sha256": "6a6434bd7e7be16746c3a6b71d4a2d45684866c7b61ba1fc9edc3ad554a0ba6f"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/pdflatex/table/.out/preview.log",
+      "bytes": 7737,
+      "sha256": "80d30ae324203e9fc1f63c23a497295548e3e91eda36962613ee805f3236ce45"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/pdflatex/table/.out/preview.pdf",
+      "bytes": 27214,
+      "sha256": "3442534656a6487f41eec8a086adaa7f01c5a00da75b92c931c66b2d6ecfde9a"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/pdflatex/table/texloom-build-manifest.json",
+      "bytes": 11285,
+      "sha256": "e3a072f654b27337defd2bc1657a2da577096fc32e0a4cf23738ca14970c8ba0"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/pdflatex/typography/.out/preview.log",
+      "bytes": 7996,
+      "sha256": "0ab751b58b9d41d0f83149209d95623cafbaefaa72aa8185e9eae25f06751202"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/pdflatex/typography/.out/preview.pdf",
+      "bytes": 27331,
+      "sha256": "d6b87bda82d754aefecdf335f48d05063038a309520b58d5c3ce6362610d7984"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/pdflatex/typography/texloom-build-manifest.json",
+      "bytes": 11305,
+      "sha256": "34e9e772b33cf9aed371b65fb4c0c2cc85f5961e6a415a68b25032926a1fd45c"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/report.json",
+      "bytes": 164962,
+      "sha256": "7616cf1eeded75d8208a7f253280f553bafa8fd999aae8b192fd30bfd1ed48a5"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/xelatex/baseline/.out/preview.log",
+      "bytes": 6460,
+      "sha256": "9cc8dd3d9e5c49485e0b6c483c6728215162c5beeef1907e1d957784e59929ef"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/xelatex/baseline/.out/preview.pdf",
+      "bytes": 7387,
+      "sha256": "d16793d535f633e2a2c1e874dc620358dcbb9bb07b130d8e882ac3e45d1af6c6"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/xelatex/baseline/texloom-build-manifest.json",
+      "bytes": 8768,
+      "sha256": "58db2cbf9e277ada8517c3f11b521fcc55de13026324cae9ecfb2c9eb60a1937"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/xelatex/float/.out/preview.log",
+      "bytes": 6451,
+      "sha256": "07839ddd1f585435479dc1a1851e26300e0d248380668c0a47aa7daaad0475c4"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/xelatex/float/.out/preview.pdf",
+      "bytes": 7393,
+      "sha256": "a8bdf6b395cb8ec3350b11990006db6be8e796a16b44a02c1e204988c60ed356"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/xelatex/float/texloom-build-manifest.json",
+      "bytes": 8756,
+      "sha256": "5b223d6b37eba9179fb013344039940282811bc1966ebf4ee53e9824829e722d"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/xelatex/image/.out/preview.log",
+      "bytes": 6451,
+      "sha256": "ae888eb7ee1ff80af672c691dee0026b026f26cdab328e4ed4ed5e322cf35706"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/xelatex/image/.out/preview.pdf",
+      "bytes": 7390,
+      "sha256": "6201e8a76b33b5862d83ec429234f9016164ccc34628efb3116bca2eafc4356f"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/xelatex/image/texloom-build-manifest.json",
+      "bytes": 8756,
+      "sha256": "3776bdde960729aa58c2d78f98bc0e5539bb6e8686a759ab27b66d915e29642c"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/xelatex/layout/.out/preview.log",
+      "bytes": 6457,
+      "sha256": "b0625daa899b65aaf0d3939945dfdc745607c11eb14268e4c26533a8c1603970"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/xelatex/layout/.out/preview.pdf",
+      "bytes": 7395,
+      "sha256": "1a842425945c772804515a0f9c892660e99571ed07d25ca69b6fc4851ef4f307"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/xelatex/layout/texloom-build-manifest.json",
+      "bytes": 8760,
+      "sha256": "4c0f46689b837208330694afe4e8de88499f8936199ef35c5466fd0ee53b6564"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/xelatex/line-factor/.out/preview.log",
+      "bytes": 6470,
+      "sha256": "b68ca1faca156d8f9778e5838222456aaa95c439bfe3671a10abbbb45a070bf1"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/xelatex/line-factor/.out/preview.pdf",
+      "bytes": 7392,
+      "sha256": "e2c1d7ae9630986429e9b897952d46e4345cb355806031e88b083da51fe7d22a"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/xelatex/line-factor/texloom-build-manifest.json",
+      "bytes": 8780,
+      "sha256": "ba77fd99f1e17cdeddc6a552086a6d2be1932594ee7fcf837a8473db7417f49d"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/xelatex/spacing/.out/preview.log",
+      "bytes": 6457,
+      "sha256": "3b7f8438afb2de07391fc6b4d92f8ef4a71f1eee3d09d2df375af366bf5143c5"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/xelatex/spacing/.out/preview.pdf",
+      "bytes": 7387,
+      "sha256": "92ff7946f8432cb70ef85f6ae26630c95cdd957f6d73c3232983edfe1d62ed9d"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/xelatex/spacing/texloom-build-manifest.json",
+      "bytes": 8764,
+      "sha256": "53e0b20b6d696a67cde2f77d27d36faeaf37abcc1c0fb096815f6d7b49fa1d0b"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/xelatex/style/.out/preview.log",
+      "bytes": 6451,
+      "sha256": "7c9f463ed878fc2ba6a5bd242deb8fd0a9233d00901f1b91844dc40ed4a4f3df"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/xelatex/style/.out/preview.pdf",
+      "bytes": 7313,
+      "sha256": "cdbc60dcb90db24c75bc62640cd48e2c5a3185626ac45d209bf6dce8d9682dbe"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/xelatex/style/texloom-build-manifest.json",
+      "bytes": 8756,
+      "sha256": "d931a07ae807bd862dd2a832fe58d11c18935f762ad95238289a3935bea0dace"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/xelatex/table/.out/preview.log",
+      "bytes": 6451,
+      "sha256": "18944b86856893f0ee00d8b67332298dca9a7e008952e4ca06a0092adaddc6dc"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/xelatex/table/.out/preview.pdf",
+      "bytes": 7388,
+      "sha256": "880d43172fbca0c1912be0594b2055dbff93688947a200b9fc2d2127c9fd35be"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/xelatex/table/texloom-build-manifest.json",
+      "bytes": 8756,
+      "sha256": "8978a7dcc714250bd7e35822625f6b375f98a544335f26f24ee2194c63b288ef"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/xelatex/typography/.out/preview.log",
+      "bytes": 6467,
+      "sha256": "84c9d6ff7057a7fb05c8bf14c39b7522879c184bb134f3a8819b4d4d72e35222"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/xelatex/typography/.out/preview.pdf",
+      "bytes": 7386,
+      "sha256": "3efc2faab5bfe60c201daa905e02ea977dc6705a0493e5401bce3451b0b91260"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current/xelatex/typography/texloom-build-manifest.json",
+      "bytes": 8776,
+      "sha256": "654ec2797579f29bb50daea3e196dfeb1e3205b96805cd1404e405a3b251e34e"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/adapters-current.log",
+      "bytes": 2863,
+      "sha256": "ea5f58820ec474ab18b9ea81022d2f4d6e2d31aa4af7ac340fb37c89a5b1a2ef"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/core-native-final.log",
+      "bytes": 15874,
+      "sha256": "1d1fb692d3acc7b65ef81db4b9aef92cad961ccde56cee1c0ca05991636c8c72"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/desktop-r7-build.log",
+      "bytes": 7486,
+      "sha256": "c5b061f85d350f35cc72617f01dce1c3d40ead6d3c18e810e9cdd6cf4c518547"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/frontend-current.log",
+      "bytes": 27246,
+      "sha256": "91d63017e1fa7584320181f6f2e6b0e05e061a035b7697ea9d0b30d5ff53b80a"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/frontend-recovery.log",
+      "bytes": 27964,
+      "sha256": "46dfe4563e24606376959ed1df18ff19ce32b3df44e4f525427867ae51321356"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional/pdflatex/baseline/.out/preview.log",
+      "bytes": 2761,
+      "sha256": "6c102ef37e7a6541caeb201cab875e4e365363c29325da3e348120ba8d969475"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional/pdflatex/baseline/texloom-build-manifest.json",
+      "bytes": 2216,
+      "sha256": "c49e988d38fd89073b25a372c90dbb516f0e970c4d82ff9dd1214880b4e58e81"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/lualatex/baseline/.out/preview.log",
+      "bytes": 5684,
+      "sha256": "33731f996385a9ccb4f83adc932da60bfe3144d5683e555966d57c3f4187715a"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/lualatex/baseline/.out/preview.pdf",
+      "bytes": 6114,
+      "sha256": "7e9366833c99aa6745881774d85f3a6ea8a63dceea6731c22e9b3fd349148d13"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/lualatex/baseline/texloom-build-manifest.json",
+      "bytes": 25977,
+      "sha256": "513dfc0119c32838ef59b15b3759c14fe82ca678b98afea499dc3e687a570529"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/lualatex/moved-0/.out/preview.log",
+      "bytes": 5682,
+      "sha256": "f9286da3daa2e16c727cf9dae373ac3973e5ca329f16c8992808f295f0b6d1fa"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/lualatex/moved-0/.out/preview.pdf",
+      "bytes": 6120,
+      "sha256": "870f5a63dece16722643996629f74693c65b0ea871aaa2a26c09937b725a0508"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/lualatex/moved-0/texloom-build-manifest.json",
+      "bytes": 25973,
+      "sha256": "90fa931fc6c7d22a438d7e7436683ad13a879e9f1d371de2207eeb6e4855c35c"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/lualatex/moved-1/.out/preview.log",
+      "bytes": 5682,
+      "sha256": "60b17f6447be07485161575e6d39677b67035c563df3004c543c88e0e6c5af98"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/lualatex/moved-1/.out/preview.pdf",
+      "bytes": 6121,
+      "sha256": "ce7127ab895b90ab3ab67cec7e82b2a3faf10fbc872026f029ad87672bdd65c3"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/lualatex/moved-1/texloom-build-manifest.json",
+      "bytes": 25973,
+      "sha256": "d42c6ef0ff1a8ffa64902586b25b5a0b25a4e334f5a2cc0705a31e4262e5f192"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/lualatex/moved-2/.out/preview.log",
+      "bytes": 5682,
+      "sha256": "0e817bcc383aa19e88fc486396e03445d0c8c02d597af250e5e51f013b3325fc"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/lualatex/moved-2/.out/preview.pdf",
+      "bytes": 6116,
+      "sha256": "ad1f0403a28d6c977b9d2cc83a9ec0caed3ca07483a9435c1eae17f7ea1889b4"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/lualatex/moved-2/texloom-build-manifest.json",
+      "bytes": 25973,
+      "sha256": "b36a337142e2b4c7c1838386c306aad959d6c6230094791c7d074bdcd98734ce"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/pdflatex/baseline/.out/preview.log",
+      "bytes": 3252,
+      "sha256": "0681b3e56bd3e1ff47fbb19578bfc509eb63fbe148deaf188893516b6178b399"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/pdflatex/baseline/.out/preview.pdf",
+      "bytes": 17151,
+      "sha256": "34dfeb4da807a3a225f7313d63ed2cf6c662ee5957fbe0d38871c8ab1ffa9bf9"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/pdflatex/baseline/texloom-build-manifest.json",
+      "bytes": 4867,
+      "sha256": "1516c283e8080e68dbf70068e90c687531c2b6e19f03cee8692e5cb0c4445ab3"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/pdflatex/moved-0/.out/preview.log",
+      "bytes": 3249,
+      "sha256": "e54d347d95730dbf5ef8a64d592a03940630b5b744679fa96cb6166d35edcdcc"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/pdflatex/moved-0/.out/preview.pdf",
+      "bytes": 17156,
+      "sha256": "96b38b95a6bbc03f365405e4513fe7c81c5132c0d73413330663dcf4b4eb6e28"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/pdflatex/moved-0/texloom-build-manifest.json",
+      "bytes": 4863,
+      "sha256": "74afa0bae8155dc1e2eea104bab6c75f6780a8d44e9d7516120cd8a66ca10955"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/pdflatex/moved-1/.out/preview.log",
+      "bytes": 3249,
+      "sha256": "750b9012f383178f5a06a5a376d080586733843052aadcb2da29fe2a89c2864e"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/pdflatex/moved-1/.out/preview.pdf",
+      "bytes": 17157,
+      "sha256": "8db12d63c3f1ca624fa7669f844bbc1e1ba1e71eb19141be95beb143063b1d4e"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/pdflatex/moved-1/texloom-build-manifest.json",
+      "bytes": 4863,
+      "sha256": "52e4897add5ab4ae4732687775089e5c8c6464fe3b82ec3c75159964a68be021"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/pdflatex/moved-2/.out/preview.log",
+      "bytes": 3249,
+      "sha256": "8b47ca052536235c847c333799327db44e79ce247aac169aa106d344bf30f018"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/pdflatex/moved-2/.out/preview.pdf",
+      "bytes": 17152,
+      "sha256": "5ae1decf30bd7b9717849c066e6f3918463cafd8880b8a2fd50835af0ceea470"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/pdflatex/moved-2/texloom-build-manifest.json",
+      "bytes": 4863,
+      "sha256": "fc717d0ff9150dcba7257589525ac77dad241288ed75a691eab89187e29804e7"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/report.json",
+      "bytes": 3613,
+      "sha256": "3f579b61e34057e1f1f6103379147e7c30c17940e45e4f766e9b311ea79afeaa"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/xelatex/baseline/.out/preview.log",
+      "bytes": 3073,
+      "sha256": "3299481b5c26cc6f36e9851d39fdd279409469f500df964a8f3057c3d04eb21c"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/xelatex/baseline/.out/preview.pdf",
+      "bytes": 5150,
+      "sha256": "f41c54b8c1c189077680cd7093b5eda073efc33cc57df20c2c8da7ee72171a62"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/xelatex/baseline/texloom-build-manifest.json",
+      "bytes": 4199,
+      "sha256": "9c89ee66a690597662b41d26693444416a0f45baf9e2c464f1ae8cb26027b018"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/xelatex/moved-0/.out/preview.log",
+      "bytes": 3070,
+      "sha256": "6f0fdfd4042fac9cd8b2d3b73f69c7118e49a920cf8daffed9fe2986b03f22f9"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/xelatex/moved-0/.out/preview.pdf",
+      "bytes": 5158,
+      "sha256": "9356286b9d04f4dbe016a48fabd173b2fdeb8b56c4f8a170dcd7677553ec81e5"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/xelatex/moved-0/texloom-build-manifest.json",
+      "bytes": 4195,
+      "sha256": "0381c794c48bde1031906f801cb79002545aefaf1099f1436d0a98257f84c1f5"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/xelatex/moved-1/.out/preview.log",
+      "bytes": 3070,
+      "sha256": "09ffe140d6862bbef2d597a8889d8225ed20a9cbe187d9c251bfbf822d1ff467"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/xelatex/moved-1/.out/preview.pdf",
+      "bytes": 5160,
+      "sha256": "24d6036e9aa61be15dfaad947475746555641544f78452aef717cb078572df9d"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/xelatex/moved-1/texloom-build-manifest.json",
+      "bytes": 4195,
+      "sha256": "fcb7806dbf4aad239e046a402d35507d05f291dee38778107c189885a1146955"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/xelatex/moved-2/.out/preview.log",
+      "bytes": 3070,
+      "sha256": "3844cb7e13fb86832cb9540ced79a2c4ea81dba50fc63c4fde840e8bdd31a9e6"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/xelatex/moved-2/.out/preview.pdf",
+      "bytes": 5157,
+      "sha256": "892e1127c0e41db6d0a49c8a2666bdffac5f1638ce22fffb55baf89d7757e817"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/latin-fractional-r2/xelatex/moved-2/texloom-build-manifest.json",
+      "bytes": 4195,
+      "sha256": "d0f5eae43bd93209736edc9572b238b1abe2bb5688a92e8612ec0bae9e530b9e"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/native-explicit.log",
+      "bytes": 3291,
+      "sha256": "3ecfd01000bb12d3c4400dcac455b3dc10932ae2994a1f5dafbe32887acc7786"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/native-recovery-style.log",
+      "bytes": 8615,
+      "sha256": "e88fb408523bdcbbf1c75bebbb80e71dbd535e30ac803a88d09e868002a43d21"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/package-r7/.texloom-package-20261106-132519-b5ecfa503bdd4146b17a59554b92fc87/Texloom-Desktop-Windows-x64/ARTIFACT-RECEIPT.json",
+      "bytes": 2842,
+      "sha256": "78383b8fcc09664dc9caab6b203f8a029a88490b27467d6c386d96ce7ae00fad"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/package-r7/.texloom-package-20261106-132519-b5ecfa503bdd4146b17a59554b92fc87/Texloom-Desktop-Windows-x64/BUILD-RECEIPT.json",
+      "bytes": 1045,
+      "sha256": "2b3ee3c5b85737bcad6e1f69b26781ed96504d42ab470396ea736fda53bc9186"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/package-r7/.texloom-package-20261106-132519-b5ecfa503bdd4146b17a59554b92fc87/Texloom-Desktop-Windows-x64/DEPENDENCIES.json",
+      "bytes": 54228,
+      "sha256": "8f405bea107b986d5485e7a57453dc7c44271a792ca66fd092dcedb6dac95c4b"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/package-r7/.texloom-package-20261106-132519-b5ecfa503bdd4146b17a59554b92fc87/Texloom-Desktop-Windows-x64/verification/verifier-manifest.json",
+      "bytes": 659,
+      "sha256": "15c2d207590686728c1c7d1ba7a4ab779fdf6d13d00c6111d07609d7cfeec56f"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/package-r7.log",
+      "bytes": 1103,
+      "sha256": "610b5c381832045c9f814c2d55e25c9ea8adaed6d47933a25850de0ec2deff5e"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/real-engine-rtl-and-latin-r2.log",
+      "bytes": 2546,
+      "sha256": "e5376174f29c9b29cc0d9eb99e7b7710a841ee8ddf0d7bc8ef797b1cd3b1c630"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/real-engine-rtl-and-latin.log",
+      "bytes": 3501,
+      "sha256": "a2f235edd27706f4d32f19170b16bab61efb3c0857f86de003b12f972708741a"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/recovery-first.log",
+      "bytes": 3348,
+      "sha256": "3f1ca7cd7b88ab293c10b08bb84f830c7ba75e4b83e77c76d7a7b31981ae9839"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/recovery-repeat.log",
+      "bytes": 2597,
+      "sha256": "c596c894b7c2aa7202daddb88c8e253b818a38b110be469c705c77ed8f7f33cd"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/required-core.log",
+      "bytes": 7903,
+      "sha256": "801ed0ad9f6868da9da1a38f57c53031156cdc8b5318e0f8fc3783d1a4d5fb2b"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-before/arabic/compile-0.log",
+      "bytes": 4688,
+      "sha256": "f55e43169d4e78cb09963d0b38b10e11bbb481480fa306b2521cf312ee75ff0b"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-before/arabic/compile-1.log",
+      "bytes": 4680,
+      "sha256": "feb2fb7a44c07763f4ae38f0e45bf74cfe33a2ceee245fd55d0c992f98059218"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-before/arabic/main.log",
+      "bytes": 20993,
+      "sha256": "ba5ee07c27e7a019e90b2f19449978b615d3124f1bac69478550bfb9d832e875"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-before/arabic/main.pdf",
+      "bytes": 43145,
+      "sha256": "e5ad6193d79b74b5fa93c0b90b49458a6ec00eca9cb79dd4341a210ea5f653a4"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-before/baseline/compile-0.log",
+      "bytes": 4666,
+      "sha256": "af73ea925d69b8e4da75421b1be20dbe510d7560d364de9f7a5c3058ea242af4"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-before/baseline/compile-1.log",
+      "bytes": 4658,
+      "sha256": "4d1bbc73aba82a1f26c4050d9cf67dfd5e911fe86129968156ca9b7c26305040"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-before/baseline/main.log",
+      "bytes": 20889,
+      "sha256": "4077ae2f813c1855c24e25030edeed27916101c3754e17c8c937a21bb9c5fd2d"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-before/baseline/main.pdf",
+      "bytes": 43101,
+      "sha256": "ec65d5f9d77d5d75fddadd14d4034e0fb1837f8a4cbbf977d6a5c208779e40b1"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-before/english/compile-0.log",
+      "bytes": 4688,
+      "sha256": "f55e43169d4e78cb09963d0b38b10e11bbb481480fa306b2521cf312ee75ff0b"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-before/english/compile-1.log",
+      "bytes": 4680,
+      "sha256": "feb2fb7a44c07763f4ae38f0e45bf74cfe33a2ceee245fd55d0c992f98059218"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-before/english/main.log",
+      "bytes": 20993,
+      "sha256": "ba5ee07c27e7a019e90b2f19449978b615d3124f1bac69478550bfb9d832e875"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-before/english/main.pdf",
+      "bytes": 43144,
+      "sha256": "df4a5f72361b3c175ee28d859a5d3bb8b1f2c5e00ebe004274bf8229f2503f95"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-before/hebrew/compile-0.log",
+      "bytes": 4688,
+      "sha256": "f55e43169d4e78cb09963d0b38b10e11bbb481480fa306b2521cf312ee75ff0b"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-before/hebrew/compile-1.log",
+      "bytes": 4680,
+      "sha256": "feb2fb7a44c07763f4ae38f0e45bf74cfe33a2ceee245fd55d0c992f98059218"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-before/hebrew/main.log",
+      "bytes": 20993,
+      "sha256": "ba5ee07c27e7a019e90b2f19449978b615d3124f1bac69478550bfb9d832e875"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-before/hebrew/main.pdf",
+      "bytes": 43150,
+      "sha256": "f2ca6ccc6d8b8bc9b0a130cbd85365ce2a1522eb3532306a7d1829abee46f73d"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-before/markers.json",
+      "bytes": 900,
+      "sha256": "41f830167e483bcc47ff88ba0e79c2cb076f1ea72e2049ab0dbcfa2abbdd60eb"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-directions/arabic/compile-0.log",
+      "bytes": 4688,
+      "sha256": "f55e43169d4e78cb09963d0b38b10e11bbb481480fa306b2521cf312ee75ff0b"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-directions/arabic/compile-1.log",
+      "bytes": 4680,
+      "sha256": "feb2fb7a44c07763f4ae38f0e45bf74cfe33a2ceee245fd55d0c992f98059218"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-directions/arabic/main.log",
+      "bytes": 20952,
+      "sha256": "8d01614d2120529afe26a201e7612365dc0ac4806002e521a3db4593b1fa39c0"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-directions/arabic/main.pdf",
+      "bytes": 43152,
+      "sha256": "2b8aa43da564ac979331378729fe5952449071dd1d8053b4cde2269aa81099f2"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-directions/english/compile-0.log",
+      "bytes": 4688,
+      "sha256": "f55e43169d4e78cb09963d0b38b10e11bbb481480fa306b2521cf312ee75ff0b"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-directions/english/compile-1.log",
+      "bytes": 4680,
+      "sha256": "feb2fb7a44c07763f4ae38f0e45bf74cfe33a2ceee245fd55d0c992f98059218"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-directions/english/main.log",
+      "bytes": 20952,
+      "sha256": "8d01614d2120529afe26a201e7612365dc0ac4806002e521a3db4593b1fa39c0"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-directions/english/main.pdf",
+      "bytes": 43138,
+      "sha256": "6e5c6918de78289dc8ec68e689260e0bf9947c4a2de9dd42d078480521359456"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-directions/full-proof.json",
+      "bytes": 229,
+      "sha256": "8282000cc3802a60efa8cc36c4a894cde96937832d886ae84b9d4499819adade"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-directions/hebrew/compile-0.log",
+      "bytes": 4688,
+      "sha256": "f55e43169d4e78cb09963d0b38b10e11bbb481480fa306b2521cf312ee75ff0b"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-directions/hebrew/compile-1.log",
+      "bytes": 4680,
+      "sha256": "feb2fb7a44c07763f4ae38f0e45bf74cfe33a2ceee245fd55d0c992f98059218"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-directions/hebrew/main.log",
+      "bytes": 20952,
+      "sha256": "8d01614d2120529afe26a201e7612365dc0ac4806002e521a3db4593b1fa39c0"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-directions/hebrew/main.pdf",
+      "bytes": 43152,
+      "sha256": "51d755d6f56b53e7910bbc7073104f0728da208e64784d96ee273b093b3633c9"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-leavevmode/arabic/compile-0.log",
+      "bytes": 4688,
+      "sha256": "f55e43169d4e78cb09963d0b38b10e11bbb481480fa306b2521cf312ee75ff0b"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-leavevmode/arabic/compile-1.log",
+      "bytes": 4680,
+      "sha256": "feb2fb7a44c07763f4ae38f0e45bf74cfe33a2ceee245fd55d0c992f98059218"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-leavevmode/arabic/main.log",
+      "bytes": 20952,
+      "sha256": "0645e55ee6e4ebae3295261e69a0c0c1517600d2b2d5bfaa6e9638f09810055f"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-leavevmode/arabic/main.pdf",
+      "bytes": 43149,
+      "sha256": "6e67dac4b29bf5d202e6d39024562efe6d3973e62d1a557293ca359fca650769"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-leavevmode/english/compile-0.log",
+      "bytes": 4688,
+      "sha256": "f55e43169d4e78cb09963d0b38b10e11bbb481480fa306b2521cf312ee75ff0b"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-leavevmode/english/compile-1.log",
+      "bytes": 4680,
+      "sha256": "feb2fb7a44c07763f4ae38f0e45bf74cfe33a2ceee245fd55d0c992f98059218"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-leavevmode/english/main.log",
+      "bytes": 20952,
+      "sha256": "0645e55ee6e4ebae3295261e69a0c0c1517600d2b2d5bfaa6e9638f09810055f"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-leavevmode/english/main.pdf",
+      "bytes": 43144,
+      "sha256": "aab1e089ca2bcf495f326ab72fe002675c40cd2efed1036a9c4b6893e2644c32"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-leavevmode/hebrew/compile-0.log",
+      "bytes": 4688,
+      "sha256": "f55e43169d4e78cb09963d0b38b10e11bbb481480fa306b2521cf312ee75ff0b"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-leavevmode/hebrew/compile-1.log",
+      "bytes": 4680,
+      "sha256": "feb2fb7a44c07763f4ae38f0e45bf74cfe33a2ceee245fd55d0c992f98059218"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-leavevmode/hebrew/main.log",
+      "bytes": 20952,
+      "sha256": "0645e55ee6e4ebae3295261e69a0c0c1517600d2b2d5bfaa6e9638f09810055f"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-leavevmode/hebrew/main.pdf",
+      "bytes": 43150,
+      "sha256": "5e0794c9c76caa91dbeeb14ecb49f29c6f328e60c0a8de6952a84608c86e68c3"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-leavevmode/markers.json",
+      "bytes": 332,
+      "sha256": "26a45f54c12e6f8f3b2fc8cf2f041d350841f5db9c8378bcc3dda39cc30ad8e1"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-native-r2/arabic/moved-0/.out/preview.log",
+      "bytes": 21347,
+      "sha256": "be2e48fde46e87568df39ac5dddbbeaf606cf117ba5a12530b333598c7e0994f"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-native-r2/arabic/moved-0/.out/preview.pdf",
+      "bytes": 43155,
+      "sha256": "56218bc799b57ebf18c5511eee52f3ecce7911dd44e4383aabbff0afb2f1adbc"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-native-r2/arabic/moved-0/texloom-build-manifest.json",
+      "bytes": 18029,
+      "sha256": "7bac5f7ba79ad49b7a78dc139d946b1c3c28d8388b3e8102cb246a5123dec85a"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-native-r2/arabic/moved-1/.out/preview.log",
+      "bytes": 21347,
+      "sha256": "b3c36a76c951ed3fcdd1dd4d8db6bd54fd0eb948bbfe5feea51f8cd110c63a31"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-native-r2/arabic/moved-1/.out/preview.pdf",
+      "bytes": 43157,
+      "sha256": "d391335ff680339f2eb0aaac0ce688feae21cba55acd51f9e626c5da7fcfeb29"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-native-r2/arabic/moved-1/texloom-build-manifest.json",
+      "bytes": 18029,
+      "sha256": "b30e3e1ccd6218f5b7fbcf8ae0fec1b1198c0ab206e1020209c105ea2e247e6d"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-native-r2/arabic/unmarked/.out/preview.log",
+      "bytes": 21246,
+      "sha256": "667dacf24041e40d3cc486a8b6484482fc2812a8afac70eabbef5efcbb5ad679"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-native-r2/arabic/unmarked/.out/preview.pdf",
+      "bytes": 43099,
+      "sha256": "f466e6a7c78af38406cfaad57a4cbf324ed997af45bc466704704f4c3d3462ed"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-native-r2/arabic/unmarked/texloom-build-manifest.json",
+      "bytes": 18006,
+      "sha256": "4881273e4b632718ea03a2b9d362707ae001e439f235cef1a56150c36f38dc02"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-native-r2/arabic/zero/.out/preview.log",
+      "bytes": 21338,
+      "sha256": "04b85c0fe9e6a5b4d71d3ec8b0016d9c9a838cf4c082b72c116de598eb6b03c7"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-native-r2/arabic/zero/.out/preview.pdf",
+      "bytes": 43149,
+      "sha256": "a9c901df3690f000c03c8afa96f5dd23753f0aa14a41da6f344f982bc65d3d98"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-native-r2/arabic/zero/texloom-build-manifest.json",
+      "bytes": 18017,
+      "sha256": "60a4f4943ac50c220a40d10c7ff00b351ae5ab3d406f54cb39afc2302d44e8f7"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-native-r2/hebrew/moved-0/.out/preview.log",
+      "bytes": 21347,
+      "sha256": "719f7992b5e03477ecb59aa1951c0786a63b3f0c7500bb8c559a300d4ca9a2fd"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-native-r2/hebrew/moved-0/.out/preview.pdf",
+      "bytes": 43154,
+      "sha256": "c45b9fa7f6a2800991f251342265ab830f06631fa24f4c6216ab4045ea549e68"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-native-r2/hebrew/moved-0/texloom-build-manifest.json",
+      "bytes": 18029,
+      "sha256": "a1d2e294a129ba0ae3af54d3b3ee756834f6a6c7a6da4e35ef090994cb74ccd8"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-native-r2/hebrew/moved-1/.out/preview.log",
+      "bytes": 21347,
+      "sha256": "f45028082fac22290b18d7913fb8e2b463bbd76720fab4244b9808a6d4991579"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-native-r2/hebrew/moved-1/.out/preview.pdf",
+      "bytes": 43159,
+      "sha256": "3a959592b2e13f958b4723eeac7091ebbc5b575be71e5b30ed1beece532fedb4"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-native-r2/hebrew/moved-1/texloom-build-manifest.json",
+      "bytes": 18029,
+      "sha256": "485ab58fb0cb41aeecb9303287483b56880efa31999e9ca0af3059a560ad93b9"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-native-r2/hebrew/unmarked/.out/preview.log",
+      "bytes": 21246,
+      "sha256": "3ee5c1eb501875913756556d95ba95e26d6d6352c37c230d4bbc8e8fb2d92f65"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-native-r2/hebrew/unmarked/.out/preview.pdf",
+      "bytes": 43102,
+      "sha256": "1b0ca5f29055e2c6b8a68d0c7a37f38fd5ae708d9718acf9ed7a306ea7dcfbcc"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-native-r2/hebrew/unmarked/texloom-build-manifest.json",
+      "bytes": 18006,
+      "sha256": "86b18b64ac0d49bf9e7278ce6a5d0409fae5213b97182036ce7e6b36d752920b"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-native-r2/hebrew/zero/.out/preview.log",
+      "bytes": 21338,
+      "sha256": "3aa19c3cbad588659480a673906bdb1d2596860fd314f9dbad08915d91f89cbb"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-native-r2/hebrew/zero/.out/preview.pdf",
+      "bytes": 43151,
+      "sha256": "57fba78dd847a7360a3d0d4363a689d6b3bf1929acd0bd2bb1f91abbe892cb25"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-native-r2/hebrew/zero/texloom-build-manifest.json",
+      "bytes": 18017,
+      "sha256": "9061f4fceea50fb4193edf32d99eaa4d0df4b7e1d398cd5f212e150a9932b7ab"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-native-r2/report.json",
+      "bytes": 888,
+      "sha256": "c2abb9e4ae37abacf11b2fd18b732b606b12fcd8f585bd03525a19cff0b96e07"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof/arabic/compile-1.log",
+      "bytes": 4725,
+      "sha256": "caee9d0790892756f80ea09c557b81473c6d4a6b24b52c116e74fb8ec6caf3f0"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof/arabic/compile-2.log",
+      "bytes": 4717,
+      "sha256": "d190af482faa5a692f45580c61d417b8b8d3d8bbcca058c0634f344b61880c3b"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof/arabic/main.log",
+      "bytes": 20952,
+      "sha256": "7c1aa0cca56eddc2e1c25cb381dc0cc1434f0713aeee90d2999e31c80e17d2a8"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof/arabic/main.pdf",
+      "bytes": 43152,
+      "sha256": "693661a904cd50115328c2e68671688a6b86548727e821fb83d00da5a51de808"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof/baseline/compile-1.log",
+      "bytes": 4703,
+      "sha256": "d7a5ddc3d0b3d6bb1e94becaf443510896284a1124d36991e1e4451c6dd0e82a"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof/baseline/compile-2.log",
+      "bytes": 4695,
+      "sha256": "876a6d31d24be2aec9eb417bc7a1cfba58979a4e8ddd8f552fd70bff351230be"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof/baseline/main.log",
+      "bytes": 20848,
+      "sha256": "cf4f328c4226456719febb8bc4439f3549e35ca372d921a99dce71d12cd42b0d"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof/baseline/main.pdf",
+      "bytes": 43101,
+      "sha256": "2101e26a9dbf90de60293fed815454d28d3fa4009bfe7c82226394444896f6cb"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof/hebrew/compile-1.log",
+      "bytes": 4725,
+      "sha256": "caee9d0790892756f80ea09c557b81473c6d4a6b24b52c116e74fb8ec6caf3f0"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof/hebrew/compile-2.log",
+      "bytes": 4717,
+      "sha256": "d190af482faa5a692f45580c61d417b8b8d3d8bbcca058c0634f344b61880c3b"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof/hebrew/main.log",
+      "bytes": 20952,
+      "sha256": "7c1aa0cca56eddc2e1c25cb381dc0cc1434f0713aeee90d2999e31c80e17d2a8"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof/hebrew/main.pdf",
+      "bytes": 43152,
+      "sha256": "5f6eb8892c31634b5c3a809a65f02459dc075371be3da5f7e404ed6e33dff934"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof/report.json",
+      "bytes": 819,
+      "sha256": "66ef8bdf0c3961d494f080d9e265be42d08162c542d5115ade326cd77e950a98"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r2/arabic/compile-1.log",
+      "bytes": 4725,
+      "sha256": "caee9d0790892756f80ea09c557b81473c6d4a6b24b52c116e74fb8ec6caf3f0"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r2/arabic/compile-2.log",
+      "bytes": 4717,
+      "sha256": "d190af482faa5a692f45580c61d417b8b8d3d8bbcca058c0634f344b61880c3b"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r2/arabic/main.log",
+      "bytes": 20952,
+      "sha256": "e39c07d60fe235da9a925bab216439a7814e9ff4abf7a6bfe5126a3d9e70303e"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r2/arabic/main.pdf",
+      "bytes": 43152,
+      "sha256": "5edb2824c3eeef6c0447bb17083f6218ce1e2e8bbc403699952226dfe64a9854"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r2/baseline/compile-1.log",
+      "bytes": 4703,
+      "sha256": "d7a5ddc3d0b3d6bb1e94becaf443510896284a1124d36991e1e4451c6dd0e82a"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r2/baseline/compile-2.log",
+      "bytes": 4695,
+      "sha256": "876a6d31d24be2aec9eb417bc7a1cfba58979a4e8ddd8f552fd70bff351230be"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r2/baseline/main.log",
+      "bytes": 20848,
+      "sha256": "f7514c0bfe99f959ffcd7054877e50f4e5004b3371e3a4cd691f363970c1d5cc"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r2/baseline/main.pdf",
+      "bytes": 43101,
+      "sha256": "849c704a3b29d6f6ae460f2de9d12da51b446b693fd36059ddef1eaf119d1e5e"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r2/english/compile-1.log",
+      "bytes": 4725,
+      "sha256": "caee9d0790892756f80ea09c557b81473c6d4a6b24b52c116e74fb8ec6caf3f0"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r2/english/compile-2.log",
+      "bytes": 4717,
+      "sha256": "d190af482faa5a692f45580c61d417b8b8d3d8bbcca058c0634f344b61880c3b"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r2/english/main.log",
+      "bytes": 20952,
+      "sha256": "e39c07d60fe235da9a925bab216439a7814e9ff4abf7a6bfe5126a3d9e70303e"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r2/english/main.pdf",
+      "bytes": 43144,
+      "sha256": "e8507b2c5b39ba90d602742506c0ea51369f992926fb0ec8383e24cf4879bbb3"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r2/hebrew/compile-1.log",
+      "bytes": 4725,
+      "sha256": "caee9d0790892756f80ea09c557b81473c6d4a6b24b52c116e74fb8ec6caf3f0"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r2/hebrew/compile-2.log",
+      "bytes": 4717,
+      "sha256": "d190af482faa5a692f45580c61d417b8b8d3d8bbcca058c0634f344b61880c3b"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r2/hebrew/main.log",
+      "bytes": 20952,
+      "sha256": "e39c07d60fe235da9a925bab216439a7814e9ff4abf7a6bfe5126a3d9e70303e"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r2/hebrew/main.pdf",
+      "bytes": 43152,
+      "sha256": "297b9b6b226f45b2ca0b4a637692e4e5af7a2b454378e997de2ce95442d03b3c"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r2/report.json",
+      "bytes": 628,
+      "sha256": "5218b3a88513b4c5221f8d0e26e93246e5ce6554deae6fe3e57970beabaaaa5a"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r2.log",
+      "bytes": 466,
+      "sha256": "23d8eecddf2de68154b515d82b700ec67d9f6782be1048f9848afd205d7a6602"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r3/arabic/compile-1.log",
+      "bytes": 4725,
+      "sha256": "caee9d0790892756f80ea09c557b81473c6d4a6b24b52c116e74fb8ec6caf3f0"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r3/arabic/compile-2.log",
+      "bytes": 4717,
+      "sha256": "d190af482faa5a692f45580c61d417b8b8d3d8bbcca058c0634f344b61880c3b"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r3/arabic/main.log",
+      "bytes": 20952,
+      "sha256": "5ca487a8c9a809a4be8b56a56c7a3caae521be361d871ffdda44afaa4e38940a"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r3/arabic/main.pdf",
+      "bytes": 43152,
+      "sha256": "2c1eca576babf9b4d69120a53202289d8b797ca4c31a23d8691a51f009c04bde"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r3/baseline/compile-1.log",
+      "bytes": 4703,
+      "sha256": "d7a5ddc3d0b3d6bb1e94becaf443510896284a1124d36991e1e4451c6dd0e82a"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r3/baseline/compile-2.log",
+      "bytes": 4695,
+      "sha256": "876a6d31d24be2aec9eb417bc7a1cfba58979a4e8ddd8f552fd70bff351230be"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r3/baseline/main.log",
+      "bytes": 20848,
+      "sha256": "8e787565a07d93ba94e4957c9e5f2a5e55dd133b20f894b13fc585dc2644f228"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r3/baseline/main.pdf",
+      "bytes": 43101,
+      "sha256": "20693a0182d2262d28b4620c92719ad5a132593f35fc8e009127ff42c1531c77"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r3/english/compile-1.log",
+      "bytes": 4725,
+      "sha256": "caee9d0790892756f80ea09c557b81473c6d4a6b24b52c116e74fb8ec6caf3f0"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r3/english/compile-2.log",
+      "bytes": 4717,
+      "sha256": "d190af482faa5a692f45580c61d417b8b8d3d8bbcca058c0634f344b61880c3b"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r3/english/main.log",
+      "bytes": 20952,
+      "sha256": "5ca487a8c9a809a4be8b56a56c7a3caae521be361d871ffdda44afaa4e38940a"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r3/english/main.pdf",
+      "bytes": 43144,
+      "sha256": "fc60f9caba72770f211c66f9f8f8065689cb8c01dead60a243d47d3270430eb9"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r3/hebrew/compile-1.log",
+      "bytes": 4725,
+      "sha256": "caee9d0790892756f80ea09c557b81473c6d4a6b24b52c116e74fb8ec6caf3f0"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r3/hebrew/compile-2.log",
+      "bytes": 4717,
+      "sha256": "d190af482faa5a692f45580c61d417b8b8d3d8bbcca058c0634f344b61880c3b"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r3/hebrew/main.log",
+      "bytes": 20952,
+      "sha256": "5ca487a8c9a809a4be8b56a56c7a3caae521be361d871ffdda44afaa4e38940a"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r3/hebrew/main.pdf",
+      "bytes": 43152,
+      "sha256": "8af276d0e55a99b91c3ae0d932a7c09c3b3c84603ff90ed0bcca16413bf96575"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r3/report.json",
+      "bytes": 754,
+      "sha256": "5a617cd2d514c8dda1b8f6842477c84b8607a4034c9e2f51912cb788b58e5501"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof-r3.log",
+      "bytes": 568,
+      "sha256": "183a6aa94035b2d551960bf4da51c1bf088d28b83223fa7ad6365c52ca38484e"
+    },
+    {
+      "path": "artifacts/owner-followup-20261106/rtl-production-proof.log",
+      "bytes": 669,
+      "sha256": "d51ed602aa47546c6b81b8804bf75ddf4ad797d8594b90af65c8635796f650a0"
+    }
+  ],
+  "build": {
+    "pairing_receipt": {
+      "path": "target/release/texloom-desktop.exe.texloom-build.json",
+      "bytes": 1045,
+      "sha256": "2b3ee3c5b85737bcad6e1f69b26781ed96504d42ab470396ea736fda53bc9186"
+    },
+    "ordinary_exe": {
+      "path": "target/release/texloom-desktop.exe",
+      "bytes": 16970240,
+      "sha256": "bcbc4104fbf4b0c7f1c054fd0bab9c801013f7e6b832b29c907a0d43ae9b2327"
+    },
+    "installer": {
+      "path": "target/release/bundle/nsis/Texloom_0.3.0_x64-setup.exe",
+      "bytes": 9473587,
+      "sha256": "c8ee0f2736e2415e84c158adbfdd4b708703f54570fac51b456ae1f8e919b115"
+    },
+    "portable": {
+      "path": "artifacts/owner-followup-20261106/package-r7/Texloom-Desktop-Windows-x64.zip",
+      "bytes": 12039206,
+      "sha256": "8785dcbae1c62aa426468668457b78954bc375666b2d326608c4657881a423b6"
+    },
+    "native_acceptance": "pending_owner",
+    "source_binding": "Recorded successful build resources and explicit source fingerprints; source_head is pre-change anchor, not a clean-tree attestation"
+  },
+  "proof_harness_revision": "r3 selects the intended line independently from baseline text, with NFKC used only for synthetic Arabic label lookup; six cross-language wrong-target controls refused. Prior r2 selected baseline hits from candidate marker geometry; retained as a weaker development check, not independent target-label evidence."
+}

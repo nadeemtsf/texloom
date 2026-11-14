@@ -55,10 +55,10 @@ try {
         Check-NativeExit 'Preparing the Windows MSVC Rust target'
     }
     Write-Host 'Running the dependency-free Rust document-model tests...'
-    & rustc.exe --edition=2021 --target x86_64-pc-windows-msvc --test 'crates\texloom-core\src\lib.rs' -o '.tools\core-tests.exe'
-    Check-NativeExit 'Compiling the Rust tests'
-    & '.\.tools\core-tests.exe'
+    & cargo.exe test --locked -p texloom-core
     Check-NativeExit 'Rust document-model tests'
+    & cargo.exe test --locked -p texloom-build
+    Check-NativeExit 'Build scheduling, snapshots and process-tree cleanup tests'
     if ($CoreOnly) { exit 0 }
 
     if (-not (Get-Command node.exe -ErrorAction SilentlyContinue)) {
@@ -74,6 +74,8 @@ try {
     Check-NativeExit 'Installing frontend dependencies'
     & npm.cmd test
     Check-NativeExit 'Frontend transaction and PDF geometry tests'
+    & cargo.exe test --locked -p texloom-desktop --features typegen --lib
+    Check-NativeExit 'Native document protocol tests'
     if ($Portable) {
         Write-Host 'Building the portable Windows desktop app...'
         & npm.cmd run desktop:build -- --target x86_64-pc-windows-msvc --no-bundle
@@ -85,8 +87,9 @@ try {
     if ($Portable) {
         $executable = Join-Path $PSScriptRoot 'target\x86_64-pc-windows-msvc\release\texloom-desktop.exe'
         if (-not (Test-Path -LiteralPath $executable)) { throw 'The build returned success but its executable was not found.' }
-        Write-Host "Portable executable: $executable"
-        Write-Host 'This executable needs WebView2 and a local LaTeX installation.'
+        $package = & (Join-Path $PSScriptRoot 'scripts/package-portable.ps1') -DesktopExecutable $executable -ExpectedDesktopSha256 (Get-FileHash -LiteralPath $executable -Algorithm SHA256).Hash
+        Write-Host ('Portable package: ' + $package.ArchivePath)
+        Write-Host 'Keep the verification folder beside the executable. This build needs WebView2 and a local LaTeX installation.'
         exit 0
     }
     Write-Host ''

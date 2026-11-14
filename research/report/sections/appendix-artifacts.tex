@@ -1,0 +1,117 @@
+\section{Evidence map and artifact identities}
+\label{app:artifacts}
+The 14 November headless source-draft cost receipt
+\path{docs/evidence/source-intent-cost-2026-11-14.json} binds the separate
+210-row initial and 315-row amended runs, pre-run source/binary identities,
+independently recomputed summaries and exact-source/Undo/protection checks.
+The first run's inputs were preserved before the amendment. These synthetic
+service observations and the benchmark-only reply variant are not a frozen
+performance study, production protocol change or app interaction result.
+
+The full identities are stored in accompanying JSON receipts and manifests.
+The 12 November source-intent diagnostic is bound to \code{897c121} and
+\path{docs/evidence/source-intent-reference-2026-11-12.json}; its initial and
+corrective raw receipts remain in distinct run folders. The r10 viewer is
+instead bound to \code{663b7e2} by
+\path{docs/evidence/pdf-navigation-r10-artifacts-2026-11-12.json}. Newer core
+draft/preamble APIs are not included in that earlier binary. Engineering checks
+are separately recorded in
+\path{docs/architecture/source-draft-validation-2026-11-12.json}.
+Later navigation is bound separately to r11 source \code{e215bb6} and r12
+source \code{c93799b}. The subsequent engineering checkpoint is \code{4cfe461}.
+The later owner/CI reconciliation is
+\path{docs/evidence/navigation-ci-status-2026-11-13.json}; it supersedes pending
+status prose without rewriting earlier receipts or executable bytes.
+The 13 November source-draft native-service diagnostic has its own
+\path{docs/evidence/source-intent-transport-2026-11-13.json} receipt and
+pre-run file fingerprints. It is not the source/reference render pilot and
+neither enters at natural PDF selection.
+The newer admitted-refusal protocol/run is separately recorded by
+\path{docs/evidence/source-intent-refusal-2026-11-14.json}. Its 129 assertions
+are not pooled with the earlier 75. Named transport commit \code{76b2228}
+has its own completed local/hosted CI receipt.
+Table~\ref{tab:artifact-map} maps the principal stages. These records are local
+development artifacts; no public release or submission is implied.
+
+\begin{table}[htbp]
+\small\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{.29\linewidth}Y@{}}
+\toprule
+Record & Purpose / authority\\
+\midrule
+\code{c26a238} & Inspected audit baseline and earlier observed three-workflow CI\\
+\code{5e59e77} & Historical r4 source and ordinary/diagnostic build evidence\\
+\code{c2ef008}, \code{391332d} & Later failure handling and interaction completion; resumed tests recorded separately\\
+\code{d267118}, \code{a120086} & Replacement verifier source and exact r5 artifact/validation checkpoint\\
+\code{cb3cd11} & Opt-in native candidate-boundary harness source\\
+\code{b5edb9d} & Corrected reference/health code, before its new run\\
+\path{research/evidence-catalog.json} & Receipt fingerprints; reading a receipt is not rerunning its experiment\\
+\path{research/evaluation/freeze.json} & Deliberately unset final-evaluation version/manifests\\
+\bottomrule
+\end{tabularx}
+\caption{Code/evidence identities serve different roles.}
+\label{tab:artifact-map}
+\end{table}
+
+The principal dated receipts under \path{docs/evidence/} are
+\path{setup-timing-local-2026-11-05.json},
+\path{native-reference-development-2026-11-05.json},
+\path{pdfium-attestation-verification-2026-11-05.json},
+\path{research-environment-2026-11-05.json}, and the separate report-draft
+receipts. Earlier installed/native/engine results retain their own versions.
+The inventory identifies both successful repeats and inconclusive/failed
+attempts rather than replacing their meaning with the current status.
+
+\subsection{Exact executable and verifier fingerprints}
+The following SHA-256 values distinguish the actual Windows artifacts. The
+debug native harness is not a tested installation of the ordinary GUI build.
+
+\textbf{Owner-accepted navigation r12 executable:}\\
+\code{941799c70c2fddd8450d94bdc57497e61073e0b618c9a92fe4789e1dc289963e}
+
+Later CI validation binaries are distinct from this owner-tested packet.
+
+\textbf{Ordinary r4 executable:}\\
+\code{a9e7dfd5e523e5025ccc6f98da7ece7ad16ae254b11a4ae8da7b7135a4dc4ee3}
+
+\textbf{Ordinary r4 NSIS setup:}\\
+\code{6073346d7c65e903a4ba8c5a89ac26ab4990f891340bfb802be4d1a6c8396112}
+
+\textbf{Diagnostic r4 executable:}\\
+\code{2e4173437be96914a92747d087ce448423e8a56f1a6b94adbaf714e7dfaecce7}
+
+\textbf{Native development harness, both attempts:}\\
+\code{fcb46dae8fcdbc86e415209cc9f9caf62892ff4315009658185468768422c2a3}
+
+\textbf{Pinned pypdfium2 Windows wheel:}\\
+\code{149fd5c6397b8df8bf7911a93506eff0be874f877afe7ac936cf5d37d21a6a06}
+
+\textbf{Packaged PDFium DLL:}\\
+\code{69f1e860f6742fbaafcc4db80e785eec9a4ee0da36ea6d1dc0867ea0f18baea6}
+
+\textbf{Packaged Rust inspection worker:}\\
+\code{4c989986a8e1b89cac4ba4bf25043b9719be45b5ebead393d1d81ba027613840}
+
+\subsection{Raw run locations and retention}
+Pilot A is under \path{artifacts/oracle-feasibility-20261104-first/}.
+The native-entry first attempt, corrected attempt and posthoc diagnosis are
+under \path{artifacts/native-reference-development-20261105-first/},
+\path{artifacts/native-reference-development-20261105-reference-v2/}, and
+\path{artifacts/native-reference-diagnosis-20261105/}. The first native
+protocol fingerprint is:
+
+\code{8cd000d559011a5e14e7accb5dc1ab67967763dd936cb648ea079b625d5d6a84}
+
+Archives retain synthetic input/source snapshots, PDFs, comparison images/XML,
+logs, outcomes and compiler build manifests. Complete local caches remain in
+the run directories. Portable evidence archives explicitly exclude executable/
+DLL binaries, standalone font files, live locks and recovery internals where
+those are not necessary to interpret the result. Their manifests enumerate
+what is actually included; the archive is not described as a full machine image.
+
+The partial environment and provenance checks are under
+\path{artifacts/research-environment-20261105/} and
+\path{artifacts/attestation-review-20261105/}. The latter keeps tool-install
+hashes/versions, public provenance, verification logs, negative-control
+metadata and a partial post-verification trust-cache snapshot. The copied
+changed wheel was never installed or loaded, and the original runtime pin
+remained unchanged.

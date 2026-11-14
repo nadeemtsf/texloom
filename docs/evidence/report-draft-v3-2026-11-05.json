@@ -1,0 +1,72 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-04T22:10:34.850781+00:00",
+  "kind": "technical_report_draft_v3_not_final_results",
+  "product_source_commit": "5e59e77282fd5e4b4f70440437b8f841ccea1364",
+  "pages": 8,
+  "bibliography_entries": 10,
+  "source_files": [
+    {
+      "path": "research/report/main.tex",
+      "bytes": 27945,
+      "sha256": "3320652009c9a0c33a153b3bbc27b244899236b0c8fab06015c327b8abf7d6f3"
+    },
+    {
+      "path": "research/report/references.bib",
+      "bytes": 3248,
+      "sha256": "4a04336a76df0986192d60bf60005ee712c029c3f19038ea0ccae77010c5e7ea"
+    }
+  ],
+  "pdf": {
+    "path": "outputs/Texloom-technical-report-draft-2026-11-05-v3.pdf",
+    "bytes": 397359,
+    "sha256": "3f3918c4bd82f4468c0154e30fa3266c7555c11ee445a702a2168141373c49b8"
+  },
+  "build_logs": [
+    {
+      "path": "artifacts/research-report/draft-v3-20261105/pass-1-console.log",
+      "bytes": 8693,
+      "sha256": "a7a0daa962aa265e6efda4158d4aa5921cee90906c002173d085ba154b6882ec"
+    },
+    {
+      "path": "artifacts/research-report/draft-v3-20261105/bibtex-console.log",
+      "bytes": 147,
+      "sha256": "56f840581b4d9d863cb4655ea912b0debe32d4637240918f0af0f53c6f84caa7"
+    },
+    {
+      "path": "artifacts/research-report/draft-v3-20261105/pass-2-console.log",
+      "bytes": 8951,
+      "sha256": "00eb6c793eaa5d2a02a9aa0220f67bda8aa9e036c4d87e1e8f49e3ba8e551eb4"
+    },
+    {
+      "path": "artifacts/research-report/draft-v3-20261105/pass-3-console.log",
+      "bytes": 8024,
+      "sha256": "32b88a8c912ff88a880480bdd81715fc6d650854464763f7d2b5f1083bee8791"
+    },
+    {
+      "path": "artifacts/research-report/draft-v3-20261105/main.log",
+      "bytes": 26055,
+      "sha256": "e5edd6530ff07b3a052b7527d040a07b01fb5a3391456dee578a07fefa7c0cb3"
+    }
+  ],
+  "visual_review": {
+    "contact_sheet_pages": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "full_size_changed_bodies": [
+      3,
+      6
+    ],
+    "observed_layout_defects": 0
+  },
+  "final_evaluation_executed": false,
+  "publication_or_submission": false,
+  "claims": "Implemented timing hooks and limited posthoc metadata only; native latency/overhead/final accuracy pending."
+}

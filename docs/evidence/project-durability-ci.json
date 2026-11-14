@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "source": "426d052e7001883ac4e1bfc3610aeed24579ce07",
+  "windows_workflow": 41532942547,
+  "windows_job": 125577512846,
+  "proof_workflow": 41532942542,
+  "build_corpus_workflow": 41532942522,
+  "status": "all three CI workflows passed",
+  "rust_passed": 156,
+  "frontend_passed": 77,
+  "coverage": [
+    "native source-plan/layout approval and pinned worker",
+    "three-engine mark identity: 24 positives and three overlap refusals",
+    "external-file conflicts, journal staging, rollback and recovery",
+    "project-copy and recovery UI controller boundaries",
+    "native revision guards, recovery reopen and draft deletion",
+    "Windows executable and portable package"
+  ],
+  "not_claimed": [
+    "Native Windows typing/IME/mouse/signature acceptance",
+    "Ordinary fractional-pixel displacement",
+    "Typing recovery independent of explicit Save",
+    "Performance/usability and clean-machine installer acceptance",
+    "P8/P9 completion or a public release"
+  ],
+  "total_passed": 233
+}

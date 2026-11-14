@@ -1,0 +1,204 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-03T17:24:05.041327+00:00",
+  "implementation_base": "e8482a633fcd850fc1ced2dc36fe5c9c17643338",
+  "checks": {
+    "protocol-core": {
+      "passed": 78,
+      "ignored_in_this_invocation": 0
+    },
+    "protocol-native": {
+      "passed": 42,
+      "ignored_in_this_invocation": 2
+    },
+    "protocol-headless-native": {
+      "passed": 2,
+      "ignored_in_this_invocation": 0
+    },
+    "frontend_and_filesystem_passed": 149,
+    "frontend_and_filesystem_skipped": 1,
+    "executed_total_passed": 271,
+    "compile_time_negative_contracts": 6,
+    "frontend_build": "passed",
+    "verifier_build": "passed",
+    "windows_x64_release_build": "passed",
+    "portable_zip_crc_entries_and_receipts": "passed"
+  },
+  "tested_working_source_sha256": {
+    "frontend/protocol/document-client.ts": "5281b5bc7b2b74df11430afaa85e41577e068a87623ea73f97d4bebdbdfb8e6f",
+    "frontend/protocol/document-protocol.ts": "eac1d686693ad8a4e7f10e614ad920d6b475bc1a768abc44897ce52ef6fef9d0",
+    "scripts/check-protocol.mjs": "08f96f24810665452bd97766829cd5bb2bab7dd18bcaac6f919b2fae9aa56e55",
+    "src-tauri/Cargo.toml": "bbc0304b7218bbbcb58f3940dd646189184ee9c411ebd3ac77f77d7abe57fa7e",
+    "src-tauri/examples/document_bindings.rs": "689d2c57105ba3b00b10d7277115ed79ea1fd073b4766c75e8a98c9c0bef7f53",
+    "src-tauri/src/document_protocol.rs": "8bc25eaad97529604e9fbddc40802f95960ef390853ff137f636883d0252ef28",
+    "src-tauri/src/document_protocol/bindings.rs": "ce11ebd3c4f7f1708b24d577603176489620514ba3655c88a6885b5e1cdd3565",
+    "src-tauri/src/lib.rs": "bac0e8bd2bc8c53cc44ac8e04502f849c6e96a03c5f110ac46665260b8288dc8",
+    "src-tauri/src/service.rs": "099e73a81d3bebcac9a64f3d7c146cb85967a556e7b1867f6f31f9cfb4ef046a",
+    "src-tauri/src/service/document.rs": "20e51df5652d403011dbd9651b0a60c0557f301318c38096c6bbba708fb98f50",
+    "src-tauri/src/service/document/typing_recovery.rs": "a553a6fad40411f8e52fbccd3f4700578d7b945a282150071a4223b986b49cac",
+    "tests/app-startup.test.mjs": "c4337b66ae9a3cfbc8827d04a331c1e4fc3d2796a1d875a31beec91232a51104",
+    "tests/document-client.test.mjs": "2e0a96f92b688906729505fbbd39a3611edcaf467ebbed0883a4e9c352b7d643",
+    "tests/document-protocol.test.mjs": "413a2bdd3b5149c6832a0de311da55b020d2739b08e634bbcf4dcd6dec20d7b8",
+    "tests/fixtures/document-ipc.json": "efb48b73f85cb8c8646d1e906d7d3649b6a8da9eec6850de613ef39ba4a74b0f",
+    "tests/native-document-double.cjs": "486bbd0618d50e735c592f945f22fd8532a6716314ea599613fc0c150fe4783f",
+    "tests/protocol-build.test.mjs": "a8fedbb755de3a92ebbf22507b49cd857aae637bfad49c71859378ee42ca1177",
+    "tests/types/document-protocol.test.ts": "b0f7f15392094d08b953225b2759dcf3379d59fa7bb7a0213f8e9b9db244bfc2",
+    "web/app.js": "0e8702c49bb4fe8200ae3e2b48341ea0c409cdb464de8ff36399e05ef984ecde",
+    "web/core/document-client.js": "15e57b97cb0d5e3e2a59c56789570dedcac79bcdaa1cfdaaca9066cd6cd405b9",
+    "web/core/document-protocol.js": "a91797525e00488287b7c44814919dbdf4a841c822594eb4bae1413853638143",
+    "web/generated/document-ipc.d.ts": "fb308a4a0677aede945022546565901b3cee73cc2d8b7b7b48c1c1957f3b135e"
+  },
+  "config_and_lock_sha256": {
+    "package.json": "1933d7e8f5c5aa25377c8533c0c23c1df1d33ab588bc4fb8cd6f0f35096f3f78",
+    "package-lock.json": "9a4ffd381fbf0be88e71625c0938bb86e959c8b67e55420a1cd61e39b376368a",
+    "Cargo.lock": "9e605988997d1a4731a956b40eade117c73428e133bfa1bd46788589c5e52617",
+    "src-tauri/Cargo.toml": "bbc0304b7218bbbcb58f3940dd646189184ee9c411ebd3ac77f77d7abe57fa7e",
+    "tsconfig.protocol.json": "43541b6debd8e75135ca82337bd6c3e931230d04bb32af29ad9e21ba956a1588",
+    ".github/workflows/ci.yml": "16458f718e6447ae5c4f86b09997ae5932d87dd29fc7f8828b2175601cf95897",
+    "Build-Desktop.ps1": "130bd1a6b71d3fd97a5dd6ddbcf3adfdc54971c5573b511b05c6c0d932528d98"
+  },
+  "log_sha256": {
+    "protocol-typescript-install.log": "13fb20b49fa8b0b16071dfbb4a185fed528f52936332843a94773f76f7fdb516",
+    "protocol-typescript.log": "92b4d41c3ef6649465bd953164462b801e8c229a5ec42a0fec4aa79591f2b713",
+    "protocol-frontend-first.log": "d964be68685a6d713d9ac59966e3e7466b4c3e3c356bfab6f0b405695a208bf5",
+    "protocol-frontend-second.log": "d9aa3b1f39e987a1c7305ee19cfd9f06d231885b4727c9113121cba5febc5fee",
+    "protocol-frontend-final.log": "be0b526557360165f77ef3adcb5e6c40f2e8e8fc5cd9df9ec6b25166751da9db",
+    "protocol-native.log": "c3d583e740d44f47de8af27925fa9fd09a88f609266647ff1c3609c88f01112f",
+    "protocol-core.log": "f80b104fdd02e6201f4134596cd3ab3a2556b2ceed4bb3719994018f2b94f4a6",
+    "protocol-frontend-build.log": "89c0220d7d225d9c3432cbb00ae7c4f817a3a99fe827b11ca2cae4005d45b2ba",
+    "protocol-verifier.log": "86a1edae03ba738c288adee245d4bf3e47b2da7c82ae1949115c04aa7819c433",
+    "protocol-headless-native.log": "f98b1e65f3dde612e471e0de632da7620c13a0d7f95d2f568215c7902c37b9fe",
+    "protocol-bindings-check.log": "e7106a7a9b5f41fd07d3f8bd0c3c41d876144f30605226f49291b2930f7ef057",
+    "protocol-release.log": "4e44dd83b69f8530f02f97681f9cc796aadea9f52cbeea6397a9744f987c72cd",
+    "protocol-predecessor-ci-excerpt.log": "c4c343e8161a5be4d911dfb2c997138eef0b87be0791cff49d9c164f099f6b97"
+  },
+  "executable_sha256": "0ec4f975718584a7d2123f5b2188120b1520e6976bb4ae9ef5421711bdc62f10",
+  "verifier_manifest": {
+    "schema": 2,
+    "protocol": 2,
+    "purpose": "Development verification dependency; release review pending",
+    "platform": "windows-x86_64",
+    "pdfium": "126.0.6462.0",
+    "binding_source": "pypdfium2-4.30.0",
+    "wheel_sha256": "90dbb2ac07be53219f56be09961eb95cf2473f834d01a42d901d13ccfad64b4c",
+    "dll_sha256": "b2c15cd4537d8efaf23b85b3353abe7a0b863e9c52b2f017dd87bb86a55f9c72",
+    "worker_sha256": "fa6c30fffb4826aff0f00ef8e448998d201e74b9b0fe9ba5d70b673586c24979",
+    "notice_sha256": "c2fdbc1aeb250d596d1ef3d9817c9bf31df712b197583c0811677ee5d9206eeb"
+  },
+  "package": {
+    "path": "artifacts/Texloom-Desktop-Windows-x64-20261103-172214-1da6f8f6efc743e6991952ba0a5b3b26.zip",
+    "sha256": "34ab094a852e2972d51ca331c3a55902a5daa393c5df2f046c79dec88d94449e",
+    "bytes": 10222713,
+    "receipt": {
+      "schema": 2,
+      "purpose": "Development checkpoint; native interaction and release gates remain open",
+      "desktop_sha256": "0ec4f975718584a7d2123f5b2188120b1520e6976bb4ae9ef5421711bdc62f10",
+      "worker_sha256": "fa6c30fffb4826aff0f00ef8e448998d201e74b9b0fe9ba5d70b673586c24979",
+      "dll_sha256": "b2c15cd4537d8efaf23b85b3353abe7a0b863e9c52b2f017dd87bb86a55f9c72",
+      "receipt_excludes_itself": true,
+      "files": [
+        {
+          "path": "Example/main.tex",
+          "bytes": 498,
+          "sha256": "9ef6d2796d07417ba493e0411a00e0d72dcf95c3c18ad73c3bf52db5069857e9"
+        },
+        {
+          "path": "Example/studio.sty",
+          "bytes": 1090,
+          "sha256": "586cb8087f2436ebdbcca46d466217beb19a53d4373f4f9e1baadd33541fa34d"
+        },
+        {
+          "path": "Example/texloom-objects.sty",
+          "bytes": 1181,
+          "sha256": "9ee79b44802c003a73b99780407650accbe911663026e669e56d9da9fa1feafe"
+        },
+        {
+          "path": "LICENSE",
+          "bytes": 1077,
+          "sha256": "a194669165b4f0abf3024117262da01d57f8b806e963ac47e429d44764418704"
+        },
+        {
+          "path": "README.md",
+          "bytes": 12041,
+          "sha256": "fd5e8a3a2c284aee0317e356e7cf7de59e926bad742b556c6fc8a1bd67cc7182"
+        },
+        {
+          "path": "Texloom.exe",
+          "bytes": 15425536,
+          "sha256": "0ec4f975718584a7d2123f5b2188120b1520e6976bb4ae9ef5421711bdc62f10"
+        },
+        {
+          "path": "THIRD-PARTY-NOTICES.txt",
+          "bytes": 2492844,
+          "sha256": "aae3ff5a36c95bd84a38f3eb38b00d84edfae28bba181d4601c241dc7b021fe4"
+        },
+        {
+          "path": "VALIDATION.md",
+          "bytes": 23381,
+          "sha256": "08ee5c0dfd6a07ade58b687b0242fa2830631e04ce06ad8087e9520487f57186"
+        },
+        {
+          "path": "verification/pdfium_worker.exe",
+          "bytes": 401920,
+          "sha256": "fa6c30fffb4826aff0f00ef8e448998d201e74b9b0fe9ba5d70b673586c24979"
+        },
+        {
+          "path": "verification/PDFIUM-NOTICE.txt",
+          "bytes": 43950,
+          "sha256": "c2fdbc1aeb250d596d1ef3d9817c9bf31df712b197583c0811677ee5d9206eeb"
+        },
+        {
+          "path": "verification/pdfium.dll",
+          "bytes": 5446656,
+          "sha256": "b2c15cd4537d8efaf23b85b3353abe7a0b863e9c52b2f017dd87bb86a55f9c72"
+        },
+        {
+          "path": "verification/verifier-manifest.json",
+          "bytes": 555,
+          "sha256": "27dd6fde86404466ef4151249dc954cd3fd1afecef9a68177cc293b493ee9e63"
+        }
+      ]
+    }
+  },
+  "dependency_additions": {
+    "typescript": "5.9.3, locked npm integrity verified by npm; development only",
+    "ts-rs": "11.1.0, optional typegen feature",
+    "ts-rs-macros": "11.1.0",
+    "termcolor": "1.4.1",
+    "unrelated_lock_upgrades": false
+  },
+  "predecessor_ci": {
+    "source_plans": {
+      "commit": "ffab26183eaa4b5565caaf1ab843986bd299fb89",
+      "windows_success": 41674162228,
+      "proof_success": 41674162254,
+      "compile_corpus_success": 41674162284
+    },
+    "portable": {
+      "commit": "e8482a633fcd850fc1ced2dc36fe5c9c17643338",
+      "windows_success": 41677327977,
+      "proof_success": 41677327982,
+      "job": 126061356380,
+      "frontend_passed": 124,
+      "skipped": 0,
+      "junction_refusal": "passed on CI; still skipped locally",
+      "log_excerpt": [
+        "2026-11-03T16:46:53.4091350Z \u2714 portable packaging refuses staging junctions without reading or changing their targets (688.7868ms)",
+        "2026-11-03T16:46:54.2308663Z \u2139 tests 124",
+        "2026-11-03T16:46:54.2345229Z \u2139 pass 124",
+        "2026-11-03T16:46:54.2408712Z \u2139 skipped 0"
+      ]
+    }
+  },
+  "limits": [
+    "Only the ordered document client/reply validator is migrated to strict TypeScript; other frontend and compiler/project/inventory/mapping/visual IPC migration remains open",
+    "Rust request records are constructed inside the existing flat Tauri handlers; their Serde unknown-field attribute does not change Tauri top-level extra-argument behavior",
+    "Protocol failures preserve the last acknowledged replica and halt dependent changes; this does not claim to roll back an already accepted native commit after transport/protocol loss",
+    "Malformed mock replies were updated to current Rust shapes; runtime guards were retained and negative coverage added",
+    "One filesystem junction fixture is locally skipped due to denied creation; predecessor CI independently passed the unchanged helper/case",
+    "The unchanged 71 build-infrastructure and five explicit worker checks were not rerun or counted again locally",
+    "No native GUI/typing/IME/mouse/crash/signature or installed-artifact acceptance; the two explicit native checks are headless",
+    "New executable/package were built and checked but not launched; no installer/signing/Store/security/license approval or phase/release completion",
+    "Native cursor journal flushes, transport, editor paint and full input latency were not measured; ordinary-PDF expansion remains excluded"
+  ]
+}

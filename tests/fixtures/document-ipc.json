@@ -1,0 +1,686 @@
+{
+  "adapter_controls": [
+    {
+      "id": 0,
+      "kind": "image",
+      "label": "Image: image.png",
+      "line": 1,
+      "parameters": [
+        {
+          "key": "width",
+          "label": "Width",
+          "reason": null,
+          "value": "2cm"
+        },
+        {
+          "key": "height",
+          "label": "Height",
+          "reason": null,
+          "value": ""
+        },
+        {
+          "key": "scale",
+          "label": "Scale",
+          "reason": null,
+          "value": ""
+        },
+        {
+          "key": "keepaspectratio",
+          "label": "Keep proportions",
+          "reason": null,
+          "value": "false"
+        }
+      ],
+      "reason": null
+    },
+    {
+      "id": 1,
+      "kind": "spacing",
+      "label": "vspace",
+      "line": 2,
+      "parameters": [
+        {
+          "key": "length",
+          "label": "Length",
+          "reason": null,
+          "value": "2mm"
+        }
+      ],
+      "reason": null
+    }
+  ],
+  "close_reply": {
+    "warning": null
+  },
+  "compile_failure": {
+    "blocks": [],
+    "build_id": "dddddddddddddddddddddddddddddddd",
+    "diagnostics": [
+      {
+        "code": "compiler_preflight_failed",
+        "file": null,
+        "line": null,
+        "message": "Compiler unavailable",
+        "severity": "error"
+      }
+    ],
+    "engine": "pdflatex",
+    "job_id": 43,
+    "log": "Compiler initialization failed",
+    "objects": [],
+    "ok": false,
+    "passes": 0,
+    "pdf": [],
+    "revision": 7,
+    "seconds": 0.1,
+    "verification_eligible": false
+  },
+  "compile_request": {
+    "projectId": "project",
+    "purpose": "export",
+    "requestId": 1,
+    "revision": 7,
+    "token": null
+  },
+  "compile_success": {
+    "blocks": [
+      {
+        "content": "A",
+        "end": 1,
+        "file": "main.tex",
+        "height": 15.0,
+        "id": "legacy",
+        "line": 1,
+        "page": 1,
+        "size": 12.0,
+        "start": 0,
+        "width": 100.0,
+        "x": 12.0,
+        "y": 24.0
+      }
+    ],
+    "build_id": "cccccccccccccccccccccccccccccccc",
+    "diagnostics": [],
+    "engine": "pdflatex",
+    "job_id": 42,
+    "log": "Fixture only; not a renderable PDF",
+    "objects": [
+      {
+        "content": "A",
+        "dx": 0.0,
+        "dy": 12.0,
+        "end": 1,
+        "file": "main.tex",
+        "id": "signature",
+        "line": 1,
+        "plain_text": "A",
+        "start": 0
+      }
+    ],
+    "ok": true,
+    "passes": 2,
+    "pdf": [
+      37,
+      80,
+      68,
+      70,
+      45,
+      49,
+      46,
+      55,
+      10
+    ],
+    "revision": 7,
+    "seconds": 0.25,
+    "verification_eligible": true
+  },
+  "edit_request": {
+    "changes": [
+      {
+        "length": 1,
+        "offset": 0,
+        "text": "B"
+      }
+    ],
+    "file": "main.tex",
+    "group": 1,
+    "projectId": "project",
+    "revision": 7
+  },
+  "encoding_review": {
+    "files": [
+      {
+        "bytes": 42,
+        "detected": "utf-16le",
+        "file": "main.tex",
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      }
+    ],
+    "fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "root": "C:/Fixture"
+  },
+  "imported_image": {
+    "asset": "images/image-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.png",
+    "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+  },
+  "imported_project": {
+    "path": "C:/Fixture"
+  },
+  "inventory": {
+    "drafts": [
+      {
+        "files": 2,
+        "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "main": "main.tex",
+        "project": "C:/Fixture",
+        "revision": 7,
+        "source_bytes": 32,
+        "warning": null
+      }
+    ],
+    "errors": []
+  },
+  "pending_saves": [
+    {
+      "files": [
+        "main.tex"
+      ],
+      "id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "state": "committing"
+    }
+  ],
+  "prepared_reply": {
+    "revision": 9,
+    "token": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  "project": {
+    "draft_warning": null,
+    "id": "project",
+    "main": "main.tex",
+    "name": "Fixture",
+    "recoveries": [],
+    "recovery_error": null,
+    "restored": false,
+    "source_only": false,
+    "sources": {
+      "main.tex": "﻿A\r\n😀\r\n"
+    }
+  },
+  "recent_projects": [
+    {
+      "engine": "pdflatex",
+      "main": "main.tex",
+      "name": "Fixture",
+      "opened": 1793720000,
+      "path": "C:/Fixture"
+    }
+  ],
+  "recovery_reply": {
+    "recovery": {
+      "draft_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "error": null,
+      "protected_revision": 8
+    },
+    "revision": 8
+  },
+  "resolved_selection": {
+    "build_id": "cccccccccccccccccccccccccccccccc",
+    "content": "A",
+    "end": 1,
+    "expected_source": "﻿A\r\n😀\r\n",
+    "file": "main.tex",
+    "first_line": 1,
+    "kind": "line",
+    "last_line": 1,
+    "plain_text": "A",
+    "rectangles": [],
+    "revision": 7,
+    "schema": 1,
+    "start": 0,
+    "unit_id": "fixture:main.tex:3:4"
+  },
+  "selection_reply": {
+    "recovery": {
+      "draft_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "error": null,
+      "protected_revision": 8
+    },
+    "revision": 8,
+    "selection": {
+      "anchor": 0,
+      "file": "main.tex",
+      "head": 1,
+      "secondary": [
+        {
+          "anchor": 4,
+          "head": 4
+        }
+      ]
+    }
+  },
+  "snapshot": {
+    "can_redo": false,
+    "can_undo": true,
+    "engine": "auto",
+    "main": "main.tex",
+    "recovery": {
+      "draft_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "error": null,
+      "protected_revision": 7
+    },
+    "revision": 7,
+    "selection": {
+      "anchor": 0,
+      "file": "main.tex",
+      "head": 1,
+      "secondary": [
+        {
+          "anchor": 4,
+          "head": 4
+        }
+      ]
+    },
+    "sources": {
+      "main.tex": "﻿A\r\n😀\r\n",
+      "style.sty": "% keep\r\n"
+    }
+  },
+  "source_delta": {
+    "base_revision": 7,
+    "can_redo": false,
+    "can_undo": true,
+    "engine": "auto",
+    "kind": "source_delta",
+    "main": "main.tex",
+    "recovery": {
+      "draft_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "error": null,
+      "protected_revision": 8
+    },
+    "revision": 8,
+    "selection": {
+      "anchor": 0,
+      "file": "main.tex",
+      "head": 1,
+      "secondary": [
+        {
+          "anchor": 4,
+          "head": 4
+        }
+      ]
+    },
+    "sources": {
+      "main.tex": "﻿B\r\n😀\r\n"
+    }
+  },
+  "source_draft_refusals": [
+    {
+      "operation_id": "dddddddddddddddddddddddddddddddd",
+      "outcome": {
+        "observed_revision": 7,
+        "reason": "revision_changed",
+        "requested_revision": 6,
+        "status": "source_draft_refused"
+      },
+      "snapshot": {
+        "can_redo": false,
+        "can_undo": true,
+        "engine": "auto",
+        "main": "main.tex",
+        "recovery": {
+          "draft_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "error": null,
+          "protected_revision": 7
+        },
+        "revision": 7,
+        "selection": {
+          "anchor": 0,
+          "file": "main.tex",
+          "head": 1,
+          "secondary": [
+            {
+              "anchor": 4,
+              "head": 4
+            }
+          ]
+        },
+        "sources": {
+          "main.tex": "﻿A\r\n😀\r\n",
+          "style.sty": "% keep\r\n"
+        }
+      }
+    },
+    {
+      "operation_id": "dddddddddddddddddddddddddddddddd",
+      "outcome": {
+        "observed_revision": 7,
+        "reason": "target_unavailable",
+        "requested_revision": 7,
+        "status": "source_draft_refused"
+      },
+      "snapshot": {
+        "can_redo": false,
+        "can_undo": true,
+        "engine": "auto",
+        "main": "main.tex",
+        "recovery": {
+          "draft_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "error": null,
+          "protected_revision": 7
+        },
+        "revision": 7,
+        "selection": {
+          "anchor": 0,
+          "file": "main.tex",
+          "head": 1,
+          "secondary": [
+            {
+              "anchor": 4,
+              "head": 4
+            }
+          ]
+        },
+        "sources": {
+          "main.tex": "﻿A\r\n😀\r\n",
+          "style.sty": "% keep\r\n"
+        }
+      }
+    },
+    {
+      "operation_id": "dddddddddddddddddddddddddddddddd",
+      "outcome": {
+        "observed_revision": 7,
+        "reason": "unsupported_target",
+        "requested_revision": 7,
+        "status": "source_draft_refused"
+      },
+      "snapshot": {
+        "can_redo": false,
+        "can_undo": true,
+        "engine": "auto",
+        "main": "main.tex",
+        "recovery": {
+          "draft_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "error": null,
+          "protected_revision": 7
+        },
+        "revision": 7,
+        "selection": {
+          "anchor": 0,
+          "file": "main.tex",
+          "head": 1,
+          "secondary": [
+            {
+              "anchor": 4,
+              "head": 4
+            }
+          ]
+        },
+        "sources": {
+          "main.tex": "﻿A\r\n😀\r\n",
+          "style.sty": "% keep\r\n"
+        }
+      }
+    },
+    {
+      "operation_id": "dddddddddddddddddddddddddddddddd",
+      "outcome": {
+        "observed_revision": 7,
+        "reason": "empty_literal",
+        "requested_revision": 7,
+        "status": "source_draft_refused"
+      },
+      "snapshot": {
+        "can_redo": false,
+        "can_undo": true,
+        "engine": "auto",
+        "main": "main.tex",
+        "recovery": {
+          "draft_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "error": null,
+          "protected_revision": 7
+        },
+        "revision": 7,
+        "selection": {
+          "anchor": 0,
+          "file": "main.tex",
+          "head": 1,
+          "secondary": [
+            {
+              "anchor": 4,
+              "head": 4
+            }
+          ]
+        },
+        "sources": {
+          "main.tex": "﻿A\r\n😀\r\n",
+          "style.sty": "% keep\r\n"
+        }
+      }
+    },
+    {
+      "operation_id": "dddddddddddddddddddddddddddddddd",
+      "outcome": {
+        "observed_revision": 7,
+        "reason": "paragraph_break",
+        "requested_revision": 7,
+        "status": "source_draft_refused"
+      },
+      "snapshot": {
+        "can_redo": false,
+        "can_undo": true,
+        "engine": "auto",
+        "main": "main.tex",
+        "recovery": {
+          "draft_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "error": null,
+          "protected_revision": 7
+        },
+        "revision": 7,
+        "selection": {
+          "anchor": 0,
+          "file": "main.tex",
+          "head": 1,
+          "secondary": [
+            {
+              "anchor": 4,
+              "head": 4
+            }
+          ]
+        },
+        "sources": {
+          "main.tex": "﻿A\r\n😀\r\n",
+          "style.sty": "% keep\r\n"
+        }
+      }
+    },
+    {
+      "operation_id": "dddddddddddddddddddddddddddddddd",
+      "outcome": {
+        "observed_revision": 7,
+        "reason": "control_character",
+        "requested_revision": 7,
+        "status": "source_draft_refused"
+      },
+      "snapshot": {
+        "can_redo": false,
+        "can_undo": true,
+        "engine": "auto",
+        "main": "main.tex",
+        "recovery": {
+          "draft_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "error": null,
+          "protected_revision": 7
+        },
+        "revision": 7,
+        "selection": {
+          "anchor": 0,
+          "file": "main.tex",
+          "head": 1,
+          "secondary": [
+            {
+              "anchor": 4,
+              "head": 4
+            }
+          ]
+        },
+        "sources": {
+          "main.tex": "﻿A\r\n😀\r\n",
+          "style.sty": "% keep\r\n"
+        }
+      }
+    },
+    {
+      "operation_id": "dddddddddddddddddddddddddddddddd",
+      "outcome": {
+        "observed_revision": 7,
+        "reason": "literal_too_large",
+        "requested_revision": 7,
+        "status": "source_draft_refused"
+      },
+      "snapshot": {
+        "can_redo": false,
+        "can_undo": true,
+        "engine": "auto",
+        "main": "main.tex",
+        "recovery": {
+          "draft_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "error": null,
+          "protected_revision": 7
+        },
+        "revision": 7,
+        "selection": {
+          "anchor": 0,
+          "file": "main.tex",
+          "head": 1,
+          "secondary": [
+            {
+              "anchor": 4,
+              "head": 4
+            }
+          ]
+        },
+        "sources": {
+          "main.tex": "﻿A\r\n😀\r\n",
+          "style.sty": "% keep\r\n"
+        }
+      }
+    },
+    {
+      "operation_id": "dddddddddddddddddddddddddddddddd",
+      "outcome": {
+        "observed_revision": 7,
+        "reason": "source_guard_rejected",
+        "requested_revision": 7,
+        "status": "source_draft_refused"
+      },
+      "snapshot": {
+        "can_redo": false,
+        "can_undo": true,
+        "engine": "auto",
+        "main": "main.tex",
+        "recovery": {
+          "draft_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "error": null,
+          "protected_revision": 7
+        },
+        "revision": 7,
+        "selection": {
+          "anchor": 0,
+          "file": "main.tex",
+          "head": 1,
+          "secondary": [
+            {
+              "anchor": 4,
+              "head": 4
+            }
+          ]
+        },
+        "sources": {
+          "main.tex": "﻿A\r\n😀\r\n",
+          "style.sty": "% keep\r\n"
+        }
+      }
+    }
+  ],
+  "source_draft_reply": {
+    "operation_id": "dddddddddddddddddddddddddddddddd",
+    "outcome": {
+      "changed": true,
+      "from_revision": 7,
+      "render_verification": "unresolved",
+      "revision": 8,
+      "status": "source_draft_applied"
+    },
+    "snapshot": {
+      "can_redo": false,
+      "can_undo": true,
+      "engine": "auto",
+      "main": "main.tex",
+      "recovery": {
+        "draft_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "error": null,
+        "protected_revision": 8
+      },
+      "revision": 8,
+      "selection": {
+        "anchor": 0,
+        "file": "main.tex",
+        "head": 1,
+        "secondary": [
+          {
+            "anchor": 4,
+            "head": 4
+          }
+        ]
+      },
+      "sources": {
+        "main.tex": "﻿B\r\n😀\r\n",
+        "style.sty": "% keep\r\n"
+      }
+    }
+  },
+  "source_location": {
+    "file": "main.tex",
+    "line": 2
+  },
+  "source_rectangle": {
+    "height": 8.0,
+    "page": 1,
+    "width": 1.25,
+    "x": 12.0,
+    "y": -3.0
+  },
+  "source_targets_reply": {
+    "file": "main.tex",
+    "revision": 7,
+    "targets": [
+      {
+        "end": 1,
+        "handle": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "start": 0,
+        "text": "A"
+      }
+    ]
+  },
+  "text_model": {
+    "protected": [
+      "\\textbf"
+    ],
+    "runs": [
+      {
+        "id": 0,
+        "styles": [],
+        "text": "Hello"
+      },
+      {
+        "id": 1,
+        "styles": [
+          "Bold"
+        ],
+        "text": "world"
+      }
+    ],
+    "spacing": []
+  }
+}

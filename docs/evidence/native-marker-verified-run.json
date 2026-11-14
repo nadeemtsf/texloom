@@ -1,0 +1,224 @@
+{
+  "cases": [
+    {
+      "engine": "pdflatex",
+      "fixture": "signature",
+      "identity_max_error_bp": 0.0001220703125,
+      "movement_max_error_bp": 0.00000762939453125,
+      "status": "pass",
+      "target_glyphs": 63
+    },
+    {
+      "engine": "pdflatex",
+      "fixture": "paragraph",
+      "identity_max_error_bp": 0.0001220703125,
+      "movement_max_error_bp": 0.000030517578125,
+      "status": "pass",
+      "target_glyphs": 624
+    },
+    {
+      "engine": "pdflatex",
+      "fixture": "formatting",
+      "identity_max_error_bp": 0.01092529296875,
+      "movement_max_error_bp": 0.0000152587890625,
+      "status": "pass",
+      "target_glyphs": 32
+    },
+    {
+      "engine": "pdflatex",
+      "fixture": "repeated",
+      "identity_max_error_bp": 0.00006103515626421085,
+      "movement_max_error_bp": 0.00000762939453125,
+      "status": "pass",
+      "target_glyphs": 20
+    },
+    {
+      "engine": "pdflatex",
+      "fixture": "macro",
+      "identity_max_error_bp": 0.00006103515626421085,
+      "movement_max_error_bp": 0.00000762939453125,
+      "status": "pass",
+      "target_glyphs": 20
+    },
+    {
+      "engine": "pdflatex",
+      "fixture": "minipage",
+      "identity_max_error_bp": 0.0001220703125,
+      "movement_max_error_bp": 0.00000762939453125,
+      "status": "pass",
+      "target_glyphs": 63
+    },
+    {
+      "engine": "pdflatex",
+      "fixture": "columns",
+      "identity_max_error_bp": 0.0001220703125,
+      "movement_max_error_bp": 0.00000762939453125,
+      "status": "pass",
+      "target_glyphs": 36
+    },
+    {
+      "engine": "pdflatex",
+      "fixture": "included",
+      "identity_max_error_bp": 0.0001220703125,
+      "movement_max_error_bp": 0.00000762939453125,
+      "status": "pass",
+      "target_glyphs": 63
+    },
+    {
+      "engine": "pdflatex",
+      "fixture": "signature-overlap",
+      "reason": "pdflatex/signature-overlap/moved: Independent inspection refused the PDF: PDFium worker refused: Glyph attribution crosses target and neighbor objects",
+      "status": "expected-refusal"
+    },
+    {
+      "engine": "lualatex",
+      "fixture": "signature",
+      "identity_max_error_bp": 0,
+      "movement_max_error_bp": 0.00000762939453125,
+      "status": "pass",
+      "target_glyphs": 63
+    },
+    {
+      "engine": "lualatex",
+      "fixture": "paragraph",
+      "identity_max_error_bp": 0,
+      "movement_max_error_bp": 0.0000152587890625,
+      "status": "pass",
+      "target_glyphs": 624
+    },
+    {
+      "engine": "lualatex",
+      "fixture": "formatting",
+      "identity_max_error_bp": 0,
+      "movement_max_error_bp": 0.0000152587890625,
+      "status": "pass",
+      "target_glyphs": 32
+    },
+    {
+      "engine": "lualatex",
+      "fixture": "repeated",
+      "identity_max_error_bp": 0,
+      "movement_max_error_bp": 1.4210854715202004e-14,
+      "status": "pass",
+      "target_glyphs": 20
+    },
+    {
+      "engine": "lualatex",
+      "fixture": "macro",
+      "identity_max_error_bp": 0,
+      "movement_max_error_bp": 2.842170943040401e-14,
+      "status": "pass",
+      "target_glyphs": 20
+    },
+    {
+      "engine": "lualatex",
+      "fixture": "minipage",
+      "identity_max_error_bp": 0,
+      "movement_max_error_bp": 0.00000762939453125,
+      "status": "pass",
+      "target_glyphs": 63
+    },
+    {
+      "engine": "lualatex",
+      "fixture": "columns",
+      "identity_max_error_bp": 0,
+      "movement_max_error_bp": 0.00000762939453125,
+      "status": "pass",
+      "target_glyphs": 36
+    },
+    {
+      "engine": "lualatex",
+      "fixture": "included",
+      "identity_max_error_bp": 0,
+      "movement_max_error_bp": 2.842170943040401e-14,
+      "status": "pass",
+      "target_glyphs": 63
+    },
+    {
+      "engine": "lualatex",
+      "fixture": "signature-overlap",
+      "reason": "lualatex/signature-overlap/moved: Independent inspection refused the PDF: PDFium worker refused: Glyph attribution crosses target and neighbor objects",
+      "status": "expected-refusal"
+    },
+    {
+      "engine": "xelatex",
+      "fixture": "signature",
+      "identity_max_error_bp": 0,
+      "movement_max_error_bp": 0.00000762939453125,
+      "status": "pass",
+      "target_glyphs": 63
+    },
+    {
+      "engine": "xelatex",
+      "fixture": "paragraph",
+      "identity_max_error_bp": 0.000030517578125,
+      "movement_max_error_bp": 0.000030517578125,
+      "status": "pass",
+      "target_glyphs": 624
+    },
+    {
+      "engine": "xelatex",
+      "fixture": "formatting",
+      "identity_max_error_bp": 0.000030517578125,
+      "movement_max_error_bp": 0.0000152587890625,
+      "status": "pass",
+      "target_glyphs": 32
+    },
+    {
+      "engine": "xelatex",
+      "fixture": "repeated",
+      "identity_max_error_bp": 0,
+      "movement_max_error_bp": 1.4210854715202004e-14,
+      "status": "pass",
+      "target_glyphs": 20
+    },
+    {
+      "engine": "xelatex",
+      "fixture": "macro",
+      "identity_max_error_bp": 0,
+      "movement_max_error_bp": 0.00000762939453125,
+      "status": "pass",
+      "target_glyphs": 20
+    },
+    {
+      "engine": "xelatex",
+      "fixture": "minipage",
+      "identity_max_error_bp": 0,
+      "movement_max_error_bp": 0.00000762939453125,
+      "status": "pass",
+      "target_glyphs": 63
+    },
+    {
+      "engine": "xelatex",
+      "fixture": "columns",
+      "identity_max_error_bp": 0,
+      "movement_max_error_bp": 0.00000762939453125,
+      "status": "pass",
+      "target_glyphs": 36
+    },
+    {
+      "engine": "xelatex",
+      "fixture": "included",
+      "identity_max_error_bp": 0,
+      "movement_max_error_bp": 0.00000762939453125,
+      "status": "pass",
+      "target_glyphs": 63
+    },
+    {
+      "engine": "xelatex",
+      "fixture": "signature-overlap",
+      "reason": "xelatex/signature-overlap/moved: Independent inspection refused the PDF: PDFium worker refused: Glyph attribution crosses target and neighbor objects",
+      "status": "expected-refusal"
+    }
+  ],
+  "limitations": [
+    "cross-page fixture stops at its measured refusal before zero/moved compilation",
+    "native mouse/IME acceptance is separate"
+  ],
+  "schema": 1,
+  "status": "pass",
+  "target_identity": "PDFium mark handles",
+  "source": "2786504e7ee9f02b522d91bb6f7779cfde06d5a8",
+  "workflow": 41527609539,
+  "job": 125561373239
+}

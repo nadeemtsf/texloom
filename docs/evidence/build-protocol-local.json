@@ -1,0 +1,229 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-03T18:12:02.738006+00:00",
+  "implementation_base": "41d9b19880bc0a2e10fbf241a517648be850c3df",
+  "working_branch": "feature/typed-backend-protocol",
+  "checks": {
+    "core": {
+      "passed": 78,
+      "ignored_in_this_invocation": 0
+    },
+    "build": {
+      "passed": 71,
+      "ignored_in_this_invocation": 7
+    },
+    "native": {
+      "passed": 42,
+      "ignored_in_this_invocation": 2
+    },
+    "native-approval": {
+      "passed": 2,
+      "ignored_in_this_invocation": 0
+    },
+    "frontend_and_filesystem": {
+      "passed": 188,
+      "failed": 0,
+      "skipped": 0
+    },
+    "executed_total_passed": 381,
+    "compile_time_negative_contracts": 13,
+    "frontend_build": "passed",
+    "verifier_build": "passed",
+    "windows_x64_release_build": "passed",
+    "portable_crc_exact_entries_hashes_and_x64_header": "passed"
+  },
+  "pdfjs_update": {
+    "previous": "5.7.284",
+    "current": "6.2.108",
+    "advisory": "https://github.com/mozilla/pdf.js/security/advisories/GHSA-hq66-cqwq-w95j",
+    "npm_audit_vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    }
+  },
+  "observed_upgrade_regression_before_lifecycle_fix": {
+    "failed_checks": [
+      "real PDF regression: direct graphics literals must not shift unselected text",
+      "independent proof inspector detects the real direct-literal regression"
+    ],
+    "errors": [
+      "TypeError: pdf.destroy is not a function",
+      "TypeError: doc.destroy is not a function"
+    ],
+    "raw_failed_log_retained": false,
+    "note": "These errors were captured in tool output; the local log was overwritten by the completed retest. No full failed-log receipt is claimed."
+  },
+  "tools": {
+    "node": "v25.2.1",
+    "rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)"
+  },
+  "tested_working_source_sha256_lf": {
+    ".gitattributes": "e9ec2dd505d83ee9eec3741584bff84e4d3fe022d392b284b58db3e8980cbbde",
+    "Cargo.lock": "a2d8c6ceda848b6af9608fa8de6f7cdf249d17bac7512e49ecec5ab8237a7bab",
+    "README.md": "e6f941f12baf02b95f3babfa583369986c87d7be24f25834ed2941cc1d168ac1",
+    "VALIDATION.md": "290eafeca3d99f2755f63f72adf4f7d109c1f1c24447deab5eed17d73782ccb5",
+    "crates/texloom-build/Cargo.toml": "384ba7e50342fb3431caff6343b6aa0fccdb234fd71b2a8f72d01bc2dec22e15",
+    "crates/texloom-build/src/engine.rs": "3571be9db0b4f8cb999f0985d463e4e7b70369790d8f5414979c67628a84056b",
+    "docs/BUILD-PROTOCOL.md": "544033f7cc120797fa8eff8439ec400febb7f8dd89c01d5054d308b6ae677b87",
+    "docs/IMPLEMENTATION-STATUS.md": "f7fe652255dbab17fee9481039359bdd6677d2c5fa9faeab27d8f2c159dc760c",
+    "docs/PDF-RENDERER.md": "84ae5edba23773b9771051cc7760ab842524ce2f73d5f2e1480bb2282f6fbf9e",
+    "docs/TYPED-DOCUMENT-PROTOCOL.md": "a444dceb0ec44d466589a80a264c9973e32b48b065953c8169f4ff7731ee073c",
+    "docs/WORK-CHECKPOINT.md": "70620156ef868a7330529905be0eeef11a137b640fa701040c7af2ddd4af53b1",
+    "frontend/protocol/build-protocol.ts": "c26016141ba8ff5b6d8890f1fd0fa9446a9e988b12a0b1ba469e7e7e2f76b6e2",
+    "frontend/protocol/document-client.ts": "ed850dcc88b131e0da4d50902de9b98e51382c6631ae7c0a6df73e8b1f22a8e5",
+    "package-lock.json": "2457facf498a90ba397e1c56840d484e81c092a4d10379ad003779faed96d585",
+    "package.json": "b3a31f78f86fc2fe5e0898d90725f214cb2b7bbc3ace20a86b45c6b7de31020d",
+    "scripts/check-protocol.mjs": "e8ccc77d5eb8b206d871adfbf1e89511382b59dee2775f7354701d0079b5faf1",
+    "scripts/proof/pdfjs-inspector.mjs": "19852014438ca730bc071af8789fd9db402b0d91560d02be282bddfc827848e1",
+    "scripts/protected-text-proof.mjs": "6605570a2981d59f85aeebc4f97d16b451ebaaeae25113d730f11910f708d62f",
+    "scripts/selection-proof.mjs": "e5b8630c5613892f9f51c57a9bb33130bbf2d3f0bd991f960c16ac27cb8bdb27",
+    "src-tauri/Cargo.toml": "2e9b74e252574dc1fa8f79baed4fbb6a717f53cf27fe86702483c533fca57e2b",
+    "src-tauri/src/build_protocol.rs": "37f4fe9e9c1251fed393546fe38d74a67dbc24830a67f9eca6f44f3129dbca80",
+    "src-tauri/src/document_protocol/bindings.rs": "e45242de1616c22d58369a8c8e50b6ee4ad50046b7f740a4e08fab8786c6f37d",
+    "src-tauri/src/lib.rs": "8022158e0674dd5534622d6b152fccfc13379e0082aebd82e3f9a966c5d550bf",
+    "src-tauri/src/service.rs": "d9545460ae638aebd7cf1ef6b870d6ce182a6396f627b30b2b24f418d1f4bf29",
+    "src-tauri/src/service/visual.rs": "fd91d7c933f341732fb9f623ad80326e76b8b36ae6aeedda562817e9d4044546",
+    "tests/build-protocol.test.mjs": "4062e06df4b2b0fdd417eef79fdc6c4e617115a66eb160dabe307c3fcabfc403",
+    "tests/document-client.test.mjs": "e5784a82aed9da20f515d723095c330034dd9399975defa96f59dc3157920d2d",
+    "tests/fixtures/document-ipc.json": "80b1d079a926cbda87cecac13b5f3a05fb2f019c4198f9eebcec5d90d27a92cb",
+    "tests/native-document-double.cjs": "8c5f20c16b1a66e7225b56c10dcee6892f7e3f80eb7dcf5c44e3d1408b5f9d9e",
+    "tests/pdf-document.test.mjs": "550af2df86ddf4f94e5dd50785becb3762e593b9dcf8524d7f09bf7533ef395c",
+    "tests/pdf-fixtures.test.mjs": "a9ba9a2933cc105e2704384c5d04cb473bd9d06c0e555455b5e8cd0e21690b89",
+    "tests/protocol-build.test.mjs": "1e674e927f070c5def2db2fdbf810a8800fb35ca8773f6e66b68acf957404960",
+    "tests/transactions.test.cjs": "455ce241de3295828ce01b412ff6210ee5591963e7a053b7c659fa8e926556c8",
+    "tests/types/document-protocol.test.ts": "2850f2c5b7767e0982a4f6776304bdcce2df79cb9c222718ce688a7c1fb6dab8",
+    "web/app.js": "faafbbf0da2abba9bedda839f3ae80393553a9df68457ed7436076e72fbef7a2",
+    "web/core/build-protocol.js": "d0ea0abe22278bdd73ff6867688dfc8793d230c799408aa44d6870b627cd590d",
+    "web/core/document-client.js": "1dccb75d4c24705cede381cf48d3db5577accd4266a9533771d882e5fdc483de",
+    "web/core/pdf-document.js": "54e79b50b321bc6632f05dff00ac98c1e57669af8b40f641ba46046158ff9a03",
+    "web/core/pdf-surface.js": "76edfc9fbd5024297615a518f62b59d20c2c3b8357ef1b4fcccc6d42855826da",
+    "web/generated/document-ipc.d.ts": "a3062b4404873ae765e3802625140781896d45d2d4e0d28fd3930e9257923170"
+  },
+  "log_sha256": {
+    "build-protocol-build-tests.log": "2b0227507890b48ee0a49e864d30a929579b5108a3943cbf90d5f43f9cd66514",
+    "build-protocol-core-tests.log": "85087106eb094a35dbcbac085d24687d2f78d7a5e3c733474c70a1829c86a1ab",
+    "build-protocol-frontend-tests.log": "b3950f13b2394b28842abef26b4d9757f7acf684ed077bf2ed5dfca2d217d8f2",
+    "build-protocol-generation.log": "673090adfaa73900ccabdb798c968356c49cec8c372e31e6f7514378882a11ef",
+    "build-protocol-initial-windows-build.log": "449b517c9f67cecfbcd56f5cdb1aa122fc1b076829999ec6da48a489480ce290",
+    "build-protocol-native-approval-tests.log": "b98c348ced5957b79129f6318ac7932cff72a1722fa4fef6613e46698eebce5d",
+    "build-protocol-native-tests.log": "f559cbf96e3c8cbe6729c647ef3fb608256f0b6c6999a82c58b48df51d5caeec",
+    "build-protocol-verifier.log": "63bd59d7178b88b6a6876318505998b267832faf9eb6b313b135cb6929e2d5a2",
+    "build-protocol-windows-build.log": "fb18d3763de20fd00b4c6252d866b84192552ff96095a71e196f4b7670ab4ed9"
+  },
+  "audit_report_sha256": "9ea9ac16e650a602a891a335048da9ed2212d0e14a0e00309002378f73516b1e",
+  "executable_sha256": "9d3c3a0758c030b038ba962f3736dbda593944d783bbd8f5d5e0e802d9bd01de",
+  "verifier_manifest": {
+    "schema": 2,
+    "protocol": 2,
+    "purpose": "Development verification dependency; release review pending",
+    "platform": "windows-x86_64",
+    "pdfium": "126.0.6462.0",
+    "binding_source": "pypdfium2-4.30.0",
+    "wheel_sha256": "90dbb2ac07be53219f56be09961eb95cf2473f834d01a42d901d13ccfad64b4c",
+    "dll_sha256": "b2c15cd4537d8efaf23b85b3353abe7a0b863e9c52b2f017dd87bb86a55f9c72",
+    "worker_sha256": "8a8ab3094273fedf113b455653f4adbcc6e71241930c54f03a6bfeca0fbb335c",
+    "notice_sha256": "c2fdbc1aeb250d596d1ef3d9817c9bf31df712b197583c0811677ee5d9206eeb"
+  },
+  "portable_archive": {
+    "filename": "Texloom-Desktop-Windows-x64.zip",
+    "sha256": "4cfa01d1a77bfae80a9de9a8bc9059251cb658692e13bdb700376ebc45f67edb",
+    "bytes": 10304726,
+    "entries": [
+      "Texloom-Desktop-Windows-x64/ARTIFACT-RECEIPT.json",
+      "Texloom-Desktop-Windows-x64/Example/main.tex",
+      "Texloom-Desktop-Windows-x64/Example/studio.sty",
+      "Texloom-Desktop-Windows-x64/Example/texloom-objects.sty",
+      "Texloom-Desktop-Windows-x64/LICENSE",
+      "Texloom-Desktop-Windows-x64/README.md",
+      "Texloom-Desktop-Windows-x64/Texloom.exe",
+      "Texloom-Desktop-Windows-x64/THIRD-PARTY-NOTICES.txt",
+      "Texloom-Desktop-Windows-x64/VALIDATION.md",
+      "Texloom-Desktop-Windows-x64/verification/pdfium_worker.exe",
+      "Texloom-Desktop-Windows-x64/verification/PDFIUM-NOTICE.txt",
+      "Texloom-Desktop-Windows-x64/verification/pdfium.dll",
+      "Texloom-Desktop-Windows-x64/verification/verifier-manifest.json"
+    ],
+    "receipt": {
+      "schema": 2,
+      "purpose": "Development checkpoint; native interaction and release gates remain open",
+      "desktop_sha256": "9d3c3a0758c030b038ba962f3736dbda593944d783bbd8f5d5e0e802d9bd01de",
+      "worker_sha256": "8a8ab3094273fedf113b455653f4adbcc6e71241930c54f03a6bfeca0fbb335c",
+      "dll_sha256": "b2c15cd4537d8efaf23b85b3353abe7a0b863e9c52b2f017dd87bb86a55f9c72",
+      "receipt_excludes_itself": true,
+      "files": [
+        {
+          "path": "Example/main.tex",
+          "bytes": 480,
+          "sha256": "be4b2f182b2e16a8b10bd4d183818de6995b19be250f9fe1c29573fce1f984a7"
+        },
+        {
+          "path": "Example/studio.sty",
+          "bytes": 1090,
+          "sha256": "586cb8087f2436ebdbcca46d466217beb19a53d4373f4f9e1baadd33541fa34d"
+        },
+        {
+          "path": "Example/texloom-objects.sty",
+          "bytes": 1181,
+          "sha256": "9ee79b44802c003a73b99780407650accbe911663026e669e56d9da9fa1feafe"
+        },
+        {
+          "path": "LICENSE",
+          "bytes": 1098,
+          "sha256": "c3b27c0dd407a9ca24e34361ed885aed7b9410921982c2f4252e81b261699b20"
+        },
+        {
+          "path": "README.md",
+          "bytes": 12104,
+          "sha256": "e6f941f12baf02b95f3babfa583369986c87d7be24f25834ed2941cc1d168ac1"
+        },
+        {
+          "path": "Texloom.exe",
+          "bytes": 15555584,
+          "sha256": "9d3c3a0758c030b038ba962f3736dbda593944d783bbd8f5d5e0e802d9bd01de"
+        },
+        {
+          "path": "THIRD-PARTY-NOTICES.txt",
+          "bytes": 2494474,
+          "sha256": "295a11f8bc226448b981c184361bd9ccc5613cc3d308bee1e1f669caacae5d99"
+        },
+        {
+          "path": "VALIDATION.md",
+          "bytes": 25505,
+          "sha256": "290eafeca3d99f2755f63f72adf4f7d109c1f1c24447deab5eed17d73782ccb5"
+        },
+        {
+          "path": "verification/pdfium_worker.exe",
+          "bytes": 401408,
+          "sha256": "8a8ab3094273fedf113b455653f4adbcc6e71241930c54f03a6bfeca0fbb335c"
+        },
+        {
+          "path": "verification/PDFIUM-NOTICE.txt",
+          "bytes": 43950,
+          "sha256": "c2fdbc1aeb250d596d1ef3d9817c9bf31df712b197583c0811677ee5d9206eeb"
+        },
+        {
+          "path": "verification/pdfium.dll",
+          "bytes": 5446656,
+          "sha256": "b2c15cd4537d8efaf23b85b3353abe7a0b863e9c52b2f017dd87bb86a55f9c72"
+        },
+        {
+          "path": "verification/verifier-manifest.json",
+          "bytes": 555,
+          "sha256": "d265c57817f535af90b11b58962ab60335eb28b12ca352586117e6db43630530"
+        }
+      ]
+    },
+    "independent_check": "Python zipfile CRC, unique exact entries, all receipt lengths/SHA-256, native artifact identity and AMD64 PE header"
+  },
+  "limitations": [
+    "The executable/package were not launched. Native mouse, typing, IME, crash/relaunch and complete signature checks remain owner-deferred.",
+    "The five optional standalone worker and two real-engine corpus checks ignored by the default build suite were not rerun or counted.",
+    "Project/recovery and source-transform IPC, unsupported encodings, wider recipes/adapters, fractional displacement, installed-artifact and release gates remain open.",
+    "A zero npm audit result is not a complete dependency/license/security review. The PDFium development pin remains a release-review item.",
+    "The earlier intermediate Windows build was followed by a full frontend/native rebuild after the PDF.js lifecycle change. Only the final executable is packaged."
+  ]
+}

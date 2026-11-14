@@ -27,11 +27,11 @@ export function groupTextRuns(runs,page) {
 
 /** Read source object identities from PDF marked-content, including nested tags. */
 export function extractTextGeometry(items,styles,page,pageHeight) {
-  const stack=[],runs=[],objects=new Map(),unclosed=new Set();
+  const stack=[],runs=[],objects=new Map(),unclosed=new Set(),instances=new Map();
   for(const item of items){
     if(item.type==='beginMarkedContent'||item.type==='beginMarkedContentProps'){
       const id=item.tag?.startsWith('Texloom_')?item.tag.slice(8):null;
-      stack.push(id);if(id)unclosed.add(id);continue;
+      stack.push(id);if(id){unclosed.add(id);instances.set(id,(instances.get(id)||0)+1)}continue;
     }
     if(item.type==='endMarkedContent'){const id=stack.pop();if(id)unclosed.delete(id);continue}
     if(typeof item.str!=='string'||!item.str.trim())continue;
@@ -42,7 +42,7 @@ export function extractTextGeometry(items,styles,page,pageHeight) {
     runs.push(run);
     for(const id of stack.filter(Boolean)){if(!objects.has(id))objects.set(id,[]);objects.get(id).push(run)}
   }
-  return {runs,lines:groupTextRuns(runs,page),objects:new Map([...objects].map(([id,r])=>[id,{...union(r),page,runs:r}])),unclosed};
+  return {runs,lines:groupTextRuns(runs,page),objects:new Map([...objects].map(([id,r])=>[id,{...union(r),page,runs:r,instances:instances.get(id)||0}])),unclosed};
 }
 
 export function linesForSourceRectangles(lines,rectangles,page) {

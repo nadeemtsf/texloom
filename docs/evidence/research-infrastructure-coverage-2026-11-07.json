@@ -1,0 +1,74 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-07T11:58:56.272827+00:00",
+  "kind": "synthetic_infrastructure_coverage_reconciliation_not_product_observations",
+  "source_base": "2a50c596fb6f4827f8de595beecf6b582e24e969",
+  "command": "python -m unittest discover -s research/tests -p test_study_records_v1.py -v",
+  "exit_code": 0,
+  "passed": 13,
+  "failed": 0,
+  "overlap": "These13existing tests are a subset of the40-helper suite already run; do not add them to40 as53independent checks.",
+  "coverage": {
+    "RecordChecks": [
+      "test_failed_presentation_does_not_erase_a_known_commit",
+      "test_unknown_commit_cannot_be_relabelled_a_refusal",
+      "test_unrelated_change_fails_safety_even_with_a_valid_intention",
+      "test_relabelled_families_and_repeated_intents_do_not_create_independent_cases",
+      "test_deny_all_has_no_accepted_error_fraction"
+    ],
+    "ReferenceChecks": [
+      "test_matching_bytes_do_not_become_final_admission",
+      "test_fixture_manifest_omission_cannot_pass_declared_closure",
+      "test_strict_input_rejects_duplicate_keys_overflow_and_nonportable_paths"
+    ],
+    "FingerprintChecks": [
+      "test_windows_handle_ctime_difference_does_not_reject_unchanged_bytes",
+      "test_handle_metadata_change_during_read_is_still_rejected"
+    ],
+    "TimingChecks": [
+      "test_endpoints_are_separate_and_published_is_not_correctness",
+      "test_missing_trial_suppresses_distributions_instead_of_zero_filling",
+      "test_overlapping_exports_cannot_be_counted_as_new_trials"
+    ]
+  },
+  "sources": [
+    {
+      "path": "research/tests/test_study_records_v1.py",
+      "bytes": 11465,
+      "sha256": "104a389dcb575d7ee16014aee73165cae40c3e2d41297cef6960585c131cb057"
+    },
+    {
+      "path": "research/tools/study_records.py",
+      "bytes": 17833,
+      "sha256": "134374b555df827d842d55c33ff8037c2e997429cf6fa66ddcd391fe619f1afc"
+    },
+    {
+      "path": "research/tools/admit_records.py",
+      "bytes": 10997,
+      "sha256": "3b93a34a40dfe9227567653eac69d50dec646151b73ba1c7652d449e11824bc7"
+    },
+    {
+      "path": "research/tools/timing_records.py",
+      "bytes": 17650,
+      "sha256": "e583511b189aa6e0504e0ca6828d701dc982e02e362707a0342f8db735d977fc"
+    },
+    {
+      "path": "research/tools/evidence_io.py",
+      "bytes": 4482,
+      "sha256": "3bafdd6c473676a5ecb4311fa392daa6d44c83e4767df1c02e27e49407607617"
+    }
+  ],
+  "log": {
+    "path": "artifacts/continuation-20261107-weekly57/study-record-coverage-audit.log",
+    "bytes": 2282,
+    "sha256": "f8c4a642ee5434f30983b17c6a02b9df109b496efb5ad7b21ef5b9d19965818c"
+  },
+  "finding": "Separate protocol documents retained obsolete unexecuted/test-pause labels even though the combined test module imports and exercises the helpers. Corrected status prose; no new test cases or product behavior changes.",
+  "limits": [
+    "Synthetic records/files only; no app,compiler,Windows collector,latency or usability observation.",
+    "No independently reviewed labels,sealed final inputs,source-to-executable provenance or final admission.",
+    "Passing these checks is bounded regression evidence,not exhaustive filesystem/budget/race validation."
+  ],
+  "final_evaluation_executed": false,
+  "native_ui_input": false
+}

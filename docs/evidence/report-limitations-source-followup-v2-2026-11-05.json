@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-05T16:38:31.7797164Z",
+  "kind": "report_limitations_source_revision_not_compiled_results",
+  "status": "uncompiled_unrendered",
+  "base_head": "ccc760b6fe056e8ae17c7db481c8cd8e941b31c3",
+  "source_files": [
+    {
+      "path": "research/report/main.tex",
+      "bytes": 3866,
+      "sha256": "85869f369f0324d80a7e5a408772352682189d60a1537fd78ebafe4a00f0a0ab"
+    },
+    {
+      "path": "research/report/sections/09-limitations.tex",
+      "bytes": 6762,
+      "sha256": "ce6e720b2cad2fd7dd3468c5d574c5d5309c00a4629eab2c9e8d5b6f51f31c73"
+    }
+  ],
+  "change": "Replace stale current-pass wording with versioned 5e59e77 evidence and explicit untested source, paused tests, advisory blocker and inactive/unverified preparation",
+  "report_compiled": false,
+  "report_rendered": false,
+  "tests_run": false,
+  "new_experimental_results": false,
+  "final_evaluation_executed": false,
+  "last_compiled_report": "v5,21pages,14references",
+  "new_source_page_count": null,
+  "page_cap": null,
+  "publication_or_submission": false
+}

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en"><link rel="icon" href="data:,"><meta charset="utf-8"><title>PDF navigation regression fixture</title>
+<link rel="stylesheet" href="/web/style.css">
+<style>body{display:block;height:auto}#preview-scroll{width:760px;height:600px;position:absolute;left:80px;top:60px}#pages{width:100%}</style>
+<div id="preview-scroll"><div id="pages" class="pdfViewer"></div></div><span id="count"></span><div id="empty"></div>
+<script type="module">
+import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
+import {PDFPageView,EventBus,SimpleLinkService} from 'pdfjs-dist/legacy/web/pdf_viewer.mjs';
+import 'pdfjs-dist/web/pdf_viewer.css';
+import worker from 'pdfjs-dist/legacy/build/pdf.worker.min.mjs?url';
+import {prepareLoadedPDF,publishPDFView} from '/web/core/pdf-surface.js';
+import {loadPDFDocument} from '/web/core/pdf-document.js';
+import {capturePDFZoomAnchor} from '/web/core/pdf-page-view.js';
+import {bindPDFScrolling} from '/web/core/pdf-scroll.js';
+import {validateSelectionProbe} from '/web/core/selection-proof.js';
+pdfjs.GlobalWorkerOptions.workerSrc=worker;
+const library={...pdfjs,PDFPageView,EventBus,SimpleLinkService};
+const scroller=document.getElementById('preview-scroll');
+const elements={scroller,pages:document.getElementById('pages'),count:document.getElementById('count'),empty:document.getElementById('empty')};
+// Deterministic, shareable PDF: distinct English pages, vector grid, mixed sizes.
+function syntheticPDF(count,{inkFault=false}={}){
+ const objects=['<< /Type /Catalog /Pages 2 0 R >>','', '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>'];
+ const kids=[];
+ for(let n=1;n<=count;n++){
+  const id=objects.length+1,w=n%2?600:720,h=n%2?800:900;kids.push(`${id} 0 R`);
+  const lines=Array.from({length:20},(_,i)=>`${n===3&&i===8?'/Texloom_navtarget BMC ':''}BT /F1 14 Tf 70 ${h-80-i*30} Td (Page ${n} anchor line ${i+1}) Tj ET${n===3&&i===8?' EMC':''}`).join('\n');
+  const content=`0.4 w 0.2 0.4 0.6 RG 50 50 ${w-100} ${h-100} re S\n${lines}\n${inkFault&&n===count?'0 0 0 rg 10 10 10 10 re f\n':''}`;
+  objects.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${w} ${h}] /Resources << /Font << /F1 3 0 R >> >> /Contents ${id+1} 0 R >>`);
+  objects.push(`<< /Length ${content.length} >>\nstream\n${content}endstream`);
+ }
+ objects[1]=`<< /Type /Pages /Count ${count} /Kids [${kids.join(' ')}] >>`;
+ let text='%PDF-1.4\n',offsets=[0];
+ for(let i=0;i<objects.length;i++){offsets.push(text.length);text+=`${i+1} 0 obj\n${objects[i]}\nendobj\n`}
+ const start=text.length;text+=`xref\n0 ${objects.length+1}\n0000000000 65535 f \n`;
+ for(const offset of offsets.slice(1))text+=`${String(offset).padStart(10,'0')} 00000 n \n`;
+ text+=`trailer\n<< /Size ${objects.length+1} /Root 1 0 R >>\nstartxref\n${start}\n%%EOF\n`;
+ return new TextEncoder().encode(text);
+}
+let view,pdf,binding,paintCalls=0,refinements=0,lastRefinement=Promise.resolve();
+async function fixturePDF(data){
+ return loadPDFDocument(pdfjs,{data,cMapUrl:'/web/public/pdfjs/cmaps/',cMapPacked:true,
+  standardFontDataUrl:'/web/public/pdfjs/standard_fonts/',wasmUrl:'/web/public/pdfjs/wasm/'});
+}
+async function open(count,{url=null}={}){
+ binding?.dispose();view?.dispose();await pdf?.destroy();
+ pdf=await fixturePDF(url?new Uint8Array(await (await fetch(url)).arrayBuffer()):syntheticPDF(count));count=pdf.numPages;
+ for(let n=1;n<=count;n++){
+  const page=await pdf.getPage(n),render=page.render.bind(page);
+  page.render=(...args)=>{paintCalls++;return render(...args)};
+ }
+ view=await prepareLoadedPDF(library,pdf,{objects:[]},{width:scroller.clientWidth,zoom:1,mode:'read',lazy:true});
+ publishPDFView(view,elements);paintCalls=0;refinements=0;
+ binding=bindPDFScrolling(scroller,{getScale:()=>view.scale,onZoom:(scale,origin)=>view.zoomTo(scale,elements,origin),
+  renderZoom:()=>{refinements++;lastRefinement=view.finishZoom();return lastRefinement}});
+ return status();
+}
+function status(){return {scale:view.scale,paintCalls,refinements,pageCount:view.pageCount,
+ canvases:document.querySelectorAll('canvas').length,pages:elements.pages.children.length,
+ text:[...document.querySelectorAll('.textLayer span')].map(s=>s.textContent).join(' '),
+ scrollTop:scroller.scrollTop,scrollLeft:scroller.scrollLeft,clientWidth:scroller.clientWidth};}
+function point(origin){const a=capturePDFZoomAnchor(view,scroller,origin);return {page:a.item.number,pdf:a.point};}
+async function proveSelection({inkFault=false,prepare=true,url=null,id='navtarget',page=3,hitText='anchor line 9'}={}){
+ const probePDF=await fixturePDF(url?new Uint8Array(await (await fetch(url)).arrayBuffer()):syntheticPDF(view.pageCount,{inkFault}));let probe;
+ try{
+  if(prepare)await view.prepareSelectionProof();
+  probe=await prepareLoadedPDF(library,probePDF,{objects:[]},{width:scroller.clientWidth,zoom:view.scale,mode:'select'});
+  const hit=view.pages[page-1].lines.find(line=>line.text.includes(hitText));
+  if(!hit)throw Error('Fixture target line missing: '+hitText);
+  const proof=validateSelectionProbe(view,probe,id,[hit],page);
+  return {schema:proof.schema,page:proof.page,lines:proof.lines.length};
+ }finally{probe?.dispose();await probePDF.destroy()}
+}
+window.fixture={open,status,point,elements,get view(){return view},
+ proveSelection,
+ zoom:(scale,origin)=>view.zoomTo(scale,elements,origin),finish:()=>view.finishZoom(),
+ wheel:options=>scroller.dispatchEvent(new WheelEvent('wheel',{bubbles:true,cancelable:true,...options})),
+ waitRefinement:()=>lastRefinement,
+ close:async()=>{binding.dispose();view.dispose();await pdf.destroy()}};
+window.ready=true;
+</script></html>

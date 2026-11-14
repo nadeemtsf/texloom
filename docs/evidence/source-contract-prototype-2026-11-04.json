@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-04T18:12:26.390093+00:00",
+  "status": "prototype_diagnostics_pass_not_final_evaluation",
+  "final_evaluation_executed": false,
+  "prototype_source_oracle_sha256": "f69ada035bcff778bde17eb13ecb5740951a0657ac8d273f0c139c002cd976f1",
+  "research_tests": {
+    "pass": 14,
+    "fail": 0,
+    "scope": "9 PDF/replay and 5 source-contract diagnostics; no app accuracy denominator"
+  },
+  "source_contract_cli_health": [
+    {
+      "case": "correct",
+      "expected": "matches_contract",
+      "actual": "matches_contract",
+      "exit_code": 0
+    },
+    {
+      "case": "changed_support",
+      "expected": "differs",
+      "actual": "differs",
+      "exit_code": 1
+    }
+  ],
+  "scope": "BOM/CRLF English/Arabic/Hebrew bytes, intended repeated occurrence and unchanged supporting file. New named ID constrained by declared template.",
+  "limits": [
+    "Prototype declared-byte contract, not TeX semantics or application acceptance.",
+    "Independent labels and integration with a frozen evaluation are still needed."
+  ],
+  "raw_run": "artifacts/source-contract-smoke-20261104",
+  "contract_sha256": "a41d606155bb2818dc58cf84f6732508cbc2d8b6b45e69c0b1875dd9aea30e6a",
+  "test_log_sha256": "08ba0df1ca03d106f6b64b06bc697db829d756a0aea9a82a5c5edfc64166201b"
+}

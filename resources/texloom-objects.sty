@@ -1,5 +1,5 @@
 \NeedsTeXFormat{LaTeX2e}[2022-06-01]
-\ProvidesPackage{texloom-objects}[2026/10/30 v0.3 Source-preserving visual text movement]
+\ProvidesPackage{texloom-objects}[2026/11/06 v0.4 Source-preserving visual text movement]
 % Each wrapper retains its TeX layout contribution and inherited formatting.
 % The marked-content tag lets the viewer bind actual glyphs to the source ID.
 % Only balanced, single-page, non-hyperlinked source fragments are supported.
@@ -12,8 +12,22 @@
     \special{pdf:literal #1}%
   \fi\fi
 }
+% Keep conditional tokens behind a helper: TeX also counts them in skipped
+% engine branches, even when they would be arguments of \let.
+\newcommand{\TexloomCaptureRTL}{%
+  \@ifundefined{if@RTL}{}{%
+    \expandafter\let\expandafter\TexloomRTLCheck\csname if@RTL\endcsname}%
+}
 \newcommand{\TexloomObject}[4]{%
   \begingroup
+  % XeTeX reverses specials inside an RTL list. Keep the marker/transform
+  % boundaries in an LTR span and the original content in its RTL span.
+  % Copy the conditional so nested language changes cannot alter its closing.
+  \let\TexloomRTLCheck\iffalse
+  \ifdefined\XeTeXversion
+    \TexloomCaptureRTL
+  \fi
+  \TexloomRTLCheck\leavevmode\beginL\fi
   \edef\TexloomDown{\strip@pt\dimexpr-#3pt\relax}%
   % Page literals close the engine's text object before changing graphics state.
   % A direct q/Q inside BT would restore a stale text matrix in some viewers.
@@ -23,13 +37,16 @@
   \else
     \TexloomLiteral{/Texloom_#1 BMC q 1 0 0 1 #2 \TexloomDown\space cm}%
   \fi
+  \TexloomRTLCheck\beginR\fi
   #4%
+  \TexloomRTLCheck\endR\fi
   \ifdefined\XeTeXversion
     \special{pdf:code EMC}%
     \special{pdf:etrans}%
   \else
     \TexloomLiteral{Q EMC}%
   \fi
+  \TexloomRTLCheck\endL\fi
   \endgroup
 }
 \endinput

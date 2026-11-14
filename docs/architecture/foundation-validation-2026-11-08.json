@@ -1,0 +1,78 @@
+{
+  "schema": 1,
+  "kind": "headless_foundation_engineering_receipt_not_final_evaluation",
+  "date": "2026-11-08",
+  "source_commit": "171830a1854929b1ca35133b8d2013d4e54b3a15",
+  "source_sha256": "68859b02ddffff7334a910ea81ae141e2772bc532e92261826de75725365c060",
+  "integration_test_sha256": "f66eb3bde90435726028bbb25ece834946b49bf39316a05929cae99708183ae4",
+  "scope": "Read-only exact-source partition and revision/session-bound paragraph references; no new UI command or render approval.",
+  "last_completed_check": {
+    "source_commit": "d7aa88af493ca22d4afafeb58b04467ced34f709",
+    "command": "cargo test --offline --locked -p texloom-core",
+    "log": "artifacts/foundation-20261108/core-boundaries.log",
+    "log_sha256": "2c2f1c7a79c58686a9a566aa296a9ab960611cde77b3b515bef417151f93ea09",
+    "integration_test_sha256": "b882ecdcec4e06d0b3c45be88dd5871ae54d5d1883ab0aeb4a84327e2e0319aa",
+    "result": "passed",
+    "unit_pass": 70,
+    "existing_integration_pass": 18,
+    "new_projection_pass": 18,
+    "fail": 0,
+    "ignored": 0,
+    "additional_coverage": "One deterministic development invariant check uses 512 mixed Unicode/structural inputs to check exact partitions, valid source-reference ranges and absence of source/history mutation. These inputs are not independent final-study trials. Product source is unchanged from the source_commit at the top of this receipt."
+  },
+  "checks": [
+    {
+      "command": "cargo test --offline --locked -p texloom-core",
+      "log": "artifacts/foundation-20261108/core-final.log",
+      "log_sha256": "8ff85d64e1daff71ae795a6fe54b4083097471dc80c63e598b9db7e0a04fc201",
+      "result": "passed",
+      "unit_pass": 70,
+      "existing_integration_pass": 18,
+      "new_projection_pass": 17,
+      "fail": 0,
+      "ignored": 0
+    },
+    {
+      "command": "cargo test --offline --locked -p texloom-core --features recovery-serde",
+      "log": "artifacts/foundation-20261108/core-recovery.log",
+      "log_sha256": "cca998878442e548a9827d08a8db95e1dbdbdfb24d977b16065d4badb6366738",
+      "result": "passed_before_final_dynamic_environment_name_guard",
+      "unit_pass": 71,
+      "existing_integration_pass": 18,
+      "new_projection_pass": 17,
+      "fail": 0,
+      "ignored": 0,
+      "limitation": "The final lexical environment-name guard was subsequently covered by the final default-feature run. Do not label this feature-enabled run as the exact final source snapshot."
+    },
+    {
+      "command": "npm test",
+      "log": "artifacts/foundation-20261108/frontend.log",
+      "log_sha256": "5bf29422a69836f5e4d8a5f3854688ce1243a3c0e06d333ee42ea5cb9942c187",
+      "result": "passed",
+      "pass": 291,
+      "fail": 0,
+      "skipped": 0,
+      "limitation": "Frontend files were unchanged; this run preceded final core-only lexical guards."
+    }
+  ],
+  "preserved_failure": {
+    "log": "artifacts/foundation-20261108/structure-negative-before-fix.log",
+    "log_sha256": "218af12e4888a89f387ae888be77b006422f1e523f5afe6205c288923e0c892f",
+    "pass": 15,
+    "fail": 2,
+    "cause": "Multiline math and unknown control flow exposed lexical paragraph candidates.",
+    "resolution": "Conservative fallback tightened; both negative controls passed in the final 17-test suite."
+  },
+  "limitations": [
+    "Local ignored raw logs are not uploaded by this receipt.",
+    "Only literal paragraphs in a complete selected-file document context can become candidates; included fragments and dynamic contexts remain opaque.",
+    "Package and engine semantics remain unresolved even for lexical candidates; readiness is not edit permission.",
+    "References invalidate on every changed revision; change maps, grapheme positions and native IPC authority are future work.",
+    "No app was opened, installed or controlled; no new real-engine experiment, PDF mapping, timing, native interaction or final evaluation was executed.",
+    "No claim of general multilingual rendering, visual authoring correctness or project completion follows from these tests."
+  ],
+  "issue_status": {
+    "ARCH-01": "open_in_progress_contract_written_owner_review_pending",
+    "ARCH-02": "open_in_progress_first_read_only_slice_only"
+  }
+}

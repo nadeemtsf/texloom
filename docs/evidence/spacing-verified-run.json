@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "status": "pass",
+  "cases": [
+    {
+      "engine": "pdflatex",
+      "kind": "literal",
+      "status": "pass",
+      "source_scaffold_preserved": true
+    },
+    {
+      "engine": "lualatex",
+      "kind": "literal",
+      "status": "pass",
+      "source_scaffold_preserved": true
+    },
+    {
+      "engine": "xelatex",
+      "kind": "literal",
+      "status": "pass",
+      "source_scaffold_preserved": true
+    },
+    {
+      "engine": "pdflatex",
+      "kind": "spacing",
+      "status": "pass",
+      "source_scaffold_preserved": true,
+      "following_line_delta_bp": 11.954999999999927
+    },
+    {
+      "engine": "lualatex",
+      "kind": "spacing",
+      "status": "pass",
+      "source_scaffold_preserved": true,
+      "following_line_delta_bp": 11.955000000000041
+    },
+    {
+      "engine": "xelatex",
+      "kind": "spacing",
+      "status": "pass",
+      "source_scaffold_preserved": true,
+      "following_line_delta_bp": 11.954999999999927
+    }
+  ],
+  "limitations": [
+    "Synthetic text/explicit line-gap cases; native edit/reflow acceptance remains open."
+  ]
+}

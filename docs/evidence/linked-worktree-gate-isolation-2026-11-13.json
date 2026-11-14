@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-13T15:35:22.335586+00:00",
+  "kind": "linked_worktree_precommit_fixture_isolation_correction",
+  "status": "focused_regression_passed_full_gate_retry_separate",
+  "diagnosis": "Synthetic test repositories inherited hook-exported Git repository/index authority in a linked worktree. Four fixture tests failed and one synthetic baseline commit was inadvertently created on the new development branch.",
+  "unintended_commit": "e9d1dc7ec2caa01e050f08e0343bb9c826a06c59",
+  "retained_recovery_ref": "recovery/precommit-fixture-inheritance-20261113",
+  "repair": "New development branch returned to its4cfe461 starting commit with a mixed reset, retaining all working-file changes. Original development branch and delivered artifacts unchanged.",
+  "fix": "Isolate all GIT_* environment settings for fixture Git calls and fixture checkStagedTree only. Production default still uses the committing process environment and staged index; no hook bypass.",
+  "focused_tests_passed": 8,
+  "logs": {
+    "artifacts/local-ci/2026-11-13T15-30-36-516Z-425731eb-38a3-4a8c-a7de-4d03e3d50b4e/frontend.log": {
+      "bytes": 34414,
+      "sha256": "76e2c9b000c18d311c01769f9c1fa251dad0ff11db7da1f285cd182ca7a03521"
+    },
+    "artifacts/local-ci/2026-11-13T15-30-36-516Z-425731eb-38a3-4a8c-a7de-4d03e3d50b4e/pre-commit.json": {
+      "bytes": 367,
+      "sha256": "758512336897988b265ac5363e5c16e02c8f24b7145a551572351a37d6860df1"
+    },
+    "artifacts/intent-transport-20261113/precommit-tests-isolation.log": {
+      "bytes": 884,
+      "sha256": "a056cae7196d9b607276162a1161c16cc3e7fe38b74f30a05f102a55ac3832bc"
+    }
+  },
+  "source_sha256": {
+    "scripts/pre-commit.mjs": "0b5d35d902c631cb8084937804db24d4e10c4687df856c1352863cb85a60c972",
+    "tests/pre-commit.test.mjs": "5e149a0b8b41426522be842c5369ebd6084703abb71bccc44cc8217cb0ce2a13"
+  },
+  "packaging_followup": {
+    "attempt": "artifacts/local-ci/2026-11-13T15-35-22-946Z-68239aac-58d7-4b15-804f-35d2c26cfee6",
+    "result": "25local steps passed; package input guard rejected the local cache junction. No commit.",
+    "fix": "ci-package.ps1 follows CARGO_TARGET_DIR like build-desktop.mjs, using the actual non-reparse cache path. Portable reparse-point guard unchanged.",
+    "preflight": "passed actual portable packaging from configured target path",
+    "source_sha256": "d20fb2873f31dbf6405800826f907e3116a09faa0c3845e2b6075c9b493385ef"
+  }
+}

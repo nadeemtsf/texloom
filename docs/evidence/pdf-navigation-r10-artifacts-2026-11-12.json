@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "date": "2026-11-12",
+  "kind": "r10_windows_navigation_artifact_verification_not_native_acceptance",
+  "status": "owner_scroll_acceptable_selection_and_pinch_failed",
+  "source_commit": "663b7e28307374f266fa04010810ac0c8997a651",
+  "all_portable_members_bytes_hashes_crc": "passed",
+  "portable_members": 15,
+  "desktop_verifier_binding": "passed",
+  "app_opened": false,
+  "installed": false,
+  "native_input_results": "owner_partial_failure_see_followup",
+  "installer_check_scope": "Successful NSIS build and file hash; embedded installer payload not independently extracted",
+  "exe": {
+    "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-r10-Windows-x64-2026-11-12\\Texloom.exe",
+    "bytes": 17057792,
+    "sha256": "12056133f1626b10d137cc16824631fd076e33efd5bf262c4ddddb57c69de175"
+  },
+  "exports": [
+    {
+      "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-Windows-x64-development-2026-11-12-r10.zip",
+      "bytes": 12126062,
+      "sha256": "5ab07b4e36b5d67229cef6069267b51741c571a1ff248d44bd6ff08830fe63b4"
+    },
+    {
+      "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-0.3.0-x64-development-2026-11-12-r10-setup.exe",
+      "bytes": 9560933,
+      "sha256": "dfd6f858cf69c0894a1ad9a19af46b95d8dbd8f9f96ef1ea586e2e84ab8e9395"
+    },
+    {
+      "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-r10-navigation-checklist-2026-11-12.md",
+      "bytes": 1842,
+      "sha256": "6652ed8b80b2054ee48ce3e72fa23c263b9c5b5be30d65c8e5e4b75118a1e31f"
+    }
+  ],
+  "friendly_folder": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-r10-Windows-x64-2026-11-12",
+  "fixtures": [
+    {
+      "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-r10-navigation-fixtures-2026-11-12\\short-document\\main.tex",
+      "bytes": 1577,
+      "sha256": "03e3ab78ac4168cd6c0107002e35134e29110f2e89e6efde9f9e0a450113efb1",
+      "prior_cli_page_count": 6,
+      "preflight_reused": "Exact byte copy of independently preflighted 10 November synthetic fixture; not a new native observation"
+    },
+    {
+      "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-r10-navigation-fixtures-2026-11-12\\long-document\\main.tex",
+      "bytes": 6197,
+      "sha256": "03030290ddbf36155f7faf920e06e7164ccbcbc46e0e15ac5753ee07b20eb8db",
+      "prior_cli_page_count": 25,
+      "preflight_reused": "Exact byte copy of independently preflighted 10 November synthetic fixture; not a new native observation"
+    }
+  ],
+  "build_log": {
+    "path": "C:\\Users\\thebe\\Gtihub Repos\\Mine\\texloom\\artifacts\\continuation-20261112\\desktop-build.log",
+    "bytes": 8048,
+    "sha256": "e2f218407fafda6d844e7ee657a067ce5b6b1e564ff98b9b82b7aef5fb9652ad"
+  },
+  "core_log": {
+    "path": "C:\\Users\\thebe\\Gtihub Repos\\Mine\\texloom\\artifacts\\continuation-20261112\\core.log",
+    "bytes": 12520,
+    "sha256": "308581a1ac73bce3d9c2945ce75ea9f76094237b5822eca3be34a628bb780f41"
+  },
+  "independent_pe_header_check": "passed AMD64 0x8664",
+  "owner_followup_receipt": "docs/evidence/pdf-navigation-owner-followup-2026-11-12.json",
+  "app_opened_scope": "app_opened=false refers to the agent at artifact verification; owner later reported testing this copy"
+}

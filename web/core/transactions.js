@@ -4,7 +4,22 @@ export class StaleCandidate extends Error {
   constructor(){super('The source changed during this operation. The newer source was preserved.');this.name='StaleCandidate'}
 }
 export class CompilationFailure extends Error {
-  constructor(log){super(compileDiagnostic(log));this.name='CompilationFailure';this.log=log}
+  constructor(log,diagnostics=[]){
+    const preflight=diagnostics.find(d=>d.severity==='error'&&typeof d.code==='string'&&d.code.startsWith('compiler_preflight_')&&typeof d.message==='string');
+    super(preflight?.message||compileDiagnostic(log));this.name='CompilationFailure';this.log=log;this.diagnostics=diagnostics;
+  }
+}
+export class CommittedPresentationFailure extends Error {
+  constructor(cause){
+    super('The edit was applied to the source, but the preview could not be completed. Use Undo to revert the edit, or Compile to refresh the preview. Save is still explicit.',{cause});
+    this.name='CommittedPresentationFailure';
+  }
+}
+export class CommitStatusUnknown extends Error {
+  constructor(cause){
+    super('The edit may already be in the source. Texloom could not confirm it, so source changes are paused. Copy any needed editor text before closing, then reopen Texloom and review recovery.',{cause});
+    this.name='CommitStatusUnknown';
+  }
 }
 export function compileDiagnostic(log='') {
   const lines=String(log).split(/\r?\n/);
@@ -18,20 +33,33 @@ export function compileDiagnostic(log='') {
   return message;
 }
 export function sessionIdentity(session) {
-  return `${session.project?.id}\0${session.project?.main}\0${session.revision}`;
+  return `${session.project?.id}\0${session.project?.main}\0${session.revision}\0${session.buildEpoch||0}`;
 }
 
 /** No source, history, or PDF state is mutated before the complete candidate passes. */
-export async function stageCandidate({sources,revision,identity,getIdentity,compile,prepare,policy,previousPageCount}) {
+export async function stageCandidate({sources,revision,identity,getIdentity,compile,prepare,policy,previousPageCount,verify=async()=>{},requireVerified=false,trace=null}) {
   let prepared=null;
   try{
     if(getIdentity()!==identity)throw new StaleCandidate();
     const result=await compile(structuredClone(sources),revision);
+    trace?.mark('build-returned');
     if(getIdentity()!==identity)throw new StaleCandidate();
-    if(!result.ok)throw new CompilationFailure(result.log);
+    if(!result.ok||requireVerified&&result.verification_eligible===false)throw new CompilationFailure(result.log,result.diagnostics);
+    if(result.revision!==revision)throw new StaleCandidate();
     prepared=await prepare(result);
+    trace?.mark('pdf-prepared');
     if(getIdentity()!==identity)throw new StaleCandidate();
     validateObjectLayout(prepared,policy,previousPageCount);
+    trace?.mark('frontend-validated');
+    await verify(result);
+    trace?.mark('build-rechecked');
+    if(getIdentity()!==identity)throw new StaleCandidate();
     return {sources,result,prepared};
-  }catch(error){if(prepared?.pdf)await prepared.pdf.destroy();throw error}
+  }catch(error){
+    // A cleanup fault must not replace the compilation/validation failure.
+    try{prepared?.dispose?.()}catch{}
+    try{if(prepared?.pdf)await prepared.pdf.destroy()}catch{}
+    if(error.name!=='CompilationCancelled'&&getIdentity()!==identity)throw new StaleCandidate();
+    throw error;
+  }
 }

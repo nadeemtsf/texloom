@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-03T15:55:55.608053+00:00",
+  "audited_base": "d67c5af37717091e64a973964c3322b5b55e7ad2",
+  "checks": {
+    "core_default": 70,
+    "native_default": 41,
+    "native_ignored_not_repeated": 2,
+    "frontend": 118,
+    "frontend_build": "passed",
+    "windows_x64_release_build": "passed"
+  },
+  "tested_working_source_sha256": {
+    "src-tauri/src/service.rs": "f6886287e0f55087e6040df24b15e6959a130a38b14c55ba2f910e9efde9a41e",
+    "src-tauri/src/service/document.rs": "cdb1a8008f958c72ef9895d9126b5525ec2d9278f23ebf3480e7a8996ec3d138",
+    "src-tauri/src/service/synctex.rs": "b3677334572b4ef612f5d0bfcff4b70b4276b7fa4d91ce3a97ff5b3ea03f901e",
+    "tests/native-document-double.cjs": "f09fe668ac2b33c3c901f715b5d71fa6cafa1322ab5fe5bfc7bee076f9022330",
+    "tests/transactions.test.cjs": "3e9bb4e3dcf66e955a4feac52fdbf4781b01847b4973f377ce24d69db6aef1ef",
+    "web/app.js": "e5a9bee29a93c0d92b3521ced399a3e720e43c2f8929a928ab53df83b6a236cf"
+  },
+  "log_sha256": {
+    "visual-audit-core-final.log": "351c568ec8e9c44376ea5b0ba92700e2034978910e5e3bb71766eefb9ae26e80",
+    "visual-audit-native-final.log": "d5e32c305eac3e6026a06329f8fbe6ef0673d360cf3f9ea514cd1988829c387c",
+    "visual-audit-frontend-final.log": "1aa08f70ed0fba32ca426d6f13e5333e9f359d75a1be28ebac13b24513a780cd",
+    "visual-audit-frontend-build.log": "f13c75c2b78c4b9a6a2967d90fab80e70adbea9977f78715cce5d7f8ffaa5009",
+    "visual-audit-desktop-build.log": "ec3ea9484e4a04452d8381c4d541c4f8432ffc7728d4c172890954d16f29bd8a"
+  },
+  "executable_sha256": "0fd711490c42f306406044410b1a63a07307325aee67a1d577ca59e3bee13d7c",
+  "findings": [
+    "JavaScript/Monaco frontend, no React or strict TypeScript components",
+    "Normal and legacy drag pointer movement uses CSS; prepare/compile is release-triggered",
+    "Real SyncTeX edit/view CLI integration, not a Rust parser crate",
+    "Removed invented/inflated/clipped forward geometry and refused failed/truncated/ambiguous query output",
+    "Mapping checks current source revision and sealed trace integrity; accepted artifacts have a read lifetime independent of superseded compiler jobs",
+    "Legacy rejected drag/resize previews now restore accepted styles and overlays",
+    "Compiler already passes -synctex=1; no compiler flag mutation was needed",
+    "Constrained structural scanner and guarded range patches; no full TeX AST"
+  ],
+  "limits": [
+    "No native mouse/typing/IME/app-control acceptance; owner deferral retained",
+    "Local installed MiKTeX preflight failures remain open; real positive SyncTeX/engine coverage must be observed separately",
+    "Process failure tests execute real nonzero/truncated children; mapping parser cases include synthetic output and receipt fixtures",
+    "No new portable ZIP/installer or release claim; built executable was not launched",
+    "Source-copy performance work paused during this audit; strict/generated IPC typing and other phase gates remain open"
+  ]
+}

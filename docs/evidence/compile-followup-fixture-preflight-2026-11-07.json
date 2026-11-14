@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-07T11:45:16.779584+00:00",
+  "kind": "synthetic_manual_fixture_preflight_not_application_acceptance",
+  "engine": "C:\\Users\\thebe\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\pdflatex.EXE",
+  "text_extractor": "C:\\Users\\thebe\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\pdftotext.EXE",
+  "fixture_path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-r8-followup-fixtures-2026-11-07\\compile-recovery\\main.tex",
+  "fixture_sha256": "3af54c1fce0d14564e363e98729e6b746cc9d27cdf94ce96eb2ec11a15507e3c",
+  "stages": [
+    {
+      "stage": "baseline",
+      "return_code": 0,
+      "expected_success": true,
+      "source_sha256": "3af54c1fce0d14564e363e98729e6b746cc9d27cdf94ce96eb2ec11a15507e3c",
+      "expected_visible_text": "pass",
+      "log_path": "artifacts/continuation-20261107-weekly57/compile-followup-preflight/baseline/compile-output.log",
+      "log_sha256": "bd2d242dc9b08f40950038a226c53add42fc8a3720220fcb662535807fb33cc3"
+    },
+    {
+      "stage": "error",
+      "return_code": 1,
+      "expected_success": false,
+      "source_sha256": "bc75e0fba56c386f2796b1d453e8e54c95b9de165c85ad97cc43e9f62975ff3d",
+      "intentional_undefined_command": "observed",
+      "log_path": "artifacts/continuation-20261107-weekly57/compile-followup-preflight/error/compile-output.log",
+      "log_sha256": "bdeaf50ea6e5250932e755e769912d3fbb85420b43392ba01d30bfd0671d7595"
+    },
+    {
+      "stage": "corrected",
+      "return_code": 0,
+      "expected_success": true,
+      "source_sha256": "88de58cd441921aa4a469e4a09f496c501ff4239382c8bc02d720452ebaeb180",
+      "expected_visible_text": "pass",
+      "log_path": "artifacts/continuation-20261107-weekly57/compile-followup-preflight/corrected/compile-output.log",
+      "log_sha256": "613ea3eb8f9a6a821677d3578d81de54dfbaeb5607e142036a7eecd23ecafcbf"
+    }
+  ],
+  "application_opened_or_installed": false,
+  "application_retained_good_pdf": "pending_owner",
+  "application_corrected_pdf_publication": "pending_owner",
+  "scope": "Independent engine checks in three fresh folders. Does not exercise Texloom compilation, preview retention, recovery or publication. Expected failure preserved; not final evaluation."
+}

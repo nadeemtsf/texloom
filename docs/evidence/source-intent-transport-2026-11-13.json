@@ -1,0 +1,139 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-13T15:26:21.768706+00:00",
+  "kind": "native_source_draft_transport_development_diagnostic",
+  "status": "native_diagnostic_and_focused_engineering_passed_full_commit_gate_separate",
+  "implementation_base": "4cfe4616c98e85a879e5a60296f5d3a8c09405dc",
+  "branch": "feature/source-intent-transport",
+  "protocol": "research/SOURCE-INTENT-TRANSPORT-PLAN.md",
+  "entry": "headless_native_service_not_tauri_dispatch_or_pdf_selection",
+  "conditions": 3,
+  "assertions": 75,
+  "condition_names": [
+    "english",
+    "arabic",
+    "hebrew"
+  ],
+  "counts_note": "Repeated assertions in three purposive development conditions, not independent app requests or an accuracy denominator",
+  "binary_sha256": "43b4c50a81b5566bc94c7edfae461524710b34e2c6b7303d1fc10b664ce9eb87",
+  "source_sha256": {
+    "research/tools/source_intent_transport.py": "2c3559b3d049b9d5bff61e1b429338403b359ec37b5e613671fdb5985030131c",
+    "research/SOURCE-INTENT-TRANSPORT-PLAN.md": "1df6e368f75fbabdca98d8dfa84f80763d4c5c0aabff0a79049538c8b34ffe92",
+    "src-tauri/examples/source_intent_transport_development.rs": "68516c8324bf630cd86aa0dcec45c63bf705b01560aad6a6d58e1430793bf42e",
+    "src-tauri/src/build_protocol.rs": "953867511e4a197e70ae5dc310ebc4a54b8adb51485d7cbc1095e455b403c35f",
+    "src-tauri/src/document_protocol/bindings.rs": "524a73038ce41661146cf64d02ad23780d6f26b5ce97b8f38b25e71785cc32a2",
+    "src-tauri/src/document_protocol.rs": "771869cfa753927d3cd69d4a26d60145dbc8f24d76929ca2531cd18c48bb17c6",
+    "src-tauri/src/lib.rs": "5bfa81d0e807914614ed4c2dd9ea1093771a5a571cf02afa0dd835e0216093cc",
+    "src-tauri/src/main.rs": "b0d48f87686a53718fbeb902c0e2be1e967f927f1f9381864dda4adaf79d3b84",
+    "src-tauri/src/service/adapters.rs": "8918a795c43fef7611ce4650cb4dd3ec39fb38f0b0ec6e7346bbdc0da4278809",
+    "src-tauri/src/service/build_cache.rs": "92baa4edf4d6bd743cdef2c86ad8f1801085408ff8d3bdab20a5c4620b5f3940",
+    "src-tauri/src/service/document/source_intent/tests.rs": "6e959dfa0d8b0c6dc03e76e4f9527209f47c6f6386a97eb5cd947c8b9d5f660c",
+    "src-tauri/src/service/document/source_intent.rs": "0a46daeecb36ee06045cfeb8ab299d95538668b3ad1f28aa185602ab007cd823",
+    "src-tauri/src/service/document/typing_recovery/tests.rs": "3b20eef59d5fb27cf22bfc6c97875cf541fc8f40e4a29f10c78fe9ad08114c84",
+    "src-tauri/src/service/document/typing_recovery.rs": "5741fb883240bef2ca4c3dac44cbe9617bbf753fc3a97d0c7839009eab116529",
+    "src-tauri/src/service/document.rs": "c425a257c56f08383ca37eea1411e89f8d377e2fb8494b66998542ef2a7320e1",
+    "src-tauri/src/service/layout_gate/tests.rs": "6ec73c7e70e66e7ff6a13a53f4f2760a25806f74c3c0d2a2343f1b28f91629be",
+    "src-tauri/src/service/layout_gate.rs": "e204892866ecf5fbaf72c770474c6c0492f011d3282f9564db91212a36fa74ad",
+    "src-tauri/src/service/project_workflows.rs": "600a13d8fb34e2f04426c29172f997bb1461f81a0cb8a944c44506e83c1a4236",
+    "src-tauri/src/service/synctex.rs": "8217356c9073db9ebecda9c93b3cac8bcd51ae59600d0a436066ff1d95805d6b",
+    "src-tauri/src/service/visual.rs": "71bbc7257e13b839d3fd2a6bf23baa8c42ec78be5aa8e2ccda49cf4d830c3736",
+    "src-tauri/src/service.rs": "84b6c7b0f07ac5e0fd3ebf1efbcb5f50f406a476185c9a94c3e272ed1f63d897",
+    "src-tauri/src/workspace_protocol.rs": "132f9859db72211a413a1353c5b59b46e9457a1fd92d3268e877968a45f5280c",
+    "crates/texloom-core/src/adapters.rs": "4a46df024e3318fdf5bfbce0879ed324fd2555a6b4355215c6913f27a85577f8",
+    "crates/texloom-core/src/document/intent.rs": "b285a5e322975a2d9ac660cfcbd9c0fe40eb8a30fe160a44687c85814d4e597a",
+    "crates/texloom-core/src/document/position.rs": "c1cee69d974aaa53c788ac26f4260aa4b8305d824863a02f1f3cf5b9a08df6d4",
+    "crates/texloom-core/src/document/projection.rs": "91230a8c1d6be73c3d4d0f2d77d37b449799f4be95020799e6504b5a2f06e96f",
+    "crates/texloom-core/src/document/recovery.rs": "d1d65482305a5afb804fd875420546ccc00c635091b6e640f7b3edfce4bc161b",
+    "crates/texloom-core/src/document/source_edit/tests.rs": "18b35da6df657fc6106ce5fbff91aed6edc1916d4002113599ade5928d43a52c",
+    "crates/texloom-core/src/document/source_edit.rs": "a3df4f6327c70c341d63be4a44ce1703dd07372fa71d465301409f450c49919e",
+    "crates/texloom-core/src/document/structure.rs": "a99fc8da8d1b4ec4b5513ec31e544e522b57fd47f963a60a8b1dd03ab7918d09",
+    "crates/texloom-core/src/document.rs": "0e0ab1fd933cc62b3b055ce21f6506370d1695c2d8a0acc0acd2fcf3623ce957",
+    "crates/texloom-core/src/lib.rs": "dd4a16e1ff2b12a1c292da707e2b73e7bdff51b7bd2b420cf97eb57f1bdfbda3",
+    "crates/texloom-core/src/literal_text.rs": "55aeecd3dab322e4538ff018cb13e007406e76d8ba0eb0499903402fcaf4d4f0",
+    "crates/texloom-core/src/objects.rs": "1866eb43ac4c7a4b3dd92a3890fe804a0b0710d34a898c435d23feb21bb7f09a",
+    "crates/texloom-core/src/selection_hints.rs": "7335af18644e45e8200a1ae017c92b5eb5c35e6536d5ed325334a01b51091963",
+    "crates/texloom-core/src/spacing.rs": "5a43ac719e84ef5b03e3d99e0bacc89baecf48e1fb1eb1fe2863408ea7d688fd",
+    "crates/texloom-core/src/templates.rs": "2709b7ac002fa025c7e97481368746499a8be5ff44ebc48637afb8caed08c1f3"
+  },
+  "artifacts": {
+    "artifacts/intent-transport-20261113/run-1/arabic-transcript.json": {
+      "bytes": 19592,
+      "sha256": "1b271ee04351c67afa7e0090400dd5a707da90c733a23c45d62e11ceb8b71bdb"
+    },
+    "artifacts/intent-transport-20261113/run-1/english-transcript.json": {
+      "bytes": 19335,
+      "sha256": "f0b3c46dff52cd01e486d0d72e0379cbccd5d25f9004d68bd02a21170d469299"
+    },
+    "artifacts/intent-transport-20261113/run-1/hebrew-transcript.json": {
+      "bytes": 19306,
+      "sha256": "b0f879e1eb634420ba7a6215a811f3656c22edfe117a46264e69bc3a80ec7f9d"
+    },
+    "artifacts/intent-transport-20261113/run-1/pre-run.json": {
+      "bytes": 4476,
+      "sha256": "00801bda0cb5a31a80a1a1ec0ca396f18c3411c4e58fecc9398abc1aa5590947"
+    },
+    "artifacts/intent-transport-20261113/run-1/results.json": {
+      "bytes": 44889,
+      "sha256": "43b21805d42fc374883f0b0c88a69cae64cd3530ad17d5cd0574516140d3bccd"
+    }
+  },
+  "source_changed_during_run": [],
+  "service_test_only_conditions": [
+    "ledger_capacity",
+    "protection_failure",
+    "pending_build_cancellation",
+    "strict_request_dtos"
+  ],
+  "scope": {
+    "render_proof": "unresolved",
+    "final_evaluation": false,
+    "gui_opened": false,
+    "tex_compilation": false,
+    "original_files_saved": false
+  },
+  "limitations": [
+    "Headless Backend service calls, not running Tauri dispatch/WebView2",
+    "Exact multilingual source bytes, not shaping/bidi/caret acceptance",
+    "Session receipts disappear on reopen; unknown is not a clean non-execution proof",
+    "No held-out study, usability or latency result"
+  ],
+  "focused_engineering": {
+    "frontend_passed": 331,
+    "new_native_service_tests_passed": 8,
+    "strict_types_and_serde_fixtures": "passed",
+    "git_diff_check": "passed",
+    "log_scope": "Final focused commands streamed to tool transcript; authoritative full-gate step logs are separate ignored artifacts"
+  },
+  "source_changes_since_diagnostic": [
+    "src-tauri/src/document_protocol/bindings.rs"
+  ],
+  "source_changes_note": "Only type-generation fixture/formatting changes after native diagnostic; runtime native source unchanged. Full precommit gate checks final staged tree separately.",
+  "engineering_source_sha256": {
+    "src-tauri/src/build_protocol.rs": "953867511e4a197e70ae5dc310ebc4a54b8adb51485d7cbc1095e455b403c35f",
+    "src-tauri/src/document_protocol/bindings.rs": "ffb5aba7cd718e2041f33f4af7cc4c9f0a6dea340b1215adda9672d9544d327c",
+    "src-tauri/src/document_protocol.rs": "771869cfa753927d3cd69d4a26d60145dbc8f24d76929ca2531cd18c48bb17c6",
+    "src-tauri/src/lib.rs": "5bfa81d0e807914614ed4c2dd9ea1093771a5a571cf02afa0dd835e0216093cc",
+    "src-tauri/src/main.rs": "b0d48f87686a53718fbeb902c0e2be1e967f927f1f9381864dda4adaf79d3b84",
+    "src-tauri/src/service/adapters.rs": "8918a795c43fef7611ce4650cb4dd3ec39fb38f0b0ec6e7346bbdc0da4278809",
+    "src-tauri/src/service/build_cache.rs": "92baa4edf4d6bd743cdef2c86ad8f1801085408ff8d3bdab20a5c4620b5f3940",
+    "src-tauri/src/service/document/source_intent/tests.rs": "6e959dfa0d8b0c6dc03e76e4f9527209f47c6f6386a97eb5cd947c8b9d5f660c",
+    "src-tauri/src/service/document/source_intent.rs": "0a46daeecb36ee06045cfeb8ab299d95538668b3ad1f28aa185602ab007cd823",
+    "src-tauri/src/service/document/typing_recovery/tests.rs": "3b20eef59d5fb27cf22bfc6c97875cf541fc8f40e4a29f10c78fe9ad08114c84",
+    "src-tauri/src/service/document/typing_recovery.rs": "5741fb883240bef2ca4c3dac44cbe9617bbf753fc3a97d0c7839009eab116529",
+    "src-tauri/src/service/document.rs": "c425a257c56f08383ca37eea1411e89f8d377e2fb8494b66998542ef2a7320e1",
+    "src-tauri/src/service/layout_gate/tests.rs": "6ec73c7e70e66e7ff6a13a53f4f2760a25806f74c3c0d2a2343f1b28f91629be",
+    "src-tauri/src/service/layout_gate.rs": "e204892866ecf5fbaf72c770474c6c0492f011d3282f9564db91212a36fa74ad",
+    "src-tauri/src/service/project_workflows.rs": "600a13d8fb34e2f04426c29172f997bb1461f81a0cb8a944c44506e83c1a4236",
+    "src-tauri/src/service/synctex.rs": "8217356c9073db9ebecda9c93b3cac8bcd51ae59600d0a436066ff1d95805d6b",
+    "src-tauri/src/service/visual.rs": "71bbc7257e13b839d3fd2a6bf23baa8c42ec78be5aa8e2ccda49cf4d830c3736",
+    "src-tauri/src/service.rs": "84b6c7b0f07ac5e0fd3ebf1efbcb5f50f406a476185c9a94c3e272ed1f63d897",
+    "src-tauri/src/workspace_protocol.rs": "132f9859db72211a413a1353c5b59b46e9457a1fd92d3268e877968a45f5280c",
+    "frontend/protocol/build-protocol.ts": "c26016141ba8ff5b6d8890f1fd0fa9446a9e988b12a0b1ba469e7e7e2f76b6e2",
+    "frontend/protocol/document-client.ts": "56b507bdd98c4ac60988ec6ff1388e8537cdd5aeb0478a6ef3ee90d030cead70",
+    "frontend/protocol/document-protocol.ts": "170792a9425b85d403058fe81fc1403178bbaf15d5b80386af72f5dadd7b9749",
+    "frontend/protocol/workspace-protocol.ts": "d2b20fc1794b81f3cc08e7b812bcfb1dd5b4fa3ac625f965a31ae5490859e685"
+  },
+  "retained_attempts": [
+    "An intermediate strict TS emit found the newly used sameSources import missing; corrected before the final331-test pass. Tool transcript retains the error, no raw log was saved."
+  ]
+}

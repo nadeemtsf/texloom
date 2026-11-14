@@ -1,0 +1,284 @@
+\section{Implemented workflow and authority boundaries}
+The application combines a Tauri/Rust backend, Monaco source editing and a
+PDF.js preview. The Rust document model owns canonical source/history and
+visual-operation authority. JavaScript provides interaction and prepares the
+view but cannot manufacture a native approval. Figure~\ref{fig:workflow}
+summarizes the supported path; the following account separates selection,
+candidate verification, commit and durability.
+
+\begin{figure}[htbp]
+\centering\small
+\newlength{\stagewidth}\setlength{\stagewidth}{.27\textwidth}
+\begin{tabularx}{\linewidth}{@{}YcYcY@{}}
+\fbox{\parbox{\stagewidth}{\centering\textbf{1. Select}\\Compiled text hit/group}} & $\to$ &
+\fbox{\parbox{\stagewidth}{\centering\textbf{2. Map}\\Source hints and unit}} & $\to$ &
+\fbox{\parbox{\stagewidth}{\centering\textbf{3. Establish identity}\\Private zero-offset probe}}\\[9pt]
+\fbox{\parbox{\stagewidth}{\centering\textbf{4. Plan}\\Immutable source candidate}} & $\to$ &
+\fbox{\parbox{\stagewidth}{\centering\textbf{5. Compile and inspect}\\Operation-specific policy}} & $\to$ &
+\fbox{\parbox{\stagewidth}{\centering\textbf{6. Decide}\\Commit or refusal}}
+\end{tabularx}
+\caption{Read stages in numerical order. Selection capability, native commit,
+view publication and later Save are distinct boundaries.}
+\label{fig:workflow}
+\end{figure}
+
+\subsection{Visible selection and source evidence}
+PDF.js supplies compiled text runs, line geometry and marked-content bounds.
+The canvas controller proposes a clicked line or adjacent group. A marquee
+does not directly choose source offsets or write files. Read-text mode remains
+available separately for ordinary highlighting and copying.
+
+A later source-only UI revision links an accepted PDF selection to its
+normalized source range using a Monaco decoration, preserving canvas focus.
+It also adds a distinct reset-to-zero action that retains the movable wrapper,
+separate from removing positioning. Literal editing shows bounded formatting,
+direction and protected-command hints; these are not a TeX font/shaping preview.
+The modal is placed beside the selected unit only when it fits the viewport,
+with a centered fallback. The original source-only receipt did not establish
+Windows usability. Later builds and the separately recorded owner observations
+have narrower, named scopes; source presence alone remains insufficient.
+
+For unwrapped text, the resolver asks native SyncTeX for file/line evidence
+and examines conservative source units. It can enumerate bounded alternatives;
+the frontend limits distinct probe attempts rather than searching indefinitely.
+Duplicate hints are not repeatedly compiled. A wrapped paragraph may be the
+smallest safe unit, even if the user clicked one displayed line. Cross-file,
+incompatible-column and unsupported structural evidence can refuse before
+any edit is planned. A repeated printed string is not treated as a unique
+source occurrence merely because its spelling matches.
+
+An existing movable object is resolved through its compiled marker and
+observed bounds. Multiple PDF instances, multiple pages or unsupported page
+coordinates do not grant an ordinary movement frame. The marker links a
+source object to emitted content; it does not independently establish that
+the user intended that object.
+
+\subsection{Private identity probes}
+For an ordinary source unit, a private candidate wraps the fragment at zero
+displacement. The frontend requires compatible pages, unchanged runs and
+pixels, unique marker membership and coverage of the clicked runs. The
+selection can expand to the verified unit, and the frame shows that scope.
+The probe does not add a wrapper to canonical source or history. Its cached
+proof belongs to the current baseline view and must still pass baseline
+dependency checks when reused.
+
+A probe token is not a visual-operation approval. The eventual movement
+requires a native operation plan and independent native layout approval.
+First-wrap movement also performs a native zero-offset identity check. Thus
+frontend selection evidence and native commit authority serve different
+purposes. Their agreement is useful, but shared source assumptions and the
+movement package can still create correlated mistakes.
+
+\subsection{Exact source planning}
+Canonical sources preserve UTF-8 bytes, including BOMs and local line endings.
+Monaco sees an LF-normalized view without a leading BOM and reports UTF-16
+coordinates. The Rust projection maps valid editor boundaries back to source
+byte positions. It does not serialize a syntax tree over the whole document.
+Unsupported or stale ranges can refuse rather than guess through a surrogate
+or source boundary.
+
+For supported text, native planning derives the candidate from the current
+sources, object/selection, expected content and operation. A proposal with an
+unrequested neighboring or supporting-file change does not match this plan.
+The movement macro applies drawing translation while retaining the fragment's
+layout contribution. It does not generally box and relocate arbitrary material
+outside its formatting context or solve a new flow layout. Support-package
+version consistency is also checked.
+
+The frontend's proposed source and typed messages are not the final authority.
+Rust-generated protocol contracts and runtime reply validation protect the
+transport boundary; native prepare still rederives the permitted source
+change. Reusing the same planner at two boundaries is not equivalent to two
+independent semantic specifications, which motivates a separate source oracle
+in the evaluation.
+
+\subsection{Immutable builds and native inspection}
+Candidates compile from private snapshots, with engine, recipe, source,
+asset and recorded dependency receipts. The current direct-engine service
+has bounded passes/time and declared bibliography recipes. Preflight failure,
+truncated output or unresolved build diagnostics can withhold verification
+eligibility. Source remains editable when TeX compilation fails; the last
+good PDF is retained as an older view rather than promoted to current authority.
+Shell escape is disabled and MiKTeX automatic package installation is disabled.
+These process controls are not a security sandbox for arbitrary untrusted TeX.
+
+For a visual candidate with a native operation plan, the build RPC obtains independent inspection
+from a checked, pinned PDFium worker before returning successful visual
+approval. Normal displacement compares against a baseline-derived translation
+prediction, including target geometry, unaffected material and complete
+same-renderer appearance. Candidate pixels do not construct that prediction.
+Budget, paint, annotation, target-isolation or correspondence failures can refuse.
+
+After the native reply, the frontend prepares the PDF offscreen in PDF.js,
+checks its operation-specific geometry and rechecks the build receipt.
+The latter native \code{verify\_build} call checks recorded inputs; it is not
+another independent PDF comparison. This ordering matters when interpreting
+timings: native layout approval is already included in the build RPC.
+
+\subsection{Commit, cancellation and newer typing}
+Approval is private native state bound to the exact project, revision, build
+and cancellation lease. Commit checks it under the canonical document lock
+and consumes the pending candidate once. A JSON field cannot substitute for
+that approval. Source edits, changed configuration, stale results and cancelled
+leases can invalidate an operation even when a previously compiled PDF exists.
+
+The frontend also checks identity after asynchronous steps. If the user types
+while a visual candidate compiles, the newer source is preserved and the old
+candidate is discarded. Preparation failure destroys the private prepared
+view rather than adding history. Dragging updates an outline and does not
+compile on pointer movement; release requests an edit. Event-boundary tests
+cover Escape, capture loss and focus-loss cancellation. The owner later reported
+the named r11 held-drag cancellation checklist passed. That guided observation
+does not cover every capture-loss interleaving or Windows display transition.
+
+Native commit occurs before final frontend publication. Offscreen preparation
+reduces the chance of a presentation failure after commit, but this cross-process
+workflow is not claimed as a filesystem/UI-wide atomic transaction. Native
+acceptance and a displayed frame are recorded separately in the proposed study.
+
+The subsequent failure-handling revision distinguishes a known
+native commit followed by presentation/reselection failure from a refusal
+before commit. If an attempted commit has no usable acknowledgement or
+confirming state, the replica stops new writes and records uncertainty rather
+than automatically retrying. Cleanup failures must not clear the busy state
+incorrectly or destroy an adopted PDF. Resumed controller tests exercise
+acknowledged-commit publication failure, unknown acknowledgement and control
+release; they are not injected failures in a running Windows process. Native
+history, view publication, original-file Save and exact reopen still require
+separate observations.
+
+\subsection{Source-model extension under development}
+The 10 November core adds typed source-byte and editor-UTF-16 coordinates,
+logical insertion affinity and transient change maps. Unmodified selections
+map through preceding changes; replacement through a selected interval clears
+identity instead of retaining numerically valid offsets over different text.
+All secondary ranges must survive, and recorded history restores the selection
+with its source snapshot. Scalar boundaries are not grapheme or visual caret
+stops. Existing entity references remain session/revision-bound and become
+stale after any changed revision; the coordinate map does not revive them or
+revalidate old rendered geometry.
+
+A conservative source projection retains unsupported syntax as opaque bytes.
+The first typed intent planner prepares literal paragraph replacement and
+paragraph-content deletion against exact current references. It emits ordinary
+\LaTeX, changes one rederived source range and preserves other files/profile.
+Escaped input is distinct from raw source; structural input requires a different
+intent. The plan records a rendered-content proof obligation and declared
+document reflow, with no visual-acceptance method. Native rendered verification,
+source-to-PDF identity and UI integration remain open. The later native draft
+transport has a separately bounded acknowledgement contract described below.
+The projection can decline an entire macro-defined document, including the
+current template, so useful editable coverage is unresolved. This first slice
+is not the full Word-like authoring workflow.
+
+The later core at \code{897c121} recognizes narrow preamble-only forms for
+plain font names, the current default languages, specific Arabic/Hebrew font
+switches and literal paragraph dimensions. Unknown options, computed arguments,
+general macro definitions and body context changes still refuse. Recognition
+preserves source bytes; it does not establish package semantics or rendered
+identity. Current syntax references are the maintained fontspec user-command
+documentation and Polyglossia manual~\cite{fontspeccommands,polyglossiamanual}.
+
+The explicit \code{apply\_source\_intent\_draft} core API consumes a privately
+constructed plan through existing source/history authority. Its receipt records
+the source revision and a still-required render proof. Foreign/stale plans and
+revision exhaustion cannot mutate source; no-op drafts retain selection/history.
+This is the source-editor lifecycle, requiring journaling and invalidation of
+rendered editing capabilities at the integration layer. The core API alone
+provides no IPC/UI handler, visual approval or automatic Save. The r10
+navigation artifact predates these later core additions.
+
+\paragraph{Native draft transport and acknowledgement resolution.}
+The 13 November continuation supplies native-issued, session/revision-bound
+paragraph handles and strict tagged Replace/Delete draft requests. Caller
+offsets cannot substitute for those private references. The native service
+rederives the core plan, validates its proposed history state and protects
+changed drafts before publishing canonical memory. Pending visual candidates
+and obsolete compilation are invalidated only for actual changes. This adds
+neither a PDF-selection command nor rendered approval.
+
+An operation ID identifies one exact request within an open session. Up to 128
+receipts and 4 MB of request payload are retained without eviction; capacity
+refuses new requests rather than forgetting a destructive outcome. A duplicate
+returns the immutable original outcome and a separately current snapshot, so
+retry after Undo cannot silently redo the operation. A conflicting payload
+refuses. Status lookup performs no source edit.
+
+Receipts and handles do not survive session reopen. Unknown lookup then means
+that this session has no receipt, not that the previous process did not act.
+The caller must reconcile current/recovered source instead of automatically
+issuing a new request. A journal-write error can also follow partial filesystem
+writes: canonical memory remains unchanged, but the cached outcome is explicitly
+uncertain rather than claiming no draft could later recover. Thus the contract
+is bounded session idempotency and protected draft recovery, not durable
+exactly-once execution across crashes. No automatic original-file Save follows.
+
+\paragraph{Admitted refusal is a definite source outcome.}
+The 14 November extension returns and caches \code{source\_draft\_refused}
+for an admitted bounded request rejected before canonical or recovery mutation.
+It binds the requested and observed revisions and a finite reason. A stale
+revision, unavailable target or unsupported literal can therefore resolve
+without reopening the project. An identical retry retains the original refusal
+even after later source changes; lookup still returns separately current state.
+Selection, redo, pending candidates and running work are preserved by refusal.
+
+This contract does not convert every exception into nonexecution. Schema/ID,
+missing-session, conflicting-payload and capacity failures remain outside the
+admitted receipt contract. An unknown lookup cannot clear an unresolved call,
+and a recovery-write failure stays uncertain. Table~\ref{tab:source-outcomes}
+states the permitted response; neither known outcome grants rendered approval.
+
+\begin{table}[htbp]
+\small\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{.19\linewidth}YY@{}}
+\toprule
+Confirmed outcome & What it establishes & Permitted client response\\
+\midrule
+Applied draft & Named source/history step; render proof unresolved & Adopt current state; clear matching uncertainty without reapplying\\
+Admitted refusal & No canonical/recovery mutation by that request & Retain current source; allow a later edit after confirmation\\
+Unknown / lost reply & No confirmed execution outcome in this session & Stop dependent writes; lookup/reconcile; no automatic retry\\
+Protection uncertain & Live source retained, but a proposed recovery draft may exist & Preserve uncertainty; explicit current/recovered-state reconciliation\\
+\bottomrule
+\end{tabularx}
+\caption{Outcome knowledge is separate from source revision, presentation and
+original-file persistence.}\label{tab:source-outcomes}
+\end{table}
+
+\subsection{History, Save and recovery}
+Table~\ref{tab:authority-levels} separates source progress from the stronger
+claims that a later stage would need. A new transport method changes how a
+draft is requested; it does not itself establish rendered identity or Save.
+
+\begin{table}[htbp]
+\small\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{.19\linewidth}YYY@{}}
+\toprule
+Entry / outcome & Canonical source/history & Rendered authority & Persistence\\
+\midrule
+Read-only typed plan & Unchanged & Obligation only & None\\
+Explicit source draft & Exact guarded shared-history change & Unresolved; last-good view remains older & Protected draft; original files unchanged\\
+Transport receipt or lookup & Records an outcome; lookup performs no edit & No PDF target/approval evidence & Session receipt; unknown after reopen\\
+Compiled candidate & Not a commit & Parse/compile success alone insufficient & Private build artifacts\\
+Approved visual transaction & Consumes exact native candidate & Named policy and current dependencies & History/recovery; still separate from Save\\
+Explicit Save & Current source retained & No additional render proof & Guarded original-file replacement\\
+\bottomrule
+\end{tabularx}
+\caption{Authority is specific to an entry layer and outcome, rather than a
+single success flag.}\label{tab:authority-levels}
+\end{table}
+
+Source edits and accepted visual edits share native Undo/Redo history. Typing
+may coalesce; an accepted visual transaction has its own entry. Undo restores
+source state while advancing revision and invalidating old layout authority.
+It does not authorize a stale candidate merely because old bytes reappear.
+
+Save is explicit. It verifies external file fingerprints and stages multi-file
+replacement with recovery information. Recovery can finish a staged Save,
+restore earlier files or preserve the editor version as a separate copy.
+Rollback and removal of a staged recovery journal are different operations.
+Typing recovery protects unsaved source/history separately and grants no old
+visual approval. These are recoverable writes, not a claim of one atomic
+filesystem rename covering an entire project.
+
+The code anchors are \path{web/app.js}, the modules under \path{web/core/},
+\path{src-tauri/src/service/document.rs}, \path{src-tauri/src/service/layout_gate.rs},
+and the document/build crates. \path{research/implementation-audit.md} gives
+the detailed mapping and separates implemented, recorded and planned behavior.

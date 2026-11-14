@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-04T18:19:07.833611+00:00",
+  "status": "development_tool_diagnostics_pass",
+  "final_evaluation_executed": false,
+  "actual_application_observations_summarized": false,
+  "component_unit_checks": 5,
+  "total_research_tool_checks": 19,
+  "unit_scenarios": "Explicitly synthetic annotations only, not experiments",
+  "cli_health": [
+    {
+      "case": "explicit-development-required",
+      "exit_code": 2,
+      "no_summary_written": true
+    },
+    {
+      "case": "unfilled-spec-is-not-data",
+      "exit_code": 1,
+      "no_summary_written": true
+    }
+  ],
+  "analysis_sha256": "9a06179f785e8aad6856245ff014baf2883a359897ad5d56025d268383772591",
+  "row_spec_sha256": "ad04d3426d6b6b75af5719d02d2a10cb6f2711190d3c0edb9c0ebf6dd6d501f3",
+  "test_log_sha256": "24cf968ddac20d28f3f753d351e83124ad53ab1c28c7fd06ca6e363a3ab90789",
+  "limits": [
+    "Counts/labels are supplied; script does not prove that app actions happened.",
+    "Final frozen-evidence admission and timing/clustered inference remain planned."
+  ]
+}

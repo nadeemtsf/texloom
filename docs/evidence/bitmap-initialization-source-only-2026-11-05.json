@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-05T13:25:34.6098214Z",
+  "kind": "source_only_pdfium_boolean_result_guard_not_validation",
+  "status": "untested_unbuilt_owner_paused_all_tests",
+  "base_head": "4e403cab5f0dd5fc4321ad18a1ee27d8bb2da318",
+  "source_files": [
+    {
+      "path": "crates/texloom-build/src/bin/pdfium_worker/api.rs",
+      "bytes": 5848,
+      "sha256": "d7d4a0b96ece9138f7b3fe52f65dd0e6600ad387f64480651c5f0706a265163a"
+    },
+    {
+      "path": "crates/texloom-build/src/bin/pdfium_worker/mod.rs",
+      "bytes": 13295,
+      "sha256": "e924ce89b6d45544429352fc217bcf6f82e79802a2dac23b0732ae1168f493bc"
+    }
+  ],
+  "basis": "Manual reading of actual distributor headers: FPDFBitmap_FillRect returns FPDF_BOOL, while Rust declaration returned void and discarded failure",
+  "change": "Declare integer result and refuse inspection before rendering/reading pixels if bitmap initialization fails",
+  "runtime_failure_reproduced": false,
+  "dll_loaded": false,
+  "tests_run": false,
+  "app_build_run": false,
+  "app_opened": false,
+  "dependency_pin_changed": false,
+  "fixes_CVE_2026_110155": false,
+  "release_ready": false,
+  "context": "docs/DEPENDENCY-CANDIDATE-INTAKE.md"
+}

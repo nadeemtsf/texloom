@@ -1,0 +1,114 @@
+{
+  "schema": 1,
+  "installed_exe_sha256": "a3c4225be0fbc9bf6f79ad0c4234ac9cd0cdaefcf6002f5eb2846a28ad5d067a",
+  "portable_exe_sha256": "20520866982788619f7e128b1a9b9b0345977c75b944fe42e6b94db1c35ab5cd",
+  "bundle_marker": {
+    "different_bytes": 3,
+    "offset": 13489778,
+    "portable": "UNK",
+    "installed": "NSS",
+    "all_other_bytes_identical": true
+  },
+  "installed_files": [
+    {
+      "path": "distribution/DEPENDENCIES.json",
+      "bytes": 54228,
+      "sha256": "8f405bea107b986d5485e7a57453dc7c44271a792ca66fd092dcedb6dac95c4b"
+    },
+    {
+      "path": "distribution/README.md",
+      "bytes": 564,
+      "sha256": "3ee7f398b68a98dbaba5df7a23586707417fbcab8a54144117df672458213323"
+    },
+    {
+      "path": "distribution/SOURCE-AVAILABILITY.txt",
+      "bytes": 1043,
+      "sha256": "17379ca3d3a4ac0dafd49c23b47385476352b288a90e33d28fb2627ba3198f06"
+    },
+    {
+      "path": "distribution/THIRD-PARTY-NOTICES.txt",
+      "bytes": 2293879,
+      "sha256": "287285f7810b458eee80eb8bdec56db3ccf3a8d2d9dbc6307a6b23b8ba2f4ae9"
+    },
+    {
+      "path": "texloom-desktop.exe",
+      "bytes": 17010176,
+      "sha256": "a3c4225be0fbc9bf6f79ad0c4234ac9cd0cdaefcf6002f5eb2846a28ad5d067a"
+    },
+    {
+      "path": "uninstall.exe",
+      "bytes": 79553,
+      "sha256": "cfe843697afc37f9f492f03ddeac98be0a702c7223eeaf5d00803129479c0bc1"
+    },
+    {
+      "path": "verification/PDFIUM-NOTICE.txt",
+      "bytes": 137226,
+      "sha256": "1a5618dd619455e03fb4757d3dca9c8c0be6c0d331f42277bcbf94859ded9a23"
+    },
+    {
+      "path": "verification/pdfium.dll",
+      "bytes": 7381504,
+      "sha256": "69f1e860f6742fbaafcc4db80e785eec9a4ee0da36ea6d1dc0867ea0f18baea6"
+    },
+    {
+      "path": "verification/pdfium_worker.exe",
+      "bytes": 408576,
+      "sha256": "4c989986a8e1b89cac4ba4bf25043b9719be45b5ebead393d1d81ba027613840"
+    },
+    {
+      "path": "verification/README.md",
+      "bytes": 589,
+      "sha256": "4e3e72dfa03de2239f42127f4dea8bf3cee6b96bb4f2f9a05da1a8fba30b392e"
+    },
+    {
+      "path": "verification/verifier-manifest.json",
+      "bytes": 542,
+      "sha256": "346a986b30c36cff3b27c2071684f9cc9f20e8396e7e247e5ef36058d54d7a30"
+    }
+  ],
+  "synthetic_preservation_files": 12,
+  "synthetic_preservation": "pass",
+  "host_scope": "Reinstall/update on existing developer account; not a clean-machine install",
+  "observed_setup": "Already installed/maintenance, default destination and extraction observed; setup advanced between read-only observations, so individual page clicks are not attributed by this trace. Installed app launched. No completion-page screenshot was captured.",
+  "native_workflow": {
+    "open_without_auto_compile": "pass",
+    "explicit_pdflatex_compile": "pass",
+    "actual_name_mapping": "pass",
+    "Right_nudge_1bp_verified": "pass",
+    "disk_unchanged_until_save": "pass",
+    "save_only_expected_wrapper_and_package": "pass",
+    "one_undo_save_exact_three_original_files": "pass",
+    "move_receipt": {
+      "result": "pass",
+      "dx_bp": 1,
+      "dy_bp": 0,
+      "object_id": "text-145240b7",
+      "source_sha256": "6a88162ac3b24a07ff6f92bb565435a67bd02f589d73d2a5bcf2752666d8d985",
+      "only_expected_wrapper_and_package": true,
+      "original_sha256": "be4b2f182b2e16a8b10bd4d183818de6995b19be250f9fe1c29573fce1f984a7",
+      "supporting_files_exact": true,
+      "harness_correction": "Initial regex assumed the wrapper closing brace immediately followed the target. Actual wrapper includes its normal terminating newline; the corrected exact reconstruction accepts only that wrapper plus package insertion and matches every other byte."
+    },
+    "clean_close_zero_app_or_worker_processes": "pass",
+    "installed_relaunch": "pass after fresh window inventory; initial launch helper timed out before window binding"
+  },
+  "date": "2026-11-04",
+  "product_source_commit": "c26a23851155f7e4e542eef80fae92e35c51f707",
+  "installer_sha256": "ae8567329a095445417e010069a27372317444f6dce30f1b701037977c500cf1",
+  "release_ready": false,
+  "uninstaller": {
+    "executed": false,
+    "reason": "Prior launch was blocked by desktop product policy; no bypass or new uninstall attempt."
+  },
+  "open_gates": [
+    "physical held-drag Escape/lost capture",
+    "Windows DPI/multiple-monitor",
+    "clean machine/account missing-dependency setup and uninstall",
+    "reference end-to-end latency and unassisted usability",
+    "owner signing/distribution decisions"
+  ],
+  "raw_ui_evidence": {
+    "workspace_path": "work/native-acceptance/installed-r2-ui-observations.json",
+    "sha256": "aa83f6ab3c746013501ad844d199ad077b4e0a872dd69fc7f02fc87e6c06a99a"
+  }
+}

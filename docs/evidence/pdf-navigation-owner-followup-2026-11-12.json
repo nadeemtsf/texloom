@@ -1,0 +1,132 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-12T16:10:19.983839+00:00",
+  "kind": "targeted_pdf_navigation_owner_followup_and_r11_correction",
+  "status": "r11_owner_checks_passed_r12_amendment_retest_pending",
+  "base_commit": "9e6670c389acd3f74a797c9fcbeb56292e2acc1e",
+  "owner_report": {
+    "provenance": "Owner reply to named r10 portable test request; no independent running-process inspection",
+    "build_source": "663b7e28307374f266fa04010810ac0c8997a651",
+    "exe_sha256": "12056133f1626b10d137cc16824631fd076e33efd5bf262c4ddddb57c69de175",
+    "ordinary_scroll": "owner says good enough; scope of device not independently instrumented",
+    "selection": "failed: Mapping selected text then preview scale changed, or page/project commands must remain in normal flow; owner says could predate r10",
+    "touchpad_zoom": "failed with and without Ctrl; mostly no effect, sometimes small scroll",
+    "pointer_anchor_fit_read_history_and_cancel": "not confirmed by this report"
+  },
+  "root_causes": {
+    "raster": "Zero-offset selection compares every page. Zoom sharpens nearby pages and retains offscreen raster resolutions, so a fresh probe at current scale can differ in raster dimensions. Exact owner error reproduced in real browser.",
+    "pageflow": "Source paragraph expansion did not stop at standalone newpage/clearpage/pagebreak commands. It swallowed the structural command and correctly triggered a later movable-fragment refusal. Exact owner error reproduced in core regression.",
+    "pinch": "Pinned Tauri default zoomHotkeysEnabled=false makes pinned wry0.57.1 set both IsZoomControlEnabled and IsPinchZoomEnabled false. Static code/config cause for missing gesture path; physical behavior still owner-unverified."
+  },
+  "corrections": [
+    "Before a new selection identity proof, repaint all bounded short-view pages at the captured scale/current DPR; still require exact all-page pixel/glyph/marker identity. No resampling, masking or relaxed tolerance.",
+    "Read the canonical page-view canvas and refuse zero-sized/unpainted images. Reject superseded scale/DPR/source identities during preparation.",
+    "Declare SDK screen-area heuristic disabled (-1); existing explicit per-page16Mpx and short-view64Mpx divided budgets remain. Retained/transient bitmap memory is additional; not a measured process-memory cap.",
+    "Treat exact standalone newpage/clearpage/cleardoublepage/pagebreak/nopagebreak commands as source-unit boundaries; inline structural content and cross-boundary groups still refuse.",
+    "Enable native zoom input delivery; cancel browser default Ctrl/Meta-wheel outside PDF and default browser zoom keys. PDF handler consumes its gestures and prevents shell zoom. No custom touch recognizer."
+  ],
+  "checks": [
+    {
+      "command": "npm test",
+      "passed": 306,
+      "failed": 0,
+      "log": "artifacts/r11-20261112/frontend-final.log",
+      "sha256": "769c846c33269b66a87901b9ee7a8c5e47bb44235dae9cb2d4742697d8344de1"
+    },
+    {
+      "command": "cargo test --locked --offline -p texloom-core",
+      "passed": 147,
+      "failed": 0,
+      "log": "artifacts/r11-20261112/core.log",
+      "sha256": "466bfe9bada269679c25d3724bda0f2efcc2b8e38605fc1c9f4a45fd438b6ff5"
+    },
+    {
+      "command": "cargo test --locked --offline -p texloom-core --features recovery-serde",
+      "passed": 148,
+      "failed": 0,
+      "log": "artifacts/r11-20261112/core-recovery.log",
+      "sha256": "c9b59e11ba32487918ea842f159fe8f89897a8c7a03c373b8599493df4229a25"
+    },
+    {
+      "kind": "real_browser_rendering_regression",
+      "passed": 33,
+      "scope": "Headless Edge at DPR1/1.5/2 plus emulated density changes: cached zoom, pointer anchor, selection before/after zoom, unchanged shell zoom and offscreen ink negative control",
+      "receipt": "artifacts/r11-20261112/browser-final-bounded/browser-results.json",
+      "sha256": "52358d58f7d9efab80999524709e785849758cf443e85c10474f31b7328c7f9e",
+      "browser": "157.0.4341.46"
+    },
+    {
+      "kind": "real_browser_rendering_regression",
+      "passed": 6,
+      "scope": "Nine real engine compiles; six baseline/zero-probe pairs before/after page breaks across pdfLaTeX/XeLaTeX/LuaLaTeX, exact full-page PDF.js identity after zoom at DPR1.25. No SyncTeX or UI input",
+      "receipt": "artifacts/r11-20261112/engine-browser/results.json",
+      "sha256": "6719e9da539348332ffcf182e6652454630a9ae93e8b51ec0a606146aa2b0a5c",
+      "browser": "157.0.4341.46"
+    },
+    {
+      "command": "npm run desktop:build -- --ci",
+      "result": "passed",
+      "scope": "Optimized Windows EXE and NSIS setup; not launched/installed",
+      "log": "artifacts/r11-20261112/desktop-build.log",
+      "sha256": "ac6185b4f6773783d87c5b8fe4f158fc6d945f1db573585b2e12cd7c7d0c4adc"
+    }
+  ],
+  "preserved_failures": [
+    {
+      "log": "artifacts/r11-20261112/browser-raster-regression.log",
+      "sha256": "742defd6dcbe5faad5137a694964e4d6004c4e051e95b57bc067971a3940517f",
+      "result": "reproduced preview scale changed error before fix"
+    },
+    {
+      "log": "artifacts/r11-20261112/pagebreak-before-fix.log",
+      "sha256": "25fd94c61a600f2d7954b3c7bff26c9fb47125a78ac69cdbcc152c8b12e3f3bb",
+      "result": "reproduced normal-document-flow error before fix"
+    },
+    {
+      "log": "artifacts/r11-20261112/browser-before-fix.log",
+      "result": "First new harness called the not-yet-added preparation method; retained test integration failure"
+    },
+    {
+      "log": "artifacts/r11-20261112/browser-density-diagnosis.log",
+      "result": "Additional DPR test exposed SDK screen-area downscaling. Explicit existing raster budgets now determine allocations consistently; no test-pixel tolerance relaxed."
+    }
+  ],
+  "source_fingerprints": {
+    "web/app.js": "baa26567be641994f1aecbf01f48412f5595c68cb3ad65f5e1525783e8abdbfa",
+    "web/core/pdf-page-view.js": "299dc86e549afe779aa9163a71b78da7434e23e99cfa03c1814862ea8accb99e",
+    "web/core/pdf-scroll.js": "6e784f48fdd5519ed7d056da77c381bb2c92167aefc462d75ac667b6025a021b",
+    "web/core/selection-proof.js": "0d226e60259c9c53536439db9cfac96f1e00504882d5bf2c933ce613c3cfc33e",
+    "crates/texloom-core/src/lib.rs": "dd4a16e1ff2b12a1c292da707e2b73e7bdff51b7bd2b420cf97eb57f1bdfbda3",
+    "crates/texloom-core/src/objects.rs": "1866eb43ac4c7a4b3dd92a3890fe804a0b0710d34a898c435d23feb21bb7f09a",
+    "src-tauri/tauri.conf.json": "538e99d421569654aa77cf05c785210c2e786f6450ce5f0bfa9d9b73d16cc3b3",
+    "scripts/check-pdf-navigation.mjs": "65a9a10fc7f0ff7a40f1ca1554efd3f89491eb220ee6dfe07d1695a1a612a41d",
+    "scripts/check-selection-corpus.mjs": "d58814884b266660fb2ba522abd89038185852bb134e94607ad6b154aa0a92d4",
+    "tests/browser/pdf-navigation.html": "63b3a8c1b72dc42f4b9703489ff9010e9fa73ee3669e7b642d5f7988a053bc69"
+  },
+  "primary_sources": [
+    "https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2settings.ispinchzoomenabled"
+  ],
+  "limits": [
+    "No Texloom opened/controlled/installed by agent. Physical laptop pinch/scroll/selection remains owner-required.",
+    "Headless CDP wheel/DPR injections are not physical touchpad/monitor tests.",
+    "Source remains unchanged by selection/probe; application end-to-end and Save are not established by this corpus.",
+    "No new research/report/other-feature continuation; finish current feature only, then stop after owner acceptance.",
+    "Explain branch/push status only after feature passes; no push authorized."
+  ],
+  "source_commit": "e215bb694ecbd6981ea662eb6c5544a27ca69fb0",
+  "artifact_receipt": "docs/evidence/pdf-navigation-r11-artifacts-2026-11-12.json",
+  "pinned_native_source": {
+    "path": "C:\\Users\\thebe\\Gtihub Repos\\Mine\\texloom\\.tools\\cargo\\registry\\src\\index.crates.io-1949cf8c6b5b557f\\wry-0.57.1\\src\\webview2\\mod.rs",
+    "sha256": "9ef674af12e52bc3519b0e300752c1042798b7f336e0e0dafca6a8944f348888",
+    "inspected_calls": [
+      "SetIsZoomControlEnabled(attributes.zoom_hotkeys_enabled)",
+      "SetIsPinchZoomEnabled(attributes.zoom_hotkeys_enabled)"
+    ],
+    "remote_source_retrieval": "Versioned docs.rs mirror could not be retrieved; actual compiled local crate source inspected instead."
+  },
+  "later_owner_acceptance": {
+    "quote": "everything is working correctly",
+    "scope": "All cases in named r11 checklist reported passed by owner; no agent app interaction",
+    "followup_receipt": "docs/evidence/pdf-navigation-r12-followup-2026-11-12.json"
+  }
+}

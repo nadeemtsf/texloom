@@ -1,0 +1,241 @@
+\section{Reproducibility, artifact identity and dependency provenance}
+Reproduction needs more than an application version string. Product source,
+native harness, reference code, binary, fixtures and environment have separate
+identities. The ordinary r4 executable, diagnostic executable and debug native
+harness are different artifacts. A successful check on one cannot silently
+become an observation of another.
+
+\subsection{Version and input binding}
+The historical r4 source is \code{5e59e77}. Later product/dependency source
+\code{d267118} and checkpoint \code{a120086} have separate r5 artifacts and
+resumed engineering evidence; old r4 binaries are unchanged. The native-entry harness was
+committed at \code{cb3cd11}; the corrected reference/health code at
+\code{b5edb9d}. The exact debug harness executable is unchanged across the two
+native attempts. Both protocols snapshot executed helper/native source and
+record fingerprints before execution. The evaluator refuses an existing run
+directory, changed implementation snapshots or changed protocol/runner.
+These controls preserve provenance; they do not independently establish the
+correctness of the supplied reference.
+
+Source-only follow-up commits are \code{c2ef008} (commit/presentation and
+cleanup), \code{391332d} (source highlighting, reset and editor presentation),
+\code{2f6eb9c} (record/reference/timing infrastructure and collector schema 2)
+\code{4e403ca} (guarding double-click after selection refusal) and
+\code{8e23d15} (checking bitmap-background initialization). Their original
+receipts identify source bytes rather than observed product behavior. Later
+engineering checks cover descendants of those revisions; they are not new
+independent experiments on every historical commit.
+
+\paragraph{Enforced engineering checkpoint.}
+At \code{4cfe461}, the installed pre-commit hook binds checks to the staged
+tree and rejects untracked inputs, partial staging, or source/HEAD changes
+during validation. All 27 local steps passed before that commit, and the
+recorded push produced six successful hosted checks, including the external
+security check. Windows local results and hosted Windows/Linux results have
+different scopes. Neither supplies independent study labels, a final freeze,
+physical input acceptance or a security certification. The first preflight
+was cancelled to correct checkout line endings; a later packaging attempt
+failed because a Windows PowerShell child could not load its hashing command.
+The hook blocked that commit. A PowerShell 7 packaging correction passed the
+subsequent full gate. Retaining these attempts distinguishes corrected
+infrastructure from an uninterrupted successful run.
+
+The later transport checkpoint \code{76b2228} also passed the complete
+27-step local gate. Its staged tree is recorded separately from its parent
+HEAD, and all five triggered hosted checks passed. The earlier linked-worktree
+test attempt inherited Git repository/index settings into a synthetic fixture;
+it created an unintended local synthetic commit and failed the gate. The
+commit was preserved under a recovery reference, only the new branch was
+returned to its starting point without discarding working files, and the
+shared repository setting was restored. Fixture Git environments are now
+isolated while the real gate retains the committing index. Packaging also
+correctly refused a local cache junction; selecting the configured real target
+path fixed that setup without weakening link guards. The later successful
+full run and hosted checks are in
+\path{docs/evidence/source-intent-transport-ci-2026-11-14.json}. These corrected
+engineering attempts remain separate from research case outcomes.
+
+The pre-expansion Git evidence checkpoint contains 46 JSON receipts, all
+parsed and fingerprint-checked against working files and Git blobs. Reading,
+parsing or archiving a receipt is not reproducing its experiment. Historical
+line-ending canonicalization preserved the original receipt bytes separately
+and did not alter their JSON outcomes. Research source uses LF attributes so
+future checkouts can preserve code fingerprints. Raw experimental inputs are
+not normalized into a more convenient form.
+
+Each run keeps its protocol, source snapshots, complete synthetic sources,
+compiler logs/manifests, PDFs and independent comparison outputs. The invalid
+native reference is retained alongside the corrected protocol, rather than
+overwritten. The supplied editable-report archive is not a complete application
+checkout; running the native harness requires the full recorded repository and
+its prepared resources. Reproduction commands and archive scope are in the
+appendices.
+
+\subsection{Declared records and byte-reference checks}
+The v1 record implementation separates canonical commit from a
+component predicate, presentation, Save, terminal event and unresolved commit
+status. Correctness case, shared intent and document identities have separate
+denominators; timing repetitions cannot manufacture independent correctness
+requests. Required postconditions and reviewed annotations remain explicit,
+with null observations unresolved rather than passing.
+
+A separate reference-checking implementation reads only declared files
+under a controlled root and compares observed byte lengths/hashes. Fixture
+and oracle manifests must agree with their declared input lists. This can
+establish declared file consistency when exercised; it cannot establish
+actual execution, complete engine/font dependency capture, correct labels,
+independent review, pre-run sealing or a source-to-binary relationship. It
+always withholds final-evaluation admission. Both drafts use bounded strict
+JSON and exclusive report creation, and execute no manifest commands.
+\path{research/REFERENCE-ADMISSION.md} states their limits. Resumed synthetic
+checks exercise record denominators, unresolved observations, changed/omitted
+references and input parsing. They do not admit a final evaluation or validate
+the final case labels.
+
+\subsection{Machine, engines and fonts}
+A development environment collector fingerprints explicitly chosen tools,
+font files and inputs without compiling or launching the application. The
+executed partial snapshot records seven tools, four declared Arial font files
+and ten inputs. It was collected after the first reference pilot. It therefore
+cannot establish the exact bytes or font resolution used during that earlier
+execution. A declared font filename is not proof that no fallback occurred.
+
+RAM, WebView2 and display configuration remain unset in that snapshot. It does
+not inventory every shared library, TeX package or background task. Gold builds
+for the later native pilot retain recorder output, but complete engine/driver/
+OS font binding still needs review before a final freeze. Source documents,
+font acquisition and permission to redistribute standalone font files must be
+handled separately; the collector does not copy or license those files.
+
+A later read-only Windows inventory records reported CPU/RAM, OS build,
+registered WebView2 and graphics-controller fields. It did not launch Texloom
+or an engine. Registry availability is not the loaded application runtime;
+controller resolution/refresh is not observed per-monitor DPI or topology.
+This posthoc inventory cannot fill earlier run bindings or establish clean
+setup, display acceptance, power state or load during an experiment. Those
+fields remain pending for the actual final run.
+
+For a final run, seal the source/analysis commits or exact diffs, executables,
+worker/DLL, lockfiles, support packages, actual engine/bibliography/font inputs,
+OS/CPU/RAM/WebView2/display/DPI/power state, commands, ordering seed and resource
+budgets before execution. Document cold/warm and background-load conditions.
+Do not generalize one Windows machine's pixels or latency to every installation.
+
+\subsection{The bundled independent verifier}
+The historical packaged verifier used PDFium 156.0.8076.0 from the pinned pypdfium2 5.14.0
+Windows x64 wheel; the resumed replacement uses distributor PDFium 159.0.8138.0
+as described below. Historical reports naming PDFium 126 or pypdfium2 4.30 concern
+other artifacts. The Rust worker does not require Python at application runtime.
+The recorded wheel digest, extracted DLL and packaged DLL match; pinned notices
+are included. The index's latest-version observation was made on 4 November
+2026, not asserted indefinitely from an old note.
+
+A follow-up checked the wheel's signed PyPI publication against an explicit
+expected repository policy, using the attestation mechanism documented by
+PyPI~\cite{pypiattest}. The isolated development tool was
+\code{pypi-attestations 0.0.31} with \code{sigstore 4.5.1} and default production
+trust~\cite{pypitool}. Table~\ref{tab:provenance} records the positive and
+negative controls. Verification did not install the wheel or upgrade the app's
+runtime, and used no signing or browser login.
+
+\begin{table}[htbp]
+\small\begin{tabularx}{\linewidth}{@{}YY@{}}
+\toprule
+Input / policy & Observed verification result\\
+\midrule
+Pinned original wheel; expected pypdfium2 repository & Verified signed publication\\
+Same basename, valid ZIP with changed archive bytes & Rejected: subject digest mismatch\\
+Original wheel; deliberately wrong expected repository & Rejected: repository policy mismatch\\
+\bottomrule
+\end{tabularx}
+\caption{Bounded provenance checks, not application edit-acceptance tests.}
+\label{tab:provenance}
+\end{table}
+
+The tool was obtained from official PyPI over TLS; its root wheel checksum
+matched the index metadata, and installed dependency wheel hashes/versions
+were retained. The verifier itself was not independently audited. Seven public
+trust metadata files were captured after verification; one \code{root.json}
+directory entry was unreadable. That partial post-verification snapshot is
+not a presealed trust environment.
+
+Signed publication authenticates an artifact under a policy, not a reproducible
+PDFium source-to-binary build, an audit of the publishing workflow or a complete
+embedded-component security/license review. An empty package-index advisory
+field is not proof of no vulnerabilities. The worker's checked paths, held DLL,
+immutable bounded inputs, separate process and time/memory budgets likewise
+do not constitute an operating-system sandbox. Nested provenance/build,
+vulnerability/version and license review remain public-distribution work.
+
+The later build-source review found null PDFium source-hash metadata and an
+empty build-flags list in the pinned wheel metadata. A pinned build-repository
+workflow names a Chromium branch and configuration defaults, but these are
+not an attested PDFium source revision and flag set for the actual DLL.
+Likewise a license collector's possible unknown-component warnings do not
+prove missing notices in this package. No upstream script, rebuild, pin
+upgrade or complete component/advisory/license audit was performed during
+that review. The nested provenance gap remains explicit.
+
+A subsequent advisory review changes the release assessment. The Chrome
+team's notice identifies CVE-2026-110155 and bug 570167922~\cite{chromepdfium2026advisory};
+the corresponding immutable PDFium commit repairs AGG initialization~\cite{pdfiumagg2026fix}.
+An acknowledged upstream report links the pinned distributor build to the
+missing fix. Captured branch-8076 source retains the earlier initialization,
+corroborating a source-level concern without independently recovering the
+DLL's full build relation or demonstrating a Texloom exploit. Public
+distribution is blocked pending remediation and exact-artifact validation.
+The historical pin is retained for reproduction, not declared secure.
+Other primary fix commits are follow-up leads, not a complete applicability
+audit. No exploit or scanner was run during that source-only review. The detailed
+scope and remaining work are in \path{docs/DEPENDENCY-ADVISORY-REVIEW.md}.
+
+Read-only intake of the distributor's old and newer Windows archives adds
+one useful byte relationship: the old archive's DLL matches the wheel's
+recorded DLL digest. That intake initially treated the newer archive as a review
+candidate. Its extra notice files show why replacement packaging needs a new
+inventory. Distributor-supplied build arguments and identical selected C
+declaration texts narrow inspection questions but do not establish runtime
+compatibility or complete build provenance. Header reading also found the
+worker's discarded boolean result from bitmap initialization; the new guard
+was subsequently built and exercised, but does not itself remediate the AGG advisory. Failed source-path
+retrieval and an initial overbroad header lookup are retained as reading-tool
+limits, not counted as application failures. See
+\path{docs/DEPENDENCY-CANDIDATE-INTAKE.md}.
+
+\paragraph{Resumed replacement, distinct from the initial intake.}
+The active development pin now selects the exact distributor archive for
+159.0.8138.0, with a separate historical Python-reference pin for 156. A bounded
+reader checks the compressed identity and all 49 declared member digests;
+packaging retains the root license and 18 component notice files. Parent and
+worker use the same new DLL/version identity. GitHub CLI verified the archive's
+SLSA statement against the expected repository, workflow and build-repository
+commit; wrong-repository and changed-byte controls failed. These checks attest
+the distributor publication identity within that statement's scope, not the
+complete nested source-to-DLL derivation. The observed newer source ref has
+the corrected AGG initialization; this is not a universal vulnerability claim.
+The worker/reference, native approval and engine checks described in
+Section~\ref{sec:development} passed. Replacement GUI, installation and remaining
+provenance/license/security gates require their own evidence. See
+\path{docs/PDFIUM159-UPGRADE.md}; public release remains unapproved.
+
+\subsection{Matched distributor artifact and notice follow-up}
+A subsequent read obtained the Windows x64 job's artifact and verified its
+published ZIP digest. All49 files matched the adopted release archive exactly,
+including the DLL, headers, notices and \code{args.gn}. The archived arguments
+and job log record V8/XFA disabled. This is recorded build configuration, not
+reverse-engineered feature absence or full source-to-binary reproducibility.
+The collector warned about Brotli and libyuv while their objects were compiled;
+neither name occurs in the archived notices. The development package now
+conservatively appends two immutable upstream license texts with checked hashes
+and an explicit source-scope limitation. Exact nested checkout/DEPS and a
+complete component/license/advisory review remain unresolved. The raw job and
+artifact identities are in \path{docs/PDFIUM-NOTICE-FOLLOWUP-2026-11-07.md}.
+
+\subsection{Final freeze rule}
+\path{research/evaluation/freeze.json} remains \code{not\_frozen}. The final
+fixture directory has no executed held-out cases. Freeze only after the core
+workflow and regression gates are stable, labels/oracles have been reviewed,
+and final manifests are sealed. If a final evaluation discovers a defect,
+retain the failure, fix the development version and start a separately labelled
+frozen run. Reusing and tuning the same cases cannot be described as an untouched
+final evaluation.

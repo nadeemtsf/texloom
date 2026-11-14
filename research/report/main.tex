@@ -1,0 +1,115 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[margin=23mm,headheight=14pt]{geometry}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb}
+\usepackage{tabularx,array}
+\newcommand{\toprule}{\hline}
+\newcommand{\midrule}{\hline}
+\newcommand{\bottomrule}{\hline}
+\renewcommand{\arraystretch}{1.12}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage[hyphens]{url}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\hypersetup{pdftitle={Texloom: Checking Source-Preserving Visual Edits to Compiled LaTeX Documents},pdfauthor={Texloom Project},pdfsubject={Technical report draft; methods, development evidence and final evaluation design}}
+\urlstyle{same}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\widowpenalty=10000
+\clubpenalty=10000
+\setlength{\emergencystretch}{2em}
+\setlist{nosep,leftmargin=1.4em,topsep=3pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small Texloom: methods and evidence}
+\fancyhead[R]{\small TECHNICAL REPORT DRAFT}
+\fancyfoot[L]{\small 14 November 2026; final evaluation pending}
+\fancyfoot[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+\newcommand{\pending}{\textit{Pending: no final evaluation has been run.}}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\title{\vspace{-1.7em}Texloom: Checking Source-Preserving Visual Edits\\to Compiled \LaTeX\ Documents}
+\author{Texloom Project\\\small Technical report draft; methods, development evidence and evaluation design}
+\date{14 November 2026}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+\vspace{-1.5em}
+\begin{abstract}
+Texloom is a Windows prototype that translates selected edits to compiled
+\LaTeX\ text into constrained changes to the original source. The primary
+operation is single-page text displacement that retains the fragment's
+contribution to document flow. Source evidence, private identity probes,
+immutable compilation, independent PDF inspection and revision-bound commit
+form a chain of checks. Replacement, semantic parameter changes and legacy
+positioned blocks have different acceptance policies and must be evaluated
+separately. This technical report documents the implemented mechanism, the
+limits of its checks, recorded development evidence and a proposed fixed-version
+evaluation. Component pilots are reported with explicit entry layers.
+A native candidate-boundary pilot met declared source, render and Undo
+conditions for five intended moves and refused 25 corrupted source packets;
+an initial invalid reference and its failed run are retained. These purposive
+development cases do not estimate full-app error frequency.
+An additional source-intent diagnostic finds that deleting either equal
+paragraph can produce the same complete rendered page, so rendered-reference
+agreement cannot replace exact source-target evidence. No final held-out
+evaluation, native input-to-visible latency distribution or unassisted
+usability study has run. A release headless service diagnostic separately
+measures project-size and reply-encoding costs; it does not measure interaction.
+No novelty, universal correctness or publication-readiness claim is made.
+\end{abstract}
+
+\paragraph{Source revision notice.}
+This revision incorporates resumed development validation from 5--14 November.
+The replacement verifier source is \code{d267118}; the recorded checkpoint is
+\code{a120086}. Automated and real-engine checks, exact native artifacts and
+human-reported gesture observations have different scopes. New engineering
+passes do not fill final-evaluation cells. The final version, held-out inputs
+and independent labels remain unfrozen, and no final evaluation has run.
+
+The 10 November foundation extension adds source-coordinate mapping and
+read-only paragraph-intent planning at \code{5ca1eb6}. Its domain regressions
+and external compile/text checks are reported separately from the existing
+visual editing path; they do not establish new visual command acceptance.
+
+Later navigation observations distinguish the owner-rejected r9/r10 behavior
+from the owner's reported r11/r12 acceptance. The subsequent \code{4cfe461}
+checkpoint adds enforced staged-tree validation and successful hosted checks;
+these are engineering and provenance evidence, not a frozen research study.
+
+The native transport checkpoint \code{76b2228} subsequently passed all 27
+local gate steps and all five triggered hosted checks. The refusal extension
+at \code{7c693ea} passed its own complete local gate and five hosted checks.
+Its retained pre-fix failures and diagnostic remain distinct. The
+service-cost diagnostic and benchmark-only reply ablation are recorded at
+\code{f0981ad}. At \code{403d697}, native draft preflight began copying
+validated live state into a separate session. The subsequent release harness
+run and its provenance are reported in Section~\ref{sec:trusted-preflight}.
+
+\input{sections/01-scope}
+\input{sections/02-workflow}
+\input{sections/03-contracts}
+\input{sections/04-related-work}
+\input{sections/05-evaluation}
+\input{sections/06-development-evidence}
+\input{sections/07-timing}
+\input{sections/08-reproducibility}
+\input{sections/09-limitations}
+
+\appendix
+\input{sections/appendix-protocol}
+\input{sections/appendix-artifacts}
+\input{sections/appendix-reproduction}
+
+\clearpage
+\begingroup
+\footnotesize
+\setlength{\parskip}{1pt}
+\bibliographystyle{plain}
+\bibliography{references,followup-references}
+\endgroup
+\end{document}

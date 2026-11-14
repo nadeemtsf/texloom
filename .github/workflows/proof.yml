@@ -1,0 +1,100 @@
+name: Visual editing proof experiment
+on:
+  pull_request:
+    paths:
+      - 'scripts/**'
+      - 'tests/**'
+      - 'crates/**'
+      - 'resources/**'
+      - '.github/workflows/proof.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: proof-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  source-and-pdf:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Install locked JavaScript dependencies
+        run: npm ci
+      - name: Check source model and build fixture planner
+        run: |
+          cargo test --locked -p texloom-core
+          cargo build --locked -p texloom-core --example proof_candidate
+          cargo build --locked -p texloom-core --example selection_hint
+          cargo build --locked -p texloom-core --example literal_candidate
+          cargo build --locked -p texloom-core --example spacing_candidate
+          cargo test --locked -p texloom-build --test verification
+          cargo build --locked -p texloom-build --example displacement_check
+      - name: Install independent development PDF inspector
+        run: python3 -m pip install --disable-pip-version-check -r scripts/proof/requirements.txt
+      - name: Run JavaScript and real-PDF regression checks
+        run: npm test
+      - name: Prove source round trips and both renderer regressions
+        run: node scripts/movement-proof.mjs --prepare
+      - name: Install test-only TeX engines
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends texlive-latex-base texlive-latex-recommended texlive-luatex texlive-xetex
+      - name: Run real-engine experiment
+        run: node scripts/movement-proof.mjs
+      - name: Verify real PDF selection and SyncTeX hints
+        run: node scripts/selection-proof.mjs
+      - name: Compile protected text edits under three engines
+        run: node scripts/protected-text-proof.mjs
+      - name: Preserve compiled PDFs for Windows native inspection
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: native-engine-pdfs
+          path: artifacts/proof/compiled/**/*.pdf
+          retention-days: 7
+          if-no-files-found: error
+      - name: Preserve experiment evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: visual-editing-proof
+          path: |
+            artifacts/proof/
+            artifacts/selection/
+            artifacts/protected-text/
+          retention-days: 7
+          if-no-files-found: warn
+  windows-native-inspection:
+    needs: source-and-pdf
+    runs-on: windows-2022
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          name: native-engine-pdfs
+          path: .tools/engine-proof
+      - name: Prepare pinned Windows PDFium
+        shell: pwsh
+        run: |
+          node scripts/prepare-native-verifier.mjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Inspect actual three-engine output with native mark identity
+        shell: pwsh
+        run: |
+          $env:TEXLOOM_NATIVE_CORPUS = Join-Path (Get-Location) '.tools/engine-proof'
+          $env:TEXLOOM_PDFIUM_TEST_DLL = Join-Path (Get-Location) 'src-tauri/resources/verification/pdfium.dll'
+          cargo test --locked -p texloom-build --test engine_worker_corpus -- --ignored --nocapture
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

@@ -1,53 +1,59 @@
 import {extractTextGeometry,union} from './geometry.js';
+import {loadPDFDocument} from './pdf-document.js';
+import {prepareLongPDF} from './long-pdf.js';
+import {preparePagedPDF} from './pdf-page-view.js';
+
+export function selectionReasonForPage(page,viewport){
+  return viewport.rotation!==0||page.view[0]!==0||page.view[1]!==0||page.userUnit!==1?
+    'Visual selection for rotated, cropped or scaled PDF pages is not verified. Read text and source editing remain available.':null;
+}
 
 /** Prepare a complete PDF view offscreen. Publishing it is a separate operation. */
-export async function preparePDFView(pdfjs,result,{width,zoom=0,mode='select',signal}={}) {
-  const loading=pdfjs.getDocument({data:new Uint8Array(result.pdf),isEvalSupported:false,
+export async function preparePDFView(pdfjs,result,{width,zoom=0,mode='select',signal,lazy=false}={}) {
+  const pdf=await loadPDFDocument(pdfjs,{data:new Uint8Array(result.pdf),
     cMapUrl:new URL('/pdfjs/cmaps/',location.href).href,cMapPacked:true,
     standardFontDataUrl:new URL('/pdfjs/standard_fonts/',location.href).href,wasmUrl:new URL('/pdfjs/wasm/',location.href).href});
-  const pdf=await loading.promise;
-  try{return await prepareLoadedPDF(pdfjs,pdf,result,{width,zoom,mode,signal})}
-  catch(error){await pdf.destroy();throw error}
+  try{return await prepareLoadedPDF(pdfjs,pdf,result,{width,zoom,mode,signal,lazy})}
+  catch(error){try{await pdf.destroy()}catch{}throw error}
 }
 
-export async function prepareLoadedPDF(pdfjs,pdf,result,{width,zoom=0,mode='select',signal}={}) {
-  const fragment=document.createDocumentFragment(),pages=[],objects=new Map(),unclosed=new Set(),pageSizes=new Map();
-  const first=await pdf.getPage(1),scale=zoom||Math.max(0.2,Math.min(1.5,(width-48)/first.getViewport({scale:1}).width));
-  for(let n=1;n<=pdf.numPages;n++){
-    if(signal?.aborted)throw new Error('PDF rendering was superseded.');
-    const page=await pdf.getPage(n),base=page.getViewport({scale:1}),viewport=page.getViewport({scale});
-    pageSizes.set(n,{width:base.width,height:base.height});
-    const shell=document.createElement('div');shell.className='pdf-page';
-    Object.assign(shell.dataset,{page:String(n),scale:String(scale),pdfWidth:String(base.width),pdfHeight:String(base.height)});
-    Object.assign(shell.style,{width:viewport.width+'px',height:viewport.height+'px'});
-    shell.style.setProperty('--total-scale-factor',String(scale));shell.style.setProperty('--scale-factor',String(scale));
-    const canvas=document.createElement('canvas'),ratio=Math.min(2.5,devicePixelRatio||1);
-    canvas.width=Math.ceil(viewport.width*ratio);canvas.height=Math.ceil(viewport.height*ratio);
-    canvas.style.width=viewport.width+'px';canvas.style.height=viewport.height+'px';shell.append(canvas);
-    const rendering=page.render({canvasContext:canvas.getContext('2d'),viewport,transform:[ratio,0,0,ratio,0,0]});
-    const abort=()=>rendering.cancel();signal?.addEventListener('abort',abort,{once:true});
-    try{await rendering.promise}finally{signal?.removeEventListener('abort',abort)}
+export async function prepareLoadedPDF(pdfjs,pdf,result,{width,zoom=0,mode='select',signal,lazy=false}={}) {
+  if(lazy&&pdf.numPages>20)return prepareLongPDF(pdfjs,pdf,result,{width,zoom,mode,signal});
+  return preparePagedPDF(pdfjs,pdf,result,{width,zoom,mode,signal,geometry:async(page,base,item,view)=>{
     const text=await page.getTextContent({includeMarkedContent:true});
-    const layer=document.createElement('div');layer.className='textLayer';shell.append(layer);
-    await new pdfjs.TextLayer({textContentSource:text,container:layer,viewport}).render();
-    const geometry=extractTextGeometry(text.items,text.styles,n,base.height);
-    for(const id of geometry.unclosed)unclosed.add(id);
+    const geometry=extractTextGeometry(text.items,text.styles,item.number,base.height);
+    for(const id of geometry.unclosed)view.unclosed.add(id);
     for(const [id,bounds] of geometry.objects){
-      const existing=objects.get(id);
-      if(existing){existing.pages.add(n);Object.assign(existing,union([existing,bounds]));existing.runs.push(...bounds.runs)}
-      else objects.set(id,{...bounds,pages:new Set([n])});
+      const existing=view.objects.get(id);
+      if(existing){existing.pages.add(item.number);Object.assign(existing,union([existing,bounds]));existing.runs.push(...bounds.runs);existing.instances+=bounds.instances}
+      else view.objects.set(id,{...bounds,pages:new Set([item.number])});
     }
-    pages.push({number:n,shell,lines:geometry.lines,runs:geometry.runs});fragment.append(shell);
-  }
-  if(signal?.aborted)throw new Error('PDF rendering was superseded.');
-  return {pdf,result,fragment,pages,objects,unclosed,pageSizes,pageCount:pdf.numPages,scale,mode};
+    Object.assign(item,{lines:geometry.lines,runs:geometry.runs,selectionReason:selectionReasonForPage(page,base)});
+  }});
 }
 
-export function publishPDFView(prepared,elements) {
+export function capturePDFScrollAnchor(elements){
+  const viewport=elements.scroller.getBoundingClientRect(),center=(viewport.top+viewport.bottom)/2;
+  for(const shell of elements.pages.children){
+    const rect=shell.getBoundingClientRect();
+    if(rect.bottom>=center&&rect.height>0)return {page:shell.dataset.page,fraction:Math.max(0,Math.min(1,(center-rect.top)/rect.height))};
+  }
+  return null;
+}
+export function restorePDFScrollAnchor(elements,anchor){
+  if(!anchor)return;
+  const shell=[...elements.pages.children].find(page=>page.dataset.page===anchor.page);if(!shell)return;
+  const rect=shell.getBoundingClientRect(),viewport=elements.scroller.getBoundingClientRect();
+  elements.scroller.scrollTop+=rect.top+rect.height*anchor.fraction-(viewport.top+viewport.bottom)/2;
+}
+export function publishPDFView(prepared,elements,{preserveAnchor=false}={}) {
+  const anchor=preserveAnchor?capturePDFScrollAnchor(elements):null;
   const scroll=elements.scroller.scrollTop;
   elements.pages.replaceChildren(prepared.fragment);
   elements.pages.classList.toggle('read-mode',prepared.mode==='read');
   elements.scroller.scrollTop=scroll;
+  restorePDFScrollAnchor(elements,anchor);
   elements.count.textContent=prepared.pageCount+' '+(prepared.pageCount===1?'page':'pages');
   elements.empty.classList.add('hidden');
+  prepared.mount?.({...elements,onError:error=>{elements.count.textContent=String(error?.message||error)}});
 }

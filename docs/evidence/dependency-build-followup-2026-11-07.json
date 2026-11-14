@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-07T08:27:43.883076+00:00",
+  "kind": "read_only_distributor_build_source_review",
+  "archive_sha256": "8d48973e3eb472dda0f5f2435e595ac043f9f2219dd71883392f549445afa8a5",
+  "captures": [
+    {
+      "source_path": "steps/00-environment.sh",
+      "url": "https://raw.githubusercontent.com/bblanchon/pdfium-binaries/0eb94b28c2252d2baae3dfe15dc6b237131d8cd8/steps/00-environment.sh",
+      "local": "artifacts\\continuation-20261107\\dependency-build-review\\steps__00-environment.sh",
+      "bytes": 175,
+      "sha256": "ba36d6b0710ce1e6b0cc078b7f26e947811c5f009416180ac6c0339e4d4d7786"
+    },
+    {
+      "source_path": "steps/02-checkout.sh",
+      "url": "https://raw.githubusercontent.com/bblanchon/pdfium-binaries/0eb94b28c2252d2baae3dfe15dc6b237131d8cd8/steps/02-checkout.sh",
+      "local": "artifacts\\continuation-20261107\\dependency-build-review\\steps__02-checkout.sh",
+      "bytes": 571,
+      "sha256": "aaeef59f4b719d2530c72b59a093288b7b854f52f6d378e76e2e76bac13ba67a"
+    },
+    {
+      "source_path": "steps/05-configure.sh",
+      "url": "https://raw.githubusercontent.com/bblanchon/pdfium-binaries/0eb94b28c2252d2baae3dfe15dc6b237131d8cd8/steps/05-configure.sh",
+      "local": "artifacts\\continuation-20261107\\dependency-build-review\\steps__05-configure.sh",
+      "bytes": 4002,
+      "sha256": "bce4c108d85a01cffbc3810943f3d622a157c27fc79ecc7901551163653b87df"
+    },
+    {
+      "source_path": "steps/08-licenses.sh",
+      "url": "https://raw.githubusercontent.com/bblanchon/pdfium-binaries/0eb94b28c2252d2baae3dfe15dc6b237131d8cd8/steps/08-licenses.sh",
+      "local": "artifacts\\continuation-20261107\\dependency-build-review\\steps__08-licenses.sh",
+      "bytes": 3890,
+      "sha256": "2f8150baa1c11be57b627c6cfae5ee376ea6595a3a4ea31461d22c0823cf7a52"
+    },
+    {
+      "source_path": ".github/workflows/build-all.yml",
+      "url": "https://raw.githubusercontent.com/bblanchon/pdfium-binaries/0eb94b28c2252d2baae3dfe15dc6b237131d8cd8/.github/workflows/build-all.yml",
+      "local": "artifacts\\continuation-20261107\\dependency-build-review\\.github__workflows__build-all.yml",
+      "bytes": 28079,
+      "sha256": "cd17751f875f8770b82c2dafc71d688be47df0c531dddd97b2aa25a0a480e60b"
+    }
+  ],
+  "observed": [
+    "branch-based shallow gclient sync",
+    "V8/XFA declarations derive from default-false ENABLE_V8",
+    "license collector ignored cases and unknown-library warning"
+  ],
+  "not_established": [
+    "exact DLL resolved checkout/DEPS/flags/patch/component closure",
+    "complete license coverage or advisory absence"
+  ],
+  "upstream_code_executed": false,
+  "dll_changed": false,
+  "release_ready": false
+}

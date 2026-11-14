@@ -1,5 +1,7 @@
 # Texloom visual editing system
 
+7 November architecture-planning follow-up: this document records the earlier bounded movement design. The broader Word-like visual authoring proposal is in [architecture/README.md](architecture/README.md), including source-native edits, generalized Delete, future caret/input and the shared foundation needed first. That proposal has not been implemented; current runtime behavior and named-version evidence remain separate. Do not treat the wrapper-based model below as the required universal identity for future editing.
+
 Status: implementation plan and acceptance contract, 30 October 2026.
 
 ## 1. Product contract

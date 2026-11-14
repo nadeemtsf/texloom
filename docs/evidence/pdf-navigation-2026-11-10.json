@@ -1,0 +1,215 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-10T16:39:57.082447+00:00",
+  "kind": "pdf_navigation_implementation_build_not_native_input_acceptance",
+  "source_commit": "5a506aa1923fcdcc980a98c102f5eac99f1b8266",
+  "status": "built_owner_zoom_usability_failed",
+  "github_issue": 69,
+  "features": [
+    "mouse/two-finger scroll",
+    "horizontal/Shift-wheel",
+    "Ctrl-wheel PDF-only zoom",
+    "coalesced repaint",
+    "gesture-preview cancellation"
+  ],
+  "checks": [
+    {
+      "command": "npm test",
+      "result": "passed",
+      "counts": {
+        "passed": 300,
+        "failed": 0,
+        "skipped": 0
+      },
+      "log": "artifacts/anchors-20261110/frontend-navigation-complete.log",
+      "log_sha256": "49041fb09ac3ee1f52385342f213b40a9242bf43f99a763abf7580b0e3d478b2"
+    },
+    {
+      "command": "cargo test --offline --locked -p texloom-core",
+      "result": "passed",
+      "counts": {
+        "unit": 70,
+        "existing_integration": 18,
+        "positions": 13,
+        "intents": 8,
+        "projection": 19,
+        "failed": 0
+      },
+      "log": "artifacts/anchors-20261110/core-navigation.log",
+      "log_sha256": "492cb429687a9690e01da35c1786b98188c4aae3be0be98f8ea2c4852f47d5f6"
+    },
+    {
+      "command": "cargo test --offline --locked -p texloom-core --features recovery-serde",
+      "result": "passed",
+      "counts": {
+        "unit": 71,
+        "existing_integration": 18,
+        "positions": 13,
+        "intents": 8,
+        "projection": 19,
+        "failed": 0
+      },
+      "log": "artifacts/anchors-20261110/core-navigation-recovery.log",
+      "log_sha256": "f07d60c18afc34f30d8b80589f6c6ca4b5c52b3a3457c310b5056471186b4b79"
+    },
+    {
+      "command": "npm run build",
+      "result": "passed",
+      "counts": {
+        "result": "passed"
+      },
+      "log": "artifacts/anchors-20261110/frontend-navigation-complete-build.log",
+      "log_sha256": "9d67ecff2630d90de04738d3fe741a4d5b206ff3edae916525679bacd606111c"
+    },
+    {
+      "command": "npm run desktop:build -- --ci",
+      "result": "passed",
+      "counts": {
+        "result": "passed"
+      },
+      "log": "artifacts/anchors-20261110/desktop-navigation-build.log",
+      "log_sha256": "5332e3b05e3c4cd5163916a59f7aad6c043efe3b7047adccf16dd01afb219dd5"
+    }
+  ],
+  "source_fingerprints": {
+    "web/core/pdf-scroll.js": {
+      "executed_working_sha256": "ddcaac9e237953142f4c607056916a88b2723e65bccf9f0276d91ecd6306b21e",
+      "committed_blob_sha256": "ddcaac9e237953142f4c607056916a88b2723e65bccf9f0276d91ecd6306b21e",
+      "same_bytes": true
+    },
+    "web/app.js": {
+      "executed_working_sha256": "ca2139f176a8a2eec19a5b7948b021f1b22b08963b0bdb11b6c2e9acd2e9de31",
+      "committed_blob_sha256": "ca2139f176a8a2eec19a5b7948b021f1b22b08963b0bdb11b6c2e9acd2e9de31",
+      "same_bytes": true
+    },
+    "web/style.css": {
+      "executed_working_sha256": "55bda05b8f2c516ee2b4ecdd6c894946b76012ddd1ebbbab7763dad6c63306fa",
+      "committed_blob_sha256": "db2ac8c65e703fc9de01c668ef46fcb282465cea7919a2345d843ab4700d41ad",
+      "same_bytes": false
+    },
+    "tests/pdf-scroll.test.mjs": {
+      "executed_working_sha256": "99d6c12b1ead7d2ae0f8df1a25c82fba48a7b735f3852baa85fcccdf08680889",
+      "committed_blob_sha256": "99d6c12b1ead7d2ae0f8df1a25c82fba48a7b735f3852baa85fcccdf08680889",
+      "same_bytes": true
+    },
+    "tests/app-startup.test.mjs": {
+      "executed_working_sha256": "68002a81e22bdbe290263c827c2d2372389096eade4fe35018be8347609a0de6",
+      "committed_blob_sha256": "68002a81e22bdbe290263c827c2d2372389096eade4fe35018be8347609a0de6",
+      "same_bytes": true
+    },
+    "tests/transactions.test.cjs": {
+      "executed_working_sha256": "f334debabdbfb6ca1d1c15b9aec9e5767a07f01a1623fe72b05f4b636995c90c",
+      "committed_blob_sha256": "f334debabdbfb6ca1d1c15b9aec9e5767a07f01a1623fe72b05f4b636995c90c",
+      "same_bytes": true
+    },
+    "scripts/package-portable.ps1": {
+      "executed_working_sha256": "912cd671f6cb1707c7c3c84a8d283cee90a323c7039cacb6e69be4199bdeef40",
+      "committed_blob_sha256": "4854f1572e9f102feec643d536a59aa36c1f2327516e86bebc0736ef7f7b9d79",
+      "same_bytes": false
+    }
+  },
+  "artifact_verification": {
+    "schema": 1,
+    "kind": "independent_local_navigation_artifact_check_not_runtime_acceptance",
+    "source_commit": "5a506aa1923fcdcc980a98c102f5eac99f1b8266",
+    "portable_members_verified": 15,
+    "all_member_bytes_hashes_crc": "passed",
+    "exe_verifier_binding": "passed",
+    "project_license_removed": true,
+    "third_party_notices_retained": true,
+    "installer_check_scope": "Successful recorded Tauri build plus file hash; embedded installer payload not independently extracted.",
+    "app_opened": false,
+    "installed": false,
+    "native_input_results": "pending_owner",
+    "friendly_folder": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-r9-Windows-x64-2026-11-10",
+    "exports": [
+      {
+        "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-Windows-x64-development-2026-11-10-r9.zip",
+        "bytes": 12043463,
+        "sha256": "a5f0cc24e7209b0b22972b49ca98db10ed8124e2be2a5102886a73db5a89fdc3"
+      },
+      {
+        "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-0.3.0-x64-development-2026-11-10-r9-setup.exe",
+        "bytes": 9476706,
+        "sha256": "b14671ae4074128fc55b788782bda5544da3a3b10b17f3ae64cf45832936863f"
+      },
+      {
+        "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-r9-navigation-checklist-2026-11-10.md",
+        "bytes": 2313,
+        "sha256": "b642afbc047d0af616ba8ff83292bebc7d7632929594aa22596d729b4d07f58c"
+      },
+      {
+        "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-r9-navigation-fixtures-and-checklist-2026-11-10.zip",
+        "bytes": 3017,
+        "sha256": "6c62f3e36862bda2ada4655da9e1391854460a6141597f7f4ecba79f42b3c581"
+      }
+    ],
+    "exe": {
+      "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-r9-Windows-x64-2026-11-10\\Texloom.exe",
+      "bytes": 16976384,
+      "sha256": "7ec277eff23ba3ad4d1075891c0232957f71ea0a15a8d18c4b30cb8e4232b6c7"
+    },
+    "fixtures_unchanged": true
+  },
+  "fixture_preflight": [
+    {
+      "fixture": "short-document",
+      "expected_pages": 6,
+      "observed_pages": 6,
+      "compile_exit": 0,
+      "source_unchanged": true,
+      "result": "passed",
+      "scope": "CLI compile/page-count preflight only; no app interaction"
+    },
+    {
+      "fixture": "long-document",
+      "expected_pages": 25,
+      "observed_pages": 25,
+      "compile_exit": 0,
+      "source_unchanged": true,
+      "result": "passed",
+      "scope": "CLI compile/page-count preflight only; no app interaction"
+    }
+  ],
+  "owner_results": "pending; an asynchronous named-build manual-check request was sent",
+  "agent_opened_app": false,
+  "agent_installed_app": false,
+  "actual_device_input": false,
+  "final_evaluation_executed": false,
+  "limits": [
+    "Wheel event/VM controller tests are synthetic; they do not establish Windows mouse/precision-trackpad/pinch behavior.",
+    "Successful web/native builds and artifact checks do not complete native/release acceptance.",
+    "Installer identity is a successful recorded build and file hash; embedded installer payload was not separately extracted.",
+    "Existing compiler and large-JavaScript-bundle warnings remain; no new latency/scale/usability measurement.",
+    "Repository source remains local/unpushed; no Project board update or duplicate board."
+  ],
+  "preserved_failure": {
+    "log": "artifacts/anchors-20261110/frontend-scroll.log",
+    "sha256": "bf678f5aeeada6d4aba8c6f7001e320f9c50f485d144865ce9497b4dc9d67676",
+    "tests": 296,
+    "passed": 237,
+    "failed": 59,
+    "cause": "Two VM harnesses strip app imports and had not injected the new adapter. They now use the actual adapter; final suite passed.",
+    "scope": "Test integration failure, not a native app observation."
+  },
+  "independent_checker_failure": {
+    "schema": 1,
+    "result": "failed",
+    "stage": "independent_archive_checker_root_lookup",
+    "observed_error": "KeyError: There is no item named ARTIFACT-RECEIPT.json in the archive",
+    "cause": "The first checker assumed flat ZIP members; the verified producer deliberately uses a single Texloom-Desktop-Windows-x64 directory.",
+    "resolution": "The corrected checker requires that exact common prefix and still verifies every path, member byte, hash and CRC.",
+    "original_checker_fingerprint": null,
+    "scope": "Checker failure, not a native app or package creation failure. No app opened, and no exports had been created at the failure point."
+  },
+  "owner_followup": {
+    "recorded_date": "2026-11-12",
+    "observation_date": "2026-11-10",
+    "provenance": "Owner reply to exact r9 portable navigation instructions",
+    "zoom_usability": "failed: very choppy and does not zoom at cursor",
+    "fps": "Qualitative owner description, not an instrumented frame-rate measurement",
+    "other_cases": "not established by this report",
+    "historical_build_and_automated_results": "retained at their original snapshot and do not supersede owner failure",
+    "replacement": "PDF.js page-renderer correction prepared separately; issue69 remains open"
+  }
+}

@@ -1,6 +1,8 @@
 * text=auto
+.githooks/* text eol=lf
 *.rs text eol=lf
 *.js text eol=lf
+*.ts text eol=lf
 *.mjs text eol=lf
 *.json text eol=lf
 *.md text eol=lf
@@ -11,3 +13,5 @@
 *.cmd text eol=crlf
 *.pdf binary
 *.ico binary
+# Preserve downloaded upstream license bytes used by checksum declarations.
+resources/verification-notices/*.txt -text

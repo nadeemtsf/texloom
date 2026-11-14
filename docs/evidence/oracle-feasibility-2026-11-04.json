@@ -1,0 +1,948 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-04T17:59:55.012962+00:00",
+  "status": "pass",
+  "kind": "development_oracle_feasibility_not_final_evaluation",
+  "final_evaluation_executed": false,
+  "application_acceptance_decisions_measured": false,
+  "entry_layer": "post_compilation_diagnostic_controls",
+  "condition_count": 5,
+  "control_count": 30,
+  "intended_controls_matching_reference": 5,
+  "known_fault_controls_differing": 20,
+  "deliberate_compile_failures": 5,
+  "research_tool_diagnostics": {
+    "pass": 9,
+    "fail": 0,
+    "note": "Separate from application or pilot control denominators; Pillow deprecation warning retained in log."
+  },
+  "pre_run_protocol": {
+    "recorded_before_compilation_utc": "2026-11-04T17:53:14.520534+00:00",
+    "question": "Can an independently authored box-position reference match the portable wrapper and distinguish wrong-occurrence, unrelated-text, appearance and duplicate-ink controls?",
+    "word_tolerance_bp": 0.02,
+    "raster_tolerance": "zero changed pixels at 144 dpi",
+    "support_package_sha256": "9ee79b44802c003a73b99780407650accbe911663026e669e56d9da9fa1feafe",
+    "runner_sha256": "28e2be8e2619ae8d86de5fcf84e409087156408532ec544f7c37595193a9ba2c",
+    "oracle_sha256": "200f7cd29f2de0e30d084de9bba792c504bf74c4312e2addbfd13dc9475ad084",
+    "packages": {
+      "Pillow": "13.0.0",
+      "pypdf": "6.10.0"
+    }
+  },
+  "tool_receipts": {
+    "text": {
+      "sha256": "640b9a93fa31fc093860c635cd410a3e30f7d1e6166cb1130993fb1985f474ff",
+      "version": "pdftotext version 24.04.0\r\nCopyright 2005-2024 The Poppler Developers - http://poppler.freedesktop.org\r\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\r\n"
+    },
+    "raster": {
+      "sha256": "1d67b0f296086262832336b46b03fba6dd58603bcaf0eb9f2e6ebcfdc7cf90cb",
+      "version": "pdftoppm version 26.07.0\r\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\r\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\r\n"
+    }
+  },
+  "predicate_replay": {
+    "compile_only": {
+      "admitted": 25,
+      "matching_reference_controls_admitted": 5,
+      "known_fault_controls_admitted": 20,
+      "correct_controls_not_admitted": 0,
+      "compile_failures_not_admitted": 5,
+      "unresolved": 0
+    },
+    "text_and_geometry": {
+      "admitted": 10,
+      "matching_reference_controls_admitted": 5,
+      "known_fault_controls_admitted": 5,
+      "correct_controls_not_admitted": 0,
+      "compile_failures_not_admitted": 5,
+      "unresolved": 0
+    },
+    "full_reference": {
+      "admitted": 5,
+      "matching_reference_controls_admitted": 5,
+      "known_fault_controls_admitted": 0,
+      "correct_controls_not_admitted": 0,
+      "compile_failures_not_admitted": 5,
+      "unresolved": 0
+    }
+  },
+  "conditions": [
+    {
+      "engine": "pdflatex",
+      "multilingual_neighbors": false,
+      "reference_compiled": true,
+      "controls": [
+        {
+          "variant": "correct",
+          "expected": "matches_reference",
+          "actual": "matches_reference",
+          "matches_predeclared_control": true,
+          "comparison": {
+            "schema": 1,
+            "kind": "offline_reference_comparison_not_app_acceptance",
+            "decision": "matches_reference",
+            "expected_pdf_sha256": "9296cd2aa5edc256545ee97679a54cc295db0219f9cde74383e0aace1533786d",
+            "candidate_pdf_sha256": "aeaf9a4e3242d9486f10001f147415077eb09f62ac8da73bc43ab5673def42e5",
+            "geometry_tolerance_bp": 0.02,
+            "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+            "source_intent_oracle_checked": false,
+            "page_contract_equal": true,
+            "text_multiplicities_equal": true,
+            "reading_order_pairing": true,
+            "maximum_word_bounds_error_bp": 0.0,
+            "word_geometry_matches": true,
+            "expected_word_count": 10,
+            "candidate_word_count": 10,
+            "rasters": [
+              {
+                "exact_pixels": true,
+                "changed_pixels": 0,
+                "total_pixels": 1938816,
+                "maximum_channel_difference": 0
+              }
+            ]
+          }
+        },
+        {
+          "variant": "wrong_first_occurrence",
+          "expected": "differs",
+          "actual": "differs",
+          "matches_predeclared_control": true,
+          "comparison": {
+            "schema": 1,
+            "kind": "offline_reference_comparison_not_app_acceptance",
+            "decision": "differs",
+            "expected_pdf_sha256": "9296cd2aa5edc256545ee97679a54cc295db0219f9cde74383e0aace1533786d",
+            "candidate_pdf_sha256": "9ad71e95b6d1d94e346e288772ff6320e19b0ce72df45ee3aa802b3402fc56c1",
+            "geometry_tolerance_bp": 0.02,
+            "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+            "source_intent_oracle_checked": false,
+            "page_contract_equal": true,
+            "text_multiplicities_equal": true,
+            "reading_order_pairing": true,
+            "maximum_word_bounds_error_bp": 12.0,
+            "word_geometry_matches": false,
+            "expected_word_count": 10,
+            "candidate_word_count": 10,
+            "rasters": [
+              {
+                "exact_pixels": false,
+                "changed_pixels": 2728,
+                "total_pixels": 1938816,
+                "maximum_channel_difference": 255
+              }
+            ]
+          }
+        },
+        {
+          "variant": "unrelated_text_changed",
+          "expected": "differs",
+          "actual": "differs",
+          "matches_predeclared_control": true,
+          "comparison": {
+            "schema": 1,
+            "kind": "offline_reference_comparison_not_app_acceptance",
+            "decision": "differs",
+            "expected_pdf_sha256": "9296cd2aa5edc256545ee97679a54cc295db0219f9cde74383e0aace1533786d",
+            "candidate_pdf_sha256": "e33f457b6f9360364d288947370bcef16eef85f56d958a0a5e9b5f58edea50c0",
+            "geometry_tolerance_bp": 0.02,
+            "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+            "source_intent_oracle_checked": false,
+            "page_contract_equal": true,
+            "text_multiplicities_equal": false,
+            "reading_order_pairing": false,
+            "maximum_word_bounds_error_bp": null,
+            "word_geometry_matches": false,
+            "expected_word_count": 10,
+            "candidate_word_count": 10,
+            "rasters": [
+              {
+                "exact_pixels": false,
+                "changed_pixels": 2217,
+                "total_pixels": 1938816,
+                "maximum_channel_difference": 255
+              }
+            ]
+          }
+        },
+        {
+          "variant": "appearance_changed",
+          "expected": "differs",
+          "actual": "differs",
+          "matches_predeclared_control": true,
+          "comparison": {
+            "schema": 1,
+            "kind": "offline_reference_comparison_not_app_acceptance",
+            "decision": "differs",
+            "expected_pdf_sha256": "9296cd2aa5edc256545ee97679a54cc295db0219f9cde74383e0aace1533786d",
+            "candidate_pdf_sha256": "0275da1dedc3b6c9aed9581725b03af9815a66af9b91f5712b4ae367938e57b0",
+            "geometry_tolerance_bp": 0.02,
+            "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+            "source_intent_oracle_checked": false,
+            "page_contract_equal": true,
+            "text_multiplicities_equal": true,
+            "reading_order_pairing": true,
+            "maximum_word_bounds_error_bp": 0.0,
+            "word_geometry_matches": true,
+            "expected_word_count": 10,
+            "candidate_word_count": 10,
+            "rasters": [
+              {
+                "exact_pixels": false,
+                "changed_pixels": 849,
+                "total_pixels": 1938816,
+                "maximum_channel_difference": 255
+              }
+            ]
+          }
+        },
+        {
+          "variant": "duplicate_ink",
+          "expected": "differs",
+          "actual": "differs",
+          "matches_predeclared_control": true,
+          "comparison": {
+            "schema": 1,
+            "kind": "offline_reference_comparison_not_app_acceptance",
+            "decision": "differs",
+            "expected_pdf_sha256": "9296cd2aa5edc256545ee97679a54cc295db0219f9cde74383e0aace1533786d",
+            "candidate_pdf_sha256": "aa2543d4bd9d1e92cbf9b7e3fc2a5393853182cca9494c23b2388e179f8520b1",
+            "geometry_tolerance_bp": 0.02,
+            "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+            "source_intent_oracle_checked": false,
+            "page_contract_equal": true,
+            "text_multiplicities_equal": false,
+            "reading_order_pairing": false,
+            "maximum_word_bounds_error_bp": null,
+            "word_geometry_matches": false,
+            "expected_word_count": 10,
+            "candidate_word_count": 12,
+            "rasters": [
+              {
+                "exact_pixels": false,
+                "changed_pixels": 3883,
+                "total_pixels": 1938816,
+                "maximum_channel_difference": 255
+              }
+            ]
+          }
+        },
+        {
+          "variant": "compile_failure",
+          "expected": "compile_failure",
+          "actual": "compile_failure",
+          "matches_predeclared_control": true,
+          "comparison": null
+        }
+      ]
+    },
+    {
+      "engine": "xelatex",
+      "multilingual_neighbors": false,
+      "reference_compiled": true,
+      "controls": [
+        {
+          "variant": "correct",
+          "expected": "matches_reference",
+          "actual": "matches_reference",
+          "matches_predeclared_control": true,
+          "comparison": {
+            "schema": 1,
+            "kind": "offline_reference_comparison_not_app_acceptance",
+            "decision": "matches_reference",
+            "expected_pdf_sha256": "1fd6406c21fe8bb1f135de7a937357458760a4ef85958b3ab7c61c547b403443",
+            "candidate_pdf_sha256": "94fa49089b5778a25f7bd0e3e0dc1aa50b5efcd5e157dd4c85487548b2e7467c",
+            "geometry_tolerance_bp": 0.02,
+            "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+            "source_intent_oracle_checked": false,
+            "page_contract_equal": true,
+            "text_multiplicities_equal": true,
+            "reading_order_pairing": true,
+            "maximum_word_bounds_error_bp": 0.0,
+            "word_geometry_matches": true,
+            "expected_word_count": 10,
+            "candidate_word_count": 10,
+            "rasters": [
+              {
+                "exact_pixels": true,
+                "changed_pixels": 0,
+                "total_pixels": 1938816,
+                "maximum_channel_difference": 0
+              }
+            ]
+          }
+        },
+        {
+          "variant": "wrong_first_occurrence",
+          "expected": "differs",
+          "actual": "differs",
+          "matches_predeclared_control": true,
+          "comparison": {
+            "schema": 1,
+            "kind": "offline_reference_comparison_not_app_acceptance",
+            "decision": "differs",
+            "expected_pdf_sha256": "1fd6406c21fe8bb1f135de7a937357458760a4ef85958b3ab7c61c547b403443",
+            "candidate_pdf_sha256": "e6338dc6d84fb862167b692c880f31b18e576df94fcb8188ecb8c393e806c522",
+            "geometry_tolerance_bp": 0.02,
+            "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+            "source_intent_oracle_checked": false,
+            "page_contract_equal": true,
+            "text_multiplicities_equal": true,
+            "reading_order_pairing": true,
+            "maximum_word_bounds_error_bp": 12.0,
+            "word_geometry_matches": false,
+            "expected_word_count": 10,
+            "candidate_word_count": 10,
+            "rasters": [
+              {
+                "exact_pixels": false,
+                "changed_pixels": 2718,
+                "total_pixels": 1938816,
+                "maximum_channel_difference": 255
+              }
+            ]
+          }
+        },
+        {
+          "variant": "unrelated_text_changed",
+          "expected": "differs",
+          "actual": "differs",
+          "matches_predeclared_control": true,
+          "comparison": {
+            "schema": 1,
+            "kind": "offline_reference_comparison_not_app_acceptance",
+            "decision": "differs",
+            "expected_pdf_sha256": "1fd6406c21fe8bb1f135de7a937357458760a4ef85958b3ab7c61c547b403443",
+            "candidate_pdf_sha256": "f4be3cddf78a4fb41d2b911acf7205abc76cea88876b99487e9f904323ae8dcb",
+            "geometry_tolerance_bp": 0.02,
+            "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+            "source_intent_oracle_checked": false,
+            "page_contract_equal": true,
+            "text_multiplicities_equal": false,
+            "reading_order_pairing": false,
+            "maximum_word_bounds_error_bp": null,
+            "word_geometry_matches": false,
+            "expected_word_count": 10,
+            "candidate_word_count": 10,
+            "rasters": [
+              {
+                "exact_pixels": false,
+                "changed_pixels": 2218,
+                "total_pixels": 1938816,
+                "maximum_channel_difference": 255
+              }
+            ]
+          }
+        },
+        {
+          "variant": "appearance_changed",
+          "expected": "differs",
+          "actual": "differs",
+          "matches_predeclared_control": true,
+          "comparison": {
+            "schema": 1,
+            "kind": "offline_reference_comparison_not_app_acceptance",
+            "decision": "differs",
+            "expected_pdf_sha256": "1fd6406c21fe8bb1f135de7a937357458760a4ef85958b3ab7c61c547b403443",
+            "candidate_pdf_sha256": "33ac3f94b40a19e7947464b0238c03aa14a48e53ff08533a1c74ca311723ac0b",
+            "geometry_tolerance_bp": 0.02,
+            "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+            "source_intent_oracle_checked": false,
+            "page_contract_equal": true,
+            "text_multiplicities_equal": true,
+            "reading_order_pairing": true,
+            "maximum_word_bounds_error_bp": 0.0,
+            "word_geometry_matches": true,
+            "expected_word_count": 10,
+            "candidate_word_count": 10,
+            "rasters": [
+              {
+                "exact_pixels": false,
+                "changed_pixels": 846,
+                "total_pixels": 1938816,
+                "maximum_channel_difference": 255
+              }
+            ]
+          }
+        },
+        {
+          "variant": "duplicate_ink",
+          "expected": "differs",
+          "actual": "differs",
+          "matches_predeclared_control": true,
+          "comparison": {
+            "schema": 1,
+            "kind": "offline_reference_comparison_not_app_acceptance",
+            "decision": "differs",
+            "expected_pdf_sha256": "1fd6406c21fe8bb1f135de7a937357458760a4ef85958b3ab7c61c547b403443",
+            "candidate_pdf_sha256": "7b1b80cb5b9484e132a33352a0c9d2b757339979794963b070d5ecf527213eae",
+            "geometry_tolerance_bp": 0.02,
+            "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+            "source_intent_oracle_checked": false,
+            "page_contract_equal": true,
+            "text_multiplicities_equal": false,
+            "reading_order_pairing": false,
+            "maximum_word_bounds_error_bp": null,
+            "word_geometry_matches": false,
+            "expected_word_count": 10,
+            "candidate_word_count": 12,
+            "rasters": [
+              {
+                "exact_pixels": false,
+                "changed_pixels": 3880,
+                "total_pixels": 1938816,
+                "maximum_channel_difference": 255
+              }
+            ]
+          }
+        },
+        {
+          "variant": "compile_failure",
+          "expected": "compile_failure",
+          "actual": "compile_failure",
+          "matches_predeclared_control": true,
+          "comparison": null
+        }
+      ]
+    },
+    {
+      "engine": "xelatex",
+      "multilingual_neighbors": true,
+      "reference_compiled": true,
+      "controls": [
+        {
+          "variant": "correct",
+          "expected": "matches_reference",
+          "actual": "matches_reference",
+          "matches_predeclared_control": true,
+          "comparison": {
+            "schema": 1,
+            "kind": "offline_reference_comparison_not_app_acceptance",
+            "decision": "matches_reference",
+            "expected_pdf_sha256": "2d7f16c2aef9a507e3856b1484b22fa1c6f97f3a273f021aec73ac57e7e03d78",
+            "candidate_pdf_sha256": "d10b2b31d902ec464b644f79212bbf251dc0e9e4a7c0b2c95a1affcb6af62b24",
+            "geometry_tolerance_bp": 0.02,
+            "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+            "source_intent_oracle_checked": false,
+            "page_contract_equal": true,
+            "text_multiplicities_equal": true,
+            "reading_order_pairing": true,
+            "maximum_word_bounds_error_bp": 0.0,
+            "word_geometry_matches": true,
+            "expected_word_count": 22,
+            "candidate_word_count": 22,
+            "rasters": [
+              {
+                "exact_pixels": true,
+                "changed_pixels": 0,
+                "total_pixels": 1938816,
+                "maximum_channel_difference": 0
+              }
+            ]
+          }
+        },
+        {
+          "variant": "wrong_first_occurrence",
+          "expected": "differs",
+          "actual": "differs",
+          "matches_predeclared_control": true,
+          "comparison": {
+            "schema": 1,
+            "kind": "offline_reference_comparison_not_app_acceptance",
+            "decision": "differs",
+            "expected_pdf_sha256": "2d7f16c2aef9a507e3856b1484b22fa1c6f97f3a273f021aec73ac57e7e03d78",
+            "candidate_pdf_sha256": "aef0acf90ff89d2fd8d94cfd0c4f22cf1f728cdd46833c99692cbe0a8a6bbef3",
+            "geometry_tolerance_bp": 0.02,
+            "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+            "source_intent_oracle_checked": false,
+            "page_contract_equal": true,
+            "text_multiplicities_equal": true,
+            "reading_order_pairing": true,
+            "maximum_word_bounds_error_bp": 12.0,
+            "word_geometry_matches": false,
+            "expected_word_count": 22,
+            "candidate_word_count": 22,
+            "rasters": [
+              {
+                "exact_pixels": false,
+                "changed_pixels": 3458,
+                "total_pixels": 1938816,
+                "maximum_channel_difference": 255
+              }
+            ]
+          }
+        },
+        {
+          "variant": "unrelated_text_changed",
+          "expected": "differs",
+          "actual": "differs",
+          "matches_predeclared_control": true,
+          "comparison": {
+            "schema": 1,
+            "kind": "offline_reference_comparison_not_app_acceptance",
+            "decision": "differs",
+            "expected_pdf_sha256": "2d7f16c2aef9a507e3856b1484b22fa1c6f97f3a273f021aec73ac57e7e03d78",
+            "candidate_pdf_sha256": "8635420be94f74ec53b42f3e5602c4a61e5b06cfb1fb5a1de0cc2a41fe623866",
+            "geometry_tolerance_bp": 0.02,
+            "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+            "source_intent_oracle_checked": false,
+            "page_contract_equal": true,
+            "text_multiplicities_equal": false,
+            "reading_order_pairing": false,
+            "maximum_word_bounds_error_bp": null,
+            "word_geometry_matches": false,
+            "expected_word_count": 22,
+            "candidate_word_count": 22,
+            "rasters": [
+              {
+                "exact_pixels": false,
+                "changed_pixels": 2692,
+                "total_pixels": 1938816,
+                "maximum_channel_difference": 255
+              }
+            ]
+          }
+        },
+        {
+          "variant": "appearance_changed",
+          "expected": "differs",
+          "actual": "differs",
+          "matches_predeclared_control": true,
+          "comparison": {
+            "schema": 1,
+            "kind": "offline_reference_comparison_not_app_acceptance",
+            "decision": "differs",
+            "expected_pdf_sha256": "2d7f16c2aef9a507e3856b1484b22fa1c6f97f3a273f021aec73ac57e7e03d78",
+            "candidate_pdf_sha256": "d040b4d4e9796ceed30b2886d29f5282ea58e206c8e8e2eaa3af501c7a336534",
+            "geometry_tolerance_bp": 0.02,
+            "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+            "source_intent_oracle_checked": false,
+            "page_contract_equal": true,
+            "text_multiplicities_equal": true,
+            "reading_order_pairing": true,
+            "maximum_word_bounds_error_bp": 0.0,
+            "word_geometry_matches": true,
+            "expected_word_count": 22,
+            "candidate_word_count": 22,
+            "rasters": [
+              {
+                "exact_pixels": false,
+                "changed_pixels": 1152,
+                "total_pixels": 1938816,
+                "maximum_channel_difference": 255
+              }
+            ]
+          }
+        },
+        {
+          "variant": "duplicate_ink",
+          "expected": "differs",
+          "actual": "differs",
+          "matches_predeclared_control": true,
+          "comparison": {
+            "schema": 1,
+            "kind": "offline_reference_comparison_not_app_acceptance",
+            "decision": "differs",
+            "expected_pdf_sha256": "2d7f16c2aef9a507e3856b1484b22fa1c6f97f3a273f021aec73ac57e7e03d78",
+            "candidate_pdf_sha256": "601631e31d55cd1e5a63ea06d1540262f1be5cffa48d31bbf02fce653b3445f4",
+            "geometry_tolerance_bp": 0.02,
+            "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+            "source_intent_oracle_checked": false,
+            "page_contract_equal": true,
+            "text_multiplicities_equal": false,
+            "reading_order_pairing": false,
+            "maximum_word_bounds_error_bp": null,
+            "word_geometry_matches": false,
+            "expected_word_count": 22,
+            "candidate_word_count": 24,
+            "rasters": [
+              {
+                "exact_pixels": false,
+                "changed_pixels": 10928,
+                "total_pixels": 1938816,
+                "maximum_channel_difference": 255
+              }
+            ]
+          }
+        },
+        {
+          "variant": "compile_failure",
+          "expected": "compile_failure",
+          "actual": "compile_failure",
+          "matches_predeclared_control": true,
+          "comparison": null
+        }
+      ]
+    },
+    {
+      "engine": "lualatex",
+      "multilingual_neighbors": false,
+      "reference_compiled": true,
+      "controls": [
+        {
+          "variant": "correct",
+          "expected": "matches_reference",
+          "actual": "matches_reference",
+          "matches_predeclared_control": true,
+          "comparison": {
+            "schema": 1,
+            "kind": "offline_reference_comparison_not_app_acceptance",
+            "decision": "matches_reference",
+            "expected_pdf_sha256": "9fb3974a561cda20e99b8db025629101f0a27163315dc84d6dee96b231d9a89c",
+            "candidate_pdf_sha256": "7b5ba4e447b164cdcc520ae9d86fb13f8ab5afdc07f2f78ed3b4540a508d09d2",
+            "geometry_tolerance_bp": 0.02,
+            "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+            "source_intent_oracle_checked": false,
+            "page_contract_equal": true,
+            "text_multiplicities_equal": true,
+            "reading_order_pairing": true,
+            "maximum_word_bounds_error_bp": 0.0,
+            "word_geometry_matches": true,
+            "expected_word_count": 10,
+            "candidate_word_count": 10,
+            "rasters": [
+              {
+                "exact_pixels": true,
+                "changed_pixels": 0,
+                "total_pixels": 1938816,
+                "maximum_channel_difference": 0
+              }
+            ]
+          }
+        },
+        {
+          "variant": "wrong_first_occurrence",
+          "expected": "differs",
+          "actual": "differs",
+          "matches_predeclared_control": true,
+          "comparison": {
+            "schema": 1,
+            "kind": "offline_reference_comparison_not_app_acceptance",
+            "decision": "differs",
+            "expected_pdf_sha256": "9fb3974a561cda20e99b8db025629101f0a27163315dc84d6dee96b231d9a89c",
+            "candidate_pdf_sha256": "e37b029d073d700478839dcb38fa529b0c534bea8309fdc61a047ee823678726",
+            "geometry_tolerance_bp": 0.02,
+            "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+            "source_intent_oracle_checked": false,
+            "page_contract_equal": true,
+            "text_multiplicities_equal": true,
+            "reading_order_pairing": true,
+            "maximum_word_bounds_error_bp": 12.0,
+            "word_geometry_matches": false,
+            "expected_word_count": 10,
+            "candidate_word_count": 10,
+            "rasters": [
+              {
+                "exact_pixels": false,
+                "changed_pixels": 2718,
+                "total_pixels": 1938816,
+                "maximum_channel_difference": 255
+              }
+            ]
+          }
+        },
+        {
+          "variant": "unrelated_text_changed",
+          "expected": "differs",
+          "actual": "differs",
+          "matches_predeclared_control": true,
+          "comparison": {
+            "schema": 1,
+            "kind": "offline_reference_comparison_not_app_acceptance",
+            "decision": "differs",
+            "expected_pdf_sha256": "9fb3974a561cda20e99b8db025629101f0a27163315dc84d6dee96b231d9a89c",
+            "candidate_pdf_sha256": "aa942d38174edac2e12559516a955348d0d5fa3c39e8b4a1f9b16b8eabf8ac97",
+            "geometry_tolerance_bp": 0.02,
+            "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+            "source_intent_oracle_checked": false,
+            "page_contract_equal": true,
+            "text_multiplicities_equal": false,
+            "reading_order_pairing": false,
+            "maximum_word_bounds_error_bp": null,
+            "word_geometry_matches": false,
+            "expected_word_count": 10,
+            "candidate_word_count": 10,
+            "rasters": [
+              {
+                "exact_pixels": false,
+                "changed_pixels": 2224,
+                "total_pixels": 1938816,
+                "maximum_channel_difference": 255
+              }
+            ]
+          }
+        },
+        {
+          "variant": "appearance_changed",
+          "expected": "differs",
+          "actual": "differs",
+          "matches_predeclared_control": true,
+          "comparison": {
+            "schema": 1,
+            "kind": "offline_reference_comparison_not_app_acceptance",
+            "decision": "differs",
+            "expected_pdf_sha256": "9fb3974a561cda20e99b8db025629101f0a27163315dc84d6dee96b231d9a89c",
+            "candidate_pdf_sha256": "314bd0833927c87aeef6dbef32f6700d17424ecb9f5ef60d1c2bf84068e2c249",
+            "geometry_tolerance_bp": 0.02,
+            "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+            "source_intent_oracle_checked": false,
+            "page_contract_equal": true,
+            "text_multiplicities_equal": true,
+            "reading_order_pairing": true,
+            "maximum_word_bounds_error_bp": 0.0,
+            "word_geometry_matches": true,
+            "expected_word_count": 10,
+            "candidate_word_count": 10,
+            "rasters": [
+              {
+                "exact_pixels": false,
+                "changed_pixels": 846,
+                "total_pixels": 1938816,
+                "maximum_channel_difference": 255
+              }
+            ]
+          }
+        },
+        {
+          "variant": "duplicate_ink",
+          "expected": "differs",
+          "actual": "differs",
+          "matches_predeclared_control": true,
+          "comparison": {
+            "schema": 1,
+            "kind": "offline_reference_comparison_not_app_acceptance",
+            "decision": "differs",
+            "expected_pdf_sha256": "9fb3974a561cda20e99b8db025629101f0a27163315dc84d6dee96b231d9a89c",
+            "candidate_pdf_sha256": "ef86af2a71f2b0f53b8c675b4c5621d1a8023f2fe0dd5b6970982d16a864439c",
+            "geometry_tolerance_bp": 0.02,
+            "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+            "source_intent_oracle_checked": false,
+            "page_contract_equal": true,
+            "text_multiplicities_equal": false,
+            "reading_order_pairing": false,
+            "maximum_word_bounds_error_bp": null,
+            "word_geometry_matches": false,
+            "expected_word_count": 10,
+            "candidate_word_count": 12,
+            "rasters": [
+              {
+                "exact_pixels": false,
+                "changed_pixels": 3902,
+                "total_pixels": 1938816,
+                "maximum_channel_difference": 255
+              }
+            ]
+          }
+        },
+        {
+          "variant": "compile_failure",
+          "expected": "compile_failure",
+          "actual": "compile_failure",
+          "matches_predeclared_control": true,
+          "comparison": null
+        }
+      ]
+    },
+    {
+      "engine": "lualatex",
+      "multilingual_neighbors": true,
+      "reference_compiled": true,
+      "controls": [
+        {
+          "variant": "correct",
+          "expected": "matches_reference",
+          "actual": "matches_reference",
+          "matches_predeclared_control": true,
+          "comparison": {
+            "schema": 1,
+            "kind": "offline_reference_comparison_not_app_acceptance",
+            "decision": "matches_reference",
+            "expected_pdf_sha256": "79ca508ae1a64b71753a464c56f7e38f57b0290885609e4c7babb4881ec0d4bf",
+            "candidate_pdf_sha256": "f6a3e6c8d13cb40356e23e138abba5aed50979adef7494d527b1ab8c25b19685",
+            "geometry_tolerance_bp": 0.02,
+            "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+            "source_intent_oracle_checked": false,
+            "page_contract_equal": true,
+            "text_multiplicities_equal": true,
+            "reading_order_pairing": true,
+            "maximum_word_bounds_error_bp": 0.0,
+            "word_geometry_matches": true,
+            "expected_word_count": 69,
+            "candidate_word_count": 69,
+            "rasters": [
+              {
+                "exact_pixels": true,
+                "changed_pixels": 0,
+                "total_pixels": 1938816,
+                "maximum_channel_difference": 0
+              }
+            ]
+          }
+        },
+        {
+          "variant": "wrong_first_occurrence",
+          "expected": "differs",
+          "actual": "differs",
+          "matches_predeclared_control": true,
+          "comparison": {
+            "schema": 1,
+            "kind": "offline_reference_comparison_not_app_acceptance",
+            "decision": "differs",
+            "expected_pdf_sha256": "79ca508ae1a64b71753a464c56f7e38f57b0290885609e4c7babb4881ec0d4bf",
+            "candidate_pdf_sha256": "9d97352377080eb3c4164e5c202d669f84745804a35f5d56e67caf534f595c5e",
+            "geometry_tolerance_bp": 0.02,
+            "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+            "source_intent_oracle_checked": false,
+            "page_contract_equal": true,
+            "text_multiplicities_equal": true,
+            "reading_order_pairing": true,
+            "maximum_word_bounds_error_bp": 12.0,
+            "word_geometry_matches": false,
+            "expected_word_count": 69,
+            "candidate_word_count": 69,
+            "rasters": [
+              {
+                "exact_pixels": false,
+                "changed_pixels": 3464,
+                "total_pixels": 1938816,
+                "maximum_channel_difference": 255
+              }
+            ]
+          }
+        },
+        {
+          "variant": "unrelated_text_changed",
+          "expected": "differs",
+          "actual": "differs",
+          "matches_predeclared_control": true,
+          "comparison": {
+            "schema": 1,
+            "kind": "offline_reference_comparison_not_app_acceptance",
+            "decision": "differs",
+            "expected_pdf_sha256": "79ca508ae1a64b71753a464c56f7e38f57b0290885609e4c7babb4881ec0d4bf",
+            "candidate_pdf_sha256": "06f5e4cceb435e9e381727319b6749d382d193ae06f2ffb8646282eeb5f7fb29",
+            "geometry_tolerance_bp": 0.02,
+            "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+            "source_intent_oracle_checked": false,
+            "page_contract_equal": true,
+            "text_multiplicities_equal": false,
+            "reading_order_pairing": false,
+            "maximum_word_bounds_error_bp": null,
+            "word_geometry_matches": false,
+            "expected_word_count": 69,
+            "candidate_word_count": 69,
+            "rasters": [
+              {
+                "exact_pixels": false,
+                "changed_pixels": 2699,
+                "total_pixels": 1938816,
+                "maximum_channel_difference": 255
+              }
+            ]
+          }
+        },
+        {
+          "variant": "appearance_changed",
+          "expected": "differs",
+          "actual": "differs",
+          "matches_predeclared_control": true,
+          "comparison": {
+            "schema": 1,
+            "kind": "offline_reference_comparison_not_app_acceptance",
+            "decision": "differs",
+            "expected_pdf_sha256": "79ca508ae1a64b71753a464c56f7e38f57b0290885609e4c7babb4881ec0d4bf",
+            "candidate_pdf_sha256": "7383916e21a18eb730b53f4e294486299d3a0fd802054cd0e6d58124b0316fc3",
+            "geometry_tolerance_bp": 0.02,
+            "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+            "source_intent_oracle_checked": false,
+            "page_contract_equal": true,
+            "text_multiplicities_equal": true,
+            "reading_order_pairing": true,
+            "maximum_word_bounds_error_bp": 0.0,
+            "word_geometry_matches": true,
+            "expected_word_count": 69,
+            "candidate_word_count": 69,
+            "rasters": [
+              {
+                "exact_pixels": false,
+                "changed_pixels": 1153,
+                "total_pixels": 1938816,
+                "maximum_channel_difference": 255
+              }
+            ]
+          }
+        },
+        {
+          "variant": "duplicate_ink",
+          "expected": "differs",
+          "actual": "differs",
+          "matches_predeclared_control": true,
+          "comparison": {
+            "schema": 1,
+            "kind": "offline_reference_comparison_not_app_acceptance",
+            "decision": "differs",
+            "expected_pdf_sha256": "79ca508ae1a64b71753a464c56f7e38f57b0290885609e4c7babb4881ec0d4bf",
+            "candidate_pdf_sha256": "604ae7a35c05be3c8e27ffca27bf00abed862c37ad45e7c120e92764e85e5b06",
+            "geometry_tolerance_bp": 0.02,
+            "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+            "source_intent_oracle_checked": false,
+            "page_contract_equal": true,
+            "text_multiplicities_equal": false,
+            "reading_order_pairing": false,
+            "maximum_word_bounds_error_bp": null,
+            "word_geometry_matches": false,
+            "expected_word_count": 69,
+            "candidate_word_count": 71,
+            "rasters": [
+              {
+                "exact_pixels": false,
+                "changed_pixels": 10963,
+                "total_pixels": 1938816,
+                "maximum_channel_difference": 255
+              }
+            ]
+          }
+        },
+        {
+          "variant": "compile_failure",
+          "expected": "compile_failure",
+          "actual": "compile_failure",
+          "matches_predeclared_control": true,
+          "comparison": null
+        }
+      ]
+    }
+  ],
+  "raw_receipts": [
+    {
+      "path": "artifacts/oracle-feasibility-20261104-first/protocol.json",
+      "bytes": 2791,
+      "sha256": "fa1588a70d087ac965a7d619e45852c6e6503044bfa9cb06f3696a082cb2ff3c"
+    },
+    {
+      "path": "artifacts/oracle-feasibility-20261104-first/report.json",
+      "bytes": 89321,
+      "sha256": "883725852da15b97c209ffea941391fc32e24f341157bbc769358c6cf72ace54"
+    },
+    {
+      "path": "artifacts/oracle-feasibility-20261104-first/predicate-replay.json",
+      "bytes": 1617,
+      "sha256": "34793e76534a0bcdd0919e59a1f3c38f90f7ab874943ab08517051bc474ce7b7"
+    },
+    {
+      "path": "artifacts/oracle-feasibility-20261104-first/predicate-replay-v2.json",
+      "bytes": 1617,
+      "sha256": "3fea14d211dfc19ec64b57ac5b866c10c5a51af9f2127edba6ea5a2d04f4e65f"
+    }
+  ],
+  "limits": [
+    "Post-compilation diagnostic controls, not application interaction/acceptance rates.",
+    "Same author specifies reference and controls; independence is from runtime planner/renderer, not blinded adjudication.",
+    "The pilot tests Latin repeated targets with English/Arabic/Hebrew neighbors; it does not certify shaped-text editing.",
+    "Source-intent correctness and ambiguous reading order still need separate annotations/adjudication.",
+    "One configured host; full font/machine image was not sealed.",
+    "Source-intent preservation is not checked by this PDF comparator.",
+    "The pilot and replay bypass normal selection/source-plan gates and do not estimate production error rates."
+  ],
+  "analysis_v2_same_counts": true,
+  "analysis_v2_sha256": "206cb47ee4576c9ef091e87c1c63d4a153f98f8bb84ed19c6635852244db1a38"
+}

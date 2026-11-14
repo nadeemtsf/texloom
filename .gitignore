@@ -4,6 +4,10 @@
 /.tools/
 /web/public/pdfjs/
 /src-tauri/gen/
+/src-tauri/resources/verification/*
+/src-tauri/resources/distribution/*
+!/src-tauri/resources/distribution/README.md
+!/src-tauri/resources/verification/README.md
 *.log
 /artifacts/
 .env

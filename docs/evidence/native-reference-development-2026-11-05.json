@@ -1,0 +1,108 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-04T22:42:14.550806+00:00",
+  "kind": "native_candidate_boundary_development_not_full_app_evaluation",
+  "product_native_authority_base": "5e59e77282fd5e4b4f70440437b8f841ccea1364",
+  "native_harness_commit": "cb3cd1112bdec2fc54f5765f55e78e56fb790240",
+  "reference_revision_2_commit": "b5edb9d0e6cf3daf05770b108ca6a9d0c7640e58",
+  "native_runner_sha256": "fcb46dae8fcdbc86e415209cc9f9caf62892ff4315009658185468768422c2a3",
+  "entry_layer": "proposed sources plus fixed move operation, existing tagged second occurrence",
+  "first_attempt": {
+    "recorded_counts": {
+      "conditions": 5,
+      "intended_moves_matching_all_declared_postconditions": 0,
+      "fault_packets_refused_before_compilation": 25,
+      "unexpected_tampered_prepare_accepts": 0
+    },
+    "status": "invalid_moved_reference_unrelated_line_shift_preserved_not_relabelled",
+    "protocol": {
+      "path": "artifacts/native-reference-development-20261105-first/protocol.json",
+      "bytes": 103535,
+      "sha256": "8cd000d559011a5e14e7accb5dc1ab67967763dd936cb648ea079b625d5d6a84"
+    },
+    "report": {
+      "path": "artifacts/native-reference-development-20261105-first/report.json",
+      "bytes": 24042,
+      "sha256": "be5db99a71856656cdc336eff748aad1f78fb70064b1d71de397da48472fdc9f"
+    },
+    "diagnosis": {
+      "path": "artifacts/native-reference-diagnosis-20261105/diagnosis.json",
+      "bytes": 5626,
+      "sha256": "dcc6059ada2aa35a4a699198782b3e226b383fb1671a712bc21ff394f935f643"
+    }
+  },
+  "corrected_attempt": {
+    "counts": {
+      "conditions": 5,
+      "intended_moves_matching_all_declared_postconditions": 5,
+      "fault_packets_refused_before_compilation": 25,
+      "unexpected_tampered_prepare_accepts": 0
+    },
+    "protocol": {
+      "path": "artifacts/native-reference-development-20261105-reference-v2/protocol.json",
+      "bytes": 103757,
+      "sha256": "0f56f9c97712a98d345471cd8db60f4d8f2b96be00b1c7b1e003849a8333de4e"
+    },
+    "report": {
+      "path": "artifacts/native-reference-development-20261105-reference-v2/report.json",
+      "bytes": 26252,
+      "sha256": "3d4232c4dd9903fc2adba16644bb8029c0f6fe5cde6da491c5183b7aab585c8b"
+    },
+    "all_five_source_contracts": "matches_contract",
+    "all_five_reference_health": "matches_declared_translation",
+    "baseline_and_candidate_full_page_rasters": "exact; zero changed pixels in all ten comparisons",
+    "undo_and_original_source_disk": "exact in all five conditions"
+  },
+  "cross_run_control": "Same native executable, baseline sources, operation requests, candidate packets, source contracts and zero references. Only moved reference and reference-health analysis changed. Reused cases; never pool as ten distinct valid requests or fifty distinct corrupt packets.",
+  "research_helper_checks": {
+    "passed": 27,
+    "scope": "infrastructure regressions, not app accuracy cases",
+    "log": {
+      "path": ".tools/continuation-native-reference-helper-v2-tests.log",
+      "bytes": 5344,
+      "sha256": "c5716db96eabcb84c5bbcc139583bc323ac0322a9bdf1eddd62559e37e5dcb2b"
+    }
+  },
+  "logs": [
+    {
+      "path": ".tools/continuation-native-reference-check.log",
+      "bytes": 3431,
+      "sha256": "2b7e9f2eb8c39672d674f98f94aea36c0639b6be49d7049d8ae4725393d14142"
+    },
+    {
+      "path": ".tools/continuation-native-reference-build.log",
+      "bytes": 3334,
+      "sha256": "d2e5ebc402904cc985f281338529e6699dde2a525a198ae47a9255dd64972460"
+    },
+    {
+      "path": ".tools/continuation-native-reference-evaluate-first.log",
+      "bytes": 167,
+      "sha256": "8539788bb1da1a9e8dc040a949ca4d8e43b724e03727e3987bf6995d9a915655"
+    },
+    {
+      "path": ".tools/continuation-native-reference-evaluate-v2.log",
+      "bytes": 167,
+      "sha256": "a32960a45df0fb38acf5b2ba6bad907a6ae50648b12ee11c1bcb3b9def5f8d52"
+    },
+    {
+      "path": ".tools/continuation-native-reference-v2-frontend.log",
+      "bytes": 24097,
+      "sha256": "b358a03b538692c3000a3217f071a44763e530be9c10105356afe203a1f82a2e"
+    },
+    {
+      "path": ".tools/continuation-native-reference-v2-core.log",
+      "bytes": 7903,
+      "sha256": "08035a635fe882b513c81a02895a39fd0228740515942fc4a33c212b629c5a44"
+    }
+  ],
+  "not_established": [
+    "PDF.js source mapping and frontend identity probe",
+    "Actual mouse/keyboard/native UI or installed artifact",
+    "Independent human labels or final held-out accuracy",
+    "Latency or overhead"
+  ],
+  "ui_opened": false,
+  "save_called": false,
+  "final_evaluation_executed": false,
+  "release_ready": false
+}

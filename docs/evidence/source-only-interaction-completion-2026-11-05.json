@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-05T12:35:12.809394+00:00",
+  "kind": "source_only_approved_interaction_completion_not_validation",
+  "status": "untested_unbuilt_unrendered_owner_paused_all_tests",
+  "base_head": "26ff07ed0536bab1605abedf74e2df12a478ffbd",
+  "last_tested_product_commit": "5e59e77282fd5e4b4f70440437b8f841ccea1364",
+  "source_files": [
+    {
+      "path": "web/app.js",
+      "bytes": 67939,
+      "sha256": "d70e578659363b746a028bb6ca23f7c7c6c326457200fe12408254bc49cedf28"
+    },
+    {
+      "path": "web/core/source-highlight.js",
+      "bytes": 2327,
+      "sha256": "46863f6461e3fa7b85e1dc8569e291d537e4446707dd61c6f47595cc47545d45"
+    },
+    {
+      "path": "web/core/text-input-appearance.js",
+      "bytes": 1415,
+      "sha256": "1724274ce6cb7fdbece928351ee496ebd0d78cc8c1dc041dbe4a97a2e12c6e0c"
+    },
+    {
+      "path": "web/core/dialog-anchor.js",
+      "bytes": 1650,
+      "sha256": "406471dff4e3e52f65d22b08e8b0e208cd457ab939690f2539c388fe7826d112"
+    },
+    {
+      "path": "web/index.html",
+      "bytes": 12896,
+      "sha256": "6f88c06ed61e81702dcfd1caf96c7206af1e1a166cb1bc24f026d05464c60178"
+    },
+    {
+      "path": "web/style.css",
+      "bytes": 13996,
+      "sha256": "a762d7f81df7cbaa82e2c2bb63adf23e43f70b2e2696f97015b72a2cc0bfa76f"
+    }
+  ],
+  "features_implemented_in_source": [
+    "Automatic validated-range source highlight without stealing PDF focus, with guarded file activation/rollback",
+    "Distinct Reset position and Remove positioning using existing checked move/detach operations",
+    "Bounded style/direction hints and protected-command presentation with raw-fragment fallback",
+    "Viewport-aware modal position beside a visible target, centered fallback and resize handling"
+  ],
+  "basis": "Approved plan compared to source; gaps identified by inspection, not new runtime observations",
+  "automated_tests_run": false,
+  "type_tests_run": false,
+  "native_tests_run": false,
+  "experiments_run": false,
+  "app_build_run": false,
+  "app_opened": false,
+  "ui_render_or_screenshot_review_run": false,
+  "last_good_binaries_changed": false,
+  "report_pdf_changed": false,
+  "final_evaluation_executed": false,
+  "release_ready": false,
+  "limits": [
+    "Source coverage is not current behavior acceptance",
+    "Style hints are not a TeX renderer or exact-font/color/shaping reproduction",
+    "New source-link, reset/detach, modal geometry, RTL and normal-path regressions remain pending",
+    "No new protocol/native transformation authority; current source/runtime verification gates retained"
+  ],
+  "scope_document": "docs/FEATURE-SOURCE-COVERAGE.md"
+}

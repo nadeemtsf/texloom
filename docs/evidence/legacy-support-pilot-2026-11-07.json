@@ -1,0 +1,1254 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-07T11:39:16.792885+00:00",
+  "kind": "declared_support_migration_development_not_final_evaluation",
+  "result": {
+    "schema": 1,
+    "kind": "native_candidate_boundary_development_not_full_app_evaluation",
+    "protocol_sha256": "fabd02fa404d488dca30b97d06dcc2b3393dda8d8503ffdb653a8405471bc777",
+    "native_runner_sha256": "3b55e937385b9eb2e11c59aad81e9022329a2079616039d393a177e6658db74c",
+    "conditions": [
+      {
+        "id": "pdflatex-latin",
+        "engine": "pdflatex",
+        "language": "latin",
+        "native": {
+          "baseline_build_id": "f5327e00f44440d2b0bd251d985ff246",
+          "disk_unchanged_after_run": true,
+          "engine": "pdflatex",
+          "fault_packets": [
+            {
+              "canonical_source_history_unchanged": true,
+              "compile_called": false,
+              "prepare_accepted": false,
+              "reason": "The candidate differs from the native operation plan",
+              "variant": "wrong_first_occurrence"
+            },
+            {
+              "canonical_source_history_unchanged": true,
+              "compile_called": false,
+              "prepare_accepted": false,
+              "reason": "The candidate differs from the native operation plan",
+              "variant": "unrelated_text_changed"
+            },
+            {
+              "canonical_source_history_unchanged": true,
+              "compile_called": false,
+              "prepare_accepted": false,
+              "reason": "The candidate differs from the native operation plan",
+              "variant": "appearance_changed"
+            },
+            {
+              "canonical_source_history_unchanged": true,
+              "compile_called": false,
+              "prepare_accepted": false,
+              "reason": "The candidate differs from the native operation plan",
+              "variant": "duplicate_ink"
+            },
+            {
+              "canonical_source_history_unchanged": true,
+              "compile_called": false,
+              "prepare_accepted": false,
+              "reason": "The candidate differs from the native operation plan",
+              "variant": "support_file_changed"
+            }
+          ],
+          "id": "pdflatex-latin",
+          "intended_move": {
+            "build_id": "f183e4981ce5453fa8554b3afc6e4662",
+            "commit_performed": true,
+            "committed_source_equals_declared_candidate": true,
+            "disk_unchanged": true,
+            "engine": "pdflatex",
+            "revision": 1,
+            "status": "committed",
+            "undo_exact": true,
+            "undo_revision": 2
+          },
+          "language": "latin"
+        },
+        "status": "matches_declared_postconditions",
+        "native_source_contract": {
+          "schema": 1,
+          "decision": "matches_contract",
+          "source_contract_checked": true,
+          "tex_semantics_verified": false,
+          "bound_object_id": null,
+          "file_count": 3
+        },
+        "baseline_comparison": {
+          "schema": 1,
+          "kind": "offline_reference_comparison_not_app_acceptance",
+          "decision": "matches_reference",
+          "expected_pdf_sha256": "ba352f08c5c2c654cba5f30e1eff374bbdca88c89774c7752faddae6b05a6325",
+          "candidate_pdf_sha256": "f9670d1a311a5869b1a5bed9b9d0dc3987c560660d7e9ced58144d7de0f92bd3",
+          "geometry_tolerance_bp": 0.02,
+          "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+          "source_intent_oracle_checked": false,
+          "page_contract_equal": true,
+          "text_multiplicities_equal": true,
+          "reading_order_pairing": true,
+          "maximum_word_bounds_error_bp": 0.0,
+          "word_geometry_matches": true,
+          "expected_word_count": 11,
+          "candidate_word_count": 11,
+          "rasters": [
+            {
+              "exact_pixels": true,
+              "changed_pixels": 0,
+              "total_pixels": 1938816,
+              "maximum_channel_difference": 0
+            }
+          ]
+        },
+        "candidate_comparison": {
+          "schema": 1,
+          "kind": "offline_reference_comparison_not_app_acceptance",
+          "decision": "matches_reference",
+          "expected_pdf_sha256": "acd9b18e6b5b5138a2a50456ecfb325cf20179d676af37a3a985bbd4073d62e5",
+          "candidate_pdf_sha256": "d841a4e8ba65311a4b1c3d83c90b8dba1be33efbe010de7c6fa7ddd1b59dcd9a",
+          "geometry_tolerance_bp": 0.02,
+          "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+          "source_intent_oracle_checked": false,
+          "page_contract_equal": true,
+          "text_multiplicities_equal": true,
+          "reading_order_pairing": true,
+          "maximum_word_bounds_error_bp": 0.0,
+          "word_geometry_matches": true,
+          "expected_word_count": 11,
+          "candidate_word_count": 11,
+          "rasters": [
+            {
+              "exact_pixels": true,
+              "changed_pixels": 0,
+              "total_pixels": 1938816,
+              "maximum_channel_difference": 0
+            }
+          ]
+        },
+        "reference_health": {
+          "decision": "matches_declared_translation",
+          "target_word_keys": [
+            [
+              1,
+              "Repeated",
+              1
+            ],
+            [
+              1,
+              "target",
+              1
+            ]
+          ],
+          "expected_dx_bp": 12,
+          "tolerance_bp": 0.02,
+          "target_word_count": 2,
+          "maximum_target_error_bp": 0.0,
+          "maximum_non_target_error_bp": 0.0
+        }
+      },
+      {
+        "id": "xelatex-latin",
+        "engine": "xelatex",
+        "language": "latin",
+        "native": {
+          "baseline_build_id": "3c694a09641f45ba9ce39aab3d077ab0",
+          "disk_unchanged_after_run": true,
+          "engine": "xelatex",
+          "fault_packets": [
+            {
+              "canonical_source_history_unchanged": true,
+              "compile_called": false,
+              "prepare_accepted": false,
+              "reason": "The candidate differs from the native operation plan",
+              "variant": "wrong_first_occurrence"
+            },
+            {
+              "canonical_source_history_unchanged": true,
+              "compile_called": false,
+              "prepare_accepted": false,
+              "reason": "The candidate differs from the native operation plan",
+              "variant": "unrelated_text_changed"
+            },
+            {
+              "canonical_source_history_unchanged": true,
+              "compile_called": false,
+              "prepare_accepted": false,
+              "reason": "The candidate differs from the native operation plan",
+              "variant": "appearance_changed"
+            },
+            {
+              "canonical_source_history_unchanged": true,
+              "compile_called": false,
+              "prepare_accepted": false,
+              "reason": "The candidate differs from the native operation plan",
+              "variant": "duplicate_ink"
+            },
+            {
+              "canonical_source_history_unchanged": true,
+              "compile_called": false,
+              "prepare_accepted": false,
+              "reason": "The candidate differs from the native operation plan",
+              "variant": "support_file_changed"
+            }
+          ],
+          "id": "xelatex-latin",
+          "intended_move": {
+            "build_id": "f24a5c09c647400b8037d55877deeca9",
+            "commit_performed": true,
+            "committed_source_equals_declared_candidate": true,
+            "disk_unchanged": true,
+            "engine": "xelatex",
+            "revision": 1,
+            "status": "committed",
+            "undo_exact": true,
+            "undo_revision": 2
+          },
+          "language": "latin"
+        },
+        "status": "matches_declared_postconditions",
+        "native_source_contract": {
+          "schema": 1,
+          "decision": "matches_contract",
+          "source_contract_checked": true,
+          "tex_semantics_verified": false,
+          "bound_object_id": null,
+          "file_count": 3
+        },
+        "baseline_comparison": {
+          "schema": 1,
+          "kind": "offline_reference_comparison_not_app_acceptance",
+          "decision": "matches_reference",
+          "expected_pdf_sha256": "5062a6eccc2e3a7f4afaab737863ca679fee460612bc98650e4f201e6e355491",
+          "candidate_pdf_sha256": "2e89da62dd4a4c768c6a391b242e4b9f28712cc952a6a83efdc20cfeb8ffd94f",
+          "geometry_tolerance_bp": 0.02,
+          "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+          "source_intent_oracle_checked": false,
+          "page_contract_equal": true,
+          "text_multiplicities_equal": true,
+          "reading_order_pairing": true,
+          "maximum_word_bounds_error_bp": 0.0,
+          "word_geometry_matches": true,
+          "expected_word_count": 11,
+          "candidate_word_count": 11,
+          "rasters": [
+            {
+              "exact_pixels": true,
+              "changed_pixels": 0,
+              "total_pixels": 1938816,
+              "maximum_channel_difference": 0
+            }
+          ]
+        },
+        "candidate_comparison": {
+          "schema": 1,
+          "kind": "offline_reference_comparison_not_app_acceptance",
+          "decision": "matches_reference",
+          "expected_pdf_sha256": "8fba6ad8c55714ae80eaf92dfe9b4ff6c78e2e5225731890b8346bec2deecd85",
+          "candidate_pdf_sha256": "a4fc94411e8ac9bd32f81745c7d2f33e7484db1d35c136e94b61e9b6eb4bac0b",
+          "geometry_tolerance_bp": 0.02,
+          "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+          "source_intent_oracle_checked": false,
+          "page_contract_equal": true,
+          "text_multiplicities_equal": true,
+          "reading_order_pairing": true,
+          "maximum_word_bounds_error_bp": 0.0,
+          "word_geometry_matches": true,
+          "expected_word_count": 11,
+          "candidate_word_count": 11,
+          "rasters": [
+            {
+              "exact_pixels": true,
+              "changed_pixels": 0,
+              "total_pixels": 1938816,
+              "maximum_channel_difference": 0
+            }
+          ]
+        },
+        "reference_health": {
+          "decision": "matches_declared_translation",
+          "target_word_keys": [
+            [
+              1,
+              "Repeated",
+              1
+            ],
+            [
+              1,
+              "target",
+              1
+            ]
+          ],
+          "expected_dx_bp": 12,
+          "tolerance_bp": 0.02,
+          "target_word_count": 2,
+          "maximum_target_error_bp": 0.0,
+          "maximum_non_target_error_bp": 0.0
+        }
+      },
+      {
+        "id": "xelatex-multilingual",
+        "engine": "xelatex",
+        "language": "multilingual",
+        "native": {
+          "baseline_build_id": "7a968f3fc3fa4268a00b064407dd8464",
+          "disk_unchanged_after_run": true,
+          "engine": "xelatex",
+          "fault_packets": [
+            {
+              "canonical_source_history_unchanged": true,
+              "compile_called": false,
+              "prepare_accepted": false,
+              "reason": "The candidate differs from the native operation plan",
+              "variant": "wrong_first_occurrence"
+            },
+            {
+              "canonical_source_history_unchanged": true,
+              "compile_called": false,
+              "prepare_accepted": false,
+              "reason": "The candidate differs from the native operation plan",
+              "variant": "unrelated_text_changed"
+            },
+            {
+              "canonical_source_history_unchanged": true,
+              "compile_called": false,
+              "prepare_accepted": false,
+              "reason": "The candidate differs from the native operation plan",
+              "variant": "appearance_changed"
+            },
+            {
+              "canonical_source_history_unchanged": true,
+              "compile_called": false,
+              "prepare_accepted": false,
+              "reason": "The candidate differs from the native operation plan",
+              "variant": "duplicate_ink"
+            },
+            {
+              "canonical_source_history_unchanged": true,
+              "compile_called": false,
+              "prepare_accepted": false,
+              "reason": "The candidate differs from the native operation plan",
+              "variant": "support_file_changed"
+            }
+          ],
+          "id": "xelatex-multilingual",
+          "intended_move": {
+            "build_id": "2c72ecdd48b34d97a11d600b0ca659ce",
+            "commit_performed": true,
+            "committed_source_equals_declared_candidate": true,
+            "disk_unchanged": true,
+            "engine": "xelatex",
+            "revision": 1,
+            "status": "committed",
+            "undo_exact": true,
+            "undo_revision": 2
+          },
+          "language": "multilingual"
+        },
+        "status": "matches_declared_postconditions",
+        "native_source_contract": {
+          "schema": 1,
+          "decision": "matches_contract",
+          "source_contract_checked": true,
+          "tex_semantics_verified": false,
+          "bound_object_id": null,
+          "file_count": 3
+        },
+        "baseline_comparison": {
+          "schema": 1,
+          "kind": "offline_reference_comparison_not_app_acceptance",
+          "decision": "matches_reference",
+          "expected_pdf_sha256": "5f07df91ef5ab34600e15a4661049fa1e9fb20c8f49ef44b5a668d01a1537268",
+          "candidate_pdf_sha256": "169f1b2bd33030ef2b0ff3985c46908d861aaa8e6d3692cdfa31638cd8ad53e5",
+          "geometry_tolerance_bp": 0.02,
+          "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+          "source_intent_oracle_checked": false,
+          "page_contract_equal": true,
+          "text_multiplicities_equal": true,
+          "reading_order_pairing": true,
+          "maximum_word_bounds_error_bp": 0.0,
+          "word_geometry_matches": true,
+          "expected_word_count": 23,
+          "candidate_word_count": 23,
+          "rasters": [
+            {
+              "exact_pixels": true,
+              "changed_pixels": 0,
+              "total_pixels": 1938816,
+              "maximum_channel_difference": 0
+            }
+          ]
+        },
+        "candidate_comparison": {
+          "schema": 1,
+          "kind": "offline_reference_comparison_not_app_acceptance",
+          "decision": "matches_reference",
+          "expected_pdf_sha256": "54cfdcc67c2e07ba03ab25dce3a46fe32ebbcb515cceb94e53fc6b2663cf07fc",
+          "candidate_pdf_sha256": "752260a2729a0e250d9bff825d5b2dd63918f94fdf9d5754a160f638889226a3",
+          "geometry_tolerance_bp": 0.02,
+          "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+          "source_intent_oracle_checked": false,
+          "page_contract_equal": true,
+          "text_multiplicities_equal": true,
+          "reading_order_pairing": true,
+          "maximum_word_bounds_error_bp": 0.0,
+          "word_geometry_matches": true,
+          "expected_word_count": 23,
+          "candidate_word_count": 23,
+          "rasters": [
+            {
+              "exact_pixels": true,
+              "changed_pixels": 0,
+              "total_pixels": 1938816,
+              "maximum_channel_difference": 0
+            }
+          ]
+        },
+        "reference_health": {
+          "decision": "matches_declared_translation",
+          "target_word_keys": [
+            [
+              1,
+              "Repeated",
+              1
+            ],
+            [
+              1,
+              "target",
+              1
+            ]
+          ],
+          "expected_dx_bp": 12,
+          "tolerance_bp": 0.02,
+          "target_word_count": 2,
+          "maximum_target_error_bp": 0.0,
+          "maximum_non_target_error_bp": 0.0
+        }
+      },
+      {
+        "id": "lualatex-latin",
+        "engine": "lualatex",
+        "language": "latin",
+        "native": {
+          "baseline_build_id": "17334bce8cd542d6a225ac8f09a10782",
+          "disk_unchanged_after_run": true,
+          "engine": "lualatex",
+          "fault_packets": [
+            {
+              "canonical_source_history_unchanged": true,
+              "compile_called": false,
+              "prepare_accepted": false,
+              "reason": "The candidate differs from the native operation plan",
+              "variant": "wrong_first_occurrence"
+            },
+            {
+              "canonical_source_history_unchanged": true,
+              "compile_called": false,
+              "prepare_accepted": false,
+              "reason": "The candidate differs from the native operation plan",
+              "variant": "unrelated_text_changed"
+            },
+            {
+              "canonical_source_history_unchanged": true,
+              "compile_called": false,
+              "prepare_accepted": false,
+              "reason": "The candidate differs from the native operation plan",
+              "variant": "appearance_changed"
+            },
+            {
+              "canonical_source_history_unchanged": true,
+              "compile_called": false,
+              "prepare_accepted": false,
+              "reason": "The candidate differs from the native operation plan",
+              "variant": "duplicate_ink"
+            },
+            {
+              "canonical_source_history_unchanged": true,
+              "compile_called": false,
+              "prepare_accepted": false,
+              "reason": "The candidate differs from the native operation plan",
+              "variant": "support_file_changed"
+            }
+          ],
+          "id": "lualatex-latin",
+          "intended_move": {
+            "build_id": "bace89fd7a1e479a90142871f394de77",
+            "commit_performed": true,
+            "committed_source_equals_declared_candidate": true,
+            "disk_unchanged": true,
+            "engine": "lualatex",
+            "revision": 1,
+            "status": "committed",
+            "undo_exact": true,
+            "undo_revision": 2
+          },
+          "language": "latin"
+        },
+        "status": "matches_declared_postconditions",
+        "native_source_contract": {
+          "schema": 1,
+          "decision": "matches_contract",
+          "source_contract_checked": true,
+          "tex_semantics_verified": false,
+          "bound_object_id": null,
+          "file_count": 3
+        },
+        "baseline_comparison": {
+          "schema": 1,
+          "kind": "offline_reference_comparison_not_app_acceptance",
+          "decision": "matches_reference",
+          "expected_pdf_sha256": "f0cfe3e2c11ab0de8ab9dd86be61913f901548d123035832a85146ee50fd40a6",
+          "candidate_pdf_sha256": "128e048fa7d63d5e9a2ce78b50982542ff9f98946b42afe9491a0b5f4c3bd228",
+          "geometry_tolerance_bp": 0.02,
+          "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+          "source_intent_oracle_checked": false,
+          "page_contract_equal": true,
+          "text_multiplicities_equal": true,
+          "reading_order_pairing": true,
+          "maximum_word_bounds_error_bp": 0.0,
+          "word_geometry_matches": true,
+          "expected_word_count": 11,
+          "candidate_word_count": 11,
+          "rasters": [
+            {
+              "exact_pixels": true,
+              "changed_pixels": 0,
+              "total_pixels": 1938816,
+              "maximum_channel_difference": 0
+            }
+          ]
+        },
+        "candidate_comparison": {
+          "schema": 1,
+          "kind": "offline_reference_comparison_not_app_acceptance",
+          "decision": "matches_reference",
+          "expected_pdf_sha256": "7b3068c85223b8677cc38f532e3adc14e4b7a81cb427c74670cf8a3530065533",
+          "candidate_pdf_sha256": "b8ec28b28d79323090249aba78b1d8a6ff727f7c54d8abc154439d145c01aabb",
+          "geometry_tolerance_bp": 0.02,
+          "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+          "source_intent_oracle_checked": false,
+          "page_contract_equal": true,
+          "text_multiplicities_equal": true,
+          "reading_order_pairing": true,
+          "maximum_word_bounds_error_bp": 0.0,
+          "word_geometry_matches": true,
+          "expected_word_count": 11,
+          "candidate_word_count": 11,
+          "rasters": [
+            {
+              "exact_pixels": true,
+              "changed_pixels": 0,
+              "total_pixels": 1938816,
+              "maximum_channel_difference": 0
+            }
+          ]
+        },
+        "reference_health": {
+          "decision": "matches_declared_translation",
+          "target_word_keys": [
+            [
+              1,
+              "Repeated",
+              1
+            ],
+            [
+              1,
+              "target",
+              1
+            ]
+          ],
+          "expected_dx_bp": 12,
+          "tolerance_bp": 0.02,
+          "target_word_count": 2,
+          "maximum_target_error_bp": 0.0,
+          "maximum_non_target_error_bp": 0.0
+        }
+      },
+      {
+        "id": "lualatex-multilingual",
+        "engine": "lualatex",
+        "language": "multilingual",
+        "native": {
+          "baseline_build_id": "02e4beb7c6b742bca188bbfa97de2ff8",
+          "disk_unchanged_after_run": true,
+          "engine": "lualatex",
+          "fault_packets": [
+            {
+              "canonical_source_history_unchanged": true,
+              "compile_called": false,
+              "prepare_accepted": false,
+              "reason": "The candidate differs from the native operation plan",
+              "variant": "wrong_first_occurrence"
+            },
+            {
+              "canonical_source_history_unchanged": true,
+              "compile_called": false,
+              "prepare_accepted": false,
+              "reason": "The candidate differs from the native operation plan",
+              "variant": "unrelated_text_changed"
+            },
+            {
+              "canonical_source_history_unchanged": true,
+              "compile_called": false,
+              "prepare_accepted": false,
+              "reason": "The candidate differs from the native operation plan",
+              "variant": "appearance_changed"
+            },
+            {
+              "canonical_source_history_unchanged": true,
+              "compile_called": false,
+              "prepare_accepted": false,
+              "reason": "The candidate differs from the native operation plan",
+              "variant": "duplicate_ink"
+            },
+            {
+              "canonical_source_history_unchanged": true,
+              "compile_called": false,
+              "prepare_accepted": false,
+              "reason": "The candidate differs from the native operation plan",
+              "variant": "support_file_changed"
+            }
+          ],
+          "id": "lualatex-multilingual",
+          "intended_move": {
+            "build_id": "8aae029e0727498a9e1c2175cf869c8c",
+            "commit_performed": true,
+            "committed_source_equals_declared_candidate": true,
+            "disk_unchanged": true,
+            "engine": "lualatex",
+            "revision": 1,
+            "status": "committed",
+            "undo_exact": true,
+            "undo_revision": 2
+          },
+          "language": "multilingual"
+        },
+        "status": "matches_declared_postconditions",
+        "native_source_contract": {
+          "schema": 1,
+          "decision": "matches_contract",
+          "source_contract_checked": true,
+          "tex_semantics_verified": false,
+          "bound_object_id": null,
+          "file_count": 3
+        },
+        "baseline_comparison": {
+          "schema": 1,
+          "kind": "offline_reference_comparison_not_app_acceptance",
+          "decision": "matches_reference",
+          "expected_pdf_sha256": "551ced152ca7b01f0b88ab8839714c6c7dd6e66af2f5d8eda826d9897cf8c878",
+          "candidate_pdf_sha256": "fc5b84d005e343a0f01864d849d90cba33c7a59d283742947b37d28215a1afa8",
+          "geometry_tolerance_bp": 0.02,
+          "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+          "source_intent_oracle_checked": false,
+          "page_contract_equal": true,
+          "text_multiplicities_equal": true,
+          "reading_order_pairing": true,
+          "maximum_word_bounds_error_bp": 0.0,
+          "word_geometry_matches": true,
+          "expected_word_count": 70,
+          "candidate_word_count": 70,
+          "rasters": [
+            {
+              "exact_pixels": true,
+              "changed_pixels": 0,
+              "total_pixels": 1938816,
+              "maximum_channel_difference": 0
+            }
+          ]
+        },
+        "candidate_comparison": {
+          "schema": 1,
+          "kind": "offline_reference_comparison_not_app_acceptance",
+          "decision": "matches_reference",
+          "expected_pdf_sha256": "061910341595e696021a1690b08b0d6f36fb3c11d2b9d4c037423ee2ef566f5a",
+          "candidate_pdf_sha256": "b9d8c4e459241ee66c670e921b56dfa4269ec3942306c6870177dfe2a3102b66",
+          "geometry_tolerance_bp": 0.02,
+          "raster_contract": "exact full-page opaque RGB pixels at 144 dpi",
+          "source_intent_oracle_checked": false,
+          "page_contract_equal": true,
+          "text_multiplicities_equal": true,
+          "reading_order_pairing": true,
+          "maximum_word_bounds_error_bp": 0.0,
+          "word_geometry_matches": true,
+          "expected_word_count": 70,
+          "candidate_word_count": 70,
+          "rasters": [
+            {
+              "exact_pixels": true,
+              "changed_pixels": 0,
+              "total_pixels": 1938816,
+              "maximum_channel_difference": 0
+            }
+          ]
+        },
+        "reference_health": {
+          "decision": "matches_declared_translation",
+          "target_word_keys": [
+            [
+              1,
+              "Repeated",
+              1
+            ],
+            [
+              1,
+              "target",
+              1
+            ]
+          ],
+          "expected_dx_bp": 12,
+          "tolerance_bp": 0.02,
+          "target_word_count": 2,
+          "maximum_target_error_bp": 0.0,
+          "maximum_non_target_error_bp": 0.0
+        }
+      }
+    ],
+    "counts": {
+      "conditions": 5,
+      "intended_moves_matching_all_declared_postconditions": 5,
+      "fault_packets_refused_before_compilation": 25,
+      "unexpected_tampered_prepare_accepts": 0
+    },
+    "tools": {
+      "text": {
+        "path": "C:\\Users\\thebe\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\pdftotext.exe",
+        "sha256": "640b9a93fa31fc093860c635cd410a3e30f7d1e6166cb1130993fb1985f474ff",
+        "version": "pdftotext version 24.04.0\r\nCopyright 2005-2024 The Poppler Developers - http://poppler.freedesktop.org\r\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\r\n"
+      },
+      "raster": {
+        "path": "C:\\Users\\thebe\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.exe",
+        "sha256": "dbc52d6438fb9fe6afca0709b0139060e9e89ead3fc25d61fbe2b9b59767dfa0",
+        "version": "pdftoppm version 26.07.0\r\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\r\nCopyright 1996-2011, 2022 Glyph & Cog, LLC\r\n"
+      }
+    },
+    "final_evaluation_executed": false,
+    "limits": [
+      "Development cases, same preparer, no independent human adjudication",
+      "Existing wrapped objects; no PDF.js input/mapping/frontend selection probe or physical UI",
+      "Source-plan rejection is not evidence that the independent renderer saw a fault",
+      "No latency benchmark, general acceptance rate or final held-out claim"
+    ]
+  },
+  "protocol": {
+    "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/protocol.json",
+    "bytes": 126538,
+    "sha256": "fabd02fa404d488dca30b97d06dcc2b3393dda8d8503ffdb653a8405471bc777"
+  },
+  "report": {
+    "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/report.json",
+    "bytes": 26252,
+    "sha256": "ca78a1731b9c8f1842950916a3e7102c104d7c7edbed2cc48de3df50c6caea9f"
+  },
+  "source": [
+    {
+      "path": "research/tools/native_reference_pilot.py",
+      "bytes": 16877,
+      "sha256": "64a83ea31f32a95d7cac6b4397448e3b2c7e46784da8ffaaf3a996e69a922cd1"
+    },
+    {
+      "path": "research/LEGACY-SUPPORT-PILOT.md",
+      "bytes": 2196,
+      "sha256": "0ea1a4649bdb6463a86aebc797841fa437dd12063dcd2b41ef785001b669a4e4"
+    }
+  ],
+  "raw_evidence": [
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/lualatex-latin/baseline-comparison/comparison.json",
+      "bytes": 857,
+      "sha256": "c7ec202b0dc6d6fa713f6879459e5e96871c47008bfbdc58aec6d6dcb8f4c8aa"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/lualatex-latin/candidate-comparison/comparison.json",
+      "bytes": 857,
+      "sha256": "764cfd507aec27c6ab837ef040ed2501b65c49649b558a5863a7b02fcc6101e9"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/lualatex-latin/gold_moved/build.json",
+      "bytes": 909,
+      "sha256": "bfa1f9fe7d1c1d2a1c2aa66cba8e35f4b8c79556d71806ce841b0fa4a9359ade"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/lualatex-latin/gold_moved/main.pdf",
+      "bytes": 5330,
+      "sha256": "7b3068c85223b8677cc38f532e3adc14e4b7a81cb427c74670cf8a3530065533"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/lualatex-latin/gold_zero/build.json",
+      "bytes": 909,
+      "sha256": "bfa1f9fe7d1c1d2a1c2aa66cba8e35f4b8c79556d71806ce841b0fa4a9359ade"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/lualatex-latin/gold_zero/main.pdf",
+      "bytes": 5325,
+      "sha256": "f0cfe3e2c11ab0de8ab9dd86be61913f901548d123035832a85146ee50fd40a6"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/lualatex-latin/outcome.json",
+      "bytes": 4343,
+      "sha256": "ea7d730638f41ea975ae9d39705a8748c854c976de5830bd4e4513c4646ebb80"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/lualatex-latin/reference-health/health.json",
+      "bytes": 317,
+      "sha256": "9cb97ca2f6ed5a8a34eccc5c04d20a8cd397c951264f52f1889108f7a484dc9b"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/lualatex-multilingual/baseline-comparison/comparison.json",
+      "bytes": 857,
+      "sha256": "83b303c6024a86994364452798ae1f7064a8fa3f59699cb47a1dc16fd9a1193f"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/lualatex-multilingual/candidate-comparison/comparison.json",
+      "bytes": 857,
+      "sha256": "ea1b912c71618f51859185731920e9c6c0b75c380e4382edd277c0cea34cb41f"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/lualatex-multilingual/gold_moved/build.json",
+      "bytes": 909,
+      "sha256": "bfa1f9fe7d1c1d2a1c2aa66cba8e35f4b8c79556d71806ce841b0fa4a9359ade"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/lualatex-multilingual/gold_moved/main.pdf",
+      "bytes": 35123,
+      "sha256": "061910341595e696021a1690b08b0d6f36fb3c11d2b9d4c037423ee2ef566f5a"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/lualatex-multilingual/gold_zero/build.json",
+      "bytes": 909,
+      "sha256": "bfa1f9fe7d1c1d2a1c2aa66cba8e35f4b8c79556d71806ce841b0fa4a9359ade"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/lualatex-multilingual/gold_zero/main.pdf",
+      "bytes": 35119,
+      "sha256": "551ced152ca7b01f0b88ab8839714c6c7dd6e66af2f5d8eda826d9897cf8c878"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/lualatex-multilingual/outcome.json",
+      "bytes": 4371,
+      "sha256": "ae39178289b0f69edd1c854bd21d18b110b41d61ee1b02ab1fe6a4c0d209a66c"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/lualatex-multilingual/reference-health/health.json",
+      "bytes": 317,
+      "sha256": "9cb97ca2f6ed5a8a34eccc5c04d20a8cd397c951264f52f1889108f7a484dc9b"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/pdflatex-latin/baseline-comparison/comparison.json",
+      "bytes": 857,
+      "sha256": "ff9ff0f88f890a42c28d07cb8f568be26e2991ab6943970d391bbe5bd4e88db5"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/pdflatex-latin/candidate-comparison/comparison.json",
+      "bytes": 857,
+      "sha256": "1c5262bf5e632b4668eb9eb417c83f69cf7333fc637ed16a9af3369d1ec7ab43"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/pdflatex-latin/gold_moved/build.json",
+      "bytes": 1331,
+      "sha256": "d2cf835ecfb748d5de23a32ea82a4307ee7e47ab4882b3847a7a909f74e019bd"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/pdflatex-latin/gold_moved/main.pdf",
+      "bytes": 15726,
+      "sha256": "acd9b18e6b5b5138a2a50456ecfb325cf20179d676af37a3a985bbd4073d62e5"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/pdflatex-latin/gold_zero/build.json",
+      "bytes": 1331,
+      "sha256": "d2cf835ecfb748d5de23a32ea82a4307ee7e47ab4882b3847a7a909f74e019bd"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/pdflatex-latin/gold_zero/main.pdf",
+      "bytes": 15720,
+      "sha256": "ba352f08c5c2c654cba5f30e1eff374bbdca88c89774c7752faddae6b05a6325"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/pdflatex-latin/outcome.json",
+      "bytes": 4343,
+      "sha256": "47df374a0f32f61d217aa50f52411286dc6c949f90344f64719ac4c21fc7e08c"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/pdflatex-latin/reference-health/health.json",
+      "bytes": 317,
+      "sha256": "9cb97ca2f6ed5a8a34eccc5c04d20a8cd397c951264f52f1889108f7a484dc9b"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/xelatex-latin/baseline-comparison/comparison.json",
+      "bytes": 857,
+      "sha256": "140819dd36915d6bb75d98970e1f373c82b2ce6d0d04efdfb5699704cd1e197c"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/xelatex-latin/candidate-comparison/comparison.json",
+      "bytes": 857,
+      "sha256": "ff7f92457d9062e28bbb1716f61e3eac886acd9777cd9c8ded681fa20c38f156"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/xelatex-latin/gold_moved/build.json",
+      "bytes": 1711,
+      "sha256": "1e11c23ffc57f6ee52b7970a5546d7be0bd4fec5946d4c5f53aec31374666fc4"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/xelatex-latin/gold_moved/main.pdf",
+      "bytes": 4403,
+      "sha256": "8fba6ad8c55714ae80eaf92dfe9b4ff6c78e2e5225731890b8346bec2deecd85"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/xelatex-latin/gold_zero/build.json",
+      "bytes": 1711,
+      "sha256": "1e11c23ffc57f6ee52b7970a5546d7be0bd4fec5946d4c5f53aec31374666fc4"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/xelatex-latin/gold_zero/main.pdf",
+      "bytes": 4396,
+      "sha256": "5062a6eccc2e3a7f4afaab737863ca679fee460612bc98650e4f201e6e355491"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/xelatex-latin/outcome.json",
+      "bytes": 4338,
+      "sha256": "d43a40235efe9674a196b754397fbdf53cde648abbb28aabcfc6266d14b8c34d"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/xelatex-latin/reference-health/health.json",
+      "bytes": 317,
+      "sha256": "9cb97ca2f6ed5a8a34eccc5c04d20a8cd397c951264f52f1889108f7a484dc9b"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/xelatex-multilingual/baseline-comparison/comparison.json",
+      "bytes": 857,
+      "sha256": "dbfdee642adec7b41bfc06e1d5997af54fea28c6deb8e8466a903ccb6af7f1cb"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/xelatex-multilingual/candidate-comparison/comparison.json",
+      "bytes": 857,
+      "sha256": "01fdda7618fcb8467b8abbfd882406c728c4980232038bd7e838f38ed50c1544"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/xelatex-multilingual/gold_moved/build.json",
+      "bytes": 1711,
+      "sha256": "1e11c23ffc57f6ee52b7970a5546d7be0bd4fec5946d4c5f53aec31374666fc4"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/xelatex-multilingual/gold_moved/main.pdf",
+      "bytes": 23856,
+      "sha256": "54cfdcc67c2e07ba03ab25dce3a46fe32ebbcb515cceb94e53fc6b2663cf07fc"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/xelatex-multilingual/gold_zero/build.json",
+      "bytes": 1711,
+      "sha256": "1e11c23ffc57f6ee52b7970a5546d7be0bd4fec5946d4c5f53aec31374666fc4"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/xelatex-multilingual/gold_zero/main.pdf",
+      "bytes": 23849,
+      "sha256": "5f07df91ef5ab34600e15a4661049fa1e9fb20c8f49ef44b5a668d01a1537268"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/xelatex-multilingual/outcome.json",
+      "bytes": 4366,
+      "sha256": "16a262aa635ea8943927575414fb4bbd5498f066ad3ec74a67586a8276eddc37"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/analysis/xelatex-multilingual/reference-health/health.json",
+      "bytes": 317,
+      "sha256": "9cb97ca2f6ed5a8a34eccc5c04d20a8cd397c951264f52f1889108f7a484dc9b"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/lualatex-latin/baseline-log.txt",
+      "bytes": 4618,
+      "sha256": "252100ed84c394b76b6d5c4597a6155b8af9aa7be92418298c15b21a445e14fc"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/lualatex-latin/baseline.pdf",
+      "bytes": 5386,
+      "sha256": "128e048fa7d63d5e9a2ce78b50982542ff9f98946b42afe9491a0b5f4c3bd228"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/lualatex-latin/cache/.source-recovery/owner.txt",
+      "bytes": 35,
+      "sha256": "3e3178922b48bde4b81d9a7e88e926499d43632e475f9124939d3070f9f4d450"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/lualatex-latin/cache/builds/p3-46cc15fc12e347569f8dae3e167eb7b8/17334bce8cd542d6a225ac8f09a10782/.out/preview.pdf",
+      "bytes": 5386,
+      "sha256": "128e048fa7d63d5e9a2ce78b50982542ff9f98946b42afe9491a0b5f4c3bd228"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/lualatex-latin/cache/builds/p3-46cc15fc12e347569f8dae3e167eb7b8/17334bce8cd542d6a225ac8f09a10782/texloom-build-manifest.json",
+      "bytes": 30283,
+      "sha256": "a32c352f9e92a61571787169af4b57083a19d201b24c85b7c682f25910dbf13a"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/lualatex-latin/cache/builds/p3-46cc15fc12e347569f8dae3e167eb7b8/bace89fd7a1e479a90142871f394de77/.out/preview.pdf",
+      "bytes": 5388,
+      "sha256": "b8ec28b28d79323090249aba78b1d8a6ff727f7c54d8abc154439d145c01aabb"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/lualatex-latin/cache/builds/p3-46cc15fc12e347569f8dae3e167eb7b8/bace89fd7a1e479a90142871f394de77/texloom-build-manifest.json",
+      "bytes": 30283,
+      "sha256": "0830500f25dd99be199955b2858aa8541791597052ae5e9c9baf5ed6f1026557"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/lualatex-latin/cache/recent-projects.json",
+      "bytes": 278,
+      "sha256": "0893af2b8613a177833a7dcbb854e50faa61b38053432459f113fdad62187b15"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/lualatex-latin/candidate-log.txt",
+      "bytes": 4618,
+      "sha256": "18699e4c3b140e471c0f90f13e5bb0309153654e36ded629240fe3979165590e"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/lualatex-latin/native-candidate.pdf",
+      "bytes": 5388,
+      "sha256": "b8ec28b28d79323090249aba78b1d8a6ff727f7c54d8abc154439d145c01aabb"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/lualatex-latin.json",
+      "bytes": 1696,
+      "sha256": "438c44903770f9c2f03218659a056264484c943fc5c3f40f331c23f438b93104"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/lualatex-multilingual/baseline-log.txt",
+      "bytes": 7729,
+      "sha256": "9e508a360290485998cee8b4b5bd5d4b8559b657d80774505ee8c9fe9e7f8f43"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/lualatex-multilingual/baseline.pdf",
+      "bytes": 35187,
+      "sha256": "fc5b84d005e343a0f01864d849d90cba33c7a59d283742947b37d28215a1afa8"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/lualatex-multilingual/cache/.source-recovery/owner.txt",
+      "bytes": 35,
+      "sha256": "3e3178922b48bde4b81d9a7e88e926499d43632e475f9124939d3070f9f4d450"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/lualatex-multilingual/cache/builds/p3-3ab346dd6a9a4d5b87eff5e70b58086c/02e4beb7c6b742bca188bbfa97de2ff8/.out/preview.pdf",
+      "bytes": 35187,
+      "sha256": "fc5b84d005e343a0f01864d849d90cba33c7a59d283742947b37d28215a1afa8"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/lualatex-multilingual/cache/builds/p3-3ab346dd6a9a4d5b87eff5e70b58086c/02e4beb7c6b742bca188bbfa97de2ff8/texloom-build-manifest.json",
+      "bytes": 41057,
+      "sha256": "4ace6045479fc4579cb5cf173bbfdcc6e2e7272540b89f2d25289e297c1f4a97"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/lualatex-multilingual/cache/builds/p3-3ab346dd6a9a4d5b87eff5e70b58086c/8aae029e0727498a9e1c2175cf869c8c/.out/preview.pdf",
+      "bytes": 35190,
+      "sha256": "b9d8c4e459241ee66c670e921b56dfa4269ec3942306c6870177dfe2a3102b66"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/lualatex-multilingual/cache/builds/p3-3ab346dd6a9a4d5b87eff5e70b58086c/8aae029e0727498a9e1c2175cf869c8c/texloom-build-manifest.json",
+      "bytes": 41057,
+      "sha256": "f675c1c088b9f742e93ce3180955f4e957ecabb4dc765ed8c768bc2402b9494b"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/lualatex-multilingual/cache/recent-projects.json",
+      "bytes": 285,
+      "sha256": "e121a90a2d3aca31ec06a9790dbf2de916c31e57f0307ed6d89ef75a29c7b3b1"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/lualatex-multilingual/candidate-log.txt",
+      "bytes": 7729,
+      "sha256": "e7f0f14a25ef23107a9d2e1e25482b2774d77cb61398866f9b950d27e6015ffe"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/lualatex-multilingual/native-candidate.pdf",
+      "bytes": 35190,
+      "sha256": "b9d8c4e459241ee66c670e921b56dfa4269ec3942306c6870177dfe2a3102b66"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/lualatex-multilingual.json",
+      "bytes": 1710,
+      "sha256": "ed21cb326edebd60dd24f80d4bc759f071efc360420011bde98991f36fe1503a"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/native-report.json",
+      "bytes": 10061,
+      "sha256": "89b9047d021add0478b61939fa64f58925491e1ed93b3e64008b35ff762353ae"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/pdflatex-latin/baseline-log.txt",
+      "bytes": 5660,
+      "sha256": "6003eb7f42cced017ec8e6559340e42dcbd2d853fa7c49c7b2326776b4464d57"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/pdflatex-latin/baseline.pdf",
+      "bytes": 15778,
+      "sha256": "f9670d1a311a5869b1a5bed9b9d0dc3987c560660d7e9ced58144d7de0f92bd3"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/pdflatex-latin/cache/.source-recovery/owner.txt",
+      "bytes": 35,
+      "sha256": "3e3178922b48bde4b81d9a7e88e926499d43632e475f9124939d3070f9f4d450"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/pdflatex-latin/cache/builds/p3-1cd42c4caa62428c808954fdf6925b96/f183e4981ce5453fa8554b3afc6e4662/.out/preview.pdf",
+      "bytes": 15780,
+      "sha256": "d841a4e8ba65311a4b1c3d83c90b8dba1be33efbe010de7c6fa7ddd1b59dcd9a"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/pdflatex-latin/cache/builds/p3-1cd42c4caa62428c808954fdf6925b96/f183e4981ce5453fa8554b3afc6e4662/texloom-build-manifest.json",
+      "bytes": 9172,
+      "sha256": "cc3aec1a8f5864d3065e85bbfd499b47bee33f23bda84f05e0e71647a657bcc1"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/pdflatex-latin/cache/builds/p3-1cd42c4caa62428c808954fdf6925b96/f5327e00f44440d2b0bd251d985ff246/.out/preview.pdf",
+      "bytes": 15778,
+      "sha256": "f9670d1a311a5869b1a5bed9b9d0dc3987c560660d7e9ced58144d7de0f92bd3"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/pdflatex-latin/cache/builds/p3-1cd42c4caa62428c808954fdf6925b96/f5327e00f44440d2b0bd251d985ff246/texloom-build-manifest.json",
+      "bytes": 9172,
+      "sha256": "e48be74f0053e7b31b033e1181a413b0135bdb29e4a3636648d9f364a4a7127d"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/pdflatex-latin/cache/recent-projects.json",
+      "bytes": 278,
+      "sha256": "688f577fcd3c9aecdecd52fba2758bd457855c98a3153070205c7308a80d174d"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/pdflatex-latin/candidate-log.txt",
+      "bytes": 5660,
+      "sha256": "ebf96d1a50d450e3492d2eeb54eacdd165a46c702fc9b15931647292c8b4e19e"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/pdflatex-latin/native-candidate.pdf",
+      "bytes": 15780,
+      "sha256": "d841a4e8ba65311a4b1c3d83c90b8dba1be33efbe010de7c6fa7ddd1b59dcd9a"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/pdflatex-latin.json",
+      "bytes": 1696,
+      "sha256": "abeecb2629d030279f0bd6a657a19ceb42f8d3cd072872e4a0dba10821ecb02d"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/xelatex-latin/baseline-log.txt",
+      "bytes": 5011,
+      "sha256": "14d148012a16d9d9eae30aa8d659a564dee7b5a042effe294b094703b9ccc962"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/xelatex-latin/baseline.pdf",
+      "bytes": 4454,
+      "sha256": "2e89da62dd4a4c768c6a391b242e4b9f28712cc952a6a83efdc20cfeb8ffd94f"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/xelatex-latin/cache/.source-recovery/owner.txt",
+      "bytes": 35,
+      "sha256": "3e3178922b48bde4b81d9a7e88e926499d43632e475f9124939d3070f9f4d450"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/xelatex-latin/cache/builds/p3-ec5fa5d7de1a4d9bad4407c6afc02b83/3c694a09641f45ba9ce39aab3d077ab0/.out/preview.pdf",
+      "bytes": 4454,
+      "sha256": "2e89da62dd4a4c768c6a391b242e4b9f28712cc952a6a83efdc20cfeb8ffd94f"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/xelatex-latin/cache/builds/p3-ec5fa5d7de1a4d9bad4407c6afc02b83/3c694a09641f45ba9ce39aab3d077ab0/texloom-build-manifest.json",
+      "bytes": 8130,
+      "sha256": "716ea07883bb169f4a74f9ee002a024f1c7d86cdefe39289f324671affdacd0a"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/xelatex-latin/cache/builds/p3-ec5fa5d7de1a4d9bad4407c6afc02b83/f24a5c09c647400b8037d55877deeca9/.out/preview.pdf",
+      "bytes": 4460,
+      "sha256": "a4fc94411e8ac9bd32f81745c7d2f33e7484db1d35c136e94b61e9b6eb4bac0b"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/xelatex-latin/cache/builds/p3-ec5fa5d7de1a4d9bad4407c6afc02b83/f24a5c09c647400b8037d55877deeca9/texloom-build-manifest.json",
+      "bytes": 8130,
+      "sha256": "eeee9b4293c125490c215458f1740c5e76217985ac9a7994439a0275f6f57f5c"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/xelatex-latin/cache/recent-projects.json",
+      "bytes": 277,
+      "sha256": "edef90a54ce46ae6ec263cf17d301b6f4fb087410354107ca105177cfe0bca1f"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/xelatex-latin/candidate-log.txt",
+      "bytes": 5011,
+      "sha256": "f5c4961e55f6315c950d01d846963fe1196538f8487d3c9c112fe11d49b484b7"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/xelatex-latin/native-candidate.pdf",
+      "bytes": 4460,
+      "sha256": "a4fc94411e8ac9bd32f81745c7d2f33e7484db1d35c136e94b61e9b6eb4bac0b"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/xelatex-latin.json",
+      "bytes": 1693,
+      "sha256": "181f2a9cdc513ead13775a67bc075a8af3e8fcef4b48d71d140b61455327919e"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/xelatex-multilingual/baseline-log.txt",
+      "bytes": 12620,
+      "sha256": "ce2313c3f01b71266dfcaf7dbed24525782c9c99b54eecc5b1ba1ff0c64c1ad5"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/xelatex-multilingual/baseline.pdf",
+      "bytes": 23913,
+      "sha256": "169f1b2bd33030ef2b0ff3985c46908d861aaa8e6d3692cdfa31638cd8ad53e5"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/xelatex-multilingual/cache/.source-recovery/owner.txt",
+      "bytes": 35,
+      "sha256": "3e3178922b48bde4b81d9a7e88e926499d43632e475f9124939d3070f9f4d450"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/xelatex-multilingual/cache/builds/p3-4b563e46a95a414e86946852c4844c0b/2c72ecdd48b34d97a11d600b0ca659ce/.out/preview.pdf",
+      "bytes": 23922,
+      "sha256": "752260a2729a0e250d9bff825d5b2dd63918f94fdf9d5754a160f638889226a3"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/xelatex-multilingual/cache/builds/p3-4b563e46a95a414e86946852c4844c0b/2c72ecdd48b34d97a11d600b0ca659ce/texloom-build-manifest.json",
+      "bytes": 20989,
+      "sha256": "db5b8d4b911931779ac46a97fa6c2821a0eca8f0fb3fbee35a5a879f59eb8a36"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/xelatex-multilingual/cache/builds/p3-4b563e46a95a414e86946852c4844c0b/7a968f3fc3fa4268a00b064407dd8464/.out/preview.pdf",
+      "bytes": 23913,
+      "sha256": "169f1b2bd33030ef2b0ff3985c46908d861aaa8e6d3692cdfa31638cd8ad53e5"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/xelatex-multilingual/cache/builds/p3-4b563e46a95a414e86946852c4844c0b/7a968f3fc3fa4268a00b064407dd8464/texloom-build-manifest.json",
+      "bytes": 20989,
+      "sha256": "65baaf9e1a4419ba1b5eee24021e08314a058ce33100eafc9cb6310424cf39c5"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/xelatex-multilingual/cache/recent-projects.json",
+      "bytes": 284,
+      "sha256": "56697590e82f6bc35f3412cbbc8a8706d7ab2e442be2c755bcb8616243403c50"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/xelatex-multilingual/candidate-log.txt",
+      "bytes": 12620,
+      "sha256": "4649bfff29aefece815a43a31744b98ab18a1ce3c509070b81988d575fb6cbcd"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/xelatex-multilingual/native-candidate.pdf",
+      "bytes": 23922,
+      "sha256": "752260a2729a0e250d9bff825d5b2dd63918f94fdf9d5754a160f638889226a3"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/native-output/xelatex-multilingual.json",
+      "bytes": 1707,
+      "sha256": "c742e3551ae24562b3d93ce3c0d31333f15ac72d45646099bb42d1b63013c089"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/protocol.json",
+      "bytes": 126538,
+      "sha256": "fabd02fa404d488dca30b97d06dcc2b3393dda8d8503ffdb653a8405471bc777"
+    },
+    {
+      "path": "artifacts/continuation-20261107-weekly57/legacy-support-pilot/report.json",
+      "bytes": 26252,
+      "sha256": "ca78a1731b9c8f1842950916a3e7102c104d7c7edbed2cc48de3df50c6caea9f"
+    }
+  ],
+  "final_evaluation_executed": false,
+  "native_input": false,
+  "save_called": false,
+  "limits": [
+    "Five reused development conditions; not new independent accuracy cases",
+    "Latin targets with RTL neighbors; no shaped RTL target movement claim"
+  ]
+}

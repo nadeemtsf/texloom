@@ -1,0 +1,17 @@
+# Development annotation analysis
+
+This page describes the original v0 helper and its recorded diagnostics. The new `study_records.py` v1 implementation is separate and **unexecuted**, because the owner paused all tests. See RECORDS.md and ADJUDICATION.md. Old helper pass totals must not be used as validation of the new format or new product source.
+
+`tools/summarize_annotations.py` implements the draft correctness denominators. It does not run experiments, establish interaction provenance or independently adjudicate a candidate. It requires explicit `--development`; integration with a reviewed frozen evaluation remains planned.
+
+Supply a JSON list of annotated correctness cases. The unfilled object in `evaluation/outcome-schema.json` is a specification example, not input data. Cases are separated by study arm, contract family, comparison variant, engine, language and evidence origin. A duplicate case within a stratum is rejected, so timing repetitions cannot inflate the correctness sample. Document counts remain distinct from case counts.
+
+An empty dataset has no results. A group containing an unrun case gets no success rates. Zero accepted candidates means the accepted-error fraction is not applicable; a deny-all system still has zero useful valid acceptance. Accepted cases with unresolved correctness get error bounds and an unresolved safety gate, rather than a zero-error claim. Compile failures, timeouts and crashes retain their own categories and do not become valid refusals. Conflicting oracle/preservation labels are rejected.
+
+Five unit checks exercise these distinctions using explicitly synthetic annotations. No actual app observations or final-study rows have been summarized. The original nine PDF/replay, five source-contract and five annotation diagnostics totaled 19. With three environment and five native-protocol/reference-health diagnostics, the current research-helper suite totals 27 passing checks. These counts are infrastructure evidence, not an accuracy sample.
+
+```text
+python research/tools/summarize_annotations.py ANNOTATED-ROWS.json NEW-OUTPUT.json --development
+```
+
+The output never overwrites earlier results. No strata are pooled into a headline rate, and this prototype computes no end-to-end latency or statistical confidence intervals. Those require separately recorded timing repetitions and a reviewed clustered analysis. Final evidence admission, sealed manifest checks and independent label review remain prerequisites for a final report.

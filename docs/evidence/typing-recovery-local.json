@@ -1,0 +1,412 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-03T08:55:53.039458+00:00",
+  "implementation_base": "eb2108d9dbcd9a4e3e380e444942450482f4b6c4",
+  "checks": {
+    "core_default": 70,
+    "core_optional_codec_total": 71,
+    "build_default": 71,
+    "native_default": 36,
+    "headless_pdfium_explicit": 5,
+    "headless_native_approval_explicit": 2,
+    "frontend": 113,
+    "default_plus_explicit_total_excluding_repeated_codec_cases": 297,
+    "frontend_build": "passed",
+    "windows_x64_release_build": "passed",
+    "journal_release_benchmark": "passed"
+  },
+  "tested_working_source_sha256": {
+    "Cargo.lock": "40674c963b7f4ef4ddbbb8837dd2bb3ad3a063a56fca14cb17a997f4320622f4",
+    "crates/texloom-build/Cargo.toml": "6ca742a8ed4e0e9592324f9e03d14e77b95cce29bb49c00bfc529fb95fea1b0a",
+    "crates/texloom-build/src/lib.rs": "3b0394c1906bed362e2333573d39793429e2d21378c80187095ca25d356cfb2e",
+    "crates/texloom-build/src/persistence.rs": "6f034dab482f8141a36873cb4fb748d157b2888de3d0edbc7d459f926dee45cd",
+    "crates/texloom-build/src/recovery.rs": "430209c822f2a1d3b90e01dea670aa3a5300e06b8f01c4a40a11bd7ca9fbeacc",
+    "crates/texloom-build/src/recovery/tests.rs": "8b1e0552071bf22cb3e2fe0021063b268ef79a563baec925e01ca0225c79933f",
+    "crates/texloom-core/src/document.rs": "624606d667292d63285a3fd5cd4e1c6492064a9a8472a3f8e394889f1e2f8f03",
+    "crates/texloom-core/src/document/recovery.rs": "ed37a023fc1642685ec13bc2b0c9804dbbdce5cead2cd17fe66cd9df09635801",
+    "src-tauri/examples/source_benchmark.rs": "790d64fd9e28c9757893f74f01d5f3351a7bda10e5cb68499a103097b7eb010a",
+    "src-tauri/src/lib.rs": "c49d5cd9c035d8a9174a7505e63291787393281fb3b6346c4a0e6983c98c5786",
+    "src-tauri/src/service.rs": "42a1f56004765b21699cf610f45cefab91a9c3de0666d404dc59e581b0edabd4",
+    "src-tauri/src/service/build_cache.rs": "92baa4edf4d6bd743cdef2c86ad8f1801085408ff8d3bdab20a5c4620b5f3940",
+    "src-tauri/src/service/document.rs": "4d405cc6673c3fa9f02f3ce7c11a0dcec5b14b56ca823dca24aee0a1d72099ab",
+    "src-tauri/src/service/document/typing_recovery.rs": "11657781cfbf0ab4236747dfac994a3b32b81b09110431d8a32b7cb516d5bc12",
+    "src-tauri/src/service/document/typing_recovery/tests.rs": "b22f9332dfc2e9ac268283996356b98398feb902efad124575a2f214f6f20e8d",
+    "tests/app-startup.test.mjs": "5b52e814c175c605d9bc5600c625c572c1f70f24867386cc4181dbbc3e245cdb",
+    "tests/document-client.test.mjs": "6382b98164c8dd301c8af32de3d818f6421cac0e821927ecafd964861ccdf8c5",
+    "tests/native-document-double.cjs": "4d543f42194d349fd73c21be603c6bc214d47ed235fe42ef9165ef02283dcd8c",
+    "tests/save-controller.test.mjs": "b685a019ac999978d1ef2e6ca00ccd754a944fe383f5874d594c4939f4f66bfd",
+    "tests/transactions.test.cjs": "9db83342ce7f6bb1f16ddab92846d6fee042528a99a0dfcb505c80222203df7a",
+    "tests/typing-recovery.test.mjs": "34d36feee220489ead87bf68ce731025e980f4c25fe0d88850aee667a696cecd",
+    "web/app.js": "b72050aab321b7325aaf1947e7a04e9a89c99e07554b503f43a361a7a366a87a",
+    "web/core/document-client.js": "6686c9a07482c836773be5b21ad894274d3cbe3317208ee435b4a18d75f209c6",
+    "web/core/typing-recovery.js": "a86d6703189873aa25a5bc2823f34af2d38abc55b3e8b9361d5ae656ed7fea3f",
+    "web/index.html": "e0e4baf529e77dbdc05db2d0bc46f45d9582ea6bc5b2aca2900ee91a4da33e1b",
+    "web/style.css": "23e4efbc9406b1fa2a7a533d970b9efa3dfe3bf1108a88863752abe48d07e7b5"
+  },
+  "test_log_sha256": {
+    "typing-recovery-core-final.log": "e821be0bb0158773c74901fd066fe5459c33de27e87aa247511e835e2a71fddc",
+    "typing-recovery-codec-final.log": "e493318bf97b8aec627ad312ed843f0964993183831cb68f359b3707f71a4f7e",
+    "typing-recovery-build-final.log": "6f17419995e8fe23d32c0b58a1e02703e115f66256f5a09df06513758ffa7dca",
+    "typing-recovery-native-final.log": "ef327b60929421723a01985fab2c512154b37e1a43a17a31241d51fe6d85cbb3",
+    "typing-recovery-workers-final.log": "7e158117162f668dda16d473935709e5f64c29655b9364b45e32e1c454db3514",
+    "typing-recovery-approvals-final.log": "8e664fa1062731ca63cbb36f1cfd73ba95ec83481bae406b91fe4fa343b5c9b1",
+    "typing-recovery-frontend-final.log": "ee81c8c8c25843eb8c44b307959d5913529192216b8069791a22fe6e31c23bc1",
+    "typing-recovery-frontend-build.log": "9cceec8521c255a3ab16b4cedb9e9be848e3bc044ef4d020e48b7486e7506119",
+    "typing-recovery-verifier-build.log": "5757f35e51f05de8070144c663f212478618d693b58501bf6b5afd933a0c22e6",
+    "typing-recovery-desktop-build.log": "9f50dda5b12ebc7a836bbae41edcc5aeac7965b0824131c20f0306e2388c3b53",
+    "source-journal.log": "1f254accccd198be23de699d0bd719b5ec4c3ec56d37996572dd21f64b5eefbd"
+  },
+  "earlier_integration_failure_log_sha256": {
+    "typing-recovery-native-first.log": "57521b42c23997ead33abde54314ffd96671503d6d7476b29965d4f323dbb72d",
+    "typing-recovery-native-second.log": "67f6dbd849d683de6fc3323e67057daf29bee651fa13f6104184071d20a7a8c0"
+  },
+  "corrected_integration_failures": [
+    "Added Debug on the Save metadata reply for existing error assertions",
+    "Private recovery markers stay under a hidden app-managed folder so nested app data is not loaded as project source",
+    "Tests release live journal handles before deleting their owned fixture; production write/delete protection was retained"
+  ],
+  "executable": {
+    "path": "target/x86_64-pc-windows-msvc/release/texloom-desktop.exe",
+    "sha256": "d1cbb374021a21c562b2f388bb454fd848082e498f75e44b8b989ba9db00dd44",
+    "launched": false
+  },
+  "verification_resources_sha256": {
+    "PDFIUM-NOTICE.txt": "c2fdbc1aeb250d596d1ef3d9817c9bf31df712b197583c0811677ee5d9206eeb",
+    "pdfium.dll": "b2c15cd4537d8efaf23b85b3353abe7a0b863e9c52b2f017dd87bb86a55f9c72",
+    "pdfium_worker.exe": "339ac956c077a15cdbe1e1b34f1a07c03cec987085584f55fdf14fcad9a73cb3",
+    "README.md": "4e3e72dfa03de2239f42127f4dea8bf3cee6b96bb4f2f9a05da1a8fba30b392e",
+    "verifier-manifest.json": "ae317b435ca55c12fb541f20207bd90626ab7e8f56938af058b98b090c89573b"
+  },
+  "benchmark": {
+    "architecture": "x86_64",
+    "cases": [
+      {
+        "bytes_per_file": 16384,
+        "coalesced_undo_redo_exact": true,
+        "files": 1,
+        "measured_edits": 100,
+        "native_edit_and_reply": {
+          "max_ms": 7.3391,
+          "median_ms": 4.25525,
+          "p95_ms": 5.9394,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 7.3723,
+          "median_ms": 4.27885,
+          "p95_ms": 6.0202,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "production_ipc": false,
+        "project_source_bytes": 16384,
+        "reply_json_encoding": {
+          "max_ms": 0.0816,
+          "median_ms": 0.022799999999999997,
+          "p95_ms": 0.032799999999999996,
+          "samples": 100
+        },
+        "response_bytes": 17101,
+        "response_mode": "full_snapshot",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 16384,
+        "coalesced_undo_redo_exact": true,
+        "files": 1,
+        "measured_edits": 100,
+        "native_edit_and_reply": {
+          "max_ms": 36.5796,
+          "median_ms": 5.0951,
+          "p95_ms": 6.9527,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 36.6075,
+          "median_ms": 5.11755,
+          "p95_ms": 6.9940999999999995,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "production_ipc": true,
+        "project_source_bytes": 16384,
+        "reply_json_encoding": {
+          "max_ms": 0.1464,
+          "median_ms": 0.02705,
+          "p95_ms": 0.0531,
+          "samples": 100
+        },
+        "response_bytes": 17143,
+        "response_mode": "changed_file",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 262144,
+        "coalesced_undo_redo_exact": true,
+        "files": 1,
+        "measured_edits": 100,
+        "native_edit_and_reply": {
+          "max_ms": 26.6332,
+          "median_ms": 14.3537,
+          "p95_ms": 23.6143,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 27.657799999999998,
+          "median_ms": 14.74745,
+          "p95_ms": 24.398300000000003,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "production_ipc": false,
+        "project_source_bytes": 262144,
+        "reply_json_encoding": {
+          "max_ms": 1.0234,
+          "median_ms": 0.37305,
+          "p95_ms": 0.6196,
+          "samples": 100
+        },
+        "response_bytes": 269417,
+        "response_mode": "full_snapshot",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 262144,
+        "coalesced_undo_redo_exact": true,
+        "files": 1,
+        "measured_edits": 100,
+        "native_edit_and_reply": {
+          "max_ms": 22.2807,
+          "median_ms": 14.3043,
+          "p95_ms": 19.4592,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 22.8992,
+          "median_ms": 14.653749999999999,
+          "p95_ms": 19.7394,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "production_ipc": true,
+        "project_source_bytes": 262144,
+        "reply_json_encoding": {
+          "max_ms": 0.9613,
+          "median_ms": 0.406,
+          "p95_ms": 0.6717,
+          "samples": 100
+        },
+        "response_bytes": 269459,
+        "response_mode": "changed_file",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 65536,
+        "coalesced_undo_redo_exact": true,
+        "files": 16,
+        "measured_edits": 100,
+        "native_edit_and_reply": {
+          "max_ms": 24.460800000000003,
+          "median_ms": 8.63355,
+          "p95_ms": 11.3933,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 26.3889,
+          "median_ms": 10.611350000000002,
+          "p95_ms": 13.4319,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "production_ipc": false,
+        "project_source_bytes": 1048576,
+        "reply_json_encoding": {
+          "max_ms": 2.837,
+          "median_ms": 1.6020500000000002,
+          "p95_ms": 2.4134,
+          "samples": 100
+        },
+        "response_bytes": 1077140,
+        "response_mode": "full_snapshot",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 65536,
+        "coalesced_undo_redo_exact": true,
+        "files": 16,
+        "measured_edits": 100,
+        "native_edit_and_reply": {
+          "max_ms": 9.2603,
+          "median_ms": 6.2318999999999996,
+          "p95_ms": 8.1686,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 9.3156,
+          "median_ms": 6.300750000000001,
+          "p95_ms": 8.2258,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "production_ipc": true,
+        "project_source_bytes": 1048576,
+        "reply_json_encoding": {
+          "max_ms": 0.1154,
+          "median_ms": 0.0576,
+          "p95_ms": 0.09000000000000001,
+          "samples": 100
+        },
+        "response_bytes": 67607,
+        "response_mode": "changed_file",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 262144,
+        "coalesced_undo_redo_exact": true,
+        "files": 64,
+        "measured_edits": 100,
+        "native_edit_and_reply": {
+          "max_ms": 73.1488,
+          "median_ms": 50.74975,
+          "p95_ms": 69.9207,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 166.9516,
+          "median_ms": 129.31655,
+          "p95_ms": 155.5614,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "production_ipc": false,
+        "project_source_bytes": 16777216,
+        "reply_json_encoding": {
+          "max_ms": 114.8519,
+          "median_ms": 79.34655000000001,
+          "p95_ms": 90.3147,
+          "samples": 100
+        },
+        "response_bytes": 17226182,
+        "response_mode": "full_snapshot",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 262144,
+        "coalesced_undo_redo_exact": true,
+        "files": 64,
+        "measured_edits": 100,
+        "native_edit_and_reply": {
+          "max_ms": 61.7045,
+          "median_ms": 45.37375,
+          "p95_ms": 54.0218,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 62.8531,
+          "median_ms": 46.3242,
+          "p95_ms": 55.1725,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "production_ipc": true,
+        "project_source_bytes": 16777216,
+        "reply_json_encoding": {
+          "max_ms": 1.6057000000000001,
+          "median_ms": 0.7925,
+          "p95_ms": 1.2172999999999998,
+          "samples": 100
+        },
+        "response_bytes": 269459,
+        "response_mode": "changed_file",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 262144,
+        "coalesced_undo_redo_exact": true,
+        "files": 128,
+        "measured_edits": 100,
+        "native_edit_and_reply": {
+          "max_ms": 119.8022,
+          "median_ms": 62.311350000000004,
+          "p95_ms": 87.8185,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 307.47229999999996,
+          "median_ms": 217.08350000000002,
+          "p95_ms": 257.8463,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "production_ipc": false,
+        "project_source_bytes": 33554432,
+        "reply_json_encoding": {
+          "max_ms": 197.8694,
+          "median_ms": 152.8896,
+          "p95_ms": 176.37630000000001,
+          "samples": 100
+        },
+        "response_bytes": 34452102,
+        "response_mode": "full_snapshot",
+        "warmup_edits": 10
+      },
+      {
+        "bytes_per_file": 262144,
+        "coalesced_undo_redo_exact": true,
+        "files": 128,
+        "measured_edits": 100,
+        "native_edit_and_reply": {
+          "max_ms": 73.5874,
+          "median_ms": 29.798000000000002,
+          "p95_ms": 56.0174,
+          "samples": 100
+        },
+        "native_edit_through_response_encoding": {
+          "max_ms": 74.0956,
+          "median_ms": 30.14105,
+          "p95_ms": 56.389500000000005,
+          "samples": 100
+        },
+        "original_disk_bytes_unchanged": true,
+        "production_ipc": true,
+        "project_source_bytes": 33554432,
+        "reply_json_encoding": {
+          "max_ms": 1.4917,
+          "median_ms": 0.37195,
+          "p95_ms": 0.8161,
+          "samples": 100
+        },
+        "response_bytes": 269459,
+        "response_mode": "changed_file",
+        "warmup_edits": 10
+      }
+    ],
+    "durable_recovery_journal": true,
+    "github_ref_at_run": null,
+    "github_sha_at_run": null,
+    "implementation_base": "eb2108d9dbcd9a4e3e380e444942450482f4b6c4",
+    "limitations": [
+      "Synthetic source projects; one run with uncontrolled background load",
+      "CI measurements describe the runner, not the user's laptop",
+      "No WebView IPC transport, JavaScript parsing, editor paint, native typing or IME measurement",
+      "No compiler job or initialized build cache; accepted source changes are journaled and flushed, without project Save",
+      "Only source-edit acknowledgements are measured; per-edit cursor acknowledgements and their journal flushes are excluded",
+      "Response/snapshot destruction and transport are outside the measured interval",
+      "Not a native UI acceptance gate or a comparison to the 50 ms editor-paint target"
+    ],
+    "logical_processors_seen": 8,
+    "measured_api": "Shared native edit authority: full DocumentSnapshot reference vs production changed-file SourceEditReply",
+    "os": "windows",
+    "profile": "release",
+    "schema": 3
+  },
+  "historical_measurement_correction": "Schema 2 combined timing included branch-local reply destruction despite its generic exclusion note. Schema 3 captures the endpoint before reply destruction. Raw earlier evidence remains unchanged.",
+  "artifact_scope": "New executable and verifier resources built. No new portable ZIP or installer was produced in this checkpoint.",
+  "limitations": [
+    "Native window/control/typing/IME/mouse acceptance remains owner-deferred until implementation through P9",
+    "Backend reconstruction and byte-truncation injection are not actual window crash/power-loss tests",
+    "Single-run journal timings exclude WebView transport/parsing/paint, per-edit cursor events and checkpoint compaction",
+    "Local MiKTeX preflight access-denied failures remain open; no permission/configuration bypass",
+    "P7 retention/usability/native acceptance, earlier open gates, P8 and P9 remain unfinished; no release certification"
+  ]
+}

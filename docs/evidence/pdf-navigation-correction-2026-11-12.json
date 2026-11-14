@@ -1,0 +1,240 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-12T15:12:26.480186+00:00",
+  "kind": "pdf_navigation_standard_renderer_development_checks",
+  "status": "built_owner_acceptance_pending",
+  "base_commit": "02cd27182238ce23e8e631d4831cf4c900cf2050",
+  "source_note": "Committed exact r10 source. Working-file byte hashes below precede Git CRLF normalization and are retained as executed inputs.",
+  "github_issue": 69,
+  "previous_owner_result": "r9 zoom usability failed; qualitative choppiness and missing pointer anchoring preserved in 10 November receipt",
+  "implementation": {
+    "renderer": "public PDFPageView/EventBus/SimpleLinkService from existing pinned pdfjs-dist6.2.108, matching viewer CSS",
+    "zoom": "synchronous cached-canvas CSS scaling; 400ms inactivity before nearby sharp repaint",
+    "origin": "PDF.js getPagePoint and viewport conversion preserve pointer PDF coordinate; center for buttons/Fit; physical scroll edges clamp",
+    "resources": "Two active page jobs; reading cache aims at six retained pages, except visible/selected/active pages. SDK per newly rendered page cap is16Mpx or64Mpx/short-page-count. Retained old bitmaps and in-progress redraws are additional transient memory; this is not a measured process-memory cap.",
+    "authority": "No source/compiler/history operation; pending zoom fences layout commands; old hit handlers cleaned on rebind",
+    "out_of_scope": "No new source-native editing command or caret feature"
+  },
+  "checks": [
+    {
+      "command": "npm test",
+      "result": "passed",
+      "passed": 303,
+      "failed": 0,
+      "skipped": 0,
+      "log": "artifacts/continuation-20261112/frontend.log",
+      "sha256": "8301ff6bb8c40297c8f1823994f194187c4ead32cfe629d982178ade0b5fdc97"
+    },
+    {
+      "command": "node scripts/check-pdf-navigation.mjs",
+      "result": "passed",
+      "checks": 21,
+      "browser": "157.0.4341.46",
+      "scope": "synthetic six/25-page English PDFs; DPR1/1.5/2; cached bitmap/no gesture-time paint; pointer coordinate; nearby redraw; coalescing; scroll; text alignment; Fit/edge clamp; document replacement",
+      "log": "artifacts/continuation-20261112/zoom-browser.log",
+      "sha256": "4b6dd019e5ff8d2f96a515c041741dfa78dc4e778f5281b1704badf54c8125a9",
+      "result_file": "artifacts/continuation-20261112/zoom-browser/browser-results.json",
+      "result_sha256": "a054e01bcf04ba01e8feaffa8743ad732eb84c596d7daaeab81fa1f7b6e16333",
+      "case_results": [
+        {
+          "deviceScaleFactor": 1,
+          "pages": 6,
+          "case": "cached-canvas pointer anchor and nearby sharp redraw",
+          "passed": true,
+          "pointError": [
+            0.11111111111108585,
+            5.684341886080802e-14
+          ],
+          "draws": 3
+        },
+        {
+          "deviceScaleFactor": 1,
+          "pages": 6,
+          "case": "rapid Ctrl zoom coalesces; ordinary scrolling resumes",
+          "passed": true
+        },
+        {
+          "deviceScaleFactor": 1,
+          "pages": 6,
+          "case": "text-layer alignment, fit and edge-clamped zoom-out",
+          "passed": true
+        },
+        {
+          "deviceScaleFactor": 1,
+          "pages": 25,
+          "case": "cached-canvas pointer anchor and nearby sharp redraw",
+          "passed": true,
+          "pointError": [
+            0.11111111111108585,
+            5.684341886080802e-14
+          ],
+          "draws": 3
+        },
+        {
+          "deviceScaleFactor": 1,
+          "pages": 25,
+          "case": "rapid Ctrl zoom coalesces; ordinary scrolling resumes",
+          "passed": true
+        },
+        {
+          "deviceScaleFactor": 1,
+          "pages": 25,
+          "case": "text-layer alignment, fit and edge-clamped zoom-out",
+          "passed": true
+        },
+        {
+          "deviceScaleFactor": 1,
+          "case": "document replacement during pending redraw",
+          "passed": true
+        },
+        {
+          "deviceScaleFactor": 1.5,
+          "pages": 6,
+          "case": "cached-canvas pointer anchor and nearby sharp redraw",
+          "passed": true,
+          "pointError": [
+            0.11111111111108585,
+            5.684341886080802e-14
+          ],
+          "draws": 3
+        },
+        {
+          "deviceScaleFactor": 1.5,
+          "pages": 6,
+          "case": "rapid Ctrl zoom coalesces; ordinary scrolling resumes",
+          "passed": true
+        },
+        {
+          "deviceScaleFactor": 1.5,
+          "pages": 6,
+          "case": "text-layer alignment, fit and edge-clamped zoom-out",
+          "passed": true
+        },
+        {
+          "deviceScaleFactor": 1.5,
+          "pages": 25,
+          "case": "cached-canvas pointer anchor and nearby sharp redraw",
+          "passed": true,
+          "pointError": [
+            0.11111111111108585,
+            5.684341886080802e-14
+          ],
+          "draws": 3
+        },
+        {
+          "deviceScaleFactor": 1.5,
+          "pages": 25,
+          "case": "rapid Ctrl zoom coalesces; ordinary scrolling resumes",
+          "passed": true
+        },
+        {
+          "deviceScaleFactor": 1.5,
+          "pages": 25,
+          "case": "text-layer alignment, fit and edge-clamped zoom-out",
+          "passed": true
+        },
+        {
+          "deviceScaleFactor": 1.5,
+          "case": "document replacement during pending redraw",
+          "passed": true
+        },
+        {
+          "deviceScaleFactor": 2,
+          "pages": 6,
+          "case": "cached-canvas pointer anchor and nearby sharp redraw",
+          "passed": true,
+          "pointError": [
+            0.11111111111108585,
+            5.684341886080802e-14
+          ],
+          "draws": 3
+        },
+        {
+          "deviceScaleFactor": 2,
+          "pages": 6,
+          "case": "rapid Ctrl zoom coalesces; ordinary scrolling resumes",
+          "passed": true
+        },
+        {
+          "deviceScaleFactor": 2,
+          "pages": 6,
+          "case": "text-layer alignment, fit and edge-clamped zoom-out",
+          "passed": true
+        },
+        {
+          "deviceScaleFactor": 2,
+          "pages": 25,
+          "case": "cached-canvas pointer anchor and nearby sharp redraw",
+          "passed": true,
+          "pointError": [
+            0.11111111111108585,
+            5.684341886080802e-14
+          ],
+          "draws": 3
+        },
+        {
+          "deviceScaleFactor": 2,
+          "pages": 25,
+          "case": "rapid Ctrl zoom coalesces; ordinary scrolling resumes",
+          "passed": true
+        },
+        {
+          "deviceScaleFactor": 2,
+          "pages": 25,
+          "case": "text-layer alignment, fit and edge-clamped zoom-out",
+          "passed": true
+        },
+        {
+          "deviceScaleFactor": 2,
+          "case": "document replacement during pending redraw",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "command": "cargo test --offline --locked -p texloom-core",
+      "result": "passed",
+      "passed": 139,
+      "new_execution": true,
+      "log": "artifacts/continuation-20261112/core.log",
+      "sha256": "308581a1ac73bce3d9c2945ce75ea9f76094237b5822eca3be34a628bb780f41"
+    },
+    {
+      "command": "npm run desktop:build -- --ci",
+      "result": "passed",
+      "scope": "Production web build, optimized native Windows EXE and NSIS setup; no launch/install",
+      "log": "artifacts/continuation-20261112/desktop-build.log",
+      "sha256": "e2f218407fafda6d844e7ee657a067ce5b6b1e564ff98b9b82b7aef5fb9652ad"
+    }
+  ],
+  "preserved_failures": [
+    "10 November initial VM test import injection/missing fake renderer failures retained; corrected production tests use explicit exports",
+    "Initial headless attempts stalled until fixture-only Vite scanning disabled",
+    "Browser scroll exact-fraction and SDK fractional-DPR scale-rounding assertions corrected; failure logs retained under artifacts/anchors-20261110",
+    "Owner r9 zoom usability failure is not converted to a pass by automated checks"
+  ],
+  "source_fingerprints": {
+    "web/app.js": "b9c8c2a81b9f4ac86305590d3136355e79dc464b04f0d369b426a53db21d6235",
+    "web/core/pdf-page-view.js": "badf00cb0c97e1628690291a79d150dc7d916dc179048dd82e751111e8dec833",
+    "web/core/pdf-scroll.js": "5bae1db09cd6d5a651361c78463c4c90421079db47cf8036831f2c7737615b78",
+    "web/core/pdf-surface.js": "11c43a75a4e6d4d46f8c47ef6d200655196937bf729939c8bc13a017f42d7c1a",
+    "web/core/long-pdf.js": "bf0fea8fe006e34bc6bdfa162a47188ea6635642be70676dbe5da9c17694de43",
+    "web/core/canvas-controller.js": "852f0f5e0428051024c1c5282ddabe8287980e64268c85d03d2e69bf6647d7f0",
+    "web/style.css": "5095975da37ecdc39a57750bc09b79d669c0c6982265c05cedc7d78fc2f00a55",
+    "web/index.html": "b53232d1d16e4f40009d15d43a5e98a2dc96b0ad651f577e005af2857808af74",
+    "scripts/check-pdf-navigation.mjs": "16ac9085c00026ca2689d9f29c302e8181145d5b2513694181e67c0f0f016481",
+    "tests/browser/pdf-navigation.html": "bbffe4979e4d047659d2cfe1d420782cdf1eb7291eb9993107e5f5e48708b362"
+  },
+  "primary_sources": [
+    "https://github.com/mozilla/pdf.js/blob/v6.2.108/web/pdf_page_view.js",
+    "https://github.com/mozilla/pdf.js/blob/v6.2.108/web/pdf_viewer.js"
+  ],
+  "limitations": [
+    "No physical mouse/precision-trackpad/pinch input or app performance measurement",
+    "No Texloom launch/install/control; owner must test exact new packaged build",
+    "No universal FPS/native usability/installer or release-readiness claim",
+    "Final evaluation remains unfrozen/unrun; v11 report retains its named earlier evidence scope"
+  ],
+  "source_commit": "663b7e28307374f266fa04010810ac0c8997a651",
+  "build_artifact_receipt": "docs/evidence/pdf-navigation-r10-artifacts-2026-11-12.json"
+}

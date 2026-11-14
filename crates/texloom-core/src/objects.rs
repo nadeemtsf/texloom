@@ -159,6 +159,7 @@ fn break_start(line: &str) -> Option<usize> {
 
 fn boundary(line: &str) -> bool {
     let text = line.trim_start();
+    if text.starts_with('\\') && super::page_flow_command(command(text, 0).0) { return true; }
     text.is_empty() || text.starts_with('%') || ["\\begin", "\\end", "\\section", "\\subsection", "\\chapter", "\\enlargethispage", "\\vspace", "\\noindent", "\\TexloomObject", "\\StudioBlock"].iter().any(|prefix| text.starts_with(prefix))
 }
 
@@ -327,6 +328,20 @@ mod tests {
     use super::*;
     const DOC: &str = "\\documentclass{article}\n\\newcommand{\\Person}{Dr. Example}\n\\begin{document}\nFirst paragraph.\nIt wraps over source lines.\n\n\\begin{minipage}{\\linewidth}\nBest regards,\\\\[10mm]\n\\textbf{\\Person}\\\\[2pt]\nExample Department\\\\[2pt]\nExample University\n\\end{minipage}\n\nFollowing paragraph.\n\\end{document}";
     #[test] fn soft_wrapped_prose_is_one_unit() { let u = resolve_text_unit(DOC, 5).unwrap(); assert_eq!(u.kind,"paragraph"); assert_eq!((u.first_line,u.last_line),(4,5)); }
+    #[test] fn page_breaks_bound_adjacent_paragraphs_without_becoming_movable_content() {
+        for page_break in ["\\newpage", "\\clearpage", "\\cleardoublepage", "\\pagebreak", "\\pagebreak[2]", "\\nopagebreak[4]"] {
+            let source = format!("\\documentclass{{article}}\r\n\\begin{{document}}\r\nBefore page.\r\n{page_break}\r\nAfter page.\r\n\\end{{document}}\r\n");
+            let before = resolve_text_unit(&source, 3).unwrap();
+            let after = resolve_text_unit(&source, 5).unwrap();
+            assert_eq!(before.content, "Before page.");assert_eq!(after.content, "After page.");
+            assert!(resolve_text_unit(&source, 4).is_err());
+            assert!(combine_text_units(&source, &[before.clone(), after]).is_err());
+            let wrapped = wrap_text_object(&source, before.range, "before-page", 0.0, 0.0, &source).unwrap();
+            assert_eq!(unwrap_text_object(&wrapped, "before-page").unwrap(), source);
+        }
+        let inline = "\\documentclass{article}\n\\begin{document}\nText.\\newpage\nAfter.\n\\end{document}";
+        assert!(resolve_text_unit(inline, 3).is_err(), "inline structural content must still refuse");
+    }
     #[test] fn signature_line_keeps_its_break_outside() { let u = resolve_text_unit(DOC,9).unwrap(); assert_eq!(u.content,"\\textbf{\\Person}"); assert_eq!(u.kind,"line"); }
     #[test] fn last_signature_line_is_independent() { assert_eq!(resolve_text_unit(DOC,11).unwrap().content,"Example University"); }
     #[test] fn adjacent_signature_lines_combine() { let a=resolve_text_unit(DOC,9).unwrap();let b=resolve_text_unit(DOC,10).unwrap(); let c=resolve_text_unit(DOC,11).unwrap(); let group=combine_text_units(DOC,&[c,a,b]).unwrap();assert_eq!(group.kind,"group");assert!(group.content.contains("\\\\[2pt]")); }

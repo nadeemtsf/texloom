@@ -1,0 +1,106 @@
+\section{What the checks establish and what they do not}
+The operation family is part of the contract. A displacement result cannot
+be inferred from a successful spacing edit, nor can a legacy positioned-block
+test certify the newer normal-text movement path. Table~\ref{tab:policies}
+summarizes the implemented distinctions.
+
+\begin{table}[htbp]
+\small
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{.19\linewidth}YY@{}}
+\toprule
+Family & Acceptance evidence & Boundary\\
+\midrule
+Displacement / identity & Exact native source plan; target/page/glyph and non-text checks; complete same-renderer appearance & Bounded paint, target and page domain; not arbitrary document equivalence\\
+Replacement / reflow & Exact native plan; visible target; non-target extracted-text multiplicities; non-text object count & Allows layout changes; does not prove unchanged unrelated geometry or graphic appearance\\
+Parameter/style adapters & Exact source plan; eligible compile; independent readable inspection & Explicitly permits reflow; not the displacement preservation test\\
+Legacy positioned blocks & Native compatibility plan and existing frontend acceptance & Separate compatibility path; not independently certified normal-text displacement\\
+\bottomrule
+\end{tabularx}
+\caption{Distinct policies must remain distinct in experiments and claims.}
+\label{tab:policies}
+\end{table}
+
+\subsection{Displacement and identity}
+Current comparable target-geometry tolerance is 0.25 bp; unaffected-glyph
+tolerance is 0.02 bp; non-text geometry uses $10^{-6}$ bp. A position-only move
+must retain the relevant page structure and target correspondence. Identity
+requires exact same-renderer pixels. The current fractional-displacement path
+uses a baseline-derived render prediction rather than accepting approximate
+candidate pixels or hiding a rectangular region around the target.
+
+This strengthens checks against duplicated ink and unintended paint, but it
+depends on correctly identifying the target and predicting its displacement.
+Prediction and candidate inspection share PDFium. An error common to that
+implementation can escape agreement. PDF.js supplies a different display/
+selection path, but agreement between libraries is still not a formal proof
+of document meaning, accessibility, metadata or every annotation.
+
+The output contract is conditional on budgets and supported coordinates.
+Rotated/cropped/scaled pages, annotations or complex paint can refuse. Long
+documents have a bounded reading path; a reading/rendering pass is not evidence
+that every page supports layout manipulation. A valid intended edit can lie
+outside the supported subset and still be useful to a user, so its refusal is
+reported as lost coverage rather than relabelled as an unsafe request.
+
+\subsection{Reflow, parameters and legacy content}
+Replacement may intentionally change word length, wrapping and page count.
+The current reflow check preserves multiplicities of extracted non-target
+text, checks non-text object count and requires visible target content. Those
+predicates can miss a color, shape or positional change that preserves the
+counts. The report does not extend the stronger displacement appearance
+claim to this policy.
+
+Rendered-reference agreement also cannot recover which equal source occurrence
+was intended. The diagnostic in Section~\ref{sec:occurrence-reference} includes
+deleting either of two adjacent identical paragraphs: the source patches differ,
+while the entire rendered pages agree. Thus even a full appearance oracle needs
+an independent source-target contract. This illustrates the already established
+non-injective view/alignment problem; it is not a new general solution to it.
+
+Semantic adapters likewise start with a bounded source grammar and exact
+operation rederivation, then require eligible compilation/readable independent
+inspection. Source-level image dimensions, table-column parameters and font/
+spacing changes can cause legitimate global reflow. Their useful coverage and
+failure cases need their own annotations. Legacy StudioBlock operations retain
+a compatibility contract; the existence of independent verification elsewhere
+does not imply that this older path has the same certification.
+
+\subsection{Source preservation is not full TeX semantics}
+Preserving all bytes outside a declared patch is valuable even when a change
+would be invisible in a PDF. Comments, local line endings, definitions and
+support files may matter to the author. Conversely, a tiny permitted source
+change can have a large semantic effect through macro expansion or state.
+Exact source preservation and rendered preservation therefore answer different
+questions, and neither alone establishes the user's intended transformation.
+
+The source-contract prototype checks a predeclared file set and baseline/
+expected byte fingerprints. It can also bind a restricted fresh object-ID
+slot in an otherwise exact UTF-8 template. It is not a TeX evaluator. A wrong
+or incomplete contract is an oracle problem, not evidence that the application
+is correct. The native-entry pilot uses manually declared existing-object
+coordinate changes so its expected sources are not generated by the runtime
+planner.
+
+\subsection{Failure categories that must not collapse}
+The evaluation distinguishes mapping ambiguity, unsupported grammar, source-plan
+mismatch, compilation failure, independent-verifier refusal, resource limit,
+stale/cancelled work and post-commit presentation failure. The location of a
+refusal matters: a corrupt packet rejected by source rederivation supplies no
+evidence about the final renderer's sensitivity to that packet.
+
+Environmental failure is also different from a correct refusal. An engine
+that cannot initialize or a missing font/package can prevent a meaningful
+request from running. A clean developer-account build does not establish the
+missing-dependency experience on another machine. Implemented setup guidance
+helps expose these distinctions, but its native appearance and clean-account
+use remain pending.
+
+\subsection{Current evidence status}
+Implemented mechanisms, executed tests and planned checks are separate.
+Recorded engineering evidence includes automated source/protocol/controller
+checks, real-engine corpora, older versioned Windows workflows and the component
+pilots in Section~\ref{sec:development}. The current ordinary and diagnostic
+application builds have not been opened or installed in this continuation,
+at the owner's request. No final evaluation is frozen. No current evidence
+establishes universal correctness, reference-machine latency, clean-machine
+installation/uninstall or unassisted usability.

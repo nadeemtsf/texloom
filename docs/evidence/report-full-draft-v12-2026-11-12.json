@@ -1,0 +1,91 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-12T15:37:41.293422+00:00",
+  "kind": "technical_report_draft_v12_build_visual_review",
+  "status": "built_rendered_reviewed_not_final_evaluation",
+  "source_base": "897c121197c0b7ffdd71805e402bb677c9d550c6",
+  "source_note": "Report/evidence additions are bound to working-file hashes; no final evaluation freeze. Core code unchanged from named source.",
+  "pages": 28,
+  "references": 23,
+  "pdf": {
+    "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-technical-report-full-draft-2026-11-12-v12.pdf",
+    "bytes": 616878,
+    "sha256": "0b0490e81d552ea1e7817b3476b0ae86a1980ab20c5303fef45c0245727f6c7c"
+  },
+  "editable_sources": {
+    "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-technical-report-editable-sources-2026-11-12-v12.zip",
+    "bytes": 59253,
+    "sha256": "14d54f6657c41cccebe1cf2be065d1f4aeb5527fda8900de77ba86981c57c78e"
+  },
+  "editable_files": 16,
+  "synthetic_evidence": {
+    "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-03\\cont-2\\outputs\\Texloom-source-intent-development-evidence-2026-11-12.zip",
+    "bytes": 1434595,
+    "sha256": "8b57b537d93c22afec6f12635ab17ef1d9d0dd638f58ca25606800b8e1865a7b"
+  },
+  "synthetic_evidence_files": 640,
+  "all_archive_crc_member_hashes": "passed",
+  "visual_review": {
+    "all_pages_rendered": 28,
+    "all_page_layout_contact_sheets_reviewed": true,
+    "readable_page_reviews": [
+      1,
+      5,
+      12,
+      28
+    ],
+    "missing_overfull_undefined_latex_warnings": false,
+    "no_size_cap": true
+  },
+  "build_logs": {
+    "latex-1.stdout.log": {
+      "path": "C:\\Users\\thebe\\Gtihub Repos\\Mine\\texloom\\artifacts\\research-report\\20261112-v12\\latex-1.stdout.log",
+      "bytes": 12544,
+      "sha256": "ab4a7f6a49e842dbf25ad825cee42912287d6dd49032e126d45d596e62c28ab4"
+    },
+    "bibtex.stdout.log": {
+      "path": "C:\\Users\\thebe\\Gtihub Repos\\Mine\\texloom\\artifacts\\research-report\\20261112-v12\\bibtex.stdout.log",
+      "bytes": 190,
+      "sha256": "03bf94b628563ce5c8233f16e9d1957ad9a9fb9f0e4cbd92714a5633f67e8fc3"
+    },
+    "latex-2.stdout.log": {
+      "path": "C:\\Users\\thebe\\Gtihub Repos\\Mine\\texloom\\artifacts\\research-report\\20261112-v12\\latex-2.stdout.log",
+      "bytes": 11746,
+      "sha256": "8cc254965a804383c0067b992726c14598dd9bb909cc16905cf5cc0e6655574b"
+    },
+    "latex-3.stdout.log": {
+      "path": "C:\\Users\\thebe\\Gtihub Repos\\Mine\\texloom\\artifacts\\research-report\\20261112-v12\\latex-3.stdout.log",
+      "bytes": 9686,
+      "sha256": "745cd6cd0cd7600cb3d904c02cc5ccc5031c28d863d3d1b3dae257caf204d1e9"
+    },
+    "main.log": {
+      "path": "C:\\Users\\thebe\\Gtihub Repos\\Mine\\texloom\\artifacts\\research-report\\20261112-v12\\main.log",
+      "bytes": 27653,
+      "sha256": "17acd823de4954844705ada99b85ffeb57103021aa2560e331f36e2298831684"
+    }
+  },
+  "report_source_fingerprints": {
+    "research/report/followup-references.bib": "8c921c5a1aae4dc12ead7271266ac600501e6eded379b50f5c7e8e8bbb612c3f",
+    "research/report/main.tex": "10b0af9d983c885ffb950a81e38078a6c5323856354d25b855b15cbe9a8339ba",
+    "research/report/README.md": "40fcc8090c59a3a8b2eadd0821143a0c7fd95e282ced2e9bdab742ef821b9019",
+    "research/report/references.bib": "1c6bef9292f8599cbc86bb610e9b1e3b44a604b3db66370c8e9604a849121493",
+    "research/report/sections/01-scope.tex": "8a081ce27cdd63ca9a623512aa0fc12ca7686477759b3f3de307ea7a9c701196",
+    "research/report/sections/02-workflow.tex": "7c30b02b3e6a58e1950d429bd42711b7394c9a0a6f64b6d1a21f4de0bf7c664d",
+    "research/report/sections/03-contracts.tex": "46fc40be341983f0fd993ce675bbc1253fe9ab937538cc81eadb39e3b93e4c19",
+    "research/report/sections/04-related-work.tex": "75eee322ec02e28ab5ca06e34e329b67aca47f08eeea916b95bdd00c751ab312",
+    "research/report/sections/05-evaluation.tex": "71346c4c1e896eed0fed97844a50ea35a626cc7604f7fb96d4884ad2fb021bf3",
+    "research/report/sections/06-development-evidence.tex": "c0c9554e6177f0f5355dcb7cab0778bbfde71e70d10df58b06eee437a3c07f3f",
+    "research/report/sections/07-timing.tex": "95438068db4136ef03cea70ca2f8bebc39a16ca5259a819515bc06d441d02712",
+    "research/report/sections/08-reproducibility.tex": "0da32d51d15c6e232a4b9582b379f8731d7af1c62145680e365d90eb3874f120",
+    "research/report/sections/09-limitations.tex": "4b6a0bbca8e0c98edd43de6382111966709526ef1b2bbbf008bcd9bc4e0a0c24",
+    "research/report/sections/appendix-artifacts.tex": "9948ba62a94ecb488226301659813dcd57894115c0d79f6c899285056ebc2f82",
+    "research/report/sections/appendix-protocol.tex": "941e7098b5bda83b5078268c6abbbbc11e2124c35141c7531165a8fba62c00da",
+    "research/report/sections/appendix-reproduction.tex": "b3c7e40a16ddc2ac73d7b525347d311eb9bf26467b779221fbb8e4a0bc39eb07"
+  },
+  "limitations": [
+    "Technical report draft, not publication-ready or a completed app",
+    "No final accuracy/usability/native latency study",
+    "r10 owner input remains pending; later core-only APIs are not in r10",
+    "Original failed study protocol and missing Hebrew/LuaTeX setup remain retained/unresolved"
+  ]
+}

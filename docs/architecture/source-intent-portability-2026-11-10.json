@@ -1,0 +1,238 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-10T15:53:30.494884+00:00",
+  "kind": "development_source_intent_compile_text_portability_not_final_evaluation",
+  "source_commit": "479f8266f4a4d03fda763d52c1e06f4a8ac9f5fb",
+  "binary_sha256": "cdc5ed525083d2c13f04e6626e44bfa42cc49cab0781cef20f1fffbdf97890fe",
+  "runner_sha256": "1e2991ae51e368b9b1515ab9ef34ee6887a6d195f131ef220e8144843c78bb15",
+  "requested_literal": "Revised & confirmed: 50%.",
+  "tools": {
+    "pdflatex": {
+      "path": "C:\\Users\\thebe\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\pdflatex.EXE",
+      "sha256": "de48c5ef651d2ded45e8d82188af22aaeebf0055d679b090609aff1881d97d30",
+      "version_exit": 0,
+      "version": [
+        "MiKTeX-pdfTeX 4.23 (MiKTeX 25.12)",
+        "© 1982 D. E. Knuth, © 1996-2025 Hàn Thế Thành"
+      ]
+    },
+    "xelatex": {
+      "path": "C:\\Users\\thebe\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\xelatex.EXE",
+      "sha256": "ef2397c0f8638ccb79a46a693be196e64ce90b361fde5cbcd7397a72e13e8ff4",
+      "version_exit": 0,
+      "version": [
+        "MiKTeX-XeTeX 4.16 (MiKTeX 25.12)",
+        "© 1994-2008 SIL International, © 2009-2023 Jonathan Kew, © 2010-2012 Hàn Thế Thành, © 2012-2013 Khaled Hosny"
+      ]
+    },
+    "lualatex": {
+      "path": "C:\\Users\\thebe\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\lualatex.EXE",
+      "sha256": "4507d518df798a867bdef4f7bcb0e55f6ff4d118544e48aa4d4aa9f375db86f0",
+      "version_exit": 0,
+      "version": [
+        "This is LuaHBTeX, Version 1.24.0 (MiKTeX 25.12)",
+        "Development id: 7707"
+      ]
+    },
+    "pdftotext": {
+      "path": "C:\\Users\\thebe\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\pdftotext.EXE",
+      "sha256": "640b9a93fa31fc093860c635cd410a3e30f7d1e6166cb1130993fb1985f474ff",
+      "version_exit": 0,
+      "version": [
+        "pdftotext version 24.04.0",
+        "Copyright 2005-2024 The Poppler Developers - http://poppler.freedesktop.org"
+      ]
+    }
+  },
+  "rows": [
+    {
+      "engine": "pdflatex",
+      "variant": "baseline",
+      "source_sha256": "d6b83eacb6604e567bb47630e1ac528178aa66549ba853f09e39534cbe4b1419",
+      "argv": [
+        "C:\\Users\\thebe\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\pdflatex.EXE",
+        "--disable-installer",
+        "-no-shell-escape",
+        "-interaction=nonstopmode",
+        "-halt-on-error",
+        "-file-line-error",
+        "main.tex"
+      ],
+      "compile_exit": 0,
+      "result": "passed",
+      "pdf_sha256": "b716fc959b02c4084344b3ebfec0cef3a4944abbb74deab53110e68b151e6ce8",
+      "extraction_exit": 0,
+      "extracted_text": "Before unchanged. Original target paragraph. After unchanged.",
+      "expected_text": "Before unchanged. Original target paragraph. After unchanged."
+    },
+    {
+      "engine": "pdflatex",
+      "variant": "replace",
+      "source_sha256": "6f846716fae47ca3b00264aa405423fdfcf99aaa3bc9cb2ebe5a3451bef2eb35",
+      "argv": [
+        "C:\\Users\\thebe\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\pdflatex.EXE",
+        "--disable-installer",
+        "-no-shell-escape",
+        "-interaction=nonstopmode",
+        "-halt-on-error",
+        "-file-line-error",
+        "main.tex"
+      ],
+      "compile_exit": 0,
+      "result": "passed",
+      "pdf_sha256": "482f0c316e5976d7573bb451abb54d0910a3db6622bfcd83484690719fb03f4d",
+      "extraction_exit": 0,
+      "extracted_text": "Before unchanged. Revised & confirmed: 50%. After unchanged.",
+      "expected_text": "Before unchanged. Revised & confirmed: 50%. After unchanged."
+    },
+    {
+      "engine": "pdflatex",
+      "variant": "delete",
+      "source_sha256": "46c47509f3695aa2a9f140b7ad4cbfdbcfa7b00c6becfb838f2f8ae8ff619da2",
+      "argv": [
+        "C:\\Users\\thebe\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\pdflatex.EXE",
+        "--disable-installer",
+        "-no-shell-escape",
+        "-interaction=nonstopmode",
+        "-halt-on-error",
+        "-file-line-error",
+        "main.tex"
+      ],
+      "compile_exit": 0,
+      "result": "passed",
+      "pdf_sha256": "a99b05f67b06e2a3530dfaea296c495947472a1632a20a9c991689bbaf2a01d1",
+      "extraction_exit": 0,
+      "extracted_text": "Before unchanged. After unchanged.",
+      "expected_text": "Before unchanged. After unchanged."
+    },
+    {
+      "engine": "xelatex",
+      "variant": "baseline",
+      "source_sha256": "d6b83eacb6604e567bb47630e1ac528178aa66549ba853f09e39534cbe4b1419",
+      "argv": [
+        "C:\\Users\\thebe\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\xelatex.EXE",
+        "--disable-installer",
+        "-no-shell-escape",
+        "-interaction=nonstopmode",
+        "-halt-on-error",
+        "-file-line-error",
+        "main.tex"
+      ],
+      "compile_exit": 0,
+      "result": "passed",
+      "pdf_sha256": "c7539a2129617f83b320503f32309e15f92117bdb5474c1555a6a77348e13657",
+      "extraction_exit": 0,
+      "extracted_text": "Before unchanged. Original target paragraph. After unchanged.",
+      "expected_text": "Before unchanged. Original target paragraph. After unchanged."
+    },
+    {
+      "engine": "xelatex",
+      "variant": "replace",
+      "source_sha256": "6f846716fae47ca3b00264aa405423fdfcf99aaa3bc9cb2ebe5a3451bef2eb35",
+      "argv": [
+        "C:\\Users\\thebe\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\xelatex.EXE",
+        "--disable-installer",
+        "-no-shell-escape",
+        "-interaction=nonstopmode",
+        "-halt-on-error",
+        "-file-line-error",
+        "main.tex"
+      ],
+      "compile_exit": 0,
+      "result": "passed",
+      "pdf_sha256": "4d650e58cd6205c9c07c445b1e8d95840a14211bae8984275ff1aca163d58119",
+      "extraction_exit": 0,
+      "extracted_text": "Before unchanged. Revised & confirmed: 50%. After unchanged.",
+      "expected_text": "Before unchanged. Revised & confirmed: 50%. After unchanged."
+    },
+    {
+      "engine": "xelatex",
+      "variant": "delete",
+      "source_sha256": "46c47509f3695aa2a9f140b7ad4cbfdbcfa7b00c6becfb838f2f8ae8ff619da2",
+      "argv": [
+        "C:\\Users\\thebe\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\xelatex.EXE",
+        "--disable-installer",
+        "-no-shell-escape",
+        "-interaction=nonstopmode",
+        "-halt-on-error",
+        "-file-line-error",
+        "main.tex"
+      ],
+      "compile_exit": 0,
+      "result": "passed",
+      "pdf_sha256": "4ad2b10045f859a449a12ba5567e14bd61009de0ebcc3885b677c2a1609e602a",
+      "extraction_exit": 0,
+      "extracted_text": "Before unchanged. After unchanged.",
+      "expected_text": "Before unchanged. After unchanged."
+    },
+    {
+      "engine": "lualatex",
+      "variant": "baseline",
+      "source_sha256": "d6b83eacb6604e567bb47630e1ac528178aa66549ba853f09e39534cbe4b1419",
+      "argv": [
+        "C:\\Users\\thebe\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\lualatex.EXE",
+        "--disable-installer",
+        "-no-shell-escape",
+        "-interaction=nonstopmode",
+        "-halt-on-error",
+        "-file-line-error",
+        "main.tex"
+      ],
+      "compile_exit": 0,
+      "result": "passed",
+      "pdf_sha256": "50b5d23b8e8f37525115121d91b862e1ef0d6e0a23b4ce6aa2388b9ebc96f780",
+      "extraction_exit": 0,
+      "extracted_text": "Before unchanged. Original target paragraph. After unchanged.",
+      "expected_text": "Before unchanged. Original target paragraph. After unchanged."
+    },
+    {
+      "engine": "lualatex",
+      "variant": "replace",
+      "source_sha256": "6f846716fae47ca3b00264aa405423fdfcf99aaa3bc9cb2ebe5a3451bef2eb35",
+      "argv": [
+        "C:\\Users\\thebe\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\lualatex.EXE",
+        "--disable-installer",
+        "-no-shell-escape",
+        "-interaction=nonstopmode",
+        "-halt-on-error",
+        "-file-line-error",
+        "main.tex"
+      ],
+      "compile_exit": 0,
+      "result": "passed",
+      "pdf_sha256": "bd02be552c81f13a0f140346403e3c4becb96eb83b2b70564c85bbb378b81275",
+      "extraction_exit": 0,
+      "extracted_text": "Before unchanged. Revised & confirmed: 50%. After unchanged.",
+      "expected_text": "Before unchanged. Revised & confirmed: 50%. After unchanged."
+    },
+    {
+      "engine": "lualatex",
+      "variant": "delete",
+      "source_sha256": "46c47509f3695aa2a9f140b7ad4cbfdbcfa7b00c6becfb838f2f8ae8ff619da2",
+      "argv": [
+        "C:\\Users\\thebe\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\lualatex.EXE",
+        "--disable-installer",
+        "-no-shell-escape",
+        "-interaction=nonstopmode",
+        "-halt-on-error",
+        "-file-line-error",
+        "main.tex"
+      ],
+      "compile_exit": 0,
+      "result": "passed",
+      "pdf_sha256": "dbe89e9f240672d0fc13f375edd03db022e5850846e4da91a56b715259cb1370",
+      "extraction_exit": 0,
+      "extracted_text": "Before unchanged. After unchanged.",
+      "expected_text": "Before unchanged. After unchanged."
+    }
+  ],
+  "limitations": [
+    "One synthetic English document on one Windows machine; reused across engines.",
+    "Compilation and exact normalized text checks only; no glyph/geometry preservation proof.",
+    "No UI selection, native visual acceptance, source commit/Save, RTL rendering or usability trial.",
+    "No latency benchmark, final fixture freeze or general correctness/portability rate."
+  ],
+  "original_fixture_unchanged": true,
+  "passed": 9,
+  "complete": true
+}

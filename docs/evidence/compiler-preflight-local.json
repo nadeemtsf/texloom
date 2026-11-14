@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-03T05:52:51.549277+00:00",
+  "base_commit": "c773a9045868d10e843134693bd9f64c582c8cd3",
+  "working_source_sha256": {
+    "crates/texloom-build/src/engine.rs": "160c88fe1afa1d0e8207b705d789e7bf1d0dc5bbebd7f5f3c8f3a6627239362c",
+    "crates/texloom-build/src/bin/process_fixture.rs": "9c2b5c4591e259bcc82651b9f4e1a5b07adcc0f8a42d8fa460cfedd03a1c073b",
+    "crates/texloom-build/tests/preflight.rs": "1c608d4a131c34f8c2d830dbe7c13766861b69aa7922b7e2f2b487a9b8174af1",
+    "web/core/transactions.js": "81f88a04faae4a6257df11d99ebbf7761242c0bd8a39826fe50ab0c525ece903",
+    "tests/compile-preflight.test.mjs": "db0e39721072ee277e482a63f6497ef7db1fe13eb4e1ab8a67c14292a29f9a0d"
+  },
+  "checks": {
+    "default_rust": 152,
+    "explicit_pdfium_worker": 5,
+    "explicit_native_document_gate": 2,
+    "frontend": 83,
+    "total": 242,
+    "failed": 0
+  },
+  "guard": "A PDF emitted by a failed version check is not returned or sealed as an output; successful truncated version output is also refused.",
+  "executable": {
+    "path": "target/x86_64-pc-windows-msvc/release/texloom-desktop.exe",
+    "sha256": "e29126fb6d188f69957e7819047b8ec3acd33529254e7c7f2c0218cbf49a9739"
+  },
+  "portable": {
+    "path": "artifacts/Texloom-Desktop-Windows-x64.zip",
+    "sha256": "dca1ab1af22efb2cd372018455c844b2df017cde3aa946e2812fc0fe49b9fc53",
+    "crc_and_component_receipts_verified": true
+  },
+  "packaged_verifier": {
+    "schema": 2,
+    "protocol": 2,
+    "purpose": "Development verification dependency; release review pending",
+    "platform": "windows-x86_64",
+    "pdfium": "126.0.6462.0",
+    "binding_source": "pypdfium2-4.30.0",
+    "wheel_sha256": "90dbb2ac07be53219f56be09961eb95cf2473f834d01a42d901d13ccfad64b4c",
+    "dll_sha256": "b2c15cd4537d8efaf23b85b3353abe7a0b863e9c52b2f017dd87bb86a55f9c72",
+    "worker_sha256": "5aa9b48f7c0ab845348efdb45cfe89db9f8e8a4bf04e7d99e45471b479938832",
+    "notice_sha256": "c2fdbc1aeb250d596d1ef3d9817c9bf31df712b197583c0811677ee5d9206eeb"
+  },
+  "log_sha256": {
+    "preflight-workspace-tests.log": "effb8ae178aedc44278475cd0524e413b5dca83140d0675bf01238f1bbfefc33",
+    "preflight-worker-tests.log": "15f0e8c6ec0de7c4e1ae0e51a5239e724c5060284e331feab7f53e1178aa7b5a",
+    "preflight-native-gate-tests.log": "23ce96e144a4956b88966d6d405fe1647cd36b9d08b632a828438b14bcaad20d",
+    "preflight-frontend-tests.log": "408bd3121b5c06f7efdd6a8b3f68acbd572e932c041996e5afedee366c0d2951"
+  },
+  "limitations": [
+    "Native input control remains denied; no typing, IME, mouse or signature acceptance",
+    "All 24 local MiKTeX engine cases failed during version preflight under access-denied errors",
+    "No all-phase or release completion claim"
+  ]
+}

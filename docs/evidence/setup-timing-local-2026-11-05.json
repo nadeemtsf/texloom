@@ -1,0 +1,104 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-04T22:10:34.850781+00:00",
+  "kind": "local_development_setup_and_optional_timing_not_native_acceptance",
+  "product_source_commit": "5e59e77282fd5e4b4f70440437b8f841ccea1364",
+  "release_ready": false,
+  "ordinary_trace_flag": "0",
+  "diagnostic_trace_flag": "1",
+  "implemented": [
+    "Read-only contextual setup help",
+    "Dialog keyboard isolation",
+    "Optional bounded local timing milestones and two-animation-frame proxy",
+    "Window listener disposal"
+  ],
+  "checks": {
+    "frontend": {
+      "passed": 252,
+      "failed": 0,
+      "skipped": 0
+    },
+    "default_core": {
+      "unit_passed": 70,
+      "integration_passed": 18,
+      "failed": 0
+    },
+    "ordinary_windows_release_nsis": "pass",
+    "diagnostic_windows_release_no_bundle": "pass",
+    "existing_rust_warnings": 5,
+    "each_portable_archive_exact_entries": 15,
+    "independent_crc_file_hashes_and_amd64": "pass"
+  },
+  "ordinary_executable_sha256": "a9e7dfd5e523e5025ccc6f98da7ece7ad16ae254b11a4ae8da7b7135a4dc4ee3",
+  "diagnostic_executable_sha256": "2e4173437be96914a92747d087ce448423e8a56f1a6b94adbaf714e7dfaecce7",
+  "artifacts": [
+    {
+      "path": "outputs/Texloom-Windows-x64-development-2026-11-05-r4.zip",
+      "bytes": 11846002,
+      "sha256": "64654e77224f8d9b2b6c43978a0bc559186bb8df0c1fa917f1c510cb60567973"
+    },
+    {
+      "path": "outputs/Texloom-0.3.0-x64-development-2026-11-05-r4-setup.exe",
+      "bytes": 9312948,
+      "sha256": "6073346d7c65e903a4ba8c5a89ac26ab4990f891340bfb802be4d1a6c8396112"
+    },
+    {
+      "path": "outputs/Texloom-Windows-x64-development-2026-11-05-r4-diagnostics.zip",
+      "bytes": 11846385,
+      "sha256": "6d9092270f416e8ea1806b436f331cdd87915ccf4e98505a4385875bea596a11"
+    }
+  ],
+  "logs": [
+    {
+      "path": ".tools/continuation-full-frontend.log",
+      "bytes": 24100,
+      "sha256": "0ed0be10fa60ce1ed831bef5c3a83e8f7421c3361433e5efb26e468f978b1654"
+    },
+    {
+      "path": ".tools/continuation-full-core.log",
+      "bytes": 7903,
+      "sha256": "1e8963896cd341461fb45c4a041f6a28610a874c542e6fd8d759168649705677"
+    },
+    {
+      "path": ".tools/continuation-r4-desktop.log",
+      "bytes": 7502,
+      "sha256": "b3fa87c02d5fa5d179a01289e73e6472ec29ea90ea2d7a782411ac863398ced1"
+    },
+    {
+      "path": ".tools/continuation-r4-diagnostic-desktop.log",
+      "bytes": 7010,
+      "sha256": "a3260a271beb24f669a2afd097a7afb2043c87b8f4692f4feccb5b21dafd4927"
+    },
+    {
+      "path": ".tools/continuation-r4-package-independent.json",
+      "bytes": 563,
+      "sha256": "c867bf53e6018015e55b997f0ea46c839c6da23ae1298f1e5a106e595f465a63"
+    },
+    {
+      "path": ".tools/continuation-r4-diagnostic-independent.json",
+      "bytes": 528,
+      "sha256": "3e80e17f1360e32b9e7e316a7d58485f919fdc4b41dee2cfbe3ca1e998ddb3a9"
+    },
+    {
+      "path": ".tools/continuation-r4-ordinary-dist.json",
+      "bytes": 33415,
+      "sha256": "17a56d9eb48afc2f8ace4df202f26f57ae84dddbf7e38577b96353686a43ccef"
+    },
+    {
+      "path": ".tools/continuation-r4-diagnostic-dist.json",
+      "bytes": 33415,
+      "sha256": "7c28275332ef8e4b137f34c3080777040d28723e5656651f433cf6feb0a8992e"
+    }
+  ],
+  "harness_correction": "First independent ZIP receipt lookup omitted the documented root prefix and raised KeyError. Corrected exact-prefix verification passed. No package data changed. This was not a product failure.",
+  "not_executed": [
+    "Opening or installing either new executable",
+    "Native setup or tracing-boundary validation",
+    "Actual latency or tracing-overhead measurement",
+    "Physical gesture/DPI/clean-machine/uninstall/usability",
+    "New remote CI",
+    "Final research evaluation"
+  ],
+  "owner_deferral": "All tests requiring approval or Texloom to open remain pending while owner is away.",
+  "build_output_warning": "target release EXE is now the diagnostic variant; the saved r4 ordinary ZIP/installer retain their distinct hashes. No app was launched."
+}

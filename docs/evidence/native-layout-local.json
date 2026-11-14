@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "created_at": "2026-11-02T20:56:33.498099+00:00",
+  "status": "component checks passed; native acceptance blocked",
+  "source_state": "feature/native-layout-gate working tree before publication",
+  "checks": {
+    "p6-layout-core-build.log": 104,
+    "p6-layout-worker-full.log": 4,
+    "p6-layout-service-default-final.log": 24,
+    "p6-layout-service-worker-final.log": 2,
+    "frontend": 69
+  },
+  "total_passed": 203,
+  "desktop_sha256": "be5431ac6343e2512ce0a713f0b1725760f40c5e33b0bd60f8f4a7cd51776382",
+  "portable_sha256": "13d81ccb72d5610e7aef4b2e734bfa3a1740ff5021c1968d34dc3db20e829075",
+  "resources": {
+    "schema": 2,
+    "protocol": 2,
+    "purpose": "Development verification dependency; release review pending",
+    "platform": "windows-x86_64",
+    "pdfium": "126.0.6462.0",
+    "binding_source": "pypdfium2-4.30.0",
+    "wheel_sha256": "90dbb2ac07be53219f56be09961eb95cf2473f834d01a42d901d13ccfad64b4c",
+    "dll_sha256": "b2c15cd4537d8efaf23b85b3353abe7a0b863e9c52b2f017dd87bb86a55f9c72",
+    "worker_sha256": "edc9bfac8f92c19047ea2d65dadbbb3a4b529027d573b8b802892d8a2793064c",
+    "notice_sha256": "c2fdbc1aeb250d596d1ef3d9817c9bf31df712b197583c0811677ee5d9206eeb"
+  },
+  "corrected_failures": [
+    "Packaged worker test exposed Windows error 267 for a long evidence cwd; worker now runs from its checked program directory with absolute evidence paths.",
+    "Windows PowerShell build-hook authorization failed; preparation now uses the existing Node build runtime, without policy changes."
+  ],
+  "unverified": [
+    "New Windows real-engine mark-attribution CI corpus; local test only compiled.",
+    "Native typing, IME, multicursor, context-menu undo and the signature mouse/edit/save/reopen/independent-compile workflow.",
+    "Automatic approval review rejected native launch because the previous computer-use access denial remains in force.",
+    "Local MiKTeX preflight fails with registry access denied.",
+    "Fractional-pixel displacement, broader paint/coordinate coverage, release renderer review and remaining phase gates."
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "schema": 1,
+  "date": "2026-11-04",
+  "implementation_base": "c97c037d3f3042dbf39993802c53914252ed6c20",
+  "source_state": "working tree before final feature commit",
+  "automated_checks": {
+    "core": 89,
+    "build_library": 54,
+    "native_default": 50,
+    "frontend": 231,
+    "explicit_native_approvals": 2,
+    "explicit_standalone_worker_checks": 5
+  },
+  "reports": {
+    "movement": {
+      "path": "artifacts/proof/report.json",
+      "sha256": "1acbcb6dfbe83fe3d9718092af5757d40506ef363b35bcfdf780316dbdbe83d8",
+      "status": "pass",
+      "cases": 30,
+      "outcomes": {
+        "pass": 24,
+        "expected-refusal": 6
+      }
+    },
+    "selection": {
+      "path": "artifacts/selection-hints-final/report.json",
+      "sha256": "7a3ee855ae0d74646aa21379006c6a9c185c4e3aa700a5107c4fd062358cc372",
+      "status": "pass",
+      "cases": 34,
+      "outcomes": {
+        "pass": 28,
+        "expected-refusal": 6
+      }
+    },
+    "engine_corpus": {
+      "path": "artifacts/overnight-engine-corpus-second/report.json",
+      "sha256": "3892d17d87adbbdd84df965d9cbbed7d571c0f1f4500a31116c0528eb4d2a945",
+      "status": "all 24 expected compiler/refusal outcomes passed",
+      "cases": 24,
+      "outcomes": {
+        "compiled": 18,
+        "expected_compile_failure": 6
+      }
+    },
+    "adapters": {
+      "path": "artifacts/adapters-fourth/report.json",
+      "sha256": "bee4420e821dbed56a1d9220b5f3023778ed6b45f598749b134062b3e1f273b9",
+      "status": "pass",
+      "cases": 27,
+      "outcomes": {
+        "accepted": 27
+      }
+    },
+    "templates": {
+      "path": "artifacts/templates-second/report.json",
+      "sha256": "9d3cf0158e41f74271a780d39b442e77cf46954d7ed3d25c30c4927c02073f57",
+      "status": "pass",
+      "cases": 19,
+      "outcomes": {
+        "accepted": 19
+      }
+    },
+    "fractional": {
+      "path": "artifacts/fractional-first/report.json",
+      "sha256": "df242d92fef902bff39c526316fbcb0d1ddd7b7b12b3f8f7feb724edf97ccb2e",
+      "status": "pass",
+      "cases": 9,
+      "outcomes": {
+        "accepted": 9
+      }
+    },
+    "bibliography": {
+      "path": "artifacts/bibliography-second/report.json",
+      "sha256": "83a48f98e234be3de491c66493a07e64820f40efc0c60182f87252ae1b0e5561",
+      "status": "pass",
+      "cases": 2,
+      "outcomes": {
+        "compiled": 2
+      }
+    },
+    "benchmark": {
+      "path": "artifacts/overnight-source-benchmark-final/report.json",
+      "sha256": "fbd1f737874907da44fdfb77fadda110a5bd28378537321dc526a97240079f35",
+      "status": "pass: 15 exact undo/redo and original disk checks",
+      "cases": 15
+    }
+  },
+  "release_accepted": false,
+  "remaining": "See FINAL-NATIVE-ACCEPTANCE.md; native/installation/usability gates remain.",
+  "artifact": {
+    "nsis_sha256": "63a5be14d6650d2c83dc63304514a2b12ed0051c3f1984545b88c3dd8d8776f7",
+    "portable_sixth_sha256": "549b6942a636fdfebb7164d406cfc481fe9c28f3fbba0206e9d3b74a5bd384e3",
+    "portable_entries": 15,
+    "unsigned": true,
+    "source_mapping_fix_candidate": "seventh build; actual native LuaTeX single-name selection passed after bounded private probes",
+    "previous_sixth_desktop_sha256": "74e610a15ee4e28521ebc317923f1425ed8149722be9891b676430aaac168e5b",
+    "desktop_sha256": "4b188a1f0606a6d7b0af0e32aa1c2465758e29d83856bec76ce787a14faa464c",
+    "portable_seventh_sha256": "b9df6892ff1203ae287853a385b8c947e3b4049d011b546bd4324f9939bd7709"
+  },
+  "benchmark_32mib_production": {
+    "p95_native_edit_through_response_encoding_ms": 19.4769,
+    "response_bytes": 269459,
+    "excluded": "WebView transport/editor paint/cursor flushes; uncontrolled background load"
+  },
+  "notes": [
+    "Compiler outcomes include expected failures; false compiler success is not a failed test.",
+    "Raw reports/logs and synthetic native observations remain in the local artifacts and continuation workspace."
+  ],
+  "additional_native_failures_fixed": [
+    "Windows active-draft marker read before exclusive lock acquisition",
+    "LuaTeX verbatim SyncTeX path containing ./ rejected by Win32; new canonicalization/fence regression passes"
+  ]
+}

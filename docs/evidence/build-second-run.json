@@ -1,0 +1,443 @@
+{
+  "schema": 1,
+  "sourceCommit": "3ecaee646b1497b0785a6b62c8d5e3fc887ff9bc",
+  "run": "https://github.com/nadeemtsf/texloom/actions/runs/41355403634",
+  "status": "failed",
+  "passed": 23,
+  "total": 24,
+  "reason": "Cold LuaLaTeX creates its versioned user font cache during the first pass. Root discovery must occur after that pass, not only before it.",
+  "results": [
+    {
+      "accepted": true,
+      "case": "visual-adapter",
+      "dependencies": 17,
+      "diagnostics": [],
+      "eligible": true,
+      "engine": "pdflatex",
+      "ok": true,
+      "passes": 2,
+      "version": "pdfTeX 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian)\nkpathsea version 6.3.5\nCopyright 2023 Han The Thanh (pdfTeX) et al."
+    },
+    {
+      "accepted": true,
+      "case": "space-path",
+      "dependencies": 18,
+      "diagnostics": [],
+      "eligible": true,
+      "engine": "pdflatex",
+      "ok": true,
+      "passes": 2,
+      "version": "pdfTeX 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian)\nkpathsea version 6.3.5\nCopyright 2023 Han The Thanh (pdfTeX) et al."
+    },
+    {
+      "accepted": true,
+      "case": "asset",
+      "dependencies": 16,
+      "diagnostics": [],
+      "eligible": true,
+      "engine": "pdflatex",
+      "ok": true,
+      "passes": 2,
+      "version": "pdfTeX 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian)\nkpathsea version 6.3.5\nCopyright 2023 Han The Thanh (pdfTeX) et al."
+    },
+    {
+      "accepted": true,
+      "case": "references",
+      "dependencies": 20,
+      "diagnostics": [],
+      "eligible": true,
+      "engine": "pdflatex",
+      "ok": true,
+      "passes": 3,
+      "version": "pdfTeX 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian)\nkpathsea version 6.3.5\nCopyright 2023 Han The Thanh (pdfTeX) et al."
+    },
+    {
+      "accepted": true,
+      "case": "undefined",
+      "dependencies": 17,
+      "diagnostics": [
+        {
+          "code": "unresolved_reference",
+          "file": null,
+          "line": null,
+          "message": "LaTeX Warning: Reference `missing' on page 1 undefined on input line 4.",
+          "severity": "error"
+        },
+        {
+          "code": "unresolved_reference",
+          "file": null,
+          "line": null,
+          "message": "LaTeX Warning: There were undefined references.",
+          "severity": "error"
+        }
+      ],
+      "eligible": false,
+      "engine": "pdflatex",
+      "ok": true,
+      "passes": 2,
+      "version": "pdfTeX 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian)\nkpathsea version 6.3.5\nCopyright 2023 Han The Thanh (pdfTeX) et al."
+    },
+    {
+      "accepted": true,
+      "case": "compile-error",
+      "dependencies": 0,
+      "diagnostics": [
+        {
+          "code": "latex_error",
+          "file": "main.tex",
+          "line": 4,
+          "message": "Undefined control sequence.",
+          "severity": "error"
+        },
+        {
+          "code": "latex_error",
+          "file": "main.tex",
+          "line": 4,
+          "message": "==> Fatal error occurred, no output PDF file produced!",
+          "severity": "error"
+        }
+      ],
+      "eligible": false,
+      "engine": "pdflatex",
+      "ok": false,
+      "passes": 1,
+      "version": "pdfTeX 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian)\nkpathsea version 6.3.5\nCopyright 2023 Han The Thanh (pdfTeX) et al."
+    },
+    {
+      "accepted": true,
+      "case": "nonconvergent",
+      "dependencies": 15,
+      "diagnostics": [
+        {
+          "code": "nonconvergence",
+          "file": null,
+          "line": null,
+          "message": "Document did not settle after 6 passes",
+          "severity": "error"
+        }
+      ],
+      "eligible": false,
+      "engine": "pdflatex",
+      "ok": false,
+      "passes": 6,
+      "version": "pdfTeX 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian)\nkpathsea version 6.3.5\nCopyright 2023 Han The Thanh (pdfTeX) et al."
+    },
+    {
+      "accepted": true,
+      "case": "bibliography",
+      "dependencies": 17,
+      "diagnostics": [
+        {
+          "code": "unresolved_reference",
+          "file": null,
+          "line": null,
+          "message": "LaTeX Warning: Citation `unknown' on page 1 undefined on input line 4.",
+          "severity": "error"
+        },
+        {
+          "code": "unresolved_reference",
+          "file": null,
+          "line": null,
+          "message": "LaTeX Warning: There were undefined references.",
+          "severity": "error"
+        },
+        {
+          "code": "bibliography_tool_required",
+          "file": null,
+          "line": null,
+          "message": "This direct-engine recipe does not run BibTeX/Biber. Build the bibliography externally or use a supported prebuilt bibliography input.",
+          "severity": "error"
+        }
+      ],
+      "eligible": false,
+      "engine": "pdflatex",
+      "ok": true,
+      "passes": 2,
+      "version": "pdfTeX 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian)\nkpathsea version 6.3.5\nCopyright 2023 Han The Thanh (pdfTeX) et al."
+    },
+    {
+      "accepted": false,
+      "case": "visual-adapter",
+      "engine": "lualatex",
+      "error": "External dependency must be imported into the project: /home/runner/.texlive2023/texmf-var/luatex-cache/generic/fonts/otl/lmroman10-regular.lua"
+    },
+    {
+      "accepted": true,
+      "case": "space-path",
+      "dependencies": 74,
+      "diagnostics": [],
+      "eligible": true,
+      "engine": "lualatex",
+      "ok": true,
+      "passes": 3,
+      "version": "This is LuaHBTeX, Version 1.17.0 (TeX Live 2023/Debian)\nDevelopment id: 7581\n"
+    },
+    {
+      "accepted": true,
+      "case": "asset",
+      "dependencies": 67,
+      "diagnostics": [],
+      "eligible": true,
+      "engine": "lualatex",
+      "ok": true,
+      "passes": 2,
+      "version": "This is LuaHBTeX, Version 1.17.0 (TeX Live 2023/Debian)\nDevelopment id: 7581\n"
+    },
+    {
+      "accepted": true,
+      "case": "references",
+      "dependencies": 70,
+      "diagnostics": [],
+      "eligible": true,
+      "engine": "lualatex",
+      "ok": true,
+      "passes": 3,
+      "version": "This is LuaHBTeX, Version 1.17.0 (TeX Live 2023/Debian)\nDevelopment id: 7581\n"
+    },
+    {
+      "accepted": true,
+      "case": "undefined",
+      "dependencies": 68,
+      "diagnostics": [
+        {
+          "code": "unresolved_reference",
+          "file": null,
+          "line": null,
+          "message": "LaTeX Warning: Reference `missing' on page 1 undefined on input line 4.",
+          "severity": "error"
+        },
+        {
+          "code": "unresolved_reference",
+          "file": null,
+          "line": null,
+          "message": "LaTeX Warning: There were undefined references.",
+          "severity": "error"
+        }
+      ],
+      "eligible": false,
+      "engine": "lualatex",
+      "ok": true,
+      "passes": 2,
+      "version": "This is LuaHBTeX, Version 1.17.0 (TeX Live 2023/Debian)\nDevelopment id: 7581\n"
+    },
+    {
+      "accepted": true,
+      "case": "compile-error",
+      "dependencies": 0,
+      "diagnostics": [
+        {
+          "code": "latex_error",
+          "file": "main.tex",
+          "line": 4,
+          "message": "Undefined control sequence.",
+          "severity": "error"
+        },
+        {
+          "code": "latex_error",
+          "file": "main.tex",
+          "line": 4,
+          "message": "==> Fatal error occurred, no output PDF file produced!",
+          "severity": "error"
+        }
+      ],
+      "eligible": false,
+      "engine": "lualatex",
+      "ok": false,
+      "passes": 1,
+      "version": "This is LuaHBTeX, Version 1.17.0 (TeX Live 2023/Debian)\nDevelopment id: 7581\n"
+    },
+    {
+      "accepted": true,
+      "case": "nonconvergent",
+      "dependencies": 67,
+      "diagnostics": [
+        {
+          "code": "nonconvergence",
+          "file": null,
+          "line": null,
+          "message": "Document did not settle after 6 passes",
+          "severity": "error"
+        }
+      ],
+      "eligible": false,
+      "engine": "lualatex",
+      "ok": false,
+      "passes": 6,
+      "version": "This is LuaHBTeX, Version 1.17.0 (TeX Live 2023/Debian)\nDevelopment id: 7581\n"
+    },
+    {
+      "accepted": true,
+      "case": "bibliography",
+      "dependencies": 68,
+      "diagnostics": [
+        {
+          "code": "unresolved_reference",
+          "file": null,
+          "line": null,
+          "message": "LaTeX Warning: Citation `unknown' on page 1 undefined on input line 4.",
+          "severity": "error"
+        },
+        {
+          "code": "unresolved_reference",
+          "file": null,
+          "line": null,
+          "message": "LaTeX Warning: There were undefined references.",
+          "severity": "error"
+        },
+        {
+          "code": "bibliography_tool_required",
+          "file": null,
+          "line": null,
+          "message": "This direct-engine recipe does not run BibTeX/Biber. Build the bibliography externally or use a supported prebuilt bibliography input.",
+          "severity": "error"
+        }
+      ],
+      "eligible": false,
+      "engine": "lualatex",
+      "ok": true,
+      "passes": 2,
+      "version": "This is LuaHBTeX, Version 1.17.0 (TeX Live 2023/Debian)\nDevelopment id: 7581\n"
+    },
+    {
+      "accepted": true,
+      "case": "visual-adapter",
+      "dependencies": 13,
+      "diagnostics": [],
+      "eligible": true,
+      "engine": "xelatex",
+      "ok": true,
+      "passes": 2,
+      "version": "XeTeX 3.141592653-2.6-0.999995 (TeX Live 2023/Debian)\nkpathsea version 6.3.5\nCopyright 2023 SIL International, Jonathan Kew and Khaled Hosny."
+    },
+    {
+      "accepted": true,
+      "case": "space-path",
+      "dependencies": 13,
+      "diagnostics": [],
+      "eligible": true,
+      "engine": "xelatex",
+      "ok": true,
+      "passes": 2,
+      "version": "XeTeX 3.141592653-2.6-0.999995 (TeX Live 2023/Debian)\nkpathsea version 6.3.5\nCopyright 2023 SIL International, Jonathan Kew and Khaled Hosny."
+    },
+    {
+      "accepted": true,
+      "case": "asset",
+      "dependencies": 13,
+      "diagnostics": [],
+      "eligible": true,
+      "engine": "xelatex",
+      "ok": true,
+      "passes": 2,
+      "version": "XeTeX 3.141592653-2.6-0.999995 (TeX Live 2023/Debian)\nkpathsea version 6.3.5\nCopyright 2023 SIL International, Jonathan Kew and Khaled Hosny."
+    },
+    {
+      "accepted": true,
+      "case": "references",
+      "dependencies": 13,
+      "diagnostics": [],
+      "eligible": true,
+      "engine": "xelatex",
+      "ok": true,
+      "passes": 3,
+      "version": "XeTeX 3.141592653-2.6-0.999995 (TeX Live 2023/Debian)\nkpathsea version 6.3.5\nCopyright 2023 SIL International, Jonathan Kew and Khaled Hosny."
+    },
+    {
+      "accepted": true,
+      "case": "undefined",
+      "dependencies": 13,
+      "diagnostics": [
+        {
+          "code": "unresolved_reference",
+          "file": null,
+          "line": null,
+          "message": "LaTeX Warning: Reference `missing' on page 1 undefined on input line 4.",
+          "severity": "error"
+        },
+        {
+          "code": "unresolved_reference",
+          "file": null,
+          "line": null,
+          "message": "LaTeX Warning: There were undefined references.",
+          "severity": "error"
+        }
+      ],
+      "eligible": false,
+      "engine": "xelatex",
+      "ok": true,
+      "passes": 2,
+      "version": "XeTeX 3.141592653-2.6-0.999995 (TeX Live 2023/Debian)\nkpathsea version 6.3.5\nCopyright 2023 SIL International, Jonathan Kew and Khaled Hosny."
+    },
+    {
+      "accepted": true,
+      "case": "compile-error",
+      "dependencies": 0,
+      "diagnostics": [
+        {
+          "code": "latex_error",
+          "file": "main.tex",
+          "line": 4,
+          "message": "Undefined control sequence.",
+          "severity": "error"
+        }
+      ],
+      "eligible": false,
+      "engine": "xelatex",
+      "ok": false,
+      "passes": 1,
+      "version": "XeTeX 3.141592653-2.6-0.999995 (TeX Live 2023/Debian)\nkpathsea version 6.3.5\nCopyright 2023 SIL International, Jonathan Kew and Khaled Hosny."
+    },
+    {
+      "accepted": true,
+      "case": "nonconvergent",
+      "dependencies": 13,
+      "diagnostics": [
+        {
+          "code": "nonconvergence",
+          "file": null,
+          "line": null,
+          "message": "Document did not settle after 6 passes",
+          "severity": "error"
+        }
+      ],
+      "eligible": false,
+      "engine": "xelatex",
+      "ok": false,
+      "passes": 6,
+      "version": "XeTeX 3.141592653-2.6-0.999995 (TeX Live 2023/Debian)\nkpathsea version 6.3.5\nCopyright 2023 SIL International, Jonathan Kew and Khaled Hosny."
+    },
+    {
+      "accepted": true,
+      "case": "bibliography",
+      "dependencies": 13,
+      "diagnostics": [
+        {
+          "code": "unresolved_reference",
+          "file": null,
+          "line": null,
+          "message": "LaTeX Warning: Citation `unknown' on page 1 undefined on input line 4.",
+          "severity": "error"
+        },
+        {
+          "code": "unresolved_reference",
+          "file": null,
+          "line": null,
+          "message": "LaTeX Warning: There were undefined references.",
+          "severity": "error"
+        },
+        {
+          "code": "bibliography_tool_required",
+          "file": null,
+          "line": null,
+          "message": "This direct-engine recipe does not run BibTeX/Biber. Build the bibliography externally or use a supported prebuilt bibliography input.",
+          "severity": "error"
+        }
+      ],
+      "eligible": false,
+      "engine": "xelatex",
+      "ok": true,
+      "passes": 2,
+      "version": "XeTeX 3.141592653-2.6-0.999995 (TeX Live 2023/Debian)\nkpathsea version 6.3.5\nCopyright 2023 SIL International, Jonathan Kew and Khaled Hosny."
+    }
+  ]
+}

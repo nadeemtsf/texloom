@@ -1,0 +1,169 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-04T23:27:15.677235+00:00",
+  "kind": "technical_report_full_draft_v5_not_final_evaluation",
+  "report_base_head": "ecec9d5883f258f3f8d43811398f666d5ae60ab9",
+  "product_source_commit": "5e59e77282fd5e4b4f70440437b8f841ccea1364",
+  "native_harness_commit": "cb3cd1112bdec2fc54f5765f55e78e56fb790240",
+  "corrected_protocol_analysis_commit": "b5edb9d0e6cf3daf05770b108ca6a9d0c7640e58",
+  "page_cap": null,
+  "pages": 21,
+  "bibliography_entries": 14,
+  "pdf": {
+    "path": "outputs/Texloom-technical-report-full-draft-2026-11-05-v5.pdf",
+    "bytes": 524381,
+    "sha256": "075825493d48fae52c28d668b94445d320e3a82925785f1e70cd36bc397b74a0"
+  },
+  "source_files": [
+    {
+      "path": "research/report/main.tex",
+      "bytes": 3377,
+      "sha256": "a77577fff98aaf209801c6dc2b3678eca5fb69aa0732d76990dc7a873d1e499a"
+    },
+    {
+      "path": "research/report/references.bib",
+      "bytes": 4362,
+      "sha256": "1c6bef9292f8599cbc86bb610e9b1e3b44a604b3db66370c8e9604a849121493"
+    },
+    {
+      "path": "research/report/sections/01-scope.tex",
+      "bytes": 4905,
+      "sha256": "8a081ce27cdd63ca9a623512aa0fc12ca7686477759b3f3de307ea7a9c701196"
+    },
+    {
+      "path": "research/report/sections/02-workflow.tex",
+      "bytes": 8858,
+      "sha256": "859c56daf77249fb1f27ecf4df02c1ef50b1c703cd2c05f4d436b0bbb817980e"
+    },
+    {
+      "path": "research/report/sections/03-contracts.tex",
+      "bytes": 6192,
+      "sha256": "b848afe215aebd9c00bd9d72ed5cbea9eb2f6fdd009d832a37d5e206f0428755"
+    },
+    {
+      "path": "research/report/sections/04-related-work.tex",
+      "bytes": 5278,
+      "sha256": "4ecb4c2887f955d00a8c51858baf8eb62384639d8c0bce79fa7afff3da2e5eb2"
+    },
+    {
+      "path": "research/report/sections/05-evaluation.tex",
+      "bytes": 9967,
+      "sha256": "71346c4c1e896eed0fed97844a50ea35a626cc7604f7fb96d4884ad2fb021bf3"
+    },
+    {
+      "path": "research/report/sections/06-development-evidence.tex",
+      "bytes": 11172,
+      "sha256": "cf659bfc8e88e1a58c7b5373faaa14058fd577b4ea04461b95665ecb2b129e74"
+    },
+    {
+      "path": "research/report/sections/07-timing.tex",
+      "bytes": 6113,
+      "sha256": "851d218cc7179ebae70a5b78fe4a48e0dbf46c09236de1065d22cc47ab2f8683"
+    },
+    {
+      "path": "research/report/sections/08-reproducibility.tex",
+      "bytes": 6359,
+      "sha256": "e268a612f12aa4b315d32b2ab25966f132f233a862aa1a138182b688cb4a0a73"
+    },
+    {
+      "path": "research/report/sections/09-limitations.tex",
+      "bytes": 5875,
+      "sha256": "08e6a0e05c5de5bae2f7141d64b65a40166687d89eb9f2ca862885255e8d737f"
+    },
+    {
+      "path": "research/report/sections/appendix-artifacts.tex",
+      "bytes": 4020,
+      "sha256": "577cfec94464ea88a318beaa51110cbb867f0d316f2fd8b1c071ec76e489b39a"
+    },
+    {
+      "path": "research/report/sections/appendix-protocol.tex",
+      "bytes": 4851,
+      "sha256": "941e7098b5bda83b5078268c6abbbbc11e2124c35141c7531165a8fba62c00da"
+    },
+    {
+      "path": "research/report/sections/appendix-reproduction.tex",
+      "bytes": 4997,
+      "sha256": "77a2d1a2a42d1de4bdf2f1792610dc67d16f3cec70ef289684b2898b0aeb5557"
+    }
+  ],
+  "logs": [
+    {
+      "path": "artifacts/research-report/full-draft-v5-20261105/pass-1-console.log",
+      "bytes": 11848,
+      "sha256": "e00c688cce88dcc397edc012fbdf786111ffdd68daac02415679090afafc0154"
+    },
+    {
+      "path": "artifacts/research-report/full-draft-v5-20261105/bibtex-console.log",
+      "bytes": 147,
+      "sha256": "56f840581b4d9d863cb4655ea912b0debe32d4637240918f0af0f53c6f84caa7"
+    },
+    {
+      "path": "artifacts/research-report/full-draft-v5-20261105/pass-2-console.log",
+      "bytes": 11008,
+      "sha256": "f45d81b650726d4176ce8095630483aaebfc676344a2360af6d1573d1cd06d30"
+    },
+    {
+      "path": "artifacts/research-report/full-draft-v5-20261105/pass-3-console.log",
+      "bytes": 9760,
+      "sha256": "51f029e52f2bffac82bfa52270ee482a3e58252d2c9dbd42f0b1bc73f6b81c74"
+    },
+    {
+      "path": "artifacts/research-report/full-draft-v5-20261105/final-console.log",
+      "bytes": 9445,
+      "sha256": "0cff54855b54ea078ff5570387a7d78fa6ccef3ff7d4d4dcbf59fee262251272"
+    },
+    {
+      "path": "artifacts/research-report/full-draft-v5-20261105/main.log",
+      "bytes": 27404,
+      "sha256": "909104e95d8be378df06ad3edc91aecf800b6140764c5fd47b125cbc3ac1f123"
+    },
+    {
+      "path": "artifacts/research-report/full-draft-v5-20261105/document-qa.json",
+      "bytes": 359,
+      "sha256": "8cd64137361f803a2d9f308bd35ae3d3e99d5668cc5d814230108b75b89b8d10"
+    }
+  ],
+  "visual_review": {
+    "all_rendered_pages_contact_review": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21
+    ],
+    "enlarged_review_pages": [
+      2,
+      10,
+      11,
+      12,
+      17,
+      18,
+      19,
+      20,
+      21
+    ],
+    "render_dpi": 105,
+    "observed_remaining_layout_defects": 0,
+    "outside_page_text_characters": 0,
+    "initial_issue_and_correction": "An initial overfull protocol fingerprint paragraph was split; initial logs remain retained. Latest PDF and renders inspected."
+  },
+  "final_evaluation_executed": false,
+  "texloom_opened_for_this_update": false,
+  "claims": "Full modular technical report draft without a page cap. Existing measured development pilots and failures are reused at their recorded layers; no new application accuracy, native latency, overhead or usability results. Owner-deferred Windows gates remain pending."
+}

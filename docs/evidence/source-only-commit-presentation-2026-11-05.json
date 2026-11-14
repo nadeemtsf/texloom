@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-05T11:54:54.729747+00:00",
+  "kind": "source_only_development_not_validation",
+  "status": "untested_unbuilt_owner_paused_all_tests",
+  "base_head": "1db67bdced20f9bfa0bce30c86d08362ac3996f0",
+  "last_tested_product_commit": "5e59e77282fd5e4b4f70440437b8f841ccea1364",
+  "source_files": [
+    {
+      "path": "web/app.js",
+      "bytes": 64361,
+      "sha256": "8762622f50144bc579c940f8333b8419fc876449bb9aac6f59c090295a06d1dd",
+      "previous_git_sha256": "92e3e96dd6a16be13c6e9a0445d5f7e90af1d53bc63dcdf5c0501371e1bcdd05"
+    },
+    {
+      "path": "web/core/transactions.js",
+      "bytes": 3351,
+      "sha256": "947df4a6be2a5e1784dc46b029a9b79e53843e58d9669465b1b04e6277f18855",
+      "previous_git_sha256": "f81e4149094fc0d27bacbc428a4aef81e9fb73c6ff61cc6e9b5400f9dcf16539"
+    },
+    {
+      "path": "web/core/performance-diagnostics.js",
+      "bytes": 4802,
+      "sha256": "116c66acfa05b53ca11ba13934d219123f08550fa57d6793c98aa9efdee93e54",
+      "previous_git_sha256": "91fba8e33932edcf4b316c01a2a31650ee7d1f6abe2809d2e46f20fe96baab6a"
+    },
+    {
+      "path": "web/core/pdf-surface.js",
+      "bytes": 5503,
+      "sha256": "8626cdf2bc1b66f5aedaa27c811b15a03a017f90fbdad6c69d39d1853fc3191b",
+      "previous_git_sha256": "55a0cb5d45a00e4a2ab216c0d7e4d710ae93319b2c859626f8879fdeba65ca02"
+    }
+  ],
+  "implemented_in_source": [
+    "Known committed source/UI failure separated from pre-commit refusal, including text reselection",
+    "Unconfirmed attempted commit pauses writes instead of inferring refusal or retrying",
+    "Commit-section configuration/Open controls and synchronization-error controls",
+    "Busy/mutating/suppression cleanup and preservation of original staging/render failure",
+    "Distinct optional trace categories without source/path/error payloads"
+  ],
+  "basis": "Read-only source review; no reproduced runtime failure in this continuation",
+  "automated_tests_run": false,
+  "headless_tests_run": false,
+  "native_tests_run": false,
+  "experiments_run": false,
+  "app_build_run": false,
+  "app_opened": false,
+  "installer_run": false,
+  "final_evaluation_executed": false,
+  "earlier_pass_counts_apply_to_new_code": false,
+  "release_ready": false,
+  "deferred_validation": "docs/COMMIT-PRESENTATION.md",
+  "limitations": [
+    "No new execution evidence; all scenarios and ordinary regressions pending",
+    "Unusable attempted-commit replies are conservatively unknown; safe refusals can also pause the replica",
+    "Recovery/reopen and partial reading surfaces still need actual evidence",
+    "Prior r4 binaries and v5 report remain unchanged; no public push or publication"
+  ]
+}

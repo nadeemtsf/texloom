@@ -1,0 +1,165 @@
+{
+  "schema": 1,
+  "source_commit": "c773a9045868d10e843134693bd9f64c582c8cd3",
+  "status": "environment-blocked; acceptance failed",
+  "outcomes": 24,
+  "accepted": 0,
+  "access_denied_outcomes": 24,
+  "failure_stage": "compiler --version preflight",
+  "observed_operations": [
+    "RegOpenKeyExW",
+    "CreateDirectoryW"
+  ],
+  "error": "Access is denied.",
+  "explanation": "Installed MiKTeX binaries could not open MiKTeX registry keys or create their user configuration directory in this command environment. No document compile or real-engine acceptance passed. Configuration and permissions were not changed.",
+  "raw_report": ".tools/windows-engine-corpus-20261103-072956/report.json",
+  "raw_report_sha256": "cbb57f48cf209297babbfba580a829abcdc2d1b91e4f8480d5b4020e8b5c3ddd",
+  "raw_log": ".tools/retry-engine-corpus.log",
+  "raw_log_sha256": "6877656b66ff787bbf5f010733bfc3084c57aa897382b35e3def849425a12792",
+  "cases": [
+    {
+      "engine": "pdflatex",
+      "case": "visual-adapter",
+      "accepted": false,
+      "blocked_by_access_denied": true
+    },
+    {
+      "engine": "pdflatex",
+      "case": "space-path",
+      "accepted": false,
+      "blocked_by_access_denied": true
+    },
+    {
+      "engine": "pdflatex",
+      "case": "asset",
+      "accepted": false,
+      "blocked_by_access_denied": true
+    },
+    {
+      "engine": "pdflatex",
+      "case": "references",
+      "accepted": false,
+      "blocked_by_access_denied": true
+    },
+    {
+      "engine": "pdflatex",
+      "case": "undefined",
+      "accepted": false,
+      "blocked_by_access_denied": true
+    },
+    {
+      "engine": "pdflatex",
+      "case": "compile-error",
+      "accepted": false,
+      "blocked_by_access_denied": true
+    },
+    {
+      "engine": "pdflatex",
+      "case": "nonconvergent",
+      "accepted": false,
+      "blocked_by_access_denied": true
+    },
+    {
+      "engine": "pdflatex",
+      "case": "bibliography",
+      "accepted": false,
+      "blocked_by_access_denied": true
+    },
+    {
+      "engine": "lualatex",
+      "case": "visual-adapter",
+      "accepted": false,
+      "blocked_by_access_denied": true
+    },
+    {
+      "engine": "lualatex",
+      "case": "space-path",
+      "accepted": false,
+      "blocked_by_access_denied": true
+    },
+    {
+      "engine": "lualatex",
+      "case": "asset",
+      "accepted": false,
+      "blocked_by_access_denied": true
+    },
+    {
+      "engine": "lualatex",
+      "case": "references",
+      "accepted": false,
+      "blocked_by_access_denied": true
+    },
+    {
+      "engine": "lualatex",
+      "case": "undefined",
+      "accepted": false,
+      "blocked_by_access_denied": true
+    },
+    {
+      "engine": "lualatex",
+      "case": "compile-error",
+      "accepted": false,
+      "blocked_by_access_denied": true
+    },
+    {
+      "engine": "lualatex",
+      "case": "nonconvergent",
+      "accepted": false,
+      "blocked_by_access_denied": true
+    },
+    {
+      "engine": "lualatex",
+      "case": "bibliography",
+      "accepted": false,
+      "blocked_by_access_denied": true
+    },
+    {
+      "engine": "xelatex",
+      "case": "visual-adapter",
+      "accepted": false,
+      "blocked_by_access_denied": true
+    },
+    {
+      "engine": "xelatex",
+      "case": "space-path",
+      "accepted": false,
+      "blocked_by_access_denied": true
+    },
+    {
+      "engine": "xelatex",
+      "case": "asset",
+      "accepted": false,
+      "blocked_by_access_denied": true
+    },
+    {
+      "engine": "xelatex",
+      "case": "references",
+      "accepted": false,
+      "blocked_by_access_denied": true
+    },
+    {
+      "engine": "xelatex",
+      "case": "undefined",
+      "accepted": false,
+      "blocked_by_access_denied": true
+    },
+    {
+      "engine": "xelatex",
+      "case": "compile-error",
+      "accepted": false,
+      "blocked_by_access_denied": true
+    },
+    {
+      "engine": "xelatex",
+      "case": "nonconvergent",
+      "accepted": false,
+      "blocked_by_access_denied": true
+    },
+    {
+      "engine": "xelatex",
+      "case": "bibliography",
+      "accepted": false,
+      "blocked_by_access_denied": true
+    }
+  ]
+}

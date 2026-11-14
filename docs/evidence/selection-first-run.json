@@ -1,0 +1,256 @@
+{
+  "sourceCommit": "c67de5c610d9d370b9ed542da6a331ba14d9283b",
+  "run": "https://github.com/nadeemtsf/texloom/actions/runs/41399443027",
+  "schema": 1,
+  "createdAt": "2026-11-02T06:25:28.012Z",
+  "status": "fail",
+  "cases": [
+    {
+      "engine": "pdflatex",
+      "fixture": "signature",
+      "status": "pass",
+      "lines": 3,
+      "runs": 3,
+      "kind": "group"
+    },
+    {
+      "engine": "pdflatex",
+      "fixture": "paragraph",
+      "status": "pass",
+      "lines": 8,
+      "runs": 8,
+      "kind": "paragraph"
+    },
+    {
+      "engine": "pdflatex",
+      "fixture": "formatting",
+      "status": "fail",
+      "reason": "The selection probe changed the page appearance. Use source editing."
+    },
+    {
+      "engine": "pdflatex",
+      "fixture": "repeated",
+      "status": "pass",
+      "lines": 1,
+      "runs": 1,
+      "kind": "paragraph"
+    },
+    {
+      "engine": "pdflatex",
+      "fixture": "macro",
+      "status": "pass",
+      "lines": 1,
+      "runs": 1,
+      "kind": "paragraph"
+    },
+    {
+      "engine": "pdflatex",
+      "fixture": "minipage",
+      "status": "pass",
+      "lines": 3,
+      "runs": 3,
+      "kind": "group"
+    },
+    {
+      "engine": "pdflatex",
+      "fixture": "columns",
+      "status": "pass",
+      "lines": 1,
+      "runs": 1,
+      "kind": "paragraph"
+    },
+    {
+      "engine": "pdflatex",
+      "fixture": "page-boundary",
+      "status": "expected-refusal",
+      "reason": "This source does not identify one complete text object on this page."
+    },
+    {
+      "engine": "pdflatex",
+      "fixture": "included",
+      "status": "fail",
+      "reason": "SyncTeX returned a different source file"
+    },
+    {
+      "engine": "pdflatex",
+      "fixture": "linked",
+      "status": "expected-refusal"
+    },
+    {
+      "engine": "pdflatex",
+      "fixture": "signature-overlap",
+      "status": "pass",
+      "lines": 3,
+      "runs": 3,
+      "kind": "group"
+    },
+    {
+      "engine": "lualatex",
+      "fixture": "signature",
+      "status": "pass",
+      "lines": 3,
+      "runs": 3,
+      "kind": "group"
+    },
+    {
+      "engine": "lualatex",
+      "fixture": "paragraph",
+      "status": "pass",
+      "lines": 8,
+      "runs": 8,
+      "kind": "paragraph"
+    },
+    {
+      "engine": "lualatex",
+      "fixture": "formatting",
+      "status": "pass",
+      "lines": 3,
+      "runs": 5,
+      "kind": "paragraph"
+    },
+    {
+      "engine": "lualatex",
+      "fixture": "repeated",
+      "status": "pass",
+      "lines": 1,
+      "runs": 1,
+      "kind": "paragraph"
+    },
+    {
+      "engine": "lualatex",
+      "fixture": "macro",
+      "status": "pass",
+      "lines": 1,
+      "runs": 1,
+      "kind": "paragraph"
+    },
+    {
+      "engine": "lualatex",
+      "fixture": "minipage",
+      "status": "pass",
+      "lines": 3,
+      "runs": 3,
+      "kind": "group"
+    },
+    {
+      "engine": "lualatex",
+      "fixture": "columns",
+      "status": "pass",
+      "lines": 1,
+      "runs": 1,
+      "kind": "paragraph"
+    },
+    {
+      "engine": "lualatex",
+      "fixture": "page-boundary",
+      "status": "expected-refusal",
+      "reason": "This source does not identify one complete text object on this page."
+    },
+    {
+      "engine": "lualatex",
+      "fixture": "included",
+      "status": "pass",
+      "lines": 3,
+      "runs": 3,
+      "kind": "group"
+    },
+    {
+      "engine": "lualatex",
+      "fixture": "linked",
+      "status": "expected-refusal"
+    },
+    {
+      "engine": "lualatex",
+      "fixture": "signature-overlap",
+      "status": "pass",
+      "lines": 3,
+      "runs": 3,
+      "kind": "group"
+    },
+    {
+      "engine": "xelatex",
+      "fixture": "signature",
+      "status": "pass",
+      "lines": 3,
+      "runs": 3,
+      "kind": "group"
+    },
+    {
+      "engine": "xelatex",
+      "fixture": "paragraph",
+      "status": "pass",
+      "lines": 8,
+      "runs": 8,
+      "kind": "paragraph"
+    },
+    {
+      "engine": "xelatex",
+      "fixture": "formatting",
+      "status": "pass",
+      "lines": 1,
+      "runs": 5,
+      "kind": "paragraph"
+    },
+    {
+      "engine": "xelatex",
+      "fixture": "repeated",
+      "status": "pass",
+      "lines": 1,
+      "runs": 1,
+      "kind": "paragraph"
+    },
+    {
+      "engine": "xelatex",
+      "fixture": "macro",
+      "status": "pass",
+      "lines": 1,
+      "runs": 1,
+      "kind": "paragraph"
+    },
+    {
+      "engine": "xelatex",
+      "fixture": "minipage",
+      "status": "pass",
+      "lines": 3,
+      "runs": 3,
+      "kind": "group"
+    },
+    {
+      "engine": "xelatex",
+      "fixture": "columns",
+      "status": "pass",
+      "lines": 1,
+      "runs": 1,
+      "kind": "paragraph"
+    },
+    {
+      "engine": "xelatex",
+      "fixture": "page-boundary",
+      "status": "expected-refusal",
+      "reason": "This source does not identify one complete text object on this page."
+    },
+    {
+      "engine": "xelatex",
+      "fixture": "included",
+      "status": "fail",
+      "reason": "SyncTeX returned a different source file"
+    },
+    {
+      "engine": "xelatex",
+      "fixture": "linked",
+      "status": "expected-refusal"
+    },
+    {
+      "engine": "xelatex",
+      "fixture": "signature-overlap",
+      "status": "pass",
+      "lines": 3,
+      "runs": 3,
+      "kind": "group"
+    }
+  ],
+  "limitations": [
+    "Synthetic source/SyncTeX/probe corpus; native mouse acceptance remains open.",
+    "Rotated/cropped/UserUnit pages, arbitrary TeX and independent runtime inspection are not certified."
+  ]
+}

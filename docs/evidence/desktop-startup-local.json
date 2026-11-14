@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-03T05:22:47.198252+00:00",
+  "base_commit": "e1caf7ce9649a6e7e9aa6c19d890480ae0ecc5e0",
+  "source_sha256": {
+    "web/app.js": "d029cbdc10d10caef9011468207c4d55bd37a76ecb4f868c28c686bf90812dbc",
+    "web/index.html": "41a3052c3be8b6f6cbc09427fb418794d00905ea6021a1c6cbbf1b773b833efa",
+    "tests/app-startup.test.mjs": "4e46e6eaccdd76b9f30dfea3623b3d7392a9472c80cbb514e81541b870ca28ee"
+  },
+  "checks": {
+    "default_rust": 149,
+    "explicit_pdfium_worker": 5,
+    "explicit_native_document_gate": 2,
+    "frontend": 81,
+    "total": 237,
+    "required_core_rerun": 64,
+    "desktop_build": "passed: npm run desktop:build -- --no-bundle"
+  },
+  "executable": {
+    "path": "target/release/texloom-desktop.exe",
+    "sha256": "0ea9295cb432a0603b86ff7c80e7d7867fb24bf77b40b416ec9be4ea02968b67"
+  },
+  "worker_sha256": "5f6180b38bbf1e9858d42c3428f24d2a63cd3b70e456c5a84b4c1600307b553b",
+  "pdfium_sha256": "b2c15cd4537d8efaf23b85b3353abe7a0b863e9c52b2f017dd87bb86a55f9c72",
+  "native_input": {
+    "launched_before_fix_executable_sha256": "374ca5ffe3c26b0a85a4b453486871653f16b33e2180752087af86658d3d6cce",
+    "observation": "Texloom screenshot and accessibility tree; Starting, empty source editor",
+    "attempted_input": "did not complete",
+    "later_error": "Computer Use was not approved to use texloom-p5",
+    "fixed_build_interactively_tested": false
+  },
+  "limitations": [
+    "Shell integration tests use mock DOM/Monaco/native boundaries",
+    "No native typing, IME, mouse or signature gate passed",
+    "No release or all-phase completion claim"
+  ]
+}

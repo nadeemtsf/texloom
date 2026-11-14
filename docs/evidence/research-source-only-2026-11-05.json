@@ -1,0 +1,85 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-05T12:10:25.241348+00:00",
+  "base_head": "c2ef008ddee53b6ea06028122f60ddbc0f00f2bb",
+  "product_source_commit": "c2ef008ddee53b6ea06028122f60ddbc0f00f2bb",
+  "last_tested_product_commit": "5e59e77282fd5e4b4f70440437b8f841ccea1364",
+  "automated_tests_run": false,
+  "headless_tests_run": false,
+  "native_tests_run": false,
+  "experiments_run": false,
+  "app_build_run": false,
+  "app_opened": false,
+  "final_evaluation_executed": false,
+  "release_ready": false,
+  "kind": "research_source_and_primary_source_review_not_evaluation",
+  "status": "study_record_implementation_unexecuted_owner_paused_tests",
+  "study_records_executed": false,
+  "report_rebuilt": false,
+  "report_v5_changed": false,
+  "new_files": [
+    {
+      "path": "research/tools/study_records.py",
+      "bytes": 17626,
+      "sha256": "8bcf234ab6b2eb2ffdd3c6d740b871118a194c4d44dd436019f3c41c48dac148"
+    },
+    {
+      "path": "research/evaluation/record-template-v1.json",
+      "bytes": 1187,
+      "sha256": "b5371cafb73709e881bff2714ecce79bbb958e6321b61e018d2140f35d383e79"
+    },
+    {
+      "path": "research/RECORDS.md",
+      "bytes": 7902,
+      "sha256": "2d4217c330dad8e414c85d5e8ca89eec608ca54521c069c6d7da9e2eea15b068"
+    },
+    {
+      "path": "research/ADJUDICATION.md",
+      "bytes": 9894,
+      "sha256": "46c00e824d5089dbfd8371afd89e57f88b51cf18204036210e7199353d5fc50c"
+    },
+    {
+      "path": "research/related-work-followup-2026-11-05.md",
+      "bytes": 7517,
+      "sha256": "dca8171c98001a77aae65c70757661d0e2c120b551bf91f03045014bd94bac16"
+    },
+    {
+      "path": "research/report/followup-references.bib",
+      "bytes": 3155,
+      "sha256": "16285c4c6d1a47245212be9e22db593fc601ff3c16eeb7bd92fa49ee91aab16c"
+    }
+  ],
+  "literature_capture_indexes": [
+    {
+      "path": "artifacts/related-work-followup-20261105/capture-index.json",
+      "bytes": 2708,
+      "sha256": "c659b9591c1ae9ab3a8d91c93d4d840f910cb701360826fb694967218c74d3a1"
+    },
+    {
+      "path": "artifacts/related-work-followup-20261105/bibliographic-registration-index.json",
+      "bytes": 13072,
+      "sha256": "34c47a0cea94bb8767cb4d5684a7f8a630dcd7b5771dd454241f2216f89cc6d0"
+    }
+  ],
+  "literature_scope": {
+    "selected_author_pdf_sections": 1,
+    "publisher_or_author_abstracts": 3,
+    "journal_metadata_only": 1,
+    "historical_vendor_page": 1,
+    "full_proof_or_competitor_artifact_review": false
+  },
+  "findings": [
+    "Separate canonical commits from component decisions, display, Save, uncertain replies and unrun outcomes",
+    "Record packet and parent-intent identities, refusal stage/reason, required postconditions and declared artifact references",
+    "Independent intent/reference review and final admission remain work, not established by this implementation",
+    "Primary registration distinguishes POPL2005 and TOPLAS2007; an author-index link points to the conference DOI under a journal label",
+    "Expanded related work narrows the empirical question; no novelty or superiority claim"
+  ],
+  "counts_not_new_results": "Earlier252frontend/88core/27research checks retain their own code/version; no new tests or observations were summarized",
+  "limitations": [
+    "New record tool/template are not executed or validated",
+    "V1 declared references do not verify raw bytes, independence, actual execution or final admission",
+    "No final fixtures or outcome rows were created",
+    "Compiled v5 remains the earlier21-page14-reference draft without a page cap"
+  ]
+}

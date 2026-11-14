@@ -1,0 +1,121 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-03T16:42:05.354136+00:00",
+  "implementation_base": "ffab26183eaa4b5565caaf1ab843986bd299fb89",
+  "tested_working_scripts_sha256": {
+    "scripts/package-portable.ps1": "8c21d2b82bca27f80ec4c6ac085bb01a47715a79e0e2800c2622ec84f45420be",
+    "scripts/portable-archive.ps1": "1f025c4e3aa241efd9f519a20da47548e4a363f424f5b6a6281651a06d693166",
+    "Build-Desktop.ps1": "2c6a635a371dda4119d3f36b51e693bbe3592bbced63a58de500dd4ceec1a33a",
+    ".github/workflows/ci.yml": "63f3463928c43b5eee1c6610aecf824182389a2f45d709d74bbaff02856439fe",
+    "tests/portable-package.test.cjs": "bd45b77a79b07391f28d02e97a4d9d846a2dd85dde83f5789c8fc104bf46aadf",
+    "tests/fixtures/portable-archive-harness.ps1": "48a32934c8e78fd3c73bf0f0cb31d5342ef3757ce1df1030efb18315e6230b4e"
+  },
+  "checks": {
+    "frontend_and_filesystem_passed": 123,
+    "frontend_and_filesystem_skipped": 1,
+    "frontend_and_filesystem_failed": 0,
+    "new_filesystem_cases_passed": 5,
+    "junction_refusal": "unverified: fixture creation denied with Win32 AccessDenied",
+    "real_zip_crc": "passed",
+    "real_zip_exact_entries": 13,
+    "real_zip_all_receipts": "passed",
+    "unchanged_core_and_native_sources_match_315_check_baseline": true,
+    "old_zip_matches_earlier_recorded_sha256": true,
+    "first_new_zip_preserved": true,
+    "powershell_runtime": "7.6.5; system PowerShell 5 -File denied by AuthorizationManager; no execution policy change"
+  },
+  "package": {
+    "path": "artifacts/Texloom-Desktop-Windows-x64-20261103-163824-de9052fb5ecb44a5b6c280167ffbda49.zip",
+    "sha256": "bc4497f02952e2774c30f4f4452d7130ec849a8497af895ef9bb649896a74e5e",
+    "bytes": 10207945,
+    "receipt": {
+      "schema": 2,
+      "purpose": "Development checkpoint; native interaction and release gates remain open",
+      "desktop_sha256": "97d1da07b4f544f3279945465d857559a171b0670adf4473acb74657d87f660e",
+      "worker_sha256": "fa6c30fffb4826aff0f00ef8e448998d201e74b9b0fe9ba5d70b673586c24979",
+      "dll_sha256": "b2c15cd4537d8efaf23b85b3353abe7a0b863e9c52b2f017dd87bb86a55f9c72",
+      "receipt_excludes_itself": true,
+      "files": [
+        {
+          "path": "Example/main.tex",
+          "bytes": 498,
+          "sha256": "9ef6d2796d07417ba493e0411a00e0d72dcf95c3c18ad73c3bf52db5069857e9"
+        },
+        {
+          "path": "Example/studio.sty",
+          "bytes": 1090,
+          "sha256": "586cb8087f2436ebdbcca46d466217beb19a53d4373f4f9e1baadd33541fa34d"
+        },
+        {
+          "path": "Example/texloom-objects.sty",
+          "bytes": 1181,
+          "sha256": "9ee79b44802c003a73b99780407650accbe911663026e669e56d9da9fa1feafe"
+        },
+        {
+          "path": "LICENSE",
+          "bytes": 1077,
+          "sha256": "a194669165b4f0abf3024117262da01d57f8b806e963ac47e429d44764418704"
+        },
+        {
+          "path": "README.md",
+          "bytes": 11915,
+          "sha256": "10218b64ee4320e0813ee3f78f88249ff8f56bbf1527ff08417f793fc215a510"
+        },
+        {
+          "path": "Texloom.exe",
+          "bytes": 15414784,
+          "sha256": "97d1da07b4f544f3279945465d857559a171b0670adf4473acb74657d87f660e"
+        },
+        {
+          "path": "THIRD-PARTY-NOTICES.txt",
+          "bytes": 2444379,
+          "sha256": "9bc850643cf9b3562e0a05af5fe756c11acb92417c233ad0c2ef687d20f50192"
+        },
+        {
+          "path": "VALIDATION.md",
+          "bytes": 22025,
+          "sha256": "5e6f96368bcc2f400047b520084c3b09e5beee8d42df9b04db1ed3557a881419"
+        },
+        {
+          "path": "verification/pdfium_worker.exe",
+          "bytes": 401920,
+          "sha256": "fa6c30fffb4826aff0f00ef8e448998d201e74b9b0fe9ba5d70b673586c24979"
+        },
+        {
+          "path": "verification/PDFIUM-NOTICE.txt",
+          "bytes": 43950,
+          "sha256": "c2fdbc1aeb250d596d1ef3d9817c9bf31df712b197583c0811677ee5d9206eeb"
+        },
+        {
+          "path": "verification/pdfium.dll",
+          "bytes": 5446656,
+          "sha256": "b2c15cd4537d8efaf23b85b3353abe7a0b863e9c52b2f017dd87bb86a55f9c72"
+        },
+        {
+          "path": "verification/verifier-manifest.json",
+          "bytes": 555,
+          "sha256": "27dd6fde86404466ef4151249dc954cd3fd1afecef9a68177cc293b493ee9e63"
+        }
+      ]
+    }
+  },
+  "preserved_old_package": {
+    "path": "artifacts/Texloom-Desktop-Windows-x64.zip",
+    "sha256": "dca1ab1af22efb2cd372018455c844b2df017cde3aa946e2812fc0fe49b9fc53",
+    "crc_and_component_receipts_verified": true
+  },
+  "preserved_first_new_package_sha256": "57fe82764c6dafa682d160942c85f1578b01638ad00674f0e0e15f43324144d3",
+  "log_sha256": {
+    "portable-package-frontend.log": "607129e524995dad63f92b71c813d2dd3c6198d0e77a1542de59683ebbc115c1",
+    "portable-package-first.log": "ad5be2021a417937d9beb2b68e8ae3159af6c5b582f466e38f4f2cd93b5ab3c4",
+    "portable-package-second.log": "139a1a00481529e2a592425a8988f14ef13480279145d6136ee328aad694d9dc"
+  },
+  "limits": [
+    "No app launch or native GUI typing/IME/mouse/crash/signature acceptance; owner deferral retained",
+    "Junction case is enabled but explicitly skipped on this host; unexpected fixture errors still fail",
+    "Legacy Windows PowerShell 5 execution has not been validated here; tests prefer PowerShell 7 and fall back to system PowerShell only when version 7 is absent",
+    "Unsigned development portable build, no installer/clean-machine/Store/signing/release acceptance",
+    "Pinned PDFium and aggregate dependency notices still need production security/license review",
+    "Existing Rust/headless/build checks were not repeated for packaging-only script changes; exact unchanged source/executable hashes are checked against source-plans-local.json"
+  ]
+}

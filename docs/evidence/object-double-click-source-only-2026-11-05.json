@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-05T13:17:59.4292681Z",
+  "kind": "source_only_selection_refusal_guard_not_validation",
+  "status": "untested_unbuilt_owner_paused_all_tests",
+  "base_head": "2f6eb9caaa4a65de1807581028d01b491e40b03c",
+  "last_tested_product_commit": "5e59e77282fd5e4b4f70440437b8f841ccea1364",
+  "source": {
+    "path": "web/core/canvas-controller.js",
+    "bytes": 11470,
+    "sha256": "dee45a366fb61188203a0696aa76160f6f9e92d6571daf1c06f9ff39879b6cdc"
+  },
+  "observation_basis": "Source inspection only: old double-click handler called edit(this.selection) even when selectObject returned early; a previous selection could be reused",
+  "change": "selectObject returns its successful selection; double-click opens only that returned selection",
+  "runtime_failure_reproduced": false,
+  "tests_run": false,
+  "app_build_run": false,
+  "app_opened": false,
+  "release_ready": false
+}

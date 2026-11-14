@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-05T16:32:46.9626190Z",
+  "kind": "source_only_reading_cleanup_pointer_and_dependency_preparation_not_validation",
+  "status": "unbuilt_unexecuted_owner_paused_all_tests",
+  "base_head": "3d6a4488af72665d32875809b3d9689ce619b5a2",
+  "source_files": [
+    {
+      "path": "web/app.js",
+      "bytes": 68755,
+      "sha256": "59ce8d1de4228deef0060391c1d506ac9a855286826a293bbb3cf1e89cbebf7d"
+    },
+    {
+      "path": "web/core/canvas-controller.js",
+      "bytes": 11975,
+      "sha256": "db39ef0e4ce5787c1a40af04306af6da7e2772a23300c887b83526dd81f947c0"
+    },
+    {
+      "path": "web/core/pdf-search.js",
+      "bytes": 4987,
+      "sha256": "b6aa37c7fdc48fca37ef4b349b32214447b1b64590dbdfe79940affc75be9d4b"
+    },
+    {
+      "path": "research/tools/admit_records.py",
+      "bytes": 10997,
+      "sha256": "3b93a34a40dfe9227567653eac69d50dec646151b73ba1c7652d449e11824bc7"
+    },
+    {
+      "path": "research/tools/timing_records.py",
+      "bytes": 17650,
+      "sha256": "e583511b189aa6e0504e0ca6828d701dc982e02e362707a0342f8db735d977fc"
+    },
+    {
+      "path": "scripts/pinned-pdfium-tar.mjs",
+      "bytes": 5196,
+      "sha256": "35b7cfc26467745771ea54488b1fe2bdace92a944df8883e5f35bdc246f45009"
+    },
+    {
+      "path": "scripts/pdfium-review-candidate-8138.json",
+      "bytes": 8497,
+      "sha256": "b38bf92a40c3b4888927b3476d17f4f602ea2bb0cf2aad2ea2114567f11760f2"
+    }
+  ],
+  "changes": [
+    "Ordinary compile tracks/disposes unadopted views; partially adopted failure view marked stale",
+    "Export outer finally releases busy/read-only state despite renderer cleanup failure",
+    "Old-renderer destruction failure contained after project/view adoption",
+    "PDF search navigation sequence prevents older page preparation overriding latest result",
+    "Canvas/legacy gestures filter originating pointer; marquee cancels on lost capture; cancellation hook ownership retained",
+    "Reference/timing input read ceilings use declared file sizes",
+    "Inactive in-memory pinned TGZ reader and separate review-candidate file inventory"
+  ],
+  "failure_reproduced": false,
+  "tests_run": false,
+  "type_or_syntax_checks_run": false,
+  "research_modules_run": false,
+  "tar_reader_imported_or_run": false,
+  "app_build_run": false,
+  "app_opened": false,
+  "dependency_pin_changed": false,
+  "packaged_resources_changed": false,
+  "report_pdf_changed": false,
+  "final_evaluation_executed": false,
+  "release_ready": false,
+  "limits": [
+    "Source review only, not observed native behavior or successful fixes",
+    "Candidate reader is not imported by active packaging and establishes no compatibility or signed provenance",
+    "All normal/failure/input regression checks remain deferred",
+    "PDFium advisory blocker remains unresolved"
+  ]
+}

@@ -1,4 +1,4 @@
 [workspace]
-members = ["crates/texloom-core", "src-tauri"]
+members = ["crates/texloom-core", "crates/texloom-build", "src-tauri"]
 default-members = ["crates/texloom-core"]
 resolver = "2"
