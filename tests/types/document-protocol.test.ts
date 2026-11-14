@@ -63,3 +63,14 @@ void invokeWorkspace(invoke, 'recover_document', {projectId:'project', revision:
 void invokeWorkspace(invoke, 'export_project_archive', {projectId:'project', path:'out.zip'});
 // @ts-expect-error Explicit encoding choices bind the original byte hash.
 void invokeWorkspace(invoke, 'convert_encoding', {path:'project', parent:'copies', fingerprint:'hash', choices:[{file:'main.tex',encoding:'windows-1252'}]});
+
+const refusedDraft: import('../../web/generated/document-ipc.js').SourceDraftOutcome = {
+  status:'source_draft_refused',requested_revision:0,observed_revision:0,reason:'empty_literal',
+};
+void refusedDraft;
+// @ts-expect-error Refusal reasons are a finite native enum.
+const invalidRefusalReason: import('../../web/generated/document-ipc.js').SourceDraftRefusalReason = 'unknown_reason';
+void invalidRefusalReason;
+// @ts-expect-error A refusal must bind the observed source revision.
+const incompleteRefusal: import('../../web/generated/document-ipc.js').SourceDraftOutcome = {status:'source_draft_refused',requested_revision:0,reason:'empty_literal'};
+void incompleteRefusal;

@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "kind": "development_evidence_inventory_not_evaluation_results",
-  "recorded_utc": "2026-11-13T16:00:03.970644+00:00",
-  "audited_head": "4cfe4616c98e85a879e5a60296f5d3a8c09405dc",
+  "recorded_utc": "2026-11-14T08:56:43.614504+00:00",
+  "audited_head": "76b2228a71f6eeeaba1dd0ffcc11eca894b21327",
   "working_tree_note": "Uncommitted report/evidence changes may be present; see the session checkpoint.",
   "final_evaluation_executed": false,
   "entries": [
@@ -700,6 +700,18 @@
       "parse_status": "ok"
     },
     {
+      "path": "docs/evidence/report-full-draft-v14-2026-11-14.json",
+      "bytes": 5622,
+      "sha256": "6794ef010d406806c8f71a30191015afed47108e06d0df85a5d2553176f85ef8",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "built_rendered_reviewed_not_final_evaluation",
+      "implementation_base": "76b2228a71f6eeeaba1dd0ffcc11eca894b21327",
+      "recorded_utc": "2026-11-14T08:56:42.774224+00:00",
+      "parse_status": "ok"
+    },
+    {
       "path": "docs/evidence/report-full-draft-v5-2026-11-05.json",
       "bytes": 5635,
       "sha256": "059770bba89cc127304418bfbb3f62ecf79cb913a25bddc28f2b2af8185b50e8",
@@ -900,6 +912,18 @@
       "parse_status": "ok"
     },
     {
+      "path": "docs/evidence/source-intent-refusal-2026-11-14.json",
+      "bytes": 9046,
+      "sha256": "c3b0fc5385c2a042c337d98455347acb8b3af63dc674ed124078c60e5879783d",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "diagnostic_and_focused_tests_passed_full_commit_gate_separate",
+      "implementation_base": "76b2228a71f6eeeaba1dd0ffcc11eca894b21327",
+      "recorded_utc": "2026-11-14T08:45:23.863051+00:00",
+      "parse_status": "ok"
+    },
+    {
       "path": "docs/evidence/source-intent-transport-2026-11-13.json",
       "bytes": 10139,
       "sha256": "68c4730d49d428fba02d2f610ec6085b5ed8b39375f31a12950c45f47feda9f1",
@@ -909,6 +933,17 @@
       "status": "native_diagnostic_and_focused_engineering_passed_full_commit_gate_separate",
       "implementation_base": "4cfe4616c98e85a879e5a60296f5d3a8c09405dc",
       "recorded_utc": "2026-11-13T15:26:21.768706+00:00",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/source-intent-transport-ci-2026-11-14.json",
+      "bytes": 1784,
+      "sha256": "8fd4712301b12231ee72f19245b25da645d91d1518f96e71a61999889c8fea78",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "all_triggered_checks_passed",
+      "source_commit": "76b2228a71f6eeeaba1dd0ffcc11eca894b21327",
       "parse_status": "ok"
     },
     {

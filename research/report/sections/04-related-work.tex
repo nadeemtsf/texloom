@@ -118,6 +118,17 @@ rendered identically or that the intended printed occurrence moved. The
 evaluation consequently combines declared source changes with independent
 rendered evidence and keeps their failure modes separate.
 
+\subsection{Call outcomes and duplicate suppression}
+Birrell and Nelson's RPC design separates a successful return from a failed
+call whose execution can remain unresolved, and uses call identifiers to match
+results and suppress duplicates~\cite{birrell1984rpc}. Texloom applies that
+established distinction to a local process boundary; it does not inherit the
+paper's protocol guarantees. Its finite session ledger and protected-draft
+recovery need their own checks, particularly after session reopen. Definite
+pre-write refusal is distinct from an unconfirmed operation or partial
+recovery write. These are established failure-handling concerns, not a claim
+of novel distributed-systems semantics.
+
 \subsection{Current contribution claim}
 The defensible present claim is a documented systems mechanism and a
 reproducible way to investigate it in a bounded setting. Potentially useful

@@ -7,7 +7,7 @@ use crate::service::{
     CloseReply, DocumentSnapshot, EditorSelection, PreparedReply, RecoveryReply, RecoveryStatus,
     SelectionReply, SourceEditReply, CompileResult, PositionedBlock, MappedTextObject,
     SourceLocation, SourceRectangle, SelectionPoint, ResolvedSelection,
-    DraftSourceIntent, SourceDraftOutcome, SourceDraftReply, SourceTarget, SourceTargetsReply,
+    DraftSourceIntent, SourceDraftOutcome, SourceDraftRefusalReason, SourceDraftReply, SourceTarget, SourceTargetsReply,
 };
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
@@ -35,7 +35,7 @@ pub fn declarations() -> String {
         ProfileRequest,
         HistoryRequest,
         CommitRequest,
-        DraftSourceIntent, SourceDraftOutcome, SourceDraftReply, SourceTarget, SourceTargetsReply,
+        DraftSourceIntent, SourceDraftOutcome, SourceDraftRefusalReason, SourceDraftReply, SourceTarget, SourceTargetsReply,
         SourceTargetsRequest, SourceIntentRequest, SourceIntentStatusRequest,
         SourceTargetsCommand, SourceIntentCommand, SourceIntentStatusCommand,
         texloom_build::engine::Severity,
@@ -151,7 +151,18 @@ pub fn fixtures() -> Value {
         head: 1,
         secondary: vec![EditorRange { anchor: 4, head: 4 }],
     };
+    let snapshot = || DocumentSnapshot { revision: 7,
+        sources: BTreeMap::from([("main.tex".into(), "\u{feff}A\r\n\u{1f600}\r\n".into()), ("style.sty".into(), "% keep\r\n".into())]),
+        main: "main.tex".into(), engine: "auto".into(), can_undo: true, can_redo: false,
+        selection: Some(selection()), recovery: protection(7) };
+    let refusals = [SourceDraftRefusalReason::RevisionChanged, SourceDraftRefusalReason::TargetUnavailable,
+        SourceDraftRefusalReason::UnsupportedTarget, SourceDraftRefusalReason::EmptyLiteral, SourceDraftRefusalReason::ParagraphBreak,
+        SourceDraftRefusalReason::ControlCharacter, SourceDraftRefusalReason::LiteralTooLarge, SourceDraftRefusalReason::SourceGuardRejected]
+        .into_iter().map(|reason| SourceDraftReply { operation_id: "d".repeat(32),
+            outcome: SourceDraftOutcome::SourceDraftRefused { requested_revision: if reason == SourceDraftRefusalReason::RevisionChanged {6}else{7}, observed_revision: 7, reason },
+            snapshot: snapshot() }).collect::<Vec<_>>();
     json!({
+        "source_draft_refusals": refusals,
         "snapshot": DocumentSnapshot { revision: 7,
             sources: BTreeMap::from([("main.tex".into(), "\u{feff}A\r\n\u{1f600}\r\n".into()), ("style.sty".into(), "% keep\r\n".into())]),
             main: "main.tex".into(), engine: "auto".into(), can_undo: true, can_redo: false,

@@ -19,6 +19,27 @@ fn applied(reply: &SourceDraftReply, from: u64, revision: u64, changed: bool) {
         from_revision: f, revision: r, changed: c, render_verification: "unresolved"
     } if (*f,*r,*c) == (from,revision,changed)));
 }
+fn refused(reply: &SourceDraftReply, requested: u64, observed: u64, expected: SourceDraftRefusalReason) {
+    assert!(matches!(&reply.outcome, SourceDraftOutcome::SourceDraftRefused { requested_revision, observed_revision, reason }
+        if (*requested_revision,*observed_revision,*reason)==(requested,observed,expected)));
+}
+
+#[test]
+fn pre_mutation_refusal_has_a_stable_lookup_receipt_and_no_source_or_history_change() {
+    fixture(|b,p,_| {
+        let list=targets(b,p,0);
+        let before=serde_json::to_value(b.document_snapshot(&p.id).unwrap()).unwrap();
+        let op="9".repeat(32);
+        let intent=DraftSourceIntent::ReplaceLiteralParagraph { target:list[1].handle.clone(),text:"Two\nparagraphs".into() };
+        let refused=b.document_source_intent(&p.id,0,&op,intent.clone()).unwrap();
+        let wire=serde_json::to_value(&refused).unwrap();
+        assert_eq!(wire["outcome"]["status"],"source_draft_refused");
+        assert_eq!(wire["outcome"]["reason"],"paragraph_break");
+        assert_eq!(wire["snapshot"],before);
+        assert_eq!(serde_json::to_value(b.document_source_intent_status(&p.id,&op).unwrap()).unwrap(),wire);
+        assert_eq!(serde_json::to_value(b.document_source_intent(&p.id,0,&op,intent).unwrap()).unwrap(),wire);
+    });
+}
 
 #[test]
 fn repeated_occurrence_is_exact_draft_history_and_retry_never_reexecutes_after_undo() {
@@ -99,13 +120,13 @@ fn stale_foreign_and_reopened_handles_refuse_even_when_source_bytes_match() {
         let other_path = root.join("other"); fs::create_dir_all(&other_path).unwrap();
         fs::write(other_path.join("main.tex"),SOURCE).unwrap();
         let other = b.open_project(Some(other_path.join("main.tex").to_string_lossy().into_owned())).unwrap();
-        assert!(b.document_source_intent(&other.id,0,&"e".repeat(32),DraftSourceIntent::DeleteParagraphContent { target:old.clone() }).is_err());
+        refused(&b.document_source_intent(&other.id,0,&"e".repeat(32),DraftSourceIntent::DeleteParagraphContent { target:old.clone() }).unwrap(),0,0,SourceDraftRefusalReason::TargetUnavailable);
         b.document_source_intent(&p.id,0,&"f".repeat(32),DraftSourceIntent::DeleteParagraphContent { target:old.clone() }).unwrap();
         b.document_history(&p.id,1,false).unwrap();
-        assert!(b.document_source_intent(&p.id,2,&"1".repeat(32),DraftSourceIntent::DeleteParagraphContent { target:old.clone() }).is_err());
+        refused(&b.document_source_intent(&p.id,2,&"1".repeat(32),DraftSourceIntent::DeleteParagraphContent { target:old.clone() }).unwrap(),2,2,SourceDraftRefusalReason::TargetUnavailable);
         b.close_document_checked(&p.id,2,false).unwrap();
         let reopened = b.open_project(Some(root.join("project/main.tex").to_string_lossy().into_owned())).unwrap();
-        assert!(b.document_source_intent(&reopened.id,0,&"2".repeat(32),DraftSourceIntent::DeleteParagraphContent { target:old }).is_err());
+        refused(&b.document_source_intent(&reopened.id,0,&"2".repeat(32),DraftSourceIntent::DeleteParagraphContent { target:old }).unwrap(),0,0,SourceDraftRefusalReason::TargetUnavailable);
         assert!(matches!(b.document_source_intent_status(&reopened.id,&"f".repeat(32)).unwrap().outcome,SourceDraftOutcome::Unknown));
     });
 }
@@ -144,8 +165,10 @@ fn strict_tagged_request_rejects_extra_fields_invalid_combinations_and_limits() 
     assert!(serde_json::from_value::<SourceIntentRequest>(extra).is_err());
     fixture(|b,p,_| {
         let handle=targets(b,p,0)[0].handle.clone();
-        for text in ["\n".into()," ".into(),"\0".into(),"x".repeat(256_001)] {
-            assert!(b.document_source_intent(&p.id,0,&"6".repeat(32),DraftSourceIntent::ReplaceLiteralParagraph { target:handle.clone(),text }).is_err());
+        for (i,(text,reason)) in [("\n".into(),SourceDraftRefusalReason::ParagraphBreak),(" ".into(),SourceDraftRefusalReason::EmptyLiteral),
+            ("\0".into(),SourceDraftRefusalReason::ControlCharacter),("x".repeat(256_001),SourceDraftRefusalReason::LiteralTooLarge)].into_iter().enumerate() {
+            let reply=b.document_source_intent(&p.id,0,&format!("{:032x}",600+i),DraftSourceIntent::ReplaceLiteralParagraph { target:handle.clone(),text }).unwrap();
+            refused(&reply,0,0,reason);
         }
         assert_eq!(b.document_snapshot(&p.id).unwrap().revision,0);
     });
@@ -202,9 +225,68 @@ fn accepted_draft_recovers_exact_shared_history_without_operation_or_visual_auth
     let recovered=backend.open_typing_draft(&inventory.drafts[0].id).unwrap();
     assert_eq!(recovered.sources,reply.snapshot.sources);
     assert!(matches!(backend.document_source_intent_status(&recovered.id,&op).unwrap().outcome,SourceDraftOutcome::Unknown));
-    assert!(backend.document_source_intent(&recovered.id,1,&"9".repeat(32),DraftSourceIntent::DeleteParagraphContent { target:handle }).is_err());
+    refused(&backend.document_source_intent(&recovered.id,1,&"9".repeat(32),DraftSourceIntent::DeleteParagraphContent { target:handle }).unwrap(),1,1,SourceDraftRefusalReason::TargetUnavailable);
     assert_eq!(backend.document_history(&recovered.id,1,false).unwrap().sources["main.tex"],SOURCE);
     assert_eq!(fs::read_to_string(root.join("project/main.tex")).unwrap(),SOURCE);
     drop(backend);
     fs::remove_dir_all(root).unwrap();
+}
+
+#[test]
+fn cached_refusal_is_not_replanned_after_later_changes_or_undo_and_payload_conflicts_refuse() {
+    fixture(|b,p,_| {
+        let target=targets(b,p,0)[1].handle.clone();
+        let invalid=DraftSourceIntent::ReplaceLiteralParagraph { target:target.clone(),text:"\n".into() };
+        let op="a".repeat(32);
+        let first=b.document_source_intent(&p.id,0,&op,invalid.clone()).unwrap();
+        refused(&first,0,0,SourceDraftRefusalReason::ParagraphBreak);
+        let changed=b.document_source_intent(&p.id,0,&"b".repeat(32),DraftSourceIntent::DeleteParagraphContent { target }).unwrap();
+        applied(&changed,0,1,true);
+        let old=b.document_source_intent(&p.id,0,&op,invalid.clone()).unwrap();
+        assert_eq!(serde_json::to_value(&old.outcome).unwrap(),serde_json::to_value(&first.outcome).unwrap());
+        assert_eq!(old.snapshot.revision,1);
+        assert_eq!(old.snapshot.sources,changed.snapshot.sources);
+        b.document_history(&p.id,1,false).unwrap();
+        let after_undo=b.document_source_intent(&p.id,0,&op,invalid).unwrap();
+        refused(&after_undo,0,0,SourceDraftRefusalReason::ParagraphBreak);
+        assert_eq!(after_undo.snapshot.revision,2);assert!(after_undo.snapshot.can_redo);
+        assert_eq!(after_undo.snapshot.sources["main.tex"],SOURCE);
+        assert!(b.document_source_intent(&p.id,0,&op,DraftSourceIntent::DeleteParagraphContent { target:"0".repeat(32) }).is_err());
+    });
+}
+
+#[test]
+fn clean_refusals_preserve_selection_redo_pending_visual_candidate_and_running_job() {
+    fixture(|b,p,_| {
+        let target=targets(b,p,0)[0].handle.clone();
+        b.document_source_intent(&p.id,0,&"c".repeat(32),DraftSourceIntent::DeleteParagraphContent { target }).unwrap();
+        b.document_history(&p.id,1,false).unwrap();
+        let list=targets(b,p,2);
+        b.document_selection(&p.id,2,"main.tex".into(),list[1].start,list[1].end,vec![]).unwrap();
+        let before=serde_json::to_value(b.document_snapshot(&p.id).unwrap()).unwrap();
+        let prepared=b.document_prepare(&p.id,2,BTreeMap::from([("main.tex".into(),SOURCE.replace("Tail.","Other."))])).unwrap();
+        let lease=b.scheduler.request_sequence(&p.id,1).unwrap().acquire().unwrap();
+        let reply=b.document_source_intent(&p.id,2,&"d".repeat(32),DraftSourceIntent::ReplaceLiteralParagraph { target:list[1].handle.clone(),text:"\n".into() }).unwrap();
+        refused(&reply,2,2,SourceDraftRefusalReason::ParagraphBreak);
+        assert_eq!(serde_json::to_value(reply.snapshot).unwrap(),before);
+        assert!(b.documents.lock().unwrap()[&p.id].pending.contains_key(&prepared.token));
+        assert!(!lease.cancel.cancelled());
+    });
+}
+
+#[test]
+fn revision_refusals_bind_the_observed_revision_and_remain_resolvable_at_capacity() {
+    fixture(|b,p,_| {
+        let target=targets(b,p,0)[0].handle.clone();
+        let intent=DraftSourceIntent::DeleteParagraphContent { target };
+        for n in 0..MAX_OPERATIONS {
+            let reply=b.document_source_intent(&p.id,10,&format!("{:032x}",1000+n),intent.clone()).unwrap();
+            refused(&reply,10,0,SourceDraftRefusalReason::RevisionChanged);
+        }
+        let retry=b.document_source_intent(&p.id,10,&format!("{:032x}",1000),intent.clone()).unwrap();
+        refused(&retry,10,0,SourceDraftRefusalReason::RevisionChanged);
+        assert!(b.document_source_intent(&p.id,0,&"f".repeat(32),intent).is_err());
+        assert_eq!(b.document_snapshot(&p.id).unwrap().revision,0);
+        assert!(matches!(b.document_source_intent_status(&p.id,&"f".repeat(32)).unwrap().outcome,SourceDraftOutcome::Unknown));
+    });
 }

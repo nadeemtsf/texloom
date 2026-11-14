@@ -17,13 +17,15 @@
 \urlstyle{same}
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{5pt}
+\widowpenalty=10000
+\clubpenalty=10000
 \setlength{\emergencystretch}{2em}
 \setlist{nosep,leftmargin=1.4em,topsep=3pt}
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[L]{\small Texloom: methods and evidence}
 \fancyhead[R]{\small TECHNICAL REPORT DRAFT}
-\fancyfoot[L]{\small 13 November 2026; final evaluation pending}
+\fancyfoot[L]{\small 14 November 2026; final evaluation pending}
 \fancyfoot[R]{\small\thepage}
 \renewcommand{\headrulewidth}{0.3pt}
 \newcommand{\pending}{\textit{Pending: no final evaluation has been run.}}
@@ -31,7 +33,7 @@
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 \title{\vspace{-1.7em}Texloom: Checking Source-Preserving Visual Edits\\to Compiled \LaTeX\ Documents}
 \author{Texloom Project\\\small Technical report draft; methods, development evidence and evaluation design}
-\date{13 November 2026}
+\date{14 November 2026}
 
 \begin{document}
 \maketitle
@@ -60,7 +62,7 @@ No novelty, universal correctness or publication-readiness claim is made.
 \end{abstract}
 
 \paragraph{Source revision notice.}
-This revision incorporates resumed development validation from 5--13 November.
+This revision incorporates resumed development validation from 5--14 November.
 The replacement verifier source is \code{d267118}; the recorded checkpoint is
 \code{a120086}. Automated and real-engine checks, exact native artifacts and
 human-reported gesture observations have different scopes. New engineering
@@ -76,6 +78,11 @@ Later navigation observations distinguish the owner-rejected r9/r10 behavior
 from the owner's reported r11/r12 acceptance. The subsequent \code{4cfe461}
 checkpoint adds enforced staged-tree validation and successful hosted checks;
 these are engineering and provenance evidence, not a frozen research study.
+
+The native transport checkpoint \code{76b2228} subsequently passed all 27
+local gate steps and all five triggered hosted checks. The newer refusal
+extension is identified by its own source fingerprints, retained pre-fix
+failures and development diagnostic. It does not add a visual authoring command.
 
 \input{sections/01-scope}
 \input{sections/02-workflow}

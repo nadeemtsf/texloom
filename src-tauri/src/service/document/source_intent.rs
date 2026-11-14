@@ -1,7 +1,7 @@
 //! Explicit source drafts, never a visual approval or a Save operation.
 //! Handles and operation receipts belong to this open native document only.
 use super::*;
-use texloom_core::document::{intent::SourceIntent, structure::EntityReference};
+use texloom_core::document::{intent::{IntentPlan, PlanError, SourceIntent}, structure::EntityReference};
 
 const MAX_OPERATIONS: usize = 128;
 const MAX_OPERATION_BYTES: usize = 4_000_000;
@@ -60,6 +60,14 @@ pub enum SourceDraftOutcome {
         #[cfg_attr(feature = "typegen", ts(type = "'unresolved'"))]
         render_verification: &'static str,
     },
+    /// Admitted request refused before canonical or recovery mutation.
+    SourceDraftRefused {
+        #[cfg_attr(feature = "typegen", ts(type = "number"))]
+        requested_revision: u64,
+        #[cfg_attr(feature = "typegen", ts(type = "number"))]
+        observed_revision: u64,
+        reason: SourceDraftRefusalReason,
+    },
     /// The canonical buffer stayed unchanged, but an interrupted journal write
     /// may have recorded the proposed draft. Resolve rather than retrying it.
     ProtectionUncertain {
@@ -69,6 +77,32 @@ pub enum SourceDraftOutcome {
     },
     /// No receipt in this session; this never proves an old session did not act.
     Unknown,
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "snake_case")]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub enum SourceDraftRefusalReason {
+    RevisionChanged,
+    TargetUnavailable,
+    UnsupportedTarget,
+    EmptyLiteral,
+    ParagraphBreak,
+    ControlCharacter,
+    LiteralTooLarge,
+    SourceGuardRejected,
+}
+impl From<PlanError> for SourceDraftRefusalReason {
+    fn from(error: PlanError) -> Self {
+        match error {
+            PlanError::UnsupportedTarget => Self::UnsupportedTarget,
+            PlanError::EmptyLiteral => Self::EmptyLiteral,
+            PlanError::ParagraphBreakRequiresStructuralIntent => Self::ParagraphBreak,
+            PlanError::ControlCharacter => Self::ControlCharacter,
+            PlanError::LiteralTooLarge => Self::LiteralTooLarge,
+            PlanError::Source(core::EditError::StaleRevision | core::EditError::ForeignSession) => Self::TargetUnavailable,
+            PlanError::Source(_) => Self::SourceGuardRejected,
+        }
+    }
 }
 #[derive(Clone, Serialize)]
 #[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
@@ -95,6 +129,21 @@ fn safe_revision(value: u64) -> Result<()> {
     if value > 9_007_199_254_740_991 { Err("Revision exceeds the IPC integer range".into()) } else { Ok(()) }
 }
 impl DocumentSlot {
+    fn prepare_source_intent(&self, base: u64, intent: &DraftSourceIntent) -> std::result::Result<IntentPlan, SourceDraftRefusalReason> {
+        if self.session.revision() != Revision(base) { return Err(SourceDraftRefusalReason::RevisionChanged); }
+        if self.source_intents.target_revision != Some(base) { return Err(SourceDraftRefusalReason::TargetUnavailable); }
+        let target = self.source_intents.targets.get(intent.target()).ok_or(SourceDraftRefusalReason::TargetUnavailable)?.clone();
+        self.session.plan_source_intent(intent.core(target)).map_err(Into::into)
+    }
+    fn finish_source_intent(&mut self, base: u64, operation_id: &str, intent: DraftSourceIntent, outcome: SourceDraftOutcome) -> SourceDraftReply {
+        self.source_intents.operation_bytes += intent.bytes();
+        self.source_intents.operations.insert(operation_id.into(), Entry { base, intent, outcome: outcome.clone() });
+        SourceDraftReply { operation_id: operation_id.into(), outcome, snapshot: self.snapshot() }
+    }
+    fn refuse_source_intent(&mut self, base: u64, operation_id: &str, intent: DraftSourceIntent, reason: SourceDraftRefusalReason) -> SourceDraftReply {
+        let outcome = SourceDraftOutcome::SourceDraftRefused { requested_revision: base, observed_revision: self.revision(), reason };
+        self.finish_source_intent(base, operation_id, intent, outcome)
+    }
     pub(super) fn require_resolved_source_intents(&self) -> Result<()> {
         if self.source_intents.operations.values().any(|entry| matches!(entry.outcome, SourceDraftOutcome::ProtectionUncertain { .. })) {
             Err("Source draft protection is unresolved. Inspect the status and reopen/recover the project before editing; no automatic retry is allowed.".into())
@@ -168,37 +217,52 @@ impl Backend {
             slot.source_intents.operation_bytes.saturating_add(intent.bytes()) > MAX_OPERATION_BYTES {
             return Err("Source operation receipt capacity is full; reopen only after resolving outstanding operations".into());
         }
-        if slot.session.revision() != Revision(base) { return Err("The source revision changed".into()); }
-        let target = slot.source_intents.targets.get(intent.target()).ok_or("Source target is unknown in this session")?.clone();
-        let plan = slot.session.plan_source_intent(intent.core(target)).map_err(|error| format!("Source intent refused: {error:?}"))?;
+        let plan = match slot.prepare_source_intent(base, &intent) {
+            Ok(plan) => plan,
+            Err(reason) => return Ok(slot.refuse_source_intent(base, operation_id, intent, reason)),
+        };
         let changed = plan.changed();
         let outcome = if changed {
             // Preflight every fallible core guard on the exact future state.
             // Reconstructing history adds no visual or disk-save authority.
             let patch = plan.source_patch();
-            let mut proposed = core::Session::from_checkpoint(slot.session.checkpoint()).map_err(fail)?;
-            let candidate = proposed.prepare(patch.clone()).map_err(fail)?;
-            proposed.commit(candidate, Origin::Source, None).map_err(fail)?;
-            safe_revision(proposed.revision().0)?;
-            self.mark_cache_unclean()?;
+            let proposed = (|| -> Result<core::Session> {
+                let mut proposed = core::Session::from_checkpoint(slot.session.checkpoint()).map_err(fail)?;
+                let candidate = proposed.prepare(patch.clone()).map_err(fail)?;
+                proposed.commit(candidate, Origin::Source, None).map_err(fail)?;
+                safe_revision(proposed.revision().0)?;
+                self.mark_cache_unclean()?;
+                Ok(proposed)
+            })();
+            let proposed = match proposed {
+                Ok(proposed) => proposed,
+                Err(_) => return Ok(slot.refuse_source_intent(base, operation_id, intent, SourceDraftRefusalReason::SourceGuardRejected)),
+            };
             match self.protect_source_intent(id, slot, base, patch, &proposed) {
                 Ok(()) => {
-                    let receipt = slot.session.apply_source_intent_draft(plan).map_err(fail)?;
-                    slot.pending.clear();
-                    self.scheduler.cancel_project(id);
-                    SourceDraftOutcome::SourceDraftApplied { from_revision: receipt.from_revision().0,
-                        revision: receipt.revision().0, changed: receipt.changed(), render_verification: "unresolved" }
+                    match slot.session.apply_source_intent_draft(plan) {
+                        Ok(receipt) => {
+                            slot.pending.clear();
+                            self.scheduler.cancel_project(id);
+                            SourceDraftOutcome::SourceDraftApplied { from_revision: receipt.from_revision().0,
+                                revision: receipt.revision().0, changed: receipt.changed(), render_verification: "unresolved" }
+                        },
+                        // Protection already ran: never describe this as a
+                        // clean refusal, even if an unexpected core guard fails.
+                        Err(error) => SourceDraftOutcome::ProtectionUncertain { from_revision: base, error: format!("Protected draft requires reconciliation: {error}") },
+                    }
                 },
                 Err(error) => SourceDraftOutcome::ProtectionUncertain { from_revision: base, error },
             }
         } else {
-            let receipt = slot.session.apply_source_intent_draft(plan).map_err(fail)?;
+            let receipt = match slot.session.apply_source_intent_draft(plan) {
+                Ok(receipt) => receipt,
+                Err(_) => return Ok(slot.refuse_source_intent(base, operation_id, intent, SourceDraftRefusalReason::SourceGuardRejected)),
+            };
             SourceDraftOutcome::SourceDraftApplied { from_revision: receipt.from_revision().0,
                 revision: receipt.revision().0, changed: false, render_verification: "unresolved" }
         };
-        slot.source_intents.operation_bytes += intent.bytes();
-        slot.source_intents.operations.insert(operation_id.into(), Entry { base, intent, outcome: outcome.clone() });
-        Ok(SourceDraftReply { operation_id: operation_id.into(), outcome, snapshot: slot.snapshot() })
+        Ok(slot.finish_source_intent(base, operation_id, intent, outcome))
     }
 }
 

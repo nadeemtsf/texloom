@@ -8,7 +8,7 @@ use texloom_core::document::{
 mod typing_recovery;
 mod source_intent;
 pub use typing_recovery::{CloseReply, RecoveryReply, RecoveryStatus};
-pub use source_intent::{DraftSourceIntent, SourceDraftOutcome, SourceDraftReply, SourceTarget, SourceTargetsReply};
+pub use source_intent::{DraftSourceIntent, SourceDraftOutcome, SourceDraftRefusalReason, SourceDraftReply, SourceTarget, SourceTargetsReply};
 
 pub(super) struct DocumentSlot {
     session: core::Session,

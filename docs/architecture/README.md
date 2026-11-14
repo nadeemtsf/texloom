@@ -23,6 +23,16 @@ The live issue index is recorded in [github-roadmap.json](github-roadmap.json) a
 
 ## Current versus intended
 
+14 November current checkpoint: [native source-draft transport](SOURCE-INTENT-TRANSPORT.md)
+is pushed as `76b2228` in draft PR #70. Its 27-step local gate and all five
+triggered hosted checks passed. The separate 14 November refusal extension
+distinguishes admitted pre-write refusal from unknown/uncertain execution;
+its dated diagnostic is source/service evidence, not visual command acceptance.
+The owner-reported r11/r12 navigation acceptance is reconciled in
+`docs/evidence/navigation-ci-status-2026-11-13.json`. Earlier r8/r10-pending
+paragraphs below retain their historical scope; broader Windows/research gates
+remain open.
+
 10 November continuation: [position mapping](POSITION-MAPPING.md) now keeps canonical source selections attached through unchanged intervals and invalidates destructive edits in both commit paths. [Typed source-intent planning](SOURCE-INTENT-PLANNING.md) prepares literal paragraph Replace/Delete candidates without visual authority. ARCH-02/03/04 remain in progress. The dated continuation receipt separates domain/native-API checks, one English three-engine compile/text pilot, the v11 technical-report artifact and unrun app acceptance.
 
 The current app already has source editing, native source/history authority, guarded visual transactions, independent inspection, recovery, bounded parameter adapters, and legacy positioned-block insertion/deletion. Normal text-object editing and movement exist. General source-backed visual deletion, a visual caret, in-flow typing, and the generalized operation/anchor layer are proposed work.

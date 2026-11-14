@@ -106,7 +106,7 @@ export class DocumentClient {
       // native source stayed unchanged. There is deliberately no retry here.
       const reply=sourceDraftReply(await this.invoke('document_source_intent',{request}),operationId,this.snapshot,baseRevision);
       this.adoptSourceReply(reply);
-      if (reply.outcome.status === 'source_draft_applied') this.unresolvedSourceIntent=null;
+      if (reply.outcome.status === 'source_draft_applied' || reply.outcome.status === 'source_draft_refused') this.unresolvedSourceIntent=null;
       return reply;
     });
   }
@@ -116,7 +116,8 @@ export class DocumentClient {
       if (this.unresolvedSourceIntent && this.unresolvedSourceIntent !== operationId) throw new SourceIntentResolutionRequired(this.unresolvedSourceIntent);
       const reply=sourceDraftReply(await this.invoke('document_source_intent_status',{request:{projectId:this.projectId,operationId}}),operationId,this.snapshot);
       this.adoptSourceReply(reply);
-      if (reply.outcome.status === 'source_draft_applied' && this.unresolvedSourceIntent === operationId) this.unresolvedSourceIntent=null;
+      if ((reply.outcome.status === 'source_draft_applied' || reply.outcome.status === 'source_draft_refused') && this.unresolvedSourceIntent === operationId) this.unresolvedSourceIntent=null;
+      if (reply.outcome.status === 'protection_uncertain') this.unresolvedSourceIntent=operationId;
       return reply;
     });
   }

@@ -124,6 +124,8 @@ export function preparedReply(value: unknown, base: number): PreparedReply {
 }
 
 const sourceId = (value: unknown): value is string => typeof value === 'string' && /^[0-9a-f]{32}$/u.test(value);
+const sourceRefusalReasons = new Set(['revision_changed','target_unavailable','unsupported_target','empty_literal',
+  'paragraph_break','control_character','literal_too_large','source_guard_rejected']);
 export function assertSourceOperationId(value: unknown): asserts value is string { require(sourceId(value), 'Invalid source operation ID'); }
 export function assertDraftSourceIntent(value: unknown): asserts value is DraftSourceIntent {
   record(value);
@@ -164,6 +166,13 @@ export function sourceDraftReply(value: unknown, operationId: string, previous: 
     require(typeof value.outcome.changed === 'boolean' && value.outcome.render_verification === 'unresolved' &&
       value.outcome.revision === value.outcome.from_revision + Number(value.outcome.changed) &&
       value.outcome.revision <= current.revision && (base === undefined || value.outcome.from_revision === base), 'Invalid source draft receipt or rendered authority');
+  } else if (value.outcome.status === 'source_draft_refused') {
+    record(value.outcome,['status','requested_revision','observed_revision','reason']);
+    assertRevision(value.outcome.requested_revision); assertRevision(value.outcome.observed_revision);
+    require(typeof value.outcome.reason === 'string' && sourceRefusalReasons.has(value.outcome.reason) &&
+      value.outcome.observed_revision <= current.revision && (base === undefined || value.outcome.requested_revision === base) &&
+      (value.outcome.reason === 'revision_changed' ? value.outcome.requested_revision !== value.outcome.observed_revision :
+        value.outcome.requested_revision === value.outcome.observed_revision), 'Invalid pre-mutation source refusal');
   } else if (value.outcome.status === 'protection_uncertain') {
     record(value.outcome, ['status','from_revision','error']); assertRevision(value.outcome.from_revision);
     require(typeof value.outcome.error === 'string' && value.outcome.error.length > 0 &&

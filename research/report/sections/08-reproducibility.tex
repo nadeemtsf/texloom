@@ -40,6 +40,21 @@ The hook blocked that commit. A PowerShell 7 packaging correction passed the
 subsequent full gate. Retaining these attempts distinguishes corrected
 infrastructure from an uninterrupted successful run.
 
+The later transport checkpoint \code{76b2228} also passed the complete
+27-step local gate. Its staged tree is recorded separately from its parent
+HEAD, and all five triggered hosted checks passed. The earlier linked-worktree
+test attempt inherited Git repository/index settings into a synthetic fixture;
+it created an unintended local synthetic commit and failed the gate. The
+commit was preserved under a recovery reference, only the new branch was
+returned to its starting point without discarding working files, and the
+shared repository setting was restored. Fixture Git environments are now
+isolated while the real gate retains the committing index. Packaging also
+correctly refused a local cache junction; selecting the configured real target
+path fixed that setup without weakening link guards. The later successful
+full run and hosted checks are in
+\path{docs/evidence/source-intent-transport-ci-2026-11-14.json}. These corrected
+engineering attempts remain separate from research case outcomes.
+
 The pre-expansion Git evidence checkpoint contains 46 JSON receipts, all
 parsed and fingerprint-checked against working files and Git blobs. Reading,
 parsing or archiving a receipt is not reproducing its experiment. Historical

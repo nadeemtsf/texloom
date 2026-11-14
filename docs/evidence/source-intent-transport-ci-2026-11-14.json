@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "kind": "source_draft_transport_completed_ci_checkpoint",
+  "status": "all_triggered_checks_passed",
+  "source_commit": "76b2228a71f6eeeaba1dd0ffcc11eca894b21327",
+  "pr": "https://github.com/nadeemtsf/texloom/pull/70",
+  "branch": "feature/source-intent-transport",
+  "base_branch": "feature/remaining-desktop-features",
+  "local_staged_tree": "bdd8f11925954d159104846df58888eb54b1bbd2",
+  "local_gate": "artifacts/local-ci/2026-11-14T08-17-24-772Z-7b3c0970-e7f5-4cbc-b66c-ca4ca7e29b89",
+  "local_steps_passed": 27,
+  "hosted_checks": [
+    {
+      "id": 132391482972,
+      "name": "windows-native-inspection",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/nadeemtsf/texloom/actions/runs/43576078908/job/132391482972"
+    },
+    {
+      "id": 132390529661,
+      "name": "GitGuardian Security Checks",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://dashboard.gitguardian.com"
+    },
+    {
+      "id": 132390519844,
+      "name": "windows",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/nadeemtsf/texloom/actions/runs/43576078866/job/132390519844"
+    },
+    {
+      "id": 132390519784,
+      "name": "source-and-pdf",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/nadeemtsf/texloom/actions/runs/43576078908/job/132390519784"
+    },
+    {
+      "id": 132390457358,
+      "name": "windows",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/nadeemtsf/texloom/actions/runs/43576059088/job/132390457358"
+    }
+  ],
+  "scope": "Exact named transport commit; not the later refusal working tree, native UI acceptance, a final evaluation or release"
+}

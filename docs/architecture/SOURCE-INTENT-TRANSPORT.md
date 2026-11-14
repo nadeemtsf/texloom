@@ -4,6 +4,10 @@
 source-editor boundary, not generalized visual Delete, PDF target identity,
 render approval, caret input or automatic Save.
 
+14 November extension: admitted pre-mutation failures now have an explicit
+cached refusal outcome. The original 13 November/75-assertion evidence remains
+bound to its named source; the newer refusal diagnostic has a separate protocol.
+
 ## Authority and requests
 
 `document_source_targets` derives literal paragraph candidates from canonical
@@ -34,6 +38,21 @@ and `render_verification: unresolved`. Every application/lookup reply includes
 a separately fresh canonical snapshot. Retrying after Undo therefore returns
 the old operation receipt alongside the current undone source, rather than
 reapplying the edit or republishing its old snapshot.
+
+`source_draft_refused` records `requested_revision`, `observed_revision` and a
+finite reason for a valid, bounded request admitted to the receipt ledger:
+changed revision, unavailable target, unsupported target, empty literal,
+paragraph break, control character, oversized literal or rejected source guard.
+It runs before canonical/recovery mutation, retains selection/redo/pending jobs,
+and is cached just like an applied result. A refused request is not re-evaluated
+after later source changes. Confirming an applied or refused outcome clears
+that operation's client uncertainty and permits subsequent editing.
+
+Transport-schema/ID failures, a missing session, payload-ID conflict, receipt
+capacity and an already unresolved protection state remain outside this
+admitted refusal contract. An exception or unknown lookup still does not prove
+nonexecution, and never triggers automatic retry. The ledger's existing bounds
+are unchanged; this is not an unlimited-session or durable-idempotency claim.
 
 Same-session retries with exactly the same operation ID, base revision and
 payload return the recorded outcome. Reusing an ID for a different request

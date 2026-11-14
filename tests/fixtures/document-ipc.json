@@ -313,6 +313,296 @@
       "main.tex": "﻿B\r\n😀\r\n"
     }
   },
+  "source_draft_refusals": [
+    {
+      "operation_id": "dddddddddddddddddddddddddddddddd",
+      "outcome": {
+        "observed_revision": 7,
+        "reason": "revision_changed",
+        "requested_revision": 6,
+        "status": "source_draft_refused"
+      },
+      "snapshot": {
+        "can_redo": false,
+        "can_undo": true,
+        "engine": "auto",
+        "main": "main.tex",
+        "recovery": {
+          "draft_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "error": null,
+          "protected_revision": 7
+        },
+        "revision": 7,
+        "selection": {
+          "anchor": 0,
+          "file": "main.tex",
+          "head": 1,
+          "secondary": [
+            {
+              "anchor": 4,
+              "head": 4
+            }
+          ]
+        },
+        "sources": {
+          "main.tex": "﻿A\r\n😀\r\n",
+          "style.sty": "% keep\r\n"
+        }
+      }
+    },
+    {
+      "operation_id": "dddddddddddddddddddddddddddddddd",
+      "outcome": {
+        "observed_revision": 7,
+        "reason": "target_unavailable",
+        "requested_revision": 7,
+        "status": "source_draft_refused"
+      },
+      "snapshot": {
+        "can_redo": false,
+        "can_undo": true,
+        "engine": "auto",
+        "main": "main.tex",
+        "recovery": {
+          "draft_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "error": null,
+          "protected_revision": 7
+        },
+        "revision": 7,
+        "selection": {
+          "anchor": 0,
+          "file": "main.tex",
+          "head": 1,
+          "secondary": [
+            {
+              "anchor": 4,
+              "head": 4
+            }
+          ]
+        },
+        "sources": {
+          "main.tex": "﻿A\r\n😀\r\n",
+          "style.sty": "% keep\r\n"
+        }
+      }
+    },
+    {
+      "operation_id": "dddddddddddddddddddddddddddddddd",
+      "outcome": {
+        "observed_revision": 7,
+        "reason": "unsupported_target",
+        "requested_revision": 7,
+        "status": "source_draft_refused"
+      },
+      "snapshot": {
+        "can_redo": false,
+        "can_undo": true,
+        "engine": "auto",
+        "main": "main.tex",
+        "recovery": {
+          "draft_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "error": null,
+          "protected_revision": 7
+        },
+        "revision": 7,
+        "selection": {
+          "anchor": 0,
+          "file": "main.tex",
+          "head": 1,
+          "secondary": [
+            {
+              "anchor": 4,
+              "head": 4
+            }
+          ]
+        },
+        "sources": {
+          "main.tex": "﻿A\r\n😀\r\n",
+          "style.sty": "% keep\r\n"
+        }
+      }
+    },
+    {
+      "operation_id": "dddddddddddddddddddddddddddddddd",
+      "outcome": {
+        "observed_revision": 7,
+        "reason": "empty_literal",
+        "requested_revision": 7,
+        "status": "source_draft_refused"
+      },
+      "snapshot": {
+        "can_redo": false,
+        "can_undo": true,
+        "engine": "auto",
+        "main": "main.tex",
+        "recovery": {
+          "draft_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "error": null,
+          "protected_revision": 7
+        },
+        "revision": 7,
+        "selection": {
+          "anchor": 0,
+          "file": "main.tex",
+          "head": 1,
+          "secondary": [
+            {
+              "anchor": 4,
+              "head": 4
+            }
+          ]
+        },
+        "sources": {
+          "main.tex": "﻿A\r\n😀\r\n",
+          "style.sty": "% keep\r\n"
+        }
+      }
+    },
+    {
+      "operation_id": "dddddddddddddddddddddddddddddddd",
+      "outcome": {
+        "observed_revision": 7,
+        "reason": "paragraph_break",
+        "requested_revision": 7,
+        "status": "source_draft_refused"
+      },
+      "snapshot": {
+        "can_redo": false,
+        "can_undo": true,
+        "engine": "auto",
+        "main": "main.tex",
+        "recovery": {
+          "draft_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "error": null,
+          "protected_revision": 7
+        },
+        "revision": 7,
+        "selection": {
+          "anchor": 0,
+          "file": "main.tex",
+          "head": 1,
+          "secondary": [
+            {
+              "anchor": 4,
+              "head": 4
+            }
+          ]
+        },
+        "sources": {
+          "main.tex": "﻿A\r\n😀\r\n",
+          "style.sty": "% keep\r\n"
+        }
+      }
+    },
+    {
+      "operation_id": "dddddddddddddddddddddddddddddddd",
+      "outcome": {
+        "observed_revision": 7,
+        "reason": "control_character",
+        "requested_revision": 7,
+        "status": "source_draft_refused"
+      },
+      "snapshot": {
+        "can_redo": false,
+        "can_undo": true,
+        "engine": "auto",
+        "main": "main.tex",
+        "recovery": {
+          "draft_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "error": null,
+          "protected_revision": 7
+        },
+        "revision": 7,
+        "selection": {
+          "anchor": 0,
+          "file": "main.tex",
+          "head": 1,
+          "secondary": [
+            {
+              "anchor": 4,
+              "head": 4
+            }
+          ]
+        },
+        "sources": {
+          "main.tex": "﻿A\r\n😀\r\n",
+          "style.sty": "% keep\r\n"
+        }
+      }
+    },
+    {
+      "operation_id": "dddddddddddddddddddddddddddddddd",
+      "outcome": {
+        "observed_revision": 7,
+        "reason": "literal_too_large",
+        "requested_revision": 7,
+        "status": "source_draft_refused"
+      },
+      "snapshot": {
+        "can_redo": false,
+        "can_undo": true,
+        "engine": "auto",
+        "main": "main.tex",
+        "recovery": {
+          "draft_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "error": null,
+          "protected_revision": 7
+        },
+        "revision": 7,
+        "selection": {
+          "anchor": 0,
+          "file": "main.tex",
+          "head": 1,
+          "secondary": [
+            {
+              "anchor": 4,
+              "head": 4
+            }
+          ]
+        },
+        "sources": {
+          "main.tex": "﻿A\r\n😀\r\n",
+          "style.sty": "% keep\r\n"
+        }
+      }
+    },
+    {
+      "operation_id": "dddddddddddddddddddddddddddddddd",
+      "outcome": {
+        "observed_revision": 7,
+        "reason": "source_guard_rejected",
+        "requested_revision": 7,
+        "status": "source_draft_refused"
+      },
+      "snapshot": {
+        "can_redo": false,
+        "can_undo": true,
+        "engine": "auto",
+        "main": "main.tex",
+        "recovery": {
+          "draft_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "error": null,
+          "protected_revision": 7
+        },
+        "revision": 7,
+        "selection": {
+          "anchor": 0,
+          "file": "main.tex",
+          "head": 1,
+          "secondary": [
+            {
+              "anchor": 4,
+              "head": 4
+            }
+          ]
+        },
+        "sources": {
+          "main.tex": "﻿A\r\n😀\r\n",
+          "style.sty": "% keep\r\n"
+        }
+      }
+    }
+  ],
   "source_draft_reply": {
     "operation_id": "dddddddddddddddddddddddddddddddd",
     "outcome": {

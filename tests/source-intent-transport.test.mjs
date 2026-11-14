@@ -10,11 +10,69 @@ const intent={kind:'delete_paragraph_content',target:handle};
 const applied=(snapshot=initial(1,'Repeated.\n\n'),from=0,changed=true)=>({operation_id:op,outcome:{status:'source_draft_applied',from_revision:from,revision:from+Number(changed),changed,render_verification:'unresolved'},snapshot});
 const tick=()=>new Promise(setImmediate);
 
+test('confirmed pre-mutation refusal permits later editing without reopening or retrying the refused operation',async()=>{
+  const calls=[];
+  const refusal={operation_id:op,outcome:{status:'source_draft_refused',requested_revision:0,observed_revision:0,reason:'paragraph_break'},snapshot:initial()};
+  const client=new DocumentClient(async(name)=>{
+    calls.push(name);
+    if(name==='document_source_intent')return refusal;
+    if(name==='document_edit')return {...initial(1,'Continued draft'),kind:'source_delta',base_revision:0};
+    throw Error('Unexpected operation');
+  },'p',initial());
+  assert.equal((await client.sourceIntent(0,op,{kind:'replace_literal_paragraph',target:handle,text:'Two\nparagraphs'})).outcome.status,'source_draft_refused');
+  await client.edit('main.tex',[]);
+  assert.equal((await client.flush()).revision,1);
+  assert.deepEqual(calls,['document_source_intent','document_edit']);
+});
+
 test('actual Rust Serde target and source-draft fixtures pass the strict runtime without creating rendered authority',()=>{
   const wire=JSON.parse(readFileSync(new URL('./fixtures/document-ipc.json',import.meta.url),'utf8'));
   assert.deepEqual(sourceTargetsReply(wire.source_targets_reply,wire.snapshot,'main.tex'),wire.source_targets_reply);
   const reply=sourceDraftReply(wire.source_draft_reply,'d'.repeat(32),wire.snapshot,7);
   assert.equal(reply.outcome.render_verification,'unresolved');assert.equal(reply.snapshot.revision,8);
+  assert.equal(wire.source_draft_refusals.length,8);
+  for(const refusal of wire.source_draft_refusals)assert.deepEqual(sourceDraftReply(refusal,'d'.repeat(32),wire.snapshot,refusal.outcome.requested_revision),refusal);
+});
+
+test('lost refusal acknowledgement resolves to nonexecution and releases queued editing only after lookup',async()=>{
+  const calls=[];let release;
+  const refusal={operation_id:op,outcome:{status:'source_draft_refused',requested_revision:0,observed_revision:0,reason:'empty_literal'},snapshot:initial()};
+  const client=new DocumentClient(async name=>{
+    calls.push(name);
+    if(name==='document_source_intent'){await new Promise(r=>release=r);throw Error('Dropped refusal reply')}
+    if(name==='document_source_intent_status')return refusal;
+    return {...initial(1,'Later draft'),kind:'source_delta',base_revision:0};
+  },'p',initial());
+  const attempt=client.sourceIntent(0,op,{kind:'replace_literal_paragraph',target:handle,text:''});await tick();
+  const blocked=assert.rejects(client.edit('main.tex',[]),SourceIntentResolutionRequired);
+  release();await assert.rejects(attempt,/Dropped refusal/);await blocked;
+  assert.equal(client.snapshot.revision,0);
+  assert.equal((await client.resolveSourceIntent(op)).outcome.status,'source_draft_refused');
+  await client.edit('main.tex',[]);assert.equal((await client.flush()).revision,1);
+  assert.deepEqual(calls,['document_source_intent','document_source_intent_status','document_edit']);
+});
+
+test('refusal lookup after a later edit preserves fresh source and does not republish or retry the old operation',async()=>{
+  const current=initial(2,'Current source after later editing');let publications=0;
+  const reply={operation_id:op,outcome:{status:'source_draft_refused',requested_revision:0,observed_revision:0,reason:'empty_literal'},snapshot:current};
+  const client=new DocumentClient(async()=>reply,'p',current,{changed:()=>publications++});
+  await client.resolveSourceIntent(op);
+  assert.equal(client.snapshot,current);assert.equal(publications,0);assert.equal((await client.flush()).revision,2);
+});
+
+test('malformed claimed refusals cannot clear unresolved execution, including contradictory revision evidence',async()=>{
+  const refusal={operation_id:op,outcome:{status:'source_draft_refused',requested_revision:0,observed_revision:0,reason:'empty_literal'},snapshot:initial()};
+  for(const mutate of [r=>r.outcome.reason='unknown_reason',r=>r.outcome.observed_revision=1,r=>r.outcome.requested_revision=1,
+    r=>r.outcome.reason='revision_changed',r=>r.outcome.render_verification='passed',r=>r.snapshot.sources['main.tex']='Changed without revision']){
+    const bad=structuredClone(refusal);mutate(bad);
+    const client=new DocumentClient(async name=>name==='document_source_intent'?bad:refusal,'p',initial());
+    await assert.rejects(client.sourceIntent(0,op,intent));
+    assert.equal(client.snapshot.revision,0);
+    await assert.rejects(client.edit('main.tex',[]),SourceIntentResolutionRequired);
+    await client.resolveSourceIntent(op);assert.equal((await client.flush()).revision,0);
+  }
+  const latest=initial(1,'External current source');
+  assert.equal(sourceDraftReply({...refusal,outcome:{status:'source_draft_refused',requested_revision:0,observed_revision:1,reason:'revision_changed'},snapshot:latest},op,initial(),0).snapshot.revision,1);
 });
 
 test('source target handles retain particular repeated occurrence and reject guessed or malformed coordinates',()=>{

@@ -213,6 +213,36 @@ uncertain rather than claiming no draft could later recover. Thus the contract
 is bounded session idempotency and protected draft recovery, not durable
 exactly-once execution across crashes. No automatic original-file Save follows.
 
+\paragraph{Admitted refusal is a definite source outcome.}
+The 14 November extension returns and caches \code{source\_draft\_refused}
+for an admitted bounded request rejected before canonical or recovery mutation.
+It binds the requested and observed revisions and a finite reason. A stale
+revision, unavailable target or unsupported literal can therefore resolve
+without reopening the project. An identical retry retains the original refusal
+even after later source changes; lookup still returns separately current state.
+Selection, redo, pending candidates and running work are preserved by refusal.
+
+This contract does not convert every exception into nonexecution. Schema/ID,
+missing-session, conflicting-payload and capacity failures remain outside the
+admitted receipt contract. An unknown lookup cannot clear an unresolved call,
+and a recovery-write failure stays uncertain. Table~\ref{tab:source-outcomes}
+states the permitted response; neither known outcome grants rendered approval.
+
+\begin{table}[htbp]
+\small\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{.19\linewidth}YY@{}}
+\toprule
+Confirmed outcome & What it establishes & Permitted client response\\
+\midrule
+Applied draft & Named source/history step; render proof unresolved & Adopt current state; clear matching uncertainty without reapplying\\
+Admitted refusal & No canonical/recovery mutation by that request & Retain current source; allow a later edit after confirmation\\
+Unknown / lost reply & No confirmed execution outcome in this session & Stop dependent writes; lookup/reconcile; no automatic retry\\
+Protection uncertain & Live source retained, but a proposed recovery draft may exist & Preserve uncertainty; explicit current/recovered-state reconciliation\\
+\bottomrule
+\end{tabularx}
+\caption{Outcome knowledge is separate from source revision, presentation and
+original-file persistence.}\label{tab:source-outcomes}
+\end{table}
+
 \subsection{History, Save and recovery}
 Table~\ref{tab:authority-levels} separates source progress from the stronger
 claims that a later stage would need. A new transport method changes how a

@@ -1,0 +1,98 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-14T08:56:42.774224+00:00",
+  "kind": "technical_report_draft_v14_build_visual_review",
+  "status": "built_rendered_reviewed_not_final_evaluation",
+  "implementation_base": "76b2228a71f6eeeaba1dd0ffcc11eca894b21327",
+  "source_note": "Working source fingerprints identify the refusal/report extension; no final evaluation freeze.",
+  "pages": 31,
+  "references": 24,
+  "pdf": {
+    "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-14\\texloom-continuation\\outputs\\Texloom-technical-report-full-draft-2026-11-14-v14.pdf",
+    "bytes": 637301,
+    "sha256": "b8b6a5679db4b7c6db6f326d8a938e9924b1fc35a497151e1dedc3fef019c96c"
+  },
+  "editable_sources": {
+    "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-14\\texloom-continuation\\outputs\\Texloom-technical-report-editable-sources-2026-11-14-v14.zip",
+    "bytes": 65912,
+    "sha256": "1adda68d467926321a297906015066a52ebe8afbafd972c391e787009768241e"
+  },
+  "editable_files": 16,
+  "synthetic_evidence": {
+    "path": "C:\\Users\\thebe\\.codex\\workspaces\\Chats\\2026-11-14\\texloom-continuation\\outputs\\Texloom-source-intent-refusal-development-evidence-2026-11-14.zip",
+    "bytes": 48045,
+    "sha256": "1ddcb5c946167c9eaeb0fcced71c985be08d3461f3836bafb7f8c023d656c33f"
+  },
+  "synthetic_evidence_files": 18,
+  "all_archive_crc_member_hashes": "passed",
+  "visual_review": {
+    "all_pages_rendered": 31,
+    "all_contact_sheets_reviewed": true,
+    "readable_page_reviews": [
+      6,
+      14,
+      31
+    ],
+    "no_overfull_missing_undefined_latex_warnings": true,
+    "underfull_notices": 4,
+    "no_clipping_or_overlap_seen": true,
+    "widow_orphan_penalties_enabled": true
+  },
+  "build_logs": {
+    "bibtex.stdout.log": {
+      "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\research-report\\20261114-v14-final\\bibtex.stdout.log",
+      "bytes": 190,
+      "sha256": "03bf94b628563ce5c8233f16e9d1957ad9a9fb9f0e4cbd92714a5633f67e8fc3"
+    },
+    "latex-1.stdout.log": {
+      "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\research-report\\20261114-v14-final\\latex-1.stdout.log",
+      "bytes": 12935,
+      "sha256": "e390d0817baa8e974b9e02032645f2472a17e5ade57bcc79e64889531708c18a"
+    },
+    "latex-2.stdout.log": {
+      "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\research-report\\20261114-v14-final\\latex-2.stdout.log",
+      "bytes": 11872,
+      "sha256": "9b8be7afeae66364ad7a153a0eebec2e5f311c4711d1c490aa5c079694b47916"
+    },
+    "latex-3.stdout.log": {
+      "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\research-report\\20261114-v14-final\\latex-3.stdout.log",
+      "bytes": 9726,
+      "sha256": "74f34eab264817e75e75ccb25015dc51607f13de8ade005f8d85f41b470a91dc"
+    },
+    "main.log": {
+      "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\research-report\\20261114-v14-final\\main.log",
+      "bytes": 27691,
+      "sha256": "cae50d7bf374b91c9b6834ed520a2e1bc28259b7d39482a53fd2d0fbd64e8f07"
+    },
+    "render.log": {
+      "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\research-report\\20261114-v14-final\\render.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "report_source_fingerprints": {
+    "research/report/followup-references.bib": "326e49ce4c4c1860c9dab355af72fecf8a8ec96214293cab82b9ddbfafef3037",
+    "research/report/main.tex": "6b6e4b85e1b25a0ce09a7681e0877d5cbef7ce0a23b830e8924fa847269f7348",
+    "research/report/README.md": "c05f88f8f7eef5fd959271635959424e979ffa5df6172504438c196d7a0b7f21",
+    "research/report/references.bib": "1c6bef9292f8599cbc86bb610e9b1e3b44a604b3db66370c8e9604a849121493",
+    "research/report/sections/01-scope.tex": "8a081ce27cdd63ca9a623512aa0fc12ca7686477759b3f3de307ea7a9c701196",
+    "research/report/sections/02-workflow.tex": "ec6d7c640050e864421a33b05e54b2a278299e76a695ac570faca4a9388ddf5d",
+    "research/report/sections/03-contracts.tex": "46fc40be341983f0fd993ce675bbc1253fe9ab937538cc81eadb39e3b93e4c19",
+    "research/report/sections/04-related-work.tex": "a2225909003758d3c4262168bc12821c02ed9edc118f4ed83685107abdadf23e",
+    "research/report/sections/05-evaluation.tex": "71346c4c1e896eed0fed97844a50ea35a626cc7604f7fb96d4884ad2fb021bf3",
+    "research/report/sections/06-development-evidence.tex": "981da2cbae6fe869aab39ed2b2403088f60d3fe73afa1858def96e40a88934a4",
+    "research/report/sections/07-timing.tex": "7a8f27f72f67ee148a32233f0c9c7f1c67f03742bc5524322c6c51b2a5d260c2",
+    "research/report/sections/08-reproducibility.tex": "683c95e3224da775acd9c4c1baf722eb51078edd17ed7d68e52e84a533125c49",
+    "research/report/sections/09-limitations.tex": "c9bfcf4a7721730c3cfa1a2111a849ac41f48a6962b68037bc1cbcd8f371e646",
+    "research/report/sections/appendix-artifacts.tex": "fa86aa0f07454e5737bcbf7d630565410668008c716946260af08adc31783cda",
+    "research/report/sections/appendix-protocol.tex": "941e7098b5bda83b5078268c6abbbbc11e2124c35141c7531165a8fba62c00da",
+    "research/report/sections/appendix-reproduction.tex": "f71b09d923de07795b361ca3349bf717bb03c129aae55d478e6e8906ab6cad5d"
+  },
+  "limitations": [
+    "Technical report draft, not publication-ready",
+    "No final accuracy/native interaction latency/unassisted usability study",
+    "Headless service+client doubles do not establish running Tauri or visual target acceptance",
+    "3reused conditions/129assertions not pooled with prior3conditions/75assertions",
+    "Unknown/protection-uncertain outcomes and session-reopen limits remain explicit"
+  ]
+}
