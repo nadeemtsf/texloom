@@ -46,6 +46,9 @@ def main():
     inputs += sorted((root / "src-tauri/src").rglob("*.rs"))
     inputs += sorted((root / "crates/texloom-core/src").rglob("*.rs"))
     inputs += sorted((root / "crates/texloom-build/src").rglob("*.rs"))
+    followup = root / "research/TRUSTED-PREFLIGHT-FORK-PLAN.md"
+    if followup.exists():
+        inputs.append(followup)
     identities = {p.relative_to(root).as_posix(): sha(p) for p in inputs}
     hardware = capture(["pwsh", "-NoProfile", "-Command",
         "[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false);"

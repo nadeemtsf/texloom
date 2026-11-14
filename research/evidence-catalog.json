@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "kind": "development_evidence_inventory_not_evaluation_results",
-  "recorded_utc": "2026-11-14T09:42:39.662594+00:00",
-  "audited_head": "7c693ea34567ad21cdccde005d864cb98850e59f",
+  "recorded_utc": "2026-11-14T09:56:58.326134+00:00",
+  "audited_head": "f0981ad29810b1ff7ac0eb626088bcf683c67c01",
   "working_tree_note": "Uncommitted report/evidence changes may be present; see the session checkpoint.",
   "final_evaluation_executed": false,
   "entries": [
@@ -1048,6 +1048,18 @@
       "experiment_reproduced_by_this_audit": false,
       "schema": 1,
       "recorded_utc": "2026-11-07T08:27:43.883076+00:00",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/trusted-preflight-fork-2026-11-14.json",
+      "bytes": 17020,
+      "sha256": "e7f95b08013ffe4bf1c01c5640ec1724b03246de434d06fa3f44b5307d35a1f1",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "focused_controls_and_post_change_cost_run_passed_full_gate_separate",
+      "implementation_base": "f0981ad29810b1ff7ac0eb626088bcf683c67c01",
+      "recorded_utc": "2026-11-14T09:56:58.151988+00:00",
       "parse_status": "ok"
     },
     {

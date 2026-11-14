@@ -266,7 +266,7 @@ impl Backend {
             // Preflight every fallible core guard on the exact future state.
             // Reconstructing history adds no visual or disk-save authority.
             let proposed = (|| -> Result<core::Session> {
-                let mut proposed = core::Session::from_checkpoint(slot.session.checkpoint()).map_err(fail)?;
+                let mut proposed = slot.session.fork_for_preflight();
                 let candidate = proposed.prepare(patch.clone()).map_err(fail)?;
                 proposed.commit(candidate, Origin::Source, None).map_err(fail)?;
                 safe_revision(proposed.revision().0)?;

@@ -196,6 +196,23 @@ impl Session {
             selection: None,
         })
     }
+    /// Copy validated live state for an isolated future-state preflight.
+    /// The fresh owner rejects all Prepared tokens and entity references from
+    /// this session. No source, history, selection or typing group is adopted
+    /// from external data: serialized recovery still requires from_checkpoint
+    /// and its complete validation/replay. Candidate prepare/commit guards
+    /// must still run on the fork before it can describe a future state.
+    pub fn fork_for_preflight(&self) -> Self {
+        Self {
+            owner: Arc::new(()),
+            sources: self.sources.clone(),
+            profile: self.profile.clone(),
+            revision: self.revision,
+            history: self.history.clone(),
+            cursor: self.cursor,
+            selection: self.selection.clone(),
+        }
+    }
     pub fn sources(&self) -> &Sources {
         &self.sources
     }

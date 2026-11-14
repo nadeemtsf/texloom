@@ -1,0 +1,375 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-14T09:56:58.151988+00:00",
+  "kind": "trusted_live_session_preflight_fork_development",
+  "status": "focused_controls_and_post_change_cost_run_passed_full_gate_separate",
+  "implementation_base": "f0981ad29810b1ff7ac0eb626088bcf683c67c01",
+  "protocol": "research/TRUSTED-PREFLIGHT-FORK-PLAN.md",
+  "core_controls": 3,
+  "native_controls": 13,
+  "raw_rows": 315,
+  "warmup_rows": 45,
+  "measured_rows": 270,
+  "source_sha256": {
+    "research/tools/source_intent_cost.py": "c72a0efe27ad663a0723be9b369a822d31e1498986230f600c96cdd88696f965",
+    "research/SOURCE-INTENT-COST-PLAN.md": "7e4b34fcce2d4781129668a53c54190ba72e873e925f90314ec3938219b2e6f5",
+    "Cargo.lock": "c0a08b67ef59e6fad685975754c24dcae80b454d592a1bf386f33c3339e5b124",
+    "src-tauri/Cargo.toml": "c9e80dfde5ee37b211c4f3613390ff5a9fd274f4f4d143ed687a2e1a6a6b5669",
+    "src-tauri/examples/source_intent_cost_development.rs": "fae9566239ed4a230fd92b9048de93e7ef549598cd197945f411fa7c32d951bf",
+    "src-tauri/src/build_protocol.rs": "953867511e4a197e70ae5dc310ebc4a54b8adb51485d7cbc1095e455b403c35f",
+    "src-tauri/src/document_protocol/bindings.rs": "ea5b7138df0207f10fc8e5bd4ef1a51bb9c1defc7bb66abc5902ade1ee1ea367",
+    "src-tauri/src/document_protocol.rs": "771869cfa753927d3cd69d4a26d60145dbc8f24d76929ca2531cd18c48bb17c6",
+    "src-tauri/src/lib.rs": "22e4d5b117d421c5c0550f03a8a86e6bf23cf23278f08b5dbf23ac80b9651eda",
+    "src-tauri/src/main.rs": "b0d48f87686a53718fbeb902c0e2be1e967f927f1f9381864dda4adaf79d3b84",
+    "src-tauri/src/service/adapters.rs": "8918a795c43fef7611ce4650cb4dd3ec39fb38f0b0ec6e7346bbdc0da4278809",
+    "src-tauri/src/service/build_cache.rs": "92baa4edf4d6bd743cdef2c86ad8f1801085408ff8d3bdab20a5c4620b5f3940",
+    "src-tauri/src/service/document/source_intent/tests.rs": "249bb5950ae2392a79a5b03532c91c0b1445bf300b42f23a1c2756f245fe7dfb",
+    "src-tauri/src/service/document/source_intent.rs": "355cca7927cce74863f497d1de698e55acc2695a12105bba63ac5ceab0ac77c7",
+    "src-tauri/src/service/document/typing_recovery/tests.rs": "3b20eef59d5fb27cf22bfc6c97875cf541fc8f40e4a29f10c78fe9ad08114c84",
+    "src-tauri/src/service/document/typing_recovery.rs": "5741fb883240bef2ca4c3dac44cbe9617bbf753fc3a97d0c7839009eab116529",
+    "src-tauri/src/service/document.rs": "c79614444bd94630bf3c271d874fe13c0f8c3d045fa7962835543067f0d9085f",
+    "src-tauri/src/service/layout_gate/tests.rs": "6ec73c7e70e66e7ff6a13a53f4f2760a25806f74c3c0d2a2343f1b28f91629be",
+    "src-tauri/src/service/layout_gate.rs": "e204892866ecf5fbaf72c770474c6c0492f011d3282f9564db91212a36fa74ad",
+    "src-tauri/src/service/project_workflows.rs": "600a13d8fb34e2f04426c29172f997bb1461f81a0cb8a944c44506e83c1a4236",
+    "src-tauri/src/service/synctex.rs": "8217356c9073db9ebecda9c93b3cac8bcd51ae59600d0a436066ff1d95805d6b",
+    "src-tauri/src/service/visual.rs": "71bbc7257e13b839d3fd2a6bf23baa8c42ec78be5aa8e2ccda49cf4d830c3736",
+    "src-tauri/src/service.rs": "c5aef4fa3f11e068ed2f3770fa36208aa5e75b49cf71ea38c30af9f7065e3a20",
+    "src-tauri/src/workspace_protocol.rs": "132f9859db72211a413a1353c5b59b46e9457a1fd92d3268e877968a45f5280c",
+    "crates/texloom-core/src/adapters.rs": "4a46df024e3318fdf5bfbce0879ed324fd2555a6b4355215c6913f27a85577f8",
+    "crates/texloom-core/src/document/intent.rs": "b285a5e322975a2d9ac660cfcbd9c0fe40eb8a30fe160a44687c85814d4e597a",
+    "crates/texloom-core/src/document/position.rs": "c1cee69d974aaa53c788ac26f4260aa4b8305d824863a02f1f3cf5b9a08df6d4",
+    "crates/texloom-core/src/document/projection.rs": "91230a8c1d6be73c3d4d0f2d77d37b449799f4be95020799e6504b5a2f06e96f",
+    "crates/texloom-core/src/document/recovery.rs": "d1d65482305a5afb804fd875420546ccc00c635091b6e640f7b3edfce4bc161b",
+    "crates/texloom-core/src/document/source_edit/tests.rs": "18b35da6df657fc6106ce5fbff91aed6edc1916d4002113599ade5928d43a52c",
+    "crates/texloom-core/src/document/source_edit.rs": "a3df4f6327c70c341d63be4a44ce1703dd07372fa71d465301409f450c49919e",
+    "crates/texloom-core/src/document/structure.rs": "a99fc8da8d1b4ec4b5513ec31e544e522b57fd47f963a60a8b1dd03ab7918d09",
+    "crates/texloom-core/src/document.rs": "e0cf767b2602610b3a7fa64b580c5be5fc5e3eb601bb193ad5b087e43a5ec088",
+    "crates/texloom-core/src/lib.rs": "dd4a16e1ff2b12a1c292da707e2b73e7bdff51b7bd2b420cf97eb57f1bdfbda3",
+    "crates/texloom-core/src/literal_text.rs": "55aeecd3dab322e4538ff018cb13e007406e76d8ba0eb0499903402fcaf4d4f0",
+    "crates/texloom-core/src/objects.rs": "1866eb43ac4c7a4b3dd92a3890fe804a0b0710d34a898c435d23feb21bb7f09a",
+    "crates/texloom-core/src/selection_hints.rs": "7335af18644e45e8200a1ae017c92b5eb5c35e6536d5ed325334a01b51091963",
+    "crates/texloom-core/src/spacing.rs": "5a43ac719e84ef5b03e3d99e0bacc89baecf48e1fb1eb1fe2863408ea7d688fd",
+    "crates/texloom-core/src/templates.rs": "2709b7ac002fa025c7e97481368746499a8be5ff44ebc48637afb8caed08c1f3",
+    "crates/texloom-build/src/bibliography.rs": "054fe257c78ba396f8e13967da7487060725b769b9892eaa33586f10c910bfd2",
+    "crates/texloom-build/src/bin/pdfium_worker/api.rs": "d7d4a0b96ece9138f7b3fe52f65dd0e6600ad387f64480651c5f0706a265163a",
+    "crates/texloom-build/src/bin/pdfium_worker/mod.rs": "37b87d716926d93e457f0ff3731cc8eaa4228631a2aa40426a24fa9cfb9976a2",
+    "crates/texloom-build/src/bin/pdfium_worker/target.rs": "311d02fc899996267187a1f986bf27f553740e4caf3856b458fa7836219cd67c",
+    "crates/texloom-build/src/bin/pdfium_worker.rs": "0d25c3a19c5e73231e35dde46bb0251c390992adfd40932372856f25f7833d36",
+    "crates/texloom-build/src/bin/process_fixture.rs": "9c2b5c4591e259bcc82651b9f4e1a5b07adcc0f8a42d8fa460cfedd03a1c073b",
+    "crates/texloom-build/src/engine.rs": "f5392a650bd3fb302f5196a3257605ad952d0ce0aa8287d257d312ff59f66e17",
+    "crates/texloom-build/src/inspection_worker.rs": "86e1b7ec6c42f78f381ee71f2abe0deafe1487f2dd59da03e84de433c1085378",
+    "crates/texloom-build/src/lib.rs": "124db1ecbb625a46ce04e22d80283afb1dd462416a673bae6b963a01a0b3e730",
+    "crates/texloom-build/src/persistence/tests.rs": "76237a646ed547554b8547894aee6fc86cc2ade2fa821d6b84497c6bef0b4add",
+    "crates/texloom-build/src/persistence.rs": "1fe394b5f1860b38d003e6d630d875430ce3926c87f458d861cab75b4b80c882",
+    "crates/texloom-build/src/process/unix.rs": "4fcec5609d047c9dd96cf874bdee377e9001c6d9de9dcdb1a03790aac101c814",
+    "crates/texloom-build/src/process/windows.rs": "44271df34eddcc89b5e87574c550812ba09e3e70d61a3455ed5199099ae50c71",
+    "crates/texloom-build/src/process.rs": "216bcf71b7e307c46662645d34cddea7390d6c2ab4cb267918aab1136928fe27",
+    "crates/texloom-build/src/project_io.rs": "c1f26d97b95b074fa6cfd2208261265216c3439d2a4bb64600d5274ace30bacd",
+    "crates/texloom-build/src/recovery/tests.rs": "6e647823baf406ecaee17dbd569542924f701a628d057847c2400e45093fe749",
+    "crates/texloom-build/src/recovery.rs": "bc67c8a42fda6e1b9214fbbb922055dfc3f15c34d8e41ed386f9cf570b7610cd",
+    "crates/texloom-build/src/scheduler.rs": "6489e909299868d504dfefea963b13effb7edb979768e4a8a8de91750f71280b",
+    "crates/texloom-build/src/snapshot.rs": "ac949d9a0a7de3d9a00e811d29afe6c9c404ae87e95a61995ac9a27dadb3c645",
+    "crates/texloom-build/src/verification.rs": "6ab198cc9faa0cfba3b8cda55fc87254fff30e8b9cb6bdb05b2300a6e0baac25",
+    "research/TRUSTED-PREFLIGHT-FORK-PLAN.md": "4d73ec623ae37dfcb258d909f531c167983d6101f8b2926651a708a076955c7f"
+  },
+  "binary_sha256": "514df7a22bc49b94baa99ed569431eef057550b976a7003d8e41266590e766e0",
+  "hardware": {
+    "command": [
+      "pwsh",
+      "-NoProfile",
+      "-Command",
+      "[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false);[ordered]@{cpu=(Get-CimInstance Win32_Processor|Select-Object -First 1).Name;ram_bytes=(Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory;os=(Get-CimInstance Win32_OperatingSystem).Caption;os_build=(Get-CimInstance Win32_OperatingSystem).BuildNumber;active_power_scheme=(powercfg /getactivescheme)}|ConvertTo-Json -Compress"
+    ],
+    "exit": 0,
+    "stdout": "{\"cpu\":\"11th Gen Intel(R) Core(TM) i7-11370H @ 3.30GHz\",\"ram_bytes\":16856203264,\"os\":\"Microsoft Windows 11 Pro\",\"os_build\":\"26300\",\"active_power_scheme\":\"Power Scheme GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (Balanced)\"}",
+    "stderr": ""
+  },
+  "rustc": {
+    "command": [
+      "rustc",
+      "-Vv"
+    ],
+    "exit": 0,
+    "stdout": "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-pc-windows-msvc\nrelease: 1.99.1\nLLVM version: 23.1.1",
+    "stderr": ""
+  },
+  "summaries": [
+    {
+      "project_source_bytes": 1048576,
+      "mode": "source_edit_delta",
+      "samples": 30,
+      "native_service_and_reply_ms": {
+        "median": 1.9275,
+        "p95": 2.3867,
+        "max": 2.4718
+      },
+      "reply_json_encoding_ms": {
+        "median": 0.010700000000000001,
+        "p95": 0.017499999999999998,
+        "max": 0.0187
+      },
+      "native_service_through_encoding_ms": {
+        "median": 1.9421,
+        "p95": 2.3967,
+        "max": 2.4815
+      },
+      "response_bytes": {
+        "median": 16666.0,
+        "p95": 16666.0,
+        "max": 16666.0
+      }
+    },
+    {
+      "project_source_bytes": 1048576,
+      "mode": "typed_preprotected_changed_file",
+      "samples": 30,
+      "native_service_and_reply_ms": {
+        "median": 2.8884999999999996,
+        "p95": 4.7124999999999995,
+        "max": 20.290300000000002
+      },
+      "reply_json_encoding_ms": {
+        "median": 0.0188,
+        "p95": 0.0357,
+        "max": 0.036000000000000004
+      },
+      "native_service_through_encoding_ms": {
+        "median": 2.90905,
+        "p95": 4.7302,
+        "max": 20.3091
+      },
+      "response_bytes": {
+        "median": 16878.0,
+        "p95": 16878.0,
+        "max": 16878.0
+      }
+    },
+    {
+      "project_source_bytes": 1048576,
+      "mode": "typed_preprotected_full_snapshot",
+      "samples": 30,
+      "native_service_and_reply_ms": {
+        "median": 2.9973,
+        "p95": 3.8134,
+        "max": 3.9001
+      },
+      "reply_json_encoding_ms": {
+        "median": 0.6231,
+        "p95": 0.8968,
+        "max": 0.915
+      },
+      "native_service_through_encoding_ms": {
+        "median": 3.6475,
+        "p95": 4.441,
+        "max": 4.6453
+      },
+      "response_bytes": {
+        "median": 1049026.0,
+        "p95": 1049026.0,
+        "max": 1049026.0
+      }
+    },
+    {
+      "project_source_bytes": 8388608,
+      "mode": "source_edit_delta",
+      "samples": 30,
+      "native_service_and_reply_ms": {
+        "median": 2.1585,
+        "p95": 2.4167,
+        "max": 2.4714
+      },
+      "reply_json_encoding_ms": {
+        "median": 0.0113,
+        "p95": 0.0195,
+        "max": 0.0198
+      },
+      "native_service_through_encoding_ms": {
+        "median": 2.17195,
+        "p95": 2.4269000000000003,
+        "max": 2.4835
+      },
+      "response_bytes": {
+        "median": 16666.0,
+        "p95": 16666.0,
+        "max": 16666.0
+      }
+    },
+    {
+      "project_source_bytes": 8388608,
+      "mode": "typed_preprotected_changed_file",
+      "samples": 30,
+      "native_service_and_reply_ms": {
+        "median": 10.5464,
+        "p95": 11.7022,
+        "max": 13.153099999999998
+      },
+      "reply_json_encoding_ms": {
+        "median": 0.0421,
+        "p95": 0.0569,
+        "max": 0.0624
+      },
+      "native_service_through_encoding_ms": {
+        "median": 10.5812,
+        "p95": 11.745099999999999,
+        "max": 13.2112
+      },
+      "response_bytes": {
+        "median": 16878.0,
+        "p95": 16878.0,
+        "max": 16878.0
+      }
+    },
+    {
+      "project_source_bytes": 8388608,
+      "mode": "typed_preprotected_full_snapshot",
+      "samples": 30,
+      "native_service_and_reply_ms": {
+        "median": 12.1359,
+        "p95": 13.373700000000001,
+        "max": 14.2188
+      },
+      "reply_json_encoding_ms": {
+        "median": 5.2399000000000004,
+        "p95": 7.0745000000000005,
+        "max": 7.1303
+      },
+      "native_service_through_encoding_ms": {
+        "median": 17.3421,
+        "p95": 20.4565,
+        "max": 20.7541
+      },
+      "response_bytes": {
+        "median": 8389191.0,
+        "p95": 8389191.0,
+        "max": 8389191.0
+      }
+    },
+    {
+      "project_source_bytes": 33554432,
+      "mode": "source_edit_delta",
+      "samples": 30,
+      "native_service_and_reply_ms": {
+        "median": 2.3483,
+        "p95": 3.0112,
+        "max": 4.6551
+      },
+      "reply_json_encoding_ms": {
+        "median": 0.01135,
+        "p95": 0.0191,
+        "max": 0.022099999999999998
+      },
+      "native_service_through_encoding_ms": {
+        "median": 2.3602499999999997,
+        "p95": 3.0262000000000002,
+        "max": 4.668
+      },
+      "response_bytes": {
+        "median": 16666.0,
+        "p95": 16666.0,
+        "max": 16666.0
+      }
+    },
+    {
+      "project_source_bytes": 33554432,
+      "mode": "typed_preprotected_changed_file",
+      "samples": 30,
+      "native_service_and_reply_ms": {
+        "median": 34.8463,
+        "p95": 41.7175,
+        "max": 41.8652
+      },
+      "reply_json_encoding_ms": {
+        "median": 0.02495,
+        "p95": 0.06889999999999999,
+        "max": 0.0854
+      },
+      "native_service_through_encoding_ms": {
+        "median": 34.86725,
+        "p95": 41.7795,
+        "max": 41.9514
+      },
+      "response_bytes": {
+        "median": 16878.0,
+        "p95": 16878.0,
+        "max": 16878.0
+      }
+    },
+    {
+      "project_source_bytes": 33554432,
+      "mode": "typed_preprotected_full_snapshot",
+      "samples": 30,
+      "native_service_and_reply_ms": {
+        "median": 40.958749999999995,
+        "p95": 48.904700000000005,
+        "max": 57.5614
+      },
+      "reply_json_encoding_ms": {
+        "median": 21.568649999999998,
+        "p95": 30.7813,
+        "max": 31.0217
+      },
+      "native_service_through_encoding_ms": {
+        "median": 62.03,
+        "p95": 79.42649999999999,
+        "max": 82.3523
+      },
+      "response_bytes": {
+        "median": 33555471.0,
+        "p95": 33555471.0,
+        "max": 33555471.0
+      }
+    }
+  ],
+  "independent_summary_matches": true,
+  "source_changed_during_run": [],
+  "artifacts": [
+    {
+      "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\intent-cost-20261114\\run-3-trusted-fork\\analysis.json",
+      "bytes": 31445,
+      "sha256": "93ec293f5374669a8b6a86d98496ebfb8970ed6e0e6e264b7eff147002dc1a42"
+    },
+    {
+      "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\intent-cost-20261114\\run-3-trusted-fork\\results.json",
+      "bytes": 8661,
+      "sha256": "9e70e4ec37c378904063e003631b74f7b32b46d4cb30d9f0cb6fd1fef90080ce"
+    },
+    {
+      "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\intent-cost-20261114\\run-3-trusted-fork\\samples.jsonl",
+      "bytes": 138042,
+      "sha256": "634831eda71ba7b2bc596499f8d3f57932ca90fb5258586dcd3e1dadbb5bfc66"
+    },
+    {
+      "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\intent-cost-20261114\\run-3-trusted-fork-pre-run.json",
+      "bytes": 8495,
+      "sha256": "25a3ec45554c9f5ad6bd122930daa15c19fd089f0ba0958207a3b7df4f18fafb"
+    },
+    {
+      "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\intent-cost-20261114\\run-3-trusted-fork-stdout.log",
+      "bytes": 274,
+      "sha256": "10ced76d04a2040fc248b8c4152939e40a88842dc84f99b6d47fd76b3684facf"
+    },
+    {
+      "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\intent-cost-20261114\\fork-core-tests.log",
+      "bytes": 644,
+      "sha256": "eaa2219bdc12bfe460bc6f01a455951dc9ff3a866599cf8c6dbaa007bb7c06eb"
+    },
+    {
+      "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\intent-cost-20261114\\fork-native-tests.log",
+      "bytes": 4355,
+      "sha256": "695fa165d2e88791c0e2150c74e5f5c03ede519e5025e2f6156d00c4ede4e7fd"
+    },
+    {
+      "path": "C:\\Users\\thebe\\texloom-intent-20261113\\artifacts\\intent-cost-20261114\\build-fork.log",
+      "bytes": 4433,
+      "sha256": "7ce1fab6996e58638b0619b23bcc37e601270bead00080a6ef2470a1821570de"
+    }
+  ],
+  "invariants": "Fresh private owner; exact live source/profile/history/cursor/selection/group copy; normal candidate prepare/commit and durable protection retained. Serialized checkpoint restore remains fully validated/replayed.",
+  "interpretation": "Post-change observation only. Cross-run load/cache uncontrolled, no exact causal speedup or physical latency. Production reply remains full snapshot; changed-file arm benchmark-only.",
+  "report_scope": "Previously exported v15 is immutable and reports f0981ad-era runs1/2. This later run3 and engineering change are separate technical-note evidence for a future compiled report revision.",
+  "limits": [
+    "Same synthetic projects and correlated repeats, not independent workload samples",
+    "No TeX, GUI, physical input, WebView, Save, memory/overhead or final evaluation",
+    "No protection or rendered-approval requirement weakened"
+  ]
+}
