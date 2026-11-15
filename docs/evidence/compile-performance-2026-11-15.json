@@ -1,0 +1,774 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-15T21:00:18.003836+00:00",
+  "kind": "native_compile_cost_and_duration_development_diagnostic",
+  "status": "passed_native_cost_and_output_checks",
+  "implementation_base": "07255921fc27d4be3d34edbf42f96ac51625d24e",
+  "protocol": "research/COMPILE-COST-PLAN.md",
+  "environment": {
+    "cpu": "11th Gen Intel(R) Core(TM) i7-11370H @ 3.30GHz",
+    "os_build": "26300",
+    "ram_bytes": 16856203264,
+    "platform": "Windows-10-10.0.26300-SP0",
+    "rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)"
+  },
+  "engine_versions": {
+    "pdflatex": "MiKTeX-pdfTeX 4.23 (MiKTeX 25.12)\n\u00a9 1982 D. E. Knuth, \u00a9 1996-2025 H\u00e0n Th\u1ebf Th\u00e0nh\nTeX is a trademark of the American Mathematical Society.",
+    "xelatex": "MiKTeX-XeTeX 4.16 (MiKTeX 25.12)\n\u00a9 1994-2008 SIL International, \u00a9 2009-2023 Jonathan Kew, \u00a9 2010-2012 H\u00e0n Th\u1ebf Th\u00e0nh, \u00a9 2012-2013 Khaled Hosny\nTeX is a trademark of the American Mathematical Society",
+    "lualatex": "This is LuaHBTeX, Version 1.24.0 (MiKTeX 25.12)\nDevelopment id: 7707\n"
+  },
+  "source_sha256": {
+    "crates/texloom-build/src/engine.rs": "1336ef51e73f6786a238bb6e70b7684dc4b5f2bca41a1a8cf535c4a2d41db642",
+    "crates/texloom-build/src/bibliography.rs": "8f50924ae808fbeef9afb6103928e859eb3870fc51af0471c3ab2435d8246111",
+    "crates/texloom-build/src/snapshot.rs": "9a70078ca2bb57f3c78817bffb3a68b69b194c71d4ebd83d4a0ab3e0f494877b",
+    "crates/texloom-build/src/process.rs": "7101696725da79a9a72c3544933b70a114adceb245fcd4256f4c9311c399df26",
+    "crates/texloom-build/src/process/windows.rs": "6e18de64265adcce77a2e4525a1b6494e5aa50654281f27677d8fcf9062357ad",
+    "crates/texloom-build/examples/compile_profile.rs": "6110697c8e73ea7274a394eca5cf5b59b5dbc663af3620de17af71793204627f",
+    "src-tauri/src/service.rs": "fcffdfeae637760b784b373c2872a3d3ed30851265a4a3e30bae4b99ef1ea390",
+    "research/COMPILE-COST-PLAN.md": "a3d0f26785f7da5749b64f559b11fa07c5e777d535abd758d2c2b178f5c8a7ee",
+    "research/tools/compare_compile_profiles.py": "085c26f74819e3d7bf3fc572e0c4c103a2efd75d1757be1dc5fdc581350e7fa3",
+    "research/tools/profile_compile_reply.mjs": "a61c4d7fb1c75293c326ef1f8eef9ed665a36f28ce179385214c5dc48a5a5de2",
+    "Cargo.lock": "c0a08b67ef59e6fad685975754c24dcae80b454d592a1bf386f33c3339e5b124"
+  },
+  "executables_sha256": {
+    "baseline-profile.exe": "8d9b38761f734b53ffc8978fb0a5b79b8b5e13e39fa999ce78ad809c8aa8b5ed",
+    "optimized-profile.exe": "90c3e1c60be275d59a4075bce113acbd4cff228e079b3ac8d8aef074597cce62",
+    "paired-profile.exe": "e1de1a313264b01f5afa463fcbea333a9e580182ed8184f4af5ded78d878cc91",
+    "verified-profile.exe": "1c908279e6eebf61370b897b4a5444eaa897ea7f0e9cc47677ca2fbfca90335b"
+  },
+  "logs_and_raw_samples_sha256": {
+    "baseline-lualatex.jsonl": "0b2bdfdbc6eeb128091bd50d8263e90facc012dc81af7d2a9ab42463b5a7f547",
+    "baseline-pdflatex.jsonl": "90a554785c5707f0e8093a66d8162a9ed0cf2edb03f235154a40358a2b39450a",
+    "baseline-xelatex.jsonl": "dc9631ece92f0db83663d73040938dc9744625be705a6d4601f359c8a89e8794",
+    "final-long-lualatex.jsonl": "dee0322d91bd42e90b7549f93f59600bc5d18e118638c5696e7a405c2921a61c",
+    "fresh-lualatex.jsonl": "db3fe6bf9507430140162abfc4be9355450bb40ada41b927f9d9db75581fdab9",
+    "fresh-pdflatex.jsonl": "74fc2ab4d2390e640dbb9019cf2ac833059ed991b8ec022069ed78fbc1bb8708",
+    "fresh-xelatex.jsonl": "cb0db3fc0c080fc792c2d786cedeb609df7ff242c0b59108af9de4bad01cef5e",
+    "long-lualatex.jsonl": "6c146590af6c60d89cadf627b3e4d50bf8de800c2a99eba488f1e015b3b32da2",
+    "paired-lualatex.jsonl": "887c1f192572fe37fc585a5ee145a04a0cadc416ba462c8222df06a8319f5bf7",
+    "paired-pdflatex.jsonl": "285e638f326bbc53b9749cfd4cf7a6a7f7d4d7ebfe19042f89054b012679a7aa",
+    "paired-xelatex.jsonl": "18e794e41d87285dcb4130829911aa707fb174f3240dd345d4969e37564a7263",
+    "pdf-reply.jsonl": "5905c2dd20e80839659cbed13517a60a6b8bc53561c09d35bf3fb1f1dd51e0f7",
+    "verified-fresh-lualatex.jsonl": "8752694bd0a5508f2d0f5ea84f948a11aa91ce988efd5a6351ab42cff511ddc9",
+    "verified-fresh-pdflatex.jsonl": "93f48f9ddd535a61494d0778ddc9e1f99704c416fb33daf8a3919efc282fb5ee",
+    "verified-fresh-xelatex.jsonl": "679344c243acf8639e5a2592df904a4e650c543e405a86ef19f20ce77d3e33c8",
+    "verified-warm-lualatex.jsonl": "2e6fe16537b6bcb748212fd3764ff2e1ea45c2d64aaa82a59c600f50fdba2f1b",
+    "verified-warm-pdflatex.jsonl": "ed45618921358cca2c81378af8f65b8ead469e61a3d8bd081865b6d9074c6c20",
+    "verified-warm-xelatex.jsonl": "55df63e0064bc3208d00af5ad6918ca42ac93a9b6c6681a122a139e7f3f36e81",
+    "warm-lualatex.jsonl": "1c404c50aff43fd3b25314f775e285e3c4c1d157d3cd72f70da33f0e24be3f11",
+    "warm-pdflatex.jsonl": "cd4af61cc631c415854c38e1eacde780dca45cca5122d3def3a99bfd0959b456",
+    "warm-xelatex.jsonl": "7673004357529e75a29bbdf9bf3b49a10320eef4bb0e844c2e91aa98131bfc09",
+    "summary.json": "0a0d7a0473ddc7b3537d998b9ab67222e52cc52c7724aeb8bd749a4c7a14bd3d",
+    "paired-summary.json": "5bc052eca92f0136e0e522c9c63dc88da3a6359f191760b96dc56f2cd0f33782",
+    "focused-tests.log": "265c1de5d4bef334958efe46c698c9e13a995cd94e225d0583951b3425e3e0ba",
+    "engine-checks.log": "164bf1a30314656125352eae28b9eaa1ebaa4c5afc921a2f9f36997cd7cb018e",
+    "baseline-rebuild.log": "d2628a92f82f6a06f01034550b1eaa7ecc51f4261470a55ff84b7bffea40d11d",
+    "verified-build.log": "02f2e15433ad3f027cd0e7151774ef3bc86ade7878206f5762f61b6a698be8d6",
+    "paired-build.log": "02857149bf954e10b2255104df2aeca71442f74a998fcb04944748f15b6cbd21",
+    "baseline-engine.rs": "703a28bfd0d077d7de1596d2d91fc8d7f6a6e0ca44d23d9abafde1902a3636ec"
+  },
+  "block_comparison": {
+    "matched_outputs": 90,
+    "summaries": [
+      {
+        "engine": "pdflatex",
+        "mode": "baseline",
+        "case": "plain",
+        "count": 5,
+        "median_seconds": 1.0989569,
+        "median_timings": {
+          "bibliography_seconds": 0.0,
+          "engine_seconds": 0.7606777,
+          "finalize_seconds": 0.0009193,
+          "recorder_seconds": 0.0156353,
+          "snapshot_seconds": 0.0072749,
+          "verify_seconds": 0.0602575,
+          "version_seconds": 0.2896633
+        }
+      },
+      {
+        "engine": "pdflatex",
+        "mode": "baseline",
+        "case": "references",
+        "count": 5,
+        "median_seconds": 1.0969996,
+        "median_timings": {
+          "bibliography_seconds": 0.0,
+          "engine_seconds": 0.739978,
+          "finalize_seconds": 0.0011056,
+          "recorder_seconds": 0.014277499999999999,
+          "snapshot_seconds": 0.0078707,
+          "verify_seconds": 0.057656,
+          "version_seconds": 0.2796222
+        }
+      },
+      {
+        "engine": "pdflatex",
+        "mode": "baseline",
+        "case": "large-project",
+        "count": 5,
+        "median_seconds": 1.3027663,
+        "median_timings": {
+          "bibliography_seconds": 0.0,
+          "engine_seconds": 0.7789033000000001,
+          "finalize_seconds": 0.0009284,
+          "recorder_seconds": 0.013155499999999999,
+          "snapshot_seconds": 0.0820669,
+          "verify_seconds": 0.1807253,
+          "version_seconds": 0.2733909
+        }
+      },
+      {
+        "engine": "pdflatex",
+        "mode": "verified-fresh",
+        "case": "plain",
+        "count": 5,
+        "median_seconds": 1.2858014,
+        "median_timings": {
+          "bibliography_seconds": 0.0,
+          "engine_seconds": 0.9140778,
+          "finalize_seconds": 0.0009788,
+          "first_pass_seconds": 0.4280757,
+          "recorder_seconds": 0.015613100000000001,
+          "snapshot_seconds": 0.0068954,
+          "verify_seconds": 0.0534825,
+          "version_seconds": 0.322407
+        }
+      },
+      {
+        "engine": "pdflatex",
+        "mode": "verified-fresh",
+        "case": "references",
+        "count": 5,
+        "median_seconds": 2.4519461,
+        "median_timings": {
+          "bibliography_seconds": 0.0,
+          "engine_seconds": 1.5500134,
+          "finalize_seconds": 0.001295,
+          "first_pass_seconds": 0.6819893,
+          "recorder_seconds": 0.0308922,
+          "snapshot_seconds": 0.009055,
+          "verify_seconds": 0.0784452,
+          "version_seconds": 0.6565154
+        }
+      },
+      {
+        "engine": "pdflatex",
+        "mode": "verified-fresh",
+        "case": "large-project",
+        "count": 5,
+        "median_seconds": 1.8917815999999998,
+        "median_timings": {
+          "bibliography_seconds": 0.0,
+          "engine_seconds": 1.1030008,
+          "finalize_seconds": 0.0011127,
+          "first_pass_seconds": 0.5284227,
+          "recorder_seconds": 0.0190337,
+          "snapshot_seconds": 0.1091755,
+          "verify_seconds": 0.1671993,
+          "version_seconds": 0.4182009
+        }
+      },
+      {
+        "engine": "pdflatex",
+        "mode": "verified-warm",
+        "case": "plain",
+        "count": 5,
+        "median_seconds": 0.9577617,
+        "median_timings": {
+          "bibliography_seconds": 0.0,
+          "engine_seconds": 0.8802587,
+          "finalize_seconds": 0.001108,
+          "first_pass_seconds": 0.4653227,
+          "recorder_seconds": 0.0159177,
+          "snapshot_seconds": 0.0075934,
+          "verify_seconds": 0.0510606,
+          "version_seconds": 5.4e-06
+        }
+      },
+      {
+        "engine": "pdflatex",
+        "mode": "verified-warm",
+        "case": "references",
+        "count": 5,
+        "median_seconds": 0.8840594,
+        "median_timings": {
+          "bibliography_seconds": 0.0,
+          "engine_seconds": 0.8164412999999999,
+          "finalize_seconds": 0.0011078,
+          "first_pass_seconds": 0.4032372,
+          "recorder_seconds": 0.0153652,
+          "snapshot_seconds": 0.008781,
+          "verify_seconds": 0.049866499999999994,
+          "version_seconds": 4.4e-06
+        }
+      },
+      {
+        "engine": "pdflatex",
+        "mode": "verified-warm",
+        "case": "large-project",
+        "count": 5,
+        "median_seconds": 1.0677933,
+        "median_timings": {
+          "bibliography_seconds": 0.0,
+          "engine_seconds": 0.8163480000000001,
+          "finalize_seconds": 0.0009306,
+          "first_pass_seconds": 0.4376692,
+          "recorder_seconds": 0.0139756,
+          "snapshot_seconds": 0.0908099,
+          "verify_seconds": 0.1333076,
+          "version_seconds": 5.2e-06
+        }
+      },
+      {
+        "engine": "xelatex",
+        "mode": "baseline",
+        "case": "plain",
+        "count": 5,
+        "median_seconds": 1.8170066,
+        "median_timings": {
+          "bibliography_seconds": 0.0,
+          "engine_seconds": 1.4303195,
+          "finalize_seconds": 0.0009667,
+          "recorder_seconds": 0.021319499999999998,
+          "snapshot_seconds": 0.0049778,
+          "verify_seconds": 0.08892989999999999,
+          "version_seconds": 0.2740633
+        }
+      },
+      {
+        "engine": "xelatex",
+        "mode": "baseline",
+        "case": "references",
+        "count": 5,
+        "median_seconds": 1.815839,
+        "median_timings": {
+          "bibliography_seconds": 0.0,
+          "engine_seconds": 1.4399755,
+          "finalize_seconds": 0.0008044,
+          "recorder_seconds": 0.0213977,
+          "snapshot_seconds": 0.0046708,
+          "verify_seconds": 0.0861355,
+          "version_seconds": 0.2772957
+        }
+      },
+      {
+        "engine": "xelatex",
+        "mode": "baseline",
+        "case": "large-project",
+        "count": 5,
+        "median_seconds": 2.1457837,
+        "median_timings": {
+          "bibliography_seconds": 0.0,
+          "engine_seconds": 1.5604852999999999,
+          "finalize_seconds": 0.0010057,
+          "recorder_seconds": 0.0240803,
+          "snapshot_seconds": 0.0795791,
+          "verify_seconds": 0.198938,
+          "version_seconds": 0.3138709
+        }
+      },
+      {
+        "engine": "xelatex",
+        "mode": "verified-fresh",
+        "case": "plain",
+        "count": 5,
+        "median_seconds": 2.3149195000000002,
+        "median_timings": {
+          "bibliography_seconds": 0.0,
+          "engine_seconds": 1.8460762,
+          "finalize_seconds": 0.0011794,
+          "first_pass_seconds": 0.950004,
+          "recorder_seconds": 0.0305145,
+          "snapshot_seconds": 0.0067122,
+          "verify_seconds": 0.0807673,
+          "version_seconds": 0.3863502
+        }
+      },
+      {
+        "engine": "xelatex",
+        "mode": "verified-fresh",
+        "case": "references",
+        "count": 5,
+        "median_seconds": 2.4164578,
+        "median_timings": {
+          "bibliography_seconds": 0.0,
+          "engine_seconds": 1.9557583,
+          "finalize_seconds": 0.0012753,
+          "first_pass_seconds": 0.9733839,
+          "recorder_seconds": 0.0281084,
+          "snapshot_seconds": 0.0060532,
+          "verify_seconds": 0.091318,
+          "version_seconds": 0.3365445
+        }
+      },
+      {
+        "engine": "xelatex",
+        "mode": "verified-fresh",
+        "case": "large-project",
+        "count": 5,
+        "median_seconds": 2.3657495,
+        "median_timings": {
+          "bibliography_seconds": 0.0,
+          "engine_seconds": 1.7988409,
+          "finalize_seconds": 0.0011712,
+          "first_pass_seconds": 0.9323159,
+          "recorder_seconds": 0.0281714,
+          "snapshot_seconds": 0.0819709,
+          "verify_seconds": 0.1665185,
+          "version_seconds": 0.3277071
+        }
+      },
+      {
+        "engine": "xelatex",
+        "mode": "verified-warm",
+        "case": "plain",
+        "count": 5,
+        "median_seconds": 1.481571,
+        "median_timings": {
+          "bibliography_seconds": 0.0,
+          "engine_seconds": 1.3871386,
+          "finalize_seconds": 0.0009685,
+          "first_pass_seconds": 0.716028,
+          "recorder_seconds": 0.0214297,
+          "snapshot_seconds": 0.0045738,
+          "verify_seconds": 0.06441340000000001,
+          "version_seconds": 3.8e-06
+        }
+      },
+      {
+        "engine": "xelatex",
+        "mode": "verified-warm",
+        "case": "references",
+        "count": 5,
+        "median_seconds": 1.5455443,
+        "median_timings": {
+          "bibliography_seconds": 0.0,
+          "engine_seconds": 1.4516459,
+          "finalize_seconds": 0.0010067,
+          "first_pass_seconds": 0.7502958,
+          "recorder_seconds": 0.0232038,
+          "snapshot_seconds": 0.0052625,
+          "verify_seconds": 0.0697257,
+          "version_seconds": 4.2e-06
+        }
+      },
+      {
+        "engine": "xelatex",
+        "mode": "verified-warm",
+        "case": "large-project",
+        "count": 5,
+        "median_seconds": 1.8563822,
+        "median_timings": {
+          "bibliography_seconds": 0.0,
+          "engine_seconds": 1.5738043,
+          "finalize_seconds": 0.0010514,
+          "first_pass_seconds": 0.7708264,
+          "recorder_seconds": 0.0250984,
+          "snapshot_seconds": 0.0841824,
+          "verify_seconds": 0.163551,
+          "version_seconds": 3.6e-06
+        }
+      },
+      {
+        "engine": "lualatex",
+        "mode": "baseline",
+        "case": "plain",
+        "count": 5,
+        "median_seconds": 1.9392231,
+        "median_timings": {
+          "bibliography_seconds": 0.0,
+          "engine_seconds": 1.5684592,
+          "finalize_seconds": 0.0009271,
+          "recorder_seconds": 0.0185541,
+          "snapshot_seconds": 0.0126349,
+          "verify_seconds": 0.07108320000000001,
+          "version_seconds": 0.2581341
+        }
+      },
+      {
+        "engine": "lualatex",
+        "mode": "baseline",
+        "case": "references",
+        "count": 5,
+        "median_seconds": 2.0255049,
+        "median_timings": {
+          "bibliography_seconds": 0.0,
+          "engine_seconds": 1.6593694,
+          "finalize_seconds": 0.0008974,
+          "recorder_seconds": 0.019111200000000002,
+          "snapshot_seconds": 0.0122248,
+          "verify_seconds": 0.07262529999999999,
+          "version_seconds": 0.2618795
+        }
+      },
+      {
+        "engine": "lualatex",
+        "mode": "baseline",
+        "case": "large-project",
+        "count": 5,
+        "median_seconds": 2.1291237,
+        "median_timings": {
+          "bibliography_seconds": 0.0,
+          "engine_seconds": 1.5799683999999998,
+          "finalize_seconds": 0.0009636,
+          "recorder_seconds": 0.0198346,
+          "snapshot_seconds": 0.0840476,
+          "verify_seconds": 0.1770058,
+          "version_seconds": 0.2560592
+        }
+      },
+      {
+        "engine": "lualatex",
+        "mode": "verified-fresh",
+        "case": "plain",
+        "count": 5,
+        "median_seconds": 2.4628193,
+        "median_timings": {
+          "bibliography_seconds": 0.0,
+          "engine_seconds": 2.0237099,
+          "finalize_seconds": 0.0010665,
+          "first_pass_seconds": 0.9815217,
+          "recorder_seconds": 0.0251946,
+          "snapshot_seconds": 0.0144397,
+          "verify_seconds": 0.0634188,
+          "version_seconds": 0.3602438
+        }
+      },
+      {
+        "engine": "lualatex",
+        "mode": "verified-fresh",
+        "case": "references",
+        "count": 5,
+        "median_seconds": 3.2150128000000002,
+        "median_timings": {
+          "bibliography_seconds": 0.0,
+          "engine_seconds": 2.7149573,
+          "finalize_seconds": 0.0011047,
+          "first_pass_seconds": 1.2632573,
+          "recorder_seconds": 0.0304692,
+          "snapshot_seconds": 0.0130693,
+          "verify_seconds": 0.10233339999999999,
+          "version_seconds": 0.3980868
+        }
+      },
+      {
+        "engine": "lualatex",
+        "mode": "verified-fresh",
+        "case": "large-project",
+        "count": 5,
+        "median_seconds": 2.1832807,
+        "median_timings": {
+          "bibliography_seconds": 0.0,
+          "engine_seconds": 1.6681739,
+          "finalize_seconds": 0.0009459,
+          "first_pass_seconds": 0.853069,
+          "recorder_seconds": 0.0194598,
+          "snapshot_seconds": 0.0866077,
+          "verify_seconds": 0.1295868,
+          "version_seconds": 0.2931173
+        }
+      },
+      {
+        "engine": "lualatex",
+        "mode": "verified-warm",
+        "case": "plain",
+        "count": 5,
+        "median_seconds": 1.6793928,
+        "median_timings": {
+          "bibliography_seconds": 0.0,
+          "engine_seconds": 1.5945677,
+          "finalize_seconds": 0.0009057,
+          "first_pass_seconds": 0.7970489,
+          "recorder_seconds": 0.0192541,
+          "snapshot_seconds": 0.0128469,
+          "verify_seconds": 0.0515624,
+          "version_seconds": 3.6e-06
+        }
+      },
+      {
+        "engine": "lualatex",
+        "mode": "verified-warm",
+        "case": "references",
+        "count": 5,
+        "median_seconds": 1.8171503,
+        "median_timings": {
+          "bibliography_seconds": 0.0,
+          "engine_seconds": 1.7255992,
+          "finalize_seconds": 0.0010944,
+          "first_pass_seconds": 0.8589161,
+          "recorder_seconds": 0.0210227,
+          "snapshot_seconds": 0.0128728,
+          "verify_seconds": 0.0531822,
+          "version_seconds": 3.6e-06
+        }
+      },
+      {
+        "engine": "lualatex",
+        "mode": "verified-warm",
+        "case": "large-project",
+        "count": 5,
+        "median_seconds": 1.8723361,
+        "median_timings": {
+          "bibliography_seconds": 0.0,
+          "engine_seconds": 1.6324209,
+          "finalize_seconds": 0.0010562,
+          "first_pass_seconds": 0.8129044,
+          "recorder_seconds": 0.0203028,
+          "snapshot_seconds": 0.0857655,
+          "verify_seconds": 0.1306986,
+          "version_seconds": 3.4e-06
+        }
+      }
+    ]
+  },
+  "alternating_pair_comparison": {
+    "matched_pairs": 45,
+    "summaries": [
+      {
+        "engine": "pdflatex",
+        "case": "plain",
+        "count": 5,
+        "median_fresh_seconds": 1.0736725,
+        "median_warm_seconds": 0.7820538,
+        "median_paired_saving_seconds": 0.28034760000000003,
+        "median_warm_first_pass_seconds": 0.3652141,
+        "median_fresh_probe_seconds": 0.2755261,
+        "individual_paired_saving_seconds": [
+          0.2565979999999999,
+          0.29713369999999995,
+          0.28034760000000003,
+          0.3123762000000001,
+          0.2742074
+        ]
+      },
+      {
+        "engine": "pdflatex",
+        "case": "references",
+        "count": 5,
+        "median_fresh_seconds": 1.1396746,
+        "median_warm_seconds": 0.8255798,
+        "median_paired_saving_seconds": 0.36536709999999994,
+        "median_warm_first_pass_seconds": 0.3831876,
+        "median_fresh_probe_seconds": 0.3102202,
+        "individual_paired_saving_seconds": [
+          0.4163080000000001,
+          0.5028155,
+          0.36536709999999994,
+          0.2065669000000001,
+          0.28216699999999995
+        ]
+      },
+      {
+        "engine": "pdflatex",
+        "case": "large-project",
+        "count": 5,
+        "median_fresh_seconds": 1.2475291,
+        "median_warm_seconds": 0.9936615,
+        "median_paired_saving_seconds": 0.25386759999999997,
+        "median_warm_first_pass_seconds": 0.3841457,
+        "median_fresh_probe_seconds": 0.309519,
+        "individual_paired_saving_seconds": [
+          0.2529987,
+          0.27910270000000015,
+          0.25386759999999997,
+          0.2354908,
+          0.5287694000000001
+        ]
+      },
+      {
+        "engine": "xelatex",
+        "case": "plain",
+        "count": 5,
+        "median_fresh_seconds": 1.9106242,
+        "median_warm_seconds": 1.7016012,
+        "median_paired_saving_seconds": 0.2935284,
+        "median_warm_first_pass_seconds": 0.826147,
+        "median_fresh_probe_seconds": 0.2931437,
+        "individual_paired_saving_seconds": [
+          0.3165015000000002,
+          -0.028158600000000034,
+          0.2935284,
+          0.48124889999999976,
+          0.20902299999999996
+        ]
+      },
+      {
+        "engine": "xelatex",
+        "case": "references",
+        "count": 5,
+        "median_fresh_seconds": 2.0446008,
+        "median_warm_seconds": 1.7298157,
+        "median_paired_saving_seconds": 0.27842809999999996,
+        "median_warm_first_pass_seconds": 0.8078931,
+        "median_fresh_probe_seconds": 0.3215258,
+        "individual_paired_saving_seconds": [
+          0.24857430000000003,
+          0.35142149999999983,
+          0.11845049999999979,
+          0.42481840000000015,
+          0.27842809999999996
+        ]
+      },
+      {
+        "engine": "xelatex",
+        "case": "large-project",
+        "count": 5,
+        "median_fresh_seconds": 2.0888381,
+        "median_warm_seconds": 1.7544929,
+        "median_paired_saving_seconds": 0.27878749999999997,
+        "median_warm_first_pass_seconds": 0.770563,
+        "median_fresh_probe_seconds": 0.2777113,
+        "individual_paired_saving_seconds": [
+          0.24995089999999998,
+          0.5132383000000003,
+          0.3343451999999998,
+          0.27878749999999997,
+          0.2533574999999999
+        ]
+      },
+      {
+        "engine": "lualatex",
+        "case": "plain",
+        "count": 5,
+        "median_fresh_seconds": 2.0053413,
+        "median_warm_seconds": 1.715274,
+        "median_paired_saving_seconds": 0.3247053000000002,
+        "median_warm_first_pass_seconds": 0.7983918,
+        "median_fresh_probe_seconds": 0.2691107,
+        "individual_paired_saving_seconds": [
+          0.6012750000000002,
+          0.3247053000000002,
+          0.3365404000000001,
+          0.26941270000000017,
+          0.24303359999999996
+        ]
+      },
+      {
+        "engine": "lualatex",
+        "case": "references",
+        "count": 5,
+        "median_fresh_seconds": 2.059519,
+        "median_warm_seconds": 1.7962593999999998,
+        "median_paired_saving_seconds": 0.23277599999999987,
+        "median_warm_first_pass_seconds": 0.8775231,
+        "median_fresh_probe_seconds": 0.2683015,
+        "individual_paired_saving_seconds": [
+          0.2132900000000002,
+          0.3393314999999997,
+          0.23277599999999987,
+          0.30603879999999983,
+          0.2136403
+        ]
+      },
+      {
+        "engine": "lualatex",
+        "case": "large-project",
+        "count": 5,
+        "median_fresh_seconds": 2.1748193000000002,
+        "median_warm_seconds": 1.8769215,
+        "median_paired_saving_seconds": 0.2978978000000003,
+        "median_warm_first_pass_seconds": 0.8453444,
+        "median_fresh_probe_seconds": 0.276533,
+        "individual_paired_saving_seconds": [
+          0.3065403999999998,
+          0.2978978000000003,
+          0.2975625000000002,
+          0.19968009999999992,
+          0.3439595
+        ]
+      }
+    ]
+  },
+  "duration_control": {
+    "case": "long",
+    "engine": "lualatex",
+    "passes": 2,
+    "pdf_bytes": 4375,
+    "profile": "fresh",
+    "seconds": 122.9711996,
+    "timings": {
+      "bibliography_seconds": 0.0,
+      "engine_seconds": 122.6094402,
+      "finalize_seconds": 0.0009281,
+      "first_pass_seconds": 121.8286167,
+      "recorder_seconds": 0.0225432,
+      "snapshot_seconds": 0.0156847,
+      "verify_seconds": 0.054395900000000004,
+      "version_reused": false,
+      "version_seconds": 0.2669119
+    },
+    "toolchain_inputs": 61,
+    "trial": 0,
+    "version": "This is LuaHBTeX, Version 1.24.0 (MiKTeX 25.12)\nDevelopment id: 7707\n",
+    "warmup": false
+  },
+  "node_pdf_reply_parse": [
+    {
+      "node": "v25.2.1",
+      "payload_bytes": 1048576,
+      "json_bytes": 3705458,
+      "median_ms": 30.144999999999982,
+      "trials": [
+        {
+          "warmup": true,
+          "milliseconds": 50.0801
+        },
+        {
+          "warmup": false,
+          "milliseconds": 35.740099999999984
+        },
+        {
+          "warmup": false,
+          "milliseconds": 29.998500000000007
+        },
+        {
+          "warmup": false,
+          "milliseconds": 25.7217
+        },
+        {
+          "warmup": false,
+          "milliseconds": 30.144999999999982
+        },
+        {
+          "warmup": false,
+          "milliseconds": 31.141999999999996
+        }
+      ]
+    },
+    {
+      "node": "v25.2.1",
+      "payload_bytes": 8388608,
+      "json_bytes": 29644012,
+      "median_ms": 267.05680000000007,
+      "trials": [
+        {
+          "warmup": true,
+          "milliseconds": 203.36749999999995
+        },
+        {
+          "warmup": false,
+          "milliseconds": 200.0705999999999
+        },
+        {
+          "warmup": false,
+          "milliseconds": 230.2406000000001
+        },
+        {
+          "warmup": false,
+          "milliseconds": 417.4536999999998
+        },
+        {
+          "warmup": false,
+          "milliseconds": 267.05680000000007
+        },
+        {
+          "warmup": false,
+          "milliseconds": 275.33990000000017
+        }
+      ]
+    }
+  ],
+  "negative_controls": "Process tests cover cancellation with no deadline and timeout with a deadline. Preflight tests retain truncated/nonzero cases. Engine test distinguishes runtime/format changes from the run timestamp.",
+  "limits": "Five measured repetitions per condition on one Windows host. Background workload and caches uncontrolled. Existing TeX/PDF verification retained. Native measures exclude WebView, presentation and source-edit debounce. Transport diagnostic uses repeated byte patterns and Node, outside Tauri."
+}

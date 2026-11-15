@@ -9,7 +9,7 @@ use std::{
     fs,
     io::Read,
     path::{Path, PathBuf},
-    time::{Duration, Instant},
+    time::Duration,
 };
 type Result<T> = std::result::Result<T, String>;
 #[derive(Debug)]
@@ -193,7 +193,7 @@ fn run(
     args: &[String],
     directory: &Path,
     cancel: &Cancellation,
-    budget: Duration,
+    timeout: Option<Duration>,
 ) -> Result<process::Output> {
     let result = process::run(
         &CommandSpec {
@@ -201,7 +201,7 @@ fn run(
             args,
             directory,
             env: &receipt.environment,
-            timeout: budget.min(Duration::from_secs(60)),
+            timeout,
             memory_bytes: 2 * 1024 * 1024 * 1024,
         },
         cancel,
@@ -220,7 +220,6 @@ fn tool(
     receipt: &mut Receipt,
     name: &str,
     cancel: &Cancellation,
-    budget: Duration,
 ) -> Result<PathBuf> {
     let invocation = program(&receipt.invocation, name)?;
     if let Some(previous) = receipt.auxiliary_tools.get(name) {
@@ -237,7 +236,7 @@ fn tool(
         &["--version".into()],
         &receipt.directory,
         cancel,
-        budget,
+        Some(Duration::from_secs(60)),
     )?;
     binary.verify()?;
     if invocation.canonicalize().map_err(|e| e.to_string())? != binary.path {
@@ -257,14 +256,7 @@ pub fn execute(
     receipt: &mut Receipt,
     recipe: &Recipe,
     cancel: &Cancellation,
-    budget: Duration,
 ) -> Result<String> {
-    let started = Instant::now();
-    let remaining = || {
-        budget
-            .checked_sub(started.elapsed())
-            .ok_or_else(|| "Bibliography exceeded the build time limit".to_string())
-    };
     receipt.verify()?;
     for style in &recipe.styles {
         let name = if style.ends_with(".bst") {
@@ -275,14 +267,14 @@ pub fn execute(
         if receipt.inputs.contains_key(&name) {
             continue;
         }
-        let lookup = tool(receipt, "kpsewhich", cancel, remaining()?)?;
+        let lookup = tool(receipt, "kpsewhich", cancel)?;
         let output = run(
             receipt,
             &lookup,
             &["--format=bst".into(), name.clone()],
             &receipt.directory,
             cancel,
-            remaining()?,
+            Some(Duration::from_secs(60)),
         )?;
         let paths = output
             .text
@@ -307,7 +299,7 @@ pub fn execute(
             .toolchain_inputs
             .insert(path.clone(), Dependency::capture(&path)?);
     }
-    let executable = tool(receipt, recipe.tool, cancel, remaining()?)?;
+    let executable = tool(receipt, recipe.tool, cancel)?;
     let (args, directory) = if recipe.tool == "biber" {
         (
             vec![
@@ -337,7 +329,7 @@ pub fn execute(
         &args,
         &directory,
         cancel,
-        remaining()?,
+        None,
     )?;
     receipt.verify()?;
     let bbl = receipt.directory.join(".out/preview.bbl");

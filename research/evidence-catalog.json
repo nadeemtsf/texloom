@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "kind": "development_evidence_inventory_not_evaluation_results",
-  "recorded_utc": "2026-11-14T16:30:02.535288+00:00",
-  "audited_head": "deed4228453a0e8e1d13758ebcc69f23d788cb3e",
+  "recorded_utc": "2026-11-15T21:02:56.623401+00:00",
+  "audited_head": "07255921fc27d4be3d34edbf42f96ac51625d24e",
   "working_tree_note": "Uncommitted report/evidence changes may be present; see the session checkpoint.",
   "final_evaluation_executed": false,
   "entries": [
@@ -83,6 +83,18 @@
       "experiment_reproduced_by_this_audit": false,
       "schema": 1,
       "recorded_utc": "2026-11-07T11:45:16.779584+00:00",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/compile-performance-2026-11-15.json",
+      "bytes": 27273,
+      "sha256": "549f025cee3786d20971655b75055890a9e9487ddbabe4431bd1f7b463ef45de",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "passed_native_cost_and_output_checks",
+      "implementation_base": "07255921fc27d4be3d34edbf42f96ac51625d24e",
+      "recorded_utc": "2026-11-15T21:00:18.003836+00:00",
       "parse_status": "ok"
     },
     {
@@ -731,6 +743,18 @@
       "experiment_reproduced_by_this_audit": false,
       "schema": 1,
       "recorded_utc": "2026-11-14T16:12:58.331447+00:00",
+      "parse_status": "ok"
+    },
+    {
+      "path": "docs/evidence/report-full-draft-v17-2026-11-15.json",
+      "bytes": 3162,
+      "sha256": "e5cd8246b386af70f875aea6dba30ca65a4b710b689df33b75309282f50aadc5",
+      "audit_action": "read_parse_fingerprint_only",
+      "experiment_reproduced_by_this_audit": false,
+      "schema": 1,
+      "status": "built_rendered_reviewed",
+      "implementation_base": "07255921fc27d4be3d34edbf42f96ac51625d24e",
+      "recorded_utc": "2026-11-15T21:02:55.710367+00:00",
       "parse_status": "ok"
     },
     {

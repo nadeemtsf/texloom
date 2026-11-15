@@ -325,6 +325,7 @@ pub struct Backend {
     projects: Mutex<HashMap<String, PathBuf>>,
     builds: Mutex<HashMap<String, Arc<Build>>>,
     scheduler: texloom_build::scheduler::Scheduler,
+    compiler_profiles: texloom_build::engine::CompilerProfiles,
     documents: Mutex<HashMap<String, document::DocumentSlot>>,
     disk_snapshots: Mutex<HashMap<String, texloom_build::persistence::DiskSnapshot>>,
     displayed: Mutex<HashMap<String, String>>,
@@ -340,6 +341,7 @@ impl Backend {
             projects: Mutex::new(HashMap::new()),
             builds: Mutex::new(HashMap::new()),
             scheduler: Default::default(),
+            compiler_profiles: Default::default(),
             documents: Mutex::new(HashMap::new()),
             disk_snapshots: Mutex::new(HashMap::new()),
             displayed: Mutex::new(HashMap::new()),
@@ -500,7 +502,7 @@ impl Backend {
             ("studio.sty".into(), STYLE.into()),
             ("texloom-objects.sty".into(), OBJECT_STYLE.into()),
         ]);
-        let output = texloom_build::engine::build(
+        let output = texloom_build::engine::build_with_profiles(
             texloom_build::engine::Request {
                 project_root: &root,
                 directory: &directory,
@@ -511,6 +513,7 @@ impl Backend {
                 engine: &engine,
             },
             &lease.cancel,
+            &self.compiler_profiles,
         )?;
         lease.cancel.check()?;
         let metrics = measurements(&output.receipt.directory.join(".out/preview.studio"));

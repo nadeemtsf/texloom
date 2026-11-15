@@ -373,12 +373,13 @@ impl Receipt {
         }
         let roots: Vec<_> = roots.iter().filter_map(|p| p.canonicalize().ok()).collect();
         let mut added = false;
+        let mut seen = BTreeSet::new();
         for line in text.lines() {
             let Some(name) = line.strip_prefix("INPUT ") else {
                 continue;
             };
             let name = name.trim().trim_matches('"');
-            if matches!(name, "/dev/null" | "NUL" | "nul") {
+            if matches!(name, "/dev/null" | "NUL" | "nul") || !seen.insert(name) {
                 continue;
             }
             let p = PathBuf::from(name);

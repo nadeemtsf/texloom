@@ -7,7 +7,7 @@ use texloom_build::{
     process::{self, CommandSpec},
     scheduler::Cancellation,
 };
-fn run(args: &[String], cancel: &Cancellation, timeout: Duration) -> process::Output {
+fn run(args: &[String], cancel: &Cancellation, timeout: Option<Duration>) -> process::Output {
     process::run(
         &CommandSpec {
             program: Path::new(env!("CARGO_BIN_EXE_process_fixture")),
@@ -27,7 +27,7 @@ fn native_argv_preserves_unicode_quotes_spaces_and_trailing_slashes() {
         let result = run(
             &["echo".into(), text.into()],
             &Cancellation::default(),
-            Duration::from_secs(5),
+            Some(Duration::from_secs(5)),
         );
         assert!(result.success, "{}", result.text);
         assert_eq!(result.text, text);
@@ -38,7 +38,7 @@ fn large_child_output_is_fully_drained_without_deadlock() {
     let output = run(
         &["flood".into()],
         &Cancellation::default(),
-        Duration::from_secs(5),
+        Some(Duration::from_secs(5)),
     );
     assert!(output.success);
     assert!(output.truncated);
@@ -63,9 +63,9 @@ fn cancellation_and_timeout_stop_descendants_and_close_their_pipes() {
                 &["tree".into(), file.to_string_lossy().into()],
                 &worker_cancel,
                 if timeout_case {
-                    Duration::from_secs(5)
+                    Some(Duration::from_secs(5))
                 } else {
-                    Duration::from_secs(10)
+                    None
                 },
             )
         });

@@ -353,7 +353,7 @@ impl Worker {
                     .parent()
                     .ok_or("Missing worker program directory")?,
                 env: &BTreeMap::new(),
-                timeout: Duration::from_secs(10),
+                timeout: Some(Duration::from_secs(10)),
                 memory_bytes: 512 * 1024 * 1024,
             },
             cancel,
