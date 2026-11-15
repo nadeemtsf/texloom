@@ -71,3 +71,49 @@ rendering. Tauri's binary response API supports a follow-up that can
 avoid byte-array JSON and retain revision-bound build
 metadata~\cite{tauriBinaryIPC}. A packaged Windows measurement would assess
 delivery and presentation together.
+
+\subsection{Binary delivery development follow-up}
+
+The desktop command now encodes a versioned envelope containing a UTF-8
+JSON metadata header and the original PDF bytes. The browser checks the
+envelope and then applies the existing build identity, revision, mapping
+and eligibility rules. A typed byte view avoids parsing and validating
+each PDF byte as a JSON number. The PDF surface still copies the view
+before handing it to PDF.js, whose worker may transfer buffer ownership.
+Native service callers retain their original result type. Tauri's
+postMessage fallback can return the envelope as a number array; that
+slower path validates each byte before decoding the same envelope.
+
+\begin{table}[htbp]
+\small\centering
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Pattern buffer & Legacy decode & Binary decode & Paired saving\\
+\midrule
+1 MiB & 126.04 & 1.00 & 124.97\\
+8 MiB & 895.15 & 6.07 & 889.38\\
+\bottomrule
+\end{tabular}
+\caption{Node component diagnostic, milliseconds. Each condition has five
+alternating measured pairs after one warm-up pair. These are decoding
+costs, not end-to-end compile or visible-preview times.}
+\label{tab:binary-compile-reply}
+\end{table}
+
+The legacy arm loads the preserved validator from commit
+\code{0c3cd89}; the binary arm uses the new decoder and validator. Both
+intervals include the surface's byte copy, with exact-byte checks after
+timing. The 8 MiB envelope occupies 8,388,812 bytes, compared with
+29,644,012 JSON bytes. The earlier 267 ms observation and two interim
+development blocks remain separate; uncontrolled machine state and JIT
+execution can affect these small repeated samples. No inference about
+whole-application speed follows from their ratio.
+
+Generated Rust envelope bytes cross the actual ordered-client validator
+in regression checks. A real PDF fixture retains identical extracted text,
+geometry and rendered pixels after delivery. Other controls cover failed
+builds, malformed envelopes, Unicode metadata, cancellation, candidate
+revisions, PDF size limits and fallback decoding. The receipt is
+\path{docs/evidence/binary-compile-reply-2026-11-15.json}. These checks do
+not exercise native WebView dispatch or physical presentation; packaged
+Windows preview acceptance and delivery measurements remain pending.

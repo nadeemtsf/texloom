@@ -187,6 +187,7 @@ pub struct CompileResult {
     pub build_id: String,
     #[cfg_attr(feature = "typegen", ts(type = "number"))]
     pub revision: u64,
+    #[cfg_attr(feature = "typegen", ts(type = "number[] | Uint8Array"))]
     pub pdf: Vec<u8>,
     pub blocks: Vec<PositionedBlock>,
     pub objects: Vec<MappedTextObject>,

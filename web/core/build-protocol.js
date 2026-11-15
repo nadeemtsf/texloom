@@ -31,6 +31,36 @@ function sourceRange(value, sources) {
     require(boundary(text, value.start) && boundary(text, value.end) && value.start < value.end &&
         integer(value.line, 1) && value.line <= text.split('\n').length, 'Invalid compiled object source range');
 }
+/** Decode only the native compile envelope; logical replies remain strictly validated below. */
+export function decodeCompilation(value) {
+    // Tauri's postMessage fallback serializes raw replies as number arrays.
+    if (Array.isArray(value)) {
+        require(value.length <= 8 + 124 * 1024 * 1024, 'Compile envelope is too large');
+        for (const byte of value)
+            require(integer(byte) && byte <= 255, 'Invalid compile envelope byte');
+        value = Uint8Array.from(value).buffer;
+    }
+    if (!(value instanceof ArrayBuffer))
+        return value;
+    require(value.byteLength >= 8, 'Truncated compile envelope');
+    const bytes = new Uint8Array(value);
+    require([84, 76, 80, 49].every((byte, index) => bytes[index] === byte), 'Unknown compile envelope version');
+    const length = new DataView(value).getUint32(4, true);
+    require(length > 0 && length <= 64 * 1024 * 1024 && length <= value.byteLength - 8, 'Invalid compile metadata length');
+    require(value.byteLength - 8 - length <= 60 * 1024 * 1024, 'Invalid compiled PDF bytes');
+    let metadata;
+    try {
+        metadata = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes.subarray(8, 8 + length)));
+    }
+    catch {
+        throw new BuildProtocolError('Invalid compile metadata encoding');
+    }
+    require(metadata !== null && typeof metadata === 'object' && !Array.isArray(metadata), 'Invalid compile metadata');
+    const reply = metadata;
+    require(Array.isArray(reply.pdf) && reply.pdf.length === 0, 'Compile metadata contains PDF bytes');
+    reply.pdf = bytes.subarray(8 + length);
+    return reply;
+}
 export function acceptCompilation(value, context) {
     assertCompilation(value, context);
     return value;
@@ -56,9 +86,10 @@ function assertCompilation(value, context) {
         if (diagnostic.severity === 'error')
             errors = true;
     }
-    require(Array.isArray(value.pdf) && value.pdf.length <= 60 * 1024 * 1024, 'Invalid compiled PDF bytes');
-    for (const byte of value.pdf)
-        require(integer(byte) && byte <= 255, 'Invalid compiled PDF bytes');
+    require((Array.isArray(value.pdf) || value.pdf instanceof Uint8Array) && value.pdf.length <= 60 * 1024 * 1024, 'Invalid compiled PDF bytes');
+    if (Array.isArray(value.pdf))
+        for (const byte of value.pdf)
+            require(integer(byte) && byte <= 255, 'Invalid compiled PDF bytes');
     require(Array.isArray(value.blocks) && Array.isArray(value.objects), 'Invalid compiled object inventory');
     if (!value.ok) {
         require(!value.verification_eligible && value.pdf.length === 0 && value.blocks.length === 0 && value.objects.length === 0, 'A failed compilation cannot supply PDF output or visual objects');
@@ -125,8 +156,9 @@ function assertResolvedSelection(value, { snapshot, buildId, page }) {
     for (const rectangle of value.rectangles)
         require(acceptSourceRectangle(rectangle).page === page, 'Mapped selection crossed a page boundary');
 }
-export function requestBuild(invoke, name, args) {
-    return invoke(name, { ...args });
+export async function requestBuild(invoke, name, args) {
+    const reply = await invoke(name, { ...args });
+    return name === 'compile_document' ? decodeCompilation(reply) : reply;
 }
 export async function invokeUnit(invoke, name, args) {
     require(await requestBuild(invoke, name, args) === null, 'Invalid ' + name + ' acknowledgement');

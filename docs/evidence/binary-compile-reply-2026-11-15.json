@@ -1,0 +1,155 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-15T21:38:52.656899+00:00",
+  "kind": "binary_compile_reply_development_diagnostic",
+  "status": "focused_checks_passed_full_gate_tracked_separately",
+  "implementation_base": "269c1fb3570cb22b4397ea99eda0cfec077442c0",
+  "legacy_validator_commit": "0c3cd89c19899998ec772a6a6e012afdec25e1ce",
+  "protocol": "research/COMPILE-COST-PLAN.md",
+  "source_sha256": {
+    "src-tauri/src/lib.rs": "6bb8eaf58fac911b488c1b247ae0d0da4cb0f31b454b5636d8f5e8853ee789f1",
+    "src-tauri/src/compile_transport.rs": "c12482f62f7189fe900a7a8ce73163d0ae44275280fa534b77c0e439920a3d49",
+    "src-tauri/src/service.rs": "64c0eb2d4c9d95c698bba0747a4c384c4537833b60bc278216c195954a7d7b45",
+    "src-tauri/src/document_protocol/bindings.rs": "4f39c2c0d469076d98e2a6630d753e5d8fc312453ee43a96a89b89c9fd1560c7",
+    "frontend/protocol/build-protocol.ts": "555daba0af690d8b62ed89dc9eb2929f79013fae56c86a20cced9a1ad5496510",
+    "web/core/build-protocol.js": "c340577fc32b2f2420bb3b958ad32f0eee5441ec677ecb6e6da3e356bad1b95b",
+    "web/core/pdf-surface.js": "11c43a75a4e6d4d46f8c47ef6d200655196937bf729939c8bc13a017f42d7c1a",
+    "web/generated/document-ipc.d.ts": "96990e42a4caf12b73ba936eb61f509aeca75539a15acdcb1f92940f135ec75f",
+    "tests/build-protocol.test.mjs": "6fa239eb54067b9580796e45a4f4237f074643219e0818cf0aaf90c590212e9e",
+    "tests/pdf-document.test.mjs": "e8778e100c4b3808c55c07219f0c78c1df22e039795512e755c060d5ba19dbbc",
+    "tests/fixtures/document-ipc.json": "63e07864decc3864d033f214e0330567e586581bf86bc3bd60da7ee24e91288c",
+    "tsconfig.protocol.json": "a9c325f8d159f06b63a9bdb154d97e379b9577792e262bd10dd6b25fc1bc2d27",
+    "research/COMPILE-COST-PLAN.md": "9dbe6f5aa8157ce6563e8882b332887fbd3d40d0bfb00e8082d053f026eb9e42",
+    "research/tools/profile_compile_reply.mjs": "2301010bd1e818a6c31aa569465f6941a25b0178d7f65a2b182303f2802847d0",
+    "research/BINARY-COMPILE-REPLY-2026-11-15.md": "5b0eebe0f23db4189c43fd821edf0c3b8834ff1878a14878f6a36fc69d4c2cc2",
+    "Cargo.lock": "c0a08b67ef59e6fad685975754c24dcae80b454d592a1bf386f33c3339e5b124"
+  },
+  "raw_sha256": {
+    "binary-reply-paired.jsonl": "8d8a37671253a01c7a850f3918e7bfce05178648d7d0ce9a0c9cc94020513841",
+    "binary-reply-final-paired.jsonl": "412657be3d2a8b17119d7f84f7bf7dcff8ef2a8f30d649b364e9bdb224ff4a70",
+    "binary-reply-baseline-paired.jsonl": "fda2081784cef07c3745b7956a2037292c959570d1ec3bc58e3c85ef5d8432f3",
+    "binary-focused-tests.log": "8f33fba558b2557d831310311fd376304b6f2cbb430dac1c765bb212b0e3a345",
+    "binary-focused-final.log": "4eac37a0afaf70fff491d6122925556b198f33b1e7fcd7a0e4b21e1e9f06a89a",
+    "transport-baseline/build-protocol.js": "d0ea0abe22278bdd73ff6867688dfc8793d230c799408aa44d6870b627cd590d",
+    "transport-baseline/document-protocol.js": "f6f0592c0f443913ce9cee4586b1df852c9708a7da6271e49c2f65e97be5bdbe"
+  },
+  "input_pdf": {
+    "path": "artifacts/compile-20261115/baseline-pdflatex/large-project/run-00/.out/preview.pdf",
+    "sha256": "1944e6f957d5e2a298dc6e37fc1d613f2806e3d044bb8430e204537721b4ef34"
+  },
+  "final_paired_results": [
+    {
+      "node": "v25.2.1",
+      "baseline_module": "artifacts/compile-20261115/transport-baseline/build-protocol.js",
+      "payload_bytes": 1048576,
+      "json_bytes": 3705458,
+      "binary_bytes": 1048780,
+      "metadata_bytes": 196,
+      "legacy_median_ms": 126.04100000000005,
+      "binary_median_ms": 0.9975999999999203,
+      "paired_saving_median_ms": 124.9652000000001,
+      "trials": [
+        {
+          "warmup": true,
+          "legacy_ms": 138.19870000000003,
+          "binary_ms": 2.6055000000000064,
+          "saved_ms": 135.59320000000002
+        },
+        {
+          "warmup": false,
+          "binary_ms": 1.0169000000000779,
+          "legacy_ms": 130.42590000000007,
+          "saved_ms": 129.409
+        },
+        {
+          "warmup": false,
+          "legacy_ms": 122.89660000000003,
+          "binary_ms": 0.9329999999999927,
+          "saved_ms": 121.96360000000004
+        },
+        {
+          "warmup": false,
+          "binary_ms": 1.0757999999999583,
+          "legacy_ms": 126.04100000000005,
+          "saved_ms": 124.9652000000001
+        },
+        {
+          "warmup": false,
+          "legacy_ms": 110.1952,
+          "binary_ms": 0.9975999999999203,
+          "saved_ms": 109.19760000000008
+        },
+        {
+          "warmup": false,
+          "binary_ms": 0.8490999999999076,
+          "legacy_ms": 127.45589999999993,
+          "saved_ms": 126.60680000000002
+        }
+      ]
+    },
+    {
+      "node": "v25.2.1",
+      "baseline_module": "artifacts/compile-20261115/transport-baseline/build-protocol.js",
+      "payload_bytes": 8388608,
+      "json_bytes": 29644012,
+      "binary_bytes": 8388812,
+      "metadata_bytes": 196,
+      "legacy_median_ms": 895.1548000000003,
+      "binary_median_ms": 6.074999999999818,
+      "paired_saving_median_ms": 889.3761000000004,
+      "trials": [
+        {
+          "warmup": true,
+          "legacy_ms": 874.8899999999999,
+          "binary_ms": 5.621000000000095,
+          "saved_ms": 869.2689999999998
+        },
+        {
+          "warmup": false,
+          "binary_ms": 6.780799999999999,
+          "legacy_ms": 870.5649999999996,
+          "saved_ms": 863.7841999999996
+        },
+        {
+          "warmup": false,
+          "legacy_ms": 906.4251999999997,
+          "binary_ms": 6.370699999999488,
+          "saved_ms": 900.0545000000002
+        },
+        {
+          "warmup": false,
+          "binary_ms": 5.820800000000418,
+          "legacy_ms": 867.5967999999993,
+          "saved_ms": 861.7759999999989
+        },
+        {
+          "warmup": false,
+          "legacy_ms": 895.1548000000003,
+          "binary_ms": 5.778699999999844,
+          "saved_ms": 889.3761000000004
+        },
+        {
+          "warmup": false,
+          "binary_ms": 6.074999999999818,
+          "legacy_ms": 909.1491999999998,
+          "saved_ms": 903.0742
+        }
+      ]
+    }
+  ],
+  "focused_tests": {
+    "passed": 46,
+    "failed": 0,
+    "skipped": 0,
+    "scope": "Rust-generated envelope fixture, real ordered client, candidate/cancellation guards, real PDF text/geometry/full-page pixel comparison"
+  },
+  "development_failures": [
+    "First render comparison included PDF.js document-specific font prefixes; retained log records the corrected comparison scope."
+  ],
+  "limits": [
+    "Node repeated-byte serialization fixtures, not whole large PDFs",
+    "Five measured correlated pairs per size; machine state/JIT/background load uncontrolled",
+    "Excludes Rust encoding, WebView dispatch, TeX execution and physical presentation",
+    "Native app acceptance remains owner-run; no app was opened"
+  ]
+}
