@@ -48,7 +48,7 @@ fn typed_draft_intent_uses_shared_history_and_keeps_render_proof_unresolved() {
             text: "Revised & שלום.".into(),
         })
         .unwrap();
-    let expected = plan.candidate_sources().clone();
+    let expected = plan.candidate_sources(&s).unwrap();
     let receipt = s.apply_source_intent_draft(plan).unwrap();
     assert_eq!(receipt.from_revision(), Revision(0));
     assert_eq!(receipt.revision(), Revision(1));
@@ -88,6 +88,10 @@ fn draft_intents_reject_foreign_stale_and_restored_equal_source_plans() {
         })
         .unwrap();
     assert!(matches!(
+        plan.candidate_sources(&foreign),
+        Err(EditError::ForeignSession)
+    ));
+    assert!(matches!(
         foreign.apply_source_intent_draft(plan),
         Err(EditError::ForeignSession)
     ));
@@ -108,6 +112,10 @@ fn draft_intents_reject_foreign_stale_and_restored_equal_source_plans() {
     let before = s.sources().clone();
     let revision = s.revision();
     let history = s.history_len();
+    assert!(matches!(
+        stale.candidate_sources(&s),
+        Err(EditError::StaleRevision)
+    ));
     assert!(matches!(
         s.apply_source_intent_draft(stale),
         Err(EditError::StaleRevision)
@@ -236,11 +244,12 @@ fn literal_replacement_escapes_raw_tex_and_keeps_all_unrelated_source() {
         })
         .unwrap();
     let escaped = "\\textbackslash{}input\\{evil\\} \\& \\% \\# \\_ \\$ \\textasciitilde{} \\textasciicircum{} שלום 😀";
+    let candidate = plan.candidate_sources(&s).unwrap();
     assert_eq!(
-        plan.candidate_sources()["main.tex"],
+        candidate["main.tex"],
         original["main.tex"].replace("Target.", escaped)
     );
-    assert_eq!(plan.candidate_sources()["keep.sty"], original["keep.sty"]);
+    assert_eq!(candidate["keep.sty"], original["keep.sty"]);
     assert_eq!(plan.kind(), OperationKind::ReplaceText);
     assert_eq!(
         plan.required_proof(),
@@ -269,9 +278,10 @@ fn deletion_targets_only_the_second_equal_paragraph_and_retains_separators() {
         .unwrap();
     let mut expected = original["main.tex"].clone();
     expected.replace_range(offset..offset + 5, "");
-    assert_eq!(plan.candidate_sources()["main.tex"], expected);
-    assert_eq!(plan.candidate_sources().len(), original.len());
-    assert_eq!(plan.candidate_sources()["keep.sty"], original["keep.sty"]);
+    let candidate = plan.candidate_sources(&s).unwrap();
+    assert_eq!(candidate["main.tex"], expected);
+    assert_eq!(candidate.len(), original.len());
+    assert_eq!(candidate["keep.sty"], original["keep.sty"]);
     assert_eq!(plan.kind(), OperationKind::DeleteContent);
     assert_eq!(
         plan.required_proof(),
@@ -368,7 +378,7 @@ fn same_literal_candidate_is_a_no_op_and_does_not_grant_render_authority() {
         .unwrap();
     assert!(!plan.changed());
     assert_eq!(plan.base_revision(), Revision(0));
-    assert_eq!(plan.candidate_sources(), s.sources());
+    assert_eq!(&plan.candidate_sources(&s).unwrap(), s.sources());
     assert_eq!(
         plan.required_proof(),
         &RequiredProof::LiteralParagraphReplacement {
@@ -387,7 +397,7 @@ fn draft_lane_can_reuse_the_exact_patch_and_history_without_claiming_visual_acce
             text: "New & literal".into(),
         })
         .unwrap();
-    let candidate = plan.candidate_sources().clone();
+    let candidate = plan.candidate_sources(&s).unwrap();
     // Explicit canonical source editing, not a verified geometric operation.
     let prepared = s.prepare(plan.source_patch()).unwrap();
     s.commit(prepared, Origin::Source, None).unwrap();
@@ -440,7 +450,7 @@ fn escaped_literal_candidates_can_be_projected_and_replaced_again() {
         })
         .unwrap();
     assert_eq!(
-        next.candidate_sources()["main.tex"],
+        next.candidate_sources(&s).unwrap()["main.tex"],
         original.replace("Target.", "Second update.")
     );
 }

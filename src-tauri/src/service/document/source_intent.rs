@@ -257,18 +257,17 @@ impl Backend {
         };
         let changed = plan.changed();
         let patch = plan.source_patch();
-        let changed_file = match patch.files.as_slice() {
-            [FileChange::Edit {file,..}] if changed => Some(file.clone()),
-            _ if !changed => None,
+        let (file, edits) = match patch.files.as_slice() {
+            [FileChange::Edit {file,edits}] => (file, edits),
             _ => {let outcome=slot.refuse_source_intent(base,operation_id,intent,SourceDraftRefusalReason::SourceGuardRejected);return Ok(reply(slot,outcome,None));},
         };
+        let changed_file = changed.then(|| file.clone());
         let outcome = if changed {
             // Preflight every fallible core guard on the exact future state.
-            // Reconstructing history adds no visual or disk-save authority.
             let proposed = (|| -> Result<core::Session> {
                 let mut proposed = slot.session.fork_for_preflight();
-                let candidate = proposed.prepare(patch.clone()).map_err(fail)?;
-                proposed.commit(candidate, Origin::Source, None).map_err(fail)?;
+                let candidate = proposed.prepare_source_edit(Revision(base), file, edits.clone()).map_err(fail)?;
+                proposed.commit_source_edit(candidate, None).map_err(fail)?;
                 safe_revision(proposed.revision().0)?;
                 self.mark_cache_unclean()?;
                 Ok(proposed)
