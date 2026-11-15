@@ -117,3 +117,45 @@ revisions, PDF size limits and fallback decoding. The receipt is
 \path{docs/evidence/binary-compile-reply-2026-11-15.json}. These checks do
 not exercise native WebView dispatch or physical presentation; packaged
 Windows preview acceptance and delivery measurements remain pending.
+
+\subsection{First-pass observation feasibility, 16 November}
+
+A direct-engine control retained first-pass PDFs before later passes
+overwrote them. Across pdf\LaTeX{}, Xe\LaTeX{} and Lua\LaTeX{}, plain
+articles retained the same text and pixels, while references and contents
+changed before settling. Each deliberately failed second pass followed a
+readable first PDF. These 12 synthetic conditions establish why an early
+PDF needs a provisional lifecycle; they bypass the application build service.
+
+An opt-in observer now exposes first-pass bytes from the supervised build
+library after recorder discovery and frozen-input/dependency checks. Its
+type is explicitly unverified, carries diagnostics, and provides no receipt
+or mapping authority. Reads are bounded at 60 MiB and require a PDF header;
+consumers must still parse before presentation. Cancellation is checked
+around the callback. Ordinary desktop builds continue to return the settled
+result and perform no early byte read.
+
+The production-service corpus exercises seven conditions under each engine:
+plain article, references, contents, later-pass failure, first-pass compile
+error, callback cancellation and changed frozen input after observation.
+All 21 controls pass. The nine successful final PDFs retain the baseline's
+text, character geometry and full-page 96 dpi rasters. Three plain first
+PDFs match the final output; the six reference/contents first PDFs differ.
+The later-failure controls remain failed and ineligible. Cancellation stops
+before a second completed pass, and changed frozen input prevents a final
+build while the original project remains unchanged.
+
+The final native run primes successful compiler identification with the
+no-observer baseline, then records reuse explicitly for observed builds.
+Its first-available and final-return times are descriptive endpoints, with
+one observation per engine/condition. Those durations have different probe
+conditions and do not estimate callback overhead or application speedup.
+Earlier direct and native development runs remain separate. The protocol is
+\path{research/FIRST-PASS-PREVIEW-PLAN.md}; the source and result identities
+are in \path{docs/evidence/first-pass-preview-2026-11-16.json}.
+
+This observer is development infrastructure. A later desktop preview needs
+project/revision/request fencing, separate provisional presentation, retention
+of the last verified PDF after failure, and owner-run native acceptance.
+No first-pass visual editing, early verified export or input-to-display result
+is established by this corpus.

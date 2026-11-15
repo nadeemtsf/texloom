@@ -1,0 +1,1797 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-15T22:04:56.326537+00:00",
+  "kind": "first_pass_unverified_observer_development_diagnostic",
+  "status": "focused_controls_and_output_checks_passed_full_gate_tracked_separately",
+  "implementation_base": "65617c211bb6c8b6052c0db31d54c91f55c532ad",
+  "protocol": "research/FIRST-PASS-PREVIEW-PLAN.md",
+  "source_sha256": {
+    "crates/texloom-build/src/engine.rs": "e777335b0366cfe5d916a9dd3e7d892ea555031f2ee02c23eb50a0306746f344",
+    "crates/texloom-build/tests/engine_corpus.rs": "30d6bb95a6a5bdeecca3b4cb0dfe5aa755746251f260e037489d39d319f92879",
+    "research/FIRST-PASS-PREVIEW-PLAN.md": "fcf3b0bb91bd5fa9cdb2696c23a3cbdfeeaa54f43126fe0258d8e1f7d4851271",
+    "research/FIRST-PASS-PREVIEW-2026-11-16.md": "cc35834d9ed1b2499756971ace3f0f81771ec9a5ba9e3b5b62a14bf24ca10bb4",
+    "research/tools/compare_first_previews.py": "d4e829d926fcd471c6d84ba465435436ea45db6f2b7c19cdb1b5ceddabb241b6",
+    "Cargo.lock": "c0a08b67ef59e6fad685975754c24dcae80b454d592a1bf386f33c3339e5b124"
+  },
+  "raw_sha256": {
+    "first-preview-spike/native-bounded-controls.log": "a02979aa04efd100be0497bb4423f10777208003314267d08bcf8bc218b1c209",
+    "first-preview-spike/native-bounded-unit.log": "938c87b60536012afb241b723db3a62d1f4a047ef2d0ef5dd3a5f1200b1a1709",
+    "first-preview-spike/native-controls.log": "a649af013ea74fc4cba8381046ff33b180a98e5a4e3fa01141ff5d6e78a394bf",
+    "first-preview-spike/native-final-controls.log": "694338e4ea72ba254ea94275d1f4e34f760a210ccaffd5e7ee0bb4a1c61d1982",
+    "first-preview-spike/native-initial-source.json": "bca587a22a6fa31ea0e0af23e47769ccb845f713a8f06bbd87ebb7231ee84669",
+    "first-preview-spike/native-unit.log": "2bbcd5489bdef931684ab70624cee94607a4bec1b3e97520a6b44061fd9967c5",
+    "first-preview-spike/native-verified-controls.log": "c2e078581b916991d05b7f93c36ffec425a64ad551fdd720d39f4d28a5053b99",
+    "first-preview-spike/native-verified-unit.log": "d022e96b53321a9d48897d6aeb22dedc0cd1cd5b359b08b99060ef0f05994bda",
+    "first-preview-spike/PLAN.md": "9f38daa1ec3fc24468ada03a2214494aa77e4ca0a9483096e7448ad40f21d280",
+    "first-preview-spike/run.log": "5f8a2aed9a5dd6485beab4530c1840b2f5b94786559e2bf399cc5a71ae722649",
+    "first-preview-spike/run.py": "f7e5c125f836810f98d52ad2462ad284589880a40e04219a1c87f2262cd1176f",
+    "first-preview-spike/runs/lualatex/contents/main.tex": "970e75649caa3ecdcce51021af5c803c127c208e99242e7c4c63fe3ae9da2052",
+    "first-preview-spike/runs/lualatex/contents/pass-1.log": "bfd0c548cc6d0fbd1a4c199f9792c4353235d647f58a429d007c2df0ccdeea90",
+    "first-preview-spike/runs/lualatex/contents/pass-1.pdf": "bdeb04ca8505efa3181f94a3301f43d7ea365cb5bb257bf7d2be54d234ff9609",
+    "first-preview-spike/runs/lualatex/contents/pass-1.stdout": "ee61e480f89abe424a9b72646a6459a1f368a52580e442b3620df2791695b3e5",
+    "first-preview-spike/runs/lualatex/contents/pass-2.log": "3cdc7cee82255b2dbf964c1ebea4869336e6641c7ecc420dc29b2e6e7bf7dc7b",
+    "first-preview-spike/runs/lualatex/contents/pass-2.pdf": "3d26a1c4a312890b50503915026042b48a05ff64d6fa78b913f269c62d3d3f0e",
+    "first-preview-spike/runs/lualatex/contents/pass-2.stdout": "0e4dcbb3bdf05edd61c05776375544ca3e78bb754efb1c1a328e163385498a5d",
+    "first-preview-spike/runs/lualatex/contents/pass-3.log": "3cdc7cee82255b2dbf964c1ebea4869336e6641c7ecc420dc29b2e6e7bf7dc7b",
+    "first-preview-spike/runs/lualatex/contents/pass-3.pdf": "ea9e57805669f56dbaa3ad18e2ae94f503fe2eed9a25b914d2c62c300e923a13",
+    "first-preview-spike/runs/lualatex/contents/pass-3.stdout": "0e4dcbb3bdf05edd61c05776375544ca3e78bb754efb1c1a328e163385498a5d",
+    "first-preview-spike/runs/lualatex/late-failure/main.tex": "a2b170282449a1ea37a3236b6ff3a15af64fa5a44e4ff58e7ead78034b907f4f",
+    "first-preview-spike/runs/lualatex/late-failure/pass-1.log": "a8781a66ac6cadc4ed0ee1d847254802fcdae779658b7fa095d10db641b5198e",
+    "first-preview-spike/runs/lualatex/late-failure/pass-1.pdf": "01af5436942897da9b415dc266458c342179dd8952f7189ed32895377cc86058",
+    "first-preview-spike/runs/lualatex/late-failure/pass-1.stdout": "30e90f40ffe4a243e47d2bccd2f1aaef0fd1c7e7ef873d450a0fabc7cdc85a74",
+    "first-preview-spike/runs/lualatex/late-failure/pass-2.log": "111bb7cc99571542f8643eed14b26d7b2124795fb29f3e3c9ba39d599046fee5",
+    "first-preview-spike/runs/lualatex/late-failure/pass-2.stdout": "43cfc5b1846d1ca2ba20076bf96c355e8bd1a28a293d560a56a32091ed4c682a",
+    "first-preview-spike/runs/lualatex/plain/main.tex": "3dcb7867112b4ccdaf2fa727110f93c50ec07103bbadafff217d40af433456f2",
+    "first-preview-spike/runs/lualatex/plain/pass-1.log": "3010d938d5c79b368f36ebaafa6879dee6210b5d28c0af77485a309b6fce003e",
+    "first-preview-spike/runs/lualatex/plain/pass-1.pdf": "2877407e98b4d09d3dad639bca107a2aa34ab0c2c5f336f20e1fd3f296824199",
+    "first-preview-spike/runs/lualatex/plain/pass-1.stdout": "802fd8882dd6511c859e13c37b6a9c83936dcdaa29c275884cd21c7cf25013ec",
+    "first-preview-spike/runs/lualatex/plain/pass-2.log": "ff52d6f895698717c7a25d7e8076872916df470138e6e6981859f67232225cfe",
+    "first-preview-spike/runs/lualatex/plain/pass-2.pdf": "8910e5bcee549bd9bd319c21d7039ea4b0f5636fbaf10da1fc83eeca59d603f2",
+    "first-preview-spike/runs/lualatex/plain/pass-2.stdout": "46b0c3e1d53d1d914d9571d7ffa9134c695f147414a216ad9024bc703f909014",
+    "first-preview-spike/runs/lualatex/plain/pass-3.log": "ff52d6f895698717c7a25d7e8076872916df470138e6e6981859f67232225cfe",
+    "first-preview-spike/runs/lualatex/plain/pass-3.pdf": "283689eb22733fa007e8319d90aaee5c625231d528759ebf566c70f70281f7b0",
+    "first-preview-spike/runs/lualatex/plain/pass-3.stdout": "46b0c3e1d53d1d914d9571d7ffa9134c695f147414a216ad9024bc703f909014",
+    "first-preview-spike/runs/lualatex/references/main.tex": "5c43fb960f5e15ab733cce7753df0e9be434ce1c7edac5bae6a6e11f6b294ba0",
+    "first-preview-spike/runs/lualatex/references/pass-1.log": "fde0f3a5844256c8174987ea70b60e04c03ac8f9c7c46a405484cd2c3b932312",
+    "first-preview-spike/runs/lualatex/references/pass-1.pdf": "21ddca8873feb0eff566fe6002bd92af203dd2dd5f7d68827d1507db085e24b4",
+    "first-preview-spike/runs/lualatex/references/pass-1.stdout": "9499ded545f663965b5fe704ac16ca227825f77d02787dba41ee527c2a82d91c",
+    "first-preview-spike/runs/lualatex/references/pass-2.log": "e589a8758b952208a7e8706c00b6c707754a4a03aadaddb70c7a0eb76ac71c4e",
+    "first-preview-spike/runs/lualatex/references/pass-2.pdf": "909f63b1eabc19bd5c90c2f5175374ba7a0935bb01a00938d9b41ced638c9f68",
+    "first-preview-spike/runs/lualatex/references/pass-2.stdout": "bc5270e540c499bcd19eb70144b1f9f4da4c990555d4720257649daaf750b2d4",
+    "first-preview-spike/runs/lualatex/references/pass-3.log": "e589a8758b952208a7e8706c00b6c707754a4a03aadaddb70c7a0eb76ac71c4e",
+    "first-preview-spike/runs/lualatex/references/pass-3.pdf": "909f63b1eabc19bd5c90c2f5175374ba7a0935bb01a00938d9b41ced638c9f68",
+    "first-preview-spike/runs/lualatex/references/pass-3.stdout": "bc5270e540c499bcd19eb70144b1f9f4da4c990555d4720257649daaf750b2d4",
+    "first-preview-spike/runs/pdflatex/contents/main.tex": "970e75649caa3ecdcce51021af5c803c127c208e99242e7c4c63fe3ae9da2052",
+    "first-preview-spike/runs/pdflatex/contents/pass-1.log": "3bcde5f610f3bb6efe3a58ae4b052358b20e98f1e506b5cbd22117acbca80781",
+    "first-preview-spike/runs/pdflatex/contents/pass-1.pdf": "6a230513b3c5b3a6214f9ff982f0099f5b4b270035c869fdc2821195f714192d",
+    "first-preview-spike/runs/pdflatex/contents/pass-1.stdout": "506d6753be19c5eee0fcfc36042555e39e80c9aa88f09d4a9c665f90ff1bd0e9",
+    "first-preview-spike/runs/pdflatex/contents/pass-2.log": "ebe890589c6b94d09c09b36b7034a935eda3604aaa69cc912aa87f3c5e45fa19",
+    "first-preview-spike/runs/pdflatex/contents/pass-2.pdf": "e5590b9ab054839495f19709adcbadbfe91bc1c5b836fd4fa0fe4f5c06e230b9",
+    "first-preview-spike/runs/pdflatex/contents/pass-2.stdout": "c050d3706642f96afe40ded151ab8be7c79b0936e355b88c38f0e390b2b9c6d7",
+    "first-preview-spike/runs/pdflatex/contents/pass-3.log": "ebe890589c6b94d09c09b36b7034a935eda3604aaa69cc912aa87f3c5e45fa19",
+    "first-preview-spike/runs/pdflatex/contents/pass-3.pdf": "5ac37470ab7ab04143043394fe01f86223838bb2a04706fc59140b3d02c16434",
+    "first-preview-spike/runs/pdflatex/contents/pass-3.stdout": "c050d3706642f96afe40ded151ab8be7c79b0936e355b88c38f0e390b2b9c6d7",
+    "first-preview-spike/runs/pdflatex/late-failure/main.tex": "a2b170282449a1ea37a3236b6ff3a15af64fa5a44e4ff58e7ead78034b907f4f",
+    "first-preview-spike/runs/pdflatex/late-failure/pass-1.log": "939f05910020c9c93ab3fbaeb070c5c87fa2e1255b1b9c43d532a51aa29021d3",
+    "first-preview-spike/runs/pdflatex/late-failure/pass-1.pdf": "52e0adf68fa37a28bd878de11569a93d5db65e3f05020de30cc9e28cde452cf3",
+    "first-preview-spike/runs/pdflatex/late-failure/pass-1.stdout": "df8b7582ef91c55e72daaaba6753a67bd57fce79e253f2274ce2abd228a5b39e",
+    "first-preview-spike/runs/pdflatex/late-failure/pass-2.log": "8cdf7540947d24da50b1fe5182f6bbf5c06940952149db693008a35462556318",
+    "first-preview-spike/runs/pdflatex/late-failure/pass-2.stdout": "a5e2e2bfa01a7cedc2f9ac19afd70f8ebd2a94cc09fd90002702572f936c5f68",
+    "first-preview-spike/runs/pdflatex/plain/main.tex": "3dcb7867112b4ccdaf2fa727110f93c50ec07103bbadafff217d40af433456f2",
+    "first-preview-spike/runs/pdflatex/plain/pass-1.log": "3d1988a04b43cf5b93bffb4b9bba14880989d14b1efa01a28603e52bedbee7e6",
+    "first-preview-spike/runs/pdflatex/plain/pass-1.pdf": "090484ac851196cf664d0a8ce48148a351176bd3745dd390f59806cf4a06c499",
+    "first-preview-spike/runs/pdflatex/plain/pass-1.stdout": "045ade69010b9acc835f2a1eeb6ae9cd6ce1a86becf362f20519a1b34a37ac37",
+    "first-preview-spike/runs/pdflatex/plain/pass-2.log": "cfdec42c909c7ca9f2660e4a0f699edc818ee5771ec3743c98ccf45e959bdbbd",
+    "first-preview-spike/runs/pdflatex/plain/pass-2.pdf": "da3f29e02ecab6540b99b38c1031af893c30d51b5f5ccb00c274f299ac0f8f1c",
+    "first-preview-spike/runs/pdflatex/plain/pass-2.stdout": "b52030195f80dcc5f8cc2478a586dcd23b9c4febbb3b165c751e38ffed229225",
+    "first-preview-spike/runs/pdflatex/plain/pass-3.log": "cfdec42c909c7ca9f2660e4a0f699edc818ee5771ec3743c98ccf45e959bdbbd",
+    "first-preview-spike/runs/pdflatex/plain/pass-3.pdf": "7e10db7e6894ce91dfa264f1d454153e47e8c15dae8428495ca9ad1eaa695b0f",
+    "first-preview-spike/runs/pdflatex/plain/pass-3.stdout": "b52030195f80dcc5f8cc2478a586dcd23b9c4febbb3b165c751e38ffed229225",
+    "first-preview-spike/runs/pdflatex/references/main.tex": "5c43fb960f5e15ab733cce7753df0e9be434ce1c7edac5bae6a6e11f6b294ba0",
+    "first-preview-spike/runs/pdflatex/references/pass-1.log": "fd354ac1193fb26c2b51d355d21a000909bdfa9690a162f2bb77b98442c3608a",
+    "first-preview-spike/runs/pdflatex/references/pass-1.pdf": "e2d136c19eaafc227deb40b1bab03ede9e67229ca574fe7a99a86b5098a3489a",
+    "first-preview-spike/runs/pdflatex/references/pass-1.stdout": "223fd506140e77dc9e31ee50b33f51a8868e84728b604501bb5b75772d7afad0",
+    "first-preview-spike/runs/pdflatex/references/pass-2.log": "995f16355937d890564e4b841fa67f955673b3c5e8e550b31c564251c4c38344",
+    "first-preview-spike/runs/pdflatex/references/pass-2.pdf": "77000b3a3bdb0cbfefeca19a6ff9dcecfa4b211b189cd3ad7ad7b5299964a8da",
+    "first-preview-spike/runs/pdflatex/references/pass-2.stdout": "ae697fd3946222260a150bbb136ca78cccac3ee5ce1eba1016a4c82e57b3731a",
+    "first-preview-spike/runs/pdflatex/references/pass-3.log": "995f16355937d890564e4b841fa67f955673b3c5e8e550b31c564251c4c38344",
+    "first-preview-spike/runs/pdflatex/references/pass-3.pdf": "641476c92078f249a93d8acca6ebe0bfd4703cc3a5dfaccebeac6dc0db5a7094",
+    "first-preview-spike/runs/pdflatex/references/pass-3.stdout": "ae697fd3946222260a150bbb136ca78cccac3ee5ce1eba1016a4c82e57b3731a",
+    "first-preview-spike/runs/results.json": "523595f49c782e77c4a769c4fb0aff4ea0979a38898bcc966f721dc2b152bef8",
+    "first-preview-spike/runs/xelatex/contents/main.tex": "970e75649caa3ecdcce51021af5c803c127c208e99242e7c4c63fe3ae9da2052",
+    "first-preview-spike/runs/xelatex/contents/pass-1.log": "0859d75cd3b5d9ed98322bf6837d4c9154861e93ba2bdd15b409af52731d2e27",
+    "first-preview-spike/runs/xelatex/contents/pass-1.pdf": "f24a8d4741dc2a76ea2aed153994d559ec80c1fb373d24846f0b875cc59c1df1",
+    "first-preview-spike/runs/xelatex/contents/pass-1.stdout": "49a5d95e7a4b579bb15833364122c7158ae4f41554f1f8042d6e1f1769a902e3",
+    "first-preview-spike/runs/xelatex/contents/pass-2.log": "1ddc39e1ee252b3ba2a7dadef6bb50d8934c0ea24e8bcd265e1279406b5947b7",
+    "first-preview-spike/runs/xelatex/contents/pass-2.pdf": "ecab72016fd93d376a474f137ed5c7a935ac004ea3be7d8c10cdb03e51eaed64",
+    "first-preview-spike/runs/xelatex/contents/pass-2.stdout": "4311d25c80444e5c1d8402fc9e9b406f26d22be620adaa0980b59d8c199eadf8",
+    "first-preview-spike/runs/xelatex/contents/pass-3.log": "3d7d3bf34aa71a3ea7ff454f096b04319cda71767ac27f9df4baa647cf7e6083",
+    "first-preview-spike/runs/xelatex/contents/pass-3.pdf": "e01a5d46e2bcf7b81d3b4654617a9475eba626f777bd9b45a854fe2ee11a2e91",
+    "first-preview-spike/runs/xelatex/contents/pass-3.stdout": "4311d25c80444e5c1d8402fc9e9b406f26d22be620adaa0980b59d8c199eadf8",
+    "first-preview-spike/runs/xelatex/late-failure/main.tex": "a2b170282449a1ea37a3236b6ff3a15af64fa5a44e4ff58e7ead78034b907f4f",
+    "first-preview-spike/runs/xelatex/late-failure/pass-1.log": "a2f90eb60ff11eb51cc8182491e9606e317a94a765d35c566ad4a71ae9727c6d",
+    "first-preview-spike/runs/xelatex/late-failure/pass-1.pdf": "c9c1ba2413bb7aebe9ee381d5846ab0e801dfdda1e1913f4b48bb771bff68105",
+    "first-preview-spike/runs/xelatex/late-failure/pass-1.stdout": "746a0cd2cec4ac188ba6e2a0b0b0560ca878fb73c42c09c27229c19c99097798",
+    "first-preview-spike/runs/xelatex/late-failure/pass-2.log": "1e9ecf3f8a712f0844ba5635063c5409ed19c7f08b988104ab9daa6709937189",
+    "first-preview-spike/runs/xelatex/late-failure/pass-2.stdout": "7c27460086b8d7ddb8707d0f9c5932b72672bcd75de894a28231b5802d23a832",
+    "first-preview-spike/runs/xelatex/plain/main.tex": "3dcb7867112b4ccdaf2fa727110f93c50ec07103bbadafff217d40af433456f2",
+    "first-preview-spike/runs/xelatex/plain/pass-1.log": "645dc4bcb6e11929a91341c70f8460d4ccc8608343e963a2672613aa20911925",
+    "first-preview-spike/runs/xelatex/plain/pass-1.pdf": "2851b34dee35a8b06ca2734339a2c8a660a1ca04162178c814f9afe91a65af0d",
+    "first-preview-spike/runs/xelatex/plain/pass-1.stdout": "3fc91c25be62d9a7fe45baad08ad1a6fd194cd48d01063e63e070cb4af6cf958",
+    "first-preview-spike/runs/xelatex/plain/pass-2.log": "b76798b6c46e07a45a91c43b130837f48ba93fd9200b6f7dd66ad8ae5266fc77",
+    "first-preview-spike/runs/xelatex/plain/pass-2.pdf": "70dd5211ed159636d098c7b69732bce7f1103ce4b55663d98f5bbad1a253c5bc",
+    "first-preview-spike/runs/xelatex/plain/pass-2.stdout": "74714ed619a2a4f47dc7f65a0a7c694c92d9cc519a50912dab8819651ce16ba5",
+    "first-preview-spike/runs/xelatex/plain/pass-3.log": "b76798b6c46e07a45a91c43b130837f48ba93fd9200b6f7dd66ad8ae5266fc77",
+    "first-preview-spike/runs/xelatex/plain/pass-3.pdf": "a6796eb8501c10ee5c9ab92306c99316599cf20f9867ad8c46c12f32b3ef78b5",
+    "first-preview-spike/runs/xelatex/plain/pass-3.stdout": "74714ed619a2a4f47dc7f65a0a7c694c92d9cc519a50912dab8819651ce16ba5",
+    "first-preview-spike/runs/xelatex/references/main.tex": "5c43fb960f5e15ab733cce7753df0e9be434ce1c7edac5bae6a6e11f6b294ba0",
+    "first-preview-spike/runs/xelatex/references/pass-1.log": "1d0b9bedd4369db287243458cc184fe9b443d7011e4afe1223ba5f3a64f6a52c",
+    "first-preview-spike/runs/xelatex/references/pass-1.pdf": "f3036cdcd6012a30fde5fc08d463af7581ef1d3054cef19897a53ed5ba1e477c",
+    "first-preview-spike/runs/xelatex/references/pass-1.stdout": "9599ae9473876c537299efc8bc4e60fb2cf0e48897aa377204c2b11f336dfdad",
+    "first-preview-spike/runs/xelatex/references/pass-2.log": "532d762ef6ab414e839e6a711908d7201eb2e78096530cec724d4beea0e9f966",
+    "first-preview-spike/runs/xelatex/references/pass-2.pdf": "f8b66833739bb86885611d6daf60ae14815e05fb1bc40c4fc693f322d7e6fb80",
+    "first-preview-spike/runs/xelatex/references/pass-2.stdout": "d5f5a7f3259c002df2f8c12231c18aee1e350ed15d92f591369e1158f5378558",
+    "first-preview-spike/runs/xelatex/references/pass-3.log": "532d762ef6ab414e839e6a711908d7201eb2e78096530cec724d4beea0e9f966",
+    "first-preview-spike/runs/xelatex/references/pass-3.pdf": "15a784dcddc8ee813bd942e2abbdc2dfb70f219a8d42ed96d740cec5e6ef95cc",
+    "first-preview-spike/runs/xelatex/references/pass-3.stdout": "d5f5a7f3259c002df2f8c12231c18aee1e350ed15d92f591369e1158f5378558",
+    "first-preview-service/first-pass-preview/lualatex/cancel-at-preview/first-pass.pdf": "009d347d68d76c360e55744a58e40c5a7060165149d8cebbb0e39d6ff9dcce69",
+    "first-preview-service/first-pass-preview/lualatex/cancel-at-preview/observed/main.tex": "89c95c82cc97d531033e424fc3992fbe5a7c46bace3d0970f77a5aa606feaa86",
+    "first-preview-service/first-pass-preview/lualatex/cancel-at-preview/project/main.tex": "89c95c82cc97d531033e424fc3992fbe5a7c46bace3d0970f77a5aa606feaa86",
+    "first-preview-service/first-pass-preview/lualatex/compile-error/baseline/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service/first-pass-preview/lualatex/compile-error/baseline/texloom-build-manifest.json": "2a47f1db4461d67371b8a1de546d6a0d913fd9f7878e1e08cb87720cb8df75e6",
+    "first-preview-service/first-pass-preview/lualatex/compile-error/observed/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service/first-pass-preview/lualatex/compile-error/observed/texloom-build-manifest.json": "fed1c071854206b438bf0e6b457dc012ff212fd3de84b95a2332e0429dc1c9f4",
+    "first-preview-service/first-pass-preview/lualatex/compile-error/project/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service/first-pass-preview/lualatex/contents/baseline/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service/first-pass-preview/lualatex/contents/baseline/texloom-build-manifest.json": "18af4de07e6de6479435acd32be68d16543e0bcb0488e7d5c2c3b4e2a2b26924",
+    "first-preview-service/first-pass-preview/lualatex/contents/baseline.pdf": "2bf25deeaab69c9621dd4769c95d8bda3a637746fb9a84f0aafe0c2686467fc9",
+    "first-preview-service/first-pass-preview/lualatex/contents/final.pdf": "b5e7fb087ec84563c967a4b1db017d11eec0df4fe655c2cb8d8c97a29431f615",
+    "first-preview-service/first-pass-preview/lualatex/contents/first-pass.pdf": "452b5d660abd8fdd92924498c7b1b16742842e121b87196e317a11d7d6748ee7",
+    "first-preview-service/first-pass-preview/lualatex/contents/observed/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service/first-pass-preview/lualatex/contents/observed/texloom-build-manifest.json": "1a8d6f9b833bd3fd9ab716340e32855b3585aeed3430c45e3e04effd8da7163e",
+    "first-preview-service/first-pass-preview/lualatex/contents/project/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service/first-pass-preview/lualatex/late-failure/baseline/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service/first-pass-preview/lualatex/late-failure/baseline/texloom-build-manifest.json": "776511dfdbdb5af8e88e429c1309cd056b5bf44818f287d80ed7cd945861cfbf",
+    "first-preview-service/first-pass-preview/lualatex/late-failure/first-pass.pdf": "cbfafc4c2ed5f9e2c8682be1519beb5adf9533fb009ab3cb66fb7860b6ea947f",
+    "first-preview-service/first-pass-preview/lualatex/late-failure/observed/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service/first-pass-preview/lualatex/late-failure/observed/texloom-build-manifest.json": "8d881ee81dbf1387b0b05a8106fd2d9371ff2b9c9a8edb0f98fa48e6ca6388cb",
+    "first-preview-service/first-pass-preview/lualatex/late-failure/project/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service/first-pass-preview/lualatex/plain/baseline/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service/first-pass-preview/lualatex/plain/baseline/texloom-build-manifest.json": "e974674f057c6d794a9a0f3f209bf82fdaaa0e69379c7ed1ac5d9ed6658a1fc5",
+    "first-preview-service/first-pass-preview/lualatex/plain/baseline.pdf": "38276fa6cc82ca49846c6d6ee4142f9511cef9098314dcd0a0e4b5fa395856e9",
+    "first-preview-service/first-pass-preview/lualatex/plain/final.pdf": "6499ca65635f97bbb8588ffae3ed24031d602cc143233a1e702b990de0a41cc3",
+    "first-preview-service/first-pass-preview/lualatex/plain/first-pass.pdf": "face9f37a35a4f173a6e00c3fcdb5272fe36b0b14fba11e1cc8311bfbcd7784e",
+    "first-preview-service/first-pass-preview/lualatex/plain/observed/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service/first-pass-preview/lualatex/plain/observed/texloom-build-manifest.json": "c0484f3df27f05da51ac0275026d679b8bf7dc2cb22a71fe76f736f19262f611",
+    "first-preview-service/first-pass-preview/lualatex/plain/project/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service/first-pass-preview/lualatex/references/baseline/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service/first-pass-preview/lualatex/references/baseline/texloom-build-manifest.json": "2b5b30eb17d2c28af0077d8cbcc84a483c3a95c7c7b3bc0108ed1e74dacdd812",
+    "first-preview-service/first-pass-preview/lualatex/references/baseline.pdf": "b36338152fdcbc0acdb422beb99333747a5e7cb0877cc84baceef33453c485bd",
+    "first-preview-service/first-pass-preview/lualatex/references/final.pdf": "a99ef1df0f1c705a6c32f7d0e2dff547d0d5ff52cc474a2451b62b24c43caec7",
+    "first-preview-service/first-pass-preview/lualatex/references/first-pass.pdf": "c142102cd9946b9d0cb931b8d3b38e011a8e9663721b5a3aad3daf3ebba0be49",
+    "first-preview-service/first-pass-preview/lualatex/references/observed/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service/first-pass-preview/lualatex/references/observed/texloom-build-manifest.json": "ebcd83ff5fb5e28c3355b914b8d58f5e97cc444df7c3f8e80ebdb6092dd95369",
+    "first-preview-service/first-pass-preview/lualatex/references/project/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service/first-pass-preview/output-comparison.json": "2a9025e468cc2a8ec3b0dd05cc8634ac9cd3491f6032ec66ed70d4d6c5d8d3d9",
+    "first-preview-service/first-pass-preview/pdflatex/cancel-at-preview/first-pass.pdf": "c149fb545a75b5ecf591f44371f31cddfb8a6693f0ba4920779860dc0f42ac9e",
+    "first-preview-service/first-pass-preview/pdflatex/cancel-at-preview/observed/main.tex": "89c95c82cc97d531033e424fc3992fbe5a7c46bace3d0970f77a5aa606feaa86",
+    "first-preview-service/first-pass-preview/pdflatex/cancel-at-preview/project/main.tex": "89c95c82cc97d531033e424fc3992fbe5a7c46bace3d0970f77a5aa606feaa86",
+    "first-preview-service/first-pass-preview/pdflatex/compile-error/baseline/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service/first-pass-preview/pdflatex/compile-error/baseline/texloom-build-manifest.json": "dbdb57eab28608db0307be42e90c06b74010c7cef3e2b15407fffca7ec58ef2e",
+    "first-preview-service/first-pass-preview/pdflatex/compile-error/observed/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service/first-pass-preview/pdflatex/compile-error/observed/texloom-build-manifest.json": "4c18730bc02872d960db092f760356d89ef25e142b2c6944927d61429c7f6533",
+    "first-preview-service/first-pass-preview/pdflatex/compile-error/project/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service/first-pass-preview/pdflatex/contents/baseline/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service/first-pass-preview/pdflatex/contents/baseline/texloom-build-manifest.json": "f6d3dcba53d5b0ba2c04e88607471a3ff8f08ffbc623cf11b5ae42e36d71b0aa",
+    "first-preview-service/first-pass-preview/pdflatex/contents/baseline.pdf": "a3fb37e872293a4db800aef7ce0916c9dd00954aa82c1bacf30b287b543472dc",
+    "first-preview-service/first-pass-preview/pdflatex/contents/final.pdf": "23d0fd4964cd00c69195a93deeab34b39bb4367a2d60bde07d5941908f4334e6",
+    "first-preview-service/first-pass-preview/pdflatex/contents/first-pass.pdf": "807952556da0997fcc51e84fee5bc7cc033865d0a557c7445701dafe1f5e37f3",
+    "first-preview-service/first-pass-preview/pdflatex/contents/observed/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service/first-pass-preview/pdflatex/contents/observed/texloom-build-manifest.json": "82462d70c5b2e1340cd383c56178c7a34be05db644d2bf7e2a7c286734102057",
+    "first-preview-service/first-pass-preview/pdflatex/contents/project/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service/first-pass-preview/pdflatex/late-failure/baseline/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service/first-pass-preview/pdflatex/late-failure/baseline/texloom-build-manifest.json": "790f3c32085fc064100f15ef4d3247923cc2f302b5a2774bcd284f1ad3b09d2b",
+    "first-preview-service/first-pass-preview/pdflatex/late-failure/first-pass.pdf": "9041d850ae0c41553e7ebb4bcf9c44df18a7e614a53772753b1868bebc646f2f",
+    "first-preview-service/first-pass-preview/pdflatex/late-failure/observed/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service/first-pass-preview/pdflatex/late-failure/observed/texloom-build-manifest.json": "1ba35b21706e1f9329a77263e3a0f136c85a774c1b2a3b039dd93f8bcb86618d",
+    "first-preview-service/first-pass-preview/pdflatex/late-failure/project/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service/first-pass-preview/pdflatex/plain/baseline/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service/first-pass-preview/pdflatex/plain/baseline/texloom-build-manifest.json": "ffee31a28d0b236eca65e98c674d62737e9ef240c393920e8fb4f8b35897e72d",
+    "first-preview-service/first-pass-preview/pdflatex/plain/baseline.pdf": "40493ddd0d4c73842f83a29b68224127bdfd10acd613b0bad5cdeda2dc616dae",
+    "first-preview-service/first-pass-preview/pdflatex/plain/final.pdf": "85eb98c9da3434b1eb57afc3220f0ac1d4b01d03ab6208ed71ad573155ca8074",
+    "first-preview-service/first-pass-preview/pdflatex/plain/first-pass.pdf": "1295b91864126c6a406adcd85b068fceb51a6f42df7bbb676a6aaa20aeb02df5",
+    "first-preview-service/first-pass-preview/pdflatex/plain/observed/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service/first-pass-preview/pdflatex/plain/observed/texloom-build-manifest.json": "1ae3b75dc74ad08ef5dbfd5801ba03b6ac7402d49bad0b84124ae28eb5db4657",
+    "first-preview-service/first-pass-preview/pdflatex/plain/project/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service/first-pass-preview/pdflatex/references/baseline/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service/first-pass-preview/pdflatex/references/baseline/texloom-build-manifest.json": "ac5812c8ce9f38efba018376d11b86685c992865b1fa39ea1469ad8279a80e14",
+    "first-preview-service/first-pass-preview/pdflatex/references/baseline.pdf": "3e29841f664942414549d1088ca878596147eda2b3afd49c6dd012e253287ec5",
+    "first-preview-service/first-pass-preview/pdflatex/references/final.pdf": "59388fdf7286711e8913bc102273b92991c99875e160f644946189cbd49d70fa",
+    "first-preview-service/first-pass-preview/pdflatex/references/first-pass.pdf": "717e1c743d978aa136ceb19413e5c65fd604e1a378f0ab673907fe0be05d6b7a",
+    "first-preview-service/first-pass-preview/pdflatex/references/observed/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service/first-pass-preview/pdflatex/references/observed/texloom-build-manifest.json": "ae5d6fdfbd29758d30cb23578726e9a0ed15409ca09c57b303b955e8c0f2334c",
+    "first-preview-service/first-pass-preview/pdflatex/references/project/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service/first-pass-preview/report.json": "32f7162d45d4cc204521607ea4ba2a836c6a4284bc6e8f553622c5eb7f968cf7",
+    "first-preview-service/first-pass-preview/xelatex/cancel-at-preview/first-pass.pdf": "86ffe1677ef5d36df06ca163638d7d34187ba38bf5b1a35bbedb4c7a54196d81",
+    "first-preview-service/first-pass-preview/xelatex/cancel-at-preview/observed/main.tex": "89c95c82cc97d531033e424fc3992fbe5a7c46bace3d0970f77a5aa606feaa86",
+    "first-preview-service/first-pass-preview/xelatex/cancel-at-preview/project/main.tex": "89c95c82cc97d531033e424fc3992fbe5a7c46bace3d0970f77a5aa606feaa86",
+    "first-preview-service/first-pass-preview/xelatex/compile-error/baseline/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service/first-pass-preview/xelatex/compile-error/baseline/texloom-build-manifest.json": "f15c629338271f274f3b1cdbff3ae3a8c45a9d102fec59cdb377dc5d42974a6f",
+    "first-preview-service/first-pass-preview/xelatex/compile-error/observed/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service/first-pass-preview/xelatex/compile-error/observed/texloom-build-manifest.json": "a3199bb585d6ab90a6a11eaff54640708c4e480ade334a991a2405cb69988964",
+    "first-preview-service/first-pass-preview/xelatex/compile-error/project/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service/first-pass-preview/xelatex/contents/baseline/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service/first-pass-preview/xelatex/contents/baseline/texloom-build-manifest.json": "e26709312a47492e5dc3445aaeb696229ff623b0af23c21ea490b6a63159590a",
+    "first-preview-service/first-pass-preview/xelatex/contents/baseline.pdf": "2c98c089731acda19bc0bb0fbb19242957b3931d3313f406d27724b7d7c3bd1f",
+    "first-preview-service/first-pass-preview/xelatex/contents/final.pdf": "b93e09b6e4c231cba825147bdc45568edcf7532fdb0e29b21e50342c353c4560",
+    "first-preview-service/first-pass-preview/xelatex/contents/first-pass.pdf": "fcfcf37e7694ea6cfde1a3dfb7262a3f66da9c7aac5b4471983b6e6ead27b45f",
+    "first-preview-service/first-pass-preview/xelatex/contents/observed/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service/first-pass-preview/xelatex/contents/observed/texloom-build-manifest.json": "e5485e352adbc64fb729b6be7f967ee4671a2d39742465a326918cd45be87255",
+    "first-preview-service/first-pass-preview/xelatex/contents/project/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service/first-pass-preview/xelatex/late-failure/baseline/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service/first-pass-preview/xelatex/late-failure/baseline/texloom-build-manifest.json": "2488f287e86acf8729ba4ef709f9c455c5ebcf99b23db2ec39a77b0e51342840",
+    "first-preview-service/first-pass-preview/xelatex/late-failure/first-pass.pdf": "30e1d11c24a38252f3ce670468d9a0235adee51f1440e65123d2b31264dc30a6",
+    "first-preview-service/first-pass-preview/xelatex/late-failure/observed/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service/first-pass-preview/xelatex/late-failure/observed/texloom-build-manifest.json": "e4062b47a07e980f55b806067811692510b4e6cd43673685af09806e989ffaaf",
+    "first-preview-service/first-pass-preview/xelatex/late-failure/project/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service/first-pass-preview/xelatex/plain/baseline/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service/first-pass-preview/xelatex/plain/baseline/texloom-build-manifest.json": "edec3a814950e2eb9963718ecdb009a66286137031bb765afd4b56a1418715f7",
+    "first-preview-service/first-pass-preview/xelatex/plain/baseline.pdf": "27a393d32425f028937cd55c3671175ce5f574a4cff30437a42b9bf7dcf059b4",
+    "first-preview-service/first-pass-preview/xelatex/plain/final.pdf": "69e6f8df39bcf7079d576cbaf6d3e171e6e468af5551d3490a05ffac5e76aa58",
+    "first-preview-service/first-pass-preview/xelatex/plain/first-pass.pdf": "22d3e44bb853f0f3feba067d72aed2145109b16dbf70072310c299053f91f44a",
+    "first-preview-service/first-pass-preview/xelatex/plain/observed/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service/first-pass-preview/xelatex/plain/observed/texloom-build-manifest.json": "3f23a139500cd583fa95832f67ddaf197f8c7ab0e16fdc5a8b2fb797741f8f20",
+    "first-preview-service/first-pass-preview/xelatex/plain/project/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service/first-pass-preview/xelatex/references/baseline/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service/first-pass-preview/xelatex/references/baseline/texloom-build-manifest.json": "5957edd853ddc9817de54bf0c7c5c17509da046142d88c2fca4c003447cd578d",
+    "first-preview-service/first-pass-preview/xelatex/references/baseline.pdf": "5b5e648020717c9a340501d671dc6f2feabc19ea352a762694cb5db794c9a06a",
+    "first-preview-service/first-pass-preview/xelatex/references/final.pdf": "a25d6d2991d9e0bb1a8112a4fc7c3271a7e2289921c4393377b5931f4d2ca548",
+    "first-preview-service/first-pass-preview/xelatex/references/first-pass.pdf": "12d4a2dfe51cdab014f3f2e07643295fddfedebfd5a9498f0859465ccc573b7c",
+    "first-preview-service/first-pass-preview/xelatex/references/observed/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service/first-pass-preview/xelatex/references/observed/texloom-build-manifest.json": "50e71c86e3f7e26374aa933d0296ec974a2a1b2cc2861307d3d699d05ef18cf7",
+    "first-preview-service/first-pass-preview/xelatex/references/project/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service-final/first-pass-preview/lualatex/cancel-at-preview/first-pass.pdf": "9525a8c86c3bdd50de526f376b510b6195b01ca32511fb24dbd272adaed618d6",
+    "first-preview-service-final/first-pass-preview/lualatex/cancel-at-preview/observed/main.tex": "4d28768a35ba525fcd2489814f3b4b577cc4bee40eedb053f01ed7407304e53e",
+    "first-preview-service-final/first-pass-preview/lualatex/cancel-at-preview/project/main.tex": "4d28768a35ba525fcd2489814f3b4b577cc4bee40eedb053f01ed7407304e53e",
+    "first-preview-service-final/first-pass-preview/lualatex/compile-error/baseline/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service-final/first-pass-preview/lualatex/compile-error/baseline/texloom-build-manifest.json": "262f3a186095ed66d79065e8abdbead5bd82b2c1ff5a2ca7bf10e069dd8c4571",
+    "first-preview-service-final/first-pass-preview/lualatex/compile-error/observed/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service-final/first-pass-preview/lualatex/compile-error/observed/texloom-build-manifest.json": "6e2d0e7afe8a0b66928fe6153ee8d0183c975beb6c665b03b56c29b20de5d594",
+    "first-preview-service-final/first-pass-preview/lualatex/compile-error/project/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service-final/first-pass-preview/lualatex/contents/baseline/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service-final/first-pass-preview/lualatex/contents/baseline/texloom-build-manifest.json": "780dd42bab712076f778815cd64940a4fb9913ab81594db1280d0f3437439606",
+    "first-preview-service-final/first-pass-preview/lualatex/contents/baseline.pdf": "9ca020c975d31752ff6998cb9387990d47a7fc7975c5725cab8da0ef0c417a35",
+    "first-preview-service-final/first-pass-preview/lualatex/contents/final.pdf": "18c427e2f5027596b7a78b48042f1df4ecc204464487dfdd3abbbcefa2ebaf81",
+    "first-preview-service-final/first-pass-preview/lualatex/contents/first-pass.pdf": "ca9455b9701ea3697f4a4941306a92a0185132288fb991b8ee2cb8a48f14de29",
+    "first-preview-service-final/first-pass-preview/lualatex/contents/observed/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service-final/first-pass-preview/lualatex/contents/observed/texloom-build-manifest.json": "08fec109b43dc7483ca76092377cbfd97990ae95fd57ab206d36d8cc3eac39b8",
+    "first-preview-service-final/first-pass-preview/lualatex/contents/project/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service-final/first-pass-preview/lualatex/late-failure/baseline/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service-final/first-pass-preview/lualatex/late-failure/baseline/texloom-build-manifest.json": "bc1a1fbda4968dddb1355dc3d80991ba2ebc674315fa72d7ddfb000a21adba34",
+    "first-preview-service-final/first-pass-preview/lualatex/late-failure/first-pass.pdf": "0b2e6e3586bde567cdbdc81ef42b63a83f55b9e6aa5f93d2054083e89a5f1aee",
+    "first-preview-service-final/first-pass-preview/lualatex/late-failure/observed/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service-final/first-pass-preview/lualatex/late-failure/observed/texloom-build-manifest.json": "e18024a34be8001ad95f81e616edf4c44dd50df0d00aec3f994de988f902dcb7",
+    "first-preview-service-final/first-pass-preview/lualatex/late-failure/project/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service-final/first-pass-preview/lualatex/mutate-after-preview/first-pass.pdf": "0d6d9ea0d01fb03c0a9cceca2981074a931692e56297d3c98b185e47ce0828d4",
+    "first-preview-service-final/first-pass-preview/lualatex/mutate-after-preview/observed/main.tex": "aa8251b78aa7ee7a97eac13525c23c9509745e8d6cc85abc0856fc5d833a8da7",
+    "first-preview-service-final/first-pass-preview/lualatex/mutate-after-preview/project/main.tex": "3b1d755171da77336baf9900607f6081d4cee753a735a052c1afbd5d70cca819",
+    "first-preview-service-final/first-pass-preview/lualatex/plain/baseline/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service-final/first-pass-preview/lualatex/plain/baseline/texloom-build-manifest.json": "af296cc5b0c98955b039728c79b232e37a24c57a95f9d0f5b796a457914eb802",
+    "first-preview-service-final/first-pass-preview/lualatex/plain/baseline.pdf": "a7f2d6ef9993beec3973343f01052fc144158361f57e375fe8c84575884ec85c",
+    "first-preview-service-final/first-pass-preview/lualatex/plain/final.pdf": "1341a4329713e2447db0ba66b384174ff614bf6e4ed75586c1951c945fd0b4ab",
+    "first-preview-service-final/first-pass-preview/lualatex/plain/first-pass.pdf": "4c76e60b5bb47f8dc9d46e254ad933bd7e9d5180f09e59eea9f9614bbe18be2d",
+    "first-preview-service-final/first-pass-preview/lualatex/plain/observed/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service-final/first-pass-preview/lualatex/plain/observed/texloom-build-manifest.json": "8bfe98750b035f1339075a7e0691073f2f8ddbce121225a17da5392f7744d066",
+    "first-preview-service-final/first-pass-preview/lualatex/plain/project/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service-final/first-pass-preview/lualatex/references/baseline/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service-final/first-pass-preview/lualatex/references/baseline/texloom-build-manifest.json": "df8c74b6a01ac07127ce67848a7bab4ca1e6f4336bd7657a5279a5eb2767f36c",
+    "first-preview-service-final/first-pass-preview/lualatex/references/baseline.pdf": "73934c36777e26975a7b15b3e8cb4d47038ddb6dbe80072cca07c8abf925894c",
+    "first-preview-service-final/first-pass-preview/lualatex/references/final.pdf": "1b58aefc2f17b65c977e6900701ff75dbfe14d8183f5c19e14a69b7bede31a4b",
+    "first-preview-service-final/first-pass-preview/lualatex/references/first-pass.pdf": "8ac63eca4f2f30d576f5835d865e96210a81c5c505834720f8cbdcbd7e490354",
+    "first-preview-service-final/first-pass-preview/lualatex/references/observed/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service-final/first-pass-preview/lualatex/references/observed/texloom-build-manifest.json": "ca40686c14aeace195767358fc2ab1cef78822ba9467f2cc73cd9fce06ef792a",
+    "first-preview-service-final/first-pass-preview/lualatex/references/project/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service-final/first-pass-preview/pdflatex/cancel-at-preview/first-pass.pdf": "4c704b6237e815c9f3551ccc7407293c7291bcdd7273336cf94d92b5a17d0641",
+    "first-preview-service-final/first-pass-preview/pdflatex/cancel-at-preview/observed/main.tex": "4d28768a35ba525fcd2489814f3b4b577cc4bee40eedb053f01ed7407304e53e",
+    "first-preview-service-final/first-pass-preview/pdflatex/cancel-at-preview/project/main.tex": "4d28768a35ba525fcd2489814f3b4b577cc4bee40eedb053f01ed7407304e53e",
+    "first-preview-service-final/first-pass-preview/pdflatex/compile-error/baseline/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service-final/first-pass-preview/pdflatex/compile-error/baseline/texloom-build-manifest.json": "c4015363974ba914a3724d3f6b137fe124336043e1b4e4fefeb086f3d65ad6b8",
+    "first-preview-service-final/first-pass-preview/pdflatex/compile-error/observed/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service-final/first-pass-preview/pdflatex/compile-error/observed/texloom-build-manifest.json": "b4a26c768bf44b66c6bea0464c0b8ae346d3779afd802a03b49fb60bc63563ff",
+    "first-preview-service-final/first-pass-preview/pdflatex/compile-error/project/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service-final/first-pass-preview/pdflatex/contents/baseline/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service-final/first-pass-preview/pdflatex/contents/baseline/texloom-build-manifest.json": "f951c7e07334736453ec4fa1644c40e4346a264b647101e177280370093a8f04",
+    "first-preview-service-final/first-pass-preview/pdflatex/contents/baseline.pdf": "6e1aa73969a783f0503bd3c896b69013007e919c9ece149cb60741a08dcff655",
+    "first-preview-service-final/first-pass-preview/pdflatex/contents/final.pdf": "7f33ce2edc7a9ecbca0662825b684b35a42ca177e183a9167c62e5c1513688b4",
+    "first-preview-service-final/first-pass-preview/pdflatex/contents/first-pass.pdf": "282f90a57f4ee02bc8ef08da05c7e969189a7eb7b9357a1baaf45dff82eb23cb",
+    "first-preview-service-final/first-pass-preview/pdflatex/contents/observed/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service-final/first-pass-preview/pdflatex/contents/observed/texloom-build-manifest.json": "3f507b2b9019f516212f82d02a8159139e7cc99e790293f88ef2e7aa55e84c06",
+    "first-preview-service-final/first-pass-preview/pdflatex/contents/project/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service-final/first-pass-preview/pdflatex/late-failure/baseline/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service-final/first-pass-preview/pdflatex/late-failure/baseline/texloom-build-manifest.json": "b6747163b68824833d4f1f95a325b74a5c572339418532eb90cff155345d288f",
+    "first-preview-service-final/first-pass-preview/pdflatex/late-failure/first-pass.pdf": "ee5b30a9f0e910edfd8123d8efaf1ba258798582def91a3115ec9ed918ce2a59",
+    "first-preview-service-final/first-pass-preview/pdflatex/late-failure/observed/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service-final/first-pass-preview/pdflatex/late-failure/observed/texloom-build-manifest.json": "7aba180cf992327431ca58ffe5adac6169fda4e1e153fcb1436d9eeeac72e592",
+    "first-preview-service-final/first-pass-preview/pdflatex/late-failure/project/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service-final/first-pass-preview/pdflatex/mutate-after-preview/first-pass.pdf": "e6dc7a10b532b977bf381dbe3a068d987bbae030404fbd5781bf88d78f79b95e",
+    "first-preview-service-final/first-pass-preview/pdflatex/mutate-after-preview/observed/main.tex": "aa8251b78aa7ee7a97eac13525c23c9509745e8d6cc85abc0856fc5d833a8da7",
+    "first-preview-service-final/first-pass-preview/pdflatex/mutate-after-preview/project/main.tex": "3b1d755171da77336baf9900607f6081d4cee753a735a052c1afbd5d70cca819",
+    "first-preview-service-final/first-pass-preview/pdflatex/plain/baseline/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service-final/first-pass-preview/pdflatex/plain/baseline/texloom-build-manifest.json": "0c606b9b6b8baf5f14337572933795f7848dcd8f83059b30087f84474e853f20",
+    "first-preview-service-final/first-pass-preview/pdflatex/plain/baseline.pdf": "a3f7a2b5c73e1c5da0bd9733ac830e2317056e77f8307a5253b38624057183f0",
+    "first-preview-service-final/first-pass-preview/pdflatex/plain/final.pdf": "a3d4d7c7af1c21866c207264ccd50d260ad54eef9088b79237e02dede0711dd4",
+    "first-preview-service-final/first-pass-preview/pdflatex/plain/first-pass.pdf": "5b66e4da50d39af685f3e5bed02a27a5527c4504f2b05d9a8335bed3e422b1c6",
+    "first-preview-service-final/first-pass-preview/pdflatex/plain/observed/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service-final/first-pass-preview/pdflatex/plain/observed/texloom-build-manifest.json": "8532888e1d930ccaae39205b9b9a2986501c4cfbe204311eb0e30676ee0cc191",
+    "first-preview-service-final/first-pass-preview/pdflatex/plain/project/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service-final/first-pass-preview/pdflatex/references/baseline/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service-final/first-pass-preview/pdflatex/references/baseline/texloom-build-manifest.json": "26d651a0e4786d1a9836c293dec5090d002d1c8b77baddb73801073b2025c821",
+    "first-preview-service-final/first-pass-preview/pdflatex/references/baseline.pdf": "dcc0438a345e05dd4ca8f5eccd16b26bbee3b9238d5a5cef6f29e500cfc7bf84",
+    "first-preview-service-final/first-pass-preview/pdflatex/references/final.pdf": "7e2d95ced177bb0dac2bf217ddffcbcac43624dc60414a34be761cca9a571c19",
+    "first-preview-service-final/first-pass-preview/pdflatex/references/first-pass.pdf": "0f574a8d0c18cbe0349a204bd1b0bffd9ec5a5560369a141d9d1bad6904044f2",
+    "first-preview-service-final/first-pass-preview/pdflatex/references/observed/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service-final/first-pass-preview/pdflatex/references/observed/texloom-build-manifest.json": "dfa5a67ae7b0ec3d641b67a2aabd51a0a36b47489c27e8e723593058f1029265",
+    "first-preview-service-final/first-pass-preview/pdflatex/references/project/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service-final/first-pass-preview/report.json": "2cfb42b9fba4c7f2ec3e89b927be7e1903c5722ff94b999a34e351d59b752b50",
+    "first-preview-service-final/first-pass-preview/xelatex/cancel-at-preview/first-pass.pdf": "b14852fbc01e8196c3f0868dcb9059fb75c4230d50d1d3ce39e55d9a36ba9b23",
+    "first-preview-service-final/first-pass-preview/xelatex/cancel-at-preview/observed/main.tex": "4d28768a35ba525fcd2489814f3b4b577cc4bee40eedb053f01ed7407304e53e",
+    "first-preview-service-final/first-pass-preview/xelatex/cancel-at-preview/project/main.tex": "4d28768a35ba525fcd2489814f3b4b577cc4bee40eedb053f01ed7407304e53e",
+    "first-preview-service-final/first-pass-preview/xelatex/compile-error/baseline/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service-final/first-pass-preview/xelatex/compile-error/baseline/texloom-build-manifest.json": "87d313b0da32ecdf2e6df92f4f970798b59dd554dac99013a80c228241349fbf",
+    "first-preview-service-final/first-pass-preview/xelatex/compile-error/observed/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service-final/first-pass-preview/xelatex/compile-error/observed/texloom-build-manifest.json": "dce385d82fe608cef3afbc253a857a6c6309b273ce24ed9b2e1042f9ff24abee",
+    "first-preview-service-final/first-pass-preview/xelatex/compile-error/project/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service-final/first-pass-preview/xelatex/contents/baseline/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service-final/first-pass-preview/xelatex/contents/baseline/texloom-build-manifest.json": "1fc230ddeda5b571a3d792f1f22943ce2dbae5374efb7dd017cd0a34c1b84b03",
+    "first-preview-service-final/first-pass-preview/xelatex/contents/baseline.pdf": "fafe9be46095f27910cbaf137a476a9ffabee386568b5b127790ba758eae0e1c",
+    "first-preview-service-final/first-pass-preview/xelatex/contents/final.pdf": "a94518b3852bac911e4b225e09a214311d487bd8953a087d46c2da9cdb1e9e0b",
+    "first-preview-service-final/first-pass-preview/xelatex/contents/first-pass.pdf": "2efc23fafde713f02b04fc1317bc447e21de38cb2eddbc04286775e61129d7ce",
+    "first-preview-service-final/first-pass-preview/xelatex/contents/observed/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service-final/first-pass-preview/xelatex/contents/observed/texloom-build-manifest.json": "57fc4663eb7535857afe5ab0e44ef314afb2b01e3e1dfbd9557ee2a356d13f9c",
+    "first-preview-service-final/first-pass-preview/xelatex/contents/project/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service-final/first-pass-preview/xelatex/late-failure/baseline/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service-final/first-pass-preview/xelatex/late-failure/baseline/texloom-build-manifest.json": "a35f0c9effad8cdd79c16cfdc6e840b288a076e15bbc8c1389dc41f710a6918a",
+    "first-preview-service-final/first-pass-preview/xelatex/late-failure/first-pass.pdf": "4d51af566638776c036096e9333c0dc63e3ab35f34c73944cbcc215faecb5940",
+    "first-preview-service-final/first-pass-preview/xelatex/late-failure/observed/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service-final/first-pass-preview/xelatex/late-failure/observed/texloom-build-manifest.json": "88687414d866536d1bee7a169b4683c830933076fc9128017359321a6dc10d9b",
+    "first-preview-service-final/first-pass-preview/xelatex/late-failure/project/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service-final/first-pass-preview/xelatex/mutate-after-preview/first-pass.pdf": "831bd73a23d6439217a1419b13a25c9bc60afca310b41bbac4ea335706aace4f",
+    "first-preview-service-final/first-pass-preview/xelatex/mutate-after-preview/observed/main.tex": "aa8251b78aa7ee7a97eac13525c23c9509745e8d6cc85abc0856fc5d833a8da7",
+    "first-preview-service-final/first-pass-preview/xelatex/mutate-after-preview/project/main.tex": "3b1d755171da77336baf9900607f6081d4cee753a735a052c1afbd5d70cca819",
+    "first-preview-service-final/first-pass-preview/xelatex/plain/baseline/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service-final/first-pass-preview/xelatex/plain/baseline/texloom-build-manifest.json": "f85bd0721dec2ce78ed41aad630bfaf731367f1ac02b05049e56a4d4b97fed09",
+    "first-preview-service-final/first-pass-preview/xelatex/plain/baseline.pdf": "01b992d4fd7ef9e6a2beeef2d66c59733638033f5b5d2673789dc03173cca0fc",
+    "first-preview-service-final/first-pass-preview/xelatex/plain/final.pdf": "039fe4da90429b85a3fbdfd51d0fe984b75dc8e528bfabffe8e8ef2ab6b38190",
+    "first-preview-service-final/first-pass-preview/xelatex/plain/first-pass.pdf": "dde2eb11beb3240352aae716618c9406f84e82a4aac0553dedd5f5cd988192df",
+    "first-preview-service-final/first-pass-preview/xelatex/plain/observed/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service-final/first-pass-preview/xelatex/plain/observed/texloom-build-manifest.json": "e2367e2735abd456480152a21eaf23be906daedb53ecb6ed6f992852126ef17a",
+    "first-preview-service-final/first-pass-preview/xelatex/plain/project/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service-final/first-pass-preview/xelatex/references/baseline/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service-final/first-pass-preview/xelatex/references/baseline/texloom-build-manifest.json": "1eaec0da9bfc26699ffe4f27d1bbdc9b0047f4c6784d5fdab513a4d4fd49090b",
+    "first-preview-service-final/first-pass-preview/xelatex/references/baseline.pdf": "af281e28520bd614c019d8ecee5edb3038ba060b8d05a314fdb0fc4258b08271",
+    "first-preview-service-final/first-pass-preview/xelatex/references/final.pdf": "89e20381edf0af6aebfc71843977eedac8456ff492ec43e8620df275ca8c7b40",
+    "first-preview-service-final/first-pass-preview/xelatex/references/first-pass.pdf": "0b8d02ec797b0cc8176854e67bf9f4a4c4dd8197916c3b3b3850143f1721c0ef",
+    "first-preview-service-final/first-pass-preview/xelatex/references/observed/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service-final/first-pass-preview/xelatex/references/observed/texloom-build-manifest.json": "80c45d69e90db6e67e3e703e38983e8032e20ab5700d971eaa784c7f3dc234a3",
+    "first-preview-service-final/first-pass-preview/xelatex/references/project/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service-bounded/first-pass-preview/lualatex/cancel-at-preview/first-pass.pdf": "833e72d988554c080e1e55d6bc218254ed1e3234d63b19ad93593a5640d8bd89",
+    "first-preview-service-bounded/first-pass-preview/lualatex/cancel-at-preview/observed/main.tex": "4d28768a35ba525fcd2489814f3b4b577cc4bee40eedb053f01ed7407304e53e",
+    "first-preview-service-bounded/first-pass-preview/lualatex/cancel-at-preview/project/main.tex": "4d28768a35ba525fcd2489814f3b4b577cc4bee40eedb053f01ed7407304e53e",
+    "first-preview-service-bounded/first-pass-preview/lualatex/compile-error/baseline/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service-bounded/first-pass-preview/lualatex/compile-error/baseline/texloom-build-manifest.json": "49191afec0977864242b0b9e0810451ea45c3f5896ebc694a38ea17ed7aa358f",
+    "first-preview-service-bounded/first-pass-preview/lualatex/compile-error/observed/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service-bounded/first-pass-preview/lualatex/compile-error/observed/texloom-build-manifest.json": "11924c5300e7148635dbeb4fddc4976d56b658d3750128d219d6d6ac3d9177c7",
+    "first-preview-service-bounded/first-pass-preview/lualatex/compile-error/project/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service-bounded/first-pass-preview/lualatex/contents/baseline/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service-bounded/first-pass-preview/lualatex/contents/baseline/texloom-build-manifest.json": "46c14a899a31527a68c63aaf64fcd7bf65c3d10e7051c8eb81fe85b9052725c2",
+    "first-preview-service-bounded/first-pass-preview/lualatex/contents/baseline.pdf": "09f6bbb5a09744c4a4865a799d4ec8174c0c87ccae7f7abb6b74d7717d5317ab",
+    "first-preview-service-bounded/first-pass-preview/lualatex/contents/final.pdf": "ffc07a9dc45fc3a3bd9d39813c46375e2fcb6fc388398573caf624ab334ff8f6",
+    "first-preview-service-bounded/first-pass-preview/lualatex/contents/first-pass.pdf": "bd97867b35906d2314b2fbc6ff664cbf2536a0b422b5e2b8e36d4329e6020f67",
+    "first-preview-service-bounded/first-pass-preview/lualatex/contents/observed/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service-bounded/first-pass-preview/lualatex/contents/observed/texloom-build-manifest.json": "b75b94530eb767a932d15be5a0237df39422ffcd309cf366fa3ced8b5ddc60bc",
+    "first-preview-service-bounded/first-pass-preview/lualatex/contents/project/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service-bounded/first-pass-preview/lualatex/late-failure/baseline/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service-bounded/first-pass-preview/lualatex/late-failure/baseline/texloom-build-manifest.json": "9a562e8b815600f01634db1a6a3bc552462966c18060dd691f50012faf1b7792",
+    "first-preview-service-bounded/first-pass-preview/lualatex/late-failure/first-pass.pdf": "2823b064e7b573bb5f4a44262df7a902699b4132090335e69f53e2888a640235",
+    "first-preview-service-bounded/first-pass-preview/lualatex/late-failure/observed/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service-bounded/first-pass-preview/lualatex/late-failure/observed/texloom-build-manifest.json": "9e89d7c920e8469f680564b79ae3c9eb68c3a19ddc754e60f9ee9af2980f9948",
+    "first-preview-service-bounded/first-pass-preview/lualatex/late-failure/project/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service-bounded/first-pass-preview/lualatex/mutate-after-preview/first-pass.pdf": "b840c2d1a0605b97e0da26804f3223ecde6a6cf7e09e3e102f7dfecd263a2de7",
+    "first-preview-service-bounded/first-pass-preview/lualatex/mutate-after-preview/observed/main.tex": "aa8251b78aa7ee7a97eac13525c23c9509745e8d6cc85abc0856fc5d833a8da7",
+    "first-preview-service-bounded/first-pass-preview/lualatex/mutate-after-preview/project/main.tex": "3b1d755171da77336baf9900607f6081d4cee753a735a052c1afbd5d70cca819",
+    "first-preview-service-bounded/first-pass-preview/lualatex/plain/baseline/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service-bounded/first-pass-preview/lualatex/plain/baseline/texloom-build-manifest.json": "35f62a1956b8b9e1594c4d3d09d56aaf49d35597223255e8491dd67ae95fe62f",
+    "first-preview-service-bounded/first-pass-preview/lualatex/plain/baseline.pdf": "89f8cd59831de1e22bb5b47aa4ae2e9afaa3071ed6503714d1b360e9160fa551",
+    "first-preview-service-bounded/first-pass-preview/lualatex/plain/final.pdf": "7932ad62af46f8f27ef0861691523e1e92215ee04904a5ddf0ac968245aa9a70",
+    "first-preview-service-bounded/first-pass-preview/lualatex/plain/first-pass.pdf": "b88dbb5dcd62eaa9b05ab8b9e49cd7116ea6628ba93eddefcfbc0fc10b523866",
+    "first-preview-service-bounded/first-pass-preview/lualatex/plain/observed/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service-bounded/first-pass-preview/lualatex/plain/observed/texloom-build-manifest.json": "81804e05d3c9ed9fb604ffe4d9c55ba649d9e0a7c3f9aac0b516f3565779de93",
+    "first-preview-service-bounded/first-pass-preview/lualatex/plain/project/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service-bounded/first-pass-preview/lualatex/references/baseline/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service-bounded/first-pass-preview/lualatex/references/baseline/texloom-build-manifest.json": "d0caf620cef6e161a1e91e75182306ca0b6588a4aefc31398c758254887c628b",
+    "first-preview-service-bounded/first-pass-preview/lualatex/references/baseline.pdf": "23478eda2d23007966aee1a0655140e6ba2cd2fbdd8f5bde80f70957d75e64e0",
+    "first-preview-service-bounded/first-pass-preview/lualatex/references/final.pdf": "cf32653115a402161d3006d24829705af13a330674d4bb8a924daf53e7b452be",
+    "first-preview-service-bounded/first-pass-preview/lualatex/references/first-pass.pdf": "13649519c7ddb1b8e5b2c3d9e1b6a5a6efd0fbcd3a15fb3bb025ca899fcf5e20",
+    "first-preview-service-bounded/first-pass-preview/lualatex/references/observed/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service-bounded/first-pass-preview/lualatex/references/observed/texloom-build-manifest.json": "7e09ee9ca401b9c26685435a913de85076d0f36f475be0a1b1eafe1a24a42ea6",
+    "first-preview-service-bounded/first-pass-preview/lualatex/references/project/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/cancel-at-preview/first-pass.pdf": "49c524ab4c3452cae1da686fa81558ee618c07376d55907833ea0ad20946c382",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/cancel-at-preview/observed/main.tex": "4d28768a35ba525fcd2489814f3b4b577cc4bee40eedb053f01ed7407304e53e",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/cancel-at-preview/project/main.tex": "4d28768a35ba525fcd2489814f3b4b577cc4bee40eedb053f01ed7407304e53e",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/compile-error/baseline/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/compile-error/baseline/texloom-build-manifest.json": "2b51434277bb8e8f50f73848f54ba303515a5f372e803955da7cfc89da0a638f",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/compile-error/observed/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/compile-error/observed/texloom-build-manifest.json": "9996e05477ebf9d67eecb67820d2a1ddd7774bba962964c0f7790369eb7f554d",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/compile-error/project/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/contents/baseline/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/contents/baseline/texloom-build-manifest.json": "b5a4cfb8e552504171baf75f4bac16c07e9d5dc2dd59147335b8b55dffc4e273",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/contents/baseline.pdf": "484d220d66a63a3276561e38d32ae5ba30246fba36389f5705548e7bd2c81d83",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/contents/final.pdf": "1dcce8f0f57cc70725f2aad220fefc788c850b7734482fe0788f77309f31d340",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/contents/first-pass.pdf": "cc9a96d0308b58e82c5dd23c8f1da37f80f1a90e8fc2eb3dbed433af43040531",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/contents/observed/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/contents/observed/texloom-build-manifest.json": "5629772ce9d97f6c2490be9dcf01381418f0d48511aef58e6e6c5dc3caa9f4a5",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/contents/project/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/late-failure/baseline/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/late-failure/baseline/texloom-build-manifest.json": "05812b87b4efd0ba0d0b7956a0220bf94bde0a208175dee585b23af3de86c9e4",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/late-failure/first-pass.pdf": "d3ab6de26ad2a2200c9b4fa457887348775792ec051e2e255ebe5f9f3a481297",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/late-failure/observed/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/late-failure/observed/texloom-build-manifest.json": "631d3576de29c6702f7cb24cb7c2e0e9096ab8ef7b430c1752524ad154d73d2e",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/late-failure/project/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/mutate-after-preview/first-pass.pdf": "879d72c8ae0c371d29631fac757d05e3c9b7a9fcad941a7e9c3c5f8360a08d5a",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/mutate-after-preview/observed/main.tex": "aa8251b78aa7ee7a97eac13525c23c9509745e8d6cc85abc0856fc5d833a8da7",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/mutate-after-preview/project/main.tex": "3b1d755171da77336baf9900607f6081d4cee753a735a052c1afbd5d70cca819",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/plain/baseline/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/plain/baseline/texloom-build-manifest.json": "4b3f25804ee51dc4edcd39d700c5bdc038de12bb5aac295235ac0ccdb67162fa",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/plain/baseline.pdf": "bd659010627c2a6ba74ee8cf70257d26dadd1180c6c18e669e5009d41fd9be2c",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/plain/final.pdf": "57488f1d9d747403f1e2795af947799d52732894160312f209bfd51970c87122",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/plain/first-pass.pdf": "d2e5d4a85f3d4bf870a44c5eea67e9c61442f0675285db85e3b979a4980d11b3",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/plain/observed/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/plain/observed/texloom-build-manifest.json": "6d397adad5cc0844c10781f4b0430b6efb46c6df9956c1d55b01b8d7f23308a6",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/plain/project/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/references/baseline/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/references/baseline/texloom-build-manifest.json": "cc97ce3e1838d0e604fc69f900f79dfe203b359f3637a55d490e078513bdc62a",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/references/baseline.pdf": "c25c59efb39982170ee9f0bdb9e053ac94f727be204b87c47988e046a91fba83",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/references/final.pdf": "cd837bcab185a652dd5a9056dc50875634269cddad9e63d4a74c6ea0f9748448",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/references/first-pass.pdf": "cf9c948f106b05c82554aea5b3474fc3c0130953a78c5e5725f9fe50c83ebf3e",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/references/observed/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/references/observed/texloom-build-manifest.json": "54acd5df6aacd323ce2811ac7a8eeaa444e2a8432cc352b77f5ea13f3be13bc9",
+    "first-preview-service-bounded/first-pass-preview/pdflatex/references/project/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service-bounded/first-pass-preview/report.json": "51525fae63441ffa8716e3a33d681806e264f3604198763ded515ef620991d91",
+    "first-preview-service-bounded/first-pass-preview/xelatex/cancel-at-preview/first-pass.pdf": "31c9ff5bbefe9ce795c2e3da2842cd6e5392b69f615e2edb4a3b605f2afb79c7",
+    "first-preview-service-bounded/first-pass-preview/xelatex/cancel-at-preview/observed/main.tex": "4d28768a35ba525fcd2489814f3b4b577cc4bee40eedb053f01ed7407304e53e",
+    "first-preview-service-bounded/first-pass-preview/xelatex/cancel-at-preview/project/main.tex": "4d28768a35ba525fcd2489814f3b4b577cc4bee40eedb053f01ed7407304e53e",
+    "first-preview-service-bounded/first-pass-preview/xelatex/compile-error/baseline/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service-bounded/first-pass-preview/xelatex/compile-error/baseline/texloom-build-manifest.json": "0f28687006b48a718c1bb99bde33cf9caac7fb73aac8c30fbf4482e8b0584330",
+    "first-preview-service-bounded/first-pass-preview/xelatex/compile-error/observed/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service-bounded/first-pass-preview/xelatex/compile-error/observed/texloom-build-manifest.json": "6aa0d8d2b4176449084cfde54c5e3ec011d57aa612f43de446c72b1c6a2bb12a",
+    "first-preview-service-bounded/first-pass-preview/xelatex/compile-error/project/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service-bounded/first-pass-preview/xelatex/contents/baseline/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service-bounded/first-pass-preview/xelatex/contents/baseline/texloom-build-manifest.json": "3533b35bb9129cc9a3168d2e42b88a441817a611e0f05d91c1f82cc63551cc96",
+    "first-preview-service-bounded/first-pass-preview/xelatex/contents/baseline.pdf": "7a929c5b41b454ccd8b6d67eac361a4f0e2488583fc708c6b27411185330db4e",
+    "first-preview-service-bounded/first-pass-preview/xelatex/contents/final.pdf": "f4fe8246927c4342f3c0609f92382ddf7e4d36c5ea1af6e834ecf9d0e2babb96",
+    "first-preview-service-bounded/first-pass-preview/xelatex/contents/first-pass.pdf": "3bc716ebff8f10e97381f46208b124f0675643ffdbb631222ab902a98d278e29",
+    "first-preview-service-bounded/first-pass-preview/xelatex/contents/observed/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service-bounded/first-pass-preview/xelatex/contents/observed/texloom-build-manifest.json": "e0b0907bf4d47f5cc8957928c52f8dc6382ef5d52b1cf8887b53b5b532df632a",
+    "first-preview-service-bounded/first-pass-preview/xelatex/contents/project/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service-bounded/first-pass-preview/xelatex/late-failure/baseline/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service-bounded/first-pass-preview/xelatex/late-failure/baseline/texloom-build-manifest.json": "44c4eea49322e3598f22f6f15796fe65fcdea1e4e028410df3fa9df20e3157f3",
+    "first-preview-service-bounded/first-pass-preview/xelatex/late-failure/first-pass.pdf": "d786f67c20d7f5dfd9d40de83c770a942aac5c271b6ea291c3af8af6a40bb62b",
+    "first-preview-service-bounded/first-pass-preview/xelatex/late-failure/observed/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service-bounded/first-pass-preview/xelatex/late-failure/observed/texloom-build-manifest.json": "1912b7258270ba487f2f00e15d6f9b83174c0dd1c39c664b040339baab1a19ff",
+    "first-preview-service-bounded/first-pass-preview/xelatex/late-failure/project/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service-bounded/first-pass-preview/xelatex/mutate-after-preview/first-pass.pdf": "5f2a944c3cef09b0667c48c740fc2c8006e28530993c320901d3a39dfb9c5cc8",
+    "first-preview-service-bounded/first-pass-preview/xelatex/mutate-after-preview/observed/main.tex": "aa8251b78aa7ee7a97eac13525c23c9509745e8d6cc85abc0856fc5d833a8da7",
+    "first-preview-service-bounded/first-pass-preview/xelatex/mutate-after-preview/project/main.tex": "3b1d755171da77336baf9900607f6081d4cee753a735a052c1afbd5d70cca819",
+    "first-preview-service-bounded/first-pass-preview/xelatex/plain/baseline/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service-bounded/first-pass-preview/xelatex/plain/baseline/texloom-build-manifest.json": "ed7bf08fc2ced19d4a5ec031af21b75b63e59c7a93d5a9b1d832f79ca49eae2a",
+    "first-preview-service-bounded/first-pass-preview/xelatex/plain/baseline.pdf": "58b04d07c57e7a72115e9e17f36ba9e00ee7e9cb74f7194e229fdca8cda7579e",
+    "first-preview-service-bounded/first-pass-preview/xelatex/plain/final.pdf": "0b0c801aa2f047ccb1d26fa2801db0dd2ef171166296f8e6fd41023d21898730",
+    "first-preview-service-bounded/first-pass-preview/xelatex/plain/first-pass.pdf": "47b5cf2a1f45cfba0ef6932f9689866d6e840358e7110a6a4fd32c3bcabfcb60",
+    "first-preview-service-bounded/first-pass-preview/xelatex/plain/observed/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service-bounded/first-pass-preview/xelatex/plain/observed/texloom-build-manifest.json": "175ee330ca21dfa246721961ddfa86671e934a5485928636bb6991216d3de999",
+    "first-preview-service-bounded/first-pass-preview/xelatex/plain/project/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service-bounded/first-pass-preview/xelatex/references/baseline/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service-bounded/first-pass-preview/xelatex/references/baseline/texloom-build-manifest.json": "2d5aa4c718b13626d384128804c076aae9cdd3292bd8ff242ac1393caf491730",
+    "first-preview-service-bounded/first-pass-preview/xelatex/references/baseline.pdf": "b200f12dda90be22dd5bac1b0c221d47653bc7517f555e6c8a335f1dfb511360",
+    "first-preview-service-bounded/first-pass-preview/xelatex/references/final.pdf": "99e092e155b11288d2b966fbd67f4f12965c5acfeb38dceaa6b773d3ffd60b84",
+    "first-preview-service-bounded/first-pass-preview/xelatex/references/first-pass.pdf": "d85244f52df5529c7335e9c4358ab6ba6a9c67c54cf1994a683915ee2c994dce",
+    "first-preview-service-bounded/first-pass-preview/xelatex/references/observed/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service-bounded/first-pass-preview/xelatex/references/observed/texloom-build-manifest.json": "41233978bbcfb47d32c412adaef6870c55f32c7808f18b993d39bdeeede7dbdf",
+    "first-preview-service-bounded/first-pass-preview/xelatex/references/project/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service-verified/first-pass-preview/lualatex/cancel-at-preview/first-pass.pdf": "a0c2dd4cfaf8b522d03faffc66f0215bb8fe734fd774633420e48c6a4675906a",
+    "first-preview-service-verified/first-pass-preview/lualatex/cancel-at-preview/observed/main.tex": "4d28768a35ba525fcd2489814f3b4b577cc4bee40eedb053f01ed7407304e53e",
+    "first-preview-service-verified/first-pass-preview/lualatex/cancel-at-preview/project/main.tex": "4d28768a35ba525fcd2489814f3b4b577cc4bee40eedb053f01ed7407304e53e",
+    "first-preview-service-verified/first-pass-preview/lualatex/compile-error/baseline/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service-verified/first-pass-preview/lualatex/compile-error/baseline/texloom-build-manifest.json": "0fc2b5f395e75036ae7d009953af705db0c65674393c75dd74d5fc2bf46d3fc7",
+    "first-preview-service-verified/first-pass-preview/lualatex/compile-error/observed/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service-verified/first-pass-preview/lualatex/compile-error/observed/texloom-build-manifest.json": "2d9a7992e2f16c0810d6aec125e32bd0c01ab03ae8931b4d663a2dbf6b808dfd",
+    "first-preview-service-verified/first-pass-preview/lualatex/compile-error/project/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service-verified/first-pass-preview/lualatex/contents/baseline/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service-verified/first-pass-preview/lualatex/contents/baseline/texloom-build-manifest.json": "c0963373999fe82a61325bc339a4484bd82ddb5c71514270dd99a10e16f9aad3",
+    "first-preview-service-verified/first-pass-preview/lualatex/contents/baseline.pdf": "ed0431b9880db08b017dfef9499513baaf636fbdbae1a82b2500a9fc7db8f66f",
+    "first-preview-service-verified/first-pass-preview/lualatex/contents/final.pdf": "c9eadec3e1e192a257dafab7dc1dce395f29d160b58e0c4f6e49bfac937ea764",
+    "first-preview-service-verified/first-pass-preview/lualatex/contents/first-pass.pdf": "540e0bcd1bbc3cb28150778a69db28891a63d0c4d6a8ec7766dd2144f7ababdf",
+    "first-preview-service-verified/first-pass-preview/lualatex/contents/observed/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service-verified/first-pass-preview/lualatex/contents/observed/texloom-build-manifest.json": "ca65730a2033fb6e956c7f22f9f14e0684b16d59a2f10a524bf1fcd26117fbb1",
+    "first-preview-service-verified/first-pass-preview/lualatex/contents/project/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service-verified/first-pass-preview/lualatex/late-failure/baseline/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service-verified/first-pass-preview/lualatex/late-failure/baseline/texloom-build-manifest.json": "1235d36c4be0ec09ccb5090212cdd8e143a0e181741f0528ede924e0a7f461dd",
+    "first-preview-service-verified/first-pass-preview/lualatex/late-failure/first-pass.pdf": "3723615dcdd084bf3cad620232cd40fda4acaca50e971f76bc0b9b6c4857eb2a",
+    "first-preview-service-verified/first-pass-preview/lualatex/late-failure/observed/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service-verified/first-pass-preview/lualatex/late-failure/observed/texloom-build-manifest.json": "efd7395f548c99cd65ec17cb8b7a0e783742dc3ed515279507a4ce5dce736287",
+    "first-preview-service-verified/first-pass-preview/lualatex/late-failure/project/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service-verified/first-pass-preview/lualatex/mutate-after-preview/first-pass.pdf": "34bebb14cc3f7e9d1cea72e5a14789b51b400d080a5fe78fae731e9f806d999d",
+    "first-preview-service-verified/first-pass-preview/lualatex/mutate-after-preview/observed/main.tex": "aa8251b78aa7ee7a97eac13525c23c9509745e8d6cc85abc0856fc5d833a8da7",
+    "first-preview-service-verified/first-pass-preview/lualatex/mutate-after-preview/project/main.tex": "3b1d755171da77336baf9900607f6081d4cee753a735a052c1afbd5d70cca819",
+    "first-preview-service-verified/first-pass-preview/lualatex/plain/baseline/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service-verified/first-pass-preview/lualatex/plain/baseline/texloom-build-manifest.json": "53b544faf4661a0ed905f77368e54f469d61bda3b0a12e40ed29d58604c5d042",
+    "first-preview-service-verified/first-pass-preview/lualatex/plain/baseline.pdf": "c527a1d5832ce346e2ae265b103fb351cfc7c6e7c3fbe1778f27dcda784c223c",
+    "first-preview-service-verified/first-pass-preview/lualatex/plain/final.pdf": "87851d1bbef782bdc875732fa89c3ff744d562902e21a3ca0318557b5de50c23",
+    "first-preview-service-verified/first-pass-preview/lualatex/plain/first-pass.pdf": "e8aa6f007836b7479696bf928d8c2d913c146d0b5ef256bc14b9da7787637a62",
+    "first-preview-service-verified/first-pass-preview/lualatex/plain/observed/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service-verified/first-pass-preview/lualatex/plain/observed/texloom-build-manifest.json": "891dfc2c75508df4e76f85a521da25dba981f50d408af37010c9ffea46c0ac26",
+    "first-preview-service-verified/first-pass-preview/lualatex/plain/project/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service-verified/first-pass-preview/lualatex/references/baseline/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service-verified/first-pass-preview/lualatex/references/baseline/texloom-build-manifest.json": "95af5d1fc4f162b05da9017fba3d07f76d17fdf8eea15a853bf59b813a6aead2",
+    "first-preview-service-verified/first-pass-preview/lualatex/references/baseline.pdf": "3fb51da83e9afc3c406ef0b108e653ab6e810372de2f6a19ba9295acdd2a0dc1",
+    "first-preview-service-verified/first-pass-preview/lualatex/references/final.pdf": "9f3c51ffa858acd66566e8a3f3b947006bf953b2eef024526660b064da04f639",
+    "first-preview-service-verified/first-pass-preview/lualatex/references/first-pass.pdf": "aeb03a8eb4d320103af62e6d1de9d428af84aa4074e2675d7c737cef4ec1cb81",
+    "first-preview-service-verified/first-pass-preview/lualatex/references/observed/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service-verified/first-pass-preview/lualatex/references/observed/texloom-build-manifest.json": "53d4e64cb41f5c874f6c4bb4269bd2b35afef158894f54862cb88ad75dbc28ae",
+    "first-preview-service-verified/first-pass-preview/lualatex/references/project/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service-verified/first-pass-preview/output-comparison.json": "5885647f309184fdf7f722cc277bf91c28fb21e4a7152d76519a30f94d711796",
+    "first-preview-service-verified/first-pass-preview/pdflatex/cancel-at-preview/first-pass.pdf": "8f303571605af21b5d32cf2364a71b1a61424d70275fb3abbdcf5f2722c8ecee",
+    "first-preview-service-verified/first-pass-preview/pdflatex/cancel-at-preview/observed/main.tex": "4d28768a35ba525fcd2489814f3b4b577cc4bee40eedb053f01ed7407304e53e",
+    "first-preview-service-verified/first-pass-preview/pdflatex/cancel-at-preview/project/main.tex": "4d28768a35ba525fcd2489814f3b4b577cc4bee40eedb053f01ed7407304e53e",
+    "first-preview-service-verified/first-pass-preview/pdflatex/compile-error/baseline/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service-verified/first-pass-preview/pdflatex/compile-error/baseline/texloom-build-manifest.json": "45adb5dd91c5a965813d26c8f90b6eac61f68d515b7bb276c721adbbc8a9b44a",
+    "first-preview-service-verified/first-pass-preview/pdflatex/compile-error/observed/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service-verified/first-pass-preview/pdflatex/compile-error/observed/texloom-build-manifest.json": "b2d1e3259e0af6b138e17ec6ccd895353c4e00e8dc76dbfbcb95f0fadd9d04d7",
+    "first-preview-service-verified/first-pass-preview/pdflatex/compile-error/project/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service-verified/first-pass-preview/pdflatex/contents/baseline/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service-verified/first-pass-preview/pdflatex/contents/baseline/texloom-build-manifest.json": "c990c8366996c8ae4582408d204a8a0a224a35bfcf072404f4f6d907ea3eec85",
+    "first-preview-service-verified/first-pass-preview/pdflatex/contents/baseline.pdf": "8e7a19cb03d7fb58f717e09f28570e2d31ff67c5a4bc7097635b2192fdfa11b2",
+    "first-preview-service-verified/first-pass-preview/pdflatex/contents/final.pdf": "bfed578536399aeb829464da7b5aadf25c64d1d9835152c960d164d4b882e858",
+    "first-preview-service-verified/first-pass-preview/pdflatex/contents/first-pass.pdf": "8813227193c0989829c336e850cfb7eff62584d89cce778a356b39a9151d7d63",
+    "first-preview-service-verified/first-pass-preview/pdflatex/contents/observed/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service-verified/first-pass-preview/pdflatex/contents/observed/texloom-build-manifest.json": "1fa37871eb5b086039242128e3ec58dfbafb675266859583634a62f72ae5063c",
+    "first-preview-service-verified/first-pass-preview/pdflatex/contents/project/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service-verified/first-pass-preview/pdflatex/late-failure/baseline/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service-verified/first-pass-preview/pdflatex/late-failure/baseline/texloom-build-manifest.json": "18115c3e01c32b60301dffa3b0907bc3d4cbe6502c45c3ff4dd2d52f3dc7bd78",
+    "first-preview-service-verified/first-pass-preview/pdflatex/late-failure/first-pass.pdf": "c2b111ef32151fd8a8cdcdb4e8ead03ccf244671a793c9d34fe556693c43ec22",
+    "first-preview-service-verified/first-pass-preview/pdflatex/late-failure/observed/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service-verified/first-pass-preview/pdflatex/late-failure/observed/texloom-build-manifest.json": "d8fc8872ace48057d4cfd9f35e4a786ee7f95005c4864d2c54c0c37d52ef0c3a",
+    "first-preview-service-verified/first-pass-preview/pdflatex/late-failure/project/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service-verified/first-pass-preview/pdflatex/mutate-after-preview/first-pass.pdf": "6817f0a564e119a353730f794c2f0fa8f4c64e1e035aa0ece0f3fa716038c66b",
+    "first-preview-service-verified/first-pass-preview/pdflatex/mutate-after-preview/observed/main.tex": "aa8251b78aa7ee7a97eac13525c23c9509745e8d6cc85abc0856fc5d833a8da7",
+    "first-preview-service-verified/first-pass-preview/pdflatex/mutate-after-preview/project/main.tex": "3b1d755171da77336baf9900607f6081d4cee753a735a052c1afbd5d70cca819",
+    "first-preview-service-verified/first-pass-preview/pdflatex/plain/baseline/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service-verified/first-pass-preview/pdflatex/plain/baseline/texloom-build-manifest.json": "e8f6e2036dfcb3456fc613445622bb73840df8de8e24505b3e3ff1120e8de4a4",
+    "first-preview-service-verified/first-pass-preview/pdflatex/plain/baseline.pdf": "98f9ac30e86ced5db8988b549a1d348b9768f6b7e440db5749c51720a1a9e761",
+    "first-preview-service-verified/first-pass-preview/pdflatex/plain/final.pdf": "fb2e7304d0a0f1e3de64f596ce663601c7a1e56e1cc6deb690c529c368d674e8",
+    "first-preview-service-verified/first-pass-preview/pdflatex/plain/first-pass.pdf": "a141b5e1046ad8bf00730205ead4887bd45a649c07831d08b54696e51f2f871f",
+    "first-preview-service-verified/first-pass-preview/pdflatex/plain/observed/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service-verified/first-pass-preview/pdflatex/plain/observed/texloom-build-manifest.json": "48e59f7355458727a41c7614b63cdce427479c30ef3b2bb8e1c3d87d01da1403",
+    "first-preview-service-verified/first-pass-preview/pdflatex/plain/project/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service-verified/first-pass-preview/pdflatex/references/baseline/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service-verified/first-pass-preview/pdflatex/references/baseline/texloom-build-manifest.json": "3d54dd4a83280e7c62801abb9baa231db93f0193d4d4a5d57f85f96e7a06744d",
+    "first-preview-service-verified/first-pass-preview/pdflatex/references/baseline.pdf": "0631ac3ee810b2d78d6476d78a7fce6ebd594008cbf8ca8c79d7bd36491f5dab",
+    "first-preview-service-verified/first-pass-preview/pdflatex/references/final.pdf": "bbd6c0782736a96c643a48fbf85d49be5f16b476f3bfb7b631e7f0801db53fe7",
+    "first-preview-service-verified/first-pass-preview/pdflatex/references/first-pass.pdf": "5f8f8ef72896fb248c363c288d4a2f3383f011c7ca62c64a5667bc41684bf83b",
+    "first-preview-service-verified/first-pass-preview/pdflatex/references/observed/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service-verified/first-pass-preview/pdflatex/references/observed/texloom-build-manifest.json": "4066172c7706e56240cdc47b77799a5fcb3d94d3c1f6c1810a6a3eef95d18dba",
+    "first-preview-service-verified/first-pass-preview/pdflatex/references/project/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service-verified/first-pass-preview/report.json": "d0c8e52e2eb4cb6f02609df5eaa52a4b5e3dd265239aade2c53ffb6fea4a51ce",
+    "first-preview-service-verified/first-pass-preview/xelatex/cancel-at-preview/first-pass.pdf": "52ca629f1fe6424461facf0bc937433783b740b0c7b4539a0259e5cbc0c1ce92",
+    "first-preview-service-verified/first-pass-preview/xelatex/cancel-at-preview/observed/main.tex": "4d28768a35ba525fcd2489814f3b4b577cc4bee40eedb053f01ed7407304e53e",
+    "first-preview-service-verified/first-pass-preview/xelatex/cancel-at-preview/project/main.tex": "4d28768a35ba525fcd2489814f3b4b577cc4bee40eedb053f01ed7407304e53e",
+    "first-preview-service-verified/first-pass-preview/xelatex/compile-error/baseline/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service-verified/first-pass-preview/xelatex/compile-error/baseline/texloom-build-manifest.json": "d3928d1ca8c892328372859f6d8384ba22d9c4115bff4bc68b772f37604905c4",
+    "first-preview-service-verified/first-pass-preview/xelatex/compile-error/observed/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service-verified/first-pass-preview/xelatex/compile-error/observed/texloom-build-manifest.json": "09eb1bebbb8b7fb70f6227ecd38ebadc3ea9b261a9590ce38d86a3e6586e9fc8",
+    "first-preview-service-verified/first-pass-preview/xelatex/compile-error/project/main.tex": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa",
+    "first-preview-service-verified/first-pass-preview/xelatex/contents/baseline/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service-verified/first-pass-preview/xelatex/contents/baseline/texloom-build-manifest.json": "2ceaeff0ae366681a7757cb6c721ee605dc679a2b3385b61b4ef44a1552c03df",
+    "first-preview-service-verified/first-pass-preview/xelatex/contents/baseline.pdf": "95953fee102df0cda3108e585033d0dd774652b939c3c358b4b61d31076b037d",
+    "first-preview-service-verified/first-pass-preview/xelatex/contents/final.pdf": "4910150106bbb54a3f5e07ec5c7b4c6191207ddacb336582fa9306b92f6ca584",
+    "first-preview-service-verified/first-pass-preview/xelatex/contents/first-pass.pdf": "786f952a0f63b4537b660bb6069c340b29f4011458e0482909629ce835c0ba72",
+    "first-preview-service-verified/first-pass-preview/xelatex/contents/observed/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service-verified/first-pass-preview/xelatex/contents/observed/texloom-build-manifest.json": "1d8085e1143108c6fa402819ad6f190de659e9696d2eea2851341f5c01780c2c",
+    "first-preview-service-verified/first-pass-preview/xelatex/contents/project/main.tex": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c",
+    "first-preview-service-verified/first-pass-preview/xelatex/late-failure/baseline/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service-verified/first-pass-preview/xelatex/late-failure/baseline/texloom-build-manifest.json": "bf98382254437d9040c523de4dafac80add6a4b2576ede17fa676e16bff73b0b",
+    "first-preview-service-verified/first-pass-preview/xelatex/late-failure/first-pass.pdf": "b79c51866ee5ddf514d624a36f2304b94197cd63b35f3892a4e44f4b9d2b5929",
+    "first-preview-service-verified/first-pass-preview/xelatex/late-failure/observed/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service-verified/first-pass-preview/xelatex/late-failure/observed/texloom-build-manifest.json": "5693bd7dcbbe4a5f74b4960c1501f0dfbff9a57fa43b2b5a34cce5856d633147",
+    "first-preview-service-verified/first-pass-preview/xelatex/late-failure/project/main.tex": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa",
+    "first-preview-service-verified/first-pass-preview/xelatex/mutate-after-preview/first-pass.pdf": "3a33fa542589abdf857f2dd86616cee0f9687794d52b38209329bc40f6665145",
+    "first-preview-service-verified/first-pass-preview/xelatex/mutate-after-preview/observed/main.tex": "aa8251b78aa7ee7a97eac13525c23c9509745e8d6cc85abc0856fc5d833a8da7",
+    "first-preview-service-verified/first-pass-preview/xelatex/mutate-after-preview/project/main.tex": "3b1d755171da77336baf9900607f6081d4cee753a735a052c1afbd5d70cca819",
+    "first-preview-service-verified/first-pass-preview/xelatex/plain/baseline/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service-verified/first-pass-preview/xelatex/plain/baseline/texloom-build-manifest.json": "89b68bcf38205e3b67e9e9083e24a1158b193a6bf9966dd9b1b76eb82d31c663",
+    "first-preview-service-verified/first-pass-preview/xelatex/plain/baseline.pdf": "3a2a3f25fdeb495a0b0e1d741012f8922557695ddd40d081af1ccd8a77a6a803",
+    "first-preview-service-verified/first-pass-preview/xelatex/plain/final.pdf": "bbb410ac59877ecdef51634a18a32e358a3ae4cb2bbb493e2657779cae79a378",
+    "first-preview-service-verified/first-pass-preview/xelatex/plain/first-pass.pdf": "ec082b3ed9a7e302082051e13458f49d77458c8a2e544c53a350f8ef1d1001d3",
+    "first-preview-service-verified/first-pass-preview/xelatex/plain/observed/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service-verified/first-pass-preview/xelatex/plain/observed/texloom-build-manifest.json": "55a75f6eeec5e20f31f8b25bb54723fced06302b269d551866277f98dedd345d",
+    "first-preview-service-verified/first-pass-preview/xelatex/plain/project/main.tex": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7",
+    "first-preview-service-verified/first-pass-preview/xelatex/references/baseline/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service-verified/first-pass-preview/xelatex/references/baseline/texloom-build-manifest.json": "723d9a642ab7d4e96c0a4dfd8208aa96e802fb0505a5a18113063e9c0da7fd8e",
+    "first-preview-service-verified/first-pass-preview/xelatex/references/baseline.pdf": "370d7923291c092986820116ea91ec35ac4b202e426d6707f905efe392af8743",
+    "first-preview-service-verified/first-pass-preview/xelatex/references/final.pdf": "7586a6dc326b4fdaae674214f8325dd19a4bf87ab70fce4181a8a47a12ee673d",
+    "first-preview-service-verified/first-pass-preview/xelatex/references/first-pass.pdf": "0eb4b3fbe73b9d728458b285047055c8ced8eb6123fbc49514633587cd73c3c5",
+    "first-preview-service-verified/first-pass-preview/xelatex/references/observed/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39",
+    "first-preview-service-verified/first-pass-preview/xelatex/references/observed/texloom-build-manifest.json": "5a288ef494a49c327550add91879306c0d1ffa867e607f8b506aaa749006d769",
+    "first-preview-service-verified/first-pass-preview/xelatex/references/project/main.tex": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39"
+  },
+  "direct_conditions": 12,
+  "final_native_conditions": 21,
+  "unit_tests_passed": 5,
+  "final_output_comparisons": {
+    "schema": 1,
+    "pymupdf": "1.27.2.2",
+    "native_controls": 21,
+    "final_baseline_comparisons": 9,
+    "comparisons": [
+      {
+        "engine": "pdflatex",
+        "case": "plain",
+        "final_equals_baseline": true,
+        "first_equals_final": true,
+        "first": [
+          {
+            "text": "A small synthetic compile.\n1\n",
+            "width": 794,
+            "height": 1123,
+            "geometry_sha256": "23e97395ecc184edc834167284cd42d16692f5982dbbd064582bfe2509805b45",
+            "pixels_sha256": "e9056ae6c99922d2b969b31dfb5bf57cde1e1b824f9370f4ef57ac17c543c57a"
+          }
+        ],
+        "final": [
+          {
+            "text": "A small synthetic compile.\n1\n",
+            "width": 794,
+            "height": 1123,
+            "geometry_sha256": "23e97395ecc184edc834167284cd42d16692f5982dbbd064582bfe2509805b45",
+            "pixels_sha256": "e9056ae6c99922d2b969b31dfb5bf57cde1e1b824f9370f4ef57ac17c543c57a"
+          }
+        ],
+        "first_available_seconds": 0.8717157,
+        "final_return_seconds": 1.6666854
+      },
+      {
+        "engine": "pdflatex",
+        "case": "references",
+        "final_equals_baseline": true,
+        "first_equals_final": false,
+        "first": [
+          {
+            "text": "1\nExample\nReference to section ??.\n1\n",
+            "width": 794,
+            "height": 1123,
+            "geometry_sha256": "b7aa89b2c50288f1260148dd125a3e9a10490055d54d56e3a3d1c33d0bce69f8",
+            "pixels_sha256": "40272d567f4cf233e9bbbf1aa4956bc26667816768795b1c800c41b556ed65de"
+          }
+        ],
+        "final": [
+          {
+            "text": "1\nExample\nReference to section 1.\n1\n",
+            "width": 794,
+            "height": 1123,
+            "geometry_sha256": "4843724609c2efc3d2ff2611b86943578f742e06b9945f1a2108e90258bbc983",
+            "pixels_sha256": "3d76ade494b63cc316d0e68bf3429bad8b5c759727762d6e9cceb400520b2ec9"
+          }
+        ],
+        "first_available_seconds": 0.8841951,
+        "final_return_seconds": 1.6749811000000001
+      },
+      {
+        "engine": "pdflatex",
+        "case": "contents",
+        "final_equals_baseline": true,
+        "first_equals_final": false,
+        "first": [
+          {
+            "text": "Contents\n1\nFirst section\nFirst paragraph.\n2\nSecond section\nSecond paragraph.\n1\n",
+            "width": 794,
+            "height": 1123,
+            "geometry_sha256": "980efcefbac6d90ec71ae4125cfe05193ac785f3ee31586b8da92489f93a8d9b",
+            "pixels_sha256": "0d4c73ed85019cd7a60faf78ee58bba245676999cc020d79cd4946f14dc91513"
+          }
+        ],
+        "final": [
+          {
+            "text": "Contents\n1\nFirst section\n1\n2\nSecond section\n1\n1\nFirst section\nFirst paragraph.\n2\nSecond section\nSecond paragraph.\n1\n",
+            "width": 794,
+            "height": 1123,
+            "geometry_sha256": "12e5cf50c32237143b511c146d6cc01fa98c391ef4ac556f36ad44a9c77d00de",
+            "pixels_sha256": "5ec3f374a35a7441256656e407b946f017a5ffa28d217793c60f72408d8c54ae"
+          }
+        ],
+        "first_available_seconds": 0.8780365,
+        "final_return_seconds": 2.4890423999999998
+      },
+      {
+        "engine": "xelatex",
+        "case": "plain",
+        "final_equals_baseline": true,
+        "first_equals_final": true,
+        "first": [
+          {
+            "text": "A small synthetic compile.\n1\n",
+            "width": 794,
+            "height": 1123,
+            "geometry_sha256": "79b5b13b1177539ad7e58d2adb6f58b75a75c1b451cc868f94c0fe0df0f1a58c",
+            "pixels_sha256": "3a132726238014d3e0a32f6ac4da44f33fde1b3f7906d39ef7f82d72402cc555"
+          }
+        ],
+        "final": [
+          {
+            "text": "A small synthetic compile.\n1\n",
+            "width": 794,
+            "height": 1123,
+            "geometry_sha256": "79b5b13b1177539ad7e58d2adb6f58b75a75c1b451cc868f94c0fe0df0f1a58c",
+            "pixels_sha256": "3a132726238014d3e0a32f6ac4da44f33fde1b3f7906d39ef7f82d72402cc555"
+          }
+        ],
+        "first_available_seconds": 1.4995005,
+        "final_return_seconds": 2.9459339
+      },
+      {
+        "engine": "xelatex",
+        "case": "references",
+        "final_equals_baseline": true,
+        "first_equals_final": false,
+        "first": [
+          {
+            "text": "1\nExample\nReference to section ??.\n1\n",
+            "width": 794,
+            "height": 1123,
+            "geometry_sha256": "6cf37a5047444df45befd2f43cfbf52c2ff328bd12219c16588f0513083cb2ce",
+            "pixels_sha256": "d37c9903f263cc1d6d66486e238ca7ea9cdad67af0a7cd2dd57a7bbe1c582855"
+          }
+        ],
+        "final": [
+          {
+            "text": "1\nExample\nReference to section 1.\n1\n",
+            "width": 794,
+            "height": 1123,
+            "geometry_sha256": "ef2422f86a706be6471c73dc2071de59adde640f05124b81ae9ac032fb5ccaa6",
+            "pixels_sha256": "036deccd72d16d7c995cdd40787e0fdc177ad2bec21dc83b270727d36dc01fb9"
+          }
+        ],
+        "first_available_seconds": 1.5016005,
+        "final_return_seconds": 2.9631458999999998
+      },
+      {
+        "engine": "xelatex",
+        "case": "contents",
+        "final_equals_baseline": true,
+        "first_equals_final": false,
+        "first": [
+          {
+            "text": "Contents\n1\nFirst section\nFirst paragraph.\n2\nSecond section\nSecond paragraph.\n1\n",
+            "width": 794,
+            "height": 1123,
+            "geometry_sha256": "4dbff8a62eea6e8c8207ecc962fb49162292d22c741d315a6ee30303634cbc75",
+            "pixels_sha256": "9354cebd4a09fef2beca26002db824d36969d8f4832a24992f7108d1a026c749"
+          }
+        ],
+        "final": [
+          {
+            "text": "Contents\n1\nFirst section\n1\n2\nSecond section\n1\n1\nFirst section\nFirst paragraph.\n2\nSecond section\nSecond paragraph.\n1\n",
+            "width": 794,
+            "height": 1123,
+            "geometry_sha256": "29e02b4d36588553b09e1b5f4a2a1b9ddf1fa7f9055b50f3dab9a54a58958dea",
+            "pixels_sha256": "b87e570409d48430e6384a0a73ddc1061f810e182933562d5e9b6b63094140c0"
+          }
+        ],
+        "first_available_seconds": 1.5516918,
+        "final_return_seconds": 4.5102394
+      },
+      {
+        "engine": "lualatex",
+        "case": "plain",
+        "final_equals_baseline": true,
+        "first_equals_final": true,
+        "first": [
+          {
+            "text": "A small synthetic compile.\n1\n",
+            "width": 794,
+            "height": 1123,
+            "geometry_sha256": "be21be459e1dcb1c10d99fd7bf43fc742e164f1c9cc734736f9b86654ea2b72c",
+            "pixels_sha256": "3a132726238014d3e0a32f6ac4da44f33fde1b3f7906d39ef7f82d72402cc555"
+          }
+        ],
+        "final": [
+          {
+            "text": "A small synthetic compile.\n1\n",
+            "width": 794,
+            "height": 1123,
+            "geometry_sha256": "be21be459e1dcb1c10d99fd7bf43fc742e164f1c9cc734736f9b86654ea2b72c",
+            "pixels_sha256": "3a132726238014d3e0a32f6ac4da44f33fde1b3f7906d39ef7f82d72402cc555"
+          }
+        ],
+        "first_available_seconds": 1.2911120999999999,
+        "final_return_seconds": 2.3796061
+      },
+      {
+        "engine": "lualatex",
+        "case": "references",
+        "final_equals_baseline": true,
+        "first_equals_final": false,
+        "first": [
+          {
+            "text": "1\nExample\nReference to section ??.\n1\n",
+            "width": 794,
+            "height": 1123,
+            "geometry_sha256": "ac98766e7705dd16dcb140a5528b65ccca129d4972f05987297e2cf686c3be0c",
+            "pixels_sha256": "d37c9903f263cc1d6d66486e238ca7ea9cdad67af0a7cd2dd57a7bbe1c582855"
+          }
+        ],
+        "final": [
+          {
+            "text": "1\nExample\nReference to section 1.\n1\n",
+            "width": 794,
+            "height": 1123,
+            "geometry_sha256": "45a167cb638483169db0cc21387c3675f180e69344b705dc3dd534b69ec81c10",
+            "pixels_sha256": "036deccd72d16d7c995cdd40787e0fdc177ad2bec21dc83b270727d36dc01fb9"
+          }
+        ],
+        "first_available_seconds": 1.3457377,
+        "final_return_seconds": 2.4966352
+      },
+      {
+        "engine": "lualatex",
+        "case": "contents",
+        "final_equals_baseline": true,
+        "first_equals_final": false,
+        "first": [
+          {
+            "text": "Contents\n1\nFirst section\nFirst paragraph.\n2\nSecond section\nSecond paragraph.\n1\n",
+            "width": 794,
+            "height": 1123,
+            "geometry_sha256": "5c9d2665ae292d2f4b4435efb982fbcba4385c6fba451f5ef998f42f31421ffe",
+            "pixels_sha256": "9354cebd4a09fef2beca26002db824d36969d8f4832a24992f7108d1a026c749"
+          }
+        ],
+        "final": [
+          {
+            "text": "Contents\n1\nFirst section\n1\n2\nSecond section\n1\n1\nFirst section\nFirst paragraph.\n2\nSecond section\nSecond paragraph.\n1\n",
+            "width": 794,
+            "height": 1123,
+            "geometry_sha256": "74692dc9c962a205ab8b07dd1c2d5ce7aaa55f8c81a827a2a9c306322504d854",
+            "pixels_sha256": "b87e570409d48430e6384a0a73ddc1061f810e182933562d5e9b6b63094140c0"
+          }
+        ],
+        "first_available_seconds": 1.3131001,
+        "final_return_seconds": 3.655448
+      }
+    ],
+    "scope": "Full text, character geometry and all-page 96dpi raster checks on synthetic artifacts"
+  },
+  "final_native_rows": [
+    {
+      "arguments": [
+        "-interaction=nonstopmode",
+        "-halt-on-error",
+        "-file-line-error",
+        "-synctex=1",
+        "-recorder",
+        "-no-shell-escape",
+        "-jobname=preview",
+        "-output-directory=.out",
+        "--disable-installer",
+        "main.tex"
+      ],
+      "baseline_seconds": 1.9270555,
+      "case": "plain",
+      "compiler": {
+        "fingerprint": {
+          "bytes": 2739712,
+          "sha256": "de48c5ef651d2ded45e8d82188af22aaeebf0055d679b090609aff1881d97d30"
+        },
+        "path": "\\\\?\\C:\\Users\\thebe\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\pdflatex.exe"
+      },
+      "diagnostics": [],
+      "eligible": true,
+      "engine": "pdflatex",
+      "events": [
+        {
+          "diagnostics": [],
+          "pdf": {
+            "bytes": 14735,
+            "sha256": "a141b5e1046ad8bf00730205ead4887bd45a649c07831d08b54696e51f2f871f"
+          },
+          "seconds": 0.8717157
+        }
+      ],
+      "ok": true,
+      "passes": 2,
+      "seconds": 1.6666854,
+      "source": {
+        "main.tex": {
+          "bytes": 83,
+          "sha256": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7"
+        }
+      },
+      "version": "MiKTeX-pdfTeX 4.23 (MiKTeX 25.12)\n\u00c2\u00a9 1982 D. E. Knuth, \u00c2\u00a9 1996-2025 H\u00c3\u00a0n Th\u00e1\u00ba\u00bf Th\u00c3\u00a0nh\nTeX is a trademark of the American Mathematical Society.",
+      "version_reused": true
+    },
+    {
+      "arguments": [
+        "-interaction=nonstopmode",
+        "-halt-on-error",
+        "-file-line-error",
+        "-synctex=1",
+        "-recorder",
+        "-no-shell-escape",
+        "-jobname=preview",
+        "-output-directory=.out",
+        "--disable-installer",
+        "main.tex"
+      ],
+      "baseline_seconds": 1.9933524999999999,
+      "case": "references",
+      "compiler": {
+        "fingerprint": {
+          "bytes": 2739712,
+          "sha256": "de48c5ef651d2ded45e8d82188af22aaeebf0055d679b090609aff1881d97d30"
+        },
+        "path": "\\\\?\\C:\\Users\\thebe\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\pdflatex.exe"
+      },
+      "diagnostics": [],
+      "eligible": true,
+      "engine": "pdflatex",
+      "events": [
+        {
+          "diagnostics": [
+            {
+              "code": "unresolved_reference",
+              "file": null,
+              "line": null,
+              "message": "LaTeX Warning: Reference `sec:example' on page 1 undefined on input line 3.",
+              "severity": "error"
+            },
+            {
+              "code": "unresolved_reference",
+              "file": null,
+              "line": null,
+              "message": "LaTeX Warning: There were undefined references.",
+              "severity": "error"
+            },
+            {
+              "code": "latex_warning",
+              "file": null,
+              "line": null,
+              "message": "LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.",
+              "severity": "warning"
+            }
+          ],
+          "pdf": {
+            "bytes": 33973,
+            "sha256": "5f8f8ef72896fb248c363c288d4a2f3383f011c7ca62c64a5667bc41684bf83b"
+          },
+          "seconds": 0.8841951
+        }
+      ],
+      "ok": true,
+      "passes": 2,
+      "seconds": 1.6749811000000001,
+      "source": {
+        "main.tex": {
+          "bytes": 133,
+          "sha256": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39"
+        }
+      },
+      "version": "MiKTeX-pdfTeX 4.23 (MiKTeX 25.12)\n\u00c2\u00a9 1982 D. E. Knuth, \u00c2\u00a9 1996-2025 H\u00c3\u00a0n Th\u00e1\u00ba\u00bf Th\u00c3\u00a0nh\nTeX is a trademark of the American Mathematical Society.",
+      "version_reused": true
+    },
+    {
+      "arguments": [
+        "-interaction=nonstopmode",
+        "-halt-on-error",
+        "-file-line-error",
+        "-synctex=1",
+        "-recorder",
+        "-no-shell-escape",
+        "-jobname=preview",
+        "-output-directory=.out",
+        "--disable-installer",
+        "main.tex"
+      ],
+      "baseline_seconds": 2.7421182,
+      "case": "contents",
+      "compiler": {
+        "fingerprint": {
+          "bytes": 2739712,
+          "sha256": "de48c5ef651d2ded45e8d82188af22aaeebf0055d679b090609aff1881d97d30"
+        },
+        "path": "\\\\?\\C:\\Users\\thebe\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\pdflatex.exe"
+      },
+      "diagnostics": [],
+      "eligible": true,
+      "engine": "pdflatex",
+      "events": [
+        {
+          "diagnostics": [],
+          "pdf": {
+            "bytes": 25806,
+            "sha256": "8813227193c0989829c336e850cfb7eff62584d89cce778a356b39a9151d7d63"
+          },
+          "seconds": 0.8780365
+        }
+      ],
+      "ok": true,
+      "passes": 3,
+      "seconds": 2.4890423999999998,
+      "source": {
+        "main.tex": {
+          "bytes": 153,
+          "sha256": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c"
+        }
+      },
+      "version": "MiKTeX-pdfTeX 4.23 (MiKTeX 25.12)\n\u00c2\u00a9 1982 D. E. Knuth, \u00c2\u00a9 1996-2025 H\u00c3\u00a0n Th\u00e1\u00ba\u00bf Th\u00c3\u00a0nh\nTeX is a trademark of the American Mathematical Society.",
+      "version_reused": true
+    },
+    {
+      "arguments": [
+        "-interaction=nonstopmode",
+        "-halt-on-error",
+        "-file-line-error",
+        "-synctex=1",
+        "-recorder",
+        "-no-shell-escape",
+        "-jobname=preview",
+        "-output-directory=.out",
+        "--disable-installer",
+        "main.tex"
+      ],
+      "baseline_seconds": 1.6746499,
+      "case": "late-failure",
+      "compiler": {
+        "fingerprint": {
+          "bytes": 2739712,
+          "sha256": "de48c5ef651d2ded45e8d82188af22aaeebf0055d679b090609aff1881d97d30"
+        },
+        "path": "\\\\?\\C:\\Users\\thebe\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\pdflatex.exe"
+      },
+      "diagnostics": [
+        {
+          "code": "latex_error",
+          "file": "main.tex",
+          "line": 3,
+          "message": "Synthetic deliberate later-pass failure.",
+          "severity": "error"
+        },
+        {
+          "code": "latex_error",
+          "file": "main.tex",
+          "line": 3,
+          "message": "==> Fatal error occurred, no output PDF file produced!",
+          "severity": "error"
+        }
+      ],
+      "eligible": false,
+      "engine": "pdflatex",
+      "events": [
+        {
+          "diagnostics": [],
+          "pdf": {
+            "bytes": 15287,
+            "sha256": "c2b111ef32151fd8a8cdcdb4e8ead03ccf244671a793c9d34fe556693c43ec22"
+          },
+          "seconds": 1.1265703
+        }
+      ],
+      "ok": false,
+      "passes": 2,
+      "seconds": 1.6659948,
+      "source": {
+        "main.tex": {
+          "bytes": 278,
+          "sha256": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa"
+        }
+      },
+      "version": "MiKTeX-pdfTeX 4.23 (MiKTeX 25.12)\n\u00c2\u00a9 1982 D. E. Knuth, \u00c2\u00a9 1996-2025 H\u00c3\u00a0n Th\u00e1\u00ba\u00bf Th\u00c3\u00a0nh\nTeX is a trademark of the American Mathematical Society.",
+      "version_reused": false
+    },
+    {
+      "arguments": [
+        "-interaction=nonstopmode",
+        "-halt-on-error",
+        "-file-line-error",
+        "-synctex=1",
+        "-recorder",
+        "-no-shell-escape",
+        "-jobname=preview",
+        "-output-directory=.out",
+        "--disable-installer",
+        "main.tex"
+      ],
+      "baseline_seconds": 0.7422679,
+      "case": "compile-error",
+      "compiler": {
+        "fingerprint": {
+          "bytes": 2739712,
+          "sha256": "de48c5ef651d2ded45e8d82188af22aaeebf0055d679b090609aff1881d97d30"
+        },
+        "path": "\\\\?\\C:\\Users\\thebe\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\pdflatex.exe"
+      },
+      "diagnostics": [
+        {
+          "code": "latex_error",
+          "file": "main.tex",
+          "line": 3,
+          "message": "Undefined control sequence.",
+          "severity": "error"
+        },
+        {
+          "code": "latex_error",
+          "file": "main.tex",
+          "line": 3,
+          "message": "==> Fatal error occurred, no output PDF file produced!",
+          "severity": "error"
+        }
+      ],
+      "eligible": false,
+      "engine": "pdflatex",
+      "events": [],
+      "ok": false,
+      "passes": 1,
+      "seconds": 0.7069895,
+      "source": {
+        "main.tex": {
+          "bytes": 84,
+          "sha256": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa"
+        }
+      },
+      "version": "MiKTeX-pdfTeX 4.23 (MiKTeX 25.12)\n\u00c2\u00a9 1982 D. E. Knuth, \u00c2\u00a9 1996-2025 H\u00c3\u00a0n Th\u00e1\u00ba\u00bf Th\u00c3\u00a0nh\nTeX is a trademark of the American Mathematical Society.",
+      "version_reused": false
+    },
+    {
+      "case": "cancel-at-preview",
+      "engine": "pdflatex",
+      "error": "Compilation cancelled or superseded",
+      "events": [
+        {
+          "diagnostics": [],
+          "pdf": {
+            "bytes": 15114,
+            "sha256": "8f303571605af21b5d32cf2364a71b1a61424d70275fb3abbdcf5f2722c8ecee"
+          },
+          "seconds": 1.165344
+        }
+      ]
+    },
+    {
+      "case": "mutate-after-preview",
+      "engine": "pdflatex",
+      "error": "Frozen build input changed: main.tex",
+      "events": [
+        {
+          "diagnostics": [],
+          "pdf": {
+            "bytes": 15771,
+            "sha256": "6817f0a564e119a353730f794c2f0fa8f4c64e1e035aa0ece0f3fa716038c66b"
+          },
+          "seconds": 1.3655969
+        }
+      ]
+    },
+    {
+      "arguments": [
+        "-interaction=nonstopmode",
+        "-halt-on-error",
+        "-file-line-error",
+        "-synctex=1",
+        "-recorder",
+        "-no-shell-escape",
+        "-jobname=preview",
+        "-output-directory=.out",
+        "--disable-installer",
+        "main.tex"
+      ],
+      "baseline_seconds": 3.4388869,
+      "case": "plain",
+      "compiler": {
+        "fingerprint": {
+          "bytes": 1482752,
+          "sha256": "ef2397c0f8638ccb79a46a693be196e64ce90b361fde5cbcd7397a72e13e8ff4"
+        },
+        "path": "\\\\?\\C:\\Users\\thebe\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\xelatex.exe"
+      },
+      "diagnostics": [],
+      "eligible": true,
+      "engine": "xelatex",
+      "events": [
+        {
+          "diagnostics": [],
+          "pdf": {
+            "bytes": 3696,
+            "sha256": "ec082b3ed9a7e302082051e13458f49d77458c8a2e544c53a350f8ef1d1001d3"
+          },
+          "seconds": 1.4995005
+        }
+      ],
+      "ok": true,
+      "passes": 2,
+      "seconds": 2.9459339,
+      "source": {
+        "main.tex": {
+          "bytes": 83,
+          "sha256": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7"
+        }
+      },
+      "version": "MiKTeX-XeTeX 4.16 (MiKTeX 25.12)\n\u00c2\u00a9 1994-2008 SIL International, \u00c2\u00a9 2009-2023 Jonathan Kew, \u00c2\u00a9 2010-2012 H\u00c3\u00a0n Th\u00e1\u00ba\u00bf Th\u00c3\u00a0nh, \u00c2\u00a9 2012-2013 Khaled Hosny\nTeX is a trademark of the American Mathematical Society",
+      "version_reused": true
+    },
+    {
+      "arguments": [
+        "-interaction=nonstopmode",
+        "-halt-on-error",
+        "-file-line-error",
+        "-synctex=1",
+        "-recorder",
+        "-no-shell-escape",
+        "-jobname=preview",
+        "-output-directory=.out",
+        "--disable-installer",
+        "main.tex"
+      ],
+      "baseline_seconds": 3.2493756,
+      "case": "references",
+      "compiler": {
+        "fingerprint": {
+          "bytes": 1482752,
+          "sha256": "ef2397c0f8638ccb79a46a693be196e64ce90b361fde5cbcd7397a72e13e8ff4"
+        },
+        "path": "\\\\?\\C:\\Users\\thebe\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\xelatex.exe"
+      },
+      "diagnostics": [],
+      "eligible": true,
+      "engine": "xelatex",
+      "events": [
+        {
+          "diagnostics": [
+            {
+              "code": "unresolved_reference",
+              "file": null,
+              "line": null,
+              "message": "LaTeX Warning: Reference `sec:example' on page 1 undefined on input line 3.",
+              "severity": "error"
+            },
+            {
+              "code": "unresolved_reference",
+              "file": null,
+              "line": null,
+              "message": "LaTeX Warning: There were undefined references.",
+              "severity": "error"
+            },
+            {
+              "code": "latex_warning",
+              "file": null,
+              "line": null,
+              "message": "LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.",
+              "severity": "warning"
+            }
+          ],
+          "pdf": {
+            "bytes": 6496,
+            "sha256": "0eb4b3fbe73b9d728458b285047055c8ced8eb6123fbc49514633587cd73c3c5"
+          },
+          "seconds": 1.5016005
+        }
+      ],
+      "ok": true,
+      "passes": 2,
+      "seconds": 2.9631458999999998,
+      "source": {
+        "main.tex": {
+          "bytes": 133,
+          "sha256": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39"
+        }
+      },
+      "version": "MiKTeX-XeTeX 4.16 (MiKTeX 25.12)\n\u00c2\u00a9 1994-2008 SIL International, \u00c2\u00a9 2009-2023 Jonathan Kew, \u00c2\u00a9 2010-2012 H\u00c3\u00a0n Th\u00e1\u00ba\u00bf Th\u00c3\u00a0nh, \u00c2\u00a9 2012-2013 Khaled Hosny\nTeX is a trademark of the American Mathematical Society",
+      "version_reused": true
+    },
+    {
+      "arguments": [
+        "-interaction=nonstopmode",
+        "-halt-on-error",
+        "-file-line-error",
+        "-synctex=1",
+        "-recorder",
+        "-no-shell-escape",
+        "-jobname=preview",
+        "-output-directory=.out",
+        "--disable-installer",
+        "main.tex"
+      ],
+      "baseline_seconds": 5.0094746,
+      "case": "contents",
+      "compiler": {
+        "fingerprint": {
+          "bytes": 1482752,
+          "sha256": "ef2397c0f8638ccb79a46a693be196e64ce90b361fde5cbcd7397a72e13e8ff4"
+        },
+        "path": "\\\\?\\C:\\Users\\thebe\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\xelatex.exe"
+      },
+      "diagnostics": [],
+      "eligible": true,
+      "engine": "xelatex",
+      "events": [
+        {
+          "diagnostics": [],
+          "pdf": {
+            "bytes": 6749,
+            "sha256": "786f952a0f63b4537b660bb6069c340b29f4011458e0482909629ce835c0ba72"
+          },
+          "seconds": 1.5516918
+        }
+      ],
+      "ok": true,
+      "passes": 3,
+      "seconds": 4.5102394,
+      "source": {
+        "main.tex": {
+          "bytes": 153,
+          "sha256": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c"
+        }
+      },
+      "version": "MiKTeX-XeTeX 4.16 (MiKTeX 25.12)\n\u00c2\u00a9 1994-2008 SIL International, \u00c2\u00a9 2009-2023 Jonathan Kew, \u00c2\u00a9 2010-2012 H\u00c3\u00a0n Th\u00e1\u00ba\u00bf Th\u00c3\u00a0nh, \u00c2\u00a9 2012-2013 Khaled Hosny\nTeX is a trademark of the American Mathematical Society",
+      "version_reused": true
+    },
+    {
+      "arguments": [
+        "-interaction=nonstopmode",
+        "-halt-on-error",
+        "-file-line-error",
+        "-synctex=1",
+        "-recorder",
+        "-no-shell-escape",
+        "-jobname=preview",
+        "-output-directory=.out",
+        "--disable-installer",
+        "main.tex"
+      ],
+      "baseline_seconds": 2.574484,
+      "case": "late-failure",
+      "compiler": {
+        "fingerprint": {
+          "bytes": 1482752,
+          "sha256": "ef2397c0f8638ccb79a46a693be196e64ce90b361fde5cbcd7397a72e13e8ff4"
+        },
+        "path": "\\\\?\\C:\\Users\\thebe\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\xelatex.exe"
+      },
+      "diagnostics": [
+        {
+          "code": "latex_error",
+          "file": "main.tex",
+          "line": 3,
+          "message": "Synthetic deliberate later-pass failure.",
+          "severity": "error"
+        }
+      ],
+      "eligible": false,
+      "engine": "xelatex",
+      "events": [
+        {
+          "diagnostics": [],
+          "pdf": {
+            "bytes": 4217,
+            "sha256": "b79c51866ee5ddf514d624a36f2304b94197cd63b35f3892a4e44f4b9d2b5929"
+          },
+          "seconds": 1.7676222
+        }
+      ],
+      "ok": false,
+      "passes": 2,
+      "seconds": 2.5522679,
+      "source": {
+        "main.tex": {
+          "bytes": 278,
+          "sha256": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa"
+        }
+      },
+      "version": "MiKTeX-XeTeX 4.16 (MiKTeX 25.12)\n\u00c2\u00a9 1994-2008 SIL International, \u00c2\u00a9 2009-2023 Jonathan Kew, \u00c2\u00a9 2010-2012 H\u00c3\u00a0n Th\u00e1\u00ba\u00bf Th\u00c3\u00a0nh, \u00c2\u00a9 2012-2013 Khaled Hosny\nTeX is a trademark of the American Mathematical Society",
+      "version_reused": false
+    },
+    {
+      "arguments": [
+        "-interaction=nonstopmode",
+        "-halt-on-error",
+        "-file-line-error",
+        "-synctex=1",
+        "-recorder",
+        "-no-shell-escape",
+        "-jobname=preview",
+        "-output-directory=.out",
+        "--disable-installer",
+        "main.tex"
+      ],
+      "baseline_seconds": 0.7517159,
+      "case": "compile-error",
+      "compiler": {
+        "fingerprint": {
+          "bytes": 1482752,
+          "sha256": "ef2397c0f8638ccb79a46a693be196e64ce90b361fde5cbcd7397a72e13e8ff4"
+        },
+        "path": "\\\\?\\C:\\Users\\thebe\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\xelatex.exe"
+      },
+      "diagnostics": [
+        {
+          "code": "latex_error",
+          "file": "main.tex",
+          "line": 3,
+          "message": "Undefined control sequence.",
+          "severity": "error"
+        }
+      ],
+      "eligible": false,
+      "engine": "xelatex",
+      "events": [],
+      "ok": false,
+      "passes": 1,
+      "seconds": 0.7359756,
+      "source": {
+        "main.tex": {
+          "bytes": 84,
+          "sha256": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa"
+        }
+      },
+      "version": "MiKTeX-XeTeX 4.16 (MiKTeX 25.12)\n\u00c2\u00a9 1994-2008 SIL International, \u00c2\u00a9 2009-2023 Jonathan Kew, \u00c2\u00a9 2010-2012 H\u00c3\u00a0n Th\u00e1\u00ba\u00bf Th\u00c3\u00a0nh, \u00c2\u00a9 2012-2013 Khaled Hosny\nTeX is a trademark of the American Mathematical Society",
+      "version_reused": false
+    },
+    {
+      "case": "cancel-at-preview",
+      "engine": "xelatex",
+      "error": "Compilation cancelled or superseded",
+      "events": [
+        {
+          "diagnostics": [],
+          "pdf": {
+            "bytes": 3990,
+            "sha256": "52ca629f1fe6424461facf0bc937433783b740b0c7b4539a0259e5cbc0c1ce92"
+          },
+          "seconds": 1.7674716
+        }
+      ]
+    },
+    {
+      "case": "mutate-after-preview",
+      "engine": "xelatex",
+      "error": "Frozen build input changed: main.tex",
+      "events": [
+        {
+          "diagnostics": [],
+          "pdf": {
+            "bytes": 4242,
+            "sha256": "3a33fa542589abdf857f2dd86616cee0f9687794d52b38209329bc40f6665145"
+          },
+          "seconds": 1.7730218
+        }
+      ]
+    },
+    {
+      "arguments": [
+        "-interaction=nonstopmode",
+        "-halt-on-error",
+        "-file-line-error",
+        "-synctex=1",
+        "-recorder",
+        "-no-shell-escape",
+        "-jobname=preview",
+        "-output-directory=.out",
+        "--disable-installer",
+        "main.tex"
+      ],
+      "baseline_seconds": 2.6600709,
+      "case": "plain",
+      "compiler": {
+        "fingerprint": {
+          "bytes": 6582784,
+          "sha256": "4507d518df798a867bdef4f7bcb0e55f6ff4d118544e48aa4d4aa9f375db86f0"
+        },
+        "path": "\\\\?\\C:\\Users\\thebe\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\lualatex.exe"
+      },
+      "diagnostics": [],
+      "eligible": true,
+      "engine": "lualatex",
+      "events": [
+        {
+          "diagnostics": [],
+          "pdf": {
+            "bytes": 4576,
+            "sha256": "e8aa6f007836b7479696bf928d8c2d913c146d0b5ef256bc14b9da7787637a62"
+          },
+          "seconds": 1.2911120999999999
+        }
+      ],
+      "ok": true,
+      "passes": 2,
+      "seconds": 2.3796061,
+      "source": {
+        "main.tex": {
+          "bytes": 83,
+          "sha256": "e08fe16368c6d3b9a3faa419f86c5b0e8f99dbe85731f0b39d50679f6e73c2c7"
+        }
+      },
+      "version": "This is LuaHBTeX, Version 1.24.0 (MiKTeX 25.12)\nDevelopment id: 7707\n",
+      "version_reused": true
+    },
+    {
+      "arguments": [
+        "-interaction=nonstopmode",
+        "-halt-on-error",
+        "-file-line-error",
+        "-synctex=1",
+        "-recorder",
+        "-no-shell-escape",
+        "-jobname=preview",
+        "-output-directory=.out",
+        "--disable-installer",
+        "main.tex"
+      ],
+      "baseline_seconds": 2.7208103,
+      "case": "references",
+      "compiler": {
+        "fingerprint": {
+          "bytes": 6582784,
+          "sha256": "4507d518df798a867bdef4f7bcb0e55f6ff4d118544e48aa4d4aa9f375db86f0"
+        },
+        "path": "\\\\?\\C:\\Users\\thebe\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\lualatex.exe"
+      },
+      "diagnostics": [],
+      "eligible": true,
+      "engine": "lualatex",
+      "events": [
+        {
+          "diagnostics": [
+            {
+              "code": "unresolved_reference",
+              "file": null,
+              "line": null,
+              "message": "LaTeX Warning: Reference `sec:example' on page 1 undefined on input line 3.",
+              "severity": "error"
+            },
+            {
+              "code": "unresolved_reference",
+              "file": null,
+              "line": null,
+              "message": "LaTeX Warning: There were undefined references.",
+              "severity": "error"
+            },
+            {
+              "code": "latex_warning",
+              "file": null,
+              "line": null,
+              "message": "LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.",
+              "severity": "warning"
+            }
+          ],
+          "pdf": {
+            "bytes": 8975,
+            "sha256": "aeb03a8eb4d320103af62e6d1de9d428af84aa4074e2675d7c737cef4ec1cb81"
+          },
+          "seconds": 1.3457377
+        }
+      ],
+      "ok": true,
+      "passes": 2,
+      "seconds": 2.4966352,
+      "source": {
+        "main.tex": {
+          "bytes": 133,
+          "sha256": "fa5f71ae2885b1e81a4a75732751ed4548ec9fce7c15f1a164130121b3736f39"
+        }
+      },
+      "version": "This is LuaHBTeX, Version 1.24.0 (MiKTeX 25.12)\nDevelopment id: 7707\n",
+      "version_reused": true
+    },
+    {
+      "arguments": [
+        "-interaction=nonstopmode",
+        "-halt-on-error",
+        "-file-line-error",
+        "-synctex=1",
+        "-recorder",
+        "-no-shell-escape",
+        "-jobname=preview",
+        "-output-directory=.out",
+        "--disable-installer",
+        "main.tex"
+      ],
+      "baseline_seconds": 3.8972828,
+      "case": "contents",
+      "compiler": {
+        "fingerprint": {
+          "bytes": 6582784,
+          "sha256": "4507d518df798a867bdef4f7bcb0e55f6ff4d118544e48aa4d4aa9f375db86f0"
+        },
+        "path": "\\\\?\\C:\\Users\\thebe\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\lualatex.exe"
+      },
+      "diagnostics": [],
+      "eligible": true,
+      "engine": "lualatex",
+      "events": [
+        {
+          "diagnostics": [],
+          "pdf": {
+            "bytes": 8507,
+            "sha256": "540e0bcd1bbc3cb28150778a69db28891a63d0c4d6a8ec7766dd2144f7ababdf"
+          },
+          "seconds": 1.3131001
+        }
+      ],
+      "ok": true,
+      "passes": 3,
+      "seconds": 3.655448,
+      "source": {
+        "main.tex": {
+          "bytes": 153,
+          "sha256": "3c6bfd0027616095cb0f5f752825f98c6eec98595c75c54759d8d67785ff2f0c"
+        }
+      },
+      "version": "This is LuaHBTeX, Version 1.24.0 (MiKTeX 25.12)\nDevelopment id: 7707\n",
+      "version_reused": true
+    },
+    {
+      "arguments": [
+        "-interaction=nonstopmode",
+        "-halt-on-error",
+        "-file-line-error",
+        "-synctex=1",
+        "-recorder",
+        "-no-shell-escape",
+        "-jobname=preview",
+        "-output-directory=.out",
+        "--disable-installer",
+        "main.tex"
+      ],
+      "baseline_seconds": 2.4359631999999998,
+      "case": "late-failure",
+      "compiler": {
+        "fingerprint": {
+          "bytes": 6582784,
+          "sha256": "4507d518df798a867bdef4f7bcb0e55f6ff4d118544e48aa4d4aa9f375db86f0"
+        },
+        "path": "\\\\?\\C:\\Users\\thebe\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\lualatex.exe"
+      },
+      "diagnostics": [
+        {
+          "code": "latex_error",
+          "file": "main.tex",
+          "line": 3,
+          "message": "Synthetic deliberate later-pass failure.",
+          "severity": "error"
+        },
+        {
+          "code": "latex_error",
+          "file": "main.tex",
+          "line": 3,
+          "message": "==> Fatal error occurred, no output PDF file produced!",
+          "severity": "error"
+        }
+      ],
+      "eligible": false,
+      "engine": "lualatex",
+      "events": [
+        {
+          "diagnostics": [],
+          "pdf": {
+            "bytes": 5119,
+            "sha256": "3723615dcdd084bf3cad620232cd40fda4acaca50e971f76bc0b9b6c4857eb2a"
+          },
+          "seconds": 1.5641668
+        }
+      ],
+      "ok": false,
+      "passes": 2,
+      "seconds": 2.5271871,
+      "source": {
+        "main.tex": {
+          "bytes": 278,
+          "sha256": "f0a6da086b2f800ad3f20216c6be60c5fa6c6c66e9810403037f6e225fd2fdfa"
+        }
+      },
+      "version": "This is LuaHBTeX, Version 1.24.0 (MiKTeX 25.12)\nDevelopment id: 7707\n",
+      "version_reused": false
+    },
+    {
+      "arguments": [
+        "-interaction=nonstopmode",
+        "-halt-on-error",
+        "-file-line-error",
+        "-synctex=1",
+        "-recorder",
+        "-no-shell-escape",
+        "-jobname=preview",
+        "-output-directory=.out",
+        "--disable-installer",
+        "main.tex"
+      ],
+      "baseline_seconds": 1.2625469,
+      "case": "compile-error",
+      "compiler": {
+        "fingerprint": {
+          "bytes": 6582784,
+          "sha256": "4507d518df798a867bdef4f7bcb0e55f6ff4d118544e48aa4d4aa9f375db86f0"
+        },
+        "path": "\\\\?\\C:\\Users\\thebe\\AppData\\Local\\Programs\\MiKTeX\\miktex\\bin\\x64\\lualatex.exe"
+      },
+      "diagnostics": [
+        {
+          "code": "latex_error",
+          "file": "main.tex",
+          "line": 3,
+          "message": "Undefined control sequence.",
+          "severity": "error"
+        },
+        {
+          "code": "latex_error",
+          "file": "main.tex",
+          "line": 3,
+          "message": "==> Fatal error occurred, no output PDF file produced!",
+          "severity": "error"
+        }
+      ],
+      "eligible": false,
+      "engine": "lualatex",
+      "events": [],
+      "ok": false,
+      "passes": 1,
+      "seconds": 1.3280796000000001,
+      "source": {
+        "main.tex": {
+          "bytes": 84,
+          "sha256": "035de95769bceb180502331f9cc1f311269676de45616f6a28f3a17523e7e9fa"
+        }
+      },
+      "version": "This is LuaHBTeX, Version 1.24.0 (MiKTeX 25.12)\nDevelopment id: 7707\n",
+      "version_reused": false
+    },
+    {
+      "case": "cancel-at-preview",
+      "engine": "lualatex",
+      "error": "Compilation cancelled or superseded",
+      "events": [
+        {
+          "diagnostics": [],
+          "pdf": {
+            "bytes": 4889,
+            "sha256": "a0c2dd4cfaf8b522d03faffc66f0215bb8fe734fd774633420e48c6a4675906a"
+          },
+          "seconds": 1.5457130000000001
+        }
+      ]
+    },
+    {
+      "case": "mutate-after-preview",
+      "engine": "lualatex",
+      "error": "Frozen build input changed: main.tex",
+      "events": [
+        {
+          "diagnostics": [],
+          "pdf": {
+            "bytes": 5170,
+            "sha256": "34bebb14cc3f7e9d1cea72e5a14789b51b400d080a5fe78fae731e9f806d999d"
+          },
+          "seconds": 1.5460482
+        }
+      ]
+    }
+  ],
+  "phase_notes": {
+    "initial_service": "18 controls, fresh profile, bound by native-initial-source.json",
+    "intermediate_service": "Retained development runs; final and bounded folders precede final banner normalization. Do not pool their timings.",
+    "final_service": "Verified folder uses the final source identities above; successful observed builds reuse identification from the baseline."
+  },
+  "scope_limits": [
+    "Development-only opt-in library observer; desktop has no provisional view yet",
+    "PDF-header and byte checks do not replace a PDF parser or native approval",
+    "One observation per engine/condition; no population timing or overhead inference",
+    "Baseline has fresh identification while successful observed builds reuse it",
+    "No native dispatch, actual UI/input, installation or physical presentation measurement"
+  ]
+}

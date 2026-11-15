@@ -61,6 +61,14 @@ pub struct Outcome {
     pub converged: bool,
     pub timings: BuildTimings,
 }
+/// First-pass PDF bytes, without convergence, native approval or mapping
+/// authority. Consumers must parse them before presentation. A later pass
+/// can still change the PDF or fail the entire build.
+pub struct UnverifiedPreview {
+    pub pdf: Vec<u8>,
+    pub diagnostics: Vec<Diagnostic>,
+    pub seconds: f64,
+}
 /// Native build timings. Includes child startup and exit in process intervals.
 #[derive(Default, Serialize)]
 pub struct BuildTimings {
@@ -147,7 +155,7 @@ fn stable_runtime_banner(line: &str) -> Option<String> {
     }
     // The first log line includes a timestamp after the engine/format banner.
     // Keep the format name and version, including the format's own date.
-    Some(match line.split_once(")  ") {
+    Some(match line.rsplit_once(")  ") {
         Some((head, _)) => format!("{head})"),
         None => line.into(),
     })
@@ -165,19 +173,30 @@ const MEMORY: usize = 2 * 1024 * 1024 * 1024;
 const MAX_PASSES: usize = 6;
 pub fn bibliography_search_path(root:&Path)->String { crate::bibliography::search_path(root) }
 pub fn build(request: Request<'_>, cancel: &Cancellation) -> Result<Outcome, String> {
-    build_inner(request, cancel, None)
+    build_inner(request, cancel, None, None)
 }
 pub fn build_with_profiles(
     request: Request<'_>,
     cancel: &Cancellation,
     profiles: &CompilerProfiles,
 ) -> Result<Outcome, String> {
-    build_inner(request, cancel, Some(profiles))
+    build_inner(request, cancel, Some(profiles), None)
+}
+/// Development observer for a future provisional view. Ordinary builds do
+/// not read the first PDF and retain the existing final-result contract.
+pub fn build_with_preview(
+    request: Request<'_>,
+    cancel: &Cancellation,
+    profiles: Option<&CompilerProfiles>,
+    preview: &mut dyn FnMut(UnverifiedPreview),
+) -> Result<Outcome, String> {
+    build_inner(request, cancel, profiles, Some(preview))
 }
 fn build_inner(
     request: Request<'_>,
     cancel: &Cancellation,
     profiles: Option<&CompilerProfiles>,
+    mut preview: Option<&mut dyn FnMut(UnverifiedPreview)>,
 ) -> Result<Outcome, String> {
     let started = Instant::now();
     cancel.check()?;
@@ -350,6 +369,19 @@ fn build_inner(
         let verify_started = Instant::now();
         receipt.verify()?;
         timings.verify_seconds += verify_started.elapsed().as_secs_f64();
+        if pass == 1 && !truncated {
+            if let Some(observer) = preview.as_deref_mut() {
+                cancel.check()?;
+                if let Some(pdf) = unverified_pdf(&receipt.directory.join(".out/preview.pdf")) {
+                    observer(UnverifiedPreview {
+                        pdf,
+                        diagnostics: diagnostics.clone(),
+                        seconds: started.elapsed().as_secs_f64(),
+                    });
+                }
+                cancel.check()?;
+            }
+        }
         let mut bibliography_ran=false;
         if !bibliography_disabled {
             match crate::bibliography::requested(&receipt) {
@@ -440,6 +472,17 @@ fn build_inner(
         converged,
         timings,
     })
+}
+fn unverified_pdf(path: &Path) -> Option<Vec<u8>> {
+    // A preview failure must not change an otherwise successful final build.
+    // Source/dependency failures are handled by the mandatory checks above.
+    snapshot::check_plain(path).ok()?;
+    if fs::metadata(path).ok()?.len() > 60 * 1024 * 1024 {
+        return None;
+    }
+    let mut pdf = Vec::new();
+    fs::File::open(path).ok()?.take(60 * 1024 * 1024 + 1).read_to_end(&mut pdf).ok()?;
+    (pdf.len() <= 60 * 1024 * 1024 && pdf.starts_with(b"%PDF-")).then_some(pdf)
 }
 fn preflight_diagnostic(output: &process::Output) -> Diagnostic {
     let lower = output.text.to_ascii_lowercase();
@@ -576,6 +619,23 @@ pub fn parse_diagnostics(log: &str, sources: &BTreeMap<String, String>) -> Vec<D
 mod tests {
     use super::*;
     #[test]
+    fn optional_preview_refuses_missing_non_pdf_and_oversized_output() {
+        use std::{io::{Seek, Write}, time::SystemTime};
+        let name = format!("texloom-preview-{}-{}.pdf", std::process::id(),
+            SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_nanos());
+        let path = std::env::temp_dir().join(name);
+        assert!(unverified_pdf(&path).is_none());
+        assert!(unverified_pdf(&std::env::temp_dir()).is_none());
+        let mut file = fs::OpenOptions::new().write(true).create_new(true).open(&path).unwrap();
+        file.write_all(b"other").unwrap(); file.flush().unwrap();
+        assert!(unverified_pdf(&path).is_none());
+        file.rewind().unwrap(); file.write_all(b"%PDF-").unwrap(); file.flush().unwrap();
+        assert_eq!(unverified_pdf(&path).unwrap(), b"%PDF-");
+        file.set_len(60 * 1024 * 1024 + 1).unwrap();
+        assert!(unverified_pdf(&path).is_none());
+        drop(file); fs::remove_file(path).unwrap();
+    }
+    #[test]
     fn preflight_failures_use_bounded_messages_and_preserve_timeout_priority() {
         let mut output = process::Output {
             success: false,
@@ -630,5 +690,9 @@ mod tests {
         assert_eq!(first, later);
         assert_ne!(first, stable_runtime_banner(&banner.replace("2026.10.27", "2026.10.28")));
         assert_eq!(stable_runtime_banner("Unexpected engine output"), None);
+        let spaced = "This is LuaHBTeX, Version 1.22.0 (TeX Live 2026)  (format=lualatex 2026.10.26)";
+        assert_eq!(stable_runtime_banner(&format!("{spaced}  15 NOV 2026 22:40")).as_deref(), Some(spaced));
+        assert_ne!(stable_runtime_banner(&format!("{spaced}  15 NOV 2026 22:40")),
+            stable_runtime_banner(&format!("{}  15 NOV 2026 22:40", spaced.replace("2026.10.26", "2026.10.27"))));
     }
 }
