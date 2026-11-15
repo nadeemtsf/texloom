@@ -6,7 +6,32 @@ import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
 import {loadPDFDocument} from '../web/core/pdf-document.js';
 import {selectionReasonForPage} from '../web/core/pdf-surface.js';
 import {acceptCompilation,decodeCompilation} from '../web/core/build-protocol.js';
+import {renderPreliminaryPDF} from '../web/core/preliminary-pdf.js';
 const {createCanvas}=createRequire(import.meta.url)('@napi-rs/canvas');
+
+test('the preliminary renderer paints a real PDF page without creating an editable or final-build surface',async()=>{
+ const bytes=new Uint8Array(await readFile(new URL('./fixtures/objects/baseline.pdf',import.meta.url)));
+ const attributes=new Map();
+ const document={createElement(name){assert.equal(name,'canvas');const canvas=createCanvas(1,1);
+  canvas.setAttribute=(key,value)=>attributes.set(key,value);return canvas}};
+ const rendered=await renderPreliminaryPDF(pdfjs,{pdf:bytes},{document,width:640,page:99,
+  resources:{standardFontDataUrl:new URL('../node_modules/pdfjs-dist/standard_fonts/',import.meta.url).href}});
+ try{
+  assert.equal(rendered.page,1);assert.equal(rendered.pageCount,1);
+  assert.equal(attributes.get('role'),'img');assert.match(attributes.get('aria-label'),/Early preview/);
+  assert.equal(rendered.build_id,undefined);assert.equal(rendered.objects,undefined);
+  const pixels=rendered.canvas.getContext('2d').getImageData(0,0,rendered.canvas.width,rendered.canvas.height).data;
+  assert.ok(pixels.some((value,index)=>index%4!==3&&value<100),'actual PDF text ink');
+  assert.ok(bytes.length>0,'the PDF.js worker cannot detach the received progress bytes');
+ }finally{await rendered.dispose();await rendered.dispose()}
+});
+
+test('an aborted preliminary load disposes its PDF even when it resolves after cancellation',async()=>{
+ let finish,disposed=0;const abort=new AbortController();
+ const pdfjs={getDocument(){return {promise:new Promise(resolve=>finish=resolve),destroy:async()=>{disposed++}}}};
+ const rendering=renderPreliminaryPDF(pdfjs,{pdf:[]},{document:{},width:640,signal:abort.signal});
+ abort.abort();finish({numPages:1});await assert.rejects(rendering,{name:'AbortError'});assert.equal(disposed,1);
+});
 
 test('binary compile delivery preserves real PDF text and every rendered pixel',async()=>{
  const bytes=new Uint8Array(await readFile(new URL('./fixtures/objects/baseline.pdf',import.meta.url)));

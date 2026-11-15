@@ -485,6 +485,14 @@ impl Backend {
         request: CompileRequest,
         lease: &texloom_build::scheduler::Lease,
     ) -> Result<CompileResult> {
+        self.compile_inner(request, lease, None)
+    }
+    fn compile_inner(
+        &self,
+        request: CompileRequest,
+        lease: &texloom_build::scheduler::Lease,
+        preview: Option<&mut dyn FnMut(&str, texloom_build::engine::UnverifiedPreview)>,
+    ) -> Result<CompileResult> {
         lease.cancel.check()?;
         let root = self.project_root(&request.project_id)?;
         let source = request
@@ -503,8 +511,7 @@ impl Backend {
             ("studio.sty".into(), STYLE.into()),
             ("texloom-objects.sty".into(), OBJECT_STYLE.into()),
         ]);
-        let output = texloom_build::engine::build_with_profiles(
-            texloom_build::engine::Request {
+        let build_request = texloom_build::engine::Request {
                 project_root: &root,
                 directory: &directory,
                 sources: &request.sources,
@@ -512,10 +519,13 @@ impl Backend {
                 support: &support,
                 compiler: &binary,
                 engine: &engine,
-            },
-            &lease.cancel,
-            &self.compiler_profiles,
-        )?;
+            };
+        let output = if let Some(observer) = preview {
+            texloom_build::engine::build_with_preview(build_request, &lease.cancel,
+                Some(&self.compiler_profiles), &mut |value| observer(&engine, value))?
+        } else {
+            texloom_build::engine::build_with_profiles(build_request, &lease.cancel, &self.compiler_profiles)?
+        };
         lease.cancel.check()?;
         let metrics = measurements(&output.receipt.directory.join(".out/preview.studio"));
         let mut mapped = Vec::new();

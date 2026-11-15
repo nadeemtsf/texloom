@@ -36,6 +36,10 @@ required-features = ["benchmark"]
 name = "document_bindings"
 required-features = ["typegen"]
 
+[[example]]
+name = "first_preview_transport_development"
+required-features = ["benchmark"]
+
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 sha2 = "0.10"

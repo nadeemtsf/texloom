@@ -115,22 +115,40 @@ async fn discard_document_recovery(state:State<'_,Arc<Backend>>,project_id:Strin
 
 #[tauri::command]
 async fn compile_document(
+    webview: tauri::Webview,
     state: State<'_, Arc<Backend>>,
     project_id: String,
     revision: u64,
     token: Option<String>,
     purpose: Option<build_protocol::BuildPurpose>,
     request_id: u64,
+    on_preview: Option<tauri::ipc::JavaScriptChannelId>,
 ) -> Result<tauri::ipc::Response, String> {
     let request = build_protocol::CompileDocumentRequest { project_id, revision, token, purpose, request_id };
     let backend = state.inner().clone();
+    let on_preview: Option<tauri::ipc::Channel<tauri::ipc::InvokeResponseBody>> =
+        on_preview.map(|id| id.channel_on(webview));
     tauri::async_runtime::spawn_blocking(move || {
-        let result = backend.compile_document(
+        let mut observe = |engine: &str, value: texloom_build::engine::UnverifiedPreview| {
+            if let Some(channel) = &on_preview {
+                let preview = compile_transport::UnverifiedCompilePreview {
+                    schema: 1, phase: "first_pass", project_id: request.project_id.clone(),
+                    revision: request.revision, request_id: request.request_id, engine: engine.into(),
+                    seconds: value.seconds, diagnostics: value.diagnostics, pdf: value.pdf,
+                };
+                if let Ok(wire) = compile_transport::encode_preview(preview) {
+                    let _ = channel.send(tauri::ipc::InvokeResponseBody::Raw(wire));
+                }
+            }
+        };
+        let enabled = on_preview.is_some();
+        let result = backend.compile_document_observed(
             &request.project_id,
             request.revision,
             request.token.as_deref(),
             request.purpose.as_ref().map(build_protocol::BuildPurpose::as_str),
             request.request_id,
+            enabled.then_some(&mut observe as &mut dyn FnMut(&str, texloom_build::engine::UnverifiedPreview)),
         )?;
         compile_transport::encode(result).map(tauri::ipc::Response::new)
     })
