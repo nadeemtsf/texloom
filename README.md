@@ -18,7 +18,7 @@ Version 0.3 is under development in the primary repository, https://github.com/n
 - Projects dialog with direct paths, recents, bounded ZIP import/export, encoding review and new Article/Letter/CV/multilingual templates.
 - Declared local BibTeX/Biber builds, image import and source-preserving image/table/typography/spacing controls.
 - PDF search across unpainted pages and bounded lazy painting for documents longer than 20 pages.
-- Existing MiKTeX/TeX Live detection, pdfLaTeX/XeLaTeX/LuaLaTeX selection, bounded compilation time, compiler logs, and SyncTeX source lookup.
+- Existing MiKTeX/TeX Live detection, pdfLaTeX/XeLaTeX/LuaLaTeX selection, cancellable compilation, compiler logs, and SyncTeX source lookup.
 - Read-only setup help for missing compilers, initialization failures, packages and fonts; see [setup guidance and its pending native checks](docs/SETUP-HELP.md).
 - Optional local timing diagnostics in a separately identified build; ordinary builds disable them. [Measurement boundaries](docs/PERFORMANCE-DIAGNOSTICS.md) distinguish handler entry, publication and a frame proxy. No end-to-end performance result is claimed yet.
 - Dragging, width resizing, exact coordinates, base font sizes, block text editing, source-to-PDF compilation, and guarded conversion of a complete source selection into a movable block.

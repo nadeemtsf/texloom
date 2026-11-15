@@ -1,0 +1,60 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-15T21:02:55.710367+00:00",
+  "kind": "technical_report_v17_build_visual_review",
+  "status": "built_rendered_reviewed",
+  "implementation_base": "07255921fc27d4be3d34edbf42f96ac51625d24e",
+  "report_pages": 34,
+  "references": 27,
+  "pdf": {
+    "file": "Texloom-technical-report-full-draft-2026-11-15-v17.pdf",
+    "bytes": 659638,
+    "sha256": "d659d075fb4fff325b4f2d89c303c2683c5a181e00c490f8934a6e319893e763"
+  },
+  "editable_sources": {
+    "file": "Texloom-technical-report-editable-sources-2026-11-15-v17.zip",
+    "bytes": 72539,
+    "sha256": "2700aa3ada739b0e89427967482c872d0e222c2e8afb7d378f67b01dbe05847c",
+    "members": 17
+  },
+  "development_evidence": {
+    "file": "Texloom-compile-performance-development-evidence-2026-11-15.zip",
+    "bytes": 73529,
+    "sha256": "992e644fa22ef3baf1a09cfa1d345ec7cc1469a47ab99e9816447569202c0ea4",
+    "members": 41
+  },
+  "visual_review": {
+    "pages": 34,
+    "all_pages_rendered_and_reviewed": true,
+    "clipping_or_overlap_seen": false
+  },
+  "build_review": {
+    "log": {
+      "file": "main.log",
+      "bytes": 27655,
+      "sha256": "c090e41383bbae3fd44e1e7100b81e9e75091a3fbd7fb44f546c554b63864bfe"
+    },
+    "underfull_notices": 4,
+    "overfull_missing_or_undefined_warnings": 0
+  },
+  "source_sha256": {
+    "README.md": "410716058ad1c8dc42e7c84ca9c019411e3aafd3af7c69d8a17de6b778a13f64",
+    "main.tex": "8651d9ca8c96e6b5046a7b457334bc377a1e0f68a6d513bbd487d8bbb78140ed",
+    "followup-references.bib": "f2e7f7d32086232b745aa2d00f2c46dcf02d02846905114dc2fe3719b414bba7",
+    "references.bib": "1c6bef9292f8599cbc86bb610e9b1e3b44a604b3db66370c8e9604a849121493",
+    "sections/01-scope.tex": "8a081ce27cdd63ca9a623512aa0fc12ca7686477759b3f3de307ea7a9c701196",
+    "sections/02-workflow.tex": "ec6d7c640050e864421a33b05e54b2a278299e76a695ac570faca4a9388ddf5d",
+    "sections/03-contracts.tex": "46fc40be341983f0fd993ce675bbc1253fe9ab937538cc81eadb39e3b93e4c19",
+    "sections/04-related-work.tex": "a2225909003758d3c4262168bc12821c02ed9edc118f4ed83685107abdadf23e",
+    "sections/05-evaluation.tex": "71346c4c1e896eed0fed97844a50ea35a626cc7604f7fb96d4884ad2fb021bf3",
+    "sections/06-development-evidence.tex": "981da2cbae6fe869aab39ed2b2403088f60d3fe73afa1858def96e40a88934a4",
+    "sections/07-timing.tex": "15ce75420430c5ef4bf8c57ea69a90317fe2cae80e67ecbc29a6889c634084bf",
+    "sections/08-reproducibility.tex": "683c95e3224da775acd9c4c1baf722eb51078edd17ed7d68e52e84a533125c49",
+    "sections/09-limitations.tex": "5c57086b0dfa3a9af349cf032b653ed1e6c6b7f2b6ff192e505bf386586c862e",
+    "sections/appendix-artifacts.tex": "e00e2105b8b70e7e514a29c3cf90d7aa1e75c8c2ad82f64af2eef21e5cfdf2c2",
+    "sections/appendix-protocol.tex": "941e7098b5bda83b5078268c6abbbbc11e2124c35141c7531165a8fba62c00da",
+    "sections/appendix-reproduction.tex": "fc7de0591a8ea68c44135651fefee871a71c0816804353ee1ed709f258649188",
+    "sections/compile-cost.tex": "c9a2f365060c2a314b53ee2243c721878246380abb8aaa23b6e9939cc527116b"
+  },
+  "scope": "Synthetic native compilation and Node component diagnostics. Final study and app input-to-display evaluation pending."
+}

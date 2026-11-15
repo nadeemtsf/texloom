@@ -61,7 +61,7 @@ pub(super) fn run(command: Command, cancel: &Cancellation) -> Result<String> {
             args: &args,
             directory: &directory,
             env: &environment,
-            timeout: Duration::from_secs(10),
+            timeout: Some(Duration::from_secs(10)),
             memory_bytes: 2 * 1024 * 1024 * 1024,
         },
         cancel,

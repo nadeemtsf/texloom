@@ -1,0 +1,73 @@
+\subsection{Compile deadlines and repeated build costs, 15 November}
+\label{sec:compile-cost}
+Texloom runs installed TeX engines as child processes. Rust prepares a
+private copy of the project, checks dependencies, runs the required passes
+and seals the resulting PDF. The old build service stopped a build after
+120 seconds, limited a TeX pass to 90 seconds and bounded bibliography
+generation. The new path lets these processes finish or be cancelled.
+Version and lookup probes keep their own deadlines. The compiler still has
+six passes to settle its references and generated inputs, and the process
+memory limit remains 2 GiB.
+
+A synthetic Lua\LaTeX{} fixture completed a first pass of
+\textbf{121.83 seconds} and an eligible build in \textbf{122.97 seconds}.
+The auxiliary flag prevents another delay on the second pass. The process
+tests cover explicit cancellation and descendant cleanup in a run with
+no deadline. This control exercises the real engine through the native
+build service.
+
+The release diagnostic used MiKTeX pdf\LaTeX{}, Xe\LaTeX{} and Lua\LaTeX{}
+on the same Windows host. For each engine, the workload used a plain
+article, an auxiliary cross-reference and a project with 24 MiB of unrelated
+source. Every build created a fresh source snapshot. The first baseline
+plain-article medians were 1.10, 1.82 and 1.94 seconds, respectively.
+The two engine passes accounted for roughly 0.76, 1.43 and 1.57 seconds.
+Version identification alone took 0.26--0.29 seconds. These intervals exclude
+editor debounce, WebView transport and visible presentation.
+
+The revised path checks all dependencies together after recording
+them, and resolves each repeated recorder path once per pass. A repeat
+build may reuse engine identification for matching compiler bytes, alias,
+project and environment. Its successful passes must still report the
+expected runtime and format. Snapshot isolation, TeX execution,
+dependency checks and convergence remain part of each build.
+
+\begin{table}[htbp]
+\small\centering
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Plain article & Fresh check & Reused check & Paired saving\\
+\midrule
+pdfLaTeX & 1074 & 782 & 280\\
+XeLaTeX & 1911 & 1702 & 294\\
+LuaLaTeX & 2005 & 1715 & 325\\
+\bottomrule
+\end{tabular}
+\caption{Alternating fresh and reused version checks, in milliseconds.
+Each engine has five measured pairs after warm-up. The last column is the
+median of within-pair differences.}
+\label{tab:compile-pairstats}
+\end{table}
+
+All 90 comparisons against the baseline and 45 fresh/reused pairs retained
+identical extracted text, full single-page rasters, pass counts, arguments
+and used-project-input lists. These repeated synthetic conditions share
+one machine. Background workload and filesystem cache state varied.
+The protocol and raw-result identities are bound by
+\path{docs/evidence/compile-performance-2026-11-15.json}.
+
+The first pass accounts for much of the wait. The service then runs a second
+pass to verify stability in the measured cases. A provisional preview at the
+first successful pass could show content sooner while the verified result
+continues to settle. Reusing auxiliary state is a separate experiment
+that needs cold-build equivalence controls for references, changed files,
+bibliographies and dynamic TeX. Established continuous builders such as
+latexmk manage the same class of dependencies and reruns~\cite{latexmkManual}.
+
+A separate Node transport diagnostic measured 267 ms median to parse,
+validate and convert a JSON reply carrying 8 MiB of PDF-pattern bytes.
+The JSON payload was 29.6 MB. It measures frontend CPU work before PDF
+rendering. Tauri's binary response API supports a follow-up that can
+avoid byte-array JSON and retain revision-bound build
+metadata~\cite{tauriBinaryIPC}. A packaged Windows measurement would assess
+delivery and presentation together.

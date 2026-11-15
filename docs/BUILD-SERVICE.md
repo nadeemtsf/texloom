@@ -22,9 +22,15 @@ This is a recorded build profile, not a hermetic OS image. Recorder coverage doe
 
 Direct pdfLaTeX, LuaLaTeX and XeLaTeX jobs use file/line errors, SyncTeX, the dependency recorder, nonstop mode, halt-on-error and no shell escape. MiKTeX is identified by its version output and receives its disable-installer flag.
 
-A build needs at least two passes, unchanged auxiliary/generated-input fingerprints, no new discovered dependencies and no rerun request. Limits: six passes, 120 seconds per build (at most 90 per engine pass), 2 GiB per process job. Exceeding limits, nonconvergence or compiler errors rejects the result. The total deadline is checked before acceptance; filesystem validation and cleanup may add return latency.
+A build needs at least two passes, unchanged auxiliary/generated-input fingerprints, no new discovered dependencies and no rerun request. TeX passes and bibliography generation can run for as long as needed. Cancel stops the active process tree. Short compiler/tool probes still have a deadline, and the six-pass convergence limit and 2 GiB process memory limit still apply.
 
-BibTeX/Biber orchestration is not implemented in this limited direct recipe. Bibliography-tool requirements are reported explicitly. Prebuilt bibliography fragments included as project inputs can be compiled. This does not claim support for every journal toolchain.
+Declared BibTeX and Biber recipes run with fixed arguments and project-local inputs. Unsupported recipes receive diagnostics. Prebuilt bibliography fragments can also be included as project inputs.
+
+The desktop can reuse version identification from the preceding successful
+build with the same canonical project, compiler path, executable bytes and
+probe environment. Every TeX pass still runs in a new snapshot and checks
+the runtime and loaded format. A failed repeat build makes the next build
+probe the compiler again. See the [compile cost diagnostic](../research/COMPILE-PERFORMANCE-2026-11-15.md).
 
 Logs retain bounded head/tail data while pipes continue draining. Truncated or interrupted logs prevent verification eligibility. Diagnostics include code, severity, message and a project source location when available. Unresolved references/citations and missing glyphs prevent visual edits and clean export; ordinary box warnings are shown. A converged PDF with unresolved diagnostics remains readable.
 

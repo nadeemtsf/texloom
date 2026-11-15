@@ -212,7 +212,7 @@ pub(super) fn run(spec: &CommandSpec<'_>, cancel: &Cancellation) -> io::Result<O
                 break;
             }
             cancelled = cancel.cancelled();
-            timed_out = started.elapsed() >= spec.timeout;
+            timed_out = spec.timeout.is_some_and(|limit| started.elapsed() >= limit);
             if cancelled || timed_out {
                 break;
             }

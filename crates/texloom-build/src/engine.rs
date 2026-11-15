@@ -7,7 +7,9 @@ use serde::Serialize;
 use std::{
     collections::BTreeMap,
     fs,
+    io::{BufRead, BufReader, Read},
     path::{Path, PathBuf},
+    sync::Mutex,
     time::{Duration, Instant},
 };
 
@@ -57,12 +59,126 @@ pub struct Outcome {
     pub pdf: Vec<u8>,
     pub seconds: f64,
     pub converged: bool,
+    pub timings: BuildTimings,
+}
+/// Native build timings. Includes child startup and exit in process intervals.
+#[derive(Default, Serialize)]
+pub struct BuildTimings {
+    pub snapshot_seconds: f64,
+    pub version_seconds: f64,
+    pub version_reused: bool,
+    pub engine_seconds: f64,
+    pub first_pass_seconds: f64,
+    pub verify_seconds: f64,
+    pub recorder_seconds: f64,
+    pub bibliography_seconds: f64,
+    pub finalize_seconds: f64,
+}
+
+/// Last successful engine identification. Each build still checks the current
+/// executable bytes and starts supervised TeX processes on its own snapshot.
+#[derive(Default)]
+pub struct CompilerProfiles(Mutex<Option<CompilerProfile>>);
+
+struct CompilerProfile {
+    project_root: PathBuf,
+    invocation: PathBuf,
+    compiler: snapshot::Dependency,
+    environment: BTreeMap<String, String>,
+    version: String,
+    miktex: bool,
+    runtime: String,
+}
+
+fn probe_environment(environment: &BTreeMap<String, String>) -> BTreeMap<String, String> {
+    // These values are constructed from the fresh snapshot directory on each
+    // build. They affect compilation but don't identify the engine version.
+    environment.iter()
+        .filter(|(key, _)| !matches!(key.as_str(), "TEXMFOUTPUT" | "BIBINPUTS" | "BSTINPUTS"))
+        .map(|(key, value)| (key.clone(), value.clone()))
+        .collect()
+}
+
+impl CompilerProfile {
+    fn matches(&self, receipt: &Receipt) -> bool {
+        self.project_root == receipt.project_root
+            && self.invocation == receipt.invocation
+            && self.compiler.path == receipt.compiler.path
+            && self.compiler.fingerprint == receipt.compiler.fingerprint
+            && self.environment == probe_environment(&receipt.environment)
+    }
+}
+
+impl CompilerProfiles {
+    fn take(&self, receipt: &Receipt) -> Option<CompilerProfile> {
+        let mut cached = self.0.lock().ok()?;
+        if !cached.as_ref().is_some_and(|profile| profile.matches(receipt)) {
+            return None;
+        }
+        // Restore the probe only after a successful build. A failed or
+        // cancelled warm build is followed by a fresh probe next time.
+        cached.take()
+    }
+
+    fn remember(&self, receipt: &Receipt, miktex: bool, runtime: String) {
+        let identified = receipt.engine_version.lines().next()
+            .is_some_and(|line| line.contains("MiKTeX") || line.contains("TeX Live"));
+        if !identified {
+            return;
+        }
+        if let Ok(mut cached) = self.0.lock() {
+            *cached = Some(CompilerProfile {
+                project_root: receipt.project_root.clone(),
+                invocation: receipt.invocation.clone(),
+                compiler: receipt.compiler.clone(),
+                environment: probe_environment(&receipt.environment),
+                version: receipt.engine_version.clone(),
+                miktex,
+                runtime,
+            });
+        }
+    }
+}
+
+fn stable_runtime_banner(line: &str) -> Option<String> {
+    let line = line.trim();
+    if !line.starts_with("This is ") || !(line.contains("MiKTeX") || line.contains("TeX Live")) {
+        return None;
+    }
+    // The first log line includes a timestamp after the engine/format banner.
+    // Keep the format name and version, including the format's own date.
+    Some(match line.split_once(")  ") {
+        Some((head, _)) => format!("{head})"),
+        None => line.into(),
+    })
+}
+
+fn runtime_banner(directory: &Path) -> Option<String> {
+    let path = directory.join(".out/preview.log");
+    snapshot::check_plain(&path).ok()?;
+    let mut reader = BufReader::new(fs::File::open(path).ok()?.take(4096));
+    let mut line = String::new();
+    reader.read_line(&mut line).ok()?;
+    stable_runtime_banner(&line)
 }
 const MEMORY: usize = 2 * 1024 * 1024 * 1024;
 const MAX_PASSES: usize = 6;
-const MAX_TIME: Duration = Duration::from_secs(120);
 pub fn bibliography_search_path(root:&Path)->String { crate::bibliography::search_path(root) }
 pub fn build(request: Request<'_>, cancel: &Cancellation) -> Result<Outcome, String> {
+    build_inner(request, cancel, None)
+}
+pub fn build_with_profiles(
+    request: Request<'_>,
+    cancel: &Cancellation,
+    profiles: &CompilerProfiles,
+) -> Result<Outcome, String> {
+    build_inner(request, cancel, Some(profiles))
+}
+fn build_inner(
+    request: Request<'_>,
+    cancel: &Cancellation,
+    profiles: Option<&CompilerProfiles>,
+) -> Result<Outcome, String> {
     let started = Instant::now();
     cancel.check()?;
     let mut receipt = Receipt::capture(
@@ -73,6 +189,10 @@ pub fn build(request: Request<'_>, cancel: &Cancellation) -> Result<Outcome, Str
         request.support,
         request.compiler,
     )?;
+    let mut timings = BuildTimings {
+        snapshot_seconds: started.elapsed().as_secs_f64(),
+        ..BuildTimings::default()
+    };
     let mut environment = BTreeMap::from([
         ("openin_any".into(), "p".into()),
         ("openout_any".into(), "p".into()),
@@ -99,41 +219,51 @@ pub fn build(request: Request<'_>, cancel: &Cancellation) -> Result<Outcome, Str
     );
     for key in ["BIBINPUTS","BSTINPUTS"] {environment.insert(key.into(),bibliography_search_path(&receipt.directory));}
     receipt.environment = environment.clone();
-    let version_args = vec!["--version".into()];
-    let version = process::run(
-        &CommandSpec {
-            program: &receipt.invocation,
-            args: &version_args,
-            directory: &receipt.directory,
-            env: &environment,
-            timeout: Duration::from_secs(10),
-            memory_bytes: MEMORY,
-        },
-        cancel,
-    )
-    .map_err(|e| format!("Compiler preflight failed: {e}"))?;
-    cancel.check()?;
-    if !version.success || version.timed_out || version.truncated {
-        // Configuration failures are build results, not giant IPC exception
-        // messages. Retain captured output while withholding every PDF receipt.
-        let diagnostic = preflight_diagnostic(&version);
-        receipt.arguments = version_args;
-        receipt.verify()?;
-        receipt.persist()?;
+    let version_started = Instant::now();
+    let mut expected_runtime = None;
+    let (version, miktex) = if let Some(profile) = profiles.and_then(|p| p.take(&receipt)) {
+        timings.version_reused = true;
+        expected_runtime = Some(profile.runtime);
+        (profile.version, profile.miktex)
+    } else {
+        let version_args = vec!["--version".into()];
+        let version = process::run(
+            &CommandSpec {
+                program: &receipt.invocation,
+                args: &version_args,
+                directory: &receipt.directory,
+                env: &environment,
+                timeout: Some(Duration::from_secs(10)),
+                memory_bytes: MEMORY,
+            },
+            cancel,
+        )
+        .map_err(|e| format!("Compiler preflight failed: {e}"))?;
         cancel.check()?;
-        return Ok(Outcome {
-            ok: false,
-            eligible: false,
-            receipt,
-            diagnostics: vec![diagnostic],
-            log: version.text,
-            pdf: Vec::new(),
-            seconds: started.elapsed().as_secs_f64(),
-            converged: false,
-        });
-    }
-    receipt.engine_version = version.text.lines().take(3).collect::<Vec<_>>().join("\n");
-    let miktex = version.text.to_ascii_lowercase().contains("miktex");
+        if !version.success || version.timed_out || version.truncated {
+            timings.version_seconds = version_started.elapsed().as_secs_f64();
+            let diagnostic = preflight_diagnostic(&version);
+            receipt.arguments = version_args;
+            receipt.verify()?;
+            receipt.persist()?;
+            cancel.check()?;
+            return Ok(Outcome {
+                ok: false,
+                eligible: false,
+                receipt,
+                diagnostics: vec![diagnostic],
+                log: version.text,
+                pdf: Vec::new(),
+                seconds: started.elapsed().as_secs_f64(),
+                converged: false,
+                timings,
+            });
+        }
+        let banner = version.text.lines().take(3).collect::<Vec<_>>().join("\n");
+        (banner, version.text.to_ascii_lowercase().contains("miktex"))
+    };
+    receipt.engine_version = version;
+    timings.version_seconds = version_started.elapsed().as_secs_f64();
     let mut args: Vec<String> = [
         "-interaction=nonstopmode",
         "-halt-on-error",
@@ -162,22 +292,27 @@ pub fn build(request: Request<'_>, cancel: &Cancellation) -> Result<Outcome, Str
     let mut bibliography_errors = Vec::new();
     for pass in 1..=MAX_PASSES {
         cancel.check()?;
+        let verify_started = Instant::now();
         receipt.verify()?;
-        let remaining = MAX_TIME
-            .checked_sub(started.elapsed())
-            .ok_or("Compilation exceeded its 120-second budget")?;
+        timings.verify_seconds += verify_started.elapsed().as_secs_f64();
+        let engine_started = Instant::now();
         let output = process::run(
             &CommandSpec {
                 program: &receipt.invocation,
                 args: &args,
                 directory: &receipt.directory,
                 env: &environment,
-                timeout: remaining.min(Duration::from_secs(90)),
+                timeout: None,
                 memory_bytes: MEMORY,
             },
             cancel,
         )
         .map_err(|e| format!("Compiler process failed: {e}"))?;
+        let pass_seconds = engine_started.elapsed().as_secs_f64();
+        timings.engine_seconds += pass_seconds;
+        if pass == 1 {
+            timings.first_pass_seconds = pass_seconds;
+        }
         cancel.check()?;
         receipt.passes = pass;
         // Per-process capture is bounded; keep this build's aggregate bounded too.
@@ -195,31 +330,35 @@ pub fn build(request: Request<'_>, cancel: &Cancellation) -> Result<Outcome, Str
         }
         truncated |= output.truncated;
         diagnostics = parse_diagnostics(&output.text, request.sources);
-        if output.timed_out {
-            diagnostics.push(Diagnostic::new(
-                "timeout",
-                Severity::Error,
-                "Compiler exceeded the time limit",
-            ));
-            break;
-        }
         if !output.success {
             break;
         }
-        receipt.verify()?;
+        if profiles.is_some() {
+            let runtime = runtime_banner(&receipt.directory);
+            if expected_runtime.is_some() && expected_runtime != runtime {
+                return Err("The TeX engine or loaded format changed. Compile again to refresh the engine check.".into());
+            }
+            expected_runtime = runtime;
+        }
         // Lua/font tools can create their standard versioned cache on first use.
         // Discover those declared roots after the pass, then hash every input.
+        let recorder_started = Instant::now();
         let roots = snapshot::toolchain_roots(&receipt.compiler.path);
         let discovered =
             receipt.record_inputs(&receipt.directory.join(".out/preview.fls"), &roots)?;
+        timings.recorder_seconds += recorder_started.elapsed().as_secs_f64();
+        let verify_started = Instant::now();
         receipt.verify()?;
+        timings.verify_seconds += verify_started.elapsed().as_secs_f64();
         let mut bibliography_ran=false;
         if !bibliography_disabled {
             match crate::bibliography::requested(&receipt) {
                 Ok(Some(recipe)) if bibliography_digest.as_ref()!=Some(&recipe.digest) => {
                     bibliography_digest=Some(recipe.digest.clone());
-                    let budget=MAX_TIME.checked_sub(started.elapsed()).ok_or("Compilation exceeded its bibliography budget")?;
-                    match crate::bibliography::execute(&mut receipt,&recipe,cancel,budget) {
+                    let bibliography_started = Instant::now();
+                    let result = crate::bibliography::execute(&mut receipt, &recipe, cancel);
+                    timings.bibliography_seconds += bibliography_started.elapsed().as_secs_f64();
+                    match result {
                         Ok(output)=>{log.push_str(&output);bibliography_ran=true;if log.len()>1_000_000 {let mut start=log.len()-800_000;while !log.is_char_boundary(start){start+=1}log.drain(..start);truncated=true;}},
                         Err(error)=>{cancel.check()?;bibliography_errors.push(Diagnostic::new("bibliography_tool_failed",Severity::Error,format!("Bibliography: {error}")));bibliography_disabled=true;}
                     }
@@ -261,6 +400,7 @@ pub fn build(request: Request<'_>, cancel: &Cancellation) -> Result<Outcome, Str
             "Compiler output was truncated or interrupted; verification is unavailable",
         ));
     }
+    let finalize_started = Instant::now();
     let pdf_path = receipt.directory.join(".out/preview.pdf");
     let pdf = if success && pdf_path.is_file() {
         if fs::metadata(&pdf_path).map_err(|e| e.to_string())?.len() > 60 * 1024 * 1024 {
@@ -283,9 +423,12 @@ pub fn build(request: Request<'_>, cancel: &Cancellation) -> Result<Outcome, Str
     receipt.seal_outputs()?;
     receipt.persist()?;
     cancel.check()?;
-    if started.elapsed() >= MAX_TIME {
-        return Err("Compilation exceeded its 120-second budget".into());
+    if eligible {
+        if let (Some(profiles), Some(runtime)) = (profiles, expected_runtime) {
+            profiles.remember(&receipt, miktex, runtime);
+        }
     }
+    timings.finalize_seconds = finalize_started.elapsed().as_secs_f64();
     Ok(Outcome {
         ok: success,
         eligible,
@@ -295,6 +438,7 @@ pub fn build(request: Request<'_>, cancel: &Cancellation) -> Result<Outcome, Str
         pdf,
         seconds: started.elapsed().as_secs_f64(),
         converged,
+        timings,
     })
 }
 fn preflight_diagnostic(output: &process::Output) -> Diagnostic {
@@ -476,5 +620,15 @@ mod tests {
             "LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right."
         ));
         assert!(!rerun_requested("Overfull \\hbox (1pt too wide)"));
+    }
+    #[test]
+    fn runtime_matching_keeps_engine_and_format_identity_but_ignores_the_build_clock() {
+        let banner = "This is pdfTeX, Version 1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.10.27)";
+        let first = stable_runtime_banner(&format!("{banner}  15 NOV 2026 22:40"));
+        let later = stable_runtime_banner(&format!("{banner}  16 NOV 2026 00:02"));
+        assert_eq!(first.as_deref(), Some(banner));
+        assert_eq!(first, later);
+        assert_ne!(first, stable_runtime_banner(&banner.replace("2026.10.27", "2026.10.28")));
+        assert_eq!(stable_runtime_banner("Unexpected engine output"), None);
     }
 }

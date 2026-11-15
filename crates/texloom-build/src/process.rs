@@ -23,7 +23,7 @@ pub struct CommandSpec<'a> {
     pub args: &'a [String],
     pub directory: &'a Path,
     pub env: &'a BTreeMap<String, String>,
-    pub timeout: Duration,
+    pub timeout: Option<Duration>,
     pub memory_bytes: usize,
 }
 pub fn run(spec: &CommandSpec<'_>, cancel: &Cancellation) -> io::Result<Output> {

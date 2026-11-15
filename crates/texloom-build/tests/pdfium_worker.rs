@@ -64,7 +64,7 @@ fn run(path: &Path) -> process::Output {
             args: &[path.to_string_lossy().into_owned()],
             directory: path.parent().unwrap(),
             env: &BTreeMap::new(),
-            timeout: Duration::from_secs(10),
+            timeout: Some(Duration::from_secs(10)),
             memory_bytes: 512 * 1024 * 1024,
         },
         &Cancellation::default(),

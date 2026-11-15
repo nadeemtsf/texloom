@@ -25,7 +25,7 @@
 \fancyhf{}
 \fancyhead[L]{\small Texloom: methods and evidence}
 \fancyhead[R]{\small TECHNICAL REPORT DRAFT}
-\fancyfoot[L]{\small 14 November 2026; final evaluation pending}
+\fancyfoot[L]{\small 15 November 2026; final evaluation pending}
 \fancyfoot[R]{\small\thepage}
 \renewcommand{\headrulewidth}{0.3pt}
 \newcommand{\pending}{\textit{Pending: no final evaluation has been run.}}
@@ -33,7 +33,7 @@
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 \title{\vspace{-1.7em}Texloom: Checking Source-Preserving Visual Edits\\to Compiled \LaTeX\ Documents}
 \author{Texloom Project\\\small Technical report draft; methods, development evidence and evaluation design}
-\date{14 November 2026}
+\date{15 November 2026}
 
 \begin{document}
 \maketitle
@@ -64,7 +64,7 @@ No novelty, universal correctness or publication-readiness claim is made.
 \end{abstract}
 
 \paragraph{Source revision notice.}
-This revision incorporates resumed development validation from 5--14 November.
+This revision incorporates resumed development validation from 5--15 November.
 The replacement verifier source is \code{d267118}; the recorded checkpoint is
 \code{a120086}. Automated and real-engine checks, exact native artifacts and
 human-reported gesture observations have different scopes. New engineering
@@ -90,6 +90,11 @@ service-cost diagnostic and benchmark-only reply ablation are recorded at
 validated live state into a separate session. The subsequent release harness
 run and its provenance are reported in Section~\ref{sec:trusted-preflight}.
 
+The new compile diagnostic starts from \code{0725592} and separates TeX
+passes, version startup and integrity checks. The duration control exercises
+an actual Lua\LaTeX{} build across the previous deadline. Paired observations
+and output equivalence are reported in Section~\ref{sec:compile-cost}.
+
 \input{sections/01-scope}
 \input{sections/02-workflow}
 \input{sections/03-contracts}
@@ -105,7 +110,6 @@ run and its provenance are reported in Section~\ref{sec:trusted-preflight}.
 \input{sections/appendix-artifacts}
 \input{sections/appendix-reproduction}
 
-\clearpage
 \begingroup
 \footnotesize
 \setlength{\parskip}{1pt}
