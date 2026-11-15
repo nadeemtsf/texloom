@@ -1,6 +1,7 @@
 mod service;
 mod document_protocol;
 mod build_protocol;
+mod compile_transport;
 mod workspace_protocol;
 #[cfg(feature = "typegen")]
 pub use document_protocol::bindings as protocol_bindings;
@@ -14,7 +15,7 @@ pub mod benchmark {
     pub use crate::service::{SourceDraftCostReply, SourceDraftCostState};
 }
 use service::{
-    Backend, CloseReply, CompileResult, DocumentSnapshot, EditorChange, EditorRange, ObjectEditRequest,
+    Backend, CloseReply, DocumentSnapshot, EditorChange, EditorRange, ObjectEditRequest,
     ObjectPlan, PreparedReply, Project, RecoveryReply, ResolvedSelection, SelectionPoint, SelectionReply,
     SourceEditReply, SourceLocation, SourceRectangle, TransformRequest, VisualOperation,
 };
@@ -120,17 +121,18 @@ async fn compile_document(
     token: Option<String>,
     purpose: Option<build_protocol::BuildPurpose>,
     request_id: u64,
-) -> Result<CompileResult, String> {
+) -> Result<tauri::ipc::Response, String> {
     let request = build_protocol::CompileDocumentRequest { project_id, revision, token, purpose, request_id };
     let backend = state.inner().clone();
     tauri::async_runtime::spawn_blocking(move || {
-        backend.compile_document(
+        let result = backend.compile_document(
             &request.project_id,
             request.revision,
             request.token.as_deref(),
             request.purpose.as_ref().map(build_protocol::BuildPurpose::as_str),
             request.request_id,
-        )
+        )?;
+        compile_transport::encode(result).map(tauri::ipc::Response::new)
     })
     .await
     .map_err(|e| e.to_string())?

@@ -14,7 +14,7 @@ use std::collections::BTreeMap;
 use ts_rs::TS;
 
 pub fn declarations() -> String {
-    let mut text = String::from("// Generated from Rust with ts-rs 11.1.0. Do not edit.\n// IPC integers are numbers; runtime guards require safe integers.\n\n");
+    let mut text = String::from("// Generated from Rust with ts-rs 11.1.0. Do not edit.\n// IPC integers are numbers; runtime guards require safe integers.\n// BuildReplies describes logical replies after compile-envelope decoding.\n\n");
     macro_rules! emit {
         ($($ty:ty),+ $(,)?) => { $(text.push_str("export "); text.push_str(&<$ty>::decl()); text.push_str("\n\n");)+ };
     }
@@ -161,7 +161,18 @@ pub fn fixtures() -> Value {
         .into_iter().map(|reason| SourceDraftReply { operation_id: "d".repeat(32),
             outcome: SourceDraftOutcome::SourceDraftRefused { requested_revision: if reason == SourceDraftRefusalReason::RevisionChanged {6}else{7}, observed_revision: 7, reason },
             snapshot: snapshot() }).collect::<Vec<_>>();
+    let binary_result = CompileResult {
+        ok: true, build_id: "binary-fixture".into(), revision: 7,
+        pdf: b"%PDF-1.7\n".iter().copied().chain(0..=255).collect(),
+        blocks: vec![], objects: vec![], log: "Unicode: العربية".into(),
+        engine: "pdflatex".into(), seconds: 0.25, verification_eligible: true,
+        passes: 2, diagnostics: vec![], job_id: 44,
+    };
+    let binary_logical = serde_json::to_value(&binary_result).unwrap();
+    let binary_reply = crate::compile_transport::encode(binary_result).unwrap();
     json!({
+        "compile_binary_logical": binary_logical,
+        "compile_binary_reply": binary_reply,
         "source_draft_refusals": refusals,
         "snapshot": DocumentSnapshot { revision: 7,
             sources: BTreeMap::from([("main.tex".into(), "\u{feff}A\r\n\u{1f600}\r\n".into()), ("style.sty".into(), "% keep\r\n".into())]),

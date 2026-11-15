@@ -1,4 +1,6 @@
-Latest artifact: 15 November, **v17, 34 pages and 27 references**. The new compilation section includes a real LuaLaTeX pass over 120 seconds, alternating version-probe measurements, PDF equivalence comparisons and a separate large-reply diagnostic. The PDF was rendered and reviewed throughout. See `docs/evidence/report-full-draft-v17-2026-11-15.json`.
+Latest artifact: 15 November, **v18, 35 pages and 27 references**. The binary compile-reply follow-up adds paired decoding measurements with a preserved baseline validator, exact-byte and real-PDF text/pixel controls, fallback behavior and pending native-delivery acceptance. All pages were rendered and reviewed, with readable inspection of pages 20 and 21. See `docs/evidence/report-full-draft-v18-2026-11-15.json`.
+
+Previous artifact: 15 November, **v17, 34 pages and 27 references**. The compilation section includes a real LuaLaTeX pass over 120 seconds, alternating version-probe measurements, PDF equivalence comparisons and a separate large-reply diagnostic. The PDF was rendered and reviewed throughout. See `docs/evidence/report-full-draft-v17-2026-11-15.json`.
 
 Previous artifact: 14 November, **v16, 33 pages and 25 references**. Section 7.2 records the later live-session preflight change, 315-row release run and separate run conditions. All 33 pages were rendered and reviewed. The report retains the earlier two runs and their exact scope. See `docs/evidence/report-full-draft-v16-2026-11-14.json`.
 

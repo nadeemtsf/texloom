@@ -68,3 +68,27 @@ Node interval covering JSON parse, the regular compile-acknowledgement
 validator and conversion to Uint8Array. Verify exact bytes after timing.
 These repeated byte buffers are serialization fixtures. The measurement
 excludes Rust serialization, Tauri/WebView transport and PDF rendering.
+
+## Binary compile-reply follow-up
+
+Replace the PDF's JSON number array on the desktop command boundary with a
+versioned binary envelope. Keep the exact logical build identity, revision,
+eligibility and mapping checks. Native callers continue to receive the same
+CompileResult. Check malformed envelopes, failed builds, all 256 byte values,
+Unicode metadata, candidate revisions and superseded replies. Run the full
+local gate and hosted checks before merging.
+
+Repeat the same 1 and 8 MiB transport diagnostic with paired alternating
+legacy and binary decoding (one warmup and five measured pairs). Both paths
+include the production reply validator and the PDF surface's Uint8Array
+construction. Compare exact bytes outside the interval. Report payload
+sizes and paired differences, retaining the earlier baseline independently.
+This isolates browser decoding costs in Node; it does not measure the native
+WebView, engine speed or PDF painting. Owner-run desktop preview acceptance
+is needed for the changed native transport before calling it release-ready.
+
+The first two follow-up blocks used the revised validator for both paths,
+which admits either a number array or Uint8Array. Retain those as development
+trials. For the final comparison preserve the baseline JavaScript validator
+and its import from commit 0c3cd89, then load it in the legacy arm. This
+avoids attributing a polymorphic-validator/JIT change to removal of JSON.

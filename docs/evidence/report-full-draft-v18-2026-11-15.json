@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-15T21:38:52.855648+00:00",
+  "kind": "technical_report_v18_build_visual_review",
+  "status": "built_rendered_reviewed",
+  "implementation_base": "269c1fb3570cb22b4397ea99eda0cfec077442c0",
+  "report_pages": 35,
+  "references": 27,
+  "pdf": {
+    "file": "Texloom-technical-report-full-draft-2026-11-15-v18.pdf",
+    "bytes": 663136,
+    "sha256": "7802b52d83df6a139c2a9896129c8099440763215093e3a9fe957eaa3af81a4b"
+  },
+  "editable_sources": {
+    "file": "Texloom-technical-report-editable-sources-2026-11-15-v18.zip",
+    "bytes": 73562,
+    "sha256": "a10445253930a1b435ea54a0dee8462cae3fa1beebf22fd994c5194c915c404b",
+    "members": 17
+  },
+  "development_evidence": {
+    "file": "Texloom-binary-compile-reply-development-evidence-2026-11-15.zip",
+    "bytes": 86817,
+    "sha256": "663fc19924f33c6bf1b2e21a922327081388b398a42913d4187ffd9398112fa0",
+    "members": 24
+  },
+  "visual_review": {
+    "pages": 35,
+    "all_pages_rendered_and_reviewed": true,
+    "readable_pages": [
+      20,
+      21
+    ],
+    "clipping_or_overlap_seen": false
+  },
+  "build_review": {
+    "log": {
+      "file": "main.log",
+      "bytes": 27700,
+      "sha256": "a18019ceb880302457adffd688fa129d0ecca3efd85d33f98178446413e1bf27"
+    },
+    "underfull_notices": 4,
+    "overfull_missing_or_undefined_warnings": 0
+  },
+  "source_sha256": {
+    "followup-references.bib": "f2e7f7d32086232b745aa2d00f2c46dcf02d02846905114dc2fe3719b414bba7",
+    "main.tex": "8651d9ca8c96e6b5046a7b457334bc377a1e0f68a6d513bbd487d8bbb78140ed",
+    "README.md": "a66b845cb55e8f2bbd9ececbd95e31eafd4990c90482cced8878a380bd5264a2",
+    "references.bib": "1c6bef9292f8599cbc86bb610e9b1e3b44a604b3db66370c8e9604a849121493",
+    "sections/01-scope.tex": "8a081ce27cdd63ca9a623512aa0fc12ca7686477759b3f3de307ea7a9c701196",
+    "sections/02-workflow.tex": "ec6d7c640050e864421a33b05e54b2a278299e76a695ac570faca4a9388ddf5d",
+    "sections/03-contracts.tex": "46fc40be341983f0fd993ce675bbc1253fe9ab937538cc81eadb39e3b93e4c19",
+    "sections/04-related-work.tex": "a2225909003758d3c4262168bc12821c02ed9edc118f4ed83685107abdadf23e",
+    "sections/05-evaluation.tex": "71346c4c1e896eed0fed97844a50ea35a626cc7604f7fb96d4884ad2fb021bf3",
+    "sections/06-development-evidence.tex": "981da2cbae6fe869aab39ed2b2403088f60d3fe73afa1858def96e40a88934a4",
+    "sections/07-timing.tex": "15ce75420430c5ef4bf8c57ea69a90317fe2cae80e67ecbc29a6889c634084bf",
+    "sections/08-reproducibility.tex": "683c95e3224da775acd9c4c1baf722eb51078edd17ed7d68e52e84a533125c49",
+    "sections/09-limitations.tex": "5c57086b0dfa3a9af349cf032b653ed1e6c6b7f2b6ff192e505bf386586c862e",
+    "sections/appendix-artifacts.tex": "e00e2105b8b70e7e514a29c3cf90d7aa1e75c8c2ad82f64af2eef21e5cfdf2c2",
+    "sections/appendix-protocol.tex": "941e7098b5bda83b5078268c6abbbbc11e2124c35141c7531165a8fba62c00da",
+    "sections/appendix-reproduction.tex": "fc7de0591a8ea68c44135651fefee871a71c0816804353ee1ed709f258649188",
+    "sections/compile-cost.tex": "5d45c4adc3aa33b74838f82730ae51dcedd4e2f5f99a049471e7bab605b27e49"
+  },
+  "scope": "Synthetic IPC and Node component diagnostics; native WebView/physical presentation and final study pending."
+}

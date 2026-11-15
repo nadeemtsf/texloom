@@ -5,7 +5,34 @@ import {createRequire} from 'node:module';
 import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
 import {loadPDFDocument} from '../web/core/pdf-document.js';
 import {selectionReasonForPage} from '../web/core/pdf-surface.js';
+import {acceptCompilation,decodeCompilation} from '../web/core/build-protocol.js';
 const {createCanvas}=createRequire(import.meta.url)('@napi-rs/canvas');
+
+test('binary compile delivery preserves real PDF text and every rendered pixel',async()=>{
+ const bytes=new Uint8Array(await readFile(new URL('./fixtures/objects/baseline.pdf',import.meta.url)));
+ const logical={ok:true,build_id:'binary-render',revision:1,pdf:Array.from(bytes),blocks:[],objects:[],log:'',
+  engine:'pdflatex',seconds:0,verification_eligible:true,passes:2,diagnostics:[],job_id:1};
+ const metadata=new TextEncoder().encode(JSON.stringify({...logical,pdf:[]}));
+ const wire=new Uint8Array(8+metadata.length+bytes.length);wire.set([84,76,80,49]);
+ new DataView(wire.buffer).setUint32(4,metadata.length,true);wire.set(metadata,8);wire.set(bytes,8+metadata.length);
+ const decoded=acceptCompilation(decodeCompilation(wire.buffer),{revision:1,sources:{},engine:'pdflatex'});
+ const outputs=[];
+ for(const result of [logical,decoded]){
+  // Match the production PDF surface's copy: PDF.js may transfer the buffer to its worker.
+  const pdf=await loadPDFDocument(pdfjs,{data:new Uint8Array(result.pdf)});
+  try{
+   const page=await pdf.getPage(1),viewport=page.getViewport({scale:1});
+   const canvas=createCanvas(Math.ceil(viewport.width),Math.ceil(viewport.height)),context=canvas.getContext('2d');
+   await page.render({canvas,canvasContext:context,viewport}).promise;
+   // PDF.js assigns a different document prefix to font IDs on every load.
+   outputs.push({text:(await page.getTextContent({includeMarkedContent:true})).items.map(item=>
+    item.fontName?{...item,fontName:item.fontName.replace(/^g_d\d+_/u,'g_doc_')}:item),
+    pixels:context.getImageData(0,0,canvas.width,canvas.height).data});
+  }finally{await pdf.destroy()}
+ }
+ assert.deepEqual(outputs[1],outputs[0]);
+ assert.deepEqual(decoded.pdf,bytes,'worker transfer cannot detach the retained compile reply');
+});
 
 function pageFixture(extra){
  const stream='BT /F1 12 Tf 50 100 Td (Page coordinate fixture) Tj ET';

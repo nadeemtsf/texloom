@@ -1,5 +1,6 @@
 // Generated from Rust with ts-rs 11.1.0. Do not edit.
 // IPC integers are numbers; runtime guards require safe integers.
+// BuildReplies describes logical replies after compile-envelope decoding.
 
 export type EditorChange = { offset: number, length: number, text: string, };
 
@@ -73,7 +74,7 @@ export type PositionedBlock = { id: string, file: string, page: number, x: numbe
 
 export type MappedTextObject = { id: string, file: string, dx: number, dy: number, plain_text: string | null, content: string, line: number, start: number, end: number, };
 
-export type CompileResult = { ok: boolean, build_id: string, revision: number, pdf: Array<number>, blocks: Array<PositionedBlock>, objects: Array<MappedTextObject>, log: string, engine: string, seconds: number, verification_eligible: boolean, passes: number, diagnostics: Array<Diagnostic>, job_id: number, };
+export type CompileResult = { ok: boolean, build_id: string, revision: number, pdf: number[] | Uint8Array, blocks: Array<PositionedBlock>, objects: Array<MappedTextObject>, log: string, engine: string, seconds: number, verification_eligible: boolean, passes: number, diagnostics: Array<Diagnostic>, job_id: number, };
 
 export type SourceLocation = { file: string, line: number, };
 
@@ -238,7 +239,7 @@ export interface BuildRequests {
 }
 
 export interface BuildReplies {
-  compile_document: { ok: boolean, build_id: string, revision: number, pdf: Array<number>, blocks: Array<PositionedBlock>, objects: Array<MappedTextObject>, log: string, engine: string, seconds: number, verification_eligible: boolean, passes: number, diagnostics: Array<Diagnostic>, job_id: number, };
+  compile_document: { ok: boolean, build_id: string, revision: number, pdf: number[] | Uint8Array, blocks: Array<PositionedBlock>, objects: Array<MappedTextObject>, log: string, engine: string, seconds: number, verification_eligible: boolean, passes: number, diagnostics: Array<Diagnostic>, job_id: number, };
   cancel_compilation: null;
   verify_build: null;
   pin_displayed_build: null;
