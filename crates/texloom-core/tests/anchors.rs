@@ -798,3 +798,19 @@ fn mapped_point_endpoints_do_not_preserve_replaced_entity_or_range_identity() {
         Err(PlanError::Source(EditError::StaleRevision))
     ));
 }
+
+#[test]
+fn consecutive_utf16_pairs_round_trip_only_at_canonical_boundaries() {
+    let source = "\u{feff}\u{1f600}\u{10400}\r\n";
+    let projection = EditorProjection::new(source);
+    for (editor, byte) in [(0, 3), (2, 7), (4, 11), (5, 13)] {
+        assert_eq!(projection.source_offset(editor), Ok(byte));
+        assert_eq!(projection.editor_offset(byte), Ok(editor));
+    }
+    for editor in [1, 3, 6] {
+        assert_eq!(projection.source_offset(editor), Err(EditError::InvalidEditorOffset));
+    }
+    for byte in [0, 4, 8, 12, 14] {
+        assert_eq!(projection.editor_offset(byte), Err(EditError::InvalidBoundary));
+    }
+}

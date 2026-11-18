@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "kind": "source_coordinate_mapping_comparison",
+  "baseline_commit": "8f5116a29c86af5a6d7d80a2bff6fc3789d44960",
+  "source_sha256": {
+    "crates/texloom-core/src/document/projection.rs": "2197e4ba88bb5bb011b3726c3a6588a78cf8166a1a9694acfeb2421675e3513f",
+    "crates/texloom-core/tests/anchors.rs": "5be182658ddec72202043c8e3d15aaa1dfbce8b90607ca78c4d4c4547ace3779",
+    "src-tauri/src/service.rs": "a7289bdc54241db6da0f6b4485939ebeea3f09069cd660af740ea583e793586c"
+  },
+  "coordinate_only": {
+    "conditions": {
+      "1": {
+        "source_bytes": 4088,
+        "samples_per_arm": 9,
+        "results": {
+          "PerRange": {
+            "median_ms": 0.014443,
+            "min_ms": 0.012692,
+            "max_ms": 0.030394
+          },
+          "SharedLinear": {
+            "median_ms": 0.013324,
+            "min_ms": 0.012661,
+            "max_ms": 0.032216
+          },
+          "SharedSorted": {
+            "median_ms": 0.013288,
+            "min_ms": 0.011122,
+            "max_ms": 0.015267
+          }
+        }
+      },
+      "128": {
+        "source_bytes": 65535,
+        "samples_per_arm": 9,
+        "results": {
+          "PerRange": {
+            "median_ms": 50.3097,
+            "min_ms": 48.7731,
+            "max_ms": 69.3129
+          },
+          "SharedLinear": {
+            "median_ms": 4.2301,
+            "min_ms": 4.0545,
+            "max_ms": 5.8679
+          },
+          "SharedSorted": {
+            "median_ms": 0.2554,
+            "min_ms": 0.1708,
+            "max_ms": 0.6106
+          }
+        }
+      },
+      "256": {
+        "source_bytes": 1048558,
+        "samples_per_arm": 9,
+        "results": {
+          "PerRange": {
+            "median_ms": 2401.8722,
+            "min_ms": 2327.1218,
+            "max_ms": 2830.9564
+          },
+          "SharedLinear": {
+            "median_ms": 137.2784,
+            "min_ms": 124.938,
+            "max_ms": 175.0674
+          },
+          "SharedSorted": {
+            "median_ms": 6.0055,
+            "min_ms": 5.1484,
+            "max_ms": 8.2235
+          }
+        }
+      }
+    },
+    "unicode_and_newline_combinations": 2401,
+    "raw_sha256": "0f4c862147fbf98074c0f2e5556c8c864858429e6ad99de892915eda500df644",
+    "harness_sha256": "0239b383855450f67b1b1627eda6cde1f0307b6bc45566bb9ac572b2b5540850",
+    "earlier_run": "Retained separately. It overlapped the local test gate and had uneven order positions."
+  },
+  "headless_native": {
+    "bytes": 61154,
+    "texloom_objects": 64,
+    "legacy_blocks": 64,
+    "page_count": 1,
+    "identical_pdf_metadata_and_source_pairs": 3,
+    "paired_wall_saving_ms": 128.348,
+    "paired_non_build_saving_ms": 66.292,
+    "comparison_sha256": "8d8f7eda657d6f226d122832d8533a5733927e45de7be0c572f05209692b9af3",
+    "baseline_executable_sha256": "82ba01eb1b98bbf3e69e16f92056424aca24c3fe949ecc1172d31ab35b2bbfb4",
+    "candidate_executable_sha256": "8d00214a90d301b338e70e851fe7b7901521f574be0d4fc17701e462f0cd4612",
+    "limitation": "One synthetic source, three pairs, child-engine time also varied. Headless service timings exclude desktop transport and presentation."
+  },
+  "evidence_bundle": {
+    "file": "Texloom-source-coordinate-mapping-evidence-20261118.zip",
+    "members": 40,
+    "bytes": 185138,
+    "sha256": "35b021d89eb62a55230a5947a9711045f7bb4d4a223b82985132c738cd4e68c0"
+  }
+}

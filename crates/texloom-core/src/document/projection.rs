@@ -6,13 +6,13 @@ use super::position::{EditorUtf16Offset, SourceByteOffset};
 pub struct EditorProjection<'a> {
     source: &'a str,
     text: String,
-    boundaries: Vec<Option<usize>>,
+    boundaries: Vec<usize>,
 }
 impl<'a> EditorProjection<'a> {
     pub fn new(source: &'a str) -> Self {
         let start = if source.starts_with('\u{feff}') { 3 } else { 0 };
         let mut text = String::new();
-        let mut boundaries = vec![Some(start)];
+        let mut boundaries = vec![start];
         let mut chars = source
             .get(start..)
             .unwrap_or_default()
@@ -29,10 +29,12 @@ impl<'a> EditorProjection<'a> {
             } else {
                 text.push(c);
                 if c.len_utf16() == 2 {
-                    boundaries.push(None);
+                    // Duplicate the end offset at the interior surrogate boundary.
+                    // The first copy is invalid and the last is the real boundary.
+                    boundaries.push(end);
                 }
             }
-            boundaries.push(Some(end));
+            boundaries.push(end);
         }
         Self {
             source,
@@ -50,16 +52,20 @@ impl<'a> EditorProjection<'a> {
         self.editor_offset(offset.get()).map(EditorUtf16Offset::new)
     }
     pub fn source_offset(&self, utf16: usize) -> EditResult<usize> {
-        self.boundaries
+        let &byte = self
+            .boundaries
             .get(utf16)
-            .copied()
-            .flatten()
-            .ok_or(EditError::InvalidEditorOffset)
+            .ok_or(EditError::InvalidEditorOffset)?;
+        if self.boundaries.get(utf16 + 1) == Some(&byte) {
+            return Err(EditError::InvalidEditorOffset);
+        }
+        Ok(byte)
     }
     pub fn editor_offset(&self, byte: usize) -> EditResult<usize> {
         self.boundaries
-            .iter()
-            .position(|p| *p == Some(byte))
+            .partition_point(|&boundary| boundary <= byte)
+            .checked_sub(1)
+            .filter(|&index| self.boundaries[index] == byte)
             .ok_or(EditError::InvalidBoundary)
     }
     pub fn replacement(&self, start: usize, end: usize, text: &str) -> EditResult<Replacement> {

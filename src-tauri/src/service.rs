@@ -10,7 +10,7 @@ use std::{
     sync::{Arc, Mutex},
     time::Duration,
 };
-use texloom_core::{Block, Change, NewBlock};
+use texloom_core::{document::projection::EditorProjection, Block, Change, NewBlock};
 use uuid::Uuid;
 mod build_cache;
 mod document;
@@ -536,15 +536,16 @@ impl Backend {
                 if !name.ends_with(".tex") {
                     continue;
                 }
+                let mut projection = None;
                 for block in texloom_core::blocks(source) {
-                    mapped.push(ui_block(&block, name, source, &metrics)?);
+                    let projection = projection.get_or_insert_with(|| EditorProjection::new(source));
+                    mapped.push(ui_block(&block, name, projection, &metrics)?);
                 }
                 for object in texloom_core::text_objects(source)? {
                     if !ids.insert(object.id.clone()) {
                         return Err("Text object IDs must be unique across the project".into());
                     }
-                    let projection =
-                        texloom_core::document::projection::EditorProjection::new(source);
+                    let projection = projection.get_or_insert_with(|| EditorProjection::new(source));
                     objects.push(MappedTextObject {
                         id: object.id,
                         file: name.clone(),
@@ -794,10 +795,9 @@ pub struct SourceRectangle {
 fn ui_block(
     block: &Block,
     file: &str,
-    source: &str,
+    projection: &EditorProjection<'_>,
     metrics: &HashMap<(String, usize), f64>,
 ) -> Result<PositionedBlock> {
-    let projection = texloom_core::document::projection::EditorProjection::new(source);
     Ok(PositionedBlock {
         id: block.id.clone(), file: file.into(), page: block.page, x: block.x, y: block.y,
         width: block.width, size: block.size, content: block.content.clone(),
