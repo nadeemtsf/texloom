@@ -1,0 +1,127 @@
+{
+  "schema": 1,
+  "kind": "tectonic_local_bundle_replay",
+  "tectonic_version": "0.17.0",
+  "upstream_bundle_reader": "https://github.com/tectonic-typesetting/tectonic/blob/tectonic%400.17.0/crates/bundles/src/zip.rs#L71-L92",
+  "scope": "Targeted output replay against retained warm Tectonic reference files after initializing a separate format cache. Recorded command times are control observations.",
+  "results": {
+    "zip_sha256": "9d41e7b539d0bba50151cac514ecc53f7554a1704107a06625dc1666b2620a27",
+    "zip_bytes": 3518758,
+    "label": "dd4c1e637b0fb9c665d76c397c73f4d2befff7665fc5f09b6681181add176895",
+    "support_files": 348,
+    "changed_archive_refused_by_independent_guard": true,
+    "rows": [
+      {
+        "case": "plain",
+        "exit_code": 0,
+        "seconds": 2.8058036000002176,
+        "comparison": {
+          "rect": true,
+          "text": true,
+          "geometry": true,
+          "links": true,
+          "raster": true
+        },
+        "synctex_present": true,
+        "format_paths": [
+          "dd4c1e637b0fb9c665d76c397c73f4d2befff7665fc5f09b6681181add176895-latex-33.fmt"
+        ],
+        "format_sha256": [
+          "a86ffcac335474fb9fae47cd9986b929719dc3ddf29bfb31123ecc1790ef6bbb"
+        ]
+      },
+      {
+        "case": "references",
+        "exit_code": 0,
+        "seconds": 1.1701114999959827,
+        "comparison": {
+          "rect": true,
+          "text": true,
+          "geometry": true,
+          "links": true,
+          "raster": true
+        },
+        "synctex_present": true,
+        "format_paths": [
+          "dd4c1e637b0fb9c665d76c397c73f4d2befff7665fc5f09b6681181add176895-latex-33.fmt"
+        ],
+        "format_sha256": [
+          "a86ffcac335474fb9fae47cd9986b929719dc3ddf29bfb31123ecc1790ef6bbb"
+        ]
+      },
+      {
+        "case": "included",
+        "exit_code": 0,
+        "seconds": 0.9810682999959681,
+        "comparison": {
+          "rect": true,
+          "text": true,
+          "geometry": true,
+          "links": true,
+          "raster": true
+        },
+        "synctex_present": true,
+        "format_paths": [
+          "dd4c1e637b0fb9c665d76c397c73f4d2befff7665fc5f09b6681181add176895-latex-33.fmt"
+        ],
+        "format_sha256": [
+          "a86ffcac335474fb9fae47cd9986b929719dc3ddf29bfb31123ecc1790ef6bbb"
+        ]
+      },
+      {
+        "case": "tikz",
+        "exit_code": 0,
+        "seconds": 1.1870968000002904,
+        "comparison": {
+          "rect": true,
+          "text": true,
+          "geometry": true,
+          "links": true,
+          "raster": true
+        },
+        "synctex_present": true,
+        "format_paths": [
+          "dd4c1e637b0fb9c665d76c397c73f4d2befff7665fc5f09b6681181add176895-latex-33.fmt"
+        ],
+        "format_sha256": [
+          "a86ffcac335474fb9fae47cd9986b929719dc3ddf29bfb31123ecc1790ef6bbb"
+        ]
+      },
+      {
+        "case": "marker",
+        "exit_code": 0,
+        "seconds": 0.9509531000003335,
+        "comparison": {
+          "rect": true,
+          "text": true,
+          "geometry": true,
+          "links": true,
+          "raster": true
+        },
+        "synctex_present": true,
+        "format_paths": [
+          "dd4c1e637b0fb9c665d76c397c73f4d2befff7665fc5f09b6681181add176895-latex-33.fmt"
+        ],
+        "format_sha256": [
+          "a86ffcac335474fb9fae47cd9986b929719dc3ddf29bfb31123ecc1790ef6bbb"
+        ]
+      }
+    ]
+  },
+  "controls": {
+    "mapping_pairs": 5,
+    "all_round_trips": true,
+    "format_digest": "a86ffcac335474fb9fae47cd9986b929719dc3ddf29bfb31123ecc1790ef6bbb",
+    "missing_class": "report",
+    "missing_class_exit": 1,
+    "missing_class_produced_no_pdf": true
+  },
+  "raw_results_sha256": "9a776ec77a17401e3a389f9cbe021bc2fe162258d6fb9137356a583ec87f0564",
+  "raw_controls_sha256": "92084ae5cf2a9fcd440159ab4406b5543756c0d0436c6dd7c4ab72cd0078c7d5",
+  "archive": {
+    "name": "Texloom-Tectonic-local-bundle-replay-evidence-20261118.zip",
+    "bytes": 34747,
+    "sha256": "015cbaa8f029c2687ae069f3b94222f129ad6da02cb655224be2836d5beb0eda",
+    "members": 37
+  }
+}

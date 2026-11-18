@@ -463,3 +463,89 @@ warm-up. All sixteen pairs matched input and output checks, PDF text,
 character geometry, links and 96~DPI rasters. The combined interval excludes
 TeX time. The fixture definitions and receipts are in
 \path{docs/evidence/snapshot-verification-work-2026-11-18.json}.
+
+
+\subsection{Offline replay with a local bundle}
+
+A focused Tectonic control packaged 348 previously fetched support files
+into a 3.36~MiB local ZIP. The bundle label records a digest over the member
+identities. The versioned ZIP reader loads that label from
+\code{SHA256SUM} \cite{tectoniczip}. The driver therefore independently
+fingerprinted the ZIP before invoking the compiler. It refused a changed
+copy before compilation. The proof-of-concept cache generated one format
+file whose fingerprint remained stable across the five replays.
+
+The isolated offline command reproduced all five explicit-paper Tectonic
+PDFs in text, exact character geometry, dimensions, links and 96~DPI
+pixels. It also reproduced each selected SyncTeX round trip. The same
+bundle refused a synthetic source requesting the absent \code{report}
+class and produced no PDF. The replay covers the enrolled fixtures and
+package bytes. Coverage for more documents and engine selection remain
+separate engineering questions.
+\path{docs/evidence/tectonic-local-bundle-replay-2026-11-18.json} records
+the archive, format and output identities.
+
+
+\subsection{Paired native compile checkpoint comparison}
+
+The native service at the pre-optimization checkpoint \code{0725592} and
+the snapshot revision \code{05b3201} built four synthetic projects with
+the same MiKTeX executables and fresh snapshot directories. One resident
+driver per revision and engine served the warm-up and three measured
+pairs per condition. Alternating orders distributed the effect of running
+first or second. The small fixture used a 153-byte main source. The
+source-heavy fixture added 24~MiB of project sources, the asset-heavy
+fixture added 32~MiB of assets, and the mixed fixture combined 24~MiB
+of additional sources with 24~MiB of assets. Those added files exercise
+the snapshot and verification work. TeX reads the active main source
+and its small image in each fixture. The interval spans the native
+build call through its returned PDF and receipt. Frontend dispatch
+and rendering lie outside that interval.
+
+\begin{center}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+Engine & Small & Source-heavy & Asset-heavy & Mixed \\
+\midrule
+pdf\LaTeX{} & 577 & 533 & 947 & 995 \\
+Xe\LaTeX{} & 302 & 687 & 960 & 762 \\
+Lua\LaTeX{} & 685 & 572 & 1247 & 1323 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Each value is a median paired reduction in milliseconds. The comparison
+covers the entire native change set, including retained compiler
+identification and snapshot changes. Forty-eight pairs, counting
+warm-ups, matched on recorded input and toolchain identities, invocation
+fields, pass count, text, character geometry, links and 96~DPI pixels.
+Every delivered PDF matched its own receipt hash. The run is evidence for
+the four fixture classes on this host. Absolute medians, paired rows
+and method identities are in
+\path{docs/evidence/native-compile-checkpoint-comparison-2026-11-18.json}.
+
+\subsection{Source line indexing and raster comparison}
+
+The source scanners now count line breaks in successive spans and track
+text-object identifiers in a set. This keeps each reported line, command
+range and argument range tied to its original source. A standalone
+optimized Rust comparison used one warm-up and nine measured pairs per
+size. Parsing 512 text objects and 512 legacy blocks in one synthetic
+1~MiB source took a median 299.7~ms before the change and
+2.31~ms after it. Exact parser results and representative
+duplicate and malformed-source refusals matched. A separate native
+compile checked all 128 text-object and 64 block ranges from an included
+file against expected editor positions, and verified the final PDF,
+original source bytes and source revision.
+
+The raster verifier now borrows the already available pixels for
+identity and predicted displacement comparisons. It constructs an owned
+buffer where an integer displacement requires pixel reconstruction.
+Standalone optimized Rust tests preserved full-page comparison results
+and rejection of a changed final scanline. The paired median savings for
+twenty 1600-by-1200 pages were 41.5~ms for identity and 35.0~ms for
+predicted displacement. These measurements time the comparison of
+completed in-memory rasters. They exclude PDF rendering and interactive
+approval. See
+\path{docs/evidence/source-and-raster-comparison-2026-11-18.json}.

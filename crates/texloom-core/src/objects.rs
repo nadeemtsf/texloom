@@ -1,5 +1,5 @@
 //! Source-preserving text objects and deliberately conservative selection units.
-use std::ops::Range;
+use std::{collections::HashSet, ops::Range};
 use super::{argument, blocks, command, comment_end, document_bounds, has_package, number, skip_literal, skip_space, validate_fragment, Result};
 
 #[derive(Clone, Debug)]
@@ -27,7 +27,10 @@ fn valid_id(id: &str) -> bool {
 }
 
 pub fn text_objects(source: &str) -> Result<Vec<TextObject>> {
-    let mut objects = Vec::<TextObject>::new();
+    let mut objects = Vec::new();
+    let mut identifiers = HashSet::new();
+    let mut line = 1;
+    let mut counted_to = 0;
     let mut i = 0;
     while i < source.len() {
         if source.as_bytes()[i] == b'%' { i = comment_end(source, i); continue; }
@@ -40,15 +43,17 @@ pub fn text_objects(source: &str) -> Result<Vec<TextObject>> {
         for _ in 0..4 { let (range, next) = argument(source, cursor)?; args.push(range); cursor = next; }
         let id = source[args[0].clone()].trim();
         if !valid_id(id) { return Err("An object has an invalid identifier".into()); }
-        if objects.iter().any(|o| o.id == id) { return Err("Object identifiers must be unique in each source file".into()); }
+        if !identifiers.insert(id) { return Err("Object identifiers must be unique in each source file".into()); }
         let dimension = |n: usize| -> Result<f64> {
             let value = source[args[n].clone()].trim().parse::<f64>().map_err(|_| "Invalid object offset")?;
             number(value, false)?; Ok(value)
         };
         let content = source[args[3].clone()].to_string();
         if content.contains("\\TexloomObject") { return Err("Nested text objects are not supported".into()); }
+        line += source.as_bytes()[counted_to..i].iter().filter(|&&c| c == b'\n').count();
+        counted_to = i;
         objects.push(TextObject { id: id.into(), dx: dimension(1)?, dy: dimension(2)?, content,
-            range: i..cursor, arguments: args, line: source[..i].bytes().filter(|c| *c == b'\n').count() + 1 });
+            range: i..cursor, arguments: args, line });
         i = cursor;
     }
     Ok(objects)

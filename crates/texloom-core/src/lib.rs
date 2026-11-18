@@ -99,6 +99,8 @@ fn skip_literal(s: &str, cmd: &str, mut end: usize) -> Option<usize> {
 
 pub fn blocks(s: &str) -> Vec<Block> {
     let mut result = Vec::new();
+    let mut line = 1;
+    let mut counted_to = 0;
     let mut i = 0;
     while i < s.len() {
         if s.as_bytes()[i] == b'%' { i = comment_end(s, i); continue; }
@@ -122,8 +124,10 @@ pub fn blocks(s: &str) -> Vec<Block> {
             };
             let (x, y, width, size) = (number(2)?, number(3)?, number(4)?, number(5)?);
             if page == 0 || width <= 0.0 || size <= 0.0 { return Err("Invalid block dimensions".into()); }
+            line += s.as_bytes()[counted_to..i].iter().filter(|&&c| c == b'\n').count();
+            counted_to = i;
             Ok(Block { id: id.into(), page, x, y, width, size, content: s[args[6].clone()].into(),
-                range: i..cursor, arguments: args, line: s[..i].bytes().filter(|c| *c == b'\n').count() + 1 })
+                range: i..cursor, arguments: args, line })
         })();
         if let Ok(block) = parsed { i = block.range.end; result.push(block); }
         else { i = end; }
