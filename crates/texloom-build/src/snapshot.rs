@@ -7,6 +7,7 @@ use std::{
     path::{Component, Path, PathBuf},
 };
 pub type Result<T> = std::result::Result<T, String>;
+const MAX_SNAPSHOT_BYTES: u64 = 60 * 1024 * 1024;
 fn fail(e: impl std::fmt::Display) -> String {
     e.to_string()
 }
@@ -256,7 +257,7 @@ impl Receipt {
                 return Err("Invalid or case-colliding source filename".into());
             }
             bytes += text.len() as u64;
-            if bytes > 60 * 1024 * 1024 {
+            if bytes > MAX_SNAPSHOT_BYTES {
                 return Err("Snapshot exceeds 60 MiB".into());
             }
             r.write_input(name, text.as_bytes())?;
@@ -272,22 +273,27 @@ impl Receipt {
                 return Err("Case-colliding asset filename".into());
             }
             let original = root.join(&file);
-            let dependency = Dependency::capture(&original)?;
-            bytes += dependency.fingerprint.bytes;
-            if bytes > 60 * 1024 * 1024 {
+            no_reparse(&original)?;
+            let path = original.canonicalize().map_err(fail)?;
+            let remaining = MAX_SNAPSHOT_BYTES - bytes;
+            if fs::metadata(&original).map_err(fail)?.len() > remaining {
                 return Err("Snapshot exceeds 60 MiB".into());
             }
             let target = r.directory.join(&file);
             fs::create_dir_all(target.parent().ok_or("Missing parent")?).map_err(fail)?;
-            fs::copy(&original, &target).map_err(fail)?;
-            if Fingerprint::file(&target)? != dependency.fingerprint {
+            let copied = fs::copy(&original, &target).map_err(fail)?;
+            if copied > remaining {
+                return Err("Snapshot exceeds 60 MiB".into());
+            }
+            // Start with the bytes supplied to TeX. The final receipt check
+            // verifies the frozen copy and the original before TeX can run.
+            let fingerprint = Fingerprint::file(&target)?;
+            if fingerprint.bytes != copied {
                 return Err("Asset changed while taking snapshot".into());
             }
-            no_reparse(&original)?;
-            dependency.verify()?;
-            r.inputs
-                .insert(name.clone(), dependency.fingerprint.clone());
-            r.assets.insert(name, dependency);
+            bytes += copied;
+            r.inputs.insert(name.clone(), fingerprint.clone());
+            r.assets.insert(name, Dependency { path, fingerprint });
         }
         if r.inputs.len() > 600 {
             return Err("Snapshot exceeds 600 inputs".into());
@@ -310,6 +316,28 @@ impl Receipt {
         if self.invocation.canonicalize().map_err(fail)? != self.compiler.path {
             return Err("Compiler alias changed".into());
         }
+        let input_bytes: u128 = self.inputs.values()
+            .map(|input| u128::from(input.bytes))
+            .sum();
+        if input_bytes < 8 * 1024 * 1024 {
+            self.verify_frozen_inputs()?;
+            return self.verify_remaining_dependencies();
+        }
+        // Snapshot files and original dependencies can be read independently.
+        // Join both checks before returning, retaining the serial error priority.
+        std::thread::scope(|scope| {
+            let Ok(frozen_inputs) = std::thread::Builder::new()
+                .spawn_scoped(scope, || self.verify_frozen_inputs())
+            else {
+                self.verify_frozen_inputs()?;
+                return self.verify_remaining_dependencies();
+            };
+            let remaining = self.verify_remaining_dependencies();
+            frozen_inputs.join().map_err(|_| "Frozen input verification failed")??;
+            remaining
+        })
+    }
+    fn verify_frozen_inputs(&self) -> Result<()> {
         for (name, expected) in &self.inputs {
             let path = self.directory.join(relative(name)?);
             no_reparse(&path)?;
@@ -317,6 +345,9 @@ impl Receipt {
                 return Err(format!("Frozen build input changed: {name}"));
             }
         }
+        Ok(())
+    }
+    fn verify_remaining_dependencies(&self) -> Result<()> {
         let actual: BTreeSet<_> = files(&self.project_root)?
             .into_iter()
             .filter(|p| is_asset(p))
@@ -510,12 +541,58 @@ pub fn toolchain_roots(compiler: &Path) -> Vec<PathBuf> {
     }
     roots
 }
-#[cfg(all(test, windows))]
+#[cfg(test)]
 mod tests {
     use super::*;
+    #[cfg(windows)]
     #[test]
     fn miktex_installation_root_includes_packages_beside_the_inner_miktex_folder() {
         let roots = toolchain_roots(Path::new("C:/Programs/MiKTeX/miktex/bin/x64/pdflatex.exe"));
         assert!(roots.contains(&PathBuf::from("C:/Programs/MiKTeX")));
+    }
+
+    #[test]
+    fn large_receipts_check_frozen_files_and_original_assets_in_serial_error_order() {
+        use std::time::{SystemTime, UNIX_EPOCH};
+        let root = std::env::temp_dir().join(format!(
+            "texloom-receipt-{}-{}",
+            std::process::id(),
+            SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos(),
+        ));
+        fs::create_dir(&root).unwrap();
+        let project = root.join("project");
+        fs::create_dir(&project).unwrap();
+        let original = project.join("image.png");
+        let asset = fs::File::create(&original).unwrap();
+        asset.set_len(8 * 1024 * 1024).unwrap();
+        drop(asset);
+        let compiler = root.join("engine");
+        fs::write(&compiler, b"compiler fixture").unwrap();
+        let receipt = Receipt::capture(
+            &project,
+            &root.join("build"),
+            "main.tex",
+            &BTreeMap::from([("main.tex".into(), "fixture".into())]),
+            &BTreeMap::new(),
+            &compiler,
+        )
+        .unwrap();
+        let frozen = receipt.directory.join("main.tex");
+        receipt.verify().unwrap();
+
+        fs::write(&original, b"changed asset").unwrap();
+        assert!(receipt.verify().unwrap_err().starts_with("Build dependency changed:"));
+        fs::write(&frozen, b"changed input").unwrap();
+        assert_eq!(receipt.verify().unwrap_err(), "Frozen build input changed: main.tex");
+        fs::write(&frozen, b"fixture").unwrap();
+        fs::copy(receipt.directory.join("image.png"), &original).unwrap();
+        receipt.verify().unwrap();
+
+        for path in [original, compiler, frozen, receipt.directory.join("image.png")] {
+            fs::remove_file(path).unwrap();
+        }
+        for path in [receipt.directory.join(".out"), receipt.directory, project, root] {
+            fs::remove_dir(path).unwrap();
+        }
     }
 }

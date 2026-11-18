@@ -186,3 +186,32 @@ verified three objects at their expected source positions, including
 a styled macro in an included source. The original files and draft
 revision were preserved.
 [Source preparation evidence](../docs/evidence/compile-source-preparation-2026-11-18.json)
+
+
+## Snapshot capture and receipt verification
+
+Snapshot capture uses a native asset copy and seals the bytes that TeX
+will read. Capture verifies both the frozen file and its original before
+TeX. Receipts with at least 8 MiB of frozen inputs verify frozen files and
+the remaining dependencies in two threads after checking the compiler
+and alias. Both finish before acceptance, with the same error priority.
+
+The normal pdfLaTeX build service matched all 16 pre-change and candidate
+pairs. The median paired reductions in snapshot and verification work
+were 38.8 ms for a source-heavy fixture, 161.1 ms for an asset-heavy
+fixture, and 156.2 ms for a mixed fixture. The small fixture was within
+0.1 ms. TeX, delivery and rendering have separate endpoints.
+[Snapshot evidence](../docs/evidence/snapshot-verification-work-2026-11-18.json)
+
+## Tectonic feasibility
+
+Paired command-line trials compared Tectonic 0.17.0 against MiKTeX
+XeLaTeX in fresh working directories. Cold cache setup for the first
+Tectonic fixture took 99 seconds. In a separate warm offline comparison
+with explicit Letter paper and margins, five fixture medians favored
+Tectonic by 594–856 ms. All 25 measured pairs matched PDF text and the
+specified SyncTeX round trips. Exact character geometry differed by up
+to 0.014 bp and one fixture matched pixels. The dependency rule did not
+list the bundled class. A copied-cache control showed that changing its
+class file changed output under the same bundle namespace.
+[Engine feasibility evidence](../docs/evidence/tectonic-engine-feasibility-2026-11-18.json)

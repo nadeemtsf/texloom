@@ -1,0 +1,439 @@
+{
+  "schema": 1,
+  "kind": "independent_tectonic_xelatex_feasibility",
+  "scope": "Two complete command-line pipelines on one Windows host. One warm-up and five paired runs per fixture and configuration. Excludes Texloom snapshot, proof, delivery and rendering.",
+  "tool": {
+    "version": "0.17.0",
+    "asset_sha256": "f61ce51f0b0ade1015b7de7ef368541c5424e9756ecbd0d7af97d6d48030845f",
+    "exe_sha256": "99ffcfdbf1ebf8bdda9e791942e3d06aedb12463fddc33f07de6f5211c8bf08d",
+    "release": "https://github.com/tectonic-typesetting/tectonic/releases/tag/tectonic%400.17.0",
+    "command_reference": "https://tectonic-typesetting.github.io/book/latest/v2cli/compile.html",
+    "prerequisite_source": "https://github.com/tectonic-typesetting/tectonic/blob/tectonic%400.17.0/src/driver.rs#L1412-L1441"
+  },
+  "offline_default_bundle_namespace": "6ffe055852f8faf66c0acbe1a7fb27f87b869a90bad1204f3bf4d9683f597c7c",
+  "sequential_cache_preparation": [
+    {
+      "case": "plain",
+      "arm": "tectonic",
+      "seconds": 99.00591730000451,
+      "exit_codes": [
+        0
+      ],
+      "pdf": true,
+      "synctex": [
+        "main.synctex.gz"
+      ],
+      "cwd": "plain",
+      "cold_cache_preparation": true
+    },
+    {
+      "case": "references",
+      "arm": "tectonic",
+      "seconds": 13.586296800000127,
+      "exit_codes": [
+        0
+      ],
+      "pdf": true,
+      "synctex": [
+        "main.synctex.gz"
+      ],
+      "cwd": "references",
+      "cold_cache_preparation": true
+    },
+    {
+      "case": "included",
+      "arm": "tectonic",
+      "seconds": 1.1057880000007572,
+      "exit_codes": [
+        0
+      ],
+      "pdf": true,
+      "synctex": [
+        "main.synctex.gz"
+      ],
+      "cwd": "included",
+      "cold_cache_preparation": true
+    },
+    {
+      "case": "tikz",
+      "arm": "tectonic",
+      "seconds": 27.6544309000019,
+      "exit_codes": [
+        0
+      ],
+      "pdf": true,
+      "synctex": [
+        "main.synctex.gz"
+      ],
+      "cwd": "tikz",
+      "cold_cache_preparation": true
+    },
+    {
+      "case": "marker",
+      "arm": "tectonic",
+      "seconds": 0.8331496000027983,
+      "exit_codes": [
+        0
+      ],
+      "pdf": true,
+      "synctex": [
+        "main.synctex.gz"
+      ],
+      "cwd": "marker",
+      "cold_cache_preparation": true
+    }
+  ],
+  "comparisons": {
+    "default_paper": {
+      "cases": {
+        "included": {
+          "measured_success_pairs": 5,
+          "paired_saving_ms": 525.5730999997468,
+          "equal_output_counts": {
+            "dimensions": 0,
+            "text": 5,
+            "geometry": 0,
+            "links": 5,
+            "pixels": 0
+          },
+          "pass_counts": {
+            "miktex": [
+              2
+            ],
+            "tectonic": [
+              2
+            ]
+          },
+          "round_trip_counts": {
+            "miktex": 5,
+            "tectonic": 5
+          },
+          "median_ms": {
+            "miktex": 1402.825400000438,
+            "tectonic": 833.9744999975665
+          }
+        },
+        "marker": {
+          "measured_success_pairs": 5,
+          "paired_saving_ms": 557.1283999961452,
+          "equal_output_counts": {
+            "dimensions": 0,
+            "text": 5,
+            "geometry": 0,
+            "links": 5,
+            "pixels": 0
+          },
+          "pass_counts": {
+            "miktex": [
+              2
+            ],
+            "tectonic": [
+              2
+            ]
+          },
+          "round_trip_counts": {
+            "miktex": 5,
+            "tectonic": 5
+          },
+          "median_ms": {
+            "miktex": 1378.3861999982037,
+            "tectonic": 811.9234000041615
+          }
+        },
+        "plain": {
+          "measured_success_pairs": 5,
+          "paired_saving_ms": 737.7388999957475,
+          "equal_output_counts": {
+            "dimensions": 0,
+            "text": 5,
+            "geometry": 0,
+            "links": 5,
+            "pixels": 0
+          },
+          "pass_counts": {
+            "miktex": [
+              2
+            ],
+            "tectonic": [
+              2
+            ]
+          },
+          "round_trip_counts": {
+            "miktex": 5,
+            "tectonic": 5
+          },
+          "median_ms": {
+            "miktex": 1538.7225000013132,
+            "tectonic": 829.5103999989806
+          }
+        },
+        "references": {
+          "measured_success_pairs": 5,
+          "paired_saving_ms": 786.9558000020334,
+          "equal_output_counts": {
+            "dimensions": 5,
+            "text": 5,
+            "geometry": 0,
+            "links": 5,
+            "pixels": 5
+          },
+          "pass_counts": {
+            "miktex": [
+              2
+            ],
+            "tectonic": [
+              2
+            ]
+          },
+          "round_trip_counts": {
+            "miktex": 5,
+            "tectonic": 5
+          },
+          "median_ms": {
+            "miktex": 1826.3614000024972,
+            "tectonic": 1074.3688000002294
+          }
+        },
+        "tikz": {
+          "measured_success_pairs": 5,
+          "paired_saving_ms": 812.7107999971486,
+          "equal_output_counts": {
+            "dimensions": 5,
+            "text": 5,
+            "geometry": 0,
+            "links": 5,
+            "pixels": 0
+          },
+          "pass_counts": {
+            "miktex": [
+              2
+            ],
+            "tectonic": [
+              2
+            ]
+          },
+          "round_trip_counts": {
+            "miktex": 5,
+            "tectonic": 5
+          },
+          "median_ms": {
+            "miktex": 1890.3557999947225,
+            "tectonic": 1062.4797999989823
+          }
+        }
+      },
+      "marker_identity_pairs": 6,
+      "exact_marker_geometry_pairs": 0,
+      "raw_sha256": "baf949b18d9d97d4034573509f0c66d9a087d9a17ab25ec0b589896e87068c69",
+      "marker_sha256": "cf7f43c2102d836cebff1bd0ed61db208be25a3334705194037305f2eaedecd5"
+    },
+    "explicit_letter": {
+      "cases": {
+        "included": {
+          "measured_success_pairs": 5,
+          "paired_saving_ms": 594.1611000016565,
+          "equal_output_counts": {
+            "dimensions": 5,
+            "text": 5,
+            "geometry": 0,
+            "links": 5,
+            "pixels": 0
+          },
+          "pass_counts": {
+            "miktex": [
+              2
+            ],
+            "tectonic": [
+              2
+            ]
+          },
+          "round_trip_counts": {
+            "miktex": 5,
+            "tectonic": 5
+          },
+          "median_ms": {
+            "miktex": 1430.4960999943432,
+            "tectonic": 863.7962000066182
+          }
+        },
+        "marker": {
+          "measured_success_pairs": 5,
+          "paired_saving_ms": 641.0513999944669,
+          "equal_output_counts": {
+            "dimensions": 5,
+            "text": 5,
+            "geometry": 0,
+            "links": 5,
+            "pixels": 0
+          },
+          "pass_counts": {
+            "miktex": [
+              2
+            ],
+            "tectonic": [
+              2
+            ]
+          },
+          "round_trip_counts": {
+            "miktex": 5,
+            "tectonic": 5
+          },
+          "median_ms": {
+            "miktex": 1512.3859000013908,
+            "tectonic": 831.4040999975987
+          }
+        },
+        "plain": {
+          "measured_success_pairs": 5,
+          "paired_saving_ms": 693.4830000027432,
+          "equal_output_counts": {
+            "dimensions": 5,
+            "text": 5,
+            "geometry": 0,
+            "links": 5,
+            "pixels": 0
+          },
+          "pass_counts": {
+            "miktex": [
+              2
+            ],
+            "tectonic": [
+              2
+            ]
+          },
+          "round_trip_counts": {
+            "miktex": 5,
+            "tectonic": 5
+          },
+          "median_ms": {
+            "miktex": 1524.1840000016964,
+            "tectonic": 852.1480000053998
+          }
+        },
+        "references": {
+          "measured_success_pairs": 5,
+          "paired_saving_ms": 856.0233000025619,
+          "equal_output_counts": {
+            "dimensions": 5,
+            "text": 5,
+            "geometry": 0,
+            "links": 5,
+            "pixels": 5
+          },
+          "pass_counts": {
+            "miktex": [
+              2
+            ],
+            "tectonic": [
+              2
+            ]
+          },
+          "round_trip_counts": {
+            "miktex": 5,
+            "tectonic": 5
+          },
+          "median_ms": {
+            "miktex": 1978.4512999976869,
+            "tectonic": 1085.9696000043186
+          }
+        },
+        "tikz": {
+          "measured_success_pairs": 5,
+          "paired_saving_ms": 741.6222000028938,
+          "equal_output_counts": {
+            "dimensions": 5,
+            "text": 5,
+            "geometry": 0,
+            "links": 5,
+            "pixels": 0
+          },
+          "pass_counts": {
+            "miktex": [
+              2
+            ],
+            "tectonic": [
+              2
+            ]
+          },
+          "round_trip_counts": {
+            "miktex": 5,
+            "tectonic": 5
+          },
+          "median_ms": {
+            "miktex": 1850.797800005239,
+            "tectonic": 1099.4893000024604
+          }
+        }
+      },
+      "marker_identity_pairs": 6,
+      "exact_marker_geometry_pairs": 0,
+      "raw_sha256": "4709d5fe707a349a4259fa2018e47f9bf2e61e82522fdb7efde8cbaa94c317a5",
+      "marker_sha256": "7b5a70e8f7736fa02042caef9dca873edbc83e5a75e11c6e98df5ff4966cd58a"
+    }
+  },
+  "cache_identity_control": {
+    "source_cache": {
+      "file_count": 353,
+      "total_bytes": 44841770,
+      "file_tree_sha256": "e701791d489aad3a30253cfc650d07a28311ff1dcf64f5fbe8f7c5eb4f2af70e",
+      "hash_seconds": 0.2243144999956712
+    },
+    "label": "Cache identity witness.",
+    "trials": {
+      "reference": {
+        "seconds": 1.0619799999985844,
+        "exit": 0,
+        "text": "A synthetic plain document.\n1\n",
+        "cache_before": {
+          "file_count": 353,
+          "total_bytes": 44841770,
+          "file_tree_sha256": "e701791d489aad3a30253cfc650d07a28311ff1dcf64f5fbe8f7c5eb4f2af70e",
+          "hash_seconds": 0.11016010000457754
+        },
+        "cache_after": {
+          "file_count": 353,
+          "total_bytes": 44841770,
+          "file_tree_sha256": "e701791d489aad3a30253cfc650d07a28311ff1dcf64f5fbe8f7c5eb4f2af70e",
+          "hash_seconds": 0.10732550000102492
+        },
+        "different_from_reference": []
+      },
+      "changed": {
+        "seconds": 0.8351521000004141,
+        "exit": 0,
+        "text": "Cache identity witness.\nA synthetic plain document.\n1\n",
+        "cache_before": {
+          "file_count": 353,
+          "total_bytes": 44841826,
+          "file_tree_sha256": "1ef0015d2e69bc72cacf2f6f03313f931ca5f8cf2f92b5ec7352980cf0fe2409",
+          "hash_seconds": 0.11173949999647448
+        },
+        "cache_after": {
+          "file_count": 353,
+          "total_bytes": 44841826,
+          "file_tree_sha256": "1ef0015d2e69bc72cacf2f6f03313f931ca5f8cf2f92b5ec7352980cf0fe2409",
+          "hash_seconds": 0.09971130000485573
+        },
+        "different_from_reference": [
+          "bundles/data/6ffe055852f8faf66c0acbe1a7fb27f87b869a90bad1204f3bf4d9683f597c7c/article.cls"
+        ]
+      }
+    }
+  },
+  "production_status": "Experimental comparator. Texloom's supported engines are unchanged.",
+  "archive": {
+    "file": "Texloom-Tectonic-engine-feasibility-evidence-20261118-v2.zip",
+    "bytes": 1106198,
+    "sha256": "30055e460ed116c8137cb7dc6903ac30adac277b5246ed5dd2feb38bea19f0a5",
+    "members": 934
+  },
+  "coordinate_only_check": {
+    "sha256": "aa4e5aa49e914a06a71973aeb5f372be55425144f60b2d39144ed53db183e764",
+    "exact_pairs": 0,
+    "measured_pairs": 50,
+    "maximum_character_coordinate_delta_bp": {
+      "default": 0.00091552734375,
+      "explicit-paper-": 0.01412200927734375
+    }
+  }
+}

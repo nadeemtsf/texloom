@@ -1,0 +1,201 @@
+{
+  "schema": 1,
+  "kind": "snapshot_capture_and_receipt_verification",
+  "implementation_base": "25d9f72db437965135a2ac9f5b9e2086d19cb2d1",
+  "implementation_sha256": "00a8757573117e8581f5934c5cddd7ecdf87076b59725cd881ccc695b95016fa",
+  "parallel_checks": {
+    "minimum_frozen_bytes": 8388608,
+    "measured_warm_pairs_per_fixture": 12,
+    "followup": {
+      "small": {
+        "pairs": 12,
+        "serial_ms": 7.3675999999999995,
+        "parallel_ms": 7.93855,
+        "median_paired_saving_ms": -0.11739999999999995,
+        "faster_pairs": 4
+      },
+      "threshold": {
+        "pairs": 12,
+        "serial_ms": 13.102599999999999,
+        "parallel_ms": 8.407499999999999,
+        "median_paired_saving_ms": 4.71815,
+        "faster_pairs": 12
+      },
+      "source": {
+        "pairs": 12,
+        "serial_ms": 30.313200000000002,
+        "parallel_ms": 25.56745,
+        "median_paired_saving_ms": 4.901199999999999,
+        "faster_pairs": 11
+      },
+      "assets": {
+        "pairs": 12,
+        "serial_ms": 55.6031,
+        "parallel_ms": 32.836,
+        "median_paired_saving_ms": 22.63135,
+        "faster_pairs": 12
+      },
+      "mixed": {
+        "pairs": 12,
+        "serial_ms": 60.557050000000004,
+        "parallel_ms": 40.376999999999995,
+        "median_paired_saving_ms": 21.490499999999997,
+        "faster_pairs": 12
+      }
+    },
+    "raw_sha256": "0aa93cd6c08ace4e640dec0f6eb6c5ad28d9e4afbfbbc81baa2eab1e9808334a",
+    "controls": "Serial and parallel checks refused frozen-file and original-asset changes, membership changes and compiler drift. Frozen-input error priority stayed the same."
+  },
+  "asset_capture": {
+    "os_copy_followup": {
+      "small": {
+        "pairs": 7,
+        "old_ms": 7.974,
+        "new_ms": 8.4742,
+        "paired_saving_ms": -0.2873999999999999,
+        "faster_pairs": 2
+      },
+      "medium": {
+        "pairs": 7,
+        "old_ms": 38.54,
+        "new_ms": 26.9495,
+        "paired_saving_ms": 11.1903,
+        "faster_pairs": 7
+      },
+      "large": {
+        "pairs": 7,
+        "old_ms": 142.0618,
+        "new_ms": 94.6529,
+        "paired_saving_ms": 53.03880000000001,
+        "faster_pairs": 7
+      },
+      "many": {
+        "pairs": 7,
+        "old_ms": 247.5403,
+        "new_ms": 183.0427,
+        "paired_saving_ms": 65.28829999999999,
+        "faster_pairs": 7
+      }
+    },
+    "exploratory_streaming": {
+      "small": {
+        "pairs": 7,
+        "old_ms": 9.3238,
+        "new_ms": 11.8725,
+        "paired_saving_ms": -3.0708,
+        "faster_pairs": 0
+      },
+      "medium": {
+        "pairs": 7,
+        "old_ms": 44.5917,
+        "new_ms": 136.1396,
+        "paired_saving_ms": -94.2953,
+        "faster_pairs": 0
+      },
+      "large": {
+        "pairs": 7,
+        "old_ms": 163.1538,
+        "new_ms": 519.0921,
+        "paired_saving_ms": -366.66239999999993,
+        "faster_pairs": 0
+      },
+      "many": {
+        "pairs": 7,
+        "old_ms": 302.2957,
+        "new_ms": 841.7703,
+        "paired_saving_ms": -524.0509,
+        "faster_pairs": 0
+      }
+    },
+    "raw_sha256": "eb9aed03968103b703306aad2f7037f0eddf0d3cb874eadaedf857a08127cb55"
+  },
+  "production_builds": {
+    "baseline_exe_sha256": "87fca03e54d6b9e481ec2d39c72bed161a239f517f39039770e0b3aa5b401f31",
+    "candidate_exe_sha256": "9ed957c54bd9e2855056ccc58bd5fecf1375747bf7f1dc6ac255abfdeeaf7712",
+    "engine": "MiKTeX pdfLaTeX",
+    "asset_fixture_pillow": "12.1.1",
+    "matched_pairs_including_warmup": 16,
+    "conditions": {
+      "small": {
+        "pairs": 4,
+        "files": 2,
+        "bytes": 338,
+        "summary": {
+          "snapshot": {
+            "baseline_median_ms": 10.5717,
+            "candidate_median_ms": 10.8638,
+            "median_paired_ms": -0.2921
+          },
+          "verify": {
+            "baseline_median_ms": 46.4873,
+            "candidate_median_ms": 45.4602,
+            "median_paired_ms": 1.0270999999999961
+          },
+          "combined_snapshot_and_verify_paired_ms": -0.0738999999999983
+        }
+      },
+      "source": {
+        "pairs": 4,
+        "files": 26,
+        "bytes": 25166162,
+        "summary": {
+          "snapshot": {
+            "baseline_median_ms": 85.4524,
+            "candidate_median_ms": 83.413,
+            "median_paired_ms": 0.8531999999999984
+          },
+          "verify": {
+            "baseline_median_ms": 122.2999,
+            "candidate_median_ms": 84.44359999999999,
+            "median_paired_ms": 37.981799999999986
+          },
+          "combined_snapshot_and_verify_paired_ms": 38.83499999999999
+        }
+      },
+      "assets": {
+        "pairs": 4,
+        "files": 6,
+        "bytes": 33566306,
+        "summary": {
+          "snapshot": {
+            "baseline_median_ms": 185.1169,
+            "candidate_median_ms": 106.7632,
+            "median_paired_ms": 71.6924
+          },
+          "verify": {
+            "baseline_median_ms": 236.9738,
+            "candidate_median_ms": 156.08329999999998,
+            "median_paired_ms": 82.14120000000003
+          },
+          "combined_snapshot_and_verify_paired_ms": 161.14030000000002
+        }
+      },
+      "mixed": {
+        "pairs": 4,
+        "files": 29,
+        "bytes": 50340638,
+        "summary": {
+          "snapshot": {
+            "baseline_median_ms": 211.2154,
+            "candidate_median_ms": 148.9769,
+            "median_paired_ms": 59.52199999999999
+          },
+          "verify": {
+            "baseline_median_ms": 264.98139999999995,
+            "candidate_median_ms": 167.3883,
+            "median_paired_ms": 97.6814
+          },
+          "combined_snapshot_and_verify_paired_ms": 156.1626
+        }
+      }
+    },
+    "data_sha256": "a99a013818ca750c04013aaa304b9059fe1949a9bf848f8b5cce654c3fe8fa98",
+    "controls": "Original project hashes, recorded inputs and outputs, selected dependencies, passes, PDF text, character geometry, links and full 96 DPI rasters matched. Only snapshot and repeated receipt intervals are paired here."
+  },
+  "archive": {
+    "file": "Texloom-snapshot-verification-evidence-20261118.zip",
+    "sha256": "76e00881bf3480e9da7b0dc74ab82581b3b57437ce3b3ef73ee7a35d31ce785e",
+    "members": 117,
+    "bytes": 597005
+  }
+}
