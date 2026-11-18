@@ -13,6 +13,8 @@ use std::{
     time::{Duration, Instant},
 };
 
+const MAX_PDF_BYTES: u64 = 60 * 1024 * 1024;
+
 #[derive(Clone, Debug, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 #[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
@@ -439,14 +441,13 @@ fn build_inner(
     }
     let finalize_started = Instant::now();
     let pdf_path = receipt.directory.join(".out/preview.pdf");
-    let pdf = if success && pdf_path.is_file() {
-        if fs::metadata(&pdf_path).map_err(|e| e.to_string())?.len() > 60 * 1024 * 1024 {
-            return Err("Compiled PDF exceeds 60 MiB".into());
-        }
-        fs::read(pdf_path).map_err(|e| e.to_string())?
+    let delivered_pdf = if success && pdf_path.is_file() {
+        Some(read_completed_pdf(&pdf_path)?)
     } else {
-        Vec::new()
+        None
     };
+    receipt.seal_outputs_with_pdf(delivered_pdf.as_deref())?;
+    let pdf = delivered_pdf.unwrap_or_default();
     success &= !pdf.is_empty();
     if !success && diagnostics.is_empty() {
         diagnostics.push(Diagnostic::new(
@@ -457,7 +458,6 @@ fn build_inner(
     }
     let eligible =
         success && converged && !diagnostics.iter().any(|d| d.severity == Severity::Error);
-    receipt.seal_outputs()?;
     receipt.persist()?;
     cancel.check()?;
     if eligible {
@@ -478,16 +478,32 @@ fn build_inner(
         timings,
     })
 }
+fn read_completed_pdf(path: &Path) -> Result<Vec<u8>, String> {
+    let file = fs::File::open(path).map_err(|error| error.to_string())?;
+    let len = file.metadata().map_err(|error| error.to_string())?.len();
+    if len > MAX_PDF_BYTES {
+        return Err("Compiled PDF exceeds 60 MiB".into());
+    }
+    let mut bytes = Vec::with_capacity(len as usize);
+    file.take(MAX_PDF_BYTES + 1)
+        .read_to_end(&mut bytes)
+        .map_err(|error| error.to_string())?;
+    if bytes.len() as u64 > MAX_PDF_BYTES {
+        return Err("Compiled PDF exceeds 60 MiB".into());
+    }
+    Ok(bytes)
+}
+
 fn unverified_pdf(path: &Path) -> Option<Vec<u8>> {
     // A preview failure must not change an otherwise successful final build.
     // Source/dependency failures are handled by the mandatory checks above.
     snapshot::check_plain(path).ok()?;
-    if fs::metadata(path).ok()?.len() > 60 * 1024 * 1024 {
+    if fs::metadata(path).ok()?.len() > MAX_PDF_BYTES {
         return None;
     }
     let mut pdf = Vec::new();
-    fs::File::open(path).ok()?.take(60 * 1024 * 1024 + 1).read_to_end(&mut pdf).ok()?;
-    (pdf.len() <= 60 * 1024 * 1024 && pdf.starts_with(b"%PDF-")).then_some(pdf)
+    fs::File::open(path).ok()?.take(MAX_PDF_BYTES + 1).read_to_end(&mut pdf).ok()?;
+    (pdf.len() as u64 <= MAX_PDF_BYTES && pdf.starts_with(b"%PDF-")).then_some(pdf)
 }
 fn preflight_diagnostic(output: &process::Output) -> Diagnostic {
     let lower = output.text.to_ascii_lowercase();
@@ -696,6 +712,60 @@ mod tests {
             assert!(profiles.take(original).is_none());
         }
     }
+
+    #[test]
+    fn completed_pdf_receipt_tracks_the_delivered_bytes_and_enforces_the_boundary() {
+        use std::time::{SystemTime, UNIX_EPOCH};
+        let root = std::env::temp_dir().join(format!(
+            "texloom-completed-{}-{}",
+            std::process::id(),
+            SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos(),
+        ));
+        fs::create_dir(&root).unwrap();
+        let project = root.join("project");
+        fs::create_dir(&project).unwrap();
+        let compiler = root.join("engine");
+        fs::write(&compiler, b"synthetic engine").unwrap();
+        let mut receipt = Receipt::capture(
+            &project,
+            &root.join("build"),
+            "main.tex",
+            &BTreeMap::from([("main.tex".into(), "fixture".into())]),
+            &BTreeMap::new(),
+            &compiler,
+        )
+        .unwrap();
+        let pdf = receipt.directory.join(".out/preview.pdf");
+        let map = receipt.directory.join(".out/preview.synctex.gz");
+        fs::write(&pdf, b"%PDF-1.7\nfixture A").unwrap();
+        fs::write(&map, b"fixture map").unwrap();
+
+        let delivered = read_completed_pdf(&pdf).unwrap();
+        fs::write(&pdf, b"%PDF-1.7\nfixture B").unwrap();
+        receipt.generated_inputs.insert(".out/preview.pdf".into());
+        receipt.seal_outputs_with_pdf(Some(&delivered)).unwrap();
+        assert_eq!(receipt.outputs[".out/preview.pdf"], Fingerprint::bytes(&delivered));
+        assert_eq!(receipt.outputs[".out/preview.synctex.gz"], Fingerprint::bytes(b"fixture map"));
+        assert_eq!(receipt.verify().unwrap_err(), "Build output changed: .out/preview.pdf");
+        fs::write(&pdf, &delivered).unwrap();
+        receipt.verify().unwrap();
+
+        let file = fs::OpenOptions::new().write(true).open(&pdf).unwrap();
+        file.set_len(MAX_PDF_BYTES).unwrap();
+        assert_eq!(read_completed_pdf(&pdf).unwrap().len() as u64, MAX_PDF_BYTES);
+        file.set_len(MAX_PDF_BYTES + 1).unwrap();
+        assert_eq!(read_completed_pdf(&pdf).unwrap_err(), "Compiled PDF exceeds 60 MiB");
+        drop(file);
+        fs::remove_file(pdf).unwrap();
+        fs::remove_file(map).unwrap();
+        fs::remove_file(receipt.directory.join("main.tex")).unwrap();
+        fs::remove_dir(receipt.directory.join(".out")).unwrap();
+        fs::remove_dir(&receipt.directory).unwrap();
+        fs::remove_file(compiler).unwrap();
+        fs::remove_dir(project).unwrap();
+        fs::remove_dir(root).unwrap();
+    }
+
     #[test]
     fn optional_preview_refuses_missing_non_pdf_and_oversized_output() {
         use std::{io::{Seek, Write}, time::SystemTime};

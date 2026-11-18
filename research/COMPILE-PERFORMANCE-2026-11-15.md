@@ -144,3 +144,19 @@ checks. The larger gains observed with the development URL are kept
 separate. These component timings exclude actual concurrent TeX work,
 resource overlap, WebView transport and physical display.
 [PDF worker startup evidence](../docs/evidence/pdf-worker-startup-2026-11-18.json)
+
+
+## Final PDF bytes and build receipt
+
+The completed PDF is read once for delivery and sealed from those bytes.
+The 60 MiB limit applies to the actual read. Later receipt checks still
+reopen and verify the file. A changed PDF after the read fails verification.
+
+In release-mode repeated pairs on one Windows host, removing the extra
+read saved 0.07 ms at 256 KiB, 1.39 ms at 8 MiB, 5.71 ms at 32 MiB and
+10.29 ms at 60 MiB by median paired difference. All 40 paired fixtures
+matched exact bytes and SHA-256. A separate production control matched
+all 18 baseline and candidate PDF comparisons across the three engines
+and independently checked the output fingerprints. These tests isolate
+file-read and hash cost from TeX and presentation.
+[Output identity evidence](../docs/evidence/completed-pdf-output-identity-2026-11-18.json)

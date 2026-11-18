@@ -344,7 +344,14 @@ impl Receipt {
         Ok(())
     }
     pub fn seal_outputs(&mut self) -> Result<()> {
+        self.seal_outputs_with_pdf(None)
+    }
+
+    pub(crate) fn seal_outputs_with_pdf(&mut self, delivered_pdf: Option<&[u8]>) -> Result<()> {
         for name in &self.generated_inputs {
+            if name == ".out/preview.pdf" && delivered_pdf.is_some() {
+                continue;
+            }
             self.outputs
                 .insert(name.clone(), Fingerprint::file(&self.directory.join(name))?);
         }
@@ -354,10 +361,15 @@ impl Receipt {
             "preview.studio",
             "preview.fls",
         ] {
-            let name = format!(".out/{name}");
-            let path = self.directory.join(&name);
-            if path.is_file() {
-                self.outputs.insert(name, Fingerprint::file(&path)?);
+            let output = format!(".out/{name}");
+            if let ("preview.pdf", Some(bytes)) = (name, delivered_pdf) {
+                // Bind the receipt to what was delivered. Verification still reads the file.
+                self.outputs.insert(output, Fingerprint::bytes(bytes));
+            } else {
+                let path = self.directory.join(&output);
+                if path.is_file() {
+                    self.outputs.insert(output, Fingerprint::file(&path)?);
+                }
             }
         }
         Ok(())
