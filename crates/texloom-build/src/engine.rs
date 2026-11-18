@@ -5,7 +5,7 @@ use crate::{
 };
 use serde::Serialize;
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, VecDeque},
     fs,
     io::{BufRead, BufReader, Read},
     path::{Path, PathBuf},
@@ -83,10 +83,12 @@ pub struct BuildTimings {
     pub finalize_seconds: f64,
 }
 
-/// Last successful engine identification. Each build still checks the current
-/// executable bytes and starts supervised TeX processes on its own snapshot.
+/// Recent successful identifications for distinct projects and engine commands.
+/// Every build verifies its inputs and runs TeX on a fresh snapshot.
 #[derive(Default)]
-pub struct CompilerProfiles(Mutex<Option<CompilerProfile>>);
+pub struct CompilerProfiles(Mutex<VecDeque<CompilerProfile>>);
+
+const COMPILER_PROFILE_LIMIT: usize = 8;
 
 struct CompilerProfile {
     project_root: PathBuf,
@@ -108,10 +110,12 @@ fn probe_environment(environment: &BTreeMap<String, String>) -> BTreeMap<String,
 }
 
 impl CompilerProfile {
-    fn matches(&self, receipt: &Receipt) -> bool {
-        self.project_root == receipt.project_root
-            && self.invocation == receipt.invocation
-            && self.compiler.path == receipt.compiler.path
+    fn same_project_and_command(&self, receipt: &Receipt) -> bool {
+        self.project_root == receipt.project_root && self.invocation == receipt.invocation
+    }
+
+    fn matches_inputs(&self, receipt: &Receipt) -> bool {
+        self.compiler.path == receipt.compiler.path
             && self.compiler.fingerprint == receipt.compiler.fingerprint
             && self.environment == probe_environment(&receipt.environment)
     }
@@ -120,12 +124,11 @@ impl CompilerProfile {
 impl CompilerProfiles {
     fn take(&self, receipt: &Receipt) -> Option<CompilerProfile> {
         let mut cached = self.0.lock().ok()?;
-        if !cached.as_ref().is_some_and(|profile| profile.matches(receipt)) {
-            return None;
-        }
-        // Restore the probe only after a successful build. A failed or
-        // cancelled warm build is followed by a fresh probe next time.
-        cached.take()
+        let index = cached.iter().position(|profile| profile.same_project_and_command(receipt))?;
+        // Remove mismatched entries too, so restoring an older environment
+        // after a failed build cannot bring back its old identification.
+        // A matched profile returns to the front only after a successful build.
+        cached.remove(index).filter(|profile| profile.matches_inputs(receipt))
     }
 
     fn remember(&self, receipt: &Receipt, miktex: bool, runtime: String) {
@@ -135,7 +138,8 @@ impl CompilerProfiles {
             return;
         }
         if let Ok(mut cached) = self.0.lock() {
-            *cached = Some(CompilerProfile {
+            cached.retain(|profile| !profile.same_project_and_command(receipt));
+            cached.push_front(CompilerProfile {
                 project_root: receipt.project_root.clone(),
                 invocation: receipt.invocation.clone(),
                 compiler: receipt.compiler.clone(),
@@ -144,6 +148,7 @@ impl CompilerProfiles {
                 miktex,
                 runtime,
             });
+            cached.truncate(COMPILER_PROFILE_LIMIT);
         }
     }
 }
@@ -618,6 +623,79 @@ pub fn parse_diagnostics(log: &str, sources: &BTreeMap<String, String>) -> Vec<D
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn profile_receipt(project: &str, invocation: &str) -> Receipt {
+        Receipt {
+            schema: 1,
+            directory: PathBuf::from("snapshot"),
+            project_root: PathBuf::from(project),
+            main: "main.tex".into(),
+            inputs: Default::default(),
+            assets: Default::default(),
+            toolchain_inputs: Default::default(),
+            compiler: snapshot::Dependency {
+                path: PathBuf::from(invocation),
+                fingerprint: Fingerprint::bytes(b"compiler"),
+            },
+            auxiliary_tools: Default::default(),
+            invocation: PathBuf::from(invocation),
+            engine_version: "MiKTeX-pdfTeX fixture".into(),
+            environment: Default::default(),
+            arguments: Vec::new(),
+            passes: 2,
+            outputs: Default::default(),
+            used_project_inputs: Default::default(),
+            generated_inputs: Default::default(),
+        }
+    }
+
+    #[test]
+    fn profiles_survive_switching_projects_and_engines_but_failed_reuse_is_consumed() {
+        let profiles = CompilerProfiles::default();
+        let a = profile_receipt("a", "pdflatex");
+        let b = profile_receipt("b", "pdflatex");
+        let c = profile_receipt("a", "lualatex");
+        for receipt in [&a, &b, &c] {
+            assert!(profiles.take(receipt).is_none());
+            profiles.remember(receipt, true, "runtime".into());
+        }
+        assert!(profiles.take(&a).is_some());
+        assert!(profiles.take(&a).is_none());
+        assert!(profiles.take(&b).is_some());
+        assert!(profiles.take(&c).is_some());
+    }
+
+    #[test]
+    fn profile_cache_evicts_oldest_and_discards_changed_input_identity() {
+        let profiles = CompilerProfiles::default();
+        let receipts: Vec<_> = (0..=COMPILER_PROFILE_LIMIT)
+            .map(|i| profile_receipt(&format!("project-{i}"), "pdflatex"))
+            .collect();
+        for receipt in &receipts {
+            profiles.remember(receipt, true, "runtime".into());
+        }
+        assert!(profiles.take(&receipts[0]).is_none());
+        assert!(profiles.take(&receipts[1]).is_some());
+
+        let original = receipts.last().unwrap();
+        profiles.remember(original, true, "runtime".into());
+        let mut new_snapshot = original.clone();
+        new_snapshot.directory = PathBuf::from("other-snapshot");
+        new_snapshot.environment.insert("TEXMFOUTPUT".into(), "other-output".into());
+        assert!(profiles.take(&new_snapshot).is_some());
+
+        let mut changed_environment = original.clone();
+        changed_environment.environment.insert("TEXINPUTS".into(), "different".into());
+        let mut changed_binary = original.clone();
+        changed_binary.compiler.fingerprint = Fingerprint::bytes(b"new compiler");
+        let mut changed_alias_target = original.clone();
+        changed_alias_target.compiler.path = PathBuf::from("different-target");
+        for changed in [changed_environment, changed_binary, changed_alias_target] {
+            profiles.remember(original, true, "runtime".into());
+            assert!(profiles.take(&changed).is_none());
+            assert!(profiles.take(original).is_none());
+        }
+    }
     #[test]
     fn optional_preview_refuses_missing_non_pdf_and_oversized_output() {
         use std::{io::{Seek, Write}, time::SystemTime};

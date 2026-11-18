@@ -11,11 +11,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let output = PathBuf::from(args.next().ok_or("Provide a new output directory")?);
     let compiler = PathBuf::from(args.next().ok_or("Provide the compiler executable")?);
     let repeats: usize = args.next().ok_or("Provide repeat count")?.to_string_lossy().parse()?;
-    let (long, warm, paired) = match args.next() {
+    let mode = args.next();
+    let (long, warm, paired) = match mode.as_deref() {
         None => (false, false, false),
         Some(option) if option == "--long" => (true, false, false),
         Some(option) if option == "--warm" => (false, true, false),
         Some(option) if option == "--paired" => (false, false, true),
+        Some(option) if option == "--alternating-projects" => (false, false, false),
         _ => return Err("Unknown argument".into()),
     };
     if !compiler.is_absolute() || !compiler.is_file() || !(1..=30).contains(&repeats) || args.next().is_some() {
@@ -26,6 +28,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         return Err("The long control requires LuaLaTeX".into());
     }
     fs::create_dir(&output)?;
+    if mode.as_deref().is_some_and(|option| option == "--alternating-projects") {
+        return alternating_projects(&output, &compiler, engine_name, repeats);
+    }
     let fixtures: &[&str] = if long { &["long"] } else { &["plain", "references", "large-project"] };
     for &case in fixtures {
         let profiles = CompilerProfiles::default();
@@ -93,6 +98,58 @@ Reference to section \ref{sec:example}.",
                     "engine": engine_name, "version": result.receipt.engine_version,
                     "passes": result.receipt.passes, "toolchain_inputs": result.receipt.toolchain_inputs.len(),
                     "pdf_bytes": result.pdf.len(), "seconds": result.seconds, "timings": result.timings,
+                }));
+            }
+        }
+    }
+    Ok(())
+}
+
+fn alternating_projects(
+    output: &std::path::Path,
+    compiler: &std::path::Path,
+    engine_name: &str,
+    repeats: usize,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let profiles = CompilerProfiles::default();
+    for name in ["alpha", "beta"] {
+        let project = output.join(name).join("project");
+        fs::create_dir_all(&project)?;
+        let source = format!("\\documentclass{{article}}\n\\begin{{document}}\nProject {name}.\n\\end{{document}}\n");
+        fs::write(project.join("main.tex"), source)?;
+    }
+    for trial in 0..=repeats {
+        for name in ["alpha", "beta"] {
+            let project = output.join(name).join("project");
+            let path = project.join("main.tex");
+            let source = fs::read_to_string(&path)?;
+            let sources = BTreeMap::from([("main.tex".into(), source.clone())]);
+            let arms = if trial % 2 == 0 { [false, true] } else { [true, false] };
+            for use_cache in arms {
+                let arm = if use_cache { "retained" } else { "fresh" };
+                let directory = output.join(name).join(format!("run-{trial:02}-{arm}"));
+                let result = measure(Request {
+                    project_root: &project,
+                    directory: &directory,
+                    sources: &sources,
+                    main: "main.tex",
+                    support: &BTreeMap::new(),
+                    compiler,
+                    engine: engine_name,
+                }, use_cache.then_some(&profiles))?;
+                if !result.eligible || result.timings.version_reused != (use_cache && trial > 0) {
+                    return Err(format!("{name}/{trial}/{arm}: unexpected build result or probe reuse").into());
+                }
+                result.receipt.verify()?;
+                if fs::read_to_string(&path)? != source {
+                    return Err("Original source changed".into());
+                }
+                println!("{}", json!({
+                    "project": name, "trial": trial, "warmup": trial == 0, "arm": arm,
+                    "engine": engine_name, "version": result.receipt.engine_version,
+                    "seconds": result.seconds, "timings": result.timings,
+                    "pdf": directory.join(".out/preview.pdf"),
+                    "receipt": directory.join("texloom-build-manifest.json"),
                 }));
             }
         }
