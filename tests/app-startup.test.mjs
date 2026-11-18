@@ -16,6 +16,7 @@ import {SourceHighlight,selectionSourceRange} from '../web/core/source-highlight
 import {applyTextInputAppearance,renderProtectedCommands} from '../web/core/text-input-appearance.js';
 import {positionDialogNear,clearDialogPosition} from '../web/core/dialog-anchor.js';
 import {createCompileInvoke} from '../web/core/compile-progress.js';
+import {startPDFWorker} from '../web/core/pdf-document.js';
 import {PreliminaryPreview} from '../web/core/preliminary-preview.js';
 import {PreliminaryPDFSurface,renderPreliminaryPDF} from '../web/core/preliminary-pdf.js';
 import {acceptUnverifiedPreview} from '../web/core/build-protocol.js';
@@ -38,10 +39,14 @@ test('the shipped shell requests and publishes only a settled PDF',async()=>{
  assert.equal(Object.hasOwn(t.context.progressRequest,'onPreview'),false);
  assert.equal(state.pdf,null);
  assert.equal(t.elements.get('pages').inert,false);
+ assert.equal(t.context.workerStarts,1);
+ assert.equal(t.context.finalPDFLoads,0);
  t.context.finishCompile(structuredClone(finalReply));await t.context.startup;
  assert.equal(state.result.build_id,'settled');
  assert.equal(state.compiled,0);
  assert.equal(t.context.temporaryRenders,0);
+ assert.equal(t.context.finalPDFLoads,1);
+ assert.equal(t.context.workerDisposals,0);
  assert.equal(t.calls.some(([name])=>name==='verify_build'),true);
 });
 
@@ -68,6 +73,8 @@ test('a later compiler failure clears the preliminary view and retains the earli
  t.context.failCompile(Error('Synthetic later pass failed'));await t.context.startup;
  assert.equal(state.pdf,previous);assert.equal(state.result.build_id,'earlier');assert.deepEqual({...state.sources},sources);
  assert.equal(t.context.temporaryDisposals,1);assert.equal(t.elements.get('pages').inert,false);
+ assert.equal(t.context.finalPDFLoads,0);
+ assert.equal(t.context.workerDisposals,1);
  assert.match(t.elements.get('banner').textContent,/Synthetic later pass failed/);
 });
 
@@ -98,10 +105,12 @@ function boot({markup=html,openFailure=null,pathFailure=null,badSnapshot=false,a
     onDidChangeModelContent(){},onDidChangeCursorPosition(){},onDidChangeCursorSelection(){},
     addAction(){},addCommand(){},getDomNode:()=>element(),getSelections:()=>[],hasTextFocus:()=>false};
   const context={...transactions,bindPDFScrolling,SourceHighlight,selectionSourceRange,applyTextInputAppearance,renderProtectedCommands,positionDialogNear,clearDialogPosition,DocumentClient,editorText,sameSources,TypingRecoveryController,CloseController,createWorkspaceInvoke,ProjectControls,PDFSearch,SetupHelp,installPerformanceDiagnostics,performanceOutcome,structuredClone,console,
-    createCompileInvoke,PreliminaryPreview,PreliminaryPDFSurface,renderPreliminaryPDF,acceptUnverifiedPreview,
+    createCompileInvoke,startPDFWorker,PreliminaryPreview,PreliminaryPDFSurface,renderPreliminaryPDF,acceptUnverifiedPreview,
     capturePDFScrollAnchor:()=>null,
     Channel:class{constructor(callback){this.onmessage=callback}},
-    PDFPageView:class{},EventBus:class{},SimpleLinkService:class{},self:{},pdfjs:{GlobalWorkerOptions:{}},pdfWorkerURL:'test-worker',EditorWorker:class{},
+    PDFPageView:class{},EventBus:class{},SimpleLinkService:class{},self:{},pdfjs:{GlobalWorkerOptions:{},PDFWorker:{create(){
+      context.workerStarts++;return {promise:Promise.resolve(),destroy(){context.workerDisposals++}};
+    }}},pdfWorkerURL:'test-worker',EditorWorker:class{},
     monaco:{languages:{register(){},setMonarchTokensProvider(){},setLanguageConfiguration(){}},
       editor:{defineTheme(){},createModel:()=>model,create:()=>editor,EndOfLineSequence:{LF:0}},
       KeyMod:{CtrlCmd:1,Shift:2},KeyCode:{KeyS:3,Enter:4,KeyZ:5,KeyY:6}},
@@ -127,11 +136,15 @@ function boot({markup=html,openFailure=null,pathFailure=null,badSnapshot=false,a
       if(name==='plan_adapter'&&adapterFailure)throw Error(adapterFailure);
       throw Error('Test compiler unavailable');
     }};
+  context.workerStarts=0;context.workerDisposals=0;context.finalPDFLoads=0;
   if(deferCompile){
     context.temporaryDisposals=0;context.temporaryRenders=0;
     context.location={href:'http://localhost/'};context.URL=URL;
     context.renderPreliminaryPDF=async()=>{context.temporaryRenders++;return {canvas:element(),page:1,pageCount:1,dispose(){context.temporaryDisposals++}}};
-    context.preparePDFView=async()=>({pdf:{destroy:async()=>{}},fragment:element(),pageCount:1,scale:1,pages:[],dispose(){}});
+    context.preparePDFView=async(_library,_result,{workerStartup})=>{
+      const worker=await workerStartup?.take();context.finalPDFLoads++;
+      return {pdf:{destroy:async()=>worker?.destroy()},fragment:element(),pageCount:1,scale:1,pages:[],dispose(){}};
+    };
     context.publishPDFView=()=>{};
   }
   let script=app.replace(/^import .*;\r?$/gm,'').replace(/openProject\(\);\s*$/,'globalThis.startup = openProject();');

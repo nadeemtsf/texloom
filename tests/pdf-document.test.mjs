@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {createRequire} from 'node:module';
 import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
-import {loadPDFDocument} from '../web/core/pdf-document.js';
+import {loadPDFDocument,startPDFWorker} from '../web/core/pdf-document.js';
 import {selectionReasonForPage} from '../web/core/pdf-surface.js';
 import {acceptCompilation,decodeCompilation} from '../web/core/build-protocol.js';
 import {renderPreliminaryPDF} from '../web/core/preliminary-pdf.js';
@@ -110,4 +110,51 @@ test('the patched PDF.js opens, paints and extracts real fixture text through th
   let painted=false;for(let i=0;i<image.length;i+=4){if(image[i]<240&&image[i+3]>0){painted=true;break}}
   assert.equal(painted,true,'real page ink was painted');
  }finally{await pdf.destroy()}
+});
+
+
+test('an unused PDF worker is disposed and a transferred worker belongs to its document',async()=>{
+ const order=[];
+ const worker={promise:Promise.resolve(),destroy(){order.push('worker')}};
+ const pdfjs={PDFWorker:{create:()=>worker},getDocument(options){
+  assert.equal(options.worker,worker);
+  return {promise:Promise.resolve({numPages:1}),destroy:async()=>order.push('task')};
+ }};
+ const unused=startPDFWorker(pdfjs);
+ unused.dispose();unused.dispose();
+ assert.equal(await unused.take(),undefined);assert.deepEqual(order,['worker']);
+ order.length=0;
+ const startup=startPDFWorker(pdfjs);
+ const owned=await startup.take();
+ assert.equal(owned,worker);
+ assert.equal(await startup.take(),undefined);
+ startup.dispose();assert.deepEqual(order,[]);
+ const pdf=await loadPDFDocument(pdfjs,{},owned);
+ await Promise.all([pdf.destroy(),pdf.destroy()]);
+ assert.deepEqual(order,['task','worker']);
+});
+
+test('PDF worker startup exceptions fall back to the ordinary document load',async()=>{
+ const original=Error('Worker startup refused');let destroyed=0;
+ const worker={promise:Promise.reject(original),destroy(){destroyed++}};
+ const library={PDFWorker:{create:()=>worker},getDocument(options){
+  assert.equal(Object.hasOwn(options,'worker'),false);
+  return {promise:Promise.resolve({numPages:1}),destroy:async()=>{}};
+ }};
+ const startup=startPDFWorker(library);
+ const pdf=await loadPDFDocument(library,{},await startup.take());
+ await pdf.destroy();startup.dispose();
+ assert.equal(destroyed,1);
+ assert.equal(startPDFWorker({PDFWorker:{create(){throw original}}}),null);
+});
+
+test('PDF input refusal still destroys an owned worker after the loading task',async()=>{
+ const original=Error('Invalid document');
+ const order=[];
+ const worker={destroy(){order.push('worker')}};
+ const library={getDocument(){return {promise:Promise.reject(original),destroy:async()=>{
+   order.push('task');throw Error('Cleanup failed');
+ }}}};
+ await assert.rejects(loadPDFDocument(library,{},worker),error=>error===original);
+ assert.deepEqual(order,['task','worker']);
 });

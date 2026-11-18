@@ -124,3 +124,23 @@ expected ranges, exact metadata, PDF text and character geometry, and
 all 96 DPI raster pixels. Original source and revision were preserved.
 These tests did not measure desktop transport or display latency.
 [Source coordinate evidence](../docs/evidence/source-coordinate-mapping-2026-11-18.json)
+
+## PDF worker startup during compilation
+
+An ordinary preview compile starts an empty PDF.js worker after dispatching
+the native build request. The worker receives document bytes only after the
+native build returns successfully for the current revision. The accepted view keeps
+its own worker. A failed or superseded compile disposes its unused worker.
+Once a worker starts loading a PDF, the document handle owns its disposal.
+A startup failure falls back to normal PDF loading.
+
+A headless browser test compared startup at PDF load with an already ready
+worker. With the packaged worker asset served directly, median paired
+load-to-prepared reductions were 72.0 ms for six pages and 86.9 ms for
+twenty pages, from seven measured pairs each. All 16 pairs including
+warm-ups matched complete pixels, line and run geometry, and readable text.
+The implementation run also matched all 16 pairs and passed ownership
+checks. The larger gains observed with the development URL are kept
+separate. These component timings exclude actual concurrent TeX work,
+resource overlap, WebView transport and physical display.
+[PDF worker startup evidence](../docs/evidence/pdf-worker-startup-2026-11-18.json)
