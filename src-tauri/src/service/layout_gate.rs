@@ -334,9 +334,14 @@ impl Backend {
         sources: Sources,
         lease: &Lease,
     ) -> Result<Arc<Build>> {
-        let mut request = request.clone();
-        request.sources = sources;
-        request.purpose = "verification".into();
+        let request = CompileRequest {
+            project_id: request.project_id.clone(),
+            main: request.main.clone(),
+            sources,
+            engine: request.engine.clone(),
+            revision: request.revision,
+            purpose: "verification".into(),
+        };
         let result = self.compile(request, lease)?;
         if !result.ok || !result.verification_eligible {
             return Err("The private layout probe did not compile cleanly".into());

@@ -13,7 +13,7 @@ test('compiler initialization failures show their short diagnostic and retain th
 test('a compiler preflight failure never prepares or verifies a candidate PDF',async()=>{
   const sources={'main.tex':'Original source'},snapshot=structuredClone(sources);let prepared=0,verified=0;
   const diagnostics=[{code:'compiler_preflight_output_truncated',severity:'error',message:'Compiler version output exceeded its limit.'}];
-  await assert.rejects(stageCandidate({sources,revision:4,identity:'current',getIdentity:()=>'current',
+  await assert.rejects(stageCandidate({revision:4,identity:'current',getIdentity:()=>'current',
     compile:async()=>({ok:false,verification_eligible:false,revision:4,pdf:[],log:'Captured version output',diagnostics}),
     prepare:async()=>{prepared++},verify:async()=>{verified++}}),error=>{
       assert.equal(error.message,diagnostics[0].message);assert.equal(error.log,'Captured version output');return true;

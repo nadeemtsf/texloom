@@ -37,11 +37,11 @@ export function sessionIdentity(session) {
 }
 
 /** No source, history, or PDF state is mutated before the complete candidate passes. */
-export async function stageCandidate({sources,revision,identity,getIdentity,compile,prepare,policy,previousPageCount,verify=async()=>{},requireVerified=false,trace=null}) {
+export async function stageCandidate({revision,identity,getIdentity,compile,prepare,policy,previousPageCount,verify=async()=>{},requireVerified=false,trace=null}) {
   let prepared=null;
   try{
     if(getIdentity()!==identity)throw new StaleCandidate();
-    const result=await compile(structuredClone(sources),revision);
+    const result=await compile();
     trace?.mark('build-returned');
     if(getIdentity()!==identity)throw new StaleCandidate();
     if(!result.ok||requireVerified&&result.verification_eligible===false)throw new CompilationFailure(result.log,result.diagnostics);
@@ -54,7 +54,7 @@ export async function stageCandidate({sources,revision,identity,getIdentity,comp
     await verify(result);
     trace?.mark('build-rechecked');
     if(getIdentity()!==identity)throw new StaleCandidate();
-    return {sources,result,prepared};
+    return {result,prepared};
   }catch(error){
     // A cleanup fault must not replace the compilation/validation failure.
     try{prepared?.dispose?.()}catch{}

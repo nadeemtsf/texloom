@@ -139,7 +139,7 @@ pub struct Project {
     pub source_only: bool,
 }
 
-#[derive(Clone, Deserialize)]
+#[derive(Deserialize)]
 pub struct CompileRequest {
     pub project_id: String,
     pub main: String,
@@ -485,21 +485,21 @@ impl Backend {
         request: CompileRequest,
         lease: &texloom_build::scheduler::Lease,
     ) -> Result<CompileResult> {
-        self.compile_inner(request, lease, None)
+        self.compile_inner(&request, lease, None)
     }
     fn compile_inner(
         &self,
-        request: CompileRequest,
+        request: &CompileRequest,
         lease: &texloom_build::scheduler::Lease,
         preview: Option<&mut dyn FnMut(&str, texloom_build::engine::UnverifiedPreview)>,
     ) -> Result<CompileResult> {
         lease.cancel.check()?;
         let root = self.project_root(&request.project_id)?;
-        let source = request
+        let main_source = request
             .sources
             .get(&request.main)
             .ok_or("Main source is missing")?;
-        let engine = choose_engine(&request.engine, source)?;
+        let engine = choose_engine(&request.engine, main_source)?;
         let binary = find_program(&engine).ok_or_else(|| {
             format!("{engine} was not found. Install MiKTeX or TeX Live, then reopen Texloom.")
         })?;
@@ -532,6 +532,7 @@ impl Backend {
         let mut objects = Vec::new();
         let mut ids = std::collections::HashSet::new();
         if output.ok {
+            let mut text_preview = None;
             for (name, source) in &request.sources {
                 if !name.ends_with(".tex") {
                     continue;
@@ -551,7 +552,9 @@ impl Backend {
                         file: name.clone(),
                         dx: object.dx,
                         dy: object.dy,
-                        plain_text: texloom_core::plain_text_preview(&object.content, request.sources.get(&request.main).unwrap_or(source)),
+                        plain_text: text_preview
+                            .get_or_insert_with(|| texloom_core::PlainTextPreview::new(main_source))
+                            .render(&object.content),
                         content: object.content,
                         line: object.line,
                         start: projection.editor_offset(object.range.start).map_err(fail)?,
@@ -565,11 +568,11 @@ impl Backend {
                 Arc::new(Build {
                     directory: output.receipt.directory.clone(),
                     compiler: output.receipt.compiler.path.clone(),
-                    project_id: request.project_id,
-                    main: request.main,
+                    project_id: request.project_id.clone(),
+                    main: request.main.clone(),
                     revision: request.revision,
                     eligible: output.eligible,
-                    purpose: request.purpose,
+                    purpose: request.purpose.clone(),
                     receipt: output.receipt.clone(),
                     cancel: lease.cancel.clone(),
                     sequence: lease.id,

@@ -468,7 +468,7 @@ async function resolveSourceSelection({buildId,page,points,hits,trace=null}){
         await baseline.prepareSelectionProof();assertCurrent();
         const candidate=await client.prepare(plan.sources,buildId);token=candidate.token;
         trace?.mark('native-prepared');
-        const staged=await stageCandidate({sources:plan.sources,revision:candidate.revision,identity,getIdentity:()=>sessionIdentity(state),
+        const staged=await stageCandidate({revision:candidate.revision,identity,getIdentity:()=>sessionIdentity(state),
           compile:()=>client.compile(token),prepare:result=>preparePDFView(pdfViewLibrary,result,{width:$('preview-scroll').clientWidth,zoom:baseline.scale,mode:state.mode}),
           requireVerified:true,verify:result=>client.verify(result.build_id),trace});
         prepared=staged.prepared;
@@ -535,7 +535,7 @@ async function compile(reason='manual'){
   const identity=sessionIdentity(state),revision=state.revision;state.busy=true;state.cancelRequested=false;updateControls();
   let prepared=null,workerStartup=null;
   try{
-    const candidate=await stageCandidate({sources:clone(state.sources),revision,identity,getIdentity:()=>sessionIdentity(state),
+    const candidate=await stageCandidate({revision,identity,getIdentity:()=>sessionIdentity(state),
         compile:()=>{
           const compilation=client.compile();
           workerStartup=startPDFWorker(pdfViewLibrary);
@@ -576,7 +576,7 @@ async function commitSources(sources,{file=state.file,policy=null,operation=null
   try{
     nativeCandidate=await client.prepare(sources,state.result.build_id,operation);
     trace?.mark('native-prepared');
-    const candidate=await stageCandidate({sources,revision:nativeCandidate.revision,identity:expectedIdentity,getIdentity:()=>sessionIdentity(state),
+    const candidate=await stageCandidate({revision:nativeCandidate.revision,identity:expectedIdentity,getIdentity:()=>sessionIdentity(state),
       compile:()=>client.compile(nativeCandidate.token),prepare:prepareResult,policy,previousPageCount:state.view.pageCount,requireVerified:true,verify:result=>client.verify(result.build_id),trace});
     prepared=candidate.prepared;
     if(sessionIdentity(state)!==expectedIdentity)throw new StaleCandidate();
@@ -978,7 +978,7 @@ $('export').onclick=async()=>{
     await state.client.flush();if(state.busy)return toast('Wait for compilation before exporting.');
     state.busy=true;state.cancelRequested=false;ownsJob=true;clearTimeout(state.compileTimer);updateControls();
     const identity=sessionIdentity(state),revision=state.revision,client=state.client;
-    const candidate=await stageCandidate({sources:clone(state.sources),revision,identity,getIdentity:()=>sessionIdentity(state),
+    const candidate=await stageCandidate({revision,identity,getIdentity:()=>sessionIdentity(state),
       compile:()=>client.compile(null,'export'),prepare:prepareResult,policy:null,requireVerified:true,verify:result=>client.verify(result.build_id)});
     prepared=candidate.prepared;
     state.mutating=true;editorReadOnly();updateControls();
