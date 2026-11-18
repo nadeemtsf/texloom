@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "kind": "completed_pdf_offscreen_preparation_experiment",
+  "baseline": "9aeb179763a214199589aa4f4c70c3af11579b5a",
+  "implementation_sha256": "9f218c34c3156c41b772d61066fab78f0b71501a562748fc8f83730612c0a29e",
+  "timed_candidate_sha256": "d33a3b24f57520ad834618c7b42c84a296eeb25c9d6c46f69545c875825f19be",
+  "pdfjs_version": "6.2.108",
+  "headless_edge_version": "157.0.4341.60",
+  "device_scale_factor": 1,
+  "viewport": [
+    1100,
+    800
+  ],
+  "conditions": {
+    "6": {
+      "pairs": 5,
+      "serial_median_ms": 61.4,
+      "two_jobs_median_ms": 43.6,
+      "paired_saving_median_ms": 17.5
+    },
+    "20": {
+      "pairs": 5,
+      "serial_median_ms": 184.2,
+      "two_jobs_median_ms": 108.4,
+      "paired_saving_median_ms": 79.9
+    }
+  },
+  "equal_complete_canvas_and_text_geometry_pairs_including_warmup": 12,
+  "corrected_run": "First run checked origins only. The second run compared complete line and run dimensions and run baselines, in addition to readable text and pixels.",
+  "scope": "Offscreen short-view preparation after PDF load on one shared Windows host. Candidate timing predates the failure-disposal guard. No native WebView or compile-to-display timing.",
+  "headless_navigation_checks": {
+    "passed": 33,
+    "device_scale_factors": [
+      1,
+      1.5,
+      2
+    ],
+    "report_sha256": "324a27208ee6d4b919a5a32d9ff5695608059b8b1337d7f7aad8dca6427126d5"
+  },
+  "evidence_bundle": {
+    "file": "Texloom-completed-PDF-paint-evidence-20261118.zip",
+    "bytes": 151539,
+    "sha256": "8622cfed61a222d9e89e8ac98c534ed6e1b6ff6ad1342a21070540c94c9dbfd9"
+  },
+  "protocol_sha256": "ac77d4fb0ac1f6035016af6deb8f2b7e212e37005b2fa7cb22a3f44a4d42db03",
+  "harness_sha256": "0465cb4621a06cda5f94c6246a7a0bbe5bda844abac1f10c08c59390ea07ac8d",
+  "observations_sha256": "d127d8c629e28e6010cff7eafaae4bb199abeb0c4f8ac892c04f004d934b1b7a"
+}

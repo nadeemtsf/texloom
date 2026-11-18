@@ -114,9 +114,8 @@ in regression checks. A real PDF fixture retains identical extracted text,
 geometry and rendered pixels after delivery. Other controls cover failed
 builds, malformed envelopes, Unicode metadata, cancellation, candidate
 revisions, PDF size limits and fallback decoding. The receipt is
-\path{docs/evidence/binary-compile-reply-2026-11-15.json}. These checks do
-not exercise native WebView dispatch or physical presentation; packaged
-Windows preview acceptance and delivery measurements remain pending.
+\path{docs/evidence/binary-compile-reply-2026-11-15.json}. Native WebView
+dispatch and physical presentation time remain unmeasured.
 
 \subsection{First-pass observation feasibility, 16 November}
 
@@ -154,8 +153,100 @@ Earlier direct and native development runs remain separate. The protocol is
 \path{research/FIRST-PASS-PREVIEW-PLAN.md}; the source and result identities
 are in \path{docs/evidence/first-pass-preview-2026-11-16.json}.
 
-This observer is development infrastructure. A later desktop preview needs
-project/revision/request fencing, separate provisional presentation, retention
-of the last verified PDF after failure, and owner-run native acceptance.
-No first-pass visual editing, early verified export or input-to-display result
-is established by this corpus.
+The subsequent desktop experiment used a separate read-only view keyed to the
+project, revision and request. It retained the last verified PDF after failure.
+The owner reported that the tested candidate at \code{0bf8f8c} worked well and
+asked to defer early presentation. Normal Texloom builds now wait for complete
+compilation before showing a new PDF. The source retains the experimental path
+in a disabled configuration. The owner feedback is qualitative, and the corpus
+provides no input-to-display measurements.
+
+\subsection{Auxiliary reuse and clean-build equivalence}
+
+A constructed case tests whether an unchanged auxiliary state guarantees the
+same output as a clean build. The old source defines a macro as \texttt{B} and
+writes that definition to its auxiliary file. The revised source supplies
+\texttt{A} only when the definition is absent, then writes the value it used.
+The two revised builds use identical source. One begins with an empty output
+directory. The other starts with the old auxiliary file.
+
+For each of pdf\LaTeX{}, Xe\LaTeX{} and Lua\LaTeX{}, the clean revision prints
+\texttt{Branch A} and the seeded revision prints \texttt{Branch B}. Two passes
+within each arm produce matching auxiliary hashes, extracted text and full-page
+96 DPI rasters. Across arms, the text and rasters differ. The old auxiliary
+file is another input, and a document can intentionally use such persistent
+state. A reuse policy that promises clean-build equivalence must account for
+that distinction even after convergence. The experiment consists of one
+constructed case per engine and provides no estimate of how often projects
+exhibit this behavior or how much time caching would save. The protocol, logs and
+per-pass outputs are retained with the development evidence.
+
+\subsection{Precompiled preamble feasibility}
+
+The \texttt{mylatexformat} driver can dump a document's preamble into a format
+file so that the compiler can start with its packages already loaded~\cite{mylatexformat}.
+The experiment uses MiKTeX pdf\LaTeX{} on a plain article and a synthetic
+article that loads TikZ libraries, amsmath, geometry and hyperref. Each format
+comes from a seed document with the same preamble and a different body. Both
+arms build the same revised source twice in fresh directories with empty
+auxiliary state. One warm-up pair precedes five measured pairs per fixture,
+with alternating arm order. Timings cover the two compiler processes, and
+format generation is measured separately.
+
+\begin{table}[htbp]
+\small\centering
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Fixture & Standard & Preloaded & Paired saving & Dump\\
+\midrule
+Plain article & 743 & 717 & 44 & 318\\
+TikZ article & 1722 & 852 & 830 & 907\\
+\bottomrule
+\end{tabular}
+\caption{Preamble feasibility, milliseconds. Build times and paired savings
+are medians over five measured pairs per fixture. Dump gives the one-time
+format generation interval.}
+\label{tab:preamble-feasibility}
+\end{table}
+
+All ten measured pairs match extracted text, character geometry, full-page
+96 DPI rasters and link rectangles and destinations. The initial SyncTeX
+command used a relative source path, and the installed client found no tag
+in either arm. A separate check of the retained files uses their recorded
+absolute source paths. It matches the queried forward geometry and reverse
+source line in all ten measured pairs, without rerunning the timing trials.
+
+The format files occupy 13.4 and 16.9 MB. In the TikZ fixture, the final-pass
+recorder lists 131 distinct input paths in the standard arm and 20 in the
+preloaded arm. Package inputs consumed while dumping the format are therefore
+part of the dependency inventory even if a later pass omits them. In the
+invalidation control, a changed preamble macro prints \texttt{Revised} in a
+standard build and \texttt{Original} with the stale format. Any production
+reuse must bind preamble and dependency identity across both stages. These
+small repeated observations describe one installed engine and two fixtures.
+They exclude the desktop pipeline and do not establish broader package,
+engine or SyncTeX equivalence. Texloom's normal builds use the standard
+compiler format.
+
+\subsection{Engine identification across project switches}
+
+The earlier optimization remembered one compiler identification. When a user
+switched projects or compiler commands, a successful build replaced that
+entry. An in-memory cache now retains up to eight recently successful project
+and command pairs. A match requires the same executable path, fingerprint and
+version-affecting environment. The build consumes the entry and returns it to
+the cache only after success. It executes every TeX pass and checks the
+runtime banner, dependencies and build outputs.
+
+The paired native workload alternates two independent synthetic projects
+under each MiKTeX engine. It compares retained identification with a fresh
+version probe, changing arm order by trial. Each project has one warm-up pair
+and five measured pairs per engine. The medians of the paired savings for the
+two projects are 151 and 326 ms for pdf\LaTeX{}, 361 and 286 ms for
+Xe\LaTeX{}, and 254 and 324 ms for Lua\LaTeX{}. All 36 pairs, including the
+warm-ups, match text, character geometry, 96 DPI rasters, pass count, engine
+arguments and recorded dependency identities. The source bytes remain
+unchanged. The 30 measured pairs represent repeated native runs on one host.
+These intervals exclude editor work, IPC and PDF presentation. The aggregate
+observations and evidence identities are recorded in
+\path{docs/evidence/compile-followup-2026-11-18.json}.

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {prepareLongPDF} from '../web/core/long-pdf.js';
 import {PDFSearch,pdfSearchKey,pdfSearchRange} from '../web/core/pdf-search.js';
 import {capturePDFScrollAnchor,restorePDFScrollAnchor} from '../web/core/pdf-surface.js';
+import {preparePagedPDF} from '../web/core/pdf-page-view.js';
 function element(){return {children:[],dataset:{},style:{setProperty(){}},classList:{add(){},remove(){}},setAttribute(){},append(...items){this.children.push(...items)},replaceChildren(...items){this.children=items},contains:()=>false,getContext:()=>({}),scrollIntoView(){this.scrolled=true},querySelectorAll:()=>[]};}
 test('zoom preserves the page and fraction at the reading viewport center',()=>{
  const scroller={scrollTop:74000,getBoundingClientRect:()=>({top:200,bottom:800})};
@@ -16,13 +17,73 @@ test('zoom preserves the page and fraction at the reading viewport center',()=>{
  elements.pages.children=[];assert.equal(capturePDFScrollAnchor(elements),null);
 });
 const fakeViewer={AnnotationMode:{ENABLE:1},SimpleLinkService:class{},
- EventBus:class{constructor(){this.events=new Map()}on(n,fn){this.events.set(n,fn)}off(n){this.events.delete(n)}},
+ EventBus:class{
+  constructor(){this.events=new Map()}
+  on(n,fn){if(!this.events.has(n))this.events.set(n,new Set());this.events.get(n).add(fn)}
+  off(n,fn){this.events.get(n)?.delete(fn)}
+  dispatch(n,event){for(const fn of this.events.get(n)||[])fn(event)}
+ },
  PDFPageView:class{
   constructor(o){this.o=o;this.div=element();this.viewport=o.defaultViewport;this.renderingState=0;o.container.append(this.div)}
   setPdfPage(p){this.page=p}update(){this.renderingState=0}reset(){this.div.replaceChildren();this.renderingState=0}
-  async draw(){await this.page.render().promise;this.div.append(element());this.renderingState=3;this.o.eventBus.events.get('textlayerrendered')?.({source:this})}
+  async draw(){await this.page.render().promise;this.div.append(element());this.renderingState=3;this.o.eventBus.dispatch('textlayerrendered',{source:this})}
   destroy(){this.reset()}
  }};
+function deferredPDF(){
+ const started=[],paint=new Map();
+ const pdf={numPages:3,getPage:async number=>({
+  getViewport:({scale})=>({width:300*scale,height:400*scale}),
+  render(){
+   started.push(number);
+   return {promise:new Promise((resolve,reject)=>paint.set(number,{resolve,reject}))};
+  }
+ })};
+ return {pdf,started,paint};
+}
+function withFakeDOM(t){
+ const previous=globalThis.document;
+ globalThis.document={createElement:element,createDocumentFragment:element,getSelection:()=>null};
+ t.after(()=>{globalThis.document=previous});
+}
+function nextTurn(){return new Promise(setImmediate)}
+
+test('a short PDF overlaps two page jobs and waits for every page to finish',async t=>{
+ withFakeDOM(t);
+ const {pdf,started,paint}=deferredPDF();
+ const preparation=preparePagedPDF(fakeViewer,pdf,{}, {width:400});
+ let prepared=false;
+ preparation.then(()=>{prepared=true},()=>{});
+ await nextTurn();
+ assert.deepEqual(started,[1,2]);
+ paint.get(2).resolve();
+ await nextTurn();
+ assert.deepEqual(started,[1,2,3]);
+ paint.get(3).resolve();
+ await nextTurn();
+ assert.equal(prepared,false);
+ paint.get(1).resolve();
+ const view=await preparation;
+ assert.ok(view.pages.every(item=>item.pageView.div.children.length===1));
+ view.dispose();
+});
+
+test('a failed short-view paint disposes the overlapping and queued work',async t=>{
+ withFakeDOM(t);
+ const {pdf,started,paint}=deferredPDF();
+ let destroyed=0;
+ const viewer={...fakeViewer,PDFPageView:class extends fakeViewer.PDFPageView{
+  destroy(){destroyed++;super.destroy()}
+ }};
+ const preparation=preparePagedPDF(viewer,pdf,{}, {width:400});
+ await nextTurn();
+ assert.deepEqual(started,[1,2]);
+ const rejected=assert.rejects(preparation,/synthetic page failure/);
+ paint.get(2).reject(Error('synthetic page failure'));
+ await rejected;
+ assert.equal(destroyed,3);
+ assert.deepEqual(started,[1,2]);
+});
+
 test('a 100-page view paints on demand, evicts old canvases and disposes without destroying the shared PDF',async()=>{
  const previous=globalThis.document;let painted=0,destroyed=0;globalThis.document={createElement:element,createDocumentFragment:element,getSelection:()=>null};globalThis.devicePixelRatio=1;
  const pdf={numPages:100,destroy(){destroyed++},getPage:async number=>({getViewport:({scale})=>({width:300*scale,height:400*scale}),getTextContent:async()=>({items:[{str:'Page '+number}]}),render(){painted++;return {promise:Promise.resolve(),cancel(){}}}})};

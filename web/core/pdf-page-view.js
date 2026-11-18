@@ -28,14 +28,14 @@ export function restorePDFZoomAnchor(scroller,anchor){
   scroller.scrollTop+=rect.top+py-y;
 }
 
-/** Short candidate views still paint completely before publication. Reading
- * views use the same page renderer with a two-job queue and six-page cache. */
+/** Both view types share a two-job queue. Short views finish painting before
+ * publication. Long reading views paint on demand with a six-page cache. */
 export async function preparePagedPDF(pdfjs,pdf,result,{width,zoom=0,mode='select',signal,readingOnly=false,geometry=null}={}){
   if(pdf.numPages>5000)throw Error('This PDF exceeds the 5,000-page reading limit. Source editing is available.');
   const first=await pdf.getPage(1),scale=zoom||Math.max(0.2,Math.min(1.5,(width-48)/first.getViewport({scale:1}).width));
   const fragment=document.createDocumentFragment(),pages=[],pageSizes=new Map(),objects=new Map(),unclosed=new Set();
   const bus=new pdfjs.EventBus(),cache=new Map(),running=new Map(),waiting=new Map(),queue=[],visible=new Set();
-  let disposed=false,observer=null,scroller=null,notify=()=>{},clock=0,version=0,zooming=false;
+  let disposed=false,observer=null,scroller=null,notify=()=>{},clock=0,version=0,zooming=false,preparing=true;
   const view={pdf,result,fragment,pages,objects,unclosed,pageSizes,pageCount:pdf.numPages,scale,mode,
     lazy:readingOnly,ensurePage,mount,dispose,zoomTo,finishZoom,prepareSelectionProof};
   const check=()=>{if(disposed||signal?.aborted)throw Error('PDF view was closed.')};
@@ -70,8 +70,8 @@ export async function preparePagedPDF(pdfjs,pdf,result,{width,zoom=0,mode='selec
     }
     // A rejected candidate never replaces the visible accepted view.
     if(readingOnly)await ensurePage(1);
-    else for(const item of pages)await ensurePage(item.number);
-    check();return view;
+    else await Promise.all(pages.map(item=>ensurePage(item.number)));
+    check();preparing=false;return view;
   }catch(error){dispose();throw error}
 
   async function paint(item,atVersion){
@@ -100,7 +100,12 @@ export async function preparePagedPDF(pdfjs,pdf,result,{width,zoom=0,mode='selec
       const work=queue.shift();if(work.version!==version){work.reject(Error('PDF rendering was superseded.'));continue}
       if(running.has(work.number)){queue.unshift(work);return}
       running.set(work.number,{});
-      paint(pages[work.number-1],work.version).then(work.resolve,work.reject).finally(()=>{running.delete(work.number);evict();pump()});
+      paint(pages[work.number-1],work.version).then(work.resolve,error=>{
+        work.reject(error);
+        // During initial preparation one failed page invalidates the whole view.
+        // Stop its other jobs before the queue can start the next page.
+        if(preparing)dispose();
+      }).finally(()=>{running.delete(work.number);evict();pump()});
     }
   }
   function ensurePage(number){

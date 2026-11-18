@@ -1,0 +1,148 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-18T18:37:18.733844+00:00",
+  "kind": "compile_optimization_development_evidence",
+  "implementation_base": "dc5081dc34ae025a7ea3aca9835b89ec8adea733",
+  "source_sha256": {
+    "crates/texloom-build/src/engine.rs": "9348a9f12d335b2de835c237940316f4432847df657e0639c9f7780abf34e779",
+    "crates/texloom-build/examples/compile_profile.rs": "538a15176d45df5606d2e58bd7df0e028a3af02e81585c9edcce7860618d081f"
+  },
+  "auxiliary_reuse": {
+    "evidence_zip": {
+      "file": "Texloom-auxiliary-reuse-contract-control-20261116.zip",
+      "bytes": 129632,
+      "sha256": "1802cbc1e8462ba9b1318723ee281a3bcc16eb67a3dd377f2bea11060082fcb6"
+    },
+    "engines": [
+      "pdflatex",
+      "xelatex",
+      "lualatex"
+    ],
+    "same_new_source": true,
+    "state_and_output_stable_within_each_arm": true,
+    "clean_text": "Branch A.",
+    "seeded_text": "Branch B."
+  },
+  "preamble": {
+    "protocol_sha256": "ee0257e781824e57760b2b9ef429c60700c7d7fef049d710bd628f7054c58d33",
+    "harness_sha256": "c4f3cd493843fa50744c1f88f271b4011988ace4255df86c537348dfdd5ad2ed",
+    "driver_sha256": "7c5e49e537c901d653ac702417b88fa368ca2756e1dbb44f8e165639d7e4d5dc",
+    "raw_report_sha256": "dd1fc926f9a368e735cc3b1fca8a663ddff24b8b5a76684a5d18e0b03d68ffa5",
+    "absolute_path_mapping_recheck_sha256": "ba7542b054986e41b4b3d77c93e621ed3683546cd956c6eda04298d1b975f758",
+    "fixtures": {
+      "plain": {
+        "completed_measured_pairs": 5,
+        "standard_median_seconds": 0.7428479000009247,
+        "preloaded_median_seconds": 0.7167737999989185,
+        "paired_saving_median_seconds": 0.044086499998229556,
+        "equal_pdf_pairs": 5,
+        "equal_mapping_pairs": 0,
+        "dump_seconds": 0.3178131999957259,
+        "format_bytes": 13377416,
+        "format_sha256": "6a9c6cdcc400d5c29d9d8ea95459b181867bb5c5e7d159445d54cfed32e23b95",
+        "corrected_synctex_pairs": 5,
+        "representative_final_pass_unique_inputs": {
+          "standard": 9,
+          "preloaded": 7
+        }
+      },
+      "tikz": {
+        "completed_measured_pairs": 5,
+        "standard_median_seconds": 1.7221109000020078,
+        "preloaded_median_seconds": 0.8520686000047135,
+        "paired_saving_median_seconds": 0.8295184999951744,
+        "equal_pdf_pairs": 5,
+        "equal_mapping_pairs": 0,
+        "dump_seconds": 0.907203999995545,
+        "format_bytes": 16947714,
+        "format_sha256": "76448231a845774970805f2430f31831cbb2f1f0a4f8125ea661d0dc4035a908",
+        "corrected_synctex_pairs": 5,
+        "representative_final_pass_unique_inputs": {
+          "standard": 131,
+          "preloaded": 20
+        }
+      }
+    },
+    "stale_format_control": {
+      "changed_macro": "Revised",
+      "standard": "Revised",
+      "preloaded": "Original"
+    },
+    "scope": "Synthetic pdfLaTeX feasibility with two standard or preloaded passes. Relative SyncTeX path failures remain in the raw record, and the separate absolute path recheck uses the same artifacts. Formats remain in local raw directories. Production format reuse is disabled."
+  },
+  "profile_retention": {
+    "protocol_sha256": "ba16d60d937b62e249da1b62d551e98c02de48f7effa8f62141b9078676e312b",
+    "comparison_script_sha256": "54cfd7f0d742956bebbc25f08e0a6a2d3b8e42edd44cd3d21a160d5a9dc97526",
+    "pymupdf": "1.27.2.2",
+    "runs": {
+      "pdflatex": {
+        "raw_sha256": "21806d439dc25e38b39b3f614499d9513e09b2e48f4f76512a0bbdcd81c55af2",
+        "pdf_receipt_equivalent_pairs": 12,
+        "version": "MiKTeX-pdfTeX 4.23 (MiKTeX 25.12)\n\u00a9 1982 D. E. Knuth, \u00a9 1996-2025 H\u00e0n Th\u1ebf Th\u00e0nh\nTeX is a trademark of the American Mathematical Society.",
+        "projects": {
+          "alpha": {
+            "pairs": 5,
+            "median_fresh_seconds": 0.9816325,
+            "median_retained_seconds": 0.8259094,
+            "median_paired_saving_seconds": 0.15062620000000004
+          },
+          "beta": {
+            "pairs": 5,
+            "median_fresh_seconds": 1.0479285,
+            "median_retained_seconds": 0.7225855,
+            "median_paired_saving_seconds": 0.326118
+          }
+        }
+      },
+      "xelatex": {
+        "raw_sha256": "45f0f6eb33e5eb1061d0765b8abbe432d99342d5471ce1c75eb4c2ca976a9620",
+        "pdf_receipt_equivalent_pairs": 12,
+        "version": "MiKTeX-XeTeX 4.16 (MiKTeX 25.12)\n\u00a9 1994-2008 SIL International, \u00a9 2009-2023 Jonathan Kew, \u00a9 2010-2012 H\u00e0n Th\u1ebf Th\u00e0nh, \u00a9 2012-2013 Khaled Hosny\nTeX is a trademark of the American Mathematical Society",
+        "projects": {
+          "alpha": {
+            "pairs": 5,
+            "median_fresh_seconds": 1.8071757000000002,
+            "median_retained_seconds": 1.4606051,
+            "median_paired_saving_seconds": 0.3608774000000001
+          },
+          "beta": {
+            "pairs": 5,
+            "median_fresh_seconds": 1.7009216,
+            "median_retained_seconds": 1.4609922,
+            "median_paired_saving_seconds": 0.28637749999999995
+          }
+        }
+      },
+      "lualatex": {
+        "raw_sha256": "e4c3e069b07f6dc983fd5c9a0900ed38931af238afb966b7f0e8d860b56e3bf1",
+        "pdf_receipt_equivalent_pairs": 12,
+        "version": "This is LuaHBTeX, Version 1.24.0 (MiKTeX 25.12)\nDevelopment id: 7707\n",
+        "projects": {
+          "alpha": {
+            "pairs": 5,
+            "median_fresh_seconds": 1.9583865,
+            "median_retained_seconds": 1.6685348,
+            "median_paired_saving_seconds": 0.2544360000000001
+          },
+          "beta": {
+            "pairs": 5,
+            "median_fresh_seconds": 1.9330346,
+            "median_retained_seconds": 1.6807162,
+            "median_paired_saving_seconds": 0.3237144999999999
+          }
+        }
+      }
+    }
+  },
+  "development_evidence": {
+    "file": "Texloom-compile-followup-evidence-20261118.zip",
+    "bytes": 4734166,
+    "sha256": "14decf744e8aec1e5c70b083efaa045347a5ede51be71711416fcb20ac7924cf",
+    "members": 1099
+  },
+  "constraints": [
+    "Native or compiler subprocess timing only",
+    "Repeated observations on one host",
+    "Production preamble and auxiliary reuse policy kept separate from the bounded identification cache"
+  ]
+}

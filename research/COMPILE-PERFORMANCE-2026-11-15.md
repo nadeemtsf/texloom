@@ -73,3 +73,26 @@ another TeX implementation would require matching the document/engine
 matrix, installed packages, glyph positions and SyncTeX behavior.
 The raw observations and exact source identities are recorded in
 [the evidence receipt](../docs/evidence/compile-performance-2026-11-15.json).
+
+## 18 November follow-up
+
+The desktop now publishes a new PDF after the compiler settles. The
+first-pass observer remains available for experiments. The technical report
+records the three-engine auxiliary reuse counterexample, the pdfLaTeX
+preamble feasibility trial, and the paired compiler-identification results
+across alternating projects. [Compile follow-up evidence](../docs/evidence/compile-followup-2026-11-18.json)
+
+Short completed PDFs can prepare two pages at a time through the existing
+render queue. Every page still has to finish before the new view replaces
+the accepted view. An initial page failure cancels the rest of the
+candidate's queue.
+
+On one Windows host, headless Edge and PDF.js 6.2.108 prepared the six-page
+fixture in a median 43.6 ms, down from 61.4 ms. The twenty-page fixture
+took 108.4 ms, down from 184.2 ms. The median paired reductions were 17.5
+ms and 79.9 ms from five measured pairs per fixture. All twelve pairs,
+including warm-ups, matched complete canvas pixels, readable text, and
+line and text-run geometry. These timings cover offscreen preparation
+after PDF load. The final implementation passed 33 headless navigation
+checks at device scale factors 1, 1.5 and 2.
+[PDF preparation evidence](../docs/evidence/completed-pdf-paint-2026-11-18.json)
