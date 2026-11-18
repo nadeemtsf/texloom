@@ -1,0 +1,79 @@
+{
+  "schema": 1,
+  "kind": "completed_pdf_output_fingerprint",
+  "baseline_commit": "debd61b1b45fa6f3371da555f316f77c5685ead5",
+  "candidate_source_sha256": {
+    "crates/texloom-build/src/engine.rs": "5e246d2b17decced59c627a06d759a1e5006d5cb47ea07b295900154171bc88e",
+    "crates/texloom-build/src/snapshot.rs": "090560a99456b48b05c7e1285b7ff686d86fa9d7483b2bb63d4dddaf1f1bdc3d"
+  },
+  "protocol_sha256": "c38a1a977439806d47f4db1928d33ae6dc22c5cb2be94ff58d0f752eb609915a",
+  "harness_sha256": "1ef93d56c426bc7aae2974aa921c38cb2e3007abe74d4bb9fddc4cb9f1ac2a10",
+  "raw_sha256": "77293f366f5e2719f9ef3e8f559b16fb53107407372eea9d1517df7ec9f25090",
+  "comparison": {
+    "262144": {
+      "pairs": 9,
+      "old_median_ms": 0.3199,
+      "new_median_ms": 0.2508,
+      "paired_saving_median_ms": 0.06860000000000005,
+      "positive_pairs": 8,
+      "paired_saving_range_ms": [
+        -0.00040000000000001146,
+        0.1137
+      ]
+    },
+    "8388608": {
+      "pairs": 9,
+      "old_median_ms": 8.8232,
+      "new_median_ms": 7.4145,
+      "paired_saving_median_ms": 1.3878000000000004,
+      "positive_pairs": 9,
+      "paired_saving_range_ms": [
+        0.5620000000000003,
+        1.6269999999999998
+      ]
+    },
+    "33554432": {
+      "pairs": 9,
+      "old_median_ms": 35.607,
+      "new_median_ms": 29.5665,
+      "paired_saving_median_ms": 5.706900000000001,
+      "positive_pairs": 9,
+      "paired_saving_range_ms": [
+        3.873200000000004,
+        6.995100000000001
+      ]
+    },
+    "62914560": {
+      "pairs": 9,
+      "old_median_ms": 65.1566,
+      "new_median_ms": 54.417,
+      "paired_saving_median_ms": 10.293999999999997,
+      "positive_pairs": 9,
+      "paired_saving_range_ms": [
+        6.9136999999999915,
+        26.477800000000002
+      ]
+    }
+  },
+  "scope": "Release-mode Windows warm filesystem repeated pairs. Timed operation reads and hashes deterministic byte payloads. This excludes TeX, IPC and PDF preparation.",
+  "native": {
+    "matched_pairs": 18,
+    "engines": [
+      "pdflatex",
+      "xelatex",
+      "lualatex"
+    ],
+    "check": "Each manifest output matches SHA-256 and size. Text, character geometry, links, 96 DPI rasters, pass counts, and input identities match each baseline pair.",
+    "raw_sha256": "2da1a98319d594149f528f6831253cb2eaaedeec2cfd12c6b50c88ac67b839f5",
+    "baseline_exe_sha256": "5dff485a188b24b168fbb2de12817ead3573f921c7e05f3dc3e7ef5dfc416063",
+    "candidate_exe_sha256": "0e0c4d61bf338296b80085a4cfaa074ee9c6495c7ecfbf375413f607a3d5ab92",
+    "build_note": "The first shared-target candidate reused the baseline executable and was discarded before collecting observations. The candidate was rebuilt and the distinct hashes were verified."
+  },
+  "delivery_control": "Verified a same-length changed output after snapshot read is rejected by receipt verification; exact 60 MiB allowed and one byte more refused.",
+  "archive": {
+    "file": "Texloom-completed-PDF-identity-evidence-20261118.zip",
+    "bytes": 444856,
+    "members": 122,
+    "sha256": "23d670f6583e94964649d4ae705ab5a2a72b1c55dadcf4d5cc11b31656c63dd1"
+  }
+}

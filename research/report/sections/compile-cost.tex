@@ -305,3 +305,58 @@ The engine/build interval also varied. The three repeated pairs describe one
 fixture and exclude desktop transport and presentation.
 \path{docs/evidence/source-coordinate-mapping-2026-11-18.json} records
 source identities, observations and the earlier shared-load run.
+
+
+\subsection{Starting the renderer ahead of PDF loading}
+
+The desktop starts an empty PDF.js worker after dispatching an ordinary
+compile. The worker receives the PDF after the native build returns
+successfully for the current revision. An abandoned build releases any
+unused worker. Once adopted, the completed document owns its worker
+and releases it with its loading task.
+
+A headless comparison supplied the same PDF to a worker started at load
+or to a worker that had already completed its handshake. Both arms used
+the packaged PDF.js 6.2.108 worker asset served as a static JavaScript
+response. Seven measured pairs per size followed one warm-up pair.
+From load through complete offscreen preparation, the paired median
+reductions were 72.0~ms for six pages and 86.9~ms for twenty pages.
+All sixteen pairs matched readable text, full text geometry and canvas
+pixels. The implementation follow-up matched another sixteen pairs
+and refused the malformed PDF while retaining the accepted document.
+A separate six-cycle browser control closed all thirty-six workers.
+
+PDF.js's development asset URL took substantially longer to start.
+That condition is kept separate from the packaged asset. These comparisons
+provide a component estimate of work that might overlap with TeX. They
+do not measure native dispatch, worker startup cost while TeX is running,
+WebView resources or physical display.
+\path{docs/evidence/pdf-worker-startup-2026-11-18.json} identifies each
+run and its fixture.
+
+\subsection{Sealing the returned PDF}
+
+The build service used to read the completed PDF for delivery, then
+read the file again to compute the receipt fingerprint. The updated path
+bounds the read at the same 60~MiB limit and seals the receipt with the
+fingerprint of the returned bytes. Subsequent verification still checks
+the file against the receipt. A test replaces the file between delivery
+read and sealing, and the verification rejects the replacement. The
+delivery accepts exactly 60~MiB and rejects 60~MiB plus one byte.
+
+A release-mode component trial paired the original and revised read and
+hash sequences on deterministic files of 256~KiB, 8~MiB, 32~MiB and
+60~MiB. Nine measured pairs for each size followed one warm-up pair.
+Both paths matched the exact bytes and independent SHA-256 in all forty
+pairs. Median paired time reductions were 0.07, 1.39, 5.71 and 10.29~ms
+respectively. The result concerns repeated local file reads on a single
+host. It excludes TeX typesetting, dependency verification, binary
+delivery and PDF rendering.
+
+The production build control compared eighteen pairs across pdf\LaTeX{},
+Xe\LaTeX{} and Lua\LaTeX{}. It verified every recorded output fingerprint
+and matched source and input identities, pass counts, page text, character
+geometry, links and complete 96~DPI rasters. Reported times remain the
+read-and-hash component measurements.
+\path{docs/evidence/completed-pdf-output-identity-2026-11-18.json}
+binds the code and raw measurements.
