@@ -1,0 +1,109 @@
+{
+  "schema": 1,
+  "kind": "compile_source_preparation",
+  "implementation_base": "ce75129690679ea39bd70c70c3fd9964e19c6d76",
+  "implementation_sha256": {
+    "crates/texloom-core/src/objects.rs": "b4c54af6aeda12e128c7f2dfb707f26fb33151307e4a1934a3af3e7effa18ef8",
+    "src-tauri/src/service.rs": "ebb2004e2540d9f3bf2cd86aefb448e88900e02e5fc50948b85029ed68ba6339",
+    "src-tauri/src/service/document.rs": "39625bbed1eab9d34b95c68ff0ba05b93795ce49b4f5818969631427ee16af1b",
+    "src-tauri/src/service/layout_gate.rs": "a9484e99e189d8b47a9f2d2378e90745cf76b0f6da5c152ff7e6ff82af44ac65",
+    "tests/compile-preflight.test.mjs": "fcd2ad76f25f0ef1c183238f40900759b3387f7762b3eefbfe8b1e801fd4402c",
+    "tests/performance-diagnostics.test.mjs": "389d26321160c2dbd1e000cea53169d5d18b59e231863a1721e32631a0316fc3",
+    "web/app.js": "14379ac1677e681ad293198bbd8a1c288852b959c26c093eafba25ca65a65d46",
+    "web/core/transactions.js": "3c538e110375b2cb62fae134fb55f76934855c8b69ca2a824d6b9bcd099701ce"
+  },
+  "frontend": {
+    "scope": "Node entry-to-compile callback using the stage wrapper and doubles for native IPC, receipt verification and rendering.",
+    "node": "v25.2.1",
+    "raw_sha256": "8193c7e522a585494c9071983e0135dd6f4cfdeb07f90a328470979b9caa21c8",
+    "by_mib": {
+      "0": {
+        "pairs": 10,
+        "old_ms": 0.005550000000001276,
+        "next_ms": 0.000600000000000378,
+        "paired_saving_ms": 0.00420000000000087
+      },
+      "1": {
+        "pairs": 10,
+        "old_ms": 1.0805000000000007,
+        "next_ms": 0.0006999999999983686,
+        "paired_saving_ms": 1.0801499999999997
+      },
+      "8": {
+        "pairs": 10,
+        "old_ms": 12.806299999999993,
+        "next_ms": 0.0010999999999796728,
+        "paired_saving_ms": 12.803749999999994
+      },
+      "32": {
+        "pairs": 10,
+        "old_ms": 53.630949999999984,
+        "next_ms": 0.002200000000016189,
+        "paired_saving_ms": 53.629549999999995
+      }
+    }
+  },
+  "native_copy": {
+    "scope": "Optimized Rust map handoff and lookup, excluding destruction and typesetting.",
+    "raw_sha256": "ea11877d0abbc7653ac5d89c7f1c8c7c78f8e53bcc3a3ec77b8b8e6350b1af85",
+    "by_mib": {
+      "1": {
+        "pairs": 12,
+        "old_ms": 0.2338,
+        "new_ms": 0.0001,
+        "paired_saving_ms": 0.23375
+      },
+      "8": {
+        "pairs": 12,
+        "old_ms": 2.2051,
+        "new_ms": 0.0002,
+        "paired_saving_ms": 2.20495
+      },
+      "32": {
+        "pairs": 12,
+        "old_ms": 9.8925,
+        "new_ms": 0.00035,
+        "paired_saving_ms": 9.89235
+      }
+    }
+  },
+  "reused_text_preview": {
+    "scope": "Optimized Rust component parsing the main source and describing the same fragments.",
+    "raw_sha256": "c79993bc1d1ba9dc5f23f3f4c1912d54801ec708d7f4d60ad21cb93cba3cdb8f",
+    "by_objects": {
+      "1": {
+        "pairs": 9,
+        "baseline_median_ms": 0.0018,
+        "shared_median_ms": 0.002,
+        "median_paired_saving_ms": 0.0
+      },
+      "64": {
+        "pairs": 9,
+        "baseline_median_ms": 0.3631,
+        "shared_median_ms": 0.0491,
+        "median_paired_saving_ms": 0.3141
+      },
+      "256": {
+        "pairs": 9,
+        "baseline_median_ms": 16.6665,
+        "shared_median_ms": 0.1945,
+        "median_paired_saving_ms": 16.4609
+      }
+    }
+  },
+  "service_check": {
+    "engine": "pdflatex",
+    "passes": 2,
+    "mapped_objects": 3,
+    "sources": 2,
+    "expectation": "Verified main-file macro redefinition on main and included objects, no conversion for mixed formatting, exact Unicode/CRLF offsets, current build, source and revision preservation.",
+    "pdf_sha256": "61cbb84399e29fa892577cc028700e6020870d96e67837df27b8eeba5d7050a8",
+    "log_sha256": "96bd59dcf50cb31b8236d3b29c32f94dce4ac0d5e14c25ca0e5cd2f13af67a4d"
+  },
+  "evidence_archive": {
+    "name": "Texloom-compile-source-preparation-evidence-20261118.zip",
+    "sha256": "039dabd51a819f05394009cce6e0c54ea7cdc7f01767ffc150288f010b51c3e3",
+    "bytes": 51081,
+    "members": 18
+  }
+}

@@ -160,3 +160,29 @@ all 18 baseline and candidate PDF comparisons across the three engines
 and independently checked the output fingerprints. These tests isolate
 file-read and hash cost from TeX and presentation.
 [Output identity evidence](../docs/evidence/completed-pdf-output-identity-2026-11-18.json)
+
+
+## Source work around the native compile
+
+The frontend compile stage uses the current revision and candidate token.
+It no longer copies the source map into callbacks without source
+parameters. The native service retains an owned revision snapshot for
+the build and borrows it for compile. A private proof build constructs
+its request with the supplied proof sources. The metadata pass derives
+plain-text preview definitions once for all objects in the same build.
+
+A Node preflight diagnostic measured paired median dispatch savings of
+1.08 ms for 1 MiB, 12.80 ms for 8 MiB and 53.63 ms for 32 MiB. It
+measures the old double copy at the ordinary frontend entry point and
+uses native and rendering doubles. A separate optimized Rust copy
+diagnostic at the same three sizes saved 0.23, 2.20 and 9.89 ms. Neither
+time includes TeX execution.
+
+Reading the main source definitions once saved 16.46 ms on the
+256-object, 1 MiB metadata fixture. Both implementations returned the
+same text or supported refusal, including for redefined macros,
+mixed formatting and recursion. A headless two-file pdfLaTeX build
+verified three objects at their expected source positions, including
+a styled macro in an included source. The original files and draft
+revision were preserved.
+[Source preparation evidence](../docs/evidence/compile-source-preparation-2026-11-18.json)

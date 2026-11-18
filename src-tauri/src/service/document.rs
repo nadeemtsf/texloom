@@ -578,7 +578,7 @@ impl Backend {
         };
         // Preliminary output is never a visual candidate or verified export.
         let preview = if token.is_none() && purpose == "preview" { preview } else { None };
-        let result = self.compile_inner(request.clone(), &lease, preview)?;
+        let result = self.compile_inner(&request, &lease, preview)?;
         let approval = if result.ok && result.verification_eligible {
             plan.as_ref()
                 .map(|p| self.approve_layout(p, &request, &result, &lease))

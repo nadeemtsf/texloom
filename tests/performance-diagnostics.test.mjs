@@ -79,12 +79,12 @@ test('a clock discontinuity cannot produce a plausible presentation latency',()=
 
 test('candidate phases surround the real pipeline without granting failed candidates later phases',async()=>{
   const h=harness(),trace=h.diagnostics.begin('text-move');
-  const run=compile=>stageCandidate({sources:{'main.tex':'Synthetic'},revision:1,identity:'now',getIdentity:()=>'now',
+  const run=compile=>stageCandidate({revision:1,identity:'now',getIdentity:()=>'now',
     compile,prepare:async()=>({pdf:{destroy(){}},pageCount:1}),verify:async()=>{h.at(140)},trace});
-  const candidate=await run(async()=>{h.at(120);return {ok:true,revision:1}});assert.equal(candidate.result.ok,true);
+  const candidate=await run(async(...args)=>{assert.deepEqual(args,[]);h.at(120);return {ok:true,revision:1}});assert.equal(candidate.result.ok,true);
   trace.finish('published');assert.deepEqual(h.diagnostics.snapshot().records[0].phases.map(p=>p.name),['build-returned','pdf-prepared','frontend-validated','build-rechecked']);
   const failed=h.diagnostics.begin('text-move');
-  await assert.rejects(stageCandidate({sources:{'main.tex':'Synthetic'},revision:1,identity:'now',getIdentity:()=>'now',
+  await assert.rejects(stageCandidate({revision:1,identity:'now',getIdentity:()=>'now',
     compile:async()=>({ok:false,log:'! Synthetic error'}),prepare:async()=>assert.fail('Failed compilation reached preparation'),trace:failed}),{name:'CompilationFailure'});
   failed.finish('compile-failed');assert.deepEqual(h.diagnostics.snapshot().records[1].phases.map(p=>p.name),['build-returned']);
 });

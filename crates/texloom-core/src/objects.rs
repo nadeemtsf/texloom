@@ -305,10 +305,28 @@ fn plain_segment(source: &str, definitions: &[(String,String)], replacement: Opt
     Ok(replacement.map(super::escape_text).unwrap_or_else(||source.split_whitespace().collect::<Vec<_>>().join(" ")))
 }
 
-/// Plain editing is offered only when each logical line has a lossless style template.
+/// Definitions from the main document used to describe plain editable text.
+pub struct PlainTextPreview {
+    definitions: Vec<(String, String)>,
+}
+
+impl PlainTextPreview {
+    pub fn new(document: &str) -> Self {
+        Self { definitions: simple_definitions(document) }
+    }
+
+    /// Every logical line must have a lossless style template.
+    pub fn render(&self, fragment: &str) -> Option<String> {
+        let segments = forced_segments(fragment).ok()?;
+        let lines = segments.iter()
+            .map(|(range, _)| plain_segment(&fragment[range.clone()], &self.definitions, None, 0))
+            .collect::<Result<Vec<_>>>().ok()?;
+        Some(lines.join("\n"))
+    }
+}
+
 pub fn plain_text_preview(fragment: &str, document: &str) -> Option<String> {
-    let definitions=simple_definitions(document);
-    forced_segments(fragment).ok()?.iter().map(|(range,_)|plain_segment(&fragment[range.clone()],&definitions,None,0)).collect::<Result<Vec<_>>>().ok().map(|lines|lines.join("\n"))
+    PlainTextPreview::new(document).render(fragment)
 }
 
 pub fn replace_plain_text(fragment: &str, value: &str, document: &str) -> Result<String> {
