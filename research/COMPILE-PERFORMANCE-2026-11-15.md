@@ -96,3 +96,31 @@ line and text-run geometry. These timings cover offscreen preparation
 after PDF load. The final implementation passed 33 headless navigation
 checks at device scale factors 1, 1.5 and 2.
 [PDF preparation evidence](../docs/evidence/completed-pdf-paint-2026-11-18.json)
+
+## Source coordinate mapping follow-up
+
+The native compile service maps each legacy block and movable text object
+back to the UTF-16 offsets used by the editor. Previously it built a full
+projection for each range, then scanned the boundary list for each end. The
+service now creates one projection per file when it needs a range. The
+sorted boundary table supports binary search and retains the existing
+rules for BOMs, mixed newlines and astral characters.
+
+The projection-only comparison covered nine measured observations per
+condition. With 128 ranges in 64 KiB, the median was 50.31 ms for the old
+per-range setup, 4.23 ms with one shared projection and linear lookup, and
+0.26 ms with the shared sorted table. With 256 ranges in 1 MiB the medians
+were 2401.87, 137.28 and 6.01 ms. The 4 KiB, one-range case was about
+0.014 ms in both the original and final conditions. The offset and
+replacement checks matched for all 2,401 multilingual and newline
+combinations.
+
+Three alternating pairs through the normal native compile service used
+one 61,154-byte pdfLaTeX source containing 64 text objects and 64 legacy
+blocks. The median paired wall time reduction was 128 ms. After
+subtracting the engine/build interval, the median paired reduction was
+66 ms. The output fit on one page. Each pair matched the independently
+expected ranges, exact metadata, PDF text and character geometry, and
+all 96 DPI raster pixels. Original source and revision were preserved.
+These tests did not measure desktop transport or display latency.
+[Source coordinate evidence](../docs/evidence/source-coordinate-mapping-2026-11-18.json)
