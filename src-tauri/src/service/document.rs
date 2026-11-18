@@ -518,6 +518,17 @@ impl Backend {
         purpose: Option<&str>,
         sequence: u64,
     ) -> Result<CompileResult> {
+        self.compile_document_observed(id, revision, token, purpose, sequence, None)
+    }
+    pub fn compile_document_observed(
+        &self,
+        id: &str,
+        revision: u64,
+        token: Option<&str>,
+        purpose: Option<&str>,
+        sequence: u64,
+        preview: Option<&mut dyn FnMut(&str, texloom_build::engine::UnverifiedPreview)>,
+    ) -> Result<CompileResult> {
         let purpose = if token.is_some() {
             "visual"
         } else {
@@ -565,7 +576,9 @@ impl Backend {
                 )
             }
         };
-        let result = self.compile(request.clone(), &lease)?;
+        // Preliminary output is never a visual candidate or verified export.
+        let preview = if token.is_none() && purpose == "preview" { preview } else { None };
+        let result = self.compile_inner(request.clone(), &lease, preview)?;
         let approval = if result.ok && result.verification_eligible {
             plan.as_ref()
                 .map(|p| self.approve_layout(p, &request, &result, &lease))

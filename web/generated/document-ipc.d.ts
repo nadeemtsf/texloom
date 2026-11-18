@@ -76,6 +76,8 @@ export type MappedTextObject = { id: string, file: string, dx: number, dy: numbe
 
 export type CompileResult = { ok: boolean, build_id: string, revision: number, pdf: number[] | Uint8Array, blocks: Array<PositionedBlock>, objects: Array<MappedTextObject>, log: string, engine: string, seconds: number, verification_eligible: boolean, passes: number, diagnostics: Array<Diagnostic>, job_id: number, };
 
+export type UnverifiedCompilePreview = { schema: number, phase: "first_pass", project_id: string, revision: number, request_id: number, engine: string, seconds: number, diagnostics: Array<Diagnostic>, pdf: number[] | Uint8Array, };
+
 export type SourceLocation = { file: string, line: number, };
 
 export type SourceRectangle = { page: number, x: number, y: number, width: number, height: number, };

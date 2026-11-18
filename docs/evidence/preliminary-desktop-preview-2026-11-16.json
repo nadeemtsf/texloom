@@ -1,0 +1,81 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-11-15T22:36:18.448228+00:00",
+  "kind": "preliminary_desktop_preview_development",
+  "status": "component_checks_passed_full_gate_and_owner_acceptance_pending",
+  "implementation_base": "9c2df47358742b5e5c7b200b4d0e4668bb6159cc",
+  "protocol": "research/PRELIMINARY-DESKTOP-PREVIEW-PLAN.md",
+  "source_sha256": {
+    "frontend/protocol/build-protocol.ts": "c51a7f371dc958797978e13cf951c35729b38179092313ac411affadefca07da",
+    "src-tauri/Cargo.toml": "8c6fb4d37e51575b8016e645c54c88b4d4152a4ab3b041d783cf209819be8ce3",
+    "src-tauri/src/compile_transport.rs": "646e0882a51996b59e5ef5b545ca853ea2853d3f2eac1c73365c17cd9631170f",
+    "src-tauri/src/document_protocol/bindings.rs": "7761df40a139fa7da1516134c1fdfbf33b48f5fb2b8c039150c6d9174e923948",
+    "src-tauri/src/lib.rs": "3cdcd742de7740b1af7455e820d68f04d05068b90b03037611c8b20b824e6718",
+    "src-tauri/src/service.rs": "025a2f101c610f1f9596f5d436ee83fe773bce63845adacc1ccd23ee1ec246df",
+    "src-tauri/src/service/document.rs": "c2ea2ed1c6a624c6afdacf4e6b0b6cc9b0aa41e1bc6faf338856d31c0ff31465",
+    "src-tauri/examples/first_preview_transport_development.rs": "e337c7179fea4f4fda0f0573dfcadc0dd4f75687d36b6059bf878faec8e8af83",
+    "tests/app-startup.test.mjs": "412a823bdb928ac776e87c7020b18403f2b01879be61b85336474ce6b6b6c6a5",
+    "tests/transactions.test.cjs": "0fc930439be5462d080220678a589987e37c5df045799f1ddb6e03bb9a1b73ed",
+    "tests/compile-progress.test.mjs": "a2500eeb56754b911fc73ee9efb8b93231542cb7346f0e10845d03015db9c991",
+    "tests/pdf-document.test.mjs": "e3a26326856bd4dc5bc961caf213a0581717af8253679da16eb0768f909076f9",
+    "tests/fixtures/document-ipc.json": "2da9d9d9273524f728f08fc8b7e3dae1293eb0e7609d97217842ce0bc8576353",
+    "web/app.js": "914ea0e51b74e167c02944f91e4181a2d57ecbf2e98963f25ee5d5427907c36d",
+    "web/core/build-protocol.js": "b38483b265dcc169f7f9d5ac0a41695015d5aa086787d61d755e73d2bce65ec5",
+    "web/core/compile-progress.js": "dffd84635eeb9d5084232f56bcbbe50d5aeab8b177c798265f286040768cc6c9",
+    "web/core/preliminary-preview.js": "7d4cb592e1d287d4c4b3363718da6566806f73edf6684da47421f87288338352",
+    "web/core/preliminary-pdf.js": "c8930a4a4e85ba3e59f12de8208406555e2f1264c6fc7a5edc96e85862454ebf",
+    "web/generated/document-ipc.d.ts": "e5a3e8ef77e4c6ade6ae5e471fc3af16442ae5a85f7f509b6618d0322d21f348",
+    "web/style.css": "be6ee6b6c67735ff822b8fbc2923c50e8dcfbf9c0689c583ea4d3ccd2eb62ee8",
+    "research/PRELIMINARY-DESKTOP-PREVIEW-PLAN.md": "441e7dfabc2552a9175a61b53ee48e62e23d7c6c558ccd5de93c370e10bd1191",
+    "research/PRELIMINARY-DESKTOP-PREVIEW-2026-11-16.md": "a213bfd2a0af7a7b931d665d146bfe84b1ae6ba2e22a8eccd6df23631f56cde1",
+    "docs/MANUAL-PRELIMINARY-PREVIEW-2026-11-16.md": "bfc633ab782fa61581a21c6e3bbe1d49791f93a0ef47935ff5c56518d42e70f8"
+  },
+  "logs_sha256": {
+    "artifacts/compile-20261115/first-preview-spike/desktop-typegen.log": "4724ef7563a906a132b3190de55e9d3e4b82e59fbd089e91d577703a0785a908",
+    "artifacts/compile-20261115/first-preview-spike/desktop-typegen-final.log": "134a34f01f0e40cf551dbbaa0ccbd5a792dc584bdb92b6d17f46d52b493113e9",
+    "artifacts/compile-20261115/first-preview-spike/desktop-focused.log": "74cfc03d84bd1a2818d4cd9dbcb3257cb3cab167e18f5f9e98d73a0b4768eb32",
+    "artifacts/compile-20261115/first-preview-spike/desktop-shell.log": "09550549b4e525432fb762084bbcdbf54c74bfb11d7658dd7531b578ed524344",
+    "artifacts/compile-20261115/first-preview-spike/desktop-shell-final.log": "a0047fc76eb92f5ec93c576bc37dd1b2173c1504f2bebe23915490212e9c7324",
+    "artifacts/compile-20261115/first-preview-spike/desktop-all-tests.log": "cd001fd267192fd43172f808f4c65606d06dc3e3b3981b93d4ba70e1c39f785d",
+    "artifacts/compile-20261115/first-preview-spike/desktop-all-final-tests.log": "447ded2ac6420065b0a9c497671287c6b07b4bf0139a44218d299f93b4cf5299",
+    "artifacts/compile-20261115/first-preview-spike/desktop-native.log": "23e299f9137a716f5cddc9a06702253803f9114368601d5ca43d6d917b5d7f90"
+  },
+  "frontend_tests": {
+    "passed": 351,
+    "failed": 0,
+    "skipped": 0
+  },
+  "native_routing": {
+    "engine": "pdflatex",
+    "events": [
+      {
+        "bytes": 15463,
+        "engine": "pdflatex",
+        "seconds": 1.1920478
+      }
+    ],
+    "export_events": 0,
+    "final_build_id": "b20f487821c042868dfaa49eb9e6b51d",
+    "kind": "headless_native_preview_routing",
+    "passes": 2,
+    "schema": 1,
+    "scope": "Native service calls; no Tauri dispatch or physical/native UI acceptance",
+    "source_history_and_original_preserved": true,
+    "visual_events": 0
+  },
+  "native_pdf_comparison": {
+    "equal_text_and_all_page_pixels": true,
+    "pages": 1
+  },
+  "native_outputs_sha256": {
+    "final.pdf": "01d14b9aa4dc8390298e7e9d6a1aee1a0d315cc600fdec3ea0978b49ea8836a0",
+    "first-pass.pdf": "8c7480a8a20eb0be6dbd3d0674fcd7395fe9d1e619038da0c96ca4c815490c84"
+  },
+  "owner_check": "docs/MANUAL-PRELIMINARY-PREVIEW-2026-11-16.md",
+  "scope_limits": [
+    "No actual native window, physical input, installation or presentation timing",
+    "Owner acceptance required for this new visible feature before merge",
+    "Only current-page provisional image; settled PDF retains full reading/editing authority",
+    "Latest compiled technical report remains v19 at the earlier observer checkpoint"
+  ]
+}

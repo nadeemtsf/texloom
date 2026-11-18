@@ -43,6 +43,7 @@ pub fn declarations() -> String {
         PositionedBlock,
         MappedTextObject,
         CompileResult,
+        crate::compile_transport::UnverifiedCompilePreview,
         SourceLocation,
         SourceRectangle,
         BuildPurpose,
@@ -170,9 +171,18 @@ pub fn fixtures() -> Value {
     };
     let binary_logical = serde_json::to_value(&binary_result).unwrap();
     let binary_reply = crate::compile_transport::encode(binary_result).unwrap();
+    let preview = crate::compile_transport::UnverifiedCompilePreview {
+        schema: 1, phase: "first_pass", project_id: "project".into(), revision: 7,
+        request_id: 1, engine: "pdflatex".into(), seconds: 0.1, diagnostics: vec![],
+        pdf: b"%PDF-1.7\n".to_vec(),
+    };
+    let preview_logical = serde_json::to_value(&preview).unwrap();
+    let preview_binary = crate::compile_transport::encode_preview(preview).unwrap();
     json!({
         "compile_binary_logical": binary_logical,
         "compile_binary_reply": binary_reply,
+        "compile_preview_logical": preview_logical,
+        "compile_preview_binary": preview_binary,
         "source_draft_refusals": refusals,
         "snapshot": DocumentSnapshot { revision: 7,
             sources: BTreeMap::from([("main.tex".into(), "\u{feff}A\r\n\u{1f600}\r\n".into()), ("style.sty".into(), "% keep\r\n".into())]),

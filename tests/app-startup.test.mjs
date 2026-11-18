@@ -15,20 +15,76 @@ import {installPerformanceDiagnostics,performanceOutcome} from '../web/core/perf
 import {SourceHighlight,selectionSourceRange} from '../web/core/source-highlight.js';
 import {applyTextInputAppearance,renderProtectedCommands} from '../web/core/text-input-appearance.js';
 import {positionDialogNear,clearDialogPosition} from '../web/core/dialog-anchor.js';
+import {createCompileInvoke} from '../web/core/compile-progress.js';
+import {PreliminaryPreview} from '../web/core/preliminary-preview.js';
+import {PreliminaryPDFSurface,renderPreliminaryPDF} from '../web/core/preliminary-pdf.js';
+import {acceptUnverifiedPreview} from '../web/core/build-protocol.js';
 
 const [app,html]=await Promise.all(['app.js','index.html'].map(name=>readFile(new URL('../web/'+name,import.meta.url),'utf8')));
+const tick=()=>new Promise(setImmediate);
+const finalReply={ok:true,build_id:'settled',revision:0,pdf:[37,80,68,70,45],blocks:[],objects:[],log:'',engine:'pdflatex',
+ seconds:1,verification_eligible:true,passes:2,diagnostics:[],job_id:1};
+function sendPreliminary(t){
+ const args=t.context.progressRequest;
+ args.onPreview.onmessage({schema:1,phase:'first_pass',project_id:args.projectId,revision:args.revision,
+  request_id:args.requestId,engine:'pdflatex',seconds:.1,diagnostics:[],pdf:[37,80,68,70,45]});
+}
+
+test('the shipped shell requests and publishes only a settled PDF',async()=>{
+ const t=boot({deferCompile:true});await tick();
+ const state=t.context.shell.state;
+ assert.equal(t.context.shell.preliminary,null);
+ assert.equal(t.context.progressRequest.purpose,'preview');
+ assert.equal(Object.hasOwn(t.context.progressRequest,'onPreview'),false);
+ assert.equal(state.pdf,null);
+ assert.equal(t.elements.get('pages').inert,false);
+ t.context.finishCompile(structuredClone(finalReply));await t.context.startup;
+ assert.equal(state.result.build_id,'settled');
+ assert.equal(state.compiled,0);
+ assert.equal(t.context.temporaryRenders,0);
+ assert.equal(t.calls.some(([name])=>name==='verify_build'),true);
+});
+
+test('the experimental shell keeps preliminary bytes out of settled state, pinning and verification until final publication',async()=>{
+ const t=boot({deferCompile:true,enablePreliminary:true});await tick();sendPreliminary(t);await tick();
+ const state=t.context.shell.state;
+ assert.equal(t.context.shell.preliminary.visible,true);assert.equal(state.result,null);assert.equal(state.pdf,null);assert.equal(state.compiled,-1);
+ assert.equal(t.elements.get('pages').inert,true);assert.equal(t.elements.get('export').disabled,true);
+ assert.equal(t.calls.some(([name])=>['verify_build','pin_displayed_build'].includes(name)),false);
+ const late=t.context.progressRequest.onPreview.onmessage;
+ t.context.finishCompile(structuredClone(finalReply));await t.context.startup;
+ assert.equal(state.result.build_id,'settled');assert.equal(state.compiled,0);assert.equal(t.context.shell.preliminary.visible,false);
+ assert.equal(t.context.temporaryDisposals,1);assert.equal(t.elements.get('pages').inert,false);
+ assert.equal(t.calls.some(([name])=>name==='verify_build'),true);
+ late({});await tick();assert.equal(t.context.temporaryRenders,1);
+});
+
+test('a later compiler failure clears the preliminary view and retains the earlier PDF and source',async()=>{
+ const t=boot({deferCompile:true,enablePreliminary:true});await tick();const state=t.context.shell.state;
+ const previous={destroy(){throw Error('The earlier PDF must remain alive')}};
+ state.pdf=previous;state.result={...finalReply,build_id:'earlier'};state.compiled=0;
+ const sources={...state.sources};sendPreliminary(t);await tick();
+ assert.equal(t.context.shell.preliminary.visible,true);
+ t.context.failCompile(Error('Synthetic later pass failed'));await t.context.startup;
+ assert.equal(state.pdf,previous);assert.equal(state.result.build_id,'earlier');assert.deepEqual({...state.sources},sources);
+ assert.equal(t.context.temporaryDisposals,1);assert.equal(t.elements.get('pages').inert,false);
+ assert.match(t.elements.get('banner').textContent,/Synthetic later pass failed/);
+});
 
 // Run the complete production shell. IDs come only from the shipped HTML;
 // looking up a missing control returns null, as it does in the actual WebView.
-function boot({markup=html,openFailure=null,pathFailure=null,badSnapshot=false,adapterFailure=null}={}){
+function boot({markup=html,openFailure=null,pathFailure=null,badSnapshot=false,adapterFailure=null,deferCompile=false,enablePreliminary=false}={}){
   const calls=[],compileStates=[],elements=new Map(),options={},handlers={};
   function element(id=''){
-    const classes=new Set();
-    return {id,value:'',textContent:'',disabled:false,checked:false,open:false,children:[],style:{},
+    const classes=new Set(),attributes=new Map();
+    return {id,value:'',textContent:'',disabled:false,checked:false,open:false,children:[],style:{},inert:false,clientWidth:640,clientHeight:900,scrollTop:0,
       classList:{add:n=>classes.add(n),remove:n=>classes.delete(n),contains:n=>classes.has(n),
         toggle(n,force){const enabled=force??!classes.has(n);if(enabled)classes.add(n);else classes.delete(n);return enabled}},
-      setAttribute(){},addEventListener(){},replaceChildren(...children){this.children=children},
-      append(...children){this.children.push(...children)},focus(){},showModal(){this.open=true},close(){this.open=false}};
+      setAttribute(k,v){attributes.set(k,v)},getAttribute:k=>attributes.get(k)??null,removeAttribute:k=>attributes.delete(k),
+      addEventListener(){},replaceChildren(...children){this.children=children},
+      append(...children){for(const child of children)child.parentElement=this;this.children.push(...children)},
+      remove(){if(this.parentElement)this.parentElement.children=this.parentElement.children.filter(x=>x!==this)},
+      focus(){},showModal(){this.open=true},close(){this.open=false}};
   }
   for(const match of markup.matchAll(/\bid="([^"]+)"/g)){
     assert.ok(!elements.has(match[1]),'Duplicate HTML ID: '+match[1]);
@@ -42,11 +98,14 @@ function boot({markup=html,openFailure=null,pathFailure=null,badSnapshot=false,a
     onDidChangeModelContent(){},onDidChangeCursorPosition(){},onDidChangeCursorSelection(){},
     addAction(){},addCommand(){},getDomNode:()=>element(),getSelections:()=>[],hasTextFocus:()=>false};
   const context={...transactions,bindPDFScrolling,SourceHighlight,selectionSourceRange,applyTextInputAppearance,renderProtectedCommands,positionDialogNear,clearDialogPosition,DocumentClient,editorText,sameSources,TypingRecoveryController,CloseController,createWorkspaceInvoke,ProjectControls,PDFSearch,SetupHelp,installPerformanceDiagnostics,performanceOutcome,structuredClone,console,
+    createCompileInvoke,PreliminaryPreview,PreliminaryPDFSurface,renderPreliminaryPDF,acceptUnverifiedPreview,
+    capturePDFScrollAnchor:()=>null,
+    Channel:class{constructor(callback){this.onmessage=callback}},
     PDFPageView:class{},EventBus:class{},SimpleLinkService:class{},self:{},pdfjs:{GlobalWorkerOptions:{}},pdfWorkerURL:'test-worker',EditorWorker:class{},
     monaco:{languages:{register(){},setMonarchTokensProvider(){},setLanguageConfiguration(){}},
       editor:{defineTheme(){},createModel:()=>model,create:()=>editor,EndOfLineSequence:{LF:0}},
       KeyMod:{CtrlCmd:1,Shift:2},KeyCode:{KeyS:3,Enter:4,KeyZ:5,KeyY:6}},
-    CanvasController:class{clear(){}},
+    CanvasController:class{clear(){}bind(){}},
     document:{getElementById:id=>elements.get(id)||null,createElement:()=>element(),
       querySelectorAll:selector=>selector==='dialog[open]'?[...elements.values()].filter(e=>e.open):[],addEventListener:(name,fn)=>{handlers[name]=fn}},
     window:{addEventListener(){}},setTimeout:()=>1,clearTimeout(){},
@@ -63,11 +122,21 @@ function boot({markup=html,openFailure=null,pathFailure=null,badSnapshot=false,a
       if(name==='typing_drafts')return {drafts:[],errors:[]};
       if(name==='close_document')return {};
       if(name==='compile_document')compileStates.push({saving:context.shell.state.saving,opening:context.shell.state.opening,projectId:context.shell.state.project.id});
+      if(name==='compile_document'&&deferCompile){context.progressRequest=args;return new Promise((resolve,reject)=>{context.finishCompile=resolve;context.failCompile=reject})}
+      if(deferCompile&&['verify_build','pin_displayed_build','cancel_compilation'].includes(name))return null;
       if(name==='plan_adapter'&&adapterFailure)throw Error(adapterFailure);
       throw Error('Test compiler unavailable');
     }};
-  const script=app.replace(/^import .*;\r?$/gm,'').replace(/openProject\(\);\s*$/,'globalThis.startup = openProject();');
-  vm.runInNewContext(script+'\nglobalThis.shell={state,updateControls,applyLayoutControl,showFailure,projectControls};',context,{filename:'web/app.js'});
+  if(deferCompile){
+    context.temporaryDisposals=0;context.temporaryRenders=0;
+    context.location={href:'http://localhost/'};context.URL=URL;
+    context.renderPreliminaryPDF=async()=>{context.temporaryRenders++;return {canvas:element(),page:1,pageCount:1,dispose(){context.temporaryDisposals++}}};
+    context.preparePDFView=async()=>({pdf:{destroy:async()=>{}},fragment:element(),pageCount:1,scale:1,pages:[],dispose(){}});
+    context.publishPDFView=()=>{};
+  }
+  let script=app.replace(/^import .*;\r?$/gm,'').replace(/openProject\(\);\s*$/,'globalThis.startup = openProject();');
+  if(enablePreliminary)script=script.replace('const ENABLE_PRELIMINARY_PREVIEW = false;','const ENABLE_PRELIMINARY_PREVIEW = true;');
+  vm.runInNewContext(script+'\nglobalThis.shell={state,preliminary,updateControls,applyLayoutControl,showFailure,projectControls};',context,{filename:'web/app.js'});
   return {context,calls,compileStates,elements,options,model,handlers};
 }
 

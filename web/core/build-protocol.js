@@ -75,21 +75,8 @@ function assertCompilation(value, context) {
         integer(value.passes) && value.passes <= 6 && typeof value.engine === 'string' &&
         ['pdflatex', 'xelatex', 'lualatex'].includes(value.engine) &&
         (context.engine === 'auto' || context.engine === value.engine), 'Invalid compiler metadata');
-    require(Array.isArray(value.diagnostics), 'Invalid compiler diagnostics');
-    let errors = false;
-    for (const diagnostic of value.diagnostics) {
-        record(diagnostic, ['code', 'severity', 'message', 'file', 'line']);
-        require(typeof diagnostic.code === 'string' && diagnostic.code.length > 0 && typeof diagnostic.message === 'string' &&
-            typeof diagnostic.severity === 'string' && ['error', 'warning', 'info'].includes(diagnostic.severity) &&
-            (diagnostic.file === null || typeof diagnostic.file === 'string' && diagnostic.file.length > 0) &&
-            (diagnostic.line === null || integer(diagnostic.line, 1)), 'Invalid compiler diagnostic');
-        if (diagnostic.severity === 'error')
-            errors = true;
-    }
-    require((Array.isArray(value.pdf) || value.pdf instanceof Uint8Array) && value.pdf.length <= 60 * 1024 * 1024, 'Invalid compiled PDF bytes');
-    if (Array.isArray(value.pdf))
-        for (const byte of value.pdf)
-            require(integer(byte) && byte <= 255, 'Invalid compiled PDF bytes');
+    const errors = diagnosticErrors(value.diagnostics);
+    pdfBytes(value.pdf);
     require(Array.isArray(value.blocks) && Array.isArray(value.objects), 'Invalid compiled object inventory');
     if (!value.ok) {
         require(!value.verification_eligible && value.pdf.length === 0 && value.blocks.length === 0 && value.objects.length === 0, 'A failed compilation cannot supply PDF output or visual objects');
@@ -99,6 +86,30 @@ function assertCompilation(value, context) {
         require(value.passes > 0 && [37, 80, 68, 70, 45].every((byte, index) => pdf[index] === byte), 'Successful compilation has no PDF header');
     }
     require(!value.verification_eligible || value.ok && !errors, 'Invalid build verification eligibility');
+    assertInventory(value, context);
+}
+function diagnosticErrors(value) {
+    require(Array.isArray(value), 'Invalid compiler diagnostics');
+    let errors = false;
+    for (const diagnostic of value) {
+        record(diagnostic, ['code', 'severity', 'message', 'file', 'line']);
+        require(typeof diagnostic.code === 'string' && diagnostic.code.length > 0 && typeof diagnostic.message === 'string' &&
+            typeof diagnostic.severity === 'string' && ['error', 'warning', 'info'].includes(diagnostic.severity) &&
+            (diagnostic.file === null || typeof diagnostic.file === 'string' && diagnostic.file.length > 0) &&
+            (diagnostic.line === null || integer(diagnostic.line, 1)), 'Invalid compiler diagnostic');
+        if (diagnostic.severity === 'error')
+            errors = true;
+    }
+    return errors;
+}
+function pdfBytes(value) {
+    require((Array.isArray(value) || value instanceof Uint8Array) && value.length <= 60 * 1024 * 1024, 'Invalid compiled PDF bytes');
+    if (Array.isArray(value))
+        for (const byte of value)
+            require(integer(byte) && byte <= 255, 'Invalid compiled PDF bytes');
+}
+function assertInventory(value, context) {
+    require(Array.isArray(value.blocks) && Array.isArray(value.objects), 'Invalid compiled object inventory');
     const blockIds = new Set(), objectIds = new Set();
     for (const block of value.blocks) {
         record(block, ['id', 'file', 'page', 'x', 'y', 'width', 'size', 'content', 'height', 'start', 'end', 'line']);
@@ -115,6 +126,19 @@ function assertCompilation(value, context) {
         sourceRange(object, context.sources);
         require(finite(object.dx) && finite(object.dy) && (object.plain_text === null || typeof object.plain_text === 'string') && typeof object.content === 'string', 'Invalid text object metadata');
     }
+}
+export function acceptUnverifiedPreview(raw, context) {
+    const value = decodeCompilation(raw);
+    record(value, ['schema', 'phase', 'project_id', 'revision', 'request_id', 'engine', 'seconds', 'diagnostics', 'pdf']);
+    require(value.schema === 1 && value.phase === 'first_pass' && identity(value.project_id) &&
+        value.project_id === context.projectId && integer(value.revision) && value.revision === context.revision &&
+        integer(value.request_id, 1) && value.request_id === context.requestId, 'Invalid preliminary preview identity');
+    require(typeof value.engine === 'string' && ['pdflatex', 'xelatex', 'lualatex'].includes(value.engine) &&
+        (context.engine === 'auto' || value.engine === context.engine) && finite(value.seconds) && value.seconds >= 0, 'Invalid preliminary preview metadata');
+    diagnosticErrors(value.diagnostics);
+    pdfBytes(value.pdf);
+    require([37, 80, 68, 70, 45].every((byte, index) => value.pdf[index] === byte), 'Preliminary preview has no PDF header');
+    return value;
 }
 export function acceptSourceLocation(value, sources) {
     assertSourceLocation(value, sources);

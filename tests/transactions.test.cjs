@@ -11,6 +11,10 @@ async function setup({tracing=false,presentation=false}={}){
  const {TypingRecoveryController}=await import('../web/core/typing-recovery.js');
  const {CloseController}=await import('../web/core/close-controller.js');
  const {createWorkspaceInvoke}=await import('../web/core/workspace-protocol.js');
+ const {createCompileInvoke}=await import('../web/core/compile-progress.js');
+ const {PreliminaryPreview}=await import('../web/core/preliminary-preview.js');
+ const {PreliminaryPDFSurface,renderPreliminaryPDF}=await import('../web/core/preliminary-pdf.js');
+ const {acceptUnverifiedPreview}=await import('../web/core/build-protocol.js');
  const {ProjectControls}=await import('../web/core/project-controls.js');
  const {PDFSearch}=await import('../web/core/pdf-search.js');
  const {SetupHelp}=await import('../web/core/setup-help.js');
@@ -38,6 +42,8 @@ async function setup({tracing=false,presentation=false}={}){
   return {frame,listeners,original};
  }
  const context=vm.createContext({
+  createCompileInvoke,PreliminaryPreview,PreliminaryPDFSurface,renderPreliminaryPDF,acceptUnverifiedPreview,
+  capturePDFScrollAnchor:()=>null,Channel:class{constructor(callback){this.onmessage=callback}},
   ...transactions,...selectionProof,bindPDFScrolling,SourceHighlight,selectionSourceRange,applyTextInputAppearance,renderProtectedCommands,positionDialogNear,clearDialogPosition,validateSelectionProbe:(...args)=>control.prove?control.prove(...args):selectionProof.validateSelectionProbe(...args),DocumentClient,editorText,sameSources,TypingRecoveryController,CloseController,createWorkspaceInvoke,ProjectControls,PDFSearch,SetupHelp,installPerformanceDiagnostics,performanceOutcome,initialSnapshot:native.snapshot(),inside:()=>true,PDFPageView:class{},EventBus:class{},SimpleLinkService:class{},self:{},EditorWorker:class{},pdfWorkerURL:'test-worker',
   CanvasController:class{clear(){}bind(){}selectObject(){}},
   monaco:{languages:{register(){},setMonarchTokensProvider(){},setLanguageConfiguration(){}},editor:{defineTheme(){},createModel:()=>model,create:()=>editor,EndOfLineSequence:{LF:0}},KeyMod:{CtrlCmd:1,Shift:2},KeyCode:{KeyS:1,Enter:2,KeyZ:3,KeyY:4}},

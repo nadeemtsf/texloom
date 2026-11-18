@@ -1,12 +1,40 @@
 //! A versioned metadata header followed by the original PDF bytes.
 use crate::service::CompileResult;
+use serde::Serialize;
+
+#[derive(Serialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct UnverifiedCompilePreview {
+    pub schema: u8,
+    #[cfg_attr(feature = "typegen", ts(type = "\"first_pass\""))]
+    pub phase: &'static str,
+    pub project_id: String,
+    #[cfg_attr(feature = "typegen", ts(type = "number"))]
+    pub revision: u64,
+    #[cfg_attr(feature = "typegen", ts(type = "number"))]
+    pub request_id: u64,
+    pub engine: String,
+    pub seconds: f64,
+    pub diagnostics: Vec<texloom_build::engine::Diagnostic>,
+    #[cfg_attr(feature = "typegen", ts(type = "number[] | Uint8Array"))]
+    pub pdf: Vec<u8>,
+}
 
 pub fn encode(mut result: CompileResult) -> Result<Vec<u8>, String> {
     let pdf = std::mem::take(&mut result.pdf);
+    encode_parts(&result, &pdf)
+}
+
+pub fn encode_preview(mut preview: UnverifiedCompilePreview) -> Result<Vec<u8>, String> {
+    let pdf = std::mem::take(&mut preview.pdf);
+    encode_parts(&preview, &pdf)
+}
+
+fn encode_parts(metadata: &impl Serialize, pdf: &[u8]) -> Result<Vec<u8>, String> {
     if pdf.len() > 60 * 1024 * 1024 {
         return Err("Compiled PDF exceeds the transport limit".into());
     }
-    let metadata = serde_json::to_vec(&result).map_err(|error| error.to_string())?;
+    let metadata = serde_json::to_vec(metadata).map_err(|error| error.to_string())?;
     if metadata.len() > 64 * 1024 * 1024 {
         return Err("Compile metadata exceeds the transport limit".into());
     }

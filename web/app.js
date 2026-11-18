@@ -8,10 +8,14 @@ import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
 import {PDFPageView,EventBus,SimpleLinkService} from 'pdfjs-dist/legacy/web/pdf_viewer.mjs';
 import 'pdfjs-dist/web/pdf_viewer.css';
 import pdfWorkerURL from 'pdfjs-dist/legacy/build/pdf.worker.min.mjs?url';
-import {invoke as nativeInvoke} from '@tauri-apps/api/core';
+import {invoke as nativeInvoke,Channel} from '@tauri-apps/api/core';
 import {getCurrentWindow} from '@tauri-apps/api/window';
 import {open,save,confirm} from '@tauri-apps/plugin-dialog';
-import {preparePDFView,prepareLoadedPDF,publishPDFView} from './core/pdf-surface.js';
+import {preparePDFView,prepareLoadedPDF,publishPDFView,capturePDFScrollAnchor} from './core/pdf-surface.js';
+import {createCompileInvoke} from './core/compile-progress.js';
+import {PreliminaryPreview} from './core/preliminary-preview.js';
+import {PreliminaryPDFSurface,renderPreliminaryPDF} from './core/preliminary-pdf.js';
+import {acceptUnverifiedPreview} from './core/build-protocol.js';
 import {CanvasController} from './core/canvas-controller.js';
 import {bindPDFScrolling} from './core/pdf-scroll.js';
 import {stageCandidate,sessionIdentity,StaleCandidate,CompilationFailure,CommittedPresentationFailure,CommitStatusUnknown,compileDiagnostic} from './core/transactions.js';
@@ -30,7 +34,14 @@ import {applyTextInputAppearance,renderProtectedCommands} from './core/text-inpu
 import {positionDialogNear,clearDialogPosition} from './core/dialog-anchor.js';
 
 const pdfViewLibrary={...pdfjs,PDFPageView,EventBus,SimpleLinkService};
-const invoke=createWorkspaceInvoke(nativeInvoke);
+// Keep the experimental first-pass view available for development only.
+// Normal compilation publishes a PDF after the build has settled.
+const ENABLE_PRELIMINARY_PREVIEW = false;
+const invoke=createWorkspaceInvoke(ENABLE_PRELIMINARY_PREVIEW?createCompileInvoke(nativeInvoke,callback=>new Channel(callback),{
+  start:request=>preliminary.start({...request,client:state.client,epoch:state.buildEpoch,engine:state.engine}),
+  message:(raw,ticket)=>preliminary.offer(ticket,acceptUnverifiedPreview(raw,ticket.request)),
+  end:ticket=>preliminary.end(ticket)
+}):nativeInvoke);
 const diagnostics=installPerformanceDiagnostics();
 
 self.MonacoEnvironment={getWorker:()=>new EditorWorker()};
@@ -67,6 +78,18 @@ const state={
 const undoContext=editor.createContextKey('texloomCanUndo',false);
 const redoContext=editor.createContextKey('texloomCanRedo',false);
 const surfaceElements={pages:$('pages'),scroller:$('preview-scroll'),count:$('page-count'),empty:$('empty')};
+const preliminarySurface=ENABLE_PRELIMINARY_PREVIEW?new PreliminaryPDFSurface({container:surfaceElements.scroller,pages:surfaceElements.pages,document,
+  dismiss:()=>{preliminary?.clear();$('cancel-compile').focus()}}):null;
+const preliminary=preliminarySurface?new PreliminaryPreview({
+  current:request=>state.project?.id===request.projectId&&state.revision===request.revision&&state.client===request.client&&
+    state.buildEpoch===request.epoch&&state.engine===request.engine&&state.busy&&!state.cancelRequested&&!state.opening&&
+    !state.mutating&&!state.saving&&!state.composing&&!state.client?.pending&&!state.client?.error,
+  render:(preview,{signal})=>renderPreliminaryPDF(pdfViewLibrary,preview,{document,signal,
+    width:surfaceElements.scroller.clientWidth,page:Number(state.view?capturePDFScrollAnchor(surfaceElements)?.page:1)||1,
+    resources:{cMapUrl:new URL('/pdfjs/cmaps/',location.href).href,cMapPacked:true,
+      standardFontDataUrl:new URL('/pdfjs/standard_fonts/',location.href).href,wasmUrl:new URL('/pdfjs/wasm/',location.href).href}}),
+  show:prepared=>{pdfSearch.reset();preliminarySurface.show(prepared)},hide:()=>preliminarySurface.hide()
+}):null;
 const pdfNavigation=bindPDFScrolling(surfaceElements.scroller,{
   getScale:()=>state.pdf&&state.result&&state.view&&!state.busy?(state.zoom||state.view.scale):null,
   onZoom:(scale,origin)=>zoomPDF(scale,origin),
@@ -75,7 +98,7 @@ const pdfNavigation=bindPDFScrolling(surfaceElements.scroller,{
 });
 const sourceHighlight=new SourceHighlight({editor,getState:()=>state,isCurrent:()=>fresh()&&state.mode==='select',activateFile:activateSourceFile});
 const setupHelp=new SetupHelp({document});
-const pdfSearch=new PDFSearch({document,getView:()=>state.view,notify:toast});
+const pdfSearch=new PDFSearch({document,getView:()=>preliminary?.visible?null:state.view,notify:toast});
 const canvas=new CanvasController({
   diagnostics,
   getSession:()=>state,
@@ -104,6 +127,7 @@ function toast(text){
 function dirty(){return state.restoredDirty||!!state.client?.pending||!!state.client?.error||!sameSources(state.sources,state.saved)||!!state.savedProfile&&(state.project?.main!==state.savedProfile.main||state.engine!==state.savedProfile.engine)}
 function status(text){$('status').textContent=text||(dirty()?'Unsaved changes':'All changes saved')}
 function acceptDocument(snapshot){
+  if(snapshot.revision!==state.revision||snapshot.engine!==state.engine||snapshot.main!==state.project?.main)preliminary?.clear();
   state.sources={...snapshot.sources};state.revision=snapshot.revision;
   state.project.main=snapshot.main;state.engine=snapshot.engine;
   state.canUndo=snapshot.can_undo;state.canRedo=snapshot.can_redo;
@@ -112,6 +136,7 @@ function acceptDocument(snapshot){
 }
 function editorReadOnly(){editor.updateOptions({readOnly:state.opening||state.mutating||state.saving||!!state.client?.error});}
 function syncFailed(error){
+  preliminary?.clear();
   editorReadOnly();
   $('banner').textContent='Source synchronization paused. Your editor text is retained; copy it before reopening the project. '+message(error);
   $('banner').classList.remove('hidden');updateControls();
@@ -149,6 +174,7 @@ function updateControls(){
   $('object-reset').disabled=!object||state.objectSelection?.kind!=='object'||(!state.objectSelection.dx&&!state.objectSelection.dy);
   $('compile').disabled=state.busy||!!state.saving||!!state.client?.error;
   $('save').disabled=!!state.saving||state.busy||state.composing||!!state.client?.error;
+  $('export').disabled=!state.project||state.busy||state.opening||state.mutating||state.composing||!!state.saving||!!state.client?.error;
   $('open').disabled=!!state.saving||state.mutating;
   for(const id of ['projects','layout-controls','import-image'])$(id).disabled=state.busy||state.composing||state.mutating||state.opening||!!state.saving;
   $('engine').disabled=!!state.saving||state.mutating||!!state.client?.error;
@@ -253,6 +279,7 @@ function renderDiagnostics(diagnostics){
   }
 }
 async function cancelCompile(){
+  preliminary?.clear();
   state.cancelRequested=true;state.buildEpoch++;state.pending=false;clearTimeout(state.compileTimer);
   try{await state.client?.cancel()}catch(error){toast(message(error))}
 }
@@ -271,6 +298,7 @@ function renderFiles(){
   $('main-file').value=state.project.main;$('engine').value=state.engine;
 }
 async function openProject(path=null,supplied=null,{compileOnOpen=false}={}){
+  preliminary?.clear();
   if((state.busy||state.opening||state.saving)&&!supplied)return toast('Wait for the current operation before opening another project.');
   if(state.client&&!state.client.error)await state.client.flush();
   if(!supplied&&state.project&&dirty()&&!await confirm('Discard the current unsaved edits before opening another project?',{title:'Unsaved source',kind:'warning'}))return;
@@ -466,6 +494,7 @@ function prepareResult(result){
   return preparePDFView(pdfViewLibrary,result,{width:$('preview-scroll').clientWidth,zoom:state.zoom,mode:state.mode,lazy:true});
 }
 function publishPrepared(prepared,result){
+  preliminary?.clear();
   const previous=state.pdf;
   state.renderSerial++;state.renderAbort?.abort();
   state.view?.dispose?.();pdfSearch.reset();
@@ -519,7 +548,7 @@ async function compile(reason='manual'){
         try{prepared.dispose?.()}catch{}
         try{await prepared.pdf.destroy()}catch{}
       }
-    }finally{finishJob()}
+    }finally{preliminary?.clear();finishJob()}
   }
 }
 function finishJob(){
@@ -827,6 +856,7 @@ async function pinSelection(){
   }catch(error){toast(message(error))}
 }
 async function undo(redo=false){
+  preliminary?.clear();
   if(!state.client||state.mutating||state.saving||state.composing||state.client.error)return;
   state.mutating=true;editorReadOnly();updateControls();
   try{
@@ -860,6 +890,7 @@ function setMode(value){
 
 editor.onDidChangeModelContent(event=>{
   if(state.suppress||!state.project)return;
+  preliminary?.clear();
   const trace=diagnostics.begin('source-feedback');
   if(Date.now()-state.lastHistory>650)state.typingGroup++;
   state.lastHistory=Date.now();
@@ -873,7 +904,7 @@ editor.onDidChangeModelContent(event=>{
 model.undo=()=>undo();model.redo=()=>undo(true);
 editor.addAction({id:'texloom.undo',label:'Undo',precondition:'texloomCanUndo',contextMenuGroupId:'1_modification',contextMenuOrder:1,run:()=>undo()});
 editor.addAction({id:'texloom.redo',label:'Redo',precondition:'texloomCanRedo',contextMenuGroupId:'1_modification',contextMenuOrder:2,run:()=>undo(true)});
-editor.getDomNode()?.addEventListener('compositionstart',()=>{state.composing=true;state.lastHistory=0;canvas.clear();updateControls()});
+editor.getDomNode()?.addEventListener('compositionstart',()=>{preliminary?.clear();state.composing=true;state.lastHistory=0;canvas.clear();updateControls()});
 editor.getDomNode()?.addEventListener('compositionend',()=>{state.composing=false;state.lastHistory=0;scheduleCompile();updateControls()});
 editor.onDidChangeCursorPosition(()=>{const position=editor.getPosition();$('cursor').textContent='Ln '+position.lineNumber+', Col '+position.column});
 function sendSelection(selections=editor.getSelections()){
