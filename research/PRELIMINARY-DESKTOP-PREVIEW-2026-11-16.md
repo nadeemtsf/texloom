@@ -1,5 +1,11 @@
 # Preliminary desktop preview candidate
 
+On 18 November 2026, the owner reported that the candidate worked well and
+requested that the desktop wait for the complete build before showing a new
+PDF. The desktop now uses the settled publication path by default. The
+experimental code and its targeted checks remain available for future work.
+The owner's message is qualitative feedback on the earlier candidate.
+
 The candidate connects the first-pass observer to an optional raw Tauri channel
 and a separate read-only current-page canvas. The native service enables it
 only for canonical preview requests. Export and prepared visual builds remain

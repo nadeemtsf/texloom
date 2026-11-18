@@ -30,8 +30,23 @@ function sendPreliminary(t){
   request_id:args.requestId,engine:'pdflatex',seconds:.1,diagnostics:[],pdf:[37,80,68,70,45]});
 }
 
-test('the shipped shell keeps preliminary bytes out of settled state, pinning and verification until final publication',async()=>{
- const t=boot({progress:true});await tick();sendPreliminary(t);await tick();
+test('the shipped shell requests and publishes only a settled PDF',async()=>{
+ const t=boot({deferCompile:true});await tick();
+ const state=t.context.shell.state;
+ assert.equal(t.context.shell.preliminary,null);
+ assert.equal(t.context.progressRequest.purpose,'preview');
+ assert.equal(Object.hasOwn(t.context.progressRequest,'onPreview'),false);
+ assert.equal(state.pdf,null);
+ assert.equal(t.elements.get('pages').inert,false);
+ t.context.finishCompile(structuredClone(finalReply));await t.context.startup;
+ assert.equal(state.result.build_id,'settled');
+ assert.equal(state.compiled,0);
+ assert.equal(t.context.temporaryRenders,0);
+ assert.equal(t.calls.some(([name])=>name==='verify_build'),true);
+});
+
+test('the experimental shell keeps preliminary bytes out of settled state, pinning and verification until final publication',async()=>{
+ const t=boot({deferCompile:true,enablePreliminary:true});await tick();sendPreliminary(t);await tick();
  const state=t.context.shell.state;
  assert.equal(t.context.shell.preliminary.visible,true);assert.equal(state.result,null);assert.equal(state.pdf,null);assert.equal(state.compiled,-1);
  assert.equal(t.elements.get('pages').inert,true);assert.equal(t.elements.get('export').disabled,true);
@@ -45,7 +60,7 @@ test('the shipped shell keeps preliminary bytes out of settled state, pinning an
 });
 
 test('a later compiler failure clears the preliminary view and retains the earlier PDF and source',async()=>{
- const t=boot({progress:true});await tick();const state=t.context.shell.state;
+ const t=boot({deferCompile:true,enablePreliminary:true});await tick();const state=t.context.shell.state;
  const previous={destroy(){throw Error('The earlier PDF must remain alive')}};
  state.pdf=previous;state.result={...finalReply,build_id:'earlier'};state.compiled=0;
  const sources={...state.sources};sendPreliminary(t);await tick();
@@ -58,7 +73,7 @@ test('a later compiler failure clears the preliminary view and retains the earli
 
 // Run the complete production shell. IDs come only from the shipped HTML;
 // looking up a missing control returns null, as it does in the actual WebView.
-function boot({markup=html,openFailure=null,pathFailure=null,badSnapshot=false,adapterFailure=null,progress=false}={}){
+function boot({markup=html,openFailure=null,pathFailure=null,badSnapshot=false,adapterFailure=null,deferCompile=false,enablePreliminary=false}={}){
   const calls=[],compileStates=[],elements=new Map(),options={},handlers={};
   function element(id=''){
     const classes=new Set(),attributes=new Map();
@@ -107,19 +122,20 @@ function boot({markup=html,openFailure=null,pathFailure=null,badSnapshot=false,a
       if(name==='typing_drafts')return {drafts:[],errors:[]};
       if(name==='close_document')return {};
       if(name==='compile_document')compileStates.push({saving:context.shell.state.saving,opening:context.shell.state.opening,projectId:context.shell.state.project.id});
-      if(name==='compile_document'&&progress){context.progressRequest=args;return new Promise((resolve,reject)=>{context.finishCompile=resolve;context.failCompile=reject})}
-      if(progress&&['verify_build','pin_displayed_build','cancel_compilation'].includes(name))return null;
+      if(name==='compile_document'&&deferCompile){context.progressRequest=args;return new Promise((resolve,reject)=>{context.finishCompile=resolve;context.failCompile=reject})}
+      if(deferCompile&&['verify_build','pin_displayed_build','cancel_compilation'].includes(name))return null;
       if(name==='plan_adapter'&&adapterFailure)throw Error(adapterFailure);
       throw Error('Test compiler unavailable');
     }};
-  if(progress){
+  if(deferCompile){
     context.temporaryDisposals=0;context.temporaryRenders=0;
     context.location={href:'http://localhost/'};context.URL=URL;
     context.renderPreliminaryPDF=async()=>{context.temporaryRenders++;return {canvas:element(),page:1,pageCount:1,dispose(){context.temporaryDisposals++}}};
     context.preparePDFView=async()=>({pdf:{destroy:async()=>{}},fragment:element(),pageCount:1,scale:1,pages:[],dispose(){}});
     context.publishPDFView=()=>{};
   }
-  const script=app.replace(/^import .*;\r?$/gm,'').replace(/openProject\(\);\s*$/,'globalThis.startup = openProject();');
+  let script=app.replace(/^import .*;\r?$/gm,'').replace(/openProject\(\);\s*$/,'globalThis.startup = openProject();');
+  if(enablePreliminary)script=script.replace('const ENABLE_PRELIMINARY_PREVIEW = false;','const ENABLE_PRELIMINARY_PREVIEW = true;');
   vm.runInNewContext(script+'\nglobalThis.shell={state,preliminary,updateControls,applyLayoutControl,showFailure,projectControls};',context,{filename:'web/app.js'});
   return {context,calls,compileStates,elements,options,model,handlers};
 }

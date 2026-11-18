@@ -1,9 +1,10 @@
 # Owner check: preliminary PDF view
 
-Status: pending. The agent has not opened or controlled Texloom. This new
-temporary native view needs owner acceptance before merge. The exact candidate
-commit, portable filename and checksums are supplied with the built candidate.
-Use only the supplied synthetic project or another disposable project copy.
+Historical checklist for the candidate at `0bf8f8c`. On 18 November 2026 the
+owner reported that the candidate worked well and chose to defer the early PDF
+view. The current desktop configuration waits for the final build. The steps
+below apply to builds with the experimental view enabled. Use only the supplied
+synthetic project or another disposable project copy.
 
 The supplied `Texloom-preliminary-preview-synthetic-project-20261116` folder
 has `main.tex` and a LuaLaTeX project profile. Its second pass deliberately waits
