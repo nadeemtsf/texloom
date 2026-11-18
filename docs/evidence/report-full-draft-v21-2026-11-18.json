@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "kind": "technical_report_v21_build_visual_review",
+  "status": "built_rendered_reviewed",
+  "implementation_base": "8f5116a29c86af5a6d7d80a2bff6fc3789d44960",
+  "report_pages": 37,
+  "references": 28,
+  "pdf": {
+    "file": "Texloom-technical-report-full-draft-2026-11-18-v21.pdf",
+    "bytes": 680510,
+    "sha256": "36d1406854ebc2ab22b9a8f9f1495c82b63977a6c2792a2d0ab26e95fb69dd4e"
+  },
+  "editable_sources": {
+    "file": "Texloom-technical-report-editable-sources-2026-11-18-v21.zip",
+    "bytes": 78110,
+    "sha256": "fdfa59cd7cc8a68e48246e9876e81731e4edaf51b85a768808a05be466c9a859",
+    "members": 17
+  },
+  "visual_review": {
+    "pages": 37,
+    "all_pages_rendered_and_reviewed": true,
+    "readable_pages": [
+      22,
+      23
+    ],
+    "clipping_or_overlap_seen": false,
+    "out_of_page_text_blocks": 0
+  },
+  "build_review": {
+    "log_sha256": "1ece4233ddec76811ebb0746f7c2a8f26fd996c325385cd04c8f9e6ff208d75b",
+    "underfull_notices": 4,
+    "overfull_missing_or_undefined_warnings": 0
+  },
+  "source_sha256": {
+    "followup-references.bib": "dae587969c6afe78adf79d79d304c03761e79c83e9b7a845ca5b1876a2231749",
+    "main.tex": "c9bc0b27276b5f64919cae8efd944712f8e2f177cdd8c002982d1c9af418a71d",
+    "README.md": "51cf3aa6ab84e610cb02565851e1c1b2704b24f3fe0b7cade3595e2a13e62739",
+    "references.bib": "1c6bef9292f8599cbc86bb610e9b1e3b44a604b3db66370c8e9604a849121493",
+    "sections/01-scope.tex": "8a081ce27cdd63ca9a623512aa0fc12ca7686477759b3f3de307ea7a9c701196",
+    "sections/02-workflow.tex": "ec6d7c640050e864421a33b05e54b2a278299e76a695ac570faca4a9388ddf5d",
+    "sections/03-contracts.tex": "46fc40be341983f0fd993ce675bbc1253fe9ab937538cc81eadb39e3b93e4c19",
+    "sections/04-related-work.tex": "a2225909003758d3c4262168bc12821c02ed9edc118f4ed83685107abdadf23e",
+    "sections/05-evaluation.tex": "71346c4c1e896eed0fed97844a50ea35a626cc7604f7fb96d4884ad2fb021bf3",
+    "sections/06-development-evidence.tex": "981da2cbae6fe869aab39ed2b2403088f60d3fe73afa1858def96e40a88934a4",
+    "sections/07-timing.tex": "15ce75420430c5ef4bf8c57ea69a90317fe2cae80e67ecbc29a6889c634084bf",
+    "sections/08-reproducibility.tex": "683c95e3224da775acd9c4c1baf722eb51078edd17ed7d68e52e84a533125c49",
+    "sections/09-limitations.tex": "5c57086b0dfa3a9af349cf032b653ed1e6c6b7f2b6ff192e505bf386586c862e",
+    "sections/appendix-artifacts.tex": "e00e2105b8b70e7e514a29c3cf90d7aa1e75c8c2ad82f64af2eef21e5cfdf2c2",
+    "sections/appendix-protocol.tex": "941e7098b5bda83b5078268c6abbbbc11e2124c35141c7531165a8fba62c00da",
+    "sections/appendix-reproduction.tex": "fc7de0591a8ea68c44135651fefee871a71c0816804353ee1ed709f258649188",
+    "sections/compile-cost.tex": "b7d925111d57191d1f83fbaeee4926dade8f388e74cdcd9f3219c0624ebc9470"
+  },
+  "evidence_receipts": {
+    "completed-pdf-paint-2026-11-18.json": "4ab15e16a9a151b1449df7a3087c76503b4979897ca31ac37809c3f450361a21",
+    "source-coordinate-mapping-2026-11-18.json": "99d4aa133cb101ad741d68c0e5c827b35a4de04593423756cf2e0c41ec7ce8f3"
+  }
+}

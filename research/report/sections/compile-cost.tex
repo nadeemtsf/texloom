@@ -250,3 +250,58 @@ unchanged. The 30 measured pairs represent repeated native runs on one host.
 These intervals exclude editor work, IPC and PDF presentation. The aggregate
 observations and evidence identities are recorded in
 \path{docs/evidence/compile-followup-2026-11-18.json}.
+
+
+\subsection{Preparing a completed PDF}
+
+Short views prepare each PDF page before the candidate replaces the accepted
+view. The revised scheduler runs up to two page jobs at a time. If either
+initial job fails, the remaining preparation is cancelled and the accepted
+view stays available. A completed document is the input to both versions.
+
+A headless Edge fixture, using PDF.js 6.2.108, measured offscreen preparation
+after PDF load. There were five measured pairs per document size and one
+warm-up pair. For six pages, the sequence of median preparation times was
+61.4~ms with one job and 43.6~ms with two, with a paired median reduction of
+17.5~ms. For twenty pages the corresponding times were 184.2 and 108.4~ms,
+with a paired median reduction of 79.9~ms. All twelve pairs, including the
+warm-ups, matched readable text, full line and text-run geometry, and complete
+canvas pixels. The final scheduler passed 33 headless navigation checks at
+device scale factors 1, 1.5 and 2. This fixture measures repeated
+renderer-component work on one machine.
+\path{docs/evidence/completed-pdf-paint-2026-11-18.json} records the outcomes
+and distinguishes the timed success path from the later cancellation guard.
+
+\subsection{Mapping source ranges after compilation}
+
+The native compile service locates each legacy block and movable text object
+in the editor's UTF-16 coordinate space. It formerly rebuilt the whole
+projection for each range and searched the boundary list for each endpoint.
+The new projection is created once per source file when needed, and the
+boundary table supports logarithmic lookup. Reverse coordinate checks still
+refuse positions inside a surrogate pair or between the two characters of a
+CRLF terminator. An initial UTF-8 byte order mark is excluded from editor
+coordinates. The two implementations agree for every tested byte and editor
+offset and all tested replacements in 2,401 four-token combinations, covering
+BMP and supplementary characters, mixed terminators and byte order marks.
+
+A release-mode component study compared the former per-range construction,
+a shared projection with linear search, and the shared sorted table. Nine
+measured observations per arm followed two warm-ups, with each arm occupying
+each order position three times. For 128 ranges in a 64~KiB source, respective
+medians were 50.31, 4.23 and 0.26~ms. For 256 ranges in 1~MiB, they were
+2401.87, 137.28 and 6.01~ms. The one-range 4~KiB condition took about
+0.014~ms in both the original and final versions. These timings isolate the
+coordinate work.
+
+Three interleaved runs per arm called the normal headless compile service on
+one 61,154-byte pdf\LaTeX{} fixture containing 64 text objects and 64 legacy
+blocks. The single-page PDFs matched extracted text, character geometry and
+full 96~DPI rasters. The two-pass builds returned identical metadata, matched
+the independently expected UTF-16 endpoints and preserved the source and
+draft revision. Median paired service time fell by 128~ms. After subtracting
+each run's measured engine/build interval, the paired reduction was 66~ms.
+The engine/build interval also varied. The three repeated pairs describe one
+fixture and exclude desktop transport and presentation.
+\path{docs/evidence/source-coordinate-mapping-2026-11-18.json} records
+source identities, observations and the earlier shared-load run.

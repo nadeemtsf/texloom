@@ -1,0 +1,87 @@
+{
+  "schema": 1,
+  "kind": "headless_pdf_worker_startup_comparison",
+  "baseline": "8f5116a29c86af5a6d7d80a2bff6fc3789d44960",
+  "pdfjs_version": "6.2.108",
+  "packaged_worker_asset_sha256": "bc0d1b88ea0b66196b1d36a58ac243c6d92adfe725624e2a9fdd381bdf8ef434",
+  "implementation_sha256": {
+    "web/app.js": "15612d1bdc57751d1aaa6bba011f8a1ef865a0a7db816c408fd6205fca29a070",
+    "web/core/pdf-document.js": "86ec87c969aa79afe81689c104d78aacce9620c913ef62633488f885e0c936b1",
+    "web/core/pdf-surface.js": "01a7776f98b48e5a2e1c05d73519043f0393655ec7b34f57d017ca760dd4c4a0",
+    "tests/app-startup.test.mjs": "5d707ada0ab78f270c90fcba9d061cfcd481a14df795357b14b22f13abdaa7fc",
+    "tests/pdf-document.test.mjs": "92ac9a47b1c9d19361ead9b1a0ca47c28288ad94472c6eafcd995552b628e665",
+    "tests/transactions.test.cjs": "e52c6838dc30b76d48102559e1cf600ffd5bd945ef648b0a7cf1869038989322"
+  },
+  "comparisons": {
+    "development_url": {
+      "asset_and_browser_fixture": "development_url",
+      "browser": "157.0.4341.60",
+      "equal_pixels_text_and_geometry_pairs": 16,
+      "fixtures": {
+        "6": {
+          "measured_pairs": 7,
+          "median_startup_ms": 417,
+          "median_paired_load_saving_ms": 410.3,
+          "median_paired_full_preparation_saving_ms": 419.1
+        },
+        "20": {
+          "measured_pairs": 7,
+          "median_startup_ms": 372.4,
+          "median_paired_load_saving_ms": 375.3,
+          "median_paired_full_preparation_saving_ms": 374.2
+        }
+      },
+      "raw_sha256": "183b585f8b5a7839657bcd131839f958b8170d48e68da8eba0debf8997d960f6"
+    },
+    "packaged_asset": {
+      "asset_and_browser_fixture": "packaged_asset",
+      "browser": "157.0.4341.60",
+      "equal_pixels_text_and_geometry_pairs": 16,
+      "fixtures": {
+        "6": {
+          "measured_pairs": 7,
+          "median_startup_ms": 75.1,
+          "median_paired_load_saving_ms": 73.7,
+          "median_paired_full_preparation_saving_ms": 72
+        },
+        "20": {
+          "measured_pairs": 7,
+          "median_startup_ms": 76.7,
+          "median_paired_load_saving_ms": 86.2,
+          "median_paired_full_preparation_saving_ms": 86.9
+        }
+      },
+      "raw_sha256": "f2dcd2adc3219004bd77736c883c5fd90e8815dede79dceb93cbbb90b1f4c34b"
+    },
+    "owned_worker_implementation": {
+      "asset_and_browser_fixture": "owned_worker_implementation",
+      "browser": "157.0.4341.60",
+      "equal_pixels_text_and_geometry_pairs": 16,
+      "fixtures": {
+        "6": {
+          "measured_pairs": 7,
+          "median_startup_ms": 147.4,
+          "median_paired_load_saving_ms": 145.8,
+          "median_paired_full_preparation_saving_ms": 151.2
+        },
+        "20": {
+          "measured_pairs": 7,
+          "median_startup_ms": 113.7,
+          "median_paired_load_saving_ms": 124.5,
+          "median_paired_full_preparation_saving_ms": 102.2
+        }
+      },
+      "raw_sha256": "1a27d45c108e1fd8a8a3013e3da504ee5cb9822f6d57d5186818194a075ed628"
+    }
+  },
+  "lifecycle": "Malformed PDF rejection, recreation, accepted-view preservation, destruction before and after handshake on direct worker control, and owned-worker destruction on refused and successful loads in the candidate.",
+  "focused_tests": 28,
+  "scope": "Tests used already started workers before the measured load. Actual overlap with TeX, concurrent resource cost, Tauri transport and physical presentation are unmeasured. The packaged asset was served by a local static handler.",
+  "evidence_bundle": {
+    "file": "Texloom-PDF-worker-startup-evidence-20261118.zip",
+    "members": 10,
+    "bytes": 357111,
+    "sha256": "4f1031a19adea3911b453ddff732312c343a54689798c9de11801e6e1d6e507e"
+  },
+  "initial_full_gate": "Two compile tracing tests failed because their stripped-import VM lacked the new worker helper. The tracing harness now supplies the production helper and exercises its unavailable-worker fallback."
+}

@@ -13,6 +13,7 @@ import {getCurrentWindow} from '@tauri-apps/api/window';
 import {open,save,confirm} from '@tauri-apps/plugin-dialog';
 import {preparePDFView,prepareLoadedPDF,publishPDFView,capturePDFScrollAnchor} from './core/pdf-surface.js';
 import {createCompileInvoke} from './core/compile-progress.js';
+import {startPDFWorker} from './core/pdf-document.js';
 import {PreliminaryPreview} from './core/preliminary-preview.js';
 import {PreliminaryPDFSurface,renderPreliminaryPDF} from './core/preliminary-pdf.js';
 import {acceptUnverifiedPreview} from './core/build-protocol.js';
@@ -490,8 +491,8 @@ async function resolveSourceSelection({buildId,page,points,hits,trace=null}){
     throw lastError||new Error('This text could not be mapped safely. Use source editing.');
   }finally{finishJob()}
 }
-function prepareResult(result){
-  return preparePDFView(pdfViewLibrary,result,{width:$('preview-scroll').clientWidth,zoom:state.zoom,mode:state.mode,lazy:true});
+function prepareResult(result,workerStartup){
+  return preparePDFView(pdfViewLibrary,result,{width:$('preview-scroll').clientWidth,zoom:state.zoom,mode:state.mode,lazy:true,workerStartup});
 }
 function publishPrepared(prepared,result){
   preliminary?.clear();
@@ -532,10 +533,15 @@ async function compile(reason='manual'){
     !state.compileApproved||reason==='auto'&&!$('auto').checked){trace?.finish('superseded');return}
   if(state.busy){trace?.finish('superseded');if(reason==='manual'||!state.pending)state.pending=reason;return}
   const identity=sessionIdentity(state),revision=state.revision;state.busy=true;state.cancelRequested=false;updateControls();
-  let prepared=null;
+  let prepared=null,workerStartup=null;
   try{
     const candidate=await stageCandidate({sources:clone(state.sources),revision,identity,getIdentity:()=>sessionIdentity(state),
-        compile:()=>client.compile(),prepare:prepareResult,policy:null,previousPageCount:state.view?.pageCount,verify:result=>client.verify(result.build_id),trace});
+        compile:()=>{
+          const compilation=client.compile();
+          workerStartup=startPDFWorker(pdfViewLibrary);
+          return compilation;
+        },
+        prepare:result=>prepareResult(result,workerStartup),policy:null,previousPageCount:state.view?.pageCount,verify:result=>client.verify(result.build_id),trace});
     prepared=candidate.prepared;
     publishPrepared(candidate.prepared,candidate.result);
     const view=state.view;trace?.mark('published');trace?.finish('published',{paint:!view.lazy,isCurrent:()=>state.view===view&&sessionIdentity(state)===identity});
@@ -548,7 +554,10 @@ async function compile(reason='manual'){
         try{prepared.dispose?.()}catch{}
         try{await prepared.pdf.destroy()}catch{}
       }
-    }finally{preliminary?.clear();finishJob()}
+    }finally{
+      try{workerStartup?.dispose()}catch{}
+      preliminary?.clear();finishJob();
+    }
   }
 }
 function finishJob(){

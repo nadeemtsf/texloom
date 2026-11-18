@@ -9,10 +9,11 @@ export function selectionReasonForPage(page,viewport){
 }
 
 /** Prepare a complete PDF view offscreen. Publishing it is a separate operation. */
-export async function preparePDFView(pdfjs,result,{width,zoom=0,mode='select',signal,lazy=false}={}) {
-  const pdf=await loadPDFDocument(pdfjs,{data:new Uint8Array(result.pdf),
+export async function preparePDFView(pdfjs,result,{width,zoom=0,mode='select',signal,lazy=false,workerStartup}={}) {
+  const options={data:new Uint8Array(result.pdf),
     cMapUrl:new URL('/pdfjs/cmaps/',location.href).href,cMapPacked:true,
-    standardFontDataUrl:new URL('/pdfjs/standard_fonts/',location.href).href,wasmUrl:new URL('/pdfjs/wasm/',location.href).href});
+    standardFontDataUrl:new URL('/pdfjs/standard_fonts/',location.href).href,wasmUrl:new URL('/pdfjs/wasm/',location.href).href};
+  const pdf=await loadPDFDocument(pdfjs,options,await workerStartup?.take());
   try{return await prepareLoadedPDF(pdfjs,pdf,result,{width,zoom,mode,signal,lazy})}
   catch(error){try{await pdf.destroy()}catch{}throw error}
 }
