@@ -525,6 +525,27 @@ the four fixture classes on this host. Absolute medians, paired rows
 and method identities are in
 \path{docs/evidence/native-compile-checkpoint-comparison-2026-11-18.json}.
 
+
+
+\subsection{Native compilation of the report manuscript}
+
+The same checkpoints compiled the 40-page version of this report from
+its main source, thirteen section files and two bibliography databases.
+The MiK\TeX{} pdf\LaTeX{} build ran three TeX passes with BibTeX. Two
+warm-up pairs preceded five measured pairs with alternating execution
+order and fresh snapshots. The separate arm medians were
+12.51~s before and 11.48~s after. The median
+paired reduction was 0.75~s. The signed
+differences between the old and new times ranged from
+-0.49 to 2.21~s.
+
+Every pair matched all tracked build fields and the final PDF's text,
+character geometry, links, page dimensions and 96~DPI pixels. Each
+output matched its own receipt. This measures one real document and one
+engine on the same Windows host. The native build interval excludes
+editor dispatch and preview rendering. The receipt is
+\path{docs/evidence/technical-report-compile-followup-2026-11-18.json}.
+
 \subsection{Source line indexing and raster comparison}
 
 The source scanners now count line breaks in successive spans and track
