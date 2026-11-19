@@ -6,6 +6,7 @@ import {createHash} from 'node:crypto';
 import {inspectPdfjs} from './proof/pdfjs-inspector.mjs';
 import {checkTranslation,checkRaster,checkTargetRaster,targetRecords} from './proof/layout-check.mjs';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
+const examples=resolve(root,process.env.CARGO_TARGET_DIR||'target','debug/examples');
 const output=process.env.TEXLOOM_PROOF_REPORT_DIR?resolve(process.env.TEXLOOM_PROOF_REPORT_DIR):join(root,'artifacts','proof');
 const python=process.env.PYTHON ?? (process.platform==='win32'?'python':'python3');
 const manifest=JSON.parse(await readFile(join(root,'tests/fixtures/proof/manifest.json'),'utf8'));
@@ -31,7 +32,7 @@ async function rustPolicy(before,after,beforePdf,afterPdf,fixture,operation) {
   await writeFile(request,JSON.stringify({before:before.evidencePath,after:after.evidencePath,before_pdf:beforePdf,after_pdf:afterPdf,
     before_target:[...targetRecords(before.records,fixture.text,fixture.occurrence)],
     after_target:[...targetRecords(after.records,fixture.text,fixture.occurrence)],operation}));
-  const exe=join(root,'target/debug/examples/displacement_check'+(process.platform==='win32'?'.exe':''));
+  const exe=join(examples,'displacement_check'+(process.platform==='win32'?'.exe':''));
   return JSON.parse(run(exe,[request]));
 }
 async function rasterPair(a,b,target,identity) {
@@ -64,7 +65,7 @@ function selection(source) {
   return [Buffer.byteLength(source.slice(0,start)),Buffer.byteLength(source.slice(0,end).replace(/\n$/u,''))];
 }
 async function prepare() {
-  const exe=process.env.PROOF_CANDIDATE_BIN ?? join(root,'target/debug/examples/proof_candidate'+(process.platform==='win32'?'.exe':''));
+  const exe=process.env.PROOF_CANDIDATE_BIN ?? join(examples,'proof_candidate'+(process.platform==='win32'?'.exe':''));
   await access(exe);
   for(const fixture of manifest.cases) {
     const sourceDir=join(root,'tests/fixtures/proof',fixture.id);

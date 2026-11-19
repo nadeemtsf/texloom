@@ -42,7 +42,8 @@ try{
   const built=spawnSync('cargo.exe',['build','--locked','--release','-p','texloom-build','--bin','pdfium_worker','--target','x86_64-pc-windows-msvc'],
     {cwd:root,stdio:'inherit',windowsHide:true,timeout:180_000});
   require(!built.error&&built.status===0,'Building the native verifier failed');
-  const program=join(root,'target/x86_64-pc-windows-msvc/release/pdfium_worker.exe');
+  const cargoTarget=resolve(root,process.env.CARGO_TARGET_DIR||'target');
+  const program=join(cargoTarget,'x86_64-pc-windows-msvc/release/pdfium_worker.exe');
   const resources=join(root,'src-tauri/resources/verification');await mkdir(resources,{recursive:true});
   await writeFile(join(resources,'pdfium.dll'),dll);await writeFile(join(resources,'PDFIUM-NOTICE.txt'),notice);
   await copyFile(program,join(resources,'pdfium_worker.exe'));

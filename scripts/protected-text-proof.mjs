@@ -8,8 +8,9 @@ import {inspectPdfjs} from './proof/pdfjs-inspector.mjs';
 import {targetRecords} from './proof/layout-check.mjs';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..'),output=process.env.TEXLOOM_PROTECTED_TEXT_REPORT_DIR?resolve(process.env.TEXLOOM_PROTECTED_TEXT_REPORT_DIR):join(root,'artifacts/protected-text');await mkdir(output,{recursive:true});
 function run(file,args,cwd=root){const r=spawnSync(file,args,{cwd,encoding:'utf8',windowsHide:true,timeout:90_000,maxBuffer:8*1024*1024});if(r.error||r.status!==0)throw new Error(r.error?.message||(r.stderr+r.stdout).slice(-1500));return r.stdout}
+const examples=resolve(root,process.env.CARGO_TARGET_DIR||'target','debug/examples');
 const file=join(root,'tests/fixtures/proof/formatting/main.tex'),original=await readFile(file,'utf8');
-const candidate=run(join(root,'target/debug/examples/literal_candidate'+(process.platform==='win32'?'.exe':'')),[file,file,'1','strong & stable']);
+const candidate=run(join(examples,'literal_candidate'+(process.platform==='win32'?'.exe':'')),[file,file,'1','strong & stable']);
 if(candidate!==original.replace('\\textbf{bold}','\\textbf{strong \\& stable}'))throw new Error('The literal editor changed formatting or unrelated source');
 const report={schema:1,status:'pending',cases:[],limitations:['Synthetic text/explicit line-gap cases; native edit/reflow acceptance remains open.']};
 for(const engine of ['pdflatex','lualatex','xelatex']){
@@ -24,7 +25,7 @@ for(const engine of ['pdflatex','lualatex','xelatex']){
  }catch(e){row.status='fail';row.reason=e.message}
 }
 const signature=join(root,'tests/fixtures/proof/signature/main.tex'),signatureSource=await readFile(signature,'utf8');
-const spaced=run(join(root,'target/debug/examples/spacing_candidate'+(process.platform==='win32'?'.exe':'')),[signature,signature,'0','14']);
+const spaced=run(join(examples,'spacing_candidate'+(process.platform==='win32'?'.exe':'')),[signature,signature,'0','14']);
 if(spaced!==signatureSource.replace('[2pt]','[14pt]'))throw new Error('Spacing changed unrelated source');
 for(const engine of ['pdflatex','lualatex','xelatex']){
  const row={engine,kind:'spacing',status:'pending'};report.cases.push(row);
