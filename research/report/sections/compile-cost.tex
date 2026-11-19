@@ -723,3 +723,78 @@ bytes stayed intact. The native interval through the repaired result
 excludes editor and preview rendering.
 \path{docs/evidence/compiler-diagnostics-and-repair-2026-11-19.json}
 records each measured pair and the controls.
+
+
+\subsection{Biber startup and complete bibliography builds}
+
+Biber writes its version during logging initialization, before it reads
+the bibliography inputs \cite{biberstartup219,biberstartup221}. For a
+new bibliography output, the build service can use that startup message
+and avoid calling \texttt{biber -{}-version} separately. It captures the
+selected executable's fingerprint before the run and checks the alias
+and bytes again before accepting the generated bibliography. Unrecognized
+startup logs retain the explicit version probe. A failed fallback discards
+new output, and a pre-existing bibliography still uses the original
+preflight. The BibTeX path retains the original version probe.
+
+In the separate driver-only diagnostic, four alternating measured pairs
+after a warm-up attributed a paired median of 2.86~s to the extra launch
+on the single-entry MiKTeX fixture. The generated bibliography bytes
+and normalized version agreed in every run.
+
+The complete native comparison used fresh build directories and paired
+optimized Rust builds under the same pdf\LaTeX{} and Biber 2.21
+installation. Five measured pairs followed a warm-up for each condition.
+The paired median savings were 2.83~s for the one-entry bibliography
+and 3.46~s for the 80-entry bibliography. The measured ranges were
+0.67 to 13.89~s and 2.84 to 9.46~s, respectively.
+The pairs agreed on bibliography bytes, page word geometry and pixels,
+pass count, executable fingerprints and recorded dependency fields.
+The PDF file bytes matched after replacing each file's document IDs
+in the trailer with a common value.
+The timings cover the native build through result delivery to the
+calling process. The renderer was used after each timed build for
+output verification. The measurements characterize these fixtures and
+toolchain, with variable startup costs between runs.
+
+Four synthetic tool controls exercised a recognized startup, a successful
+fallback, a failed fallback with new-output cleanup and failure with a
+pre-existing bibliography. The inputs and completeness criteria are
+recorded in \path{docs/evidence/biber-startup-and-build-2026-11-19.json}.
+
+
+\subsection{Cumulative native compile comparison}
+
+We reused the small, source-heavy, asset-heavy and mixed fixtures to
+compare the native service immediately before PR~72 (\texttt{0725592})
+with the current build candidate. Each arm kept a resident Rust driver
+and prepared a fresh snapshot for every run. Both used the same installed
+MiKTeX engines and fixture bytes. The current driver retained established
+compiler identification across builds. Each fixture and engine had a
+warm-up pair followed by six pairs in alternating order.
+
+\begin{center}
+\begin{tabular}{lrrr}
+\hline
+Fixture & pdf\LaTeX{} & Xe\LaTeX{} & Lua\LaTeX{} \\
+\hline
+Small & 0.39 & 0.46 & 0.47 \\
+Source-heavy & 0.71 & 0.66 & 0.93 \\
+Asset-heavy & 1.31 & 1.63 & 1.64 \\
+Mixed & 1.27 & 1.67 & 1.89 \\
+\hline
+\end{tabular}
+\end{center}
+
+The table gives paired median savings in seconds. The medians ranged
+from 0.39 to 1.89~s across the twelve conditions. 0
+of the 72 measured pairs took longer under the current candidate.
+All 84 pairs matched the checked input and dependency fields, compiler version, normalized environment, PDF text and character geometry, links and 96 DPI pixels.
+Every returned receipt and original fixture was checked outside the
+timed interval.
+
+The comparison covers native preparation, engine execution and result
+delivery to the caller. It uses four fixtures without bibliography
+generation and does not estimate the cost of presenting the PDF in the
+desktop. \path{docs/evidence/cumulative-native-compile-2026-11-19.json}
+contains the pair-level timings and output checks.
