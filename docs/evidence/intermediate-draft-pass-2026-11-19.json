@@ -1,0 +1,6230 @@
+{
+  "schema": 1,
+  "kind": "pdftex_intermediate_draft_pass",
+  "method_sha256": "f5b29728633024fdb4f0c3e2fd0ede5e3fb3cd98ff385912f452c4974f3308a0",
+  "raw_pairs_sha256": "69f53992d294572c556e56b35e2c5d2be3562c436c98fbf9f817468c773dcb7c",
+  "summary": {
+    "compiler": {
+      "version": "MiKTeX-pdfTeX 4.23 (MiKTeX 25.12)",
+      "sha256": "de48c5ef651d2ded45e8d82188af22aaeebf0055d679b090609aff1881d97d30"
+    },
+    "results": {
+      "witness": {
+        "measured_pairs": 0,
+        "equivalent_pairs": 0,
+        "equivalent_synctex_pairs": 0,
+        "total_pairs": 1,
+        "median_paired_saving_seconds": null,
+        "range_seconds": null,
+        "identities": {
+          "main.tex": "47ab797ac1e990d4888db18b2c31a66d1c2ca9c3a15eed6b7f49c3a1d3c5c175"
+        }
+      },
+      "reference": {
+        "measured_pairs": 4,
+        "equivalent_pairs": 5,
+        "equivalent_synctex_pairs": 0,
+        "total_pairs": 5,
+        "median_paired_saving_seconds": 0.0688236000132747,
+        "range_seconds": [
+          -0.9236136000108672,
+          0.42079350001586135
+        ],
+        "identities": {
+          "main.tex": "5184e974300ce7b5b883eea191fa2ff93370a566967bc13a35e540330e010d95"
+        }
+      },
+      "images": {
+        "measured_pairs": 4,
+        "equivalent_pairs": 5,
+        "equivalent_synctex_pairs": 0,
+        "total_pairs": 5,
+        "median_paired_saving_seconds": 0.13793189999705646,
+        "range_seconds": [
+          -1.364575200015679,
+          0.31265620001067873
+        ],
+        "identities": {
+          "image-00.png": "46a39d1b8f162e5b38aeabae9ff11ac8bc0d220c99e100828d453f8241c5d385",
+          "image-01.png": "9716d63dfd57fe602eb393636b3675f44da66b8e403243eedf64362129e54d08",
+          "image-02.png": "9f59894499e683d90cc7d0eb86e27b30bbd0d2e1d03c352e7dcef788c3f4f48d",
+          "image-03.png": "a7da2a6d33def7d24dee01e310d9caae7b35af33aa25b2d1035d7ba71730ae74",
+          "image-04.png": "924d1e9508f3741bec6dfc63785caf144b71a33d93f9399cbbaddb141459dd1e",
+          "image-05.png": "9504e29e1a29c1adfb07cb973ca49f1786ab345aa5e636354fb8951cad347a25",
+          "image-06.png": "afb0026c26473017f90762e732e62e2e38cdf42cdae9e5b78e7454e9a6525505",
+          "image-07.png": "5bf5cc25cca562687e54d2b94071cf6419e83c8f79ae628c7ad0fbd9b2ce90b5",
+          "image-08.png": "5bd375336c0a2c431b55a8aad76d7f9d53d4c684d7f890f03f50153662464a33",
+          "image-09.png": "f1bd71bca4e4c2b2b23be4a8db5fa5cef4dbdc9ee0f6b19de6c2dd44bc67a275",
+          "image-10.png": "0065918a750b1d87d893599d9a789c4f703997c8e04a6beae8a356f9a9bf2dcd",
+          "image-11.png": "6be20b20f3d54c47abc7f81a86325ac903b2f32e083929314fd85ca06b152145",
+          "main.tex": "710b27cf721a55627db042f662a387a58a33159721e8090c8a25d6b3b89f3514"
+        }
+      },
+      "report": {
+        "measured_pairs": 4,
+        "equivalent_pairs": 5,
+        "equivalent_synctex_pairs": 0,
+        "total_pairs": 5,
+        "median_paired_saving_seconds": -0.009591350011760369,
+        "range_seconds": [
+          -0.10699599998770282,
+          0.3112264000083087
+        ],
+        "identities": {
+          "followup-references.bib": "9ef68abfef84c50c3c00c522ca16d25ddfe89fac20fb31e1c53eca84e6a465bc",
+          "main.tex": "c9bc0b27276b5f64919cae8efd944712f8e2f177cdd8c002982d1c9af418a71d",
+          "references.bib": "1c6bef9292f8599cbc86bb610e9b1e3b44a604b3db66370c8e9604a849121493",
+          "sections/01-scope.tex": "8a081ce27cdd63ca9a623512aa0fc12ca7686477759b3f3de307ea7a9c701196",
+          "sections/02-workflow.tex": "ec6d7c640050e864421a33b05e54b2a278299e76a695ac570faca4a9388ddf5d",
+          "sections/03-contracts.tex": "46fc40be341983f0fd993ce675bbc1253fe9ab937538cc81eadb39e3b93e4c19",
+          "sections/04-related-work.tex": "a2225909003758d3c4262168bc12821c02ed9edc118f4ed83685107abdadf23e",
+          "sections/05-evaluation.tex": "71346c4c1e896eed0fed97844a50ea35a626cc7604f7fb96d4884ad2fb021bf3",
+          "sections/06-development-evidence.tex": "981da2cbae6fe869aab39ed2b2403088f60d3fe73afa1858def96e40a88934a4",
+          "sections/07-timing.tex": "15ce75420430c5ef4bf8c57ea69a90317fe2cae80e67ecbc29a6889c634084bf",
+          "sections/08-reproducibility.tex": "683c95e3224da775acd9c4c1baf722eb51078edd17ed7d68e52e84a533125c49",
+          "sections/09-limitations.tex": "5c57086b0dfa3a9af349cf032b653ed1e6c6b7f2b6ff192e505bf386586c862e",
+          "sections/appendix-artifacts.tex": "e00e2105b8b70e7e514a29c3cf90d7aa1e75c8c2ad82f64af2eef21e5cfdf2c2",
+          "sections/appendix-protocol.tex": "941e7098b5bda83b5078268c6abbbbc11e2124c35141c7531165a8fba62c00da",
+          "sections/appendix-reproduction.tex": "fc7de0591a8ea68c44135651fefee871a71c0816804353ee1ed709f258649188",
+          "sections/compile-cost.tex": "1e81783f81a7140d60e201030036df6ecbf1f4ccdbe58e085b154e00e71109dc"
+        }
+      }
+    }
+  },
+  "normalized_synctex_and_round_trip": {
+    "summary": {
+      "witness": {
+        "normalized_pairs": 0,
+        "matching_round_trips": 0
+      },
+      "reference": {
+        "normalized_pairs": 5,
+        "matching_round_trips": 5
+      },
+      "images": {
+        "normalized_pairs": 5,
+        "matching_round_trips": 5
+      },
+      "report": {
+        "normalized_pairs": 5,
+        "matching_round_trips": 5
+      }
+    },
+    "rows": {
+      "witness": [
+        {
+          "trial": 0,
+          "geometry_sha256": {
+            "full": "7fc89a3cbfa3def6a6c510b01885ba47ac92599c05120dbf7f0101b416f6fc17",
+            "draft": "5daacca7d23878e17f8576e81da9490d27092db3283e434415972b4d870b37f7"
+          }
+        }
+      ],
+      "reference": [
+        {
+          "trial": 0,
+          "geometry_sha256": {
+            "full": "ec1be96656b8aef11154d1a6bfa0bae31ddbf163f503bb4a5e5d3b345a6ac5a2",
+            "draft": "ec1be96656b8aef11154d1a6bfa0bae31ddbf163f503bb4a5e5d3b345a6ac5a2"
+          },
+          "source_line": 4,
+          "round_trip": {
+            "full": {
+              "forward": [
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "163.102814"
+                ],
+                [
+                  "y",
+                  "134.764618"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "136.701797"
+                ]
+              ],
+              "reverse": [
+                [
+                  "Input",
+                  "$SNAPSHOT\\main.tex"
+                ],
+                [
+                  "Line",
+                  "4"
+                ],
+                [
+                  "Column",
+                  "-1"
+                ]
+              ]
+            },
+            "draft": {
+              "forward": [
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "163.102814"
+                ],
+                [
+                  "y",
+                  "134.764618"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "136.701797"
+                ]
+              ],
+              "reverse": [
+                [
+                  "Input",
+                  "$SNAPSHOT\\main.tex"
+                ],
+                [
+                  "Line",
+                  "4"
+                ],
+                [
+                  "Column",
+                  "-1"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "trial": 1,
+          "geometry_sha256": {
+            "full": "ec1be96656b8aef11154d1a6bfa0bae31ddbf163f503bb4a5e5d3b345a6ac5a2",
+            "draft": "ec1be96656b8aef11154d1a6bfa0bae31ddbf163f503bb4a5e5d3b345a6ac5a2"
+          },
+          "source_line": 4,
+          "round_trip": {
+            "full": {
+              "forward": [
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "163.102814"
+                ],
+                [
+                  "y",
+                  "134.764618"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "136.701797"
+                ]
+              ],
+              "reverse": [
+                [
+                  "Input",
+                  "$SNAPSHOT\\main.tex"
+                ],
+                [
+                  "Line",
+                  "4"
+                ],
+                [
+                  "Column",
+                  "-1"
+                ]
+              ]
+            },
+            "draft": {
+              "forward": [
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "163.102814"
+                ],
+                [
+                  "y",
+                  "134.764618"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "136.701797"
+                ]
+              ],
+              "reverse": [
+                [
+                  "Input",
+                  "$SNAPSHOT\\main.tex"
+                ],
+                [
+                  "Line",
+                  "4"
+                ],
+                [
+                  "Column",
+                  "-1"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "trial": 2,
+          "geometry_sha256": {
+            "full": "ec1be96656b8aef11154d1a6bfa0bae31ddbf163f503bb4a5e5d3b345a6ac5a2",
+            "draft": "ec1be96656b8aef11154d1a6bfa0bae31ddbf163f503bb4a5e5d3b345a6ac5a2"
+          },
+          "source_line": 4,
+          "round_trip": {
+            "full": {
+              "forward": [
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "163.102814"
+                ],
+                [
+                  "y",
+                  "134.764618"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "136.701797"
+                ]
+              ],
+              "reverse": [
+                [
+                  "Input",
+                  "$SNAPSHOT\\main.tex"
+                ],
+                [
+                  "Line",
+                  "4"
+                ],
+                [
+                  "Column",
+                  "-1"
+                ]
+              ]
+            },
+            "draft": {
+              "forward": [
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "163.102814"
+                ],
+                [
+                  "y",
+                  "134.764618"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "136.701797"
+                ]
+              ],
+              "reverse": [
+                [
+                  "Input",
+                  "$SNAPSHOT\\main.tex"
+                ],
+                [
+                  "Line",
+                  "4"
+                ],
+                [
+                  "Column",
+                  "-1"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "trial": 3,
+          "geometry_sha256": {
+            "full": "ec1be96656b8aef11154d1a6bfa0bae31ddbf163f503bb4a5e5d3b345a6ac5a2",
+            "draft": "ec1be96656b8aef11154d1a6bfa0bae31ddbf163f503bb4a5e5d3b345a6ac5a2"
+          },
+          "source_line": 4,
+          "round_trip": {
+            "full": {
+              "forward": [
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "163.102814"
+                ],
+                [
+                  "y",
+                  "134.764618"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "136.701797"
+                ]
+              ],
+              "reverse": [
+                [
+                  "Input",
+                  "$SNAPSHOT\\main.tex"
+                ],
+                [
+                  "Line",
+                  "4"
+                ],
+                [
+                  "Column",
+                  "-1"
+                ]
+              ]
+            },
+            "draft": {
+              "forward": [
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "163.102814"
+                ],
+                [
+                  "y",
+                  "134.764618"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "136.701797"
+                ]
+              ],
+              "reverse": [
+                [
+                  "Input",
+                  "$SNAPSHOT\\main.tex"
+                ],
+                [
+                  "Line",
+                  "4"
+                ],
+                [
+                  "Column",
+                  "-1"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "trial": 4,
+          "geometry_sha256": {
+            "full": "ec1be96656b8aef11154d1a6bfa0bae31ddbf163f503bb4a5e5d3b345a6ac5a2",
+            "draft": "ec1be96656b8aef11154d1a6bfa0bae31ddbf163f503bb4a5e5d3b345a6ac5a2"
+          },
+          "source_line": 4,
+          "round_trip": {
+            "full": {
+              "forward": [
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "163.102814"
+                ],
+                [
+                  "y",
+                  "134.764618"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "136.701797"
+                ]
+              ],
+              "reverse": [
+                [
+                  "Input",
+                  "$SNAPSHOT\\main.tex"
+                ],
+                [
+                  "Line",
+                  "4"
+                ],
+                [
+                  "Column",
+                  "-1"
+                ]
+              ]
+            },
+            "draft": {
+              "forward": [
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "163.102814"
+                ],
+                [
+                  "y",
+                  "134.764618"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "136.701797"
+                ]
+              ],
+              "reverse": [
+                [
+                  "Input",
+                  "$SNAPSHOT\\main.tex"
+                ],
+                [
+                  "Line",
+                  "4"
+                ],
+                [
+                  "Column",
+                  "-1"
+                ]
+              ]
+            }
+          }
+        }
+      ],
+      "images": [
+        {
+          "trial": 0,
+          "geometry_sha256": {
+            "full": "be4617f7467ba01b3ddbadbd4d402cbfa3a899b80a81c2aefd7278452f9eed37",
+            "draft": "be4617f7467ba01b3ddbadbd4d402cbfa3a899b80a81c2aefd7278452f9eed37"
+          },
+          "source_line": 8,
+          "round_trip": {
+            "full": {
+              "forward": [
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ]
+              ],
+              "reverse": [
+                [
+                  "Input",
+                  "$SNAPSHOT\\main.tex"
+                ],
+                [
+                  "Line",
+                  "8"
+                ],
+                [
+                  "Column",
+                  "-1"
+                ]
+              ]
+            },
+            "draft": {
+              "forward": [
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ]
+              ],
+              "reverse": [
+                [
+                  "Input",
+                  "$SNAPSHOT\\main.tex"
+                ],
+                [
+                  "Line",
+                  "8"
+                ],
+                [
+                  "Column",
+                  "-1"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "trial": 1,
+          "geometry_sha256": {
+            "full": "be4617f7467ba01b3ddbadbd4d402cbfa3a899b80a81c2aefd7278452f9eed37",
+            "draft": "be4617f7467ba01b3ddbadbd4d402cbfa3a899b80a81c2aefd7278452f9eed37"
+          },
+          "source_line": 8,
+          "round_trip": {
+            "full": {
+              "forward": [
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ]
+              ],
+              "reverse": [
+                [
+                  "Input",
+                  "$SNAPSHOT\\main.tex"
+                ],
+                [
+                  "Line",
+                  "8"
+                ],
+                [
+                  "Column",
+                  "-1"
+                ]
+              ]
+            },
+            "draft": {
+              "forward": [
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ]
+              ],
+              "reverse": [
+                [
+                  "Input",
+                  "$SNAPSHOT\\main.tex"
+                ],
+                [
+                  "Line",
+                  "8"
+                ],
+                [
+                  "Column",
+                  "-1"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "trial": 2,
+          "geometry_sha256": {
+            "full": "be4617f7467ba01b3ddbadbd4d402cbfa3a899b80a81c2aefd7278452f9eed37",
+            "draft": "be4617f7467ba01b3ddbadbd4d402cbfa3a899b80a81c2aefd7278452f9eed37"
+          },
+          "source_line": 8,
+          "round_trip": {
+            "full": {
+              "forward": [
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ]
+              ],
+              "reverse": [
+                [
+                  "Input",
+                  "$SNAPSHOT\\main.tex"
+                ],
+                [
+                  "Line",
+                  "8"
+                ],
+                [
+                  "Column",
+                  "-1"
+                ]
+              ]
+            },
+            "draft": {
+              "forward": [
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ]
+              ],
+              "reverse": [
+                [
+                  "Input",
+                  "$SNAPSHOT\\main.tex"
+                ],
+                [
+                  "Line",
+                  "8"
+                ],
+                [
+                  "Column",
+                  "-1"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "trial": 3,
+          "geometry_sha256": {
+            "full": "be4617f7467ba01b3ddbadbd4d402cbfa3a899b80a81c2aefd7278452f9eed37",
+            "draft": "be4617f7467ba01b3ddbadbd4d402cbfa3a899b80a81c2aefd7278452f9eed37"
+          },
+          "source_line": 8,
+          "round_trip": {
+            "full": {
+              "forward": [
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ]
+              ],
+              "reverse": [
+                [
+                  "Input",
+                  "$SNAPSHOT\\main.tex"
+                ],
+                [
+                  "Line",
+                  "8"
+                ],
+                [
+                  "Column",
+                  "-1"
+                ]
+              ]
+            },
+            "draft": {
+              "forward": [
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ]
+              ],
+              "reverse": [
+                [
+                  "Input",
+                  "$SNAPSHOT\\main.tex"
+                ],
+                [
+                  "Line",
+                  "8"
+                ],
+                [
+                  "Column",
+                  "-1"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "trial": 4,
+          "geometry_sha256": {
+            "full": "be4617f7467ba01b3ddbadbd4d402cbfa3a899b80a81c2aefd7278452f9eed37",
+            "draft": "be4617f7467ba01b3ddbadbd4d402cbfa3a899b80a81c2aefd7278452f9eed37"
+          },
+          "source_line": 8,
+          "round_trip": {
+            "full": {
+              "forward": [
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ]
+              ],
+              "reverse": [
+                [
+                  "Input",
+                  "$SNAPSHOT\\main.tex"
+                ],
+                [
+                  "Line",
+                  "8"
+                ],
+                [
+                  "Column",
+                  "-1"
+                ]
+              ]
+            },
+            "draft": {
+              "forward": [
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "133.768356"
+                ],
+                [
+                  "y",
+                  "377.633881"
+                ],
+                [
+                  "h",
+                  "133.768356"
+                ],
+                [
+                  "v",
+                  "377.633881"
+                ]
+              ],
+              "reverse": [
+                [
+                  "Input",
+                  "$SNAPSHOT\\main.tex"
+                ],
+                [
+                  "Line",
+                  "8"
+                ],
+                [
+                  "Column",
+                  "-1"
+                ]
+              ]
+            }
+          }
+        }
+      ],
+      "report": [
+        {
+          "trial": 0,
+          "geometry_sha256": {
+            "full": "0081a4bcd741b36f4a185826dce80ef57aacc81276b4026379a7ff8f00765af3",
+            "draft": "0081a4bcd741b36f4a185826dce80ef57aacc81276b4026379a7ff8f00765af3"
+          },
+          "source_line": 39,
+          "round_trip": {
+            "full": {
+              "forward": [
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "141.642365"
+                ],
+                [
+                  "y",
+                  "168.116440"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "172.802887"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "90.158592"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "93.507011"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "116.530701"
+                ],
+                [
+                  "y",
+                  "90.158592"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "93.507011"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "196.978714"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "196.978714"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "141.642365"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "157.181564"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "172.802902"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "112.076401"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "115.781990"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "116.530701"
+                ],
+                [
+                  "y",
+                  "90.158592"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "93.507011"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "135.664780"
+                ],
+                [
+                  "y",
+                  "168.116440"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "172.802902"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "135.664780"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "157.181564"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "135.664780"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "172.802902"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "300.916168"
+                ],
+                [
+                  "y",
+                  "115.781982"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "115.781990"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "285.649017"
+                ],
+                [
+                  "y",
+                  "108.550102"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "115.781990"
+                ]
+              ],
+              "reverse": [
+                [
+                  "Input",
+                  "$SNAPSHOT\\main.tex"
+                ],
+                [
+                  "Line",
+                  "40"
+                ],
+                [
+                  "Column",
+                  "-1"
+                ]
+              ]
+            },
+            "draft": {
+              "forward": [
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "141.642365"
+                ],
+                [
+                  "y",
+                  "168.116440"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "172.802887"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "90.158592"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "93.507011"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "116.530701"
+                ],
+                [
+                  "y",
+                  "90.158592"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "93.507011"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "196.978714"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "196.978714"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "141.642365"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "157.181564"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "172.802902"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "112.076401"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "115.781990"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "116.530701"
+                ],
+                [
+                  "y",
+                  "90.158592"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "93.507011"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "135.664780"
+                ],
+                [
+                  "y",
+                  "168.116440"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "172.802902"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "135.664780"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "157.181564"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "135.664780"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "172.802902"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "300.916168"
+                ],
+                [
+                  "y",
+                  "115.781982"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "115.781990"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "285.649017"
+                ],
+                [
+                  "y",
+                  "108.550102"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "115.781990"
+                ]
+              ],
+              "reverse": [
+                [
+                  "Input",
+                  "$SNAPSHOT\\main.tex"
+                ],
+                [
+                  "Line",
+                  "40"
+                ],
+                [
+                  "Column",
+                  "-1"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "trial": 1,
+          "geometry_sha256": {
+            "full": "0081a4bcd741b36f4a185826dce80ef57aacc81276b4026379a7ff8f00765af3",
+            "draft": "0081a4bcd741b36f4a185826dce80ef57aacc81276b4026379a7ff8f00765af3"
+          },
+          "source_line": 39,
+          "round_trip": {
+            "full": {
+              "forward": [
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "141.642365"
+                ],
+                [
+                  "y",
+                  "168.116440"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "172.802887"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "90.158592"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "93.507011"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "116.530701"
+                ],
+                [
+                  "y",
+                  "90.158592"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "93.507011"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "196.978714"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "196.978714"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "141.642365"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "157.181564"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "172.802902"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "112.076401"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "115.781990"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "116.530701"
+                ],
+                [
+                  "y",
+                  "90.158592"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "93.507011"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "135.664780"
+                ],
+                [
+                  "y",
+                  "168.116440"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "172.802902"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "135.664780"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "157.181564"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "135.664780"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "172.802902"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "300.916168"
+                ],
+                [
+                  "y",
+                  "115.781982"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "115.781990"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "285.649017"
+                ],
+                [
+                  "y",
+                  "108.550102"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "115.781990"
+                ]
+              ],
+              "reverse": [
+                [
+                  "Input",
+                  "$SNAPSHOT\\main.tex"
+                ],
+                [
+                  "Line",
+                  "40"
+                ],
+                [
+                  "Column",
+                  "-1"
+                ]
+              ]
+            },
+            "draft": {
+              "forward": [
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "141.642365"
+                ],
+                [
+                  "y",
+                  "168.116440"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "172.802887"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "90.158592"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "93.507011"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "116.530701"
+                ],
+                [
+                  "y",
+                  "90.158592"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "93.507011"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "196.978714"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "196.978714"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "141.642365"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "157.181564"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "172.802902"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "112.076401"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "115.781990"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "116.530701"
+                ],
+                [
+                  "y",
+                  "90.158592"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "93.507011"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "135.664780"
+                ],
+                [
+                  "y",
+                  "168.116440"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "172.802902"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "135.664780"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "157.181564"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "135.664780"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "172.802902"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "300.916168"
+                ],
+                [
+                  "y",
+                  "115.781982"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "115.781990"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "285.649017"
+                ],
+                [
+                  "y",
+                  "108.550102"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "115.781990"
+                ]
+              ],
+              "reverse": [
+                [
+                  "Input",
+                  "$SNAPSHOT\\main.tex"
+                ],
+                [
+                  "Line",
+                  "40"
+                ],
+                [
+                  "Column",
+                  "-1"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "trial": 2,
+          "geometry_sha256": {
+            "full": "0081a4bcd741b36f4a185826dce80ef57aacc81276b4026379a7ff8f00765af3",
+            "draft": "0081a4bcd741b36f4a185826dce80ef57aacc81276b4026379a7ff8f00765af3"
+          },
+          "source_line": 39,
+          "round_trip": {
+            "full": {
+              "forward": [
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "141.642365"
+                ],
+                [
+                  "y",
+                  "168.116440"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "172.802887"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "90.158592"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "93.507011"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "116.530701"
+                ],
+                [
+                  "y",
+                  "90.158592"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "93.507011"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "196.978714"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "196.978714"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "141.642365"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "157.181564"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "172.802902"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "112.076401"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "115.781990"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "116.530701"
+                ],
+                [
+                  "y",
+                  "90.158592"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "93.507011"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "135.664780"
+                ],
+                [
+                  "y",
+                  "168.116440"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "172.802902"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "135.664780"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "157.181564"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "135.664780"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "172.802902"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "300.916168"
+                ],
+                [
+                  "y",
+                  "115.781982"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "115.781990"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "285.649017"
+                ],
+                [
+                  "y",
+                  "108.550102"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "115.781990"
+                ]
+              ],
+              "reverse": [
+                [
+                  "Input",
+                  "$SNAPSHOT\\main.tex"
+                ],
+                [
+                  "Line",
+                  "40"
+                ],
+                [
+                  "Column",
+                  "-1"
+                ]
+              ]
+            },
+            "draft": {
+              "forward": [
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "141.642365"
+                ],
+                [
+                  "y",
+                  "168.116440"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "172.802887"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "90.158592"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "93.507011"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "116.530701"
+                ],
+                [
+                  "y",
+                  "90.158592"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "93.507011"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "196.978714"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "196.978714"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "141.642365"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "157.181564"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "172.802902"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "112.076401"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "115.781990"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "116.530701"
+                ],
+                [
+                  "y",
+                  "90.158592"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "93.507011"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "135.664780"
+                ],
+                [
+                  "y",
+                  "168.116440"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "172.802902"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "135.664780"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "157.181564"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "135.664780"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "172.802902"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "300.916168"
+                ],
+                [
+                  "y",
+                  "115.781982"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "115.781990"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "285.649017"
+                ],
+                [
+                  "y",
+                  "108.550102"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "115.781990"
+                ]
+              ],
+              "reverse": [
+                [
+                  "Input",
+                  "$SNAPSHOT\\main.tex"
+                ],
+                [
+                  "Line",
+                  "40"
+                ],
+                [
+                  "Column",
+                  "-1"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "trial": 3,
+          "geometry_sha256": {
+            "full": "0081a4bcd741b36f4a185826dce80ef57aacc81276b4026379a7ff8f00765af3",
+            "draft": "0081a4bcd741b36f4a185826dce80ef57aacc81276b4026379a7ff8f00765af3"
+          },
+          "source_line": 39,
+          "round_trip": {
+            "full": {
+              "forward": [
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "141.642365"
+                ],
+                [
+                  "y",
+                  "168.116440"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "172.802887"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "90.158592"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "93.507011"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "116.530701"
+                ],
+                [
+                  "y",
+                  "90.158592"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "93.507011"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "196.978714"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "196.978714"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "141.642365"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "157.181564"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "172.802902"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "112.076401"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "115.781990"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "116.530701"
+                ],
+                [
+                  "y",
+                  "90.158592"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "93.507011"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "135.664780"
+                ],
+                [
+                  "y",
+                  "168.116440"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "172.802902"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "135.664780"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "157.181564"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "135.664780"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "172.802902"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "300.916168"
+                ],
+                [
+                  "y",
+                  "115.781982"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "115.781990"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "285.649017"
+                ],
+                [
+                  "y",
+                  "108.550102"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "115.781990"
+                ]
+              ],
+              "reverse": [
+                [
+                  "Input",
+                  "$SNAPSHOT\\main.tex"
+                ],
+                [
+                  "Line",
+                  "40"
+                ],
+                [
+                  "Column",
+                  "-1"
+                ]
+              ]
+            },
+            "draft": {
+              "forward": [
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "141.642365"
+                ],
+                [
+                  "y",
+                  "168.116440"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "172.802887"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "90.158592"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "93.507011"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "116.530701"
+                ],
+                [
+                  "y",
+                  "90.158592"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "93.507011"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "196.978714"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "196.978714"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "141.642365"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "157.181564"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "172.802902"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "112.076401"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "115.781990"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "116.530701"
+                ],
+                [
+                  "y",
+                  "90.158592"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "93.507011"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "135.664780"
+                ],
+                [
+                  "y",
+                  "168.116440"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "172.802902"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "135.664780"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "157.181564"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "135.664780"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "172.802902"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "300.916168"
+                ],
+                [
+                  "y",
+                  "115.781982"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "115.781990"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "285.649017"
+                ],
+                [
+                  "y",
+                  "108.550102"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "115.781990"
+                ]
+              ],
+              "reverse": [
+                [
+                  "Input",
+                  "$SNAPSHOT\\main.tex"
+                ],
+                [
+                  "Line",
+                  "40"
+                ],
+                [
+                  "Column",
+                  "-1"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "trial": 4,
+          "geometry_sha256": {
+            "full": "0081a4bcd741b36f4a185826dce80ef57aacc81276b4026379a7ff8f00765af3",
+            "draft": "0081a4bcd741b36f4a185826dce80ef57aacc81276b4026379a7ff8f00765af3"
+          },
+          "source_line": 39,
+          "round_trip": {
+            "full": {
+              "forward": [
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "141.642365"
+                ],
+                [
+                  "y",
+                  "168.116440"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "172.802887"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "90.158592"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "93.507011"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "116.530701"
+                ],
+                [
+                  "y",
+                  "90.158592"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "93.507011"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "196.978714"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "196.978714"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "141.642365"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "157.181564"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "172.802902"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "112.076401"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "115.781990"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "116.530701"
+                ],
+                [
+                  "y",
+                  "90.158592"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "93.507011"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "135.664780"
+                ],
+                [
+                  "y",
+                  "168.116440"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "172.802902"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "135.664780"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "157.181564"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "135.664780"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "172.802902"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "300.916168"
+                ],
+                [
+                  "y",
+                  "115.781982"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "115.781990"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "285.649017"
+                ],
+                [
+                  "y",
+                  "108.550102"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "115.781990"
+                ]
+              ],
+              "reverse": [
+                [
+                  "Input",
+                  "$SNAPSHOT\\main.tex"
+                ],
+                [
+                  "Line",
+                  "40"
+                ],
+                [
+                  "Column",
+                  "-1"
+                ]
+              ]
+            },
+            "draft": {
+              "forward": [
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "141.642365"
+                ],
+                [
+                  "y",
+                  "168.116440"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "172.802887"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "90.158592"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "93.507011"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "116.530701"
+                ],
+                [
+                  "y",
+                  "90.158592"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "93.507011"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "196.978714"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "196.978714"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "141.642365"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "157.181564"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "172.802902"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "65.196838"
+                ],
+                [
+                  "y",
+                  "112.076401"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "115.781990"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "116.530701"
+                ],
+                [
+                  "y",
+                  "90.158592"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "93.507011"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "135.664780"
+                ],
+                [
+                  "y",
+                  "168.116440"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "172.802902"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "135.664780"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "135.664780"
+                ],
+                [
+                  "v",
+                  "157.181564"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "135.664780"
+                ],
+                [
+                  "y",
+                  "152.495117"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "172.802902"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "300.916168"
+                ],
+                [
+                  "y",
+                  "115.781982"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "115.781990"
+                ],
+                [
+                  "Page",
+                  "1"
+                ],
+                [
+                  "x",
+                  "285.649017"
+                ],
+                [
+                  "y",
+                  "108.550102"
+                ],
+                [
+                  "h",
+                  "65.196838"
+                ],
+                [
+                  "v",
+                  "115.781990"
+                ]
+              ],
+              "reverse": [
+                [
+                  "Input",
+                  "$SNAPSHOT\\main.tex"
+                ],
+                [
+                  "Line",
+                  "40"
+                ],
+                [
+                  "Column",
+                  "-1"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "pairs": {
+    "witness": [
+      {
+        "case": "witness",
+        "trial": 0,
+        "warmup": true,
+        "order": [
+          "full",
+          "draft"
+        ],
+        "pdf_equivalent": false,
+        "pages": [
+          1,
+          1
+        ],
+        "normalized_synctex": {
+          "full": "5b96707082285b96cd4b3d2c93a3981633978a03978c33e8d17dfe8e8d233f1f",
+          "draft": "bc48c32b1f9cf3d556ab20392060dddebf2bbe7135a46c3a89ab61eced1cdf21"
+        },
+        "pdf_first_page_text_if_different": [
+          "Full-seeded marker\n1\n",
+          "Draft-seeded marker\n1\n"
+        ],
+        "final_aux_stable_in_each_arm": {
+          "full": true,
+          "draft": true
+        },
+        "pass_1_input_differences": {
+          "full_only": [
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb"
+          ],
+          "draft_only": []
+        },
+        "pass_3_input_differences": {
+          "full_only": [],
+          "draft_only": []
+        },
+        "full": {
+          "steps_seconds": [
+            1.558894199988572,
+            1.4145036000118125,
+            1.4553805000032298
+          ],
+          "bibtex_seconds": 0,
+          "total_seconds": 4.428778300003614,
+          "sha256": "03d41d682990614b2109abc7b3fe78b9cdefb094045759df9882195523e827c5",
+          "passes": [
+            {
+              "pdf_exists": true,
+              "aux_sha256": "488c30ec12e969f094bf74cf84278453aa6400ff2efa252e37ac31e89dce6a87"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "488c30ec12e969f094bf74cf84278453aa6400ff2efa252e37ac31e89dce6a87"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "488c30ec12e969f094bf74cf84278453aa6400ff2efa252e37ac31e89dce6a87"
+            }
+          ]
+        },
+        "draft": {
+          "steps_seconds": [
+            1.458651099994313,
+            1.366022400005022,
+            1.3537753999989945
+          ],
+          "bibtex_seconds": 0,
+          "total_seconds": 4.17844889999833,
+          "sha256": "572d4422ac0c544148c74a95d1b9758d3029481dbf3ad607ddc49e7977e496cf",
+          "passes": [
+            {
+              "pdf_exists": false,
+              "aux_sha256": "9f81c0d017c7da08ed932e46dc5e7f2fa09597fba6ccdc70e75e2fa57c22832e"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "9f81c0d017c7da08ed932e46dc5e7f2fa09597fba6ccdc70e75e2fa57c22832e"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "9f81c0d017c7da08ed932e46dc5e7f2fa09597fba6ccdc70e75e2fa57c22832e"
+            }
+          ]
+        }
+      }
+    ],
+    "reference": [
+      {
+        "case": "reference",
+        "trial": 0,
+        "warmup": true,
+        "order": [
+          "full",
+          "draft"
+        ],
+        "pdf_equivalent": true,
+        "pages": [
+          2,
+          2
+        ],
+        "normalized_synctex": {
+          "full": "c35adf89d41456063f74da9abaeb29c4b411f4e13f908cde9eeb82a13095489c",
+          "draft": "5685f379e7f1200c1bbe222577cf93552abcce9c23f68180492e9834be655901"
+        },
+        "pdf_first_page_text_if_different": [],
+        "final_aux_stable_in_each_arm": {
+          "full": true,
+          "draft": true
+        },
+        "pass_1_input_differences": {
+          "full_only": [
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb"
+          ],
+          "draft_only": []
+        },
+        "pass_3_input_differences": {
+          "full_only": [],
+          "draft_only": []
+        },
+        "full": {
+          "steps_seconds": [
+            2.224178300006315,
+            2.3823487000045134,
+            2.2101863999996567
+          ],
+          "bibtex_seconds": 0,
+          "total_seconds": 6.816713400010485,
+          "sha256": "529d15d9e0861be8f50289c6d068b19f58182336aaff73a09a0493cb2f729247",
+          "passes": [
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6bdafcdabbc2d7a00c656203589b4a4710bbe32c959dc30c4cae15efda40b4f3"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6bdafcdabbc2d7a00c656203589b4a4710bbe32c959dc30c4cae15efda40b4f3"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6bdafcdabbc2d7a00c656203589b4a4710bbe32c959dc30c4cae15efda40b4f3"
+            }
+          ]
+        },
+        "draft": {
+          "steps_seconds": [
+            2.3698283999983687,
+            2.2200115000014193,
+            2.2514631999947596
+          ],
+          "bibtex_seconds": 0,
+          "total_seconds": 6.841303099994548,
+          "sha256": "29b3e3afb0e5acf4bee54f0da5a2c9c83d90688240d1af55329412a574815834",
+          "passes": [
+            {
+              "pdf_exists": false,
+              "aux_sha256": "6bdafcdabbc2d7a00c656203589b4a4710bbe32c959dc30c4cae15efda40b4f3"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6bdafcdabbc2d7a00c656203589b4a4710bbe32c959dc30c4cae15efda40b4f3"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6bdafcdabbc2d7a00c656203589b4a4710bbe32c959dc30c4cae15efda40b4f3"
+            }
+          ]
+        }
+      },
+      {
+        "case": "reference",
+        "trial": 1,
+        "warmup": false,
+        "order": [
+          "draft",
+          "full"
+        ],
+        "pdf_equivalent": true,
+        "pages": [
+          2,
+          2
+        ],
+        "normalized_synctex": {
+          "draft": "5685f379e7f1200c1bbe222577cf93552abcce9c23f68180492e9834be655901",
+          "full": "c35adf89d41456063f74da9abaeb29c4b411f4e13f908cde9eeb82a13095489c"
+        },
+        "pdf_first_page_text_if_different": [],
+        "final_aux_stable_in_each_arm": {
+          "draft": true,
+          "full": true
+        },
+        "pass_1_input_differences": {
+          "full_only": [
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb"
+          ],
+          "draft_only": []
+        },
+        "pass_3_input_differences": {
+          "full_only": [],
+          "draft_only": []
+        },
+        "draft": {
+          "steps_seconds": [
+            2.205729599998449,
+            2.1403003000013996,
+            2.3161153999972157
+          ],
+          "bibtex_seconds": 0,
+          "total_seconds": 6.662145299997064,
+          "sha256": "b0ff3f119eeee79df1325e23a4234c60f5b03cd04865eb28b19fd3bf63bf2355",
+          "passes": [
+            {
+              "pdf_exists": false,
+              "aux_sha256": "6bdafcdabbc2d7a00c656203589b4a4710bbe32c959dc30c4cae15efda40b4f3"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6bdafcdabbc2d7a00c656203589b4a4710bbe32c959dc30c4cae15efda40b4f3"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6bdafcdabbc2d7a00c656203589b4a4710bbe32c959dc30c4cae15efda40b4f3"
+            }
+          ]
+        },
+        "full": {
+          "steps_seconds": [
+            2.3550023999996483,
+            2.311671000003116,
+            2.416265400010161
+          ],
+          "bibtex_seconds": 0,
+          "total_seconds": 7.082938800012926,
+          "sha256": "b795f18198919c935f551b9ec2fc8255b13f866fb454c52cf6149e19ddd36d2e",
+          "passes": [
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6bdafcdabbc2d7a00c656203589b4a4710bbe32c959dc30c4cae15efda40b4f3"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6bdafcdabbc2d7a00c656203589b4a4710bbe32c959dc30c4cae15efda40b4f3"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6bdafcdabbc2d7a00c656203589b4a4710bbe32c959dc30c4cae15efda40b4f3"
+            }
+          ]
+        }
+      },
+      {
+        "case": "reference",
+        "trial": 2,
+        "warmup": false,
+        "order": [
+          "full",
+          "draft"
+        ],
+        "pdf_equivalent": true,
+        "pages": [
+          2,
+          2
+        ],
+        "normalized_synctex": {
+          "full": "c35adf89d41456063f74da9abaeb29c4b411f4e13f908cde9eeb82a13095489c",
+          "draft": "5685f379e7f1200c1bbe222577cf93552abcce9c23f68180492e9834be655901"
+        },
+        "pdf_first_page_text_if_different": [],
+        "final_aux_stable_in_each_arm": {
+          "full": true,
+          "draft": true
+        },
+        "pass_1_input_differences": {
+          "full_only": [
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb"
+          ],
+          "draft_only": []
+        },
+        "pass_3_input_differences": {
+          "full_only": [],
+          "draft_only": []
+        },
+        "full": {
+          "steps_seconds": [
+            2.261009499998181,
+            2.1966336000041338,
+            2.183548700006213
+          ],
+          "bibtex_seconds": 0,
+          "total_seconds": 6.641191800008528,
+          "sha256": "79044bb5630e1a7738a5cf6d79d72dead85df9fbcf4b94ec65157ad16fa37820",
+          "passes": [
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6bdafcdabbc2d7a00c656203589b4a4710bbe32c959dc30c4cae15efda40b4f3"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6bdafcdabbc2d7a00c656203589b4a4710bbe32c959dc30c4cae15efda40b4f3"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6bdafcdabbc2d7a00c656203589b4a4710bbe32c959dc30c4cae15efda40b4f3"
+            }
+          ]
+        },
+        "draft": {
+          "steps_seconds": [
+            2.1318828000075882,
+            2.4359602999902563,
+            2.193180999995093
+          ],
+          "bibtex_seconds": 0,
+          "total_seconds": 6.761024099992937,
+          "sha256": "8b23d0c83f930a37dc1aec517ea5e93bd6fba1149ba0a6840fa4fa7616572e40",
+          "passes": [
+            {
+              "pdf_exists": false,
+              "aux_sha256": "6bdafcdabbc2d7a00c656203589b4a4710bbe32c959dc30c4cae15efda40b4f3"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6bdafcdabbc2d7a00c656203589b4a4710bbe32c959dc30c4cae15efda40b4f3"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6bdafcdabbc2d7a00c656203589b4a4710bbe32c959dc30c4cae15efda40b4f3"
+            }
+          ]
+        }
+      },
+      {
+        "case": "reference",
+        "trial": 3,
+        "warmup": false,
+        "order": [
+          "draft",
+          "full"
+        ],
+        "pdf_equivalent": true,
+        "pages": [
+          2,
+          2
+        ],
+        "normalized_synctex": {
+          "draft": "5685f379e7f1200c1bbe222577cf93552abcce9c23f68180492e9834be655901",
+          "full": "c35adf89d41456063f74da9abaeb29c4b411f4e13f908cde9eeb82a13095489c"
+        },
+        "pdf_first_page_text_if_different": [],
+        "final_aux_stable_in_each_arm": {
+          "draft": true,
+          "full": true
+        },
+        "pass_1_input_differences": {
+          "full_only": [
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb"
+          ],
+          "draft_only": []
+        },
+        "pass_3_input_differences": {
+          "full_only": [],
+          "draft_only": []
+        },
+        "draft": {
+          "steps_seconds": [
+            2.476047899996047,
+            2.7453963000007207,
+            2.333862700004829
+          ],
+          "bibtex_seconds": 0,
+          "total_seconds": 7.555306900001597,
+          "sha256": "a0d423ed2ff213ccc2115a05f17216d949ec7b8ce48bbd264087ec4160d12006",
+          "passes": [
+            {
+              "pdf_exists": false,
+              "aux_sha256": "6bdafcdabbc2d7a00c656203589b4a4710bbe32c959dc30c4cae15efda40b4f3"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6bdafcdabbc2d7a00c656203589b4a4710bbe32c959dc30c4cae15efda40b4f3"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6bdafcdabbc2d7a00c656203589b4a4710bbe32c959dc30c4cae15efda40b4f3"
+            }
+          ]
+        },
+        "full": {
+          "steps_seconds": [
+            2.340139599997201,
+            2.1947182999865618,
+            2.0968354000069667
+          ],
+          "bibtex_seconds": 0,
+          "total_seconds": 6.631693299990729,
+          "sha256": "918d9732f180908c3786de5d598db649baf85bb45e1e6580c03a10fccc949e23",
+          "passes": [
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6bdafcdabbc2d7a00c656203589b4a4710bbe32c959dc30c4cae15efda40b4f3"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6bdafcdabbc2d7a00c656203589b4a4710bbe32c959dc30c4cae15efda40b4f3"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6bdafcdabbc2d7a00c656203589b4a4710bbe32c959dc30c4cae15efda40b4f3"
+            }
+          ]
+        }
+      },
+      {
+        "case": "reference",
+        "trial": 4,
+        "warmup": false,
+        "order": [
+          "full",
+          "draft"
+        ],
+        "pdf_equivalent": true,
+        "pages": [
+          2,
+          2
+        ],
+        "normalized_synctex": {
+          "full": "c35adf89d41456063f74da9abaeb29c4b411f4e13f908cde9eeb82a13095489c",
+          "draft": "5685f379e7f1200c1bbe222577cf93552abcce9c23f68180492e9834be655901"
+        },
+        "pdf_first_page_text_if_different": [],
+        "final_aux_stable_in_each_arm": {
+          "full": true,
+          "draft": true
+        },
+        "pass_1_input_differences": {
+          "full_only": [
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb"
+          ],
+          "draft_only": []
+        },
+        "pass_3_input_differences": {
+          "full_only": [],
+          "draft_only": []
+        },
+        "full": {
+          "steps_seconds": [
+            2.371244800000568,
+            2.162510800000746,
+            2.1143736000085482
+          ],
+          "bibtex_seconds": 0,
+          "total_seconds": 6.648129200009862,
+          "sha256": "74c6d6d7bdc427efe511fc0ef265d3e0938974279b7d9fb57e6ec08f921c84d4",
+          "passes": [
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6bdafcdabbc2d7a00c656203589b4a4710bbe32c959dc30c4cae15efda40b4f3"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6bdafcdabbc2d7a00c656203589b4a4710bbe32c959dc30c4cae15efda40b4f3"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6bdafcdabbc2d7a00c656203589b4a4710bbe32c959dc30c4cae15efda40b4f3"
+            }
+          ]
+        },
+        "draft": {
+          "steps_seconds": [
+            2.099042100002407,
+            2.1183183999964967,
+            2.1732891999999993
+          ],
+          "bibtex_seconds": 0,
+          "total_seconds": 6.390649699998903,
+          "sha256": "3a28dca224f8d03372bbf55266e507f846315c7196fbe6b9b2fea547042441b7",
+          "passes": [
+            {
+              "pdf_exists": false,
+              "aux_sha256": "6bdafcdabbc2d7a00c656203589b4a4710bbe32c959dc30c4cae15efda40b4f3"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6bdafcdabbc2d7a00c656203589b4a4710bbe32c959dc30c4cae15efda40b4f3"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6bdafcdabbc2d7a00c656203589b4a4710bbe32c959dc30c4cae15efda40b4f3"
+            }
+          ]
+        }
+      }
+    ],
+    "images": [
+      {
+        "case": "images",
+        "trial": 0,
+        "warmup": true,
+        "order": [
+          "full",
+          "draft"
+        ],
+        "pdf_equivalent": true,
+        "pages": [
+          12,
+          12
+        ],
+        "normalized_synctex": {
+          "full": "31b45f43df3f6883314feee88b3b20e0a5ae0e08bae5c5ae47b9ec563140b709",
+          "draft": "4b6951b907f6cb23ce94e04ab0e9dcc7a0503829c8577eb79d7594810631a7f5"
+        },
+        "pdf_first_page_text_if_different": [],
+        "final_aux_stable_in_each_arm": {
+          "full": true,
+          "draft": true
+        },
+        "pass_1_input_differences": {
+          "full_only": [
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb"
+          ],
+          "draft_only": []
+        },
+        "pass_3_input_differences": {
+          "full_only": [],
+          "draft_only": []
+        },
+        "full": {
+          "steps_seconds": [
+            3.3348510000068927,
+            2.8739265000040177,
+            2.856674800001201
+          ],
+          "bibtex_seconds": 0,
+          "total_seconds": 9.065452300012112,
+          "sha256": "3cb0a08fe25cc35064292a4fd237666e86edd043cba40e3eb14bba6c76bd482d",
+          "passes": [
+            {
+              "pdf_exists": true,
+              "aux_sha256": "f3203799796660154f446fdc114f67d99ca95e597cdbdb962a010a81b5f85725"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "f3203799796660154f446fdc114f67d99ca95e597cdbdb962a010a81b5f85725"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "f3203799796660154f446fdc114f67d99ca95e597cdbdb962a010a81b5f85725"
+            }
+          ]
+        },
+        "draft": {
+          "steps_seconds": [
+            2.8863238000049023,
+            2.2559850000106962,
+            1.209131100011291
+          ],
+          "bibtex_seconds": 0,
+          "total_seconds": 6.3514399000268895,
+          "sha256": "16e075e049e9bfb28a6a173bb48b7b025f2aac776030932d893c75e4b10ab885",
+          "passes": [
+            {
+              "pdf_exists": false,
+              "aux_sha256": "f3203799796660154f446fdc114f67d99ca95e597cdbdb962a010a81b5f85725"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "f3203799796660154f446fdc114f67d99ca95e597cdbdb962a010a81b5f85725"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "f3203799796660154f446fdc114f67d99ca95e597cdbdb962a010a81b5f85725"
+            }
+          ]
+        }
+      },
+      {
+        "case": "images",
+        "trial": 1,
+        "warmup": false,
+        "order": [
+          "draft",
+          "full"
+        ],
+        "pdf_equivalent": true,
+        "pages": [
+          12,
+          12
+        ],
+        "normalized_synctex": {
+          "draft": "4b6951b907f6cb23ce94e04ab0e9dcc7a0503829c8577eb79d7594810631a7f5",
+          "full": "31b45f43df3f6883314feee88b3b20e0a5ae0e08bae5c5ae47b9ec563140b709"
+        },
+        "pdf_first_page_text_if_different": [],
+        "final_aux_stable_in_each_arm": {
+          "draft": true,
+          "full": true
+        },
+        "pass_1_input_differences": {
+          "full_only": [
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb"
+          ],
+          "draft_only": []
+        },
+        "pass_3_input_differences": {
+          "full_only": [],
+          "draft_only": []
+        },
+        "draft": {
+          "steps_seconds": [
+            1.2988170000026003,
+            1.088636900007259,
+            1.0438289000012446
+          ],
+          "bibtex_seconds": 0,
+          "total_seconds": 3.431282800011104,
+          "sha256": "8452e6442a4aa40f61ded3629bb4db54621b658e725fc89309cf0268c9f4a0a0",
+          "passes": [
+            {
+              "pdf_exists": false,
+              "aux_sha256": "f3203799796660154f446fdc114f67d99ca95e597cdbdb962a010a81b5f85725"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "f3203799796660154f446fdc114f67d99ca95e597cdbdb962a010a81b5f85725"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "f3203799796660154f446fdc114f67d99ca95e597cdbdb962a010a81b5f85725"
+            }
+          ]
+        },
+        "full": {
+          "steps_seconds": [
+            1.5033276000031037,
+            1.0310829000081867,
+            1.080437399999937
+          ],
+          "bibtex_seconds": 0,
+          "total_seconds": 3.6148479000112275,
+          "sha256": "89fe3bf5f0601a69fa4a4c7049f124b4e7c742ae6b2fb4d8e46bbac3bc95916a",
+          "passes": [
+            {
+              "pdf_exists": true,
+              "aux_sha256": "f3203799796660154f446fdc114f67d99ca95e597cdbdb962a010a81b5f85725"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "f3203799796660154f446fdc114f67d99ca95e597cdbdb962a010a81b5f85725"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "f3203799796660154f446fdc114f67d99ca95e597cdbdb962a010a81b5f85725"
+            }
+          ]
+        }
+      },
+      {
+        "case": "images",
+        "trial": 2,
+        "warmup": false,
+        "order": [
+          "full",
+          "draft"
+        ],
+        "pdf_equivalent": true,
+        "pages": [
+          12,
+          12
+        ],
+        "normalized_synctex": {
+          "full": "31b45f43df3f6883314feee88b3b20e0a5ae0e08bae5c5ae47b9ec563140b709",
+          "draft": "4b6951b907f6cb23ce94e04ab0e9dcc7a0503829c8577eb79d7594810631a7f5"
+        },
+        "pdf_first_page_text_if_different": [],
+        "final_aux_stable_in_each_arm": {
+          "full": true,
+          "draft": true
+        },
+        "pass_1_input_differences": {
+          "full_only": [
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb"
+          ],
+          "draft_only": []
+        },
+        "pass_3_input_differences": {
+          "full_only": [],
+          "draft_only": []
+        },
+        "full": {
+          "steps_seconds": [
+            1.4546268999984022,
+            0.9825185000081547,
+            1.1018801000027452
+          ],
+          "bibtex_seconds": 0,
+          "total_seconds": 3.539025500009302,
+          "sha256": "89d61e12e3506457b511c3127a54584baedd977bfee4b81477541ac286f9543c",
+          "passes": [
+            {
+              "pdf_exists": true,
+              "aux_sha256": "f3203799796660154f446fdc114f67d99ca95e597cdbdb962a010a81b5f85725"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "f3203799796660154f446fdc114f67d99ca95e597cdbdb962a010a81b5f85725"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "f3203799796660154f446fdc114f67d99ca95e597cdbdb962a010a81b5f85725"
+            }
+          ]
+        },
+        "draft": {
+          "steps_seconds": [
+            1.2221370000042953,
+            1.008082000000286,
+            0.9961502999940421
+          ],
+          "bibtex_seconds": 0,
+          "total_seconds": 3.2263692999986233,
+          "sha256": "ff3a98951922b382caf10bb0c67cce6a3f380dc5810b46891a6ae58ba1809443",
+          "passes": [
+            {
+              "pdf_exists": false,
+              "aux_sha256": "f3203799796660154f446fdc114f67d99ca95e597cdbdb962a010a81b5f85725"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "f3203799796660154f446fdc114f67d99ca95e597cdbdb962a010a81b5f85725"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "f3203799796660154f446fdc114f67d99ca95e597cdbdb962a010a81b5f85725"
+            }
+          ]
+        }
+      },
+      {
+        "case": "images",
+        "trial": 3,
+        "warmup": false,
+        "order": [
+          "draft",
+          "full"
+        ],
+        "pdf_equivalent": true,
+        "pages": [
+          12,
+          12
+        ],
+        "normalized_synctex": {
+          "draft": "4b6951b907f6cb23ce94e04ab0e9dcc7a0503829c8577eb79d7594810631a7f5",
+          "full": "31b45f43df3f6883314feee88b3b20e0a5ae0e08bae5c5ae47b9ec563140b709"
+        },
+        "pdf_first_page_text_if_different": [],
+        "final_aux_stable_in_each_arm": {
+          "draft": true,
+          "full": true
+        },
+        "pass_1_input_differences": {
+          "full_only": [
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb"
+          ],
+          "draft_only": []
+        },
+        "pass_3_input_differences": {
+          "full_only": [],
+          "draft_only": []
+        },
+        "draft": {
+          "steps_seconds": [
+            1.2541420000052312,
+            1.1288118999946164,
+            1.0436664999870118
+          ],
+          "bibtex_seconds": 0,
+          "total_seconds": 3.4266203999868594,
+          "sha256": "62e11c4253b090c1980d9093d2487a1e132362d79c608d208f23b8857daa4988",
+          "passes": [
+            {
+              "pdf_exists": false,
+              "aux_sha256": "f3203799796660154f446fdc114f67d99ca95e597cdbdb962a010a81b5f85725"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "f3203799796660154f446fdc114f67d99ca95e597cdbdb962a010a81b5f85725"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "f3203799796660154f446fdc114f67d99ca95e597cdbdb962a010a81b5f85725"
+            }
+          ]
+        },
+        "full": {
+          "steps_seconds": [
+            1.3453318999963813,
+            1.0304384999908507,
+            1.143148699993617
+          ],
+          "bibtex_seconds": 0,
+          "total_seconds": 3.518919099980849,
+          "sha256": "0540ac0573bfe8bbc1eaeb922f8e53b6c5417199585e594d42c6ea3714ddc37f",
+          "passes": [
+            {
+              "pdf_exists": true,
+              "aux_sha256": "f3203799796660154f446fdc114f67d99ca95e597cdbdb962a010a81b5f85725"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "f3203799796660154f446fdc114f67d99ca95e597cdbdb962a010a81b5f85725"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "f3203799796660154f446fdc114f67d99ca95e597cdbdb962a010a81b5f85725"
+            }
+          ]
+        }
+      },
+      {
+        "case": "images",
+        "trial": 4,
+        "warmup": false,
+        "order": [
+          "full",
+          "draft"
+        ],
+        "pdf_equivalent": true,
+        "pages": [
+          12,
+          12
+        ],
+        "normalized_synctex": {
+          "full": "31b45f43df3f6883314feee88b3b20e0a5ae0e08bae5c5ae47b9ec563140b709",
+          "draft": "4b6951b907f6cb23ce94e04ab0e9dcc7a0503829c8577eb79d7594810631a7f5"
+        },
+        "pdf_first_page_text_if_different": [],
+        "final_aux_stable_in_each_arm": {
+          "full": true,
+          "draft": true
+        },
+        "pass_1_input_differences": {
+          "full_only": [
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb"
+          ],
+          "draft_only": []
+        },
+        "pass_3_input_differences": {
+          "full_only": [],
+          "draft_only": []
+        },
+        "full": {
+          "steps_seconds": [
+            0.9109104999952251,
+            0.7297527999908198,
+            0.705110800001421
+          ],
+          "bibtex_seconds": 0,
+          "total_seconds": 2.345774099987466,
+          "sha256": "cf1f0ccc8672d0c25077ff68806754eb943381c791ff72d4102182ec826b0e77",
+          "passes": [
+            {
+              "pdf_exists": true,
+              "aux_sha256": "f3203799796660154f446fdc114f67d99ca95e597cdbdb962a010a81b5f85725"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "f3203799796660154f446fdc114f67d99ca95e597cdbdb962a010a81b5f85725"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "f3203799796660154f446fdc114f67d99ca95e597cdbdb962a010a81b5f85725"
+            }
+          ]
+        },
+        "draft": {
+          "steps_seconds": [
+            1.1432132000045385,
+            1.2846586999949068,
+            1.2824774000036996
+          ],
+          "bibtex_seconds": 0,
+          "total_seconds": 3.710349300003145,
+          "sha256": "3c77ecb4e12f4b38377a93faaa457e0d3e57dff9528360a64cf2d1131903e9a3",
+          "passes": [
+            {
+              "pdf_exists": false,
+              "aux_sha256": "f3203799796660154f446fdc114f67d99ca95e597cdbdb962a010a81b5f85725"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "f3203799796660154f446fdc114f67d99ca95e597cdbdb962a010a81b5f85725"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "f3203799796660154f446fdc114f67d99ca95e597cdbdb962a010a81b5f85725"
+            }
+          ]
+        }
+      }
+    ],
+    "report": [
+      {
+        "case": "report",
+        "trial": 0,
+        "warmup": true,
+        "order": [
+          "full",
+          "draft"
+        ],
+        "pdf_equivalent": true,
+        "pages": [
+          40,
+          40
+        ],
+        "normalized_synctex": {
+          "full": "10583e81bc45e303dd55ffe929d7dbcdca78b7fc2ebb31c0f53ce339e88bb6b0",
+          "draft": "895b3eb0c8eb2f2491150e9bf9897f026d1bd10720fcb1ca1c9accbb679d2422"
+        },
+        "pdf_first_page_text_if_different": [],
+        "final_aux_stable_in_each_arm": {
+          "full": true,
+          "draft": true
+        },
+        "pass_1_input_differences": {
+          "full_only": [
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx12.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx9.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmmi10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmmi7.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr12.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr17.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr6.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr7.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr9.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmri10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy7.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy9.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt9.pfb"
+          ],
+          "draft_only": []
+        },
+        "pass_3_input_differences": {
+          "full_only": [],
+          "draft_only": []
+        },
+        "full": {
+          "steps_seconds": [
+            2.6484206000022823,
+            2.292397700002766,
+            1.6127111999958288
+          ],
+          "bibtex_seconds": 0.6967437999992399,
+          "total_seconds": 7.250273300000117,
+          "sha256": "c781de8bae4af13b73dc5dcb8bb94f91392daf965ffb9cfb6f56d1ad42ecde82",
+          "passes": [
+            {
+              "pdf_exists": true,
+              "aux_sha256": "62d3beb077b2b08cbe68b2d2cda223b920319659048f05a910839bd5c1302d00"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6c6657f70e8edcec182de9b646d0acee4c6dec963fe85cbfec2ffc38c199409c"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6c6657f70e8edcec182de9b646d0acee4c6dec963fe85cbfec2ffc38c199409c"
+            }
+          ]
+        },
+        "draft": {
+          "steps_seconds": [
+            1.370123999993666,
+            1.3636648999963654,
+            1.3648756999900797
+          ],
+          "bibtex_seconds": 0.284273099998245,
+          "total_seconds": 4.382937699978356,
+          "sha256": "4c1929fb44729d14b012f5054bc20b50d05987df7d19bc395ee7cf47cce4556d",
+          "passes": [
+            {
+              "pdf_exists": false,
+              "aux_sha256": "62d3beb077b2b08cbe68b2d2cda223b920319659048f05a910839bd5c1302d00"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6c6657f70e8edcec182de9b646d0acee4c6dec963fe85cbfec2ffc38c199409c"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6c6657f70e8edcec182de9b646d0acee4c6dec963fe85cbfec2ffc38c199409c"
+            }
+          ]
+        }
+      },
+      {
+        "case": "report",
+        "trial": 1,
+        "warmup": false,
+        "order": [
+          "draft",
+          "full"
+        ],
+        "pdf_equivalent": true,
+        "pages": [
+          40,
+          40
+        ],
+        "normalized_synctex": {
+          "draft": "895b3eb0c8eb2f2491150e9bf9897f026d1bd10720fcb1ca1c9accbb679d2422",
+          "full": "10583e81bc45e303dd55ffe929d7dbcdca78b7fc2ebb31c0f53ce339e88bb6b0"
+        },
+        "pdf_first_page_text_if_different": [],
+        "final_aux_stable_in_each_arm": {
+          "draft": true,
+          "full": true
+        },
+        "pass_1_input_differences": {
+          "full_only": [
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx12.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx9.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmmi10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmmi7.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr12.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr17.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr6.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr7.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr9.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmri10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy7.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy9.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt9.pfb"
+          ],
+          "draft_only": []
+        },
+        "pass_3_input_differences": {
+          "full_only": [],
+          "draft_only": []
+        },
+        "draft": {
+          "steps_seconds": [
+            1.2764725999877555,
+            1.3517601999919862,
+            1.355031199986115
+          ],
+          "bibtex_seconds": 0.26981440000236034,
+          "total_seconds": 4.253078399968217,
+          "sha256": "4a25278af6e9f43458bde56f92a90a2fd06527385663b158e14c2ea800d936ea",
+          "passes": [
+            {
+              "pdf_exists": false,
+              "aux_sha256": "62d3beb077b2b08cbe68b2d2cda223b920319659048f05a910839bd5c1302d00"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6c6657f70e8edcec182de9b646d0acee4c6dec963fe85cbfec2ffc38c199409c"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6c6657f70e8edcec182de9b646d0acee4c6dec963fe85cbfec2ffc38c199409c"
+            }
+          ]
+        },
+        "full": {
+          "steps_seconds": [
+            1.451155699993251,
+            1.3223932999972021,
+            1.528679999988526
+          ],
+          "bibtex_seconds": 0.2620757999975467,
+          "total_seconds": 4.564304799976526,
+          "sha256": "4ddf1d58bae6c1e1e6ba8b3a93ae7d2301634209d027d30d22802e0b074b83f4",
+          "passes": [
+            {
+              "pdf_exists": true,
+              "aux_sha256": "62d3beb077b2b08cbe68b2d2cda223b920319659048f05a910839bd5c1302d00"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6c6657f70e8edcec182de9b646d0acee4c6dec963fe85cbfec2ffc38c199409c"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6c6657f70e8edcec182de9b646d0acee4c6dec963fe85cbfec2ffc38c199409c"
+            }
+          ]
+        }
+      },
+      {
+        "case": "report",
+        "trial": 2,
+        "warmup": false,
+        "order": [
+          "full",
+          "draft"
+        ],
+        "pdf_equivalent": true,
+        "pages": [
+          40,
+          40
+        ],
+        "normalized_synctex": {
+          "full": "10583e81bc45e303dd55ffe929d7dbcdca78b7fc2ebb31c0f53ce339e88bb6b0",
+          "draft": "895b3eb0c8eb2f2491150e9bf9897f026d1bd10720fcb1ca1c9accbb679d2422"
+        },
+        "pdf_first_page_text_if_different": [],
+        "final_aux_stable_in_each_arm": {
+          "full": true,
+          "draft": true
+        },
+        "pass_1_input_differences": {
+          "full_only": [
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx12.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx9.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmmi10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmmi7.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr12.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr17.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr6.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr7.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr9.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmri10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy7.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy9.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt9.pfb"
+          ],
+          "draft_only": []
+        },
+        "pass_3_input_differences": {
+          "full_only": [],
+          "draft_only": []
+        },
+        "full": {
+          "steps_seconds": [
+            1.4341529999946943,
+            1.4766483999992488,
+            1.4546812000044156
+          ],
+          "bibtex_seconds": 0.2677504000021145,
+          "total_seconds": 4.633233000000473,
+          "sha256": "716a43a66bfddc619d02af70726ac3056cbc1a63f077e75784e3c79f515553cb",
+          "passes": [
+            {
+              "pdf_exists": true,
+              "aux_sha256": "62d3beb077b2b08cbe68b2d2cda223b920319659048f05a910839bd5c1302d00"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6c6657f70e8edcec182de9b646d0acee4c6dec963fe85cbfec2ffc38c199409c"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6c6657f70e8edcec182de9b646d0acee4c6dec963fe85cbfec2ffc38c199409c"
+            }
+          ]
+        },
+        "draft": {
+          "steps_seconds": [
+            1.4577146999945398,
+            1.4317981000058353,
+            1.475198400003137
+          ],
+          "bibtex_seconds": 0.2876564000034705,
+          "total_seconds": 4.652367600006983,
+          "sha256": "254c64fb68e6299f6beaee585b44f7a7d3f40291d100a29ff29f3c0d8c55a8e9",
+          "passes": [
+            {
+              "pdf_exists": false,
+              "aux_sha256": "62d3beb077b2b08cbe68b2d2cda223b920319659048f05a910839bd5c1302d00"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6c6657f70e8edcec182de9b646d0acee4c6dec963fe85cbfec2ffc38c199409c"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6c6657f70e8edcec182de9b646d0acee4c6dec963fe85cbfec2ffc38c199409c"
+            }
+          ]
+        }
+      },
+      {
+        "case": "report",
+        "trial": 3,
+        "warmup": false,
+        "order": [
+          "draft",
+          "full"
+        ],
+        "pdf_equivalent": true,
+        "pages": [
+          40,
+          40
+        ],
+        "normalized_synctex": {
+          "draft": "895b3eb0c8eb2f2491150e9bf9897f026d1bd10720fcb1ca1c9accbb679d2422",
+          "full": "10583e81bc45e303dd55ffe929d7dbcdca78b7fc2ebb31c0f53ce339e88bb6b0"
+        },
+        "pdf_first_page_text_if_different": [],
+        "final_aux_stable_in_each_arm": {
+          "draft": true,
+          "full": true
+        },
+        "pass_1_input_differences": {
+          "full_only": [
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx12.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx9.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmmi10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmmi7.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr12.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr17.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr6.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr7.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr9.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmri10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy7.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy9.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt9.pfb"
+          ],
+          "draft_only": []
+        },
+        "pass_3_input_differences": {
+          "full_only": [],
+          "draft_only": []
+        },
+        "draft": {
+          "steps_seconds": [
+            1.2738814000040293,
+            1.3827659000089625,
+            1.353782999998657
+          ],
+          "bibtex_seconds": 0.37045889999717474,
+          "total_seconds": 4.3808892000088235,
+          "sha256": "d319e6750be63d8a429e4df11123acbeddffc3c99b1527d18b0ff80fd3baaa85",
+          "passes": [
+            {
+              "pdf_exists": false,
+              "aux_sha256": "62d3beb077b2b08cbe68b2d2cda223b920319659048f05a910839bd5c1302d00"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6c6657f70e8edcec182de9b646d0acee4c6dec963fe85cbfec2ffc38c199409c"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6c6657f70e8edcec182de9b646d0acee4c6dec963fe85cbfec2ffc38c199409c"
+            }
+          ]
+        },
+        "full": {
+          "steps_seconds": [
+            1.3433465999987675,
+            1.3565798999916296,
+            1.4179466999921715
+          ],
+          "bibtex_seconds": 0.26296790000924375,
+          "total_seconds": 4.380841099991812,
+          "sha256": "ecdfb62fb6fc83a0387e47f21d24531c0be34d8973ffe0f728e1c897e5e8dfae",
+          "passes": [
+            {
+              "pdf_exists": true,
+              "aux_sha256": "62d3beb077b2b08cbe68b2d2cda223b920319659048f05a910839bd5c1302d00"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6c6657f70e8edcec182de9b646d0acee4c6dec963fe85cbfec2ffc38c199409c"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6c6657f70e8edcec182de9b646d0acee4c6dec963fe85cbfec2ffc38c199409c"
+            }
+          ]
+        }
+      },
+      {
+        "case": "report",
+        "trial": 4,
+        "warmup": false,
+        "order": [
+          "full",
+          "draft"
+        ],
+        "pdf_equivalent": true,
+        "pages": [
+          40,
+          40
+        ],
+        "normalized_synctex": {
+          "full": "10583e81bc45e303dd55ffe929d7dbcdca78b7fc2ebb31c0f53ce339e88bb6b0",
+          "draft": "895b3eb0c8eb2f2491150e9bf9897f026d1bd10720fcb1ca1c9accbb679d2422"
+        },
+        "pdf_first_page_text_if_different": [],
+        "final_aux_stable_in_each_arm": {
+          "full": true,
+          "draft": true
+        },
+        "pass_1_input_differences": {
+          "full_only": [
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx12.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx9.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmmi10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmmi7.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr12.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr17.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr6.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr7.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr9.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmri10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy7.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy9.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt10.pfb",
+            "$USER_HOME/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt9.pfb"
+          ],
+          "draft_only": []
+        },
+        "pass_3_input_differences": {
+          "full_only": [],
+          "draft_only": []
+        },
+        "full": {
+          "steps_seconds": [
+            1.4297356000024593,
+            1.4231096000003163,
+            1.3994582000013907
+          ],
+          "bibtex_seconds": 0.265988400002243,
+          "total_seconds": 4.518291800006409,
+          "sha256": "02292f79ad96fc55b234bad80d103d4fe8e982c7b37b8fd9c511d359bdfe4cf4",
+          "passes": [
+            {
+              "pdf_exists": true,
+              "aux_sha256": "62d3beb077b2b08cbe68b2d2cda223b920319659048f05a910839bd5c1302d00"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6c6657f70e8edcec182de9b646d0acee4c6dec963fe85cbfec2ffc38c199409c"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6c6657f70e8edcec182de9b646d0acee4c6dec963fe85cbfec2ffc38c199409c"
+            }
+          ]
+        },
+        "draft": {
+          "steps_seconds": [
+            1.3919341000000713,
+            1.509386399993673,
+            1.4476434999960475
+          ],
+          "bibtex_seconds": 0.2763238000043202,
+          "total_seconds": 4.625287799994112,
+          "sha256": "fc648cfb6a3b4350135d75289eca33270bf12cc29636e0733b5c3a77178bc178",
+          "passes": [
+            {
+              "pdf_exists": false,
+              "aux_sha256": "62d3beb077b2b08cbe68b2d2cda223b920319659048f05a910839bd5c1302d00"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6c6657f70e8edcec182de9b646d0acee4c6dec963fe85cbfec2ffc38c199409c"
+            },
+            {
+              "pdf_exists": true,
+              "aux_sha256": "6c6657f70e8edcec182de9b646d0acee4c6dec963fe85cbfec2ffc38c199409c"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

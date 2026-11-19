@@ -68,7 +68,7 @@ pub fn relative(name: &str) -> Result<PathBuf> {
     }
     Ok(path)
 }
-fn no_reparse(path: &Path) -> Result<()> {
+fn plain_metadata(path: &Path) -> Result<fs::Metadata> {
     let metadata = fs::symlink_metadata(path).map_err(fail)?;
     #[cfg(windows)]
     {
@@ -86,15 +86,15 @@ fn no_reparse(path: &Path) -> Result<()> {
             path.display()
         ));
     }
-    Ok(())
+    Ok(metadata)
 }
-pub fn check_plain(path:&Path)->Result<()> {no_reparse(path)}
+pub fn check_plain(path:&Path)->Result<()> {plain_metadata(path).map(|_| ())}
 fn files(root: &Path) -> Result<Vec<PathBuf>> {
     fn visit(root: &Path, dir: &Path, depth: usize, out: &mut Vec<PathBuf>) -> Result<()> {
         if depth > 20 {
             return Err("Project folder nesting exceeds 20 levels".into());
         }
-        no_reparse(dir)?;
+        plain_metadata(dir)?;
         for e in fs::read_dir(dir).map_err(fail)? {
             let e = e.map_err(fail)?;
             let name = e.file_name().to_string_lossy().into_owned();
@@ -104,8 +104,7 @@ fn files(root: &Path) -> Result<Vec<PathBuf>> {
                 continue;
             }
             let path = e.path();
-            no_reparse(&path)?;
-            if path.is_dir() {
+            if plain_metadata(&path)?.is_dir() {
                 visit(root, &path, depth + 1, out)?;
             } else if is_source(&path) || is_asset(&path) {
                 out.push(path.strip_prefix(root).map_err(fail)?.to_path_buf());
@@ -216,7 +215,7 @@ impl Receipt {
         if sources.len() > 600 || sources.values().any(|x| x.len() > 4_000_000) {
             return Err("Source limits exceeded".into());
         }
-        no_reparse(root)?;
+        plain_metadata(root)?;
         let root = root.canonicalize().map_err(fail)?;
         if directory.exists() {
             return Err("Build directory must be new and private".into());
@@ -273,10 +272,10 @@ impl Receipt {
                 return Err("Case-colliding asset filename".into());
             }
             let original = root.join(&file);
-            no_reparse(&original)?;
+            let metadata = plain_metadata(&original)?;
             let path = original.canonicalize().map_err(fail)?;
             let remaining = MAX_SNAPSHOT_BYTES - bytes;
-            if fs::metadata(&original).map_err(fail)?.len() > remaining {
+            if metadata.len() > remaining {
                 return Err("Snapshot exceeds 60 MiB".into());
             }
             let target = r.directory.join(&file);
@@ -340,7 +339,7 @@ impl Receipt {
     fn verify_frozen_inputs(&self) -> Result<()> {
         for (name, expected) in &self.inputs {
             let path = self.directory.join(relative(name)?);
-            no_reparse(&path)?;
+            plain_metadata(&path)?;
             if Fingerprint::file(&path)? != *expected {
                 return Err(format!("Frozen build input changed: {name}"));
             }
@@ -358,7 +357,7 @@ impl Receipt {
         }
         for (name, asset) in &self.assets {
             let original = self.project_root.join(relative(name)?);
-            no_reparse(&original)?;
+            plain_metadata(&original)?;
             if original.canonicalize().map_err(fail)? != asset.path {
                 return Err(format!("Asset path changed: {name}"));
             }

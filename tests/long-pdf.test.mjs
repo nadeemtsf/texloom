@@ -84,16 +84,45 @@ test('a failed short-view paint disposes the overlapping and queued work',async 
  assert.deepEqual(started,[1,2]);
 });
 
-test('a 100-page view paints on demand, evicts old canvases and disposes without destroying the shared PDF',async()=>{
- const previous=globalThis.document;let painted=0,destroyed=0;globalThis.document={createElement:element,createDocumentFragment:element,getSelection:()=>null};globalThis.devicePixelRatio=1;
- const pdf={numPages:100,destroy(){destroyed++},getPage:async number=>({getViewport:({scale})=>({width:300*scale,height:400*scale}),getTextContent:async()=>({items:[{str:'Page '+number}]}),render(){painted++;return {promise:Promise.resolve(),cancel(){}}}})};
+test('a 100-page view fetches bounded metadata batches, paints on demand and disposes without destroying the PDF',async()=>{
+ const previous=globalThis.document;let painted=0,destroyed=0,active=0,peak=0;
+ globalThis.document={createElement:element,createDocumentFragment:element,getSelection:()=>null};globalThis.devicePixelRatio=1;
+ const pdf={numPages:100,destroy(){destroyed++},getPage:async number=>{
+  peak=Math.max(peak,++active);
+  await Promise.resolve();
+  active--;
+  return {getViewport:({scale})=>({width:300*scale,height:400*scale}),getTextContent:async()=>({items:[{str:'Page '+number}]}),render(){painted++;return {promise:Promise.resolve(),cancel(){}}}};
+ }};
  try{const view=await prepareLongPDF(fakeViewer,pdf,{}, {width:400});
   assert.equal(view.pages.length,100);assert.equal(painted,1);assert.ok(view.pages.every(p=>p.selectionReason));
+  assert.equal(peak,8);
+  assert.deepEqual(view.pages.map(item=>item.number),Array.from({length:100},(_,i)=>i+1));
   for(let n=2;n<=15;n++)await view.ensurePage(n);assert.equal(painted,15);
   assert.equal(view.pages.filter(p=>p.pageView.div.children.length).length,6,'only six raster/text pairs are retained');
   await view.ensurePage(15);assert.equal(painted,15);await view.ensurePage(1);assert.equal(painted,16,'an evicted page repaints');
   view.dispose();view.dispose();assert.equal(destroyed,0);await assert.rejects(view.ensurePage(90),/closed/);
  }finally{globalThis.document=previous;delete globalThis.devicePixelRatio;}
+});
+
+test('a failed reading batch settles pending lookups and reports the first failing page',async t=>{
+ withFakeDOM(t);
+ const {pdf,started}=deferredPDF(),fetch=pdf.getPage;
+ let release;
+ const delayed=new Promise(resolve=>{release=resolve});
+ pdf.numPages=40;
+ const requested=[];
+ pdf.getPage=async number=>{
+  requested.push(number);
+  if(number===3){await delayed;throw Error('page 3 refused')}
+  if(number===4)throw Error('page 4 refused');
+  return fetch(number);
+ };
+ const failed=assert.rejects(prepareLongPDF(fakeViewer,pdf,{}, {width:400}),/page 3 refused/);
+ await nextTurn();
+ assert.deepEqual(requested,[1,2,3,4,5,6,7,8,9]);
+ release();
+ await failed;
+ assert.deepEqual(started,[]);
 });
 test('PDF search reaches unpainted pages and ignores an old document result',async()=>{
  const elements=new Map(['pdf-query','pdf-matches','pdf-find-next','pdf-find-prev'].map(id=>[id,{...element(),value:'needle'}]));let ensured=[];
