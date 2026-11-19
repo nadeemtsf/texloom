@@ -1,0 +1,3188 @@
+{
+  "schema": 1,
+  "kind": "compiler_diagnostics_and_repair_comparison",
+  "standalone_parser": {
+    "candidate_sha256": "0bc65c0cfbfed2d6ffd1433702978c6c94a5f160af0793b1b9f86071cd0af8a9",
+    "method_sha256": "7b054e68e2a22e46ed240472c0319916db5e5997927f609fe342199134d35d14",
+    "conditions": [
+      {
+        "sources": 1,
+        "log_bytes": 3857,
+        "pairs": {
+          "0": {
+            "baseline": 0.0312,
+            "candidate": 0.0184
+          },
+          "1": {
+            "candidate": 0.0177,
+            "baseline": 0.0309
+          },
+          "2": {
+            "baseline": 0.0312,
+            "candidate": 0.0178
+          },
+          "3": {
+            "candidate": 0.0187,
+            "baseline": 0.0312
+          },
+          "4": {
+            "baseline": 0.032,
+            "candidate": 0.0185
+          },
+          "5": {
+            "candidate": 0.0179,
+            "baseline": 0.0312
+          },
+          "6": {
+            "baseline": 0.0401,
+            "candidate": 0.0181
+          },
+          "7": {
+            "candidate": 0.0179,
+            "baseline": 0.0322
+          },
+          "8": {
+            "baseline": 0.0314,
+            "candidate": 0.0184
+          },
+          "9": {
+            "candidate": 0.0181,
+            "baseline": 0.0308
+          },
+          "10": {
+            "baseline": 0.0308,
+            "candidate": 0.0178
+          },
+          "11": {
+            "candidate": 0.0179,
+            "baseline": 0.031
+          },
+          "12": {
+            "baseline": 0.0313,
+            "candidate": 0.0177
+          },
+          "13": {
+            "candidate": 0.0178,
+            "baseline": 0.0316
+          }
+        },
+        "median_saving_ms": 0.013349999999999999
+      },
+      {
+        "sources": 1,
+        "log_bytes": 61164,
+        "pairs": {
+          "0": {
+            "baseline": 0.5182,
+            "candidate": 0.3392
+          },
+          "1": {
+            "candidate": 0.3026,
+            "baseline": 0.5425
+          },
+          "2": {
+            "baseline": 0.5143,
+            "candidate": 0.3012
+          },
+          "3": {
+            "candidate": 0.3039,
+            "baseline": 0.5369
+          },
+          "4": {
+            "baseline": 0.516,
+            "candidate": 0.2992
+          },
+          "5": {
+            "candidate": 0.3079,
+            "baseline": 0.5495
+          },
+          "6": {
+            "baseline": 0.5127,
+            "candidate": 0.2973
+          },
+          "7": {
+            "candidate": 0.302,
+            "baseline": 0.5355
+          },
+          "8": {
+            "baseline": 0.5382,
+            "candidate": 0.288
+          },
+          "9": {
+            "candidate": 0.3001,
+            "baseline": 0.5562
+          },
+          "10": {
+            "baseline": 0.5409,
+            "candidate": 0.3364
+          },
+          "11": {
+            "candidate": 0.3043,
+            "baseline": 0.56
+          },
+          "12": {
+            "baseline": 0.5574,
+            "candidate": 0.3213
+          },
+          "13": {
+            "candidate": 0.3319,
+            "baseline": 0.6027
+          }
+        },
+        "median_saving_ms": 0.2348
+      },
+      {
+        "sources": 64,
+        "log_bytes": 3857,
+        "pairs": {
+          "0": {
+            "baseline": 0.7184,
+            "candidate": 0.026
+          },
+          "1": {
+            "candidate": 0.0209,
+            "baseline": 0.6762
+          },
+          "2": {
+            "baseline": 0.6587,
+            "candidate": 0.0215
+          },
+          "3": {
+            "candidate": 0.0201,
+            "baseline": 0.6596
+          },
+          "4": {
+            "baseline": 0.6619,
+            "candidate": 0.0213
+          },
+          "5": {
+            "candidate": 0.0233,
+            "baseline": 0.6593
+          },
+          "6": {
+            "baseline": 0.6612,
+            "candidate": 0.0201
+          },
+          "7": {
+            "candidate": 0.0202,
+            "baseline": 0.7055
+          },
+          "8": {
+            "baseline": 0.6647,
+            "candidate": 0.0216
+          },
+          "9": {
+            "candidate": 0.0201,
+            "baseline": 0.6684
+          },
+          "10": {
+            "baseline": 0.6629,
+            "candidate": 0.0206
+          },
+          "11": {
+            "candidate": 0.0199,
+            "baseline": 0.6625
+          },
+          "12": {
+            "baseline": 0.6639,
+            "candidate": 0.0207
+          },
+          "13": {
+            "candidate": 0.0201,
+            "baseline": 0.6597
+          }
+        },
+        "median_saving_ms": 0.6417
+      },
+      {
+        "sources": 64,
+        "log_bytes": 61164,
+        "pairs": {
+          "0": {
+            "baseline": 10.8562,
+            "candidate": 0.2166
+          },
+          "1": {
+            "candidate": 0.2051,
+            "baseline": 11.1868
+          },
+          "2": {
+            "baseline": 12.2567,
+            "candidate": 0.2071
+          },
+          "3": {
+            "candidate": 0.197,
+            "baseline": 15.2596
+          },
+          "4": {
+            "baseline": 12.0685,
+            "candidate": 0.2086
+          },
+          "5": {
+            "candidate": 0.1959,
+            "baseline": 10.3482
+          },
+          "6": {
+            "baseline": 10.4243,
+            "candidate": 0.1928
+          },
+          "7": {
+            "candidate": 0.2121,
+            "baseline": 10.5633
+          },
+          "8": {
+            "baseline": 11.149,
+            "candidate": 0.197
+          },
+          "9": {
+            "candidate": 0.1895,
+            "baseline": 12.6415
+          },
+          "10": {
+            "baseline": 10.7216,
+            "candidate": 0.2775
+          },
+          "11": {
+            "candidate": 0.2594,
+            "baseline": 10.9302
+          },
+          "12": {
+            "baseline": 11.6391,
+            "candidate": 0.2501
+          },
+          "13": {
+            "candidate": 0.185,
+            "baseline": 12.9041
+          }
+        },
+        "median_saving_ms": 11.1705
+      },
+      {
+        "sources": 600,
+        "log_bytes": 3857,
+        "pairs": {
+          "0": {
+            "baseline": 5.8682,
+            "candidate": 0.1215
+          },
+          "1": {
+            "candidate": 0.1343,
+            "baseline": 6.1031
+          },
+          "2": {
+            "baseline": 6.2298,
+            "candidate": 0.1353
+          },
+          "3": {
+            "candidate": 0.1413,
+            "baseline": 6.4511
+          },
+          "4": {
+            "baseline": 5.8589,
+            "candidate": 0.1535
+          },
+          "5": {
+            "candidate": 0.147,
+            "baseline": 7.4453
+          },
+          "6": {
+            "baseline": 9.3341,
+            "candidate": 0.1482
+          },
+          "7": {
+            "candidate": 0.1241,
+            "baseline": 6.4103
+          },
+          "8": {
+            "baseline": 5.7005,
+            "candidate": 0.1469
+          },
+          "9": {
+            "candidate": 0.1146,
+            "baseline": 9.7865
+          },
+          "10": {
+            "baseline": 9.308,
+            "candidate": 0.1646
+          },
+          "11": {
+            "candidate": 0.1698,
+            "baseline": 6.2558
+          },
+          "12": {
+            "baseline": 7.1353,
+            "candidate": 0.1427
+          },
+          "13": {
+            "candidate": 0.119,
+            "baseline": 6.5401
+          }
+        },
+        "median_saving_ms": 6.36545
+      },
+      {
+        "sources": 600,
+        "log_bytes": 61164,
+        "pairs": {
+          "0": {
+            "baseline": 100.9685,
+            "candidate": 0.3319
+          },
+          "1": {
+            "candidate": 0.2859,
+            "baseline": 90.6719
+          },
+          "2": {
+            "baseline": 96.552,
+            "candidate": 0.3127
+          },
+          "3": {
+            "candidate": 0.2599,
+            "baseline": 103.7019
+          },
+          "4": {
+            "baseline": 97.4836,
+            "candidate": 0.3048
+          },
+          "5": {
+            "candidate": 0.3845,
+            "baseline": 105.7323
+          },
+          "6": {
+            "baseline": 91.5928,
+            "candidate": 0.2837
+          },
+          "7": {
+            "candidate": 0.2681,
+            "baseline": 91.6731
+          },
+          "8": {
+            "baseline": 92.5667,
+            "candidate": 0.3129
+          },
+          "9": {
+            "candidate": 0.2573,
+            "baseline": 90.9511
+          },
+          "10": {
+            "baseline": 91.2013,
+            "candidate": 0.2604
+          },
+          "11": {
+            "candidate": 0.2428,
+            "baseline": 86.0522
+          },
+          "12": {
+            "baseline": 93.3555,
+            "candidate": 0.4107
+          },
+          "13": {
+            "candidate": 0.4564,
+            "baseline": 117.9591
+          }
+        },
+        "median_saving_ms": 92.5993
+      }
+    ]
+  },
+  "native_verbose_compile": {
+    "data": {
+      "engine": "pdflatex",
+      "inputs": {
+        "count": 600,
+        "catalog_sha256": "f3d7e9e1a9f390b6dec8f48b14a10ce615c19729c0421cc94d443c32ec428d5f"
+      },
+      "pairs": [
+        {
+          "case": "many-files",
+          "trial": 0,
+          "warmup": true,
+          "order": [
+            "baseline",
+            "candidate"
+          ],
+          "stats": {
+            "baseline": {
+              "bytes": 16381,
+              "inputs": 600,
+              "passes": 2,
+              "seconds": 2.4295733,
+              "timings": {
+                "bibliography_seconds": 0.0,
+                "engine_seconds": 0.7096488000000001,
+                "finalize_seconds": 0.0010457,
+                "first_pass_seconds": 0.3650065,
+                "recorder_seconds": 0.0122129,
+                "snapshot_seconds": 0.7429888,
+                "verify_seconds": 0.38491810000000004,
+                "version_reused": false,
+                "version_seconds": 0.3781647
+              },
+              "toolchain": 6
+            },
+            "candidate": {
+              "bytes": 16381,
+              "inputs": 600,
+              "passes": 2,
+              "seconds": 2.0324001,
+              "timings": {
+                "bibliography_seconds": 0.0,
+                "engine_seconds": 0.7120895,
+                "finalize_seconds": 0.0010472,
+                "first_pass_seconds": 0.3547367,
+                "recorder_seconds": 0.0130576,
+                "snapshot_seconds": 0.540982,
+                "verify_seconds": 0.3900175,
+                "version_reused": false,
+                "version_seconds": 0.3718441
+              },
+              "toolchain": 6
+            }
+          },
+          "differences": [],
+          "pages": 1
+        },
+        {
+          "case": "many-files",
+          "trial": 1,
+          "warmup": false,
+          "order": [
+            "candidate",
+            "baseline"
+          ],
+          "stats": {
+            "candidate": {
+              "bytes": 16381,
+              "inputs": 600,
+              "passes": 2,
+              "seconds": 1.6246426,
+              "timings": {
+                "bibliography_seconds": 0.0,
+                "engine_seconds": 0.7049649,
+                "finalize_seconds": 0.000891,
+                "first_pass_seconds": 0.3542867,
+                "recorder_seconds": 0.0131652,
+                "snapshot_seconds": 0.5155861,
+                "verify_seconds": 0.3865474,
+                "version_reused": true,
+                "version_seconds": 5e-06
+              },
+              "toolchain": 6
+            },
+            "baseline": {
+              "bytes": 16381,
+              "inputs": 600,
+              "passes": 2,
+              "seconds": 1.9015822,
+              "timings": {
+                "bibliography_seconds": 0.0,
+                "engine_seconds": 0.7457354,
+                "finalize_seconds": 0.001147,
+                "first_pass_seconds": 0.385869,
+                "recorder_seconds": 0.014764000000000001,
+                "snapshot_seconds": 0.5233452,
+                "verify_seconds": 0.41044400000000003,
+                "version_reused": true,
+                "version_seconds": 4.8e-06
+              },
+              "toolchain": 6
+            }
+          },
+          "differences": [],
+          "pages": 1
+        },
+        {
+          "case": "many-files",
+          "trial": 2,
+          "warmup": false,
+          "order": [
+            "baseline",
+            "candidate"
+          ],
+          "stats": {
+            "baseline": {
+              "bytes": 16381,
+              "inputs": 600,
+              "passes": 2,
+              "seconds": 2.0400436,
+              "timings": {
+                "bibliography_seconds": 0.0,
+                "engine_seconds": 0.7930126,
+                "finalize_seconds": 0.0009409,
+                "first_pass_seconds": 0.4489593,
+                "recorder_seconds": 0.0151156,
+                "snapshot_seconds": 0.6119697,
+                "verify_seconds": 0.4053543,
+                "version_reused": true,
+                "version_seconds": 6.7e-06
+              },
+              "toolchain": 6
+            },
+            "candidate": {
+              "bytes": 16381,
+              "inputs": 600,
+              "passes": 2,
+              "seconds": 1.6454887,
+              "timings": {
+                "bibliography_seconds": 0.0,
+                "engine_seconds": 0.7144527,
+                "finalize_seconds": 0.0009237,
+                "first_pass_seconds": 0.3636228,
+                "recorder_seconds": 0.0123377,
+                "snapshot_seconds": 0.5242682,
+                "verify_seconds": 0.3903308,
+                "version_reused": true,
+                "version_seconds": 5.4e-06
+              },
+              "toolchain": 6
+            }
+          },
+          "differences": [],
+          "pages": 1
+        },
+        {
+          "case": "many-files",
+          "trial": 3,
+          "warmup": false,
+          "order": [
+            "candidate",
+            "baseline"
+          ],
+          "stats": {
+            "candidate": {
+              "bytes": 16381,
+              "inputs": 600,
+              "passes": 2,
+              "seconds": 1.6345214000000001,
+              "timings": {
+                "bibliography_seconds": 0.0,
+                "engine_seconds": 0.7009415,
+                "finalize_seconds": 0.0011317,
+                "first_pass_seconds": 0.359014,
+                "recorder_seconds": 0.0128156,
+                "snapshot_seconds": 0.5091745,
+                "verify_seconds": 0.4068049,
+                "version_reused": true,
+                "version_seconds": 4.1e-06
+              },
+              "toolchain": 6
+            },
+            "baseline": {
+              "bytes": 16381,
+              "inputs": 600,
+              "passes": 2,
+              "seconds": 1.8837313,
+              "timings": {
+                "bibliography_seconds": 0.0,
+                "engine_seconds": 0.7057317,
+                "finalize_seconds": 0.000921,
+                "first_pass_seconds": 0.3554112,
+                "recorder_seconds": 0.0130973,
+                "snapshot_seconds": 0.5255009,
+                "verify_seconds": 0.37713949999999996,
+                "version_reused": true,
+                "version_seconds": 4.8e-06
+              },
+              "toolchain": 6
+            }
+          },
+          "differences": [],
+          "pages": 1
+        },
+        {
+          "case": "many-files",
+          "trial": 4,
+          "warmup": false,
+          "order": [
+            "baseline",
+            "candidate"
+          ],
+          "stats": {
+            "baseline": {
+              "bytes": 16381,
+              "inputs": 600,
+              "passes": 2,
+              "seconds": 1.8045252999999999,
+              "timings": {
+                "bibliography_seconds": 0.0,
+                "engine_seconds": 0.7025296999999999,
+                "finalize_seconds": 0.0009812,
+                "first_pass_seconds": 0.3587457,
+                "recorder_seconds": 0.012125799999999999,
+                "snapshot_seconds": 0.499651,
+                "verify_seconds": 0.38030349999999996,
+                "version_reused": true,
+                "version_seconds": 4.2e-06
+              },
+              "toolchain": 6
+            },
+            "candidate": {
+              "bytes": 16381,
+              "inputs": 600,
+              "passes": 2,
+              "seconds": 1.6323227,
+              "timings": {
+                "bibliography_seconds": 0.0,
+                "engine_seconds": 0.7160127000000001,
+                "finalize_seconds": 0.000894,
+                "first_pass_seconds": 0.3749945,
+                "recorder_seconds": 0.0144981,
+                "snapshot_seconds": 0.5125394,
+                "verify_seconds": 0.38510640000000007,
+                "version_reused": true,
+                "version_seconds": 4.8e-06
+              },
+              "toolchain": 6
+            }
+          },
+          "differences": [],
+          "pages": 1
+        }
+      ],
+      "stages": {
+        "snapshot_seconds": {
+          "baseline": 0.52442305,
+          "candidate": 0.51406275,
+          "paired_saving": 0.012042749999999991
+        },
+        "verify_seconds": {
+          "baseline": 0.3928289,
+          "candidate": 0.3884391,
+          "paired_saving": 0.0051102999999999565
+        },
+        "engine_seconds": {
+          "baseline": 0.72573355,
+          "candidate": 0.7097088,
+          "paired_saving": 0.022780350000000005
+        },
+        "recorder_seconds": {
+          "baseline": 0.01393065,
+          "candidate": 0.0129904,
+          "paired_saving": 0.0009402500000000001
+        },
+        "bibliography_seconds": {
+          "baseline": 0.0,
+          "candidate": 0.0,
+          "paired_saving": 0.0
+        },
+        "version_seconds": {
+          "baseline": 4.8e-06,
+          "candidate": 4.9000000000000005e-06,
+          "paired_saving": 2.499999999999997e-07
+        },
+        "finalize_seconds": {
+          "baseline": 0.00096105,
+          "candidate": 0.00090885,
+          "paired_saving": 5.220000000000002e-05
+        }
+      },
+      "median_saving_seconds": 0.2630747499999999,
+      "saving_range_seconds": [
+        0.17220259999999987,
+        0.39455490000000015
+      ]
+    },
+    "log_lengths_and_notice_counts": [
+      [
+        68749,
+        950
+      ],
+      [
+        68752,
+        950
+      ],
+      [
+        68749,
+        950
+      ],
+      [
+        68752,
+        950
+      ],
+      [
+        68749,
+        950
+      ],
+      [
+        68752,
+        950
+      ],
+      [
+        68749,
+        950
+      ],
+      [
+        68752,
+        950
+      ],
+      [
+        68749,
+        950
+      ],
+      [
+        68752,
+        950
+      ]
+    ],
+    "raw_pairs_sha256": "bb66edf7eb34d082d7b707454ceadc91ca2b6b51f5731d2f17cc2da720add76c"
+  },
+  "compile_after_repair": {
+    "scope": "Matched fresh snapshots across valid, erroneous and corrected editor buffers",
+    "candidate_sha256": "e1e7ad4ff042d46eb1b9da454dee6a2bac7a9197266719bac402cde31c8f1b75",
+    "baseline": "e319b681a388edc1530433a0aa14abd01c732de9",
+    "data": {
+      "pdflatex": {
+        "repair_median_saving_seconds": 0.27509819999999996,
+        "repair_saving_range_seconds": [
+          0.2453185,
+          0.37042850000000016
+        ],
+        "median_version_probe_seconds": 0.2609718,
+        "pairs": [
+          {
+            "engine": "pdflatex",
+            "trial": 0,
+            "warmup": true,
+            "order": [
+              "baseline",
+              "candidate"
+            ],
+            "results": {
+              "baseline": [
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.0708565,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.7189607,
+                    "finalize_seconds": 0.0007605,
+                    "first_pass_seconds": 0.3662068,
+                    "recorder_seconds": 0.0160848,
+                    "snapshot_seconds": 0.0081559,
+                    "verify_seconds": 0.0429996,
+                    "version_reused": false,
+                    "version_seconds": 0.2823265
+                  }
+                },
+                {
+                  "diagnostics": [
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "Undefined control sequence.",
+                      "severity": "error"
+                    },
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "==> Fatal error occurred, no output PDF file produced!",
+                      "severity": "error"
+                    }
+                  ],
+                  "ok": false,
+                  "passes": 1,
+                  "seconds": 0.4232565,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.4104315,
+                    "finalize_seconds": 0.0007627,
+                    "first_pass_seconds": 0.4104315,
+                    "recorder_seconds": 0.0,
+                    "snapshot_seconds": 0.0091114,
+                    "verify_seconds": 0.0028898,
+                    "version_reused": true,
+                    "version_seconds": 5.4e-06
+                  }
+                },
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.0209176,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.7064836,
+                    "finalize_seconds": 0.0007333,
+                    "first_pass_seconds": 0.3716794,
+                    "recorder_seconds": 0.0121327,
+                    "snapshot_seconds": 0.0062927,
+                    "verify_seconds": 0.0422904,
+                    "version_reused": false,
+                    "version_seconds": 0.251341
+                  }
+                }
+              ],
+              "candidate": [
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 0.9775121,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.6646175,
+                    "finalize_seconds": 0.0010753,
+                    "first_pass_seconds": 0.3282871,
+                    "recorder_seconds": 0.013837499999999999,
+                    "snapshot_seconds": 0.0063156,
+                    "verify_seconds": 0.042225200000000004,
+                    "version_reused": false,
+                    "version_seconds": 0.2476481
+                  }
+                },
+                {
+                  "diagnostics": [
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "Undefined control sequence.",
+                      "severity": "error"
+                    },
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "==> Fatal error occurred, no output PDF file produced!",
+                      "severity": "error"
+                    }
+                  ],
+                  "ok": false,
+                  "passes": 1,
+                  "seconds": 0.3209425,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.3114458,
+                    "finalize_seconds": 0.0006504,
+                    "first_pass_seconds": 0.3114458,
+                    "recorder_seconds": 0.0,
+                    "snapshot_seconds": 0.0062724,
+                    "verify_seconds": 0.0022746,
+                    "version_reused": true,
+                    "version_seconds": 3.6e-06
+                  }
+                },
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 0.7422364,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.6794627,
+                    "finalize_seconds": 0.0007551,
+                    "first_pass_seconds": 0.332818,
+                    "recorder_seconds": 0.012522799999999999,
+                    "snapshot_seconds": 0.006674,
+                    "verify_seconds": 0.0412653,
+                    "version_reused": true,
+                    "version_seconds": 3e-06
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "engine": "pdflatex",
+            "trial": 1,
+            "warmup": false,
+            "order": [
+              "candidate",
+              "baseline"
+            ],
+            "results": {
+              "candidate": [
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.008212,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.6842186,
+                    "finalize_seconds": 0.0007263,
+                    "first_pass_seconds": 0.3468508,
+                    "recorder_seconds": 0.012633100000000001,
+                    "snapshot_seconds": 0.0059558,
+                    "verify_seconds": 0.0420625,
+                    "version_reused": false,
+                    "version_seconds": 0.2610452
+                  }
+                },
+                {
+                  "diagnostics": [
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "Undefined control sequence.",
+                      "severity": "error"
+                    },
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "==> Fatal error occurred, no output PDF file produced!",
+                      "severity": "error"
+                    }
+                  ],
+                  "ok": false,
+                  "passes": 1,
+                  "seconds": 0.3268141,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.3178551,
+                    "finalize_seconds": 0.0006164,
+                    "first_pass_seconds": 0.3178551,
+                    "recorder_seconds": 0.0,
+                    "snapshot_seconds": 0.005957,
+                    "verify_seconds": 0.0021355,
+                    "version_reused": true,
+                    "version_seconds": 2.8e-06
+                  }
+                },
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 0.7283173,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.6645713,
+                    "finalize_seconds": 0.0009386,
+                    "first_pass_seconds": 0.3290776,
+                    "recorder_seconds": 0.0157228,
+                    "snapshot_seconds": 0.0057946,
+                    "verify_seconds": 0.0398578,
+                    "version_reused": true,
+                    "version_seconds": 2.8e-06
+                  }
+                }
+              ],
+              "baseline": [
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.0016573,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.6792491,
+                    "finalize_seconds": 0.0010377,
+                    "first_pass_seconds": 0.3241976,
+                    "recorder_seconds": 0.01253,
+                    "snapshot_seconds": 0.0062037,
+                    "verify_seconds": 0.041962200000000005,
+                    "version_reused": false,
+                    "version_seconds": 0.2588682
+                  }
+                },
+                {
+                  "diagnostics": [
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "Undefined control sequence.",
+                      "severity": "error"
+                    },
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "==> Fatal error occurred, no output PDF file produced!",
+                      "severity": "error"
+                    }
+                  ],
+                  "ok": false,
+                  "passes": 1,
+                  "seconds": 0.3114686,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.3017943,
+                    "finalize_seconds": 0.0007546,
+                    "first_pass_seconds": 0.3017943,
+                    "recorder_seconds": 0.0,
+                    "snapshot_seconds": 0.0063269,
+                    "verify_seconds": 0.0025358,
+                    "version_reused": true,
+                    "version_seconds": 3.3e-06
+                  }
+                },
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.0987458,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.7662591,
+                    "finalize_seconds": 0.0007863,
+                    "first_pass_seconds": 0.4114443,
+                    "recorder_seconds": 0.0127163,
+                    "snapshot_seconds": 0.0059739,
+                    "verify_seconds": 0.0434143,
+                    "version_reused": false,
+                    "version_seconds": 0.2676556
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "engine": "pdflatex",
+            "trial": 2,
+            "warmup": false,
+            "order": [
+              "baseline",
+              "candidate"
+            ],
+            "results": {
+              "baseline": [
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 0.9917409,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.6686227,
+                    "finalize_seconds": 0.0007991,
+                    "first_pass_seconds": 0.3351632,
+                    "recorder_seconds": 0.0129874,
+                    "snapshot_seconds": 0.0067761,
+                    "verify_seconds": 0.041143900000000004,
+                    "version_reused": false,
+                    "version_seconds": 0.2596693
+                  }
+                },
+                {
+                  "diagnostics": [
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "Undefined control sequence.",
+                      "severity": "error"
+                    },
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "==> Fatal error occurred, no output PDF file produced!",
+                      "severity": "error"
+                    }
+                  ],
+                  "ok": false,
+                  "passes": 1,
+                  "seconds": 0.3127254,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.3037917,
+                    "finalize_seconds": 0.0007564,
+                    "first_pass_seconds": 0.3037917,
+                    "recorder_seconds": 0.0,
+                    "snapshot_seconds": 0.0060116,
+                    "verify_seconds": 0.0021146,
+                    "version_reused": true,
+                    "version_seconds": 2.9e-06
+                  }
+                },
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 0.9859499,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.6786978,
+                    "finalize_seconds": 0.0008601,
+                    "first_pass_seconds": 0.3526767,
+                    "recorder_seconds": 0.0132076,
+                    "snapshot_seconds": 0.0058079,
+                    "verify_seconds": 0.0389678,
+                    "version_reused": false,
+                    "version_seconds": 0.2468761
+                  }
+                }
+              ],
+              "candidate": [
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 0.990543,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.6601759,
+                    "finalize_seconds": 0.0010754,
+                    "first_pass_seconds": 0.3212797,
+                    "recorder_seconds": 0.0138793,
+                    "snapshot_seconds": 0.0065223,
+                    "verify_seconds": 0.0414131,
+                    "version_reused": false,
+                    "version_seconds": 0.2658184
+                  }
+                },
+                {
+                  "diagnostics": [
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "Undefined control sequence.",
+                      "severity": "error"
+                    },
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "==> Fatal error occurred, no output PDF file produced!",
+                      "severity": "error"
+                    }
+                  ],
+                  "ok": false,
+                  "passes": 1,
+                  "seconds": 0.3305147,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.3199625,
+                    "finalize_seconds": 0.0007309,
+                    "first_pass_seconds": 0.3199625,
+                    "recorder_seconds": 0.0,
+                    "snapshot_seconds": 0.0069883,
+                    "verify_seconds": 0.0024651,
+                    "version_reused": true,
+                    "version_seconds": 4e-06
+                  }
+                },
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 0.7359706,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.6736356,
+                    "finalize_seconds": 0.0007426,
+                    "first_pass_seconds": 0.3267269,
+                    "recorder_seconds": 0.0136149,
+                    "snapshot_seconds": 0.0064719,
+                    "verify_seconds": 0.0398471,
+                    "version_reused": true,
+                    "version_seconds": 3.1e-06
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "engine": "pdflatex",
+            "trial": 3,
+            "warmup": false,
+            "order": [
+              "candidate",
+              "baseline"
+            ],
+            "results": {
+              "candidate": [
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 0.9673027,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.6601361,
+                    "finalize_seconds": 0.0007455,
+                    "first_pass_seconds": 0.3282924,
+                    "recorder_seconds": 0.012072,
+                    "snapshot_seconds": 0.0062817,
+                    "verify_seconds": 0.0407942,
+                    "version_reused": false,
+                    "version_seconds": 0.2457507
+                  }
+                },
+                {
+                  "diagnostics": [
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "Undefined control sequence.",
+                      "severity": "error"
+                    },
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "==> Fatal error occurred, no output PDF file produced!",
+                      "severity": "error"
+                    }
+                  ],
+                  "ok": false,
+                  "passes": 1,
+                  "seconds": 0.3190711,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.3082769,
+                    "finalize_seconds": 0.0026811,
+                    "first_pass_seconds": 0.3082769,
+                    "recorder_seconds": 0.0,
+                    "snapshot_seconds": 0.0057554,
+                    "verify_seconds": 0.0021213,
+                    "version_reused": true,
+                    "version_seconds": 3.2e-06
+                  }
+                },
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 0.7323487,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.672633,
+                    "finalize_seconds": 0.0007375,
+                    "first_pass_seconds": 0.3465425,
+                    "recorder_seconds": 0.012253499999999999,
+                    "snapshot_seconds": 0.0059223,
+                    "verify_seconds": 0.0393137,
+                    "version_reused": true,
+                    "version_seconds": 3.3e-06
+                  }
+                }
+              ],
+              "baseline": [
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.0555301,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.7496442,
+                    "finalize_seconds": 0.0008772,
+                    "first_pass_seconds": 0.3235972,
+                    "recorder_seconds": 0.0125043,
+                    "snapshot_seconds": 0.0056141,
+                    "verify_seconds": 0.0388501,
+                    "version_reused": false,
+                    "version_seconds": 0.2464519
+                  }
+                },
+                {
+                  "diagnostics": [
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "Undefined control sequence.",
+                      "severity": "error"
+                    },
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "==> Fatal error occurred, no output PDF file produced!",
+                      "severity": "error"
+                    }
+                  ],
+                  "ok": false,
+                  "passes": 1,
+                  "seconds": 0.3232213,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.3113833,
+                    "finalize_seconds": 0.0033952,
+                    "first_pass_seconds": 0.3113833,
+                    "recorder_seconds": 0.0,
+                    "snapshot_seconds": 0.0061008,
+                    "verify_seconds": 0.0022782,
+                    "version_reused": true,
+                    "version_seconds": 3.1e-06
+                  }
+                },
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 0.9776672,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.6555655,
+                    "finalize_seconds": 0.0007024,
+                    "first_pass_seconds": 0.3299144,
+                    "recorder_seconds": 0.0146232,
+                    "snapshot_seconds": 0.0063184,
+                    "verify_seconds": 0.040182800000000005,
+                    "version_reused": false,
+                    "version_seconds": 0.2587592
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "engine": "pdflatex",
+            "trial": 4,
+            "warmup": false,
+            "order": [
+              "baseline",
+              "candidate"
+            ],
+            "results": {
+              "baseline": [
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.0702675,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.7491658,
+                    "finalize_seconds": 0.0007376,
+                    "first_pass_seconds": 0.4235915,
+                    "recorder_seconds": 0.0236474,
+                    "snapshot_seconds": 0.0062479,
+                    "verify_seconds": 0.0425339,
+                    "version_reused": false,
+                    "version_seconds": 0.2463099
+                  }
+                },
+                {
+                  "diagnostics": [
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "Undefined control sequence.",
+                      "severity": "error"
+                    },
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "==> Fatal error occurred, no output PDF file produced!",
+                      "severity": "error"
+                    }
+                  ],
+                  "ok": false,
+                  "passes": 1,
+                  "seconds": 0.3244817,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.3152647,
+                    "finalize_seconds": 0.0009819,
+                    "first_pass_seconds": 0.3152647,
+                    "recorder_seconds": 0.0,
+                    "snapshot_seconds": 0.0060283,
+                    "verify_seconds": 0.0021252,
+                    "version_reused": true,
+                    "version_seconds": 3.1e-06
+                  }
+                },
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.0068152,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.6789875999999999,
+                    "finalize_seconds": 0.0007255,
+                    "first_pass_seconds": 0.3474057,
+                    "recorder_seconds": 0.0148092,
+                    "snapshot_seconds": 0.0072366,
+                    "verify_seconds": 0.0397015,
+                    "version_reused": false,
+                    "version_seconds": 0.2631844
+                  }
+                }
+              ],
+              "candidate": [
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.0617798999999999,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.7559728,
+                    "finalize_seconds": 0.0006848,
+                    "first_pass_seconds": 0.3330898,
+                    "recorder_seconds": 0.0129841,
+                    "snapshot_seconds": 0.0059989,
+                    "verify_seconds": 0.0397754,
+                    "version_reused": false,
+                    "version_seconds": 0.2448543
+                  }
+                },
+                {
+                  "diagnostics": [
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "Undefined control sequence.",
+                      "severity": "error"
+                    },
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "==> Fatal error occurred, no output PDF file produced!",
+                      "severity": "error"
+                    }
+                  ],
+                  "ok": false,
+                  "passes": 1,
+                  "seconds": 0.3175854,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.308506,
+                    "finalize_seconds": 0.000654,
+                    "first_pass_seconds": 0.308506,
+                    "recorder_seconds": 0.0,
+                    "snapshot_seconds": 0.0059606,
+                    "verify_seconds": 0.0021448,
+                    "version_reused": true,
+                    "version_seconds": 2.7e-06
+                  }
+                },
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 0.7065981,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.6452012,
+                    "finalize_seconds": 0.0007127,
+                    "first_pass_seconds": 0.3222722,
+                    "recorder_seconds": 0.0127237,
+                    "snapshot_seconds": 0.0067539,
+                    "verify_seconds": 0.0396305,
+                    "version_reused": true,
+                    "version_seconds": 3.1e-06
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "controls": [
+          {
+            "diagnostics": [
+              {
+                "code": "latex_error",
+                "file": "main.tex",
+                "line": 3,
+                "message": "Undefined control sequence.",
+                "severity": "error"
+              },
+              {
+                "code": "latex_error",
+                "file": "main.tex",
+                "line": 3,
+                "message": "==> Fatal error occurred, no output PDF file produced!",
+                "severity": "error"
+              }
+            ],
+            "ok": false,
+            "passes": 1,
+            "seconds": 0.5619897,
+            "timings": {
+              "bibliography_seconds": 0.0,
+              "engine_seconds": 0.3018986,
+              "finalize_seconds": 0.0027452,
+              "first_pass_seconds": 0.3018986,
+              "recorder_seconds": 0.0,
+              "snapshot_seconds": 0.0060951,
+              "verify_seconds": 0.0025871,
+              "version_reused": false,
+              "version_seconds": 0.2486152
+            }
+          },
+          {
+            "diagnostics": [],
+            "ok": true,
+            "passes": 2,
+            "seconds": 1.0105811,
+            "timings": {
+              "bibliography_seconds": 0.0,
+              "engine_seconds": 0.6921158000000001,
+              "finalize_seconds": 0.0007051,
+              "first_pass_seconds": 0.3464976,
+              "recorder_seconds": 0.012050700000000001,
+              "snapshot_seconds": 0.0067537,
+              "verify_seconds": 0.0409879,
+              "version_reused": false,
+              "version_seconds": 0.2564845
+            }
+          },
+          {
+            "diagnostics": [
+              {
+                "code": "latex_error",
+                "file": "main.tex",
+                "line": 3,
+                "message": "Undefined control sequence.",
+                "severity": "error"
+              },
+              {
+                "code": "latex_error",
+                "file": "main.tex",
+                "line": 3,
+                "message": "==> Fatal error occurred, no output PDF file produced!",
+                "severity": "error"
+              }
+            ],
+            "ok": false,
+            "passes": 1,
+            "seconds": 0.5529463,
+            "timings": {
+              "bibliography_seconds": 0.0,
+              "engine_seconds": 0.2982287,
+              "finalize_seconds": 0.0012205,
+              "first_pass_seconds": 0.2982287,
+              "recorder_seconds": 0.0,
+              "snapshot_seconds": 0.0059791,
+              "verify_seconds": 0.0027812,
+              "version_reused": false,
+              "version_seconds": 0.2446871
+            }
+          },
+          {
+            "diagnostics": [],
+            "ok": true,
+            "passes": 2,
+            "seconds": 1.0658515,
+            "timings": {
+              "bibliography_seconds": 0.0,
+              "engine_seconds": 0.6515545,
+              "finalize_seconds": 0.0008469,
+              "first_pass_seconds": 0.3267106,
+              "recorder_seconds": 0.0123292,
+              "snapshot_seconds": 0.0065085,
+              "verify_seconds": 0.0408742,
+              "version_reused": false,
+              "version_seconds": 0.3520196
+            }
+          }
+        ]
+      },
+      "xelatex": {
+        "repair_median_saving_seconds": 0.29150639999999994,
+        "repair_saving_range_seconds": [
+          0.2587710999999999,
+          0.3294697
+        ],
+        "median_version_probe_seconds": 0.2454251,
+        "pairs": [
+          {
+            "engine": "xelatex",
+            "trial": 0,
+            "warmup": true,
+            "order": [
+              "baseline",
+              "candidate"
+            ],
+            "results": {
+              "baseline": [
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.8514096,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.4770405,
+                    "finalize_seconds": 0.0008678,
+                    "first_pass_seconds": 0.7361989,
+                    "recorder_seconds": 0.022063,
+                    "snapshot_seconds": 0.0060491,
+                    "verify_seconds": 0.0673483,
+                    "version_reused": false,
+                    "version_seconds": 0.2762987
+                  }
+                },
+                {
+                  "diagnostics": [
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "Undefined control sequence.",
+                      "severity": "error"
+                    }
+                  ],
+                  "ok": false,
+                  "passes": 1,
+                  "seconds": 0.3861413,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.3789093,
+                    "finalize_seconds": 0.0007175,
+                    "first_pass_seconds": 0.3789093,
+                    "recorder_seconds": 0.0,
+                    "snapshot_seconds": 0.0051967,
+                    "verify_seconds": 0.0012655,
+                    "version_reused": true,
+                    "version_seconds": 3.8e-06
+                  }
+                },
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.7519129,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.4129486,
+                    "finalize_seconds": 0.0007879,
+                    "first_pass_seconds": 0.688869,
+                    "recorder_seconds": 0.021361500000000002,
+                    "snapshot_seconds": 0.0040701,
+                    "verify_seconds": 0.0645758,
+                    "version_reused": false,
+                    "version_seconds": 0.246612
+                  }
+                }
+              ],
+              "candidate": [
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 2.0593151,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.6869532999999999,
+                    "finalize_seconds": 0.0008252,
+                    "first_pass_seconds": 0.8412087,
+                    "recorder_seconds": 0.0225859,
+                    "snapshot_seconds": 0.0048948,
+                    "verify_seconds": 0.0738212,
+                    "version_reused": false,
+                    "version_seconds": 0.2684382
+                  }
+                },
+                {
+                  "diagnostics": [
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "Undefined control sequence.",
+                      "severity": "error"
+                    }
+                  ],
+                  "ok": false,
+                  "passes": 1,
+                  "seconds": 0.4191213,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.4124625,
+                    "finalize_seconds": 0.0007967,
+                    "first_pass_seconds": 0.4124625,
+                    "recorder_seconds": 0.0,
+                    "snapshot_seconds": 0.004216,
+                    "verify_seconds": 0.0013606,
+                    "version_reused": true,
+                    "version_seconds": 4e-06
+                  }
+                },
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.4997482,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.4078168,
+                    "finalize_seconds": 0.0007353,
+                    "first_pass_seconds": 0.7217579,
+                    "recorder_seconds": 0.0209536,
+                    "snapshot_seconds": 0.0053851,
+                    "verify_seconds": 0.0631168,
+                    "version_reused": true,
+                    "version_seconds": 4e-06
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "engine": "xelatex",
+            "trial": 1,
+            "warmup": false,
+            "order": [
+              "candidate",
+              "baseline"
+            ],
+            "results": {
+              "candidate": [
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.8624427,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.5288171,
+                    "finalize_seconds": 0.0007276,
+                    "first_pass_seconds": 0.8431482,
+                    "recorder_seconds": 0.021874900000000003,
+                    "snapshot_seconds": 0.0038368,
+                    "verify_seconds": 0.06503310000000001,
+                    "version_reused": false,
+                    "version_seconds": 0.240527
+                  }
+                },
+                {
+                  "diagnostics": [
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "Undefined control sequence.",
+                      "severity": "error"
+                    }
+                  ],
+                  "ok": false,
+                  "passes": 1,
+                  "seconds": 0.3970711,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.3909623,
+                    "finalize_seconds": 0.0007976,
+                    "first_pass_seconds": 0.3909623,
+                    "recorder_seconds": 0.0,
+                    "snapshot_seconds": 0.0038572,
+                    "verify_seconds": 0.001244,
+                    "version_reused": true,
+                    "version_seconds": 4.2e-06
+                  }
+                },
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.4760605,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.3844605,
+                    "finalize_seconds": 0.0008144,
+                    "first_pass_seconds": 0.6853493,
+                    "recorder_seconds": 0.0209292,
+                    "snapshot_seconds": 0.0042648,
+                    "verify_seconds": 0.06377250000000001,
+                    "version_reused": true,
+                    "version_seconds": 4.6e-06
+                  }
+                }
+              ],
+              "baseline": [
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.8406023,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.4929076000000001,
+                    "finalize_seconds": 0.0007182,
+                    "first_pass_seconds": 0.7003871,
+                    "recorder_seconds": 0.021191300000000003,
+                    "snapshot_seconds": 0.0037882,
+                    "verify_seconds": 0.0642401,
+                    "version_reused": false,
+                    "version_seconds": 0.2561553
+                  }
+                },
+                {
+                  "diagnostics": [
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "Undefined control sequence.",
+                      "severity": "error"
+                    }
+                  ],
+                  "ok": false,
+                  "passes": 1,
+                  "seconds": 0.4023525,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.3964695,
+                    "finalize_seconds": 0.000824,
+                    "first_pass_seconds": 0.3964695,
+                    "recorder_seconds": 0.0,
+                    "snapshot_seconds": 0.0037545,
+                    "verify_seconds": 0.0012517,
+                    "version_reused": true,
+                    "version_seconds": 3.3e-06
+                  }
+                },
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.8055302,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.4667903,
+                    "finalize_seconds": 0.0007887,
+                    "first_pass_seconds": 0.7027488,
+                    "recorder_seconds": 0.0206488,
+                    "snapshot_seconds": 0.0040761,
+                    "verify_seconds": 0.0634755,
+                    "version_reused": false,
+                    "version_seconds": 0.2479492
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "engine": "xelatex",
+            "trial": 2,
+            "warmup": false,
+            "order": [
+              "baseline",
+              "candidate"
+            ],
+            "results": {
+              "baseline": [
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.9220007,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.4933593,
+                    "finalize_seconds": 0.000952,
+                    "first_pass_seconds": 0.8010078,
+                    "recorder_seconds": 0.0211909,
+                    "snapshot_seconds": 0.0040711,
+                    "verify_seconds": 0.0634924,
+                    "version_reused": false,
+                    "version_seconds": 0.3370393
+                  }
+                },
+                {
+                  "diagnostics": [
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "Undefined control sequence.",
+                      "severity": "error"
+                    }
+                  ],
+                  "ok": false,
+                  "passes": 1,
+                  "seconds": 0.3881654,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.3823747,
+                    "finalize_seconds": 0.0007327,
+                    "first_pass_seconds": 0.3823747,
+                    "recorder_seconds": 0.0,
+                    "snapshot_seconds": 0.0037933,
+                    "verify_seconds": 0.0012141,
+                    "version_reused": true,
+                    "version_seconds": 3.1e-06
+                  }
+                },
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.7891051999999998,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.4572851,
+                    "finalize_seconds": 0.0008644,
+                    "first_pass_seconds": 0.7860503,
+                    "recorder_seconds": 0.0208918,
+                    "snapshot_seconds": 0.0041026,
+                    "verify_seconds": 0.0626436,
+                    "version_reused": false,
+                    "version_seconds": 0.2415251
+                  }
+                }
+              ],
+              "candidate": [
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.8556411000000002,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.5198493,
+                    "finalize_seconds": 0.0008229,
+                    "first_pass_seconds": 0.8157101,
+                    "recorder_seconds": 0.0211808,
+                    "snapshot_seconds": 0.0041663,
+                    "verify_seconds": 0.0647761,
+                    "version_reused": false,
+                    "version_seconds": 0.2432756
+                  }
+                },
+                {
+                  "diagnostics": [
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "Undefined control sequence.",
+                      "severity": "error"
+                    }
+                  ],
+                  "ok": false,
+                  "passes": 1,
+                  "seconds": 0.3952522,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.3878184,
+                    "finalize_seconds": 0.0005955,
+                    "first_pass_seconds": 0.3878184,
+                    "recorder_seconds": 0.0,
+                    "snapshot_seconds": 0.0053334,
+                    "verify_seconds": 0.0012344,
+                    "version_reused": true,
+                    "version_seconds": 3.3e-06
+                  }
+                },
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.4745159,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.382639,
+                    "finalize_seconds": 0.0007925,
+                    "first_pass_seconds": 0.6933938,
+                    "recorder_seconds": 0.0215817,
+                    "snapshot_seconds": 0.004523,
+                    "verify_seconds": 0.06312989999999999,
+                    "version_reused": true,
+                    "version_seconds": 3.2e-06
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "engine": "xelatex",
+            "trial": 3,
+            "warmup": false,
+            "order": [
+              "candidate",
+              "baseline"
+            ],
+            "results": {
+              "candidate": [
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 2.0226836,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.6859294,
+                    "finalize_seconds": 0.0007655,
+                    "first_pass_seconds": 0.7940336,
+                    "recorder_seconds": 0.0216283,
+                    "snapshot_seconds": 0.0040188,
+                    "verify_seconds": 0.06493070000000001,
+                    "version_reused": false,
+                    "version_seconds": 0.2436644
+                  }
+                },
+                {
+                  "diagnostics": [
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "Undefined control sequence.",
+                      "severity": "error"
+                    }
+                  ],
+                  "ok": false,
+                  "passes": 1,
+                  "seconds": 0.4105028,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.4043701,
+                    "finalize_seconds": 0.0006315,
+                    "first_pass_seconds": 0.4043701,
+                    "recorder_seconds": 0.0,
+                    "snapshot_seconds": 0.0038098,
+                    "verify_seconds": 0.0012985,
+                    "version_reused": true,
+                    "version_seconds": 3.2e-06
+                  }
+                },
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.4471131,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.3553188,
+                    "finalize_seconds": 0.0008112,
+                    "first_pass_seconds": 0.6949765,
+                    "recorder_seconds": 0.0212486,
+                    "snapshot_seconds": 0.0038631,
+                    "verify_seconds": 0.0641312,
+                    "version_reused": true,
+                    "version_seconds": 3.5e-06
+                  }
+                }
+              ],
+              "baseline": [
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.7483111999999998,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.3958349,
+                    "finalize_seconds": 0.000792,
+                    "first_pass_seconds": 0.7056223,
+                    "recorder_seconds": 0.0215008,
+                    "snapshot_seconds": 0.004446,
+                    "verify_seconds": 0.0662233,
+                    "version_reused": false,
+                    "version_seconds": 0.2578679
+                  }
+                },
+                {
+                  "diagnostics": [
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "Undefined control sequence.",
+                      "severity": "error"
+                    }
+                  ],
+                  "ok": false,
+                  "passes": 1,
+                  "seconds": 0.3957061,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.3891521,
+                    "finalize_seconds": 0.0006722,
+                    "first_pass_seconds": 0.3891521,
+                    "recorder_seconds": 0.0,
+                    "snapshot_seconds": 0.0045677,
+                    "verify_seconds": 0.0012642,
+                    "version_reused": true,
+                    "version_seconds": 3.6e-06
+                  }
+                },
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.7155366,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.3793928,
+                    "finalize_seconds": 0.0008668,
+                    "first_pass_seconds": 0.7010114,
+                    "recorder_seconds": 0.0207258,
+                    "snapshot_seconds": 0.0055961,
+                    "verify_seconds": 0.064391,
+                    "version_reused": false,
+                    "version_seconds": 0.242901
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "engine": "xelatex",
+            "trial": 4,
+            "warmup": false,
+            "order": [
+              "baseline",
+              "candidate"
+            ],
+            "results": {
+              "baseline": [
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.7277163,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.3898499,
+                    "finalize_seconds": 0.0009073,
+                    "first_pass_seconds": 0.701278,
+                    "recorder_seconds": 0.0217101,
+                    "snapshot_seconds": 0.0038062,
+                    "verify_seconds": 0.0656424,
+                    "version_reused": false,
+                    "version_seconds": 0.2440848
+                  }
+                },
+                {
+                  "diagnostics": [
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "Undefined control sequence.",
+                      "severity": "error"
+                    }
+                  ],
+                  "ok": false,
+                  "passes": 1,
+                  "seconds": 0.4123438,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.4066638,
+                    "finalize_seconds": 0.0006572,
+                    "first_pass_seconds": 0.4066638,
+                    "recorder_seconds": 0.0,
+                    "snapshot_seconds": 0.0037618,
+                    "verify_seconds": 0.0012111,
+                    "version_reused": true,
+                    "version_seconds": 3.2e-06
+                  }
+                },
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.8247353,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.4833536,
+                    "finalize_seconds": 0.0007665,
+                    "first_pass_seconds": 0.811063,
+                    "recorder_seconds": 0.0205058,
+                    "snapshot_seconds": 0.0054921,
+                    "verify_seconds": 0.0629652,
+                    "version_reused": false,
+                    "version_seconds": 0.2501102
+                  }
+                }
+              ],
+              "candidate": [
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.82907,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.490389,
+                    "finalize_seconds": 0.0007512,
+                    "first_pass_seconds": 0.6901041,
+                    "recorder_seconds": 0.021977299999999998,
+                    "snapshot_seconds": 0.0040463,
+                    "verify_seconds": 0.06720229999999999,
+                    "version_reused": false,
+                    "version_seconds": 0.2426833
+                  }
+                },
+                {
+                  "diagnostics": [
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "Undefined control sequence.",
+                      "severity": "error"
+                    }
+                  ],
+                  "ok": false,
+                  "passes": 1,
+                  "seconds": 0.3954619,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.3890263,
+                    "finalize_seconds": 0.0007669,
+                    "first_pass_seconds": 0.3890263,
+                    "recorder_seconds": 0.0,
+                    "snapshot_seconds": 0.003764,
+                    "verify_seconds": 0.0015444,
+                    "version_reused": true,
+                    "version_seconds": 2.9e-06
+                  }
+                },
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.5659642,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.4753542,
+                    "finalize_seconds": 0.0008854,
+                    "first_pass_seconds": 0.7059025,
+                    "recorder_seconds": 0.0208091,
+                    "snapshot_seconds": 0.0039508,
+                    "verify_seconds": 0.0632743,
+                    "version_reused": true,
+                    "version_seconds": 3.9e-06
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "controls": [
+          {
+            "diagnostics": [
+              {
+                "code": "latex_error",
+                "file": "main.tex",
+                "line": 3,
+                "message": "Undefined control sequence.",
+                "severity": "error"
+              }
+            ],
+            "ok": false,
+            "passes": 1,
+            "seconds": 0.6449677,
+            "timings": {
+              "bibliography_seconds": 0.0,
+              "engine_seconds": 0.3949518,
+              "finalize_seconds": 0.0008137,
+              "first_pass_seconds": 0.3949518,
+              "recorder_seconds": 0.0,
+              "snapshot_seconds": 0.0037451,
+              "verify_seconds": 0.001713,
+              "version_reused": false,
+              "version_seconds": 0.24369
+            }
+          },
+          {
+            "diagnostics": [],
+            "ok": true,
+            "passes": 2,
+            "seconds": 1.7439293,
+            "timings": {
+              "bibliography_seconds": 0.0,
+              "engine_seconds": 1.4004924,
+              "finalize_seconds": 0.0006953,
+              "first_pass_seconds": 0.7068303,
+              "recorder_seconds": 0.0213841,
+              "snapshot_seconds": 0.0041766,
+              "verify_seconds": 0.0647057,
+              "version_reused": false,
+              "version_seconds": 0.2508452
+            }
+          },
+          {
+            "diagnostics": [
+              {
+                "code": "latex_error",
+                "file": "main.tex",
+                "line": 3,
+                "message": "Undefined control sequence.",
+                "severity": "error"
+              }
+            ],
+            "ok": false,
+            "passes": 1,
+            "seconds": 0.6424057,
+            "timings": {
+              "bibliography_seconds": 0.0,
+              "engine_seconds": 0.3892325,
+              "finalize_seconds": 0.000733,
+              "first_pass_seconds": 0.3892325,
+              "recorder_seconds": 0.0,
+              "snapshot_seconds": 0.0041145,
+              "verify_seconds": 0.0018864,
+              "version_reused": false,
+              "version_seconds": 0.2463782
+            }
+          },
+          {
+            "diagnostics": [],
+            "ok": true,
+            "passes": 2,
+            "seconds": 1.9316343,
+            "timings": {
+              "bibliography_seconds": 0.0,
+              "engine_seconds": 1.5651161999999998,
+              "finalize_seconds": 0.0007342,
+              "first_pass_seconds": 0.8763226,
+              "recorder_seconds": 0.0215154,
+              "snapshot_seconds": 0.004025,
+              "verify_seconds": 0.0640866,
+              "version_reused": false,
+              "version_seconds": 0.2745541
+            }
+          }
+        ]
+      },
+      "lualatex": {
+        "repair_median_saving_seconds": 0.1828325500000001,
+        "repair_saving_range_seconds": [
+          0.12396340000000006,
+          0.28488219999999975
+        ],
+        "median_version_probe_seconds": 0.24352895,
+        "pairs": [
+          {
+            "engine": "lualatex",
+            "trial": 0,
+            "warmup": true,
+            "order": [
+              "baseline",
+              "candidate"
+            ],
+            "results": {
+              "baseline": [
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 2.1138535,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.7768578,
+                    "finalize_seconds": 0.0010186,
+                    "first_pass_seconds": 0.8327916,
+                    "recorder_seconds": 0.0196705,
+                    "snapshot_seconds": 0.0128645,
+                    "verify_seconds": 0.0539655,
+                    "version_reused": false,
+                    "version_seconds": 0.2475319
+                  }
+                },
+                {
+                  "diagnostics": [
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "Undefined control sequence.",
+                      "severity": "error"
+                    },
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "==> Fatal error occurred, no output PDF file produced!",
+                      "severity": "error"
+                    }
+                  ],
+                  "ok": false,
+                  "passes": 1,
+                  "seconds": 0.8337777,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.8124197,
+                    "finalize_seconds": 0.0010094,
+                    "first_pass_seconds": 0.8124197,
+                    "recorder_seconds": 0.0,
+                    "snapshot_seconds": 0.0146671,
+                    "verify_seconds": 0.0056141,
+                    "version_reused": true,
+                    "version_seconds": 4.7e-06
+                  }
+                },
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.8614999,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.5234819000000002,
+                    "finalize_seconds": 0.0007509,
+                    "first_pass_seconds": 0.7632799,
+                    "recorder_seconds": 0.0181823,
+                    "snapshot_seconds": 0.0119906,
+                    "verify_seconds": 0.0497055,
+                    "version_reused": false,
+                    "version_seconds": 0.255781
+                  }
+                }
+              ],
+              "candidate": [
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.8466279,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.523875,
+                    "finalize_seconds": 0.0008694,
+                    "first_pass_seconds": 0.7771571,
+                    "recorder_seconds": 0.0197297,
+                    "snapshot_seconds": 0.0125816,
+                    "verify_seconds": 0.051686899999999994,
+                    "version_reused": false,
+                    "version_seconds": 0.2361056
+                  }
+                },
+                {
+                  "diagnostics": [
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "Undefined control sequence.",
+                      "severity": "error"
+                    },
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "==> Fatal error occurred, no output PDF file produced!",
+                      "severity": "error"
+                    }
+                  ],
+                  "ok": false,
+                  "passes": 1,
+                  "seconds": 0.7594624,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.7348435,
+                    "finalize_seconds": 0.0072637,
+                    "first_pass_seconds": 0.7348435,
+                    "recorder_seconds": 0.0,
+                    "snapshot_seconds": 0.0118961,
+                    "verify_seconds": 0.0051436,
+                    "version_reused": true,
+                    "version_seconds": 3.4e-06
+                  }
+                },
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.5807874,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.496983,
+                    "finalize_seconds": 0.000783,
+                    "first_pass_seconds": 0.7529686,
+                    "recorder_seconds": 0.0194021,
+                    "snapshot_seconds": 0.0113973,
+                    "verify_seconds": 0.050667899999999995,
+                    "version_reused": true,
+                    "version_seconds": 3.3e-06
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "engine": "lualatex",
+            "trial": 1,
+            "warmup": false,
+            "order": [
+              "candidate",
+              "baseline"
+            ],
+            "results": {
+              "candidate": [
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 2.1846177,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.8248619,
+                    "finalize_seconds": 0.0007505,
+                    "first_pass_seconds": 0.9806512,
+                    "recorder_seconds": 0.0206067,
+                    "snapshot_seconds": 0.0112625,
+                    "verify_seconds": 0.05565730000000001,
+                    "version_reused": false,
+                    "version_seconds": 0.2699258
+                  }
+                },
+                {
+                  "diagnostics": [
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "Undefined control sequence.",
+                      "severity": "error"
+                    },
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "==> Fatal error occurred, no output PDF file produced!",
+                      "severity": "error"
+                    }
+                  ],
+                  "ok": false,
+                  "passes": 1,
+                  "seconds": 0.7536315,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.7354968,
+                    "finalize_seconds": 0.00066,
+                    "first_pass_seconds": 0.7354968,
+                    "recorder_seconds": 0.0,
+                    "snapshot_seconds": 0.0117815,
+                    "verify_seconds": 0.0054266,
+                    "version_reused": true,
+                    "version_seconds": 2.6e-06
+                  }
+                },
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.6025770000000001,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.517515,
+                    "finalize_seconds": 0.0007783,
+                    "first_pass_seconds": 0.7623993,
+                    "recorder_seconds": 0.0182225,
+                    "snapshot_seconds": 0.0120283,
+                    "verify_seconds": 0.05246769999999999,
+                    "version_reused": true,
+                    "version_seconds": 3.5e-06
+                  }
+                }
+              ],
+              "baseline": [
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.9415052,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.607574,
+                    "finalize_seconds": 0.0009675,
+                    "first_pass_seconds": 0.7409373,
+                    "recorder_seconds": 0.0215498,
+                    "snapshot_seconds": 0.0117458,
+                    "verify_seconds": 0.0516617,
+                    "version_reused": false,
+                    "version_seconds": 0.2465306
+                  }
+                },
+                {
+                  "diagnostics": [
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "Undefined control sequence.",
+                      "severity": "error"
+                    },
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "==> Fatal error occurred, no output PDF file produced!",
+                      "severity": "error"
+                    }
+                  ],
+                  "ok": false,
+                  "passes": 1,
+                  "seconds": 0.7196198,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.7017476,
+                    "finalize_seconds": 0.0011648,
+                    "first_pass_seconds": 0.7017476,
+                    "recorder_seconds": 0.0,
+                    "snapshot_seconds": 0.0118638,
+                    "verify_seconds": 0.004783,
+                    "version_reused": true,
+                    "version_seconds": 3.6e-06
+                  }
+                },
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.8874592,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.5625567999999999,
+                    "finalize_seconds": 0.0007153,
+                    "first_pass_seconds": 0.7329992,
+                    "recorder_seconds": 0.0177767,
+                    "snapshot_seconds": 0.0114154,
+                    "verify_seconds": 0.050197000000000006,
+                    "version_reused": false,
+                    "version_seconds": 0.2432721
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "engine": "lualatex",
+            "trial": 2,
+            "warmup": false,
+            "order": [
+              "baseline",
+              "candidate"
+            ],
+            "results": {
+              "baseline": [
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 2.0640256,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.6383556000000001,
+                    "finalize_seconds": 0.0008771,
+                    "first_pass_seconds": 0.8661083,
+                    "recorder_seconds": 0.018807900000000002,
+                    "snapshot_seconds": 0.0110251,
+                    "verify_seconds": 0.052945400000000004,
+                    "version_reused": false,
+                    "version_seconds": 0.3403034
+                  }
+                },
+                {
+                  "diagnostics": [
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "Undefined control sequence.",
+                      "severity": "error"
+                    },
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "==> Fatal error occurred, no output PDF file produced!",
+                      "severity": "error"
+                    }
+                  ],
+                  "ok": false,
+                  "passes": 1,
+                  "seconds": 0.7579996,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.7392652,
+                    "finalize_seconds": 0.0006802,
+                    "first_pass_seconds": 0.7392652,
+                    "recorder_seconds": 0.0,
+                    "snapshot_seconds": 0.0127494,
+                    "verify_seconds": 0.0052504,
+                    "version_reused": true,
+                    "version_seconds": 3.7e-06
+                  }
+                },
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.8172443,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.4933174,
+                    "finalize_seconds": 0.0007304,
+                    "first_pass_seconds": 0.7435037,
+                    "recorder_seconds": 0.0175082,
+                    "snapshot_seconds": 0.01185,
+                    "verify_seconds": 0.048645799999999996,
+                    "version_reused": false,
+                    "version_seconds": 0.2437858
+                  }
+                }
+              ],
+              "candidate": [
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.9533352000000002,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.6171699,
+                    "finalize_seconds": 0.0007578,
+                    "first_pass_seconds": 0.839013,
+                    "recorder_seconds": 0.0172391,
+                    "snapshot_seconds": 0.0114885,
+                    "verify_seconds": 0.0495999,
+                    "version_reused": false,
+                    "version_seconds": 0.255413
+                  }
+                },
+                {
+                  "diagnostics": [
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "Undefined control sequence.",
+                      "severity": "error"
+                    },
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "==> Fatal error occurred, no output PDF file produced!",
+                      "severity": "error"
+                    }
+                  ],
+                  "ok": false,
+                  "passes": 1,
+                  "seconds": 0.8230424,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.804233,
+                    "finalize_seconds": 0.0005801,
+                    "first_pass_seconds": 0.804233,
+                    "recorder_seconds": 0.0,
+                    "snapshot_seconds": 0.0130159,
+                    "verify_seconds": 0.0049141,
+                    "version_reused": true,
+                    "version_seconds": 3.9e-06
+                  }
+                },
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.6745022,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.5937927,
+                    "finalize_seconds": 0.0008071,
+                    "first_pass_seconds": 0.7426719,
+                    "recorder_seconds": 0.017152399999999998,
+                    "snapshot_seconds": 0.0117966,
+                    "verify_seconds": 0.0494831,
+                    "version_reused": true,
+                    "version_seconds": 3.2e-06
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "engine": "lualatex",
+            "trial": 3,
+            "warmup": false,
+            "order": [
+              "candidate",
+              "baseline"
+            ],
+            "results": {
+              "candidate": [
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.8403889,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.5189758,
+                    "finalize_seconds": 0.0007387,
+                    "first_pass_seconds": 0.753104,
+                    "recorder_seconds": 0.0177218,
+                    "snapshot_seconds": 0.0122343,
+                    "verify_seconds": 0.0510683,
+                    "version_reused": false,
+                    "version_seconds": 0.2380398
+                  }
+                },
+                {
+                  "diagnostics": [
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "Undefined control sequence.",
+                      "severity": "error"
+                    },
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "==> Fatal error occurred, no output PDF file produced!",
+                      "severity": "error"
+                    }
+                  ],
+                  "ok": false,
+                  "passes": 1,
+                  "seconds": 0.7154006,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.6975322,
+                    "finalize_seconds": 0.000745,
+                    "first_pass_seconds": 0.6975322,
+                    "recorder_seconds": 0.0,
+                    "snapshot_seconds": 0.011903,
+                    "verify_seconds": 0.0049126,
+                    "version_reused": true,
+                    "version_seconds": 3.3e-06
+                  }
+                },
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.6644063999999998,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.5848906999999999,
+                    "finalize_seconds": 0.000848,
+                    "first_pass_seconds": 0.8354924,
+                    "recorder_seconds": 0.0172905,
+                    "snapshot_seconds": 0.0120904,
+                    "verify_seconds": 0.047725199999999995,
+                    "version_reused": true,
+                    "version_seconds": 3.5e-06
+                  }
+                }
+              ],
+              "baseline": [
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 2.0364623,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.6138907,
+                    "finalize_seconds": 0.0008111,
+                    "first_pass_seconds": 0.7459942,
+                    "recorder_seconds": 0.0193455,
+                    "snapshot_seconds": 0.0117716,
+                    "verify_seconds": 0.050058700000000005,
+                    "version_reused": false,
+                    "version_seconds": 0.3390678
+                  }
+                },
+                {
+                  "diagnostics": [
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "Undefined control sequence.",
+                      "severity": "error"
+                    },
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "==> Fatal error occurred, no output PDF file produced!",
+                      "severity": "error"
+                    }
+                  ],
+                  "ok": false,
+                  "passes": 1,
+                  "seconds": 0.8796228,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.8611004,
+                    "finalize_seconds": 0.0008795,
+                    "first_pass_seconds": 0.8611004,
+                    "recorder_seconds": 0.0,
+                    "snapshot_seconds": 0.0127651,
+                    "verify_seconds": 0.0048253,
+                    "version_reused": true,
+                    "version_seconds": 3.2e-06
+                  }
+                },
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.8873294,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.5496238999999998,
+                    "finalize_seconds": 0.0007863,
+                    "first_pass_seconds": 0.7833127,
+                    "recorder_seconds": 0.017580699999999998,
+                    "snapshot_seconds": 0.0116858,
+                    "verify_seconds": 0.0500389,
+                    "version_reused": false,
+                    "version_seconds": 0.2561511
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "engine": "lualatex",
+            "trial": 4,
+            "warmup": false,
+            "order": [
+              "baseline",
+              "candidate"
+            ],
+            "results": {
+              "baseline": [
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.8729713000000001,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.5262158,
+                    "finalize_seconds": 0.00085,
+                    "first_pass_seconds": 0.7578936,
+                    "recorder_seconds": 0.0189065,
+                    "snapshot_seconds": 0.012317,
+                    "verify_seconds": 0.05293730000000001,
+                    "version_reused": false,
+                    "version_seconds": 0.2601563
+                  }
+                },
+                {
+                  "diagnostics": [
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "Undefined control sequence.",
+                      "severity": "error"
+                    },
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "==> Fatal error occurred, no output PDF file produced!",
+                      "severity": "error"
+                    }
+                  ],
+                  "ok": false,
+                  "passes": 1,
+                  "seconds": 0.7600374,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.7410162,
+                    "finalize_seconds": 0.0007678,
+                    "first_pass_seconds": 0.7410162,
+                    "recorder_seconds": 0.0,
+                    "snapshot_seconds": 0.0124427,
+                    "verify_seconds": 0.0057554,
+                    "version_reused": true,
+                    "version_seconds": 3.7e-06
+                  }
+                },
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.8591842,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.5283662,
+                    "finalize_seconds": 0.000782,
+                    "first_pass_seconds": 0.7562465,
+                    "recorder_seconds": 0.0190505,
+                    "snapshot_seconds": 0.0119665,
+                    "verify_seconds": 0.05442519999999999,
+                    "version_reused": false,
+                    "version_seconds": 0.2429407
+                  }
+                }
+              ],
+              "candidate": [
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.853859,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.532251,
+                    "finalize_seconds": 0.0007467,
+                    "first_pass_seconds": 0.7958712,
+                    "recorder_seconds": 0.0175616,
+                    "snapshot_seconds": 0.0123431,
+                    "verify_seconds": 0.0492144,
+                    "version_reused": false,
+                    "version_seconds": 0.2402188
+                  }
+                },
+                {
+                  "diagnostics": [
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "Undefined control sequence.",
+                      "severity": "error"
+                    },
+                    {
+                      "code": "latex_error",
+                      "file": "main.tex",
+                      "line": 3,
+                      "message": "==> Fatal error occurred, no output PDF file produced!",
+                      "severity": "error"
+                    }
+                  ],
+                  "ok": false,
+                  "passes": 1,
+                  "seconds": 0.731814,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 0.713622,
+                    "finalize_seconds": 0.0007627,
+                    "first_pass_seconds": 0.713622,
+                    "recorder_seconds": 0.0,
+                    "snapshot_seconds": 0.0122025,
+                    "verify_seconds": 0.0049295,
+                    "version_reused": true,
+                    "version_seconds": 3.4e-06
+                  }
+                },
+                {
+                  "diagnostics": [],
+                  "ok": true,
+                  "passes": 2,
+                  "seconds": 1.7352208,
+                  "timings": {
+                    "bibliography_seconds": 0.0,
+                    "engine_seconds": 1.650965,
+                    "finalize_seconds": 0.0009386,
+                    "first_pass_seconds": 0.8786423,
+                    "recorder_seconds": 0.0182083,
+                    "snapshot_seconds": 0.0115179,
+                    "verify_seconds": 0.0520886,
+                    "version_reused": true,
+                    "version_seconds": 3.3e-06
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "controls": [
+          {
+            "diagnostics": [
+              {
+                "code": "latex_error",
+                "file": "main.tex",
+                "line": 3,
+                "message": "Undefined control sequence.",
+                "severity": "error"
+              },
+              {
+                "code": "latex_error",
+                "file": "main.tex",
+                "line": 3,
+                "message": "==> Fatal error occurred, no output PDF file produced!",
+                "severity": "error"
+              }
+            ],
+            "ok": false,
+            "passes": 1,
+            "seconds": 0.9873613,
+            "timings": {
+              "bibliography_seconds": 0.0,
+              "engine_seconds": 0.7350914,
+              "finalize_seconds": 0.0006711,
+              "first_pass_seconds": 0.7350914,
+              "recorder_seconds": 0.0,
+              "snapshot_seconds": 0.0112035,
+              "verify_seconds": 0.0053841,
+              "version_reused": false,
+              "version_seconds": 0.2349461
+            }
+          },
+          {
+            "diagnostics": [],
+            "ok": true,
+            "passes": 2,
+            "seconds": 1.8405593,
+            "timings": {
+              "bibliography_seconds": 0.0,
+              "engine_seconds": 1.5260411,
+              "finalize_seconds": 0.0009439,
+              "first_pass_seconds": 0.7661735,
+              "recorder_seconds": 0.017203,
+              "snapshot_seconds": 0.0115306,
+              "verify_seconds": 0.0482852,
+              "version_reused": false,
+              "version_seconds": 0.2348878
+            }
+          },
+          {
+            "diagnostics": [
+              {
+                "code": "latex_error",
+                "file": "main.tex",
+                "line": 3,
+                "message": "Undefined control sequence.",
+                "severity": "error"
+              },
+              {
+                "code": "latex_error",
+                "file": "main.tex",
+                "line": 3,
+                "message": "==> Fatal error occurred, no output PDF file produced!",
+                "severity": "error"
+              }
+            ],
+            "ok": false,
+            "passes": 1,
+            "seconds": 1.0755772,
+            "timings": {
+              "bibliography_seconds": 0.0,
+              "engine_seconds": 0.8104294,
+              "finalize_seconds": 0.0007472,
+              "first_pass_seconds": 0.8104294,
+              "recorder_seconds": 0.0,
+              "snapshot_seconds": 0.011806,
+              "verify_seconds": 0.0052035,
+              "version_reused": false,
+              "version_seconds": 0.2473393
+            }
+          },
+          {
+            "diagnostics": [],
+            "ok": true,
+            "passes": 2,
+            "seconds": 1.8755399000000001,
+            "timings": {
+              "bibliography_seconds": 0.0,
+              "engine_seconds": 1.5280616999999999,
+              "finalize_seconds": 0.0008577,
+              "first_pass_seconds": 0.7795143,
+              "recorder_seconds": 0.020293,
+              "snapshot_seconds": 0.0128498,
+              "verify_seconds": 0.053563299999999994,
+              "version_reused": false,
+              "version_seconds": 0.2582672
+            }
+          }
+        ]
+      }
+    },
+    "raw_pairs_sha256": "7f249a1a4828e6f04ce47a403d16930fcca9f4ef0575a26f6d535ed21b37beda"
+  }
+}

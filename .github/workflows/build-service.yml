@@ -4,6 +4,7 @@ on:
     paths:
       - 'crates/texloom-build/**'
       - 'Cargo.lock'
+      - 'scripts/install-ci-tex.sh'
       - '.github/workflows/build-service.yml'
   workflow_dispatch:
 permissions:
@@ -14,7 +15,7 @@ concurrency:
 jobs:
   engines:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -22,9 +23,7 @@ jobs:
       - name: Run build infrastructure and process tests
         run: cargo test --locked -p texloom-build
       - name: Install test-only engines
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends texlive-latex-base texlive-latex-recommended texlive-latex-extra texlive-bibtex-extra texlive-luatex texlive-xetex biber
+        run: bash scripts/install-ci-tex.sh texlive-latex-base texlive-latex-recommended texlive-latex-extra texlive-bibtex-extra texlive-luatex texlive-xetex biber
       - name: Exercise real engine recipes and fault cases
         env:
           TEXLOOM_BUILD_REPORT_DIR: ${{ github.workspace }}/artifacts/build-service

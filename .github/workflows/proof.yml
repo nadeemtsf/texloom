@@ -16,7 +16,7 @@ concurrency:
 jobs:
   source-and-pdf:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -43,9 +43,7 @@ jobs:
       - name: Prove source round trips and both renderer regressions
         run: node scripts/movement-proof.mjs --prepare
       - name: Install test-only TeX engines
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends texlive-latex-base texlive-latex-recommended texlive-luatex texlive-xetex
+        run: bash scripts/install-ci-tex.sh texlive-latex-base texlive-latex-recommended texlive-luatex texlive-xetex
       - name: Run real-engine experiment
         run: node scripts/movement-proof.mjs
       - name: Verify real PDF selection and SyncTeX hints

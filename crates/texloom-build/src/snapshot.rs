@@ -407,12 +407,21 @@ impl Receipt {
     /// Recorder discovery is followed by another stable full pass. External inputs
     /// must live in the declared toolchain/font roots, not arbitrary user folders.
     pub fn record_inputs(&mut self, fls: &Path, roots: &[PathBuf]) -> Result<bool> {
-        let text = fs::read_to_string(fls).map_err(|_| {
-            "The engine did not produce its required dependency recorder".to_string()
-        })?;
-        if text.len() > 4 * 1024 * 1024 {
+        // Keep the existing limit both before allocation and while reading,
+        // since the file can grow after the metadata lookup.
+        const LIMIT: u64 = 4 * 1024 * 1024;
+        let missing = || "The engine did not produce its required dependency recorder".to_string();
+        let file = fs::File::open(fls).map_err(|_| missing())?;
+        let length = file.metadata().map(|metadata| metadata.len()).unwrap_or(0);
+        if length > LIMIT {
             return Err("Dependency recorder exceeds 4 MiB".into());
         }
+        let mut contents = Vec::with_capacity(length as usize);
+        file.take(LIMIT + 1).read_to_end(&mut contents).map_err(|_| missing())?;
+        if contents.len() as u64 > LIMIT {
+            return Err("Dependency recorder exceeds 4 MiB".into());
+        }
+        let text = std::str::from_utf8(&contents).map_err(|_| missing())?;
         let roots: Vec<_> = roots.iter().filter_map(|p| p.canonicalize().ok()).collect();
         let mut added = false;
         let mut seen = BTreeSet::new();
