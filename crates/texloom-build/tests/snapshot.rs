@@ -92,6 +92,30 @@ fn recorder_requires_declared_inputs_and_checks_toolchain_changes() {
     assert!(r.verify().is_err());
 }
 #[test]
+fn recorder_accepts_the_exact_byte_limit_and_refuses_extra_bytes() {
+    let w = Workspace::new();
+    let mut receipt = w.capture();
+    let path = receipt.directory.join(".out/preview.fls");
+    fs::write(&path, b"INPUT main.tex\n").unwrap();
+    let writer = fs::OpenOptions::new().write(true).open(&path).unwrap();
+    let limit = 4 * 1024 * 1024;
+    writer.set_len(limit).unwrap();
+    assert!(!receipt.record_inputs(&path, &[]).unwrap());
+    assert!(receipt.used_project_inputs.contains("main.tex"));
+    writer.set_len(limit + 1).unwrap();
+    assert_eq!(
+        receipt.record_inputs(&path, &[]).unwrap_err(),
+        "Dependency recorder exceeds 4 MiB"
+    );
+    drop(writer);
+    fs::write(&path, [0xc3, 0]).unwrap();
+    assert_eq!(
+        receipt.record_inputs(&path, &[]).unwrap_err(),
+        "The engine did not produce its required dependency recorder"
+    );
+}
+
+#[test]
 fn unknown_generated_inputs_and_source_aliases_are_refused() {
     let w = Workspace::new();
     let mut r = w.capture();
