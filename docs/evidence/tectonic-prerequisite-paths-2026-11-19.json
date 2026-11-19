@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "kind": "tectonic_bundle_prerequisite_paths",
+  "scope": "Single benign synthetic multi-source fixture in two output layouts with an offline bundled engine",
+  "driver": "https://github.com/tectonic-typesetting/tectonic/blob/tectonic%400.17.0/src/driver.rs#L1412-L1441",
+  "method_sha256": "b25ec6f278bca38ccbc3b8eeedd6a0c3eae38678928925c207e1b14bbb49bd68",
+  "layouts": [
+    {
+      "tool_sha256": "99ffcfdbf1ebf8bdda9e791942e3d06aedb12463fddc33f07de6f5211c8bf08d",
+      "bundle_sha256": "9d41e7b539d0bba50151cac514ecc53f7554a1704107a06625dc1666b2620a27",
+      "format_sha256": {
+        "formats/dd4c1e637b0fb9c665d76c397c73f4d2befff7665fc5f09b6681181add176895-latex-33.fmt": "a86ffcac335474fb9fae47cd9986b929719dc3ddf29bfb31123ecc1790ef6bbb"
+      },
+      "inputs": {
+        "image file.png": "ce9bb8c6ade8cbc1872c74515051aecb54c34a7be5a6be40dfc96f5a52eb5ff0",
+        "main.tex": "0a32c6fa62410badd3803e9a2ff500806d0f06b01fd54ec3a6f7aa62beebf8ee",
+        "source folder/section one.tex": "37cd6bb6922e0673e0b2151f99a9b22b0def1930ebff818383ceda01a46acb6f",
+        "source folder/section two.tex": "91a96439830ddc87b9300e92dce6999430392888744711d63c889195243f8fad"
+      },
+      "separate_output_directory": false,
+      "literal_resolution_refused": false,
+      "rules": "main.log main.synctex.gz main.pdf main.aux : main.tex \\\n  source folder/section two.tex \\\n  source folder/section one.tex \\\n  image file.png\n",
+      "outputs": {
+        "dependencies.mk": "c1deee07e0855e39c56b5e66c9d9f65113b8f488b9a2ebb45cd904b848c198da",
+        "main.log": "2baaebea0d90fe87fd660de0a7adddf187ae4052dac0bfe16a4f20d53e25748d",
+        "main.aux": "fbabe80c887f95a1ede6847f22dd91b380bda9d17ae8bfaa72e1741b16aa41e9",
+        "main.pdf": "774611706fa3f2df4873cee11994a4bceaf2ac0ddcd47a6fde8eb365587bc07b",
+        "main.synctex.gz": "4f60018b3b77a88e53ce577a6c1488a3ff7ee9acb6bf4225f4dec5994425f6bd"
+      },
+      "controls": {
+        "invalid_continuation": "Invalid prerequisite delimiter",
+        "outside_snapshot": "Prerequisite outside the snapshot",
+        "missing_file": "Required prerequisite was absent",
+        "same_length_source_change": true
+      }
+    },
+    {
+      "tool_sha256": "99ffcfdbf1ebf8bdda9e791942e3d06aedb12463fddc33f07de6f5211c8bf08d",
+      "bundle_sha256": "9d41e7b539d0bba50151cac514ecc53f7554a1704107a06625dc1666b2620a27",
+      "format_sha256": {
+        "formats/dd4c1e637b0fb9c665d76c397c73f4d2befff7665fc5f09b6681181add176895-latex-33.fmt": "a86ffcac335474fb9fae47cd9986b929719dc3ddf29bfb31123ecc1790ef6bbb"
+      },
+      "inputs": {
+        "image file.png": "ce9bb8c6ade8cbc1872c74515051aecb54c34a7be5a6be40dfc96f5a52eb5ff0",
+        "main.tex": "0a32c6fa62410badd3803e9a2ff500806d0f06b01fd54ec3a6f7aa62beebf8ee",
+        "source folder/section one.tex": "37cd6bb6922e0673e0b2151f99a9b22b0def1930ebff818383ceda01a46acb6f",
+        "source folder/section two.tex": "91a96439830ddc87b9300e92dce6999430392888744711d63c889195243f8fad"
+      },
+      "separate_output_directory": true,
+      "literal_resolution_refused": true,
+      "rules": ".out\\main.aux .out\\main.pdf .out\\main.log .out\\main.synctex.gz : main.tex \\\n  .out\\image file.png \\\n  .out\\source folder/section two.tex \\\n  .out\\source folder/section one.tex\n",
+      "outputs": {
+        "dependencies.mk": "806b07df9b1729db3fbc5885181cd5caffd456c3bea27ed4486ad3d0f0424261",
+        "main.log": "2baaebea0d90fe87fd660de0a7adddf187ae4052dac0bfe16a4f20d53e25748d",
+        "main.aux": "fbabe80c887f95a1ede6847f22dd91b380bda9d17ae8bfaa72e1741b16aa41e9",
+        "main.pdf": "774611706fa3f2df4873cee11994a4bceaf2ac0ddcd47a6fde8eb365587bc07b",
+        "main.synctex.gz": "3c49c292c7987e7a3fb5d889f68729f4402c19c5e24220b4cbdff7d90198fa0f"
+      },
+      "controls": {
+        "invalid_continuation": "Invalid prerequisite delimiter",
+        "outside_snapshot": "Prerequisite outside the snapshot",
+        "missing_file": "Required prerequisite was absent",
+        "same_length_source_change": true
+      }
+    }
+  ]
+}

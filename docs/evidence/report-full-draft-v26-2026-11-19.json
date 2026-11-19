@@ -1,0 +1,47 @@
+{
+  "schema": 1,
+  "kind": "technical_report_v26_build_visual_review",
+  "reviewed_pages": 41,
+  "reviewed_references": 33,
+  "readable_pages": [
+    26,
+    27
+  ],
+  "underfull_notices": 4,
+  "pdf": {
+    "file": "Texloom-technical-report-full-draft-2026-11-19-v26.pdf",
+    "sha256": "c0b934338d48eaafae9ef6d3a9007cb2ef31b427448fcac193955f537f447282",
+    "bytes": 712061
+  },
+  "editable_sources": {
+    "file": "Texloom-technical-report-editable-sources-2026-11-19-v26.zip",
+    "sha256": "4829fe16c2d6801d612ecdbf1da11a9f00ef17ac209da1159028b8b7b537b8bc",
+    "bytes": 85307,
+    "members": 17
+  },
+  "source_sha256": {
+    "followup-references.bib": "00ae9c7fa691f035546d1fb384f0454774617432fd7f4ecc29e4536048b2d55a",
+    "main.tex": "ea1e820f55b0086d9213f9fb80c2aa56cfce9ae9382ce03a3485cdb035ed2ebd",
+    "README.md": "22d3fb999492cc48a1c644d8ffc33718c27b56ee3f28d839d618a0f31a8507e2",
+    "references.bib": "1c6bef9292f8599cbc86bb610e9b1e3b44a604b3db66370c8e9604a849121493",
+    "sections/01-scope.tex": "8a081ce27cdd63ca9a623512aa0fc12ca7686477759b3f3de307ea7a9c701196",
+    "sections/02-workflow.tex": "ec6d7c640050e864421a33b05e54b2a278299e76a695ac570faca4a9388ddf5d",
+    "sections/03-contracts.tex": "46fc40be341983f0fd993ce675bbc1253fe9ab937538cc81eadb39e3b93e4c19",
+    "sections/04-related-work.tex": "a2225909003758d3c4262168bc12821c02ed9edc118f4ed83685107abdadf23e",
+    "sections/05-evaluation.tex": "71346c4c1e896eed0fed97844a50ea35a626cc7604f7fb96d4884ad2fb021bf3",
+    "sections/06-development-evidence.tex": "981da2cbae6fe869aab39ed2b2403088f60d3fe73afa1858def96e40a88934a4",
+    "sections/07-timing.tex": "15ce75420430c5ef4bf8c57ea69a90317fe2cae80e67ecbc29a6889c634084bf",
+    "sections/08-reproducibility.tex": "683c95e3224da775acd9c4c1baf722eb51078edd17ed7d68e52e84a533125c49",
+    "sections/09-limitations.tex": "5c57086b0dfa3a9af349cf032b653ed1e6c6b7f2b6ff192e505bf386586c862e",
+    "sections/appendix-artifacts.tex": "e00e2105b8b70e7e514a29c3cf90d7aa1e75c8c2ad82f64af2eef21e5cfdf2c2",
+    "sections/appendix-protocol.tex": "941e7098b5bda83b5078268c6abbbbc11e2124c35141c7531165a8fba62c00da",
+    "sections/appendix-reproduction.tex": "fc7de0591a8ea68c44135651fefee871a71c0816804353ee1ed709f258649188",
+    "sections/compile-cost.tex": "9cb3870fc3d4ca0de1937adf1a87c4c5e0f6953605c74c669694f3d2acfdb294"
+  },
+  "evidence_sha256": {
+    "intermediate-draft-pass-2026-11-19.json": "d62d5cb0ada2073a7feba85ddc6e913f0deed401d8a61081a2ee30793c8fa20a",
+    "pdf-reading-page-fetch-2026-11-19.json": "c024afac8e2e2cb184b3955495dde7403be13c649e3c400f9df89195df04436a",
+    "project-and-toolchain-verification-2026-11-19.json": "bb6b3000abc4d59d797fba07d656d8eb224682618b860f372d7f11c0e0d9f763",
+    "tectonic-prerequisite-paths-2026-11-19.json": "4ba960cf05a1e0ab30f20ec71ad2c6c8192dc6515f962b51a7b23c759a1a34b3"
+  }
+}

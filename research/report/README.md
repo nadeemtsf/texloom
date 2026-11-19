@@ -1,4 +1,6 @@
-Latest artifact, 18 November, **v25, 40 pages and 32 references**. Section 7.16 adds the paired pdfLaTeX comparison on the prior 40-page manuscript, including variation across individual runs. All pages were rendered and reviewed, including readable inspection of page 26. See `docs/evidence/report-full-draft-v25-2026-11-18.json`.
+Latest artifact, 19 November, **v26, 41 pages and 33 references**. This revision adds the measured intermediate-pass study and its retained counterexample, the Tectonic prerequisite-path checks, and the paired native project and toolchain work. All pages were rendered and reviewed. See `docs/evidence/report-full-draft-v26-2026-11-19.json`.
+
+Previous artifact, 18 November, **v25, 40 pages and 32 references**. Section 7.16 adds the paired pdfLaTeX comparison on the prior 40-page manuscript. The individual timings and source fingerprints are in `docs/evidence/technical-report-compile-followup-2026-11-18.json`. All pages were rendered and reviewed, including readable inspection of page 26.
 
 Previous artifact, 18 November, **v24, 40 pages and 32 references**. This revision records the paired native compile comparison, the source line indexing and raster verification studies, and the isolated offline Tectonic bundle replay. The timings distinguish the native build from editor dispatch and preview rendering. All pages were rendered and reviewed, with readable inspection of pages 25 and 26. See `docs/evidence/report-full-draft-v24-2026-11-18.json`.
 

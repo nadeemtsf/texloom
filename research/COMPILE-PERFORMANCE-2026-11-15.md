@@ -214,6 +214,33 @@ cancellation and descendant cleanup.
 [Log capture evidence](../docs/evidence/compiler-log-capture-2026-11-18.json)
 contains the measured pairs and native controls.
 
+## Project-file checks and long PDF preparation
+
+Reusing metadata from the link check reduced directory enumeration of
+600 files by a paired median 16.6 ms. The separate native comparison
+of that change saved a median 86 ms on the 600-file build. Individual
+native differences crossed zero. The toolchain concurrency prototype
+reduced verification costs but produced mixed total-build results.
+[Native and component evidence](../docs/evidence/project-and-toolchain-verification-2026-11-19.json)
+preserves both comparisons and the matched receipts and PDFs.
+
+The reading view now requests page metadata in groups of eight and
+keeps page order and exact dimensions. Paired median savings through
+first-page paint were 6.5 ms at 40 pages, 25.4 ms at 250 pages and
+108.8 ms at 1,200 pages. The headless test verified every page shell
+and the first and last page rasters and text.
+[Reading-view evidence](../docs/evidence/pdf-reading-page-fetch-2026-11-19.json)
+records the individual timings and failure control.
+
+The intermediate-draft experiment found small median savings on two
+fixtures and nearly zero on the report. The saved-mode counterexample
+produced a different final PDF after two full passes, ruling out the
+unrestricted shortcut. The offline Tectonic fixture also exposed a
+version-specific output-directory prefix in its prerequisite paths.
+[Draft-pass evidence](../docs/evidence/intermediate-draft-pass-2026-11-19.json)
+and [offline prerequisite evidence](../docs/evidence/tectonic-prerequisite-paths-2026-11-19.json)
+record the compiler and artifact checks.
+
 ## Source work around the native compile
 
 The frontend compile stage uses the current revision and candidate token.

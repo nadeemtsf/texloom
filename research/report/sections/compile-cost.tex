@@ -570,3 +570,120 @@ predicted displacement. These measurements time the comparison of
 completed in-memory rasters. They exclude PDF rendering and interactive
 approval. See
 \path{docs/evidence/source-and-raster-comparison-2026-11-18.json}.
+
+
+\subsection{Intermediate passes without PDF generation}
+
+MiK\TeX{} describes pdf\LaTeX{} draft mode as omitting PDF generation and
+image reads while retaining TeX processing \cite{miktexpdftexdraft}.
+We compared three full passes with a draft first pass and two full passes.
+The fixtures used fresh snapshots, alternating execution order and one
+warm-up before four measured pairs. The timings cover compiler commands
+and BibTeX where used. The table gives the median paired saving in
+seconds, final PDF equivalence and matching selected SyncTeX round trips.
+The complete traces also matched after normalizing snapshot paths and
+byte-offset records.
+
+\begin{center}
+\small
+\begin{tabular}{lrrr}
+\toprule
+Fixture & Seconds saved & PDF pairs & SyncTeX pairs \\
+\midrule
+References & 0.069 & 5/5 & 5/5 \\
+Image pages & 0.138 & 5/5 & 5/5 \\
+Report & -0.010 & 5/5 & 5/5 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+A separate control stored its first mode in an auxiliary file and retained
+that value across subsequent full passes. Both arms reached stable
+auxiliary bytes within their own run. Their final PDFs contained different
+visible markers. The observed difference rules out substituting a draft
+first pass in the default recipe for arbitrary sources.
+\path{docs/evidence/intermediate-draft-pass-2026-11-19.json} retains the
+dependency differences and pair results.
+
+\subsection{Prerequisite paths in an offline bundle build}
+
+The pinned Tectonic CLI compiled the same source fixture with root output
+and with a separate output directory. The fixture included two nested
+source files and one image with spaces in their names. The rule listed
+each distinct filesystem input. With a separate output directory, the
+driver prefixed its secondary prerequisite paths with that directory,
+following the versioned implementation \cite{tectonicdriver}. Those
+literal paths failed to resolve. A version-specific interpretation
+recovered the four expected files and rejected malformed, missing and
+out-of-snapshot paths in the independent rule check.
+
+The two layouts produced byte-identical PDFs. The bundle, format and
+input identities matched on both runs. The diagnostic detected a
+same-length source change after compilation. These checks cover the
+enrolled fixture and CLI version. See
+\path{docs/evidence/tectonic-prerequisite-paths-2026-11-19.json}.
+
+\subsection{Project enumeration and toolchain verification}
+
+Project enumeration reuses the checked directory-entry metadata for the
+file type. Asset capture also reuses the checked size before copying.
+Directory rechecks, link rejection, membership verification and the
+checks on copied bytes remain in place. In twelve measured pairs on the
+600-file tree, the reduction in enumeration alone was 16.6~ms.
+
+An independent prototype checked two ordered toolchain groups in parallel
+on smaller snapshots with at least 64 dependencies. Each group checked
+path and content identity. The verifier waited for both and returned the
+earliest failure in receipt order. The report receipt included 133
+toolchain files. Ten measured pairs on that receipt saved a median
+8.1~ms per verification. The controls included same-length
+mutations in both groups and a frozen-file error before both.
+
+Five pairs per condition, counting one warm-up, then exercised the
+combined prototype through the native compile service. Each column gives a
+paired median reduction in milliseconds from its own interval.
+
+\begin{center}
+\small
+\begin{tabular}{lrrr}
+\toprule
+Fixture & Snapshot & Verify & Native total \\
+\midrule
+Small pdf\LaTeX{} & 0 & -4 & -70 \\
+Small Lua\LaTeX{} & 0 & 11 & 54 \\
+Asset-heavy & 6 & -4 & 74 \\
+600 files & 28 & 64 & 42 \\
+Report & 2 & 34 & -216 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+All 25 pairs matched the recorded checked inputs and PDF properties.
+Individual timings vary with engine startup and system load. The stage
+and total medians use their own paired samples. The combined prototype
+reduced the report's verification interval while its native total
+increased at the median. The implementation follow-up kept the simpler
+directory and asset metadata change. Its separate 15-pair run matched
+the tracked PDF and receipt properties, with a median paired native
+change of 141~ms on the report and 86~ms on the
+600-file fixture, using positive values for savings.
+Individual differences crossed zero on both fixtures. The report's
+small metadata intervals limit attribution of its total change.
+\path{docs/evidence/project-and-toolchain-verification-2026-11-19.json}
+records the individual timings, including slower runs.
+
+\subsection{Page metadata preparation in reading view}
+
+The reading view collects page metadata in groups of eight and consumes
+each group in page order. It still prepares accurate shells for every
+page and paints the first before publication. The headless comparison
+used 40, 250 and 1200 mixed-size pages, with one warm-up and five
+measured pairs at each size. The median paired preparation savings
+were 6.5, 25.4 and 108.8~ms, respectively.
+
+The comparison matched each shell's label and dimensions, the first and
+last pages' text and pixels, and the remaining pages' initial lazy state.
+On a fixture with two failed page lookups, both arms reported the
+earliest failing page. The experiment ends at first page paint inside
+the prepared view. See
+\path{docs/evidence/pdf-reading-page-fetch-2026-11-19.json}.

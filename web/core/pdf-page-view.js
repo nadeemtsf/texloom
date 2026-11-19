@@ -2,6 +2,7 @@
  * CSS zoom / delayed sharp redraw path. PDFPageView uses CSS_UNITS internally;
  * Texloom's source geometry and public view.scale remain in PDF points. */
 const CSS_UNITS=96/72;
+const READING_PAGE_BATCH=8;
 export const PDF_ZOOM_DELAY=400;
 
 export function capturePDFZoomAnchor(view,scroller,origin){
@@ -46,9 +47,25 @@ export async function preparePagedPDF(pdfjs,pdf,result,{width,zoom=0,mode='selec
     item.shell.dataset.scale=String(view.scale);
   };
   signal?.addEventListener('abort',dispose,{once:true});
+  let requested=[];
   try{
     for(let n=1;n<=pdf.numPages;n++){
-      check();const page=n===1?first:await pdf.getPage(n),base=page.getViewport({scale:1});
+      check();
+      let page=first;
+      if(n>1&&!readingOnly){
+        page=await pdf.getPage(n);
+      }else if(n>1){
+        if(!requested.length){
+          const count=Math.min(READING_PAGE_BATCH,pdf.numPages-n+1);
+          // Wait for this batch before creating its shells or reporting its first error.
+          requested=await Promise.allSettled(Array.from({length:count},(_,i)=>pdf.getPage(n+i)));
+          check();
+        }
+        const next=requested.shift();
+        if(next.status==='rejected')throw next.reason;
+        page=next.value;
+      }
+      const base=page.getViewport({scale:1});
       const shell=document.createElement('div');shell.className='pdf-page pending-page';
       Object.assign(shell.dataset,{page:String(n),scale:String(scale),pdfWidth:String(base.width),pdfHeight:String(base.height)});
       shell.setAttribute('aria-label','PDF page '+n);
