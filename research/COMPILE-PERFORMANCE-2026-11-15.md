@@ -194,6 +194,26 @@ their exact comparison results.
 [Source and raster evidence](../docs/evidence/source-and-raster-comparison-2026-11-18.json)
 includes the individual timed pairs and the native control PDF fingerprint.
 
+## Report manuscript and compiler log follow-ups
+
+The same build service checkpoints compiled the 40-page v24 report with
+pdfLaTeX and BibTeX. Five measured pairs followed two warm-ups. The paired
+median saving was 0.75 seconds, with one run 0.49 seconds slower and the
+best pair 2.21 seconds faster. All seven pairs matched three-pass behavior,
+receipt fields, and PDF text, geometry, links and pixels.
+[Report compile evidence](../docs/evidence/technical-report-compile-followup-2026-11-18.json)
+records inputs, individual timings and scope.
+
+The process supervisor now retains compiler output in chunks. It drains
+the pipe and preserves the original 128 KiB cap, prefix and tail. A
+separate in-memory comparison measured paired median savings of 0.015 ms
+at 4 KiB, 0.352 ms at the retention cap, and 48.871 ms for 8 MiB of
+truncated output. The last case measures handling of unusually large
+diagnostic output. Native subprocess tests verified output draining,
+cancellation and descendant cleanup.
+[Log capture evidence](../docs/evidence/compiler-log-capture-2026-11-18.json)
+contains the measured pairs and native controls.
+
 ## Source work around the native compile
 
 The frontend compile stage uses the current revision and candidate token.

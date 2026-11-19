@@ -58,16 +58,13 @@ impl Capture {
                 Ok(0) => break,
                 Ok(n) => {
                     c.total = c.total.saturating_add(n);
-                    for b in &buffer[..n] {
-                        if c.first.len() < Self::HALF {
-                            c.first.push(*b);
-                        } else {
-                            if c.last.len() == Self::HALF {
-                                c.last.pop_front();
-                            }
-                            c.last.push_back(*b);
-                        }
-                    }
+                    let first = n.min(Self::HALF - c.first.len());
+                    c.first.extend_from_slice(&buffer[..first]);
+                    let tail = &buffer[first..n];
+                    // Each read fits in the tail buffer, so overflow comes from older bytes.
+                    let excess = (c.last.len() + tail.len()).saturating_sub(Self::HALF);
+                    c.last.drain(..excess);
+                    c.last.extend(tail);
                 }
                 Err(e) if e.kind() == io::ErrorKind::Interrupted => continue,
                 Err(_) => {
@@ -102,15 +99,22 @@ mod tests {
         assert!(Capture::read(Broken).finish().1);
     }
     #[test]
-    fn oversized_output_is_drained_and_retains_both_ends() {
-        let mut bytes = vec![b'x'; 1_000_000];
-        bytes[..5].copy_from_slice(b"FIRST");
-        let n = bytes.len();
-        bytes[n - 4..].copy_from_slice(b"LAST");
-        let (text, truncated) = Capture::read(bytes.as_slice()).finish();
-        assert!(truncated);
-        assert!(text.starts_with("FIRST"));
-        assert!(text.ends_with("LAST"));
-        assert!(text.len() < 132_000);
+    fn output_retains_the_exact_prefix_and_tail_at_the_capture_limit() {
+        let limit = Capture::HALF * 2;
+        for length in [limit - 1, limit, limit + 1, 1_000_000] {
+            let bytes: Vec<_> = (0..length).map(|i| b'a' + (i % 26) as u8).collect();
+            let (text, truncated) = Capture::read(bytes.as_slice()).finish();
+            assert_eq!(truncated, length > limit);
+            if truncated {
+                let expected = [
+                    &bytes[..Capture::HALF],
+                    b"\n[compiler output truncated or interrupted]\n",
+                    &bytes[length - Capture::HALF..],
+                ].concat();
+                assert_eq!(text.as_bytes(), expected);
+            } else {
+                assert_eq!(text.as_bytes(), bytes);
+            }
+        }
     }
 }

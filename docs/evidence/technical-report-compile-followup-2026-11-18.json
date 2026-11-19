@@ -1,0 +1,188 @@
+{
+  "schema": 1,
+  "kind": "technical_report_native_compile_comparison",
+  "baseline": "07255921fc27d4be3d34edbf42f96ac51625d24e",
+  "candidate": "05b320159e55057baea60e24e9a054fd6c1c55c3",
+  "scope": "Seven alternating pdfLaTeX pairs on the 40-page report with real source includes and BibTeX. Two warm-ups and five measured. Fresh build snapshots in each arm. The timed interval ends when the native build returns the PDF and receipt.",
+  "results": {
+    "inputs": {
+      "followup-references.bib": "9ef68abfef84c50c3c00c522ca16d25ddfe89fac20fb31e1c53eca84e6a465bc",
+      "main.tex": "c9bc0b27276b5f64919cae8efd944712f8e2f177cdd8c002982d1c9af418a71d",
+      "references.bib": "1c6bef9292f8599cbc86bb610e9b1e3b44a604b3db66370c8e9604a849121493",
+      "sections/01-scope.tex": "8a081ce27cdd63ca9a623512aa0fc12ca7686477759b3f3de307ea7a9c701196",
+      "sections/02-workflow.tex": "ec6d7c640050e864421a33b05e54b2a278299e76a695ac570faca4a9388ddf5d",
+      "sections/03-contracts.tex": "46fc40be341983f0fd993ce675bbc1253fe9ab937538cc81eadb39e3b93e4c19",
+      "sections/04-related-work.tex": "a2225909003758d3c4262168bc12821c02ed9edc118f4ed83685107abdadf23e",
+      "sections/05-evaluation.tex": "71346c4c1e896eed0fed97844a50ea35a626cc7604f7fb96d4884ad2fb021bf3",
+      "sections/06-development-evidence.tex": "981da2cbae6fe869aab39ed2b2403088f60d3fe73afa1858def96e40a88934a4",
+      "sections/07-timing.tex": "15ce75420430c5ef4bf8c57ea69a90317fe2cae80e67ecbc29a6889c634084bf",
+      "sections/08-reproducibility.tex": "683c95e3224da775acd9c4c1baf722eb51078edd17ed7d68e52e84a533125c49",
+      "sections/09-limitations.tex": "5c57086b0dfa3a9af349cf032b653ed1e6c6b7f2b6ff192e505bf386586c862e",
+      "sections/appendix-artifacts.tex": "e00e2105b8b70e7e514a29c3cf90d7aa1e75c8c2ad82f64af2eef21e5cfdf2c2",
+      "sections/appendix-protocol.tex": "941e7098b5bda83b5078268c6abbbbc11e2124c35141c7531165a8fba62c00da",
+      "sections/appendix-reproduction.tex": "fc7de0591a8ea68c44135651fefee871a71c0816804353ee1ed709f258649188",
+      "sections/compile-cost.tex": "1e81783f81a7140d60e201030036df6ecbf1f4ccdbe58e085b154e00e71109dc"
+    },
+    "pairs": [
+      {
+        "trial": 0,
+        "warmup": true,
+        "order": [
+          "old",
+          "new"
+        ],
+        "results": {
+          "old": {
+            "bytes": 701442,
+            "passes": 3,
+            "seconds": 13.4460194
+          },
+          "new": {
+            "bytes": 701442,
+            "passes": 3,
+            "seconds": 12.0782625
+          }
+        },
+        "differences": []
+      },
+      {
+        "trial": 1,
+        "warmup": true,
+        "order": [
+          "new",
+          "old"
+        ],
+        "results": {
+          "new": {
+            "bytes": 701442,
+            "passes": 3,
+            "seconds": 12.141314
+          },
+          "old": {
+            "bytes": 701442,
+            "passes": 3,
+            "seconds": 12.4318609
+          }
+        },
+        "differences": []
+      },
+      {
+        "trial": 2,
+        "warmup": false,
+        "order": [
+          "old",
+          "new"
+        ],
+        "results": {
+          "old": {
+            "bytes": 701442,
+            "passes": 3,
+            "seconds": 12.5540665
+          },
+          "new": {
+            "bytes": 701442,
+            "passes": 3,
+            "seconds": 11.6759313
+          }
+        },
+        "differences": []
+      },
+      {
+        "trial": 3,
+        "warmup": false,
+        "order": [
+          "new",
+          "old"
+        ],
+        "results": {
+          "new": {
+            "bytes": 701442,
+            "passes": 3,
+            "seconds": 11.3126403
+          },
+          "old": {
+            "bytes": 701442,
+            "passes": 3,
+            "seconds": 13.518194
+          }
+        },
+        "differences": []
+      },
+      {
+        "trial": 4,
+        "warmup": false,
+        "order": [
+          "old",
+          "new"
+        ],
+        "results": {
+          "old": {
+            "bytes": 701442,
+            "passes": 3,
+            "seconds": 12.5068355
+          },
+          "new": {
+            "bytes": 701442,
+            "passes": 3,
+            "seconds": 12.999941
+          }
+        },
+        "differences": []
+      },
+      {
+        "trial": 5,
+        "warmup": false,
+        "order": [
+          "new",
+          "old"
+        ],
+        "results": {
+          "new": {
+            "bytes": 701442,
+            "passes": 3,
+            "seconds": 11.48239
+          },
+          "old": {
+            "bytes": 701442,
+            "passes": 3,
+            "seconds": 11.7504639
+          }
+        },
+        "differences": []
+      },
+      {
+        "trial": 6,
+        "warmup": false,
+        "order": [
+          "old",
+          "new"
+        ],
+        "results": {
+          "old": {
+            "bytes": 701442,
+            "passes": 3,
+            "seconds": 11.7084999
+          },
+          "new": {
+            "bytes": 701442,
+            "passes": 3,
+            "seconds": 10.959795
+          }
+        },
+        "differences": []
+      }
+    ],
+    "sample": "Texloom v24 technical report",
+    "engine": "MiKTeX pdfLaTeX",
+    "pages": 40,
+    "timings_sec": {
+      "old": 12.5068355,
+      "new": 11.48239,
+      "median_paired_saving": 0.7487048999999999,
+      "minimum_paired_saving": -0.4931055000000004,
+      "maximum_paired_saving": 2.2055536999999994
+    }
+  },
+  "old_driver_sha256": "e577a884f2660a15205a64db9edb2667449f5a144b1c6d999191a07503583514",
+  "new_driver_sha256": "67e1cc638a039261b92fff2d5009eed4b099dda6f9498a663c210075a8e8a746"
+}
