@@ -15,7 +15,8 @@ const root=resolve(dirname(fileURLToPath(import.meta.url)),'..'),base=process.en
 const manifest=JSON.parse(await readFile(join(root,'tests/fixtures/proof/manifest.json'),'utf8'));
 const movement=JSON.parse(await readFile(join(base,'report.json'),'utf8'));
 const output=process.env.TEXLOOM_SELECTION_REPORT_DIR ? resolve(process.env.TEXLOOM_SELECTION_REPORT_DIR) : join(root,'artifacts/selection');await mkdir(output,{recursive:true});
-const hint=join(root,'target/debug/examples/selection_hint'+(process.platform==='win32'?'.exe':''));
+const examples=resolve(root,process.env.CARGO_TARGET_DIR||'target','debug/examples');
+const hint=join(examples,'selection_hint'+(process.platform==='win32'?'.exe':''));
 const report={schema:1,createdAt:new Date().toISOString(),status:'pending',cases:[],limitations:['Synthetic source/SyncTeX/probe corpus; native mouse acceptance remains open.','Rotated/cropped/UserUnit pages, arbitrary TeX and independent runtime inspection are not certified.']};
 function run(exe,args,cwd=root){const r=spawnSync(exe,args,{cwd,encoding:'utf8',windowsHide:true,timeout:90_000,maxBuffer:8*1024*1024});if(r.error||r.status!==0)throw new Error(r.error?.message||(r.stderr+r.stdout).slice(-1500));return r.stdout}
 async function view(path,id){
@@ -94,7 +95,7 @@ try{
      for(let ordinal=0;ordinal<16;ordinal++){
       let hinted;try{hinted=JSON.parse(run(hint,[join(sourceRoot,fixture.targetFile),join(sourceRoot,fixture.main),line,String(ordinal)]))}catch{break}
       const work=join(output,'minipage-single-'+ordinal);await mkdir(work,{recursive:true});await cp(sourceRoot,work,{recursive:true});
-      const marked=run(join(root,'target/debug/examples/proof_candidate'+(process.platform==='win32'?'.exe':'')),
+      const marked=run(join(examples,'proof_candidate'+(process.platform==='win32'?'.exe':'')),
        [join(sourceRoot,fixture.targetFile),join(sourceRoot,fixture.main),String(hinted.start),String(hinted.end),'single_probe','0','0','wrap']);
       await writeFile(join(work,'main.tex'),marked.replace('\\begin{document}','\\usepackage{texloom-objects}\n\\begin{document}'));
       await cp(join(root,'resources/texloom-objects.sty'),join(work,'texloom-objects.sty'));

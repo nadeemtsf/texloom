@@ -10,7 +10,8 @@ import {proofPDFView} from './proof-pdf-view.mjs';
 import {validateSelectionProbe} from '../web/core/selection-proof.js';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 if(!process.env.TEXLOOM_RTL_MAPPING_DIR)throw Error('Set TEXLOOM_RTL_MAPPING_DIR to a fresh directory');
-const executable=resolve(process.env.TEXLOOM_SELECTION_HARNESS||join(root,'target/debug/examples/native_selection_development.exe'));
+const cargoTarget=resolve(root,process.env.CARGO_TARGET_DIR||'target');
+const executable=resolve(process.env.TEXLOOM_SELECTION_HARNESS||join(cargoTarget,'debug/examples/native_selection_development.exe'));
 await access(executable); // Refuse to launch a missing or unfinished build.
 const output=resolve(process.env.TEXLOOM_RTL_MAPPING_DIR);await mkdir(output,{recursive:false});
 const log=createWriteStream(join(output,'native-stderr.log'),{flags:'wx'});
