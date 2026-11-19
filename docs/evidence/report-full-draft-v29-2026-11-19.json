@@ -1,0 +1,44 @@
+{
+  "schema": 1,
+  "kind": "technical_report_v29_build_visual_review",
+  "reviewed_pages": 43,
+  "reviewed_references": 35,
+  "readable_pages": [
+    28,
+    29
+  ],
+  "underfull_notices": 4,
+  "pdf": {
+    "file": "Texloom-technical-report-full-draft-2026-11-19-v29.pdf",
+    "sha256": "42920ac90b54c46ab4f10b04cc7301941f75385ea8b6d955b4b60faa29ba62dd",
+    "bytes": 721911
+  },
+  "editable_sources": {
+    "file": "Texloom-technical-report-editable-sources-2026-11-19-v29.zip",
+    "sha256": "99d3192eca443e626f9e78d199d24a8a1dacc9f9200bd4223c30e207c6a22524",
+    "bytes": 87255,
+    "members": 17
+  },
+  "source_sha256": {
+    "followup-references.bib": "98364f41534dad85698ed4405a0e749be50304e5b863ec47d08db0448c2f11e2",
+    "main.tex": "ea1e820f55b0086d9213f9fb80c2aa56cfce9ae9382ce03a3485cdb035ed2ebd",
+    "README.md": "8a9bfbac439194e3a0d7b81b243d3c22842ebd33fa988d7b531e9157e05cc9d4",
+    "references.bib": "1c6bef9292f8599cbc86bb610e9b1e3b44a604b3db66370c8e9604a849121493",
+    "sections/01-scope.tex": "8a081ce27cdd63ca9a623512aa0fc12ca7686477759b3f3de307ea7a9c701196",
+    "sections/02-workflow.tex": "ec6d7c640050e864421a33b05e54b2a278299e76a695ac570faca4a9388ddf5d",
+    "sections/03-contracts.tex": "46fc40be341983f0fd993ce675bbc1253fe9ab937538cc81eadb39e3b93e4c19",
+    "sections/04-related-work.tex": "a2225909003758d3c4262168bc12821c02ed9edc118f4ed83685107abdadf23e",
+    "sections/05-evaluation.tex": "71346c4c1e896eed0fed97844a50ea35a626cc7604f7fb96d4884ad2fb021bf3",
+    "sections/06-development-evidence.tex": "981da2cbae6fe869aab39ed2b2403088f60d3fe73afa1858def96e40a88934a4",
+    "sections/07-timing.tex": "15ce75420430c5ef4bf8c57ea69a90317fe2cae80e67ecbc29a6889c634084bf",
+    "sections/08-reproducibility.tex": "683c95e3224da775acd9c4c1baf722eb51078edd17ed7d68e52e84a533125c49",
+    "sections/09-limitations.tex": "5c57086b0dfa3a9af349cf032b653ed1e6c6b7f2b6ff192e505bf386586c862e",
+    "sections/appendix-artifacts.tex": "e00e2105b8b70e7e514a29c3cf90d7aa1e75c8c2ad82f64af2eef21e5cfdf2c2",
+    "sections/appendix-protocol.tex": "941e7098b5bda83b5078268c6abbbbc11e2124c35141c7531165a8fba62c00da",
+    "sections/appendix-reproduction.tex": "fc7de0591a8ea68c44135651fefee871a71c0816804353ee1ed709f258649188",
+    "sections/compile-cost.tex": "9355794997440cd361a9ad1475d04994a342afaf5ea93eb56eff2b5f52bd2d46"
+  },
+  "evidence_sha256": {
+    "cumulative-native-compile-2026-11-19.json": "bafe937e3976718353ced6203847f0a8a1be5774dbeb35a58ff2792e7a878ac2"
+  }
+}

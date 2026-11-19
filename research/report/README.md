@@ -1,4 +1,8 @@
-Latest artifact, 19 November, **v27, 42 pages and 33 references**. This revision adds bounded diagnostic parsing and the three-engine source-error repair comparison. All pages were rendered and reviewed. See `docs/evidence/report-full-draft-v27-2026-11-19.json`.
+Latest artifact, 19 November, **v29, 43 pages and 35 references**. This revision adds the cumulative three-engine comparison against the pre-optimization compiler checkpoint. All pages were rendered and reviewed. See `docs/evidence/report-full-draft-v29-2026-11-19.json`.
+
+Previous artifact, 19 November, **v28, 42 pages and 35 references**. This revision adds the Biber startup measurement, paired native bibliography builds and fallback controls. All pages were rendered and reviewed. See `docs/evidence/report-full-draft-v28-2026-11-19.json`.
+
+Previous artifact, 19 November, **v27, 42 pages and 33 references**. This revision adds bounded diagnostic parsing and the three-engine source-error repair comparison. All pages were rendered and reviewed. See `docs/evidence/report-full-draft-v27-2026-11-19.json`.
 
 Previous artifact, 19 November, **v26, 41 pages and 33 references**. This revision adds the measured intermediate-pass study and its retained counterexample, the Tectonic prerequisite-path checks, and the paired native project and toolchain work. All pages were rendered and reviewed. See `docs/evidence/report-full-draft-v26-2026-11-19.json`.
 

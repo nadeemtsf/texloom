@@ -216,6 +216,38 @@ fn run(
     }
     Ok(result)
 }
+fn probe_version(receipt: &Receipt, invocation: &Path, cancel: &Cancellation) -> Result<String> {
+    let result = run(
+        receipt,
+        invocation,
+        &["--version".into()],
+        &receipt.directory,
+        cancel,
+        Some(Duration::from_secs(60)),
+    )?;
+    Ok(result.text.chars().take(1600).collect())
+}
+
+fn biber_version(value: &str) -> Option<String> {
+    if value.len() > 64 {
+        return None;
+    }
+    let number = value.strip_suffix(" (beta)").unwrap_or(value);
+    let (major, minor) = number.split_once('.')?;
+    [major, minor]
+        .into_iter()
+        .all(|part| !part.is_empty() && part.bytes().all(|byte| byte.is_ascii_digit()))
+        .then(|| format!("biber version: {value}\n"))
+}
+
+fn biber_startup_version(log: &str) -> Option<String> {
+    let mut info = log.lines().filter_map(|line| line.strip_prefix("INFO - "));
+    // The ordinary startup messages precede the reading of bibliography data.
+    let version = info.next()?.strip_prefix("This is Biber ")?;
+    info.next()?.strip_prefix("Logfile is ")?;
+    biber_version(version)
+}
+
 fn tool(
     receipt: &mut Receipt,
     name: &str,
@@ -230,14 +262,7 @@ fn tool(
         return Ok(invocation);
     }
     let binary = Dependency::capture(&invocation)?;
-    let result = run(
-        receipt,
-        &invocation,
-        &["--version".into()],
-        &receipt.directory,
-        cancel,
-        Some(Duration::from_secs(60)),
-    )?;
+    let version = probe_version(receipt, &invocation, cancel)?;
     binary.verify()?;
     if invocation.canonicalize().map_err(|e| e.to_string())? != binary.path {
         return Err("Bibliography tool changed during preflight".into());
@@ -247,7 +272,7 @@ fn tool(
         AuxiliaryTool {
             invocation: invocation.clone(),
             binary,
-            version: result.text.chars().take(1600).collect(),
+            version,
         },
     );
     Ok(invocation)
@@ -299,7 +324,17 @@ pub fn execute(
             .toolchain_inputs
             .insert(path.clone(), Dependency::capture(&path)?);
     }
-    let executable = tool(receipt, recipe.tool, cancel)?;
+    let bbl = receipt.directory.join(".out/preview.bbl");
+    let (executable, biber_binary) = if recipe.tool == "biber"
+        && !receipt.auxiliary_tools.contains_key("biber")
+        && !bbl.try_exists().map_err(|error| error.to_string())?
+    {
+        let invocation = program(&receipt.invocation, "biber")?;
+        let binary = Dependency::capture(&invocation)?;
+        (invocation, Some(binary))
+    } else {
+        (tool(receipt, recipe.tool, cancel)?, None)
+    };
     let (args, directory) = if recipe.tool == "biber" {
         (
             vec![
@@ -331,8 +366,40 @@ pub fn execute(
         cancel,
         None,
     )?;
+    if let Some(binary) = biber_binary {
+        let mut observed = AuxiliaryTool {
+            invocation: executable,
+            binary,
+            version: String::new(),
+        };
+        observed.version = if let Some(version) = biber_startup_version(&result.text) {
+            version
+        } else {
+            let probe = observed
+                .verify()
+                .and_then(|()| probe_version(receipt, &observed.invocation, cancel));
+            let probe = match probe {
+                Ok(probe) => probe,
+                Err(error) => {
+                    // The engine must not read a BBL from an unidentified tool.
+                    if let Err(cleanup) = fs::remove_file(&bbl) {
+                        if cleanup.kind() != std::io::ErrorKind::NotFound {
+                            return Err(format!(
+                                "{error}; could not discard the new bibliography: {cleanup}"
+                            ));
+                        }
+                    }
+                    return Err(error);
+                }
+            };
+            probe.lines()
+                .filter_map(|line| line.strip_prefix("biber version: "))
+                .find_map(biber_version)
+                .unwrap_or(probe)
+        };
+        receipt.auxiliary_tools.insert("biber".into(), observed);
+    }
     receipt.verify()?;
-    let bbl = receipt.directory.join(".out/preview.bbl");
     if !bbl.is_file() || fs::metadata(&bbl).map_err(|e| e.to_string())?.len() > 4_000_000 {
         return Err("Bibliography did not produce a bounded preview.bbl".into());
     }
@@ -372,6 +439,21 @@ mod tests {
         )
         .unwrap()
     }
+    #[test]
+    fn biber_identifies_only_the_expected_startup_banner() {
+        let normal = "perl: warning: locale\r\nINFO - This is Biber 2.21\r\nINFO - Logfile is 'preview.blg'\r\nINFO - Reading 'preview.bcf'";
+        assert_eq!(biber_startup_version(normal).as_deref(), Some("biber version: 2.21\n"));
+        assert_eq!(
+            biber_startup_version(&normal.replace("2.21", "2.22 (beta)")).as_deref(),
+            Some("biber version: 2.22 (beta)\n")
+        );
+        assert!(biber_startup_version(&normal.replace("2.21", "unexpected")).is_none());
+        let oversized = normal.replace("2.21", &format!("2.{}", "1".repeat(80)));
+        assert!(biber_startup_version(&oversized).is_none());
+        assert!(biber_startup_version(&normal.replace("Logfile is", "Reading")).is_none());
+        assert!(biber_startup_version(&format!("INFO - Reading inputs\n{normal}")).is_none());
+    }
+
     #[test]
     fn bibliography_requests_are_bound_to_declared_files_and_citation_state() {
         let r = fixture();

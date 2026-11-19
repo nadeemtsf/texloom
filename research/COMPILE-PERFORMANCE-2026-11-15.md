@@ -313,3 +313,30 @@ to 0.014 bp and one fixture matched pixels. The dependency rule did not
 list the bundled class. A copied-cache control showed that changing its
 class file changed output under the same bundle namespace.
 [Engine feasibility evidence](../docs/evidence/tectonic-engine-feasibility-2026-11-18.json)
+
+## Biber startup during bibliography generation
+
+Texloom verifies the selected Biber executable and can identify it from
+its ordinary startup message during bibliography generation. Unknown
+startup messages still use the explicit version probe. A failed fallback
+discards the newly generated bibliography. Existing bibliography output
+and BibTeX use the established preflight path.
+
+The paired native pdfLaTeX and Biber 2.21 comparisons saved medians of
+2.83 s for the one-entry fixture and 3.46 s for the 80-entry fixture.
+Both conditions used five measured pairs after one warm-up. Bibliography
+bytes, PDF word geometry and full-page rasters agreed across all twelve
+pairs. The PDF bytes matched after normalizing their trailer IDs. These
+timings end at the native result on the tested Windows installation.
+[Biber startup evidence](../docs/evidence/biber-startup-and-build-2026-11-19.json)
+
+## Cumulative compiler comparison
+
+The current native build candidate was paired against `0725592`, the
+checkpoint before PR 72, on the same three MiKTeX engines and four
+synthetic projects. Six measured pairs followed a warm-up per engine
+and project. The twelve paired medians saved 0.39–1.89 s. The measured
+candidate ran faster in every pair under this workload. All 84 pairs
+matched the checked receipts, PDF character geometry, links and pixels.
+The timed interval ends at the native result before PDF presentation.
+[Cumulative compile evidence](../docs/evidence/cumulative-native-compile-2026-11-19.json)

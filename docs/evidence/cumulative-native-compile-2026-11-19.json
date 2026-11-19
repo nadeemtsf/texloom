@@ -1,0 +1,1579 @@
+{
+  "schema": 1,
+  "kind": "cumulative_native_compiler_comparison",
+  "source_provenance": {
+    "baseline": "07255921fc27d4be3d34edbf42f96ac51625d24e",
+    "candidate_base": "41b66ae6d33d3a0d7bfbe3de55e9f6b70ec889f9",
+    "bibliography_source_sha256": "a132a50f5fe03e69e55134cf7a6462115adf940e4d561ee543df05ec521f9579",
+    "driver_sha256": "375d630c6e6fd5ab8030f5d5f752e3a3123abac8a2a3c873b947630453a09654"
+  },
+  "hashes": {
+    "baseline_driver": "5c08477da89ebbc66662a3537bc414a57f89f59ed0a665e25977735f477474a4",
+    "candidate_driver": "375d630c6e6fd5ab8030f5d5f752e3a3123abac8a2a3c873b947630453a09654",
+    "run_script": "44e2ce9c2ce5027ac872ca21f4a7309d1df1a7755346db4be96bee8352b1da29",
+    "paired_observations": "9ee8d8f1375db5c3eb0b908eedace3bc409ecd126f0882b2c2fab05df1f1caa5"
+  },
+  "pair_count": {
+    "all": 84,
+    "measured": 72,
+    "pairs_with_mismatches": 0,
+    "measured_pairs_with_slower_candidate": 0
+  },
+  "scope": "Warm resident native Rust service on Windows with three MiKTeX engines and four reused synthetic projects. Fresh snapshots and alternating pair order. Timings through service result, before off-clock receipt verification and PDF comparison.",
+  "conditions": {
+    "pdflatex": {
+      "small": {
+        "rows": [
+          {
+            "trial": 0,
+            "warmup": true,
+            "arms": {
+              "old": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.3040108
+              },
+              "new": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.3368178
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 1,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 1.7933557
+              },
+              "old": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.1256359
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 2,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.0491991
+              },
+              "new": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 1.4370781
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 3,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 1.7150728
+              },
+              "old": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.2631297
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 4,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 1.9522718000000001
+              },
+              "new": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 1.7792739
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 5,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 1.6199219999999999
+              },
+              "old": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.0642
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 6,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 1.9593791
+              },
+              "new": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 1.7174718
+              }
+            },
+            "differences": []
+          }
+        ],
+        "medians_ms": {
+          "old": 2056.6995500000003,
+          "new": 1716.2723,
+          "paired_saving": 388.27909999999997
+        },
+        "within_pair_equal": 7
+      },
+      "source": {
+        "rows": [
+          {
+            "trial": 0,
+            "warmup": true,
+            "arms": {
+              "old": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.1136791
+              },
+              "new": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.6113391
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 1,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.0226987
+              },
+              "old": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.4593482
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 2,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.5832734
+              },
+              "new": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 1.9004885
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 3,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.2054925
+              },
+              "old": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 3.1882626
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 4,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.9424248
+              },
+              "new": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.2046265
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 5,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.0101484
+              },
+              "old": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.8938568
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 6,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.7623683
+              },
+              "new": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.116328
+              }
+            },
+            "differences": []
+          }
+        ],
+        "medians_ms": {
+          "old": 2828.1125500000003,
+          "new": 2069.51335,
+          "paired_saving": 710.2916
+        },
+        "within_pair_equal": 7
+      },
+      "assets": {
+        "rows": [
+          {
+            "trial": 0,
+            "warmup": true,
+            "arms": {
+              "old": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.8852514
+              },
+              "new": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.8070586
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 1,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.1158182
+              },
+              "old": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 3.4211181
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 2,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 3.3283073
+              },
+              "new": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.0110742
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 3,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.1624419
+              },
+              "old": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.8502183
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 4,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 4.250586
+              },
+              "new": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.8348981
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 5,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.4929921
+              },
+              "old": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 3.0724825
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 6,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 3.3307185
+              },
+              "new": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.0004766
+              }
+            },
+            "differences": []
+          }
+        ],
+        "medians_ms": {
+          "old": 3329.5129,
+          "new": 2139.13005,
+          "paired_saving": 1311.2665000000002
+        },
+        "within_pair_equal": 7
+      },
+      "mixed": {
+        "rows": [
+          {
+            "trial": 0,
+            "warmup": true,
+            "arms": {
+              "old": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 3.5943284
+              },
+              "new": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.9428574
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 1,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.1589479
+              },
+              "old": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 4.0247413
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 2,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 3.7904731
+              },
+              "new": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.3585913
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 3,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.3864586
+              },
+              "old": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 3.5901282
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 4,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 3.4313122
+              },
+              "new": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.3006444
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 5,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.1600707
+              },
+              "old": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 3.4913758
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 6,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 3.2665535
+              },
+              "new": {
+                "bytes": 15476,
+                "passes": 2,
+                "seconds": 2.3190311
+              }
+            },
+            "differences": []
+          }
+        ],
+        "medians_ms": {
+          "old": 3540.7520000000004,
+          "new": 2309.8377499999997,
+          "paired_saving": 1267.48735
+        },
+        "within_pair_equal": 7
+      }
+    },
+    "xelatex": {
+      "small": {
+        "rows": [
+          {
+            "trial": 0,
+            "warmup": true,
+            "arms": {
+              "old": {
+                "bytes": 4127,
+                "passes": 2,
+                "seconds": 3.6171445
+              },
+              "new": {
+                "bytes": 4127,
+                "passes": 2,
+                "seconds": 3.2665399
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 1,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 4126,
+                "passes": 2,
+                "seconds": 3.1298635
+              },
+              "old": {
+                "bytes": 4127,
+                "passes": 2,
+                "seconds": 3.5109272000000002
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 2,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 4127,
+                "passes": 2,
+                "seconds": 3.4679887
+              },
+              "new": {
+                "bytes": 4126,
+                "passes": 2,
+                "seconds": 2.8977806
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 3,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 4126,
+                "passes": 2,
+                "seconds": 2.8040329
+              },
+              "old": {
+                "bytes": 4125,
+                "passes": 2,
+                "seconds": 3.4480541000000002
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 4,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 4125,
+                "passes": 2,
+                "seconds": 3.5303535999999998
+              },
+              "new": {
+                "bytes": 4126,
+                "passes": 2,
+                "seconds": 3.2400111
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 5,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 4124,
+                "passes": 2,
+                "seconds": 3.0727612
+              },
+              "old": {
+                "bytes": 4125,
+                "passes": 2,
+                "seconds": 3.611294
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 6,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 4127,
+                "passes": 2,
+                "seconds": 3.8144915
+              },
+              "new": {
+                "bytes": 4125,
+                "passes": 2,
+                "seconds": 3.6404362
+              }
+            },
+            "differences": []
+          }
+        ],
+        "medians_ms": {
+          "old": 3520.6404,
+          "new": 3101.3123499999997,
+          "paired_saving": 459.79825000000017
+        },
+        "within_pair_equal": 7
+      },
+      "source": {
+        "rows": [
+          {
+            "trial": 0,
+            "warmup": true,
+            "arms": {
+              "old": {
+                "bytes": 4123,
+                "passes": 2,
+                "seconds": 5.7043086
+              },
+              "new": {
+                "bytes": 4126,
+                "passes": 2,
+                "seconds": 4.4718664
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 1,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 4126,
+                "passes": 2,
+                "seconds": 3.813516
+              },
+              "old": {
+                "bytes": 4127,
+                "passes": 2,
+                "seconds": 5.2181444
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 2,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 4127,
+                "passes": 2,
+                "seconds": 3.2578891
+              },
+              "new": {
+                "bytes": 4125,
+                "passes": 2,
+                "seconds": 2.9761853
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 3,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 4125,
+                "passes": 2,
+                "seconds": 3.7588340000000002
+              },
+              "old": {
+                "bytes": 4123,
+                "passes": 2,
+                "seconds": 5.1673954
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 4,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 4126,
+                "passes": 2,
+                "seconds": 5.1730866
+              },
+              "new": {
+                "bytes": 4125,
+                "passes": 2,
+                "seconds": 4.8823407
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 5,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 4123,
+                "passes": 2,
+                "seconds": 4.7056581
+              },
+              "old": {
+                "bytes": 4126,
+                "passes": 2,
+                "seconds": 4.7138124
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 6,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 4126,
+                "passes": 2,
+                "seconds": 4.9025056
+              },
+              "new": {
+                "bytes": 4125,
+                "passes": 2,
+                "seconds": 3.8804396
+              }
+            },
+            "differences": []
+          }
+        ],
+        "medians_ms": {
+          "old": 5034.9505,
+          "new": 3846.9778,
+          "paired_saving": 656.4059499999998
+        },
+        "within_pair_equal": 7
+      },
+      "assets": {
+        "rows": [
+          {
+            "trial": 0,
+            "warmup": true,
+            "arms": {
+              "old": {
+                "bytes": 4126,
+                "passes": 2,
+                "seconds": 5.8055084
+              },
+              "new": {
+                "bytes": 4125,
+                "passes": 2,
+                "seconds": 5.1926948
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 1,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 4126,
+                "passes": 2,
+                "seconds": 4.7101284
+              },
+              "old": {
+                "bytes": 4126,
+                "passes": 2,
+                "seconds": 6.1554221
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 2,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 4126,
+                "passes": 2,
+                "seconds": 6.7942114
+              },
+              "new": {
+                "bytes": 4126,
+                "passes": 2,
+                "seconds": 4.4029228
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 3,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 4120,
+                "passes": 2,
+                "seconds": 4.073855
+              },
+              "old": {
+                "bytes": 4126,
+                "passes": 2,
+                "seconds": 6.5457752
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 4,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 4125,
+                "passes": 2,
+                "seconds": 5.4828065
+              },
+              "new": {
+                "bytes": 4126,
+                "passes": 2,
+                "seconds": 4.807127
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 5,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 4128,
+                "passes": 2,
+                "seconds": 4.1489442
+              },
+              "old": {
+                "bytes": 4122,
+                "passes": 2,
+                "seconds": 5.3454473
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 6,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 4123,
+                "passes": 2,
+                "seconds": 6.4388985
+              },
+              "new": {
+                "bytes": 4127,
+                "passes": 2,
+                "seconds": 4.6318179
+              }
+            },
+            "differences": []
+          }
+        ],
+        "medians_ms": {
+          "old": 6297.1603,
+          "new": 4517.37035,
+          "paired_saving": 1626.1871499999997
+        },
+        "within_pair_equal": 7
+      },
+      "mixed": {
+        "rows": [
+          {
+            "trial": 0,
+            "warmup": true,
+            "arms": {
+              "old": {
+                "bytes": 4127,
+                "passes": 2,
+                "seconds": 6.7626876
+              },
+              "new": {
+                "bytes": 4125,
+                "passes": 2,
+                "seconds": 5.1805432
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 1,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 4125,
+                "passes": 2,
+                "seconds": 4.6751318
+              },
+              "old": {
+                "bytes": 4123,
+                "passes": 2,
+                "seconds": 6.9299367
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 2,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 4126,
+                "passes": 2,
+                "seconds": 6.3069329
+              },
+              "new": {
+                "bytes": 4125,
+                "passes": 2,
+                "seconds": 4.5838958
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 3,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 4123,
+                "passes": 2,
+                "seconds": 4.8503223
+              },
+              "old": {
+                "bytes": 4126,
+                "passes": 2,
+                "seconds": 6.1742105
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 4,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 4128,
+                "passes": 2,
+                "seconds": 6.2903226
+              },
+              "new": {
+                "bytes": 4125,
+                "passes": 2,
+                "seconds": 4.6809486
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 5,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 4126,
+                "passes": 2,
+                "seconds": 4.5524726
+              },
+              "old": {
+                "bytes": 4126,
+                "passes": 2,
+                "seconds": 5.9953742
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 6,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 4126,
+                "passes": 2,
+                "seconds": 6.0431927
+              },
+              "new": {
+                "bytes": 4126,
+                "passes": 2,
+                "seconds": 4.2585269
+              }
+            },
+            "differences": []
+          }
+        ],
+        "medians_ms": {
+          "old": 6232.26655,
+          "new": 4629.5138,
+          "paired_saving": 1666.20555
+        },
+        "within_pair_equal": 7
+      }
+    },
+    "lualatex": {
+      "small": {
+        "rows": [
+          {
+            "trial": 0,
+            "warmup": true,
+            "arms": {
+              "old": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 4.0548902
+              },
+              "new": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 4.1835088
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 1,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 3.6985244
+              },
+              "old": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 4.1414289
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 2,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 4.0819063
+              },
+              "new": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 4.0164045
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 3,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 3.7332522
+              },
+              "old": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 3.9740613
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 4,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 4.3042117
+              },
+              "new": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 3.7569528
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 5,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 3.8489503000000003
+              },
+              "old": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 4.3665277
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 6,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 3.9005744
+              },
+              "new": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 3.4000516
+              }
+            },
+            "differences": []
+          }
+        ],
+        "medians_ms": {
+          "old": 4111.667600000001,
+          "new": 3745.1025,
+          "paired_saving": 471.7136500000001
+        },
+        "within_pair_equal": 7
+      },
+      "source": {
+        "rows": [
+          {
+            "trial": 0,
+            "warmup": true,
+            "arms": {
+              "old": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 5.4529361
+              },
+              "new": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 4.2542252
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 1,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 3.967741
+              },
+              "old": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 5.0476982
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 2,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 4.4661167
+              },
+              "new": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 3.520504
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 3,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 3.76586
+              },
+              "old": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 4.689572
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 4,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 4.3529834
+              },
+              "new": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 3.5116603
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 5,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 3.5942607
+              },
+              "old": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 4.6227217
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 6,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 4.2978836000000005
+              },
+              "new": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 4.0910365
+              }
+            },
+            "differences": []
+          }
+        ],
+        "medians_ms": {
+          "old": 4544.4192,
+          "new": 3680.0603499999997,
+          "paired_saving": 934.66235
+        },
+        "within_pair_equal": 7
+      },
+      "assets": {
+        "rows": [
+          {
+            "trial": 0,
+            "warmup": true,
+            "arms": {
+              "old": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 6.1595487
+              },
+              "new": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 5.3063502
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 1,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 5.2828315
+              },
+              "old": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 6.5169927
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 2,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 6.2111483
+              },
+              "new": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 4.2884186
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 3,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 4.5472896
+              },
+              "old": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 5.8959797
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 4,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 5.8476883
+              },
+              "new": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 4.935979
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 5,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 4.8741657
+              },
+              "old": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 6.8475078
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 6,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 6.9775118
+              },
+              "new": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 4.3436551
+              }
+            },
+            "differences": []
+          }
+        ],
+        "medians_ms": {
+          "old": 6364.070500000001,
+          "new": 4710.72765,
+          "paired_saving": 1635.7098999999996
+        },
+        "within_pair_equal": 7
+      },
+      "mixed": {
+        "rows": [
+          {
+            "trial": 0,
+            "warmup": true,
+            "arms": {
+              "old": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 6.9054474
+              },
+              "new": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 4.8950911
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 1,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 4.8029041
+              },
+              "old": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 6.4615701
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 2,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 6.5591278
+              },
+              "new": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 4.4536127
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 3,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 4.5125121
+              },
+              "old": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 6.4417914
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 4,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 6.6562631
+              },
+              "new": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 4.5238882
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 5,
+            "warmup": false,
+            "arms": {
+              "new": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 4.6817864
+              },
+              "old": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 6.2518091
+              }
+            },
+            "differences": []
+          },
+          {
+            "trial": 6,
+            "warmup": false,
+            "arms": {
+              "old": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 6.30343
+              },
+              "new": {
+                "bytes": 5252,
+                "passes": 2,
+                "seconds": 4.4593241
+              }
+            },
+            "differences": []
+          }
+        ],
+        "medians_ms": {
+          "old": 6451.6807499999995,
+          "new": 4518.200150000001,
+          "paired_saving": 1886.6925999999994
+        },
+        "within_pair_equal": 7
+      }
+    }
+  }
+}
