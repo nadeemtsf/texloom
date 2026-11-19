@@ -4,7 +4,7 @@
 //! provenance assertion, not a client-supplied selection rectangle. This module
 //! is supplied by the native document gate from a checked isolated inspector;
 //! a bare comparison result is not itself document-commit authorization.
-use std::collections::BTreeMap;
+use std::{borrow::Cow, collections::BTreeMap};
 
 pub type Result<T> = std::result::Result<T, &'static str>;
 const EPSILON: f64 = 0.000001;
@@ -419,7 +419,21 @@ fn compare_impl(a: &Inspection, b: &Inspection, operation: Operation,prediction:
                 && old.scale == new.scale,
             "Raster configuration changed",
         )?;
-        let mut expected = if let Some(prediction)=prediction {let p=&prediction.rasters[page];require(p.width==old.width&&p.height==old.height&&p.stride==old.stride&&p.channels==old.channels&&p.scale==old.scale,"Prediction raster configuration changed")?;p.pixels.clone()}else{old.pixels.clone()};
+        let pixels = if let Some(prediction) = prediction {
+            let raster = &prediction.rasters[page];
+            require(
+                raster.width == old.width
+                    && raster.height == old.height
+                    && raster.stride == old.stride
+                    && raster.channels == old.channels
+                    && raster.scale == old.scale,
+                "Prediction raster configuration changed",
+            )?;
+            &raster.pixels
+        } else {
+            &old.pixels
+        };
+        let mut expected = Cow::Borrowed(pixels.as_slice());
         if !identity && targets.iter().any(|i| a.glyphs[*i].page == page) {
             if prediction.is_some(){
                 for i in &targets {let glyph=&a.glyphs[*i];if glyph.page!=page{continue}let w=window(glyph.bounds,old)?;let d=window(glyph.bounds.translated(dx,dy),old)?;isolated(w,page,old,a,b)?;isolated(d,page,old,a,b)?;}
@@ -465,6 +479,7 @@ fn compare_impl(a: &Inspection, b: &Inspection, operation: Operation,prediction:
             // rectangles could accept duplicate ink left in the vacated area.
             // No other paint may intersect these windows; the worker must have
             // complete object coverage and render onto opaque white.
+            let expected = expected.to_mut();
             for (w, _) in &windows {
                 for y in w.y0..w.y1 {
                     expected[y * old.stride + w.x0 * old.channels

@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "kind": "technical_report_v23_build_visual_review",
+  "implementation_base": "25d9f72db437965135a2ac9f5b9e2086d19cb2d1",
+  "report_pages": 39,
+  "references": 31,
+  "pdf": {
+    "file": "Texloom-technical-report-full-draft-2026-11-18-v23.pdf",
+    "bytes": 694239,
+    "sha256": "d992b305bb29b6ddf07e55818007e74bb4fd871c3f59da51ee907fa669d6f6c3"
+  },
+  "editable_sources": {
+    "file": "Texloom-technical-report-editable-sources-2026-11-18-v23.zip",
+    "bytes": 81536,
+    "sha256": "9fe3ad0a02c519802fffa00aa87b4c5d266660b3ba8004ad932f6aefc33f84ef",
+    "members": 17
+  },
+  "visual_review": {
+    "all_pages_rendered_and_reviewed": true,
+    "readable_pages": [
+      24,
+      25
+    ],
+    "out_of_page_text_blocks": 0
+  },
+  "build_review": {
+    "log_sha256": "5c910bc4b6d3fe351a90ea6a577cc1e61dc956868d812b9ab413fa05408414d1",
+    "underfull_notices": 4
+  },
+  "source_sha256": {
+    "followup-references.bib": "3746f279344c20db51842cb7d72fd1b5ac23a051262e634f7cb60b09ed429434",
+    "main.tex": "c9bc0b27276b5f64919cae8efd944712f8e2f177cdd8c002982d1c9af418a71d",
+    "README.md": "d5e4cfcd83333d6082f8e41e1a31ab5fcba86c617388e888c632e44bde70b90f",
+    "references.bib": "1c6bef9292f8599cbc86bb610e9b1e3b44a604b3db66370c8e9604a849121493",
+    "sections/01-scope.tex": "8a081ce27cdd63ca9a623512aa0fc12ca7686477759b3f3de307ea7a9c701196",
+    "sections/02-workflow.tex": "ec6d7c640050e864421a33b05e54b2a278299e76a695ac570faca4a9388ddf5d",
+    "sections/03-contracts.tex": "46fc40be341983f0fd993ce675bbc1253fe9ab937538cc81eadb39e3b93e4c19",
+    "sections/04-related-work.tex": "a2225909003758d3c4262168bc12821c02ed9edc118f4ed83685107abdadf23e",
+    "sections/05-evaluation.tex": "71346c4c1e896eed0fed97844a50ea35a626cc7604f7fb96d4884ad2fb021bf3",
+    "sections/06-development-evidence.tex": "981da2cbae6fe869aab39ed2b2403088f60d3fe73afa1858def96e40a88934a4",
+    "sections/07-timing.tex": "15ce75420430c5ef4bf8c57ea69a90317fe2cae80e67ecbc29a6889c634084bf",
+    "sections/08-reproducibility.tex": "683c95e3224da775acd9c4c1baf722eb51078edd17ed7d68e52e84a533125c49",
+    "sections/09-limitations.tex": "5c57086b0dfa3a9af349cf032b653ed1e6c6b7f2b6ff192e505bf386586c862e",
+    "sections/appendix-artifacts.tex": "e00e2105b8b70e7e514a29c3cf90d7aa1e75c8c2ad82f64af2eef21e5cfdf2c2",
+    "sections/appendix-protocol.tex": "941e7098b5bda83b5078268c6abbbbc11e2124c35141c7531165a8fba62c00da",
+    "sections/appendix-reproduction.tex": "fc7de0591a8ea68c44135651fefee871a71c0816804353ee1ed709f258649188",
+    "sections/compile-cost.tex": "3b3ffb190619c1412237160def8870883c9044d57aeabbbba7c45d088d7e04b0"
+  },
+  "evidence_sha256": {
+    "compile-source-preparation-2026-11-18.json": "356f38ff60994a1d67a798abb7e66f1f89c32447fdac0aa2175e50656babefab",
+    "tectonic-engine-feasibility-2026-11-18.json": "824bbcf3557686a5bf487a66a4ba7aeb62e701a6c9675e3eb8c77ac72262dd67",
+    "snapshot-verification-work-2026-11-18.json": "f98d8641663e055ed7f4225f819482d47b9602e3a7bd7c11e91d93b239185b55"
+  }
+}

@@ -360,3 +360,192 @@ geometry, links and complete 96~DPI rasters. Reported times remain the
 read-and-hash component measurements.
 \path{docs/evidence/completed-pdf-output-identity-2026-11-18.json}
 binds the code and raw measurements.
+
+
+\subsection{Source preparation at the compile boundary}
+
+The frontend compile stage now calls the native service with the
+revision and optional candidate token that already identify its sources.
+The old ordinary entry point copied the full map twice before dispatch.
+The native service retains one owned snapshot of that revision and borrows
+it for compilation. A private proof build constructs its request with the
+requested proof sources. Both retain the same revision checks, verification,
+and publication sequence.
+
+Ten measured pairs per size in a Node diagnostic timed entry through the
+compile callback, using doubles for native dispatch and rendering. At
+1, 8 and 32~MiB, paired median reductions were 1.08, 12.80 and 53.63~ms,
+respectively. The zero-source control saved less than 0.01~ms. A separate
+optimized Rust test isolated the extra map copy with twelve measured
+pairs per size. Its paired reductions at those sizes were 0.23, 2.20 and
+9.89~ms. These intervals quantify source preparation at two separate layers.
+
+After compilation, the service now derives text-preview definitions once
+for all objects. At 256 objects in a 1~MiB synthetic main source, repeated
+definition extraction took a median 16.67~ms and one shared extraction
+took 0.19~ms. Nine measured pairs per condition preserved the exact
+plain-text metadata and refusals. A separate two-file pdf\LaTeX{} control
+verified three objects, including a main-document macro used from an
+included file and an unsupported mix of formatting. Its adopted source,
+revision and original files were preserved.
+\path{docs/evidence/compile-source-preparation-2026-11-18.json} records
+the three component studies and the native compile control.
+
+\subsection{Alternative XeTeX pipeline feasibility}
+
+A separate command-line comparison used Tectonic 0.17.0 and the installed
+MiKTeX Xe\LaTeX{}. Tectonic ran with its isolated cache and an offline
+warm invocation after first-use support files had been fetched
+\cite{tectonic017,tectoniccompile}. MiKTeX ran two Xe\LaTeX{} subprocesses
+for each clean build. The observed Tectonic commands also ran the TeX
+stage twice. This compares distribution and engine pipelines before
+Texloom-specific supervision, delivery and rendering.
+
+The cold Tectonic plain run took 99~s and populated the isolated cache.
+With the cache prepared, five measured pairs for each of five fixtures
+followed one warm-up pair. Paired median savings were 738~ms for the plain
+document, 787~ms for references, 526~ms for the included file, 813~ms for
+TikZ and 557~ms for the marked text object. All 25 measured pairs matched
+extracted text and the selected forward/reverse SyncTeX target. For three
+fixtures, MiKTeX's default output was A4 and Tectonic's was US Letter.
+Exact character geometry differed in every fixture. PDF.js recognized the
+marker in both outputs. The two pipelines reported different dependency
+coverage. For example, the Makefile rule listed the included source but
+omitted \code{article.cls}, which the MiKTeX recorder listed.
+
+The versioned driver restricts emitted prerequisites to filesystem inputs
+and omits circular read/write dependencies \cite{tectonicdriver}. In a
+separate control, two copies of the locally fetched cache had the same
+bundle namespace. An ordinary offline build in the control cache produced
+the expected document. In the second cache, changing only the cached
+\code{article.cls} produced a visible witness line. The first cache's
+file bytes remained intact. Package identities therefore need coverage
+in the build receipt beyond the bundle label and Makefile rule.
+
+
+An explicit-paper follow-up set US Letter and the same margins in both
+distributions. It completed another 25 measured pairs with matching page
+sizes, text, links and source round trips. The individual fixture median
+savings ranged from 594 to 856~ms. Exact character geometry still differed, with measured character origins or
+bounds differing by up to 0.014~bp. Raster equality held for the
+reference fixture alone. Texloom would need
+a separately specified engine and package-identity contract to support this
+pipeline. The paired timings and the cache control are recorded in
+\path{docs/evidence/tectonic-engine-feasibility-2026-11-18.json}.
+
+
+\subsection{Snapshot capture and receipt verification}
+
+A completed snapshot records fingerprints of all source and asset bytes
+supplied to TeX. The updated asset capture keeps the operating-system
+copy, hashes the frozen copy once for its receipt, and verifies the
+original and frozen files before using the snapshot. A streaming copy
+attempt was slower at every measured size. The later native-copy design
+saved a paired median of 53.0~ms in the 32~MiB single-asset fixture and
+65.3~ms in the 48~MiB six-asset fixture. Both timed arms retained final
+original and copy checks.
+
+For frozen input totals of at least 8~MiB, the service checks snapshot files
+and the remaining receipt dependencies concurrently, after checking the
+compiler and its alias. Both checks finish before the receipt is accepted.
+The serial error priority stays the same if both groups fail. Smaller
+snapshots stay serial. In twelve measured pairs, the two-job verification
+saved a paired median of 4.7~ms at the 8~MiB threshold, 22.6~ms with
+32~MiB of assets and 21.5~ms on the 48~MiB mixed fixture. These are
+verification intervals on synthetic receipts.
+
+A production pdf\LaTeX{} harness exercised both changes together. The
+median paired reductions in combined snapshot and verification time were
+38.8~ms for the source-heavy fixture, 161.1~ms for the asset-heavy
+fixture and 156.2~ms for the mixed fixture. The small condition changed
+by less than 0.1~ms. Three measured pairs per condition followed one
+warm-up. All sixteen pairs matched input and output checks, PDF text,
+character geometry, links and 96~DPI rasters. The combined interval excludes
+TeX time. The fixture definitions and receipts are in
+\path{docs/evidence/snapshot-verification-work-2026-11-18.json}.
+
+
+\subsection{Offline replay with a local bundle}
+
+A focused Tectonic control packaged 348 previously fetched support files
+into a 3.36~MiB local ZIP. The bundle label records a digest over the member
+identities. The versioned ZIP reader loads that label from
+\code{SHA256SUM} \cite{tectoniczip}. The driver therefore independently
+fingerprinted the ZIP before invoking the compiler. It refused a changed
+copy before compilation. The proof-of-concept cache generated one format
+file whose fingerprint remained stable across the five replays.
+
+The isolated offline command reproduced all five explicit-paper Tectonic
+PDFs in text, exact character geometry, dimensions, links and 96~DPI
+pixels. It also reproduced each selected SyncTeX round trip. The same
+bundle refused a synthetic source requesting the absent \code{report}
+class and produced no PDF. The replay covers the enrolled fixtures and
+package bytes. Coverage for more documents and engine selection remain
+separate engineering questions.
+\path{docs/evidence/tectonic-local-bundle-replay-2026-11-18.json} records
+the archive, format and output identities.
+
+
+\subsection{Paired native compile checkpoint comparison}
+
+The native service at the pre-optimization checkpoint \code{0725592} and
+the snapshot revision \code{05b3201} built four synthetic projects with
+the same MiKTeX executables and fresh snapshot directories. One resident
+driver per revision and engine served the warm-up and three measured
+pairs per condition. Alternating orders distributed the effect of running
+first or second. The small fixture used a 153-byte main source. The
+source-heavy fixture added 24~MiB of project sources, the asset-heavy
+fixture added 32~MiB of assets, and the mixed fixture combined 24~MiB
+of additional sources with 24~MiB of assets. Those added files exercise
+the snapshot and verification work. TeX reads the active main source
+and its small image in each fixture. The interval spans the native
+build call through its returned PDF and receipt. Frontend dispatch
+and rendering lie outside that interval.
+
+\begin{center}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+Engine & Small & Source-heavy & Asset-heavy & Mixed \\
+\midrule
+pdf\LaTeX{} & 577 & 533 & 947 & 995 \\
+Xe\LaTeX{} & 302 & 687 & 960 & 762 \\
+Lua\LaTeX{} & 685 & 572 & 1247 & 1323 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Each value is a median paired reduction in milliseconds. The comparison
+covers the entire native change set, including retained compiler
+identification and snapshot changes. Forty-eight pairs, counting
+warm-ups, matched on recorded input and toolchain identities, invocation
+fields, pass count, text, character geometry, links and 96~DPI pixels.
+Every delivered PDF matched its own receipt hash. The run is evidence for
+the four fixture classes on this host. Absolute medians, paired rows
+and method identities are in
+\path{docs/evidence/native-compile-checkpoint-comparison-2026-11-18.json}.
+
+\subsection{Source line indexing and raster comparison}
+
+The source scanners now count line breaks in successive spans and track
+text-object identifiers in a set. This keeps each reported line, command
+range and argument range tied to its original source. A standalone
+optimized Rust comparison used one warm-up and nine measured pairs per
+size. Parsing 512 text objects and 512 legacy blocks in one synthetic
+1~MiB source took a median 299.7~ms before the change and
+2.31~ms after it. Exact parser results and representative
+duplicate and malformed-source refusals matched. A separate native
+compile checked all 128 text-object and 64 block ranges from an included
+file against expected editor positions, and verified the final PDF,
+original source bytes and source revision.
+
+The raster verifier now borrows the already available pixels for
+identity and predicted displacement comparisons. It constructs an owned
+buffer where an integer displacement requires pixel reconstruction.
+Standalone optimized Rust tests preserved full-page comparison results
+and rejection of a changed final scanline. The paired median savings for
+twenty 1600-by-1200 pages were 41.5~ms for identity and 35.0~ms for
+predicted displacement. These measurements time the comparison of
+completed in-memory rasters. They exclude PDF rendering and interactive
+approval. See
+\path{docs/evidence/source-and-raster-comparison-2026-11-18.json}.

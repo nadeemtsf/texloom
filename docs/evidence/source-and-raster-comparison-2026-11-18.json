@@ -1,0 +1,631 @@
+{
+  "schema": 1,
+  "kind": "source_object_and_raster_comparison",
+  "source_files": [
+    {
+      "file": "crates/texloom-core/src/lib.rs",
+      "sha256": "2f380bfc97e1f5ef58d81d74bba7b35afd1d44b9371ebf367adc4484407700c7"
+    },
+    {
+      "file": "crates/texloom-core/src/objects.rs",
+      "sha256": "bf188175dfc68fb8f9a9c52260fdc6938bca42c6a7b85b2aca6e12e63d61ed43"
+    },
+    {
+      "file": "crates/texloom-build/src/verification.rs",
+      "sha256": "38cf20e65c6e713dff7f158c90cbe8b57e48dc25cb15188b12585347b07bb3ac"
+    }
+  ],
+  "parser": {
+    "scope": "Standalone optimized Rust on synthetic input. Allocations for fixtures and test comparisons outside the timed calls.",
+    "controls": "Exact parse order, IDs, source and argument ranges, line numbers, dimensions and content. Includes LF, CRLF, BOM, Unicode, comments, literals, duplicate IDs and malformed objects.",
+    "driver": {
+      "file": "artifacts/compile-object-range-scan-20261118/measure.rs",
+      "sha256": "b36ee8973c7afc7fec1343dee963cb7430226bfeb4900c8a17f03fe6323ac854"
+    },
+    "raw_data": {
+      "file": "artifacts/compile-object-range-scan-20261118/followup.csv",
+      "sha256": "e3f265a57048a5779e9d2ed633e982e8d09b050e5033f8b3e3a986fefacf75ad"
+    },
+    "conditions": [
+      {
+        "condition": {
+          "bytes": "4113",
+          "objects": "1",
+          "blocks": "1"
+        },
+        "before_ms": 0.0094,
+        "after_ms": 0.0097,
+        "paired_saving_ms": -0.0002999999999999999,
+        "min_saving_ms": -0.0011999999999999997,
+        "max_saving_ms": 0.001599999999999999,
+        "rows": {
+          "0": {
+            "warmup": true,
+            "baseline": 0.011,
+            "candidate": 0.0137
+          },
+          "1": {
+            "warmup": false,
+            "candidate": 0.0085,
+            "baseline": 0.0101
+          },
+          "2": {
+            "warmup": false,
+            "baseline": 0.0093,
+            "candidate": 0.0098
+          },
+          "3": {
+            "warmup": false,
+            "candidate": 0.0089,
+            "baseline": 0.0097
+          },
+          "4": {
+            "warmup": false,
+            "baseline": 0.0094,
+            "candidate": 0.0102
+          },
+          "5": {
+            "warmup": false,
+            "candidate": 0.0107,
+            "baseline": 0.0098
+          },
+          "6": {
+            "warmup": false,
+            "baseline": 0.0093,
+            "candidate": 0.0095
+          },
+          "7": {
+            "warmup": false,
+            "candidate": 0.0097,
+            "baseline": 0.0085
+          },
+          "8": {
+            "warmup": false,
+            "baseline": 0.0091,
+            "candidate": 0.0094
+          },
+          "9": {
+            "warmup": false,
+            "candidate": 0.0097,
+            "baseline": 0.0099
+          }
+        }
+      },
+      {
+        "condition": {
+          "bytes": "65553",
+          "objects": "64",
+          "blocks": "64"
+        },
+        "before_ms": 1.9825,
+        "after_ms": 0.2132,
+        "paired_saving_ms": 1.7692999999999999,
+        "min_saving_ms": 1.6444999999999999,
+        "max_saving_ms": 2.9039,
+        "rows": {
+          "0": {
+            "warmup": true,
+            "baseline": 2.2043,
+            "candidate": 0.3589
+          },
+          "1": {
+            "warmup": false,
+            "candidate": 0.3562,
+            "baseline": 2.2428
+          },
+          "2": {
+            "warmup": false,
+            "baseline": 3.2456,
+            "candidate": 0.3417
+          },
+          "3": {
+            "warmup": false,
+            "candidate": 0.2887,
+            "baseline": 2.6761
+          },
+          "4": {
+            "warmup": false,
+            "baseline": 2.3676,
+            "candidate": 0.2096
+          },
+          "5": {
+            "warmup": false,
+            "candidate": 0.2132,
+            "baseline": 1.9825
+          },
+          "6": {
+            "warmup": false,
+            "baseline": 1.9402,
+            "candidate": 0.1843
+          },
+          "7": {
+            "warmup": false,
+            "candidate": 0.1979,
+            "baseline": 1.8719
+          },
+          "8": {
+            "warmup": false,
+            "baseline": 1.8421,
+            "candidate": 0.1577
+          },
+          "9": {
+            "warmup": false,
+            "candidate": 0.2192,
+            "baseline": 1.8637
+          }
+        }
+      },
+      {
+        "condition": {
+          "bytes": "1048593",
+          "objects": "512",
+          "blocks": "512"
+        },
+        "before_ms": 299.7143,
+        "after_ms": 2.3133,
+        "paired_saving_ms": 295.1012,
+        "min_saving_ms": 251.42069999999998,
+        "max_saving_ms": 427.211,
+        "rows": {
+          "0": {
+            "warmup": true,
+            "baseline": 315.3684,
+            "candidate": 3.9598
+          },
+          "1": {
+            "warmup": false,
+            "candidate": 4.3066,
+            "baseline": 431.5176
+          },
+          "2": {
+            "warmup": false,
+            "baseline": 299.7143,
+            "candidate": 4.6131
+          },
+          "3": {
+            "warmup": false,
+            "candidate": 3.7931,
+            "baseline": 381.6083
+          },
+          "4": {
+            "warmup": false,
+            "baseline": 260.176,
+            "candidate": 1.9448
+          },
+          "5": {
+            "warmup": false,
+            "candidate": 2.4447,
+            "baseline": 284.3341
+          },
+          "6": {
+            "warmup": false,
+            "baseline": 310.2767,
+            "candidate": 2.3133
+          },
+          "7": {
+            "warmup": false,
+            "candidate": 2.2854,
+            "baseline": 253.7061
+          },
+          "8": {
+            "warmup": false,
+            "baseline": 263.8708,
+            "candidate": 1.9106
+          },
+          "9": {
+            "warmup": false,
+            "candidate": 1.905,
+            "baseline": 340.4903
+          }
+        }
+      }
+    ]
+  },
+  "raster": {
+    "scope": "Standalone optimized Rust compare on synthetic 1600x1200 BGRA raster pages.",
+    "controls": "Equivalent results for identity and predicted displacement. Changed final scanline rejected. Integer reconstruction compared in a separate control.",
+    "driver": {
+      "file": "artifacts/native-raster-comparison-20261118/measure.rs",
+      "sha256": "e8ecc44a447b27297f803dc4756c0a5be0fd7dcc319ca4d5b24b1e6e8df897d6"
+    },
+    "raw_data": {
+      "file": "artifacts/native-raster-comparison-20261118/measure.csv",
+      "sha256": "3752e914af8cc7a69f077f993ec355c02861eb4c85161dc886b8b1204513c955"
+    },
+    "conditions": [
+      {
+        "condition": {
+          "pages": "1",
+          "mode": "identity"
+        },
+        "before_ms": 4.4467,
+        "after_ms": 0.9,
+        "paired_saving_ms": 3.489,
+        "min_saving_ms": 2.2941000000000003,
+        "max_saving_ms": 5.919499999999999,
+        "rows": {
+          "0": {
+            "warmup": true,
+            "baseline": 2.821,
+            "candidate": 0.7396
+          },
+          "1": {
+            "warmup": false,
+            "candidate": 0.7633,
+            "baseline": 3.3632
+          },
+          "2": {
+            "warmup": false,
+            "baseline": 2.9617,
+            "candidate": 0.6676
+          },
+          "3": {
+            "warmup": false,
+            "candidate": 0.7312,
+            "baseline": 6.6507
+          },
+          "4": {
+            "warmup": false,
+            "baseline": 7.3993,
+            "candidate": 2.4528
+          },
+          "5": {
+            "warmup": false,
+            "candidate": 1.905,
+            "baseline": 6.7187
+          },
+          "6": {
+            "warmup": false,
+            "baseline": 4.4467,
+            "candidate": 0.9577
+          },
+          "7": {
+            "warmup": false,
+            "candidate": 0.9782,
+            "baseline": 3.839
+          },
+          "8": {
+            "warmup": false,
+            "baseline": 4.5002,
+            "candidate": 0.9
+          },
+          "9": {
+            "warmup": false,
+            "candidate": 0.8917,
+            "baseline": 3.8497
+          }
+        }
+      },
+      {
+        "condition": {
+          "pages": "1",
+          "mode": "prediction"
+        },
+        "before_ms": 3.1929,
+        "after_ms": 0.8016,
+        "paired_saving_ms": 2.3320999999999996,
+        "min_saving_ms": 1.9382,
+        "max_saving_ms": 3.1934,
+        "rows": {
+          "0": {
+            "warmup": true,
+            "baseline": 3.4691,
+            "candidate": 1.1465
+          },
+          "1": {
+            "warmup": false,
+            "candidate": 0.8516,
+            "baseline": 3.2795
+          },
+          "2": {
+            "warmup": false,
+            "baseline": 3.0461,
+            "candidate": 0.7436
+          },
+          "3": {
+            "warmup": false,
+            "candidate": 0.7706,
+            "baseline": 3.3796
+          },
+          "4": {
+            "warmup": false,
+            "baseline": 3.0172,
+            "candidate": 0.6851
+          },
+          "5": {
+            "warmup": false,
+            "candidate": 0.7434,
+            "baseline": 3.9368
+          },
+          "6": {
+            "warmup": false,
+            "baseline": 3.0268,
+            "candidate": 0.8016
+          },
+          "7": {
+            "warmup": false,
+            "candidate": 1.0542,
+            "baseline": 3.7122
+          },
+          "8": {
+            "warmup": false,
+            "baseline": 3.1929,
+            "candidate": 1.2547
+          },
+          "9": {
+            "warmup": false,
+            "candidate": 1.0581,
+            "baseline": 3.1098
+          }
+        }
+      },
+      {
+        "condition": {
+          "pages": "6",
+          "mode": "identity"
+        },
+        "before_ms": 18.5851,
+        "after_ms": 5.5327,
+        "paired_saving_ms": 13.27,
+        "min_saving_ms": 11.9317,
+        "max_saving_ms": 15.2818,
+        "rows": {
+          "0": {
+            "warmup": true,
+            "baseline": 18.4019,
+            "candidate": 5.4009
+          },
+          "1": {
+            "warmup": false,
+            "candidate": 5.751,
+            "baseline": 18.0037
+          },
+          "2": {
+            "warmup": false,
+            "baseline": 17.6633,
+            "candidate": 5.7316
+          },
+          "3": {
+            "warmup": false,
+            "candidate": 5.2102,
+            "baseline": 20.492
+          },
+          "4": {
+            "warmup": false,
+            "baseline": 17.8239,
+            "candidate": 5.7064
+          },
+          "5": {
+            "warmup": false,
+            "candidate": 5.1596,
+            "baseline": 18.6639
+          },
+          "6": {
+            "warmup": false,
+            "baseline": 18.4147,
+            "candidate": 5.1447
+          },
+          "7": {
+            "warmup": false,
+            "candidate": 5.5327,
+            "baseline": 18.8208
+          },
+          "8": {
+            "warmup": false,
+            "baseline": 18.9914,
+            "candidate": 6.7678
+          },
+          "9": {
+            "warmup": false,
+            "candidate": 5.2154,
+            "baseline": 18.5851
+          }
+        }
+      },
+      {
+        "condition": {
+          "pages": "6",
+          "mode": "prediction"
+        },
+        "before_ms": 16.703,
+        "after_ms": 5.5276,
+        "paired_saving_ms": 11.2167,
+        "min_saving_ms": 10.052900000000001,
+        "max_saving_ms": 13.6671,
+        "rows": {
+          "0": {
+            "warmup": true,
+            "baseline": 19.8286,
+            "candidate": 7.28
+          },
+          "1": {
+            "warmup": false,
+            "candidate": 6.4578,
+            "baseline": 19.9268
+          },
+          "2": {
+            "warmup": false,
+            "baseline": 16.2993,
+            "candidate": 5.4962
+          },
+          "3": {
+            "warmup": false,
+            "candidate": 5.3519,
+            "baseline": 16.2397
+          },
+          "4": {
+            "warmup": false,
+            "baseline": 16.0621,
+            "candidate": 6.0092
+          },
+          "5": {
+            "warmup": false,
+            "candidate": 5.5581,
+            "baseline": 16.703
+          },
+          "6": {
+            "warmup": false,
+            "baseline": 20.8034,
+            "candidate": 7.1363
+          },
+          "7": {
+            "warmup": false,
+            "candidate": 4.9391,
+            "baseline": 16.7787
+          },
+          "8": {
+            "warmup": false,
+            "baseline": 16.8527,
+            "candidate": 5.5276
+          },
+          "9": {
+            "warmup": false,
+            "candidate": 5.3738,
+            "baseline": 16.5905
+          }
+        }
+      },
+      {
+        "condition": {
+          "pages": "20",
+          "mode": "identity"
+        },
+        "before_ms": 58.916,
+        "after_ms": 17.4007,
+        "paired_saving_ms": 41.515299999999996,
+        "min_saving_ms": 39.4326,
+        "max_saving_ms": 44.159499999999994,
+        "rows": {
+          "0": {
+            "warmup": true,
+            "baseline": 69.7332,
+            "candidate": 17.8758
+          },
+          "1": {
+            "warmup": false,
+            "candidate": 18.3269,
+            "baseline": 59.8827
+          },
+          "2": {
+            "warmup": false,
+            "baseline": 58.1047,
+            "candidate": 17.3496
+          },
+          "3": {
+            "warmup": false,
+            "candidate": 16.7642,
+            "baseline": 58.7616
+          },
+          "4": {
+            "warmup": false,
+            "baseline": 57.1969,
+            "candidate": 17.7643
+          },
+          "5": {
+            "warmup": false,
+            "candidate": 17.5142,
+            "baseline": 58.97
+          },
+          "6": {
+            "warmup": false,
+            "baseline": 58.6051,
+            "candidate": 17.5912
+          },
+          "7": {
+            "warmup": false,
+            "candidate": 16.7576,
+            "baseline": 60.9171
+          },
+          "8": {
+            "warmup": false,
+            "baseline": 59.4712,
+            "candidate": 16.6677
+          },
+          "9": {
+            "warmup": false,
+            "candidate": 17.4007,
+            "baseline": 58.916
+          }
+        }
+      },
+      {
+        "condition": {
+          "pages": "20",
+          "mode": "prediction"
+        },
+        "before_ms": 52.0433,
+        "after_ms": 17.2699,
+        "paired_saving_ms": 34.9876,
+        "min_saving_ms": 33.4138,
+        "max_saving_ms": 44.260099999999994,
+        "rows": {
+          "0": {
+            "warmup": true,
+            "baseline": 60.0434,
+            "candidate": 17.6064
+          },
+          "1": {
+            "warmup": false,
+            "candidate": 18.259,
+            "baseline": 51.6728
+          },
+          "2": {
+            "warmup": false,
+            "baseline": 51.9868,
+            "candidate": 17.1905
+          },
+          "3": {
+            "warmup": false,
+            "candidate": 17.373,
+            "baseline": 61.6331
+          },
+          "4": {
+            "warmup": false,
+            "baseline": 53.0487,
+            "candidate": 17.9858
+          },
+          "5": {
+            "warmup": false,
+            "candidate": 16.7023,
+            "baseline": 52.0433
+          },
+          "6": {
+            "warmup": false,
+            "baseline": 52.4991,
+            "candidate": 17.5115
+          },
+          "7": {
+            "warmup": false,
+            "candidate": 17.2699,
+            "baseline": 51.2163
+          },
+          "8": {
+            "warmup": false,
+            "baseline": 52.0186,
+            "candidate": 17.1457
+          },
+          "9": {
+            "warmup": false,
+            "candidate": 17.1848,
+            "baseline": 52.3019
+          }
+        }
+      }
+    ]
+  },
+  "native_control": {
+    "scope": "Normal native service compile of a synthetic multi-source project, original sources and revision preserved. 128 movable objects and 64 legacy blocks matched expected positions exactly.",
+    "driver": {
+      "file": "artifacts/compile-object-range-scan-20261118/native-control.rs",
+      "sha256": "e171505a9ec75e73a5044320de931196efd6fcbc9fb5187e0b893a11a4f1d6ad"
+    },
+    "log": {
+      "file": "artifacts/compile-object-range-scan-20261118/native.log",
+      "sha256": "67f303d59da1247a96758ce7056ac959131a952dab9c68a951a6cacffdffa36a"
+    },
+    "pdf": {
+      "file": "artifacts/compile-object-range-scan-20261118/native/final.pdf",
+      "sha256": "5131bfaaa12ee7cdda6003a7871101378e21066f3c518b356d31ffb3a72e7a0a"
+    }
+  }
+}

@@ -162,6 +162,38 @@ file-read and hash cost from TeX and presentation.
 [Output identity evidence](../docs/evidence/completed-pdf-output-identity-2026-11-18.json)
 
 
+## Paired native compile checkpoint comparison
+
+The pre-optimization benchmark and the current native service built four
+synthetic projects per MiKTeX engine, using fresh snapshots and identical
+inputs. One warm-up pair and three measured pairs covered each condition.
+All 48 pairs matched recorded build inputs, invocation fields, pass counts,
+PDF text, character geometry, links and 96 DPI pixels. Each output matched
+its own receipt hash.
+
+| Engine | Small | Source-heavy | Asset-heavy | Mixed |
+| --- | ---: | ---: | ---: | ---: |
+| pdfLaTeX | 577 ms | 533 ms | 947 ms | 995 ms |
+| XeLaTeX | 302 ms | 687 ms | 960 ms | 762 ms |
+| LuaLaTeX | 685 ms | 572 ms | 1247 ms | 1323 ms |
+
+Each result is the median paired reduction from invoking the Rust build
+service through its returned PDF and receipt. The extra files exercise
+snapshot work while each compile reads the same small main source and
+image. App dispatch and preview rendering are outside the measured interval.
+[Native comparison evidence](../docs/evidence/native-compile-checkpoint-comparison-2026-11-18.json)
+contains the absolute medians, individual pairs and fixture identities.
+
+The source line indexing follow-up reduced standalone parsing of a synthetic
+1 MiB file with 512 text objects and 512 legacy blocks from a median 299.7 ms
+to 2.31 ms. The native compile control verified all ranges for 128 text
+objects and 64 blocks in an included file. Borrowing expected pixels in the
+raster verifier saved a paired median 41.5 ms for identity and 35.0 ms for
+predicted displacement across twenty synthetic pages. Both routines preserved
+their exact comparison results.
+[Source and raster evidence](../docs/evidence/source-and-raster-comparison-2026-11-18.json)
+includes the individual timed pairs and the native control PDF fingerprint.
+
 ## Source work around the native compile
 
 The frontend compile stage uses the current revision and candidate token.
@@ -186,3 +218,32 @@ verified three objects at their expected source positions, including
 a styled macro in an included source. The original files and draft
 revision were preserved.
 [Source preparation evidence](../docs/evidence/compile-source-preparation-2026-11-18.json)
+
+
+## Snapshot capture and receipt verification
+
+Snapshot capture uses a native asset copy and seals the bytes that TeX
+will read. Capture verifies both the frozen file and its original before
+TeX. Receipts with at least 8 MiB of frozen inputs verify frozen files and
+the remaining dependencies in two threads after checking the compiler
+and alias. Both finish before acceptance, with the same error priority.
+
+The normal pdfLaTeX build service matched all 16 pre-change and candidate
+pairs. The median paired reductions in snapshot and verification work
+were 38.8 ms for a source-heavy fixture, 161.1 ms for an asset-heavy
+fixture, and 156.2 ms for a mixed fixture. The small fixture was within
+0.1 ms. TeX, delivery and rendering have separate endpoints.
+[Snapshot evidence](../docs/evidence/snapshot-verification-work-2026-11-18.json)
+
+## Tectonic feasibility
+
+Paired command-line trials compared Tectonic 0.17.0 against MiKTeX
+XeLaTeX in fresh working directories. Cold cache setup for the first
+Tectonic fixture took 99 seconds. In a separate warm offline comparison
+with explicit Letter paper and margins, five fixture medians favored
+Tectonic by 594–856 ms. All 25 measured pairs matched PDF text and the
+specified SyncTeX round trips. Exact character geometry differed by up
+to 0.014 bp and one fixture matched pixels. The dependency rule did not
+list the bundled class. A copied-cache control showed that changing its
+class file changed output under the same bundle namespace.
+[Engine feasibility evidence](../docs/evidence/tectonic-engine-feasibility-2026-11-18.json)
