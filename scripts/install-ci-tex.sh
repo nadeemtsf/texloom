@@ -6,7 +6,8 @@ set -euo pipefail
 network=(-o Acquire::Retries=1 -o Acquire::http::Timeout=25 -o Acquire::https::Timeout=25)
 packages=(-y --no-install-recommends install "$@")
 sources=/etc/apt/sources.list.d/ubuntu.sources
-regional='https?://[a-z0-9-]+\.ec2\.archive\.ubuntu\.com/ubuntu/?'
+# Hosted images can name a regional archive directly or use a local mirror list.
+runner_archive='(https?://[a-z0-9-]+\.ec2\.archive\.ubuntu\.com/ubuntu/?|mirror\+file:/+etc/apt/apt-mirrors\.txt)'
 
 refresh() {
     sudo timeout --kill-after=15s 3m apt-get "${network[@]}" -q update
@@ -17,9 +18,9 @@ download() {
 }
 
 if ! refresh || ! download 4m; then
-    if [[ -r "$sources" ]] && grep -Eq "^URIs:.*$regional" "$sources"; then
+    if [[ -r "$sources" ]] && grep -Eq "^URIs:.*[[:space:]]$runner_archive([[:space:]]|$)" "$sources"; then
         echo "Retrying TeX downloads with the primary Ubuntu archive"
-        sudo sed -i -E "/^URIs:/s@$regional@https://archive.ubuntu.com/ubuntu/@g" "$sources"
+        sudo sed -i -E "/^URIs:/s@$runner_archive([[:space:]]|$)@https://archive.ubuntu.com/ubuntu/\2@g" "$sources"
     else
         echo "Retrying TeX downloads with the current Ubuntu sources"
     fi
