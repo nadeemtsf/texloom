@@ -241,6 +241,25 @@ version-specific output-directory prefix in its prerequisite paths.
 and [offline prerequisite evidence](../docs/evidence/tectonic-prerequisite-paths-2026-11-19.json)
 record the compiler and artifact checks.
 
+## Diagnostic parsing and recovery after source errors
+
+The parser prepares source markers once and skips source matching on
+output lines without a possible line number. It keeps the first 200
+diagnostics in their original order. The 600-source standalone comparison
+saved paired medians of 6.4 ms on the shorter log and 92.6 ms on the
+verbose log. An independent native 600-file fixture that printed 950
+notices per pass saved a paired median 263 ms. The receipt and PDF
+properties matched in every pair.
+
+After an attributed source error with a matching runtime banner, the
+engine retains its existing identification profile. The failed build
+remains ineligible. The next valid build still runs TeX and verifies
+its own snapshot. Quiet paired repair runs saved medians of 275 ms
+with pdfLaTeX, 292 ms with XeLaTeX and 183 ms with LuaLaTeX. Cold
+failures and changed environments still required identification.
+[Diagnostic and repair evidence](../docs/evidence/compiler-diagnostics-and-repair-2026-11-19.json)
+contains the measured pairs and output controls.
+
 ## Source work around the native compile
 
 The frontend compile stage uses the current revision and candidate token.

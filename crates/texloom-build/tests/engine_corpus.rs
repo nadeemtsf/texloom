@@ -1,7 +1,7 @@
 //! Explicit opt-in real-engine acceptance. CI supplies all three TeX engines.
 use std::{collections::BTreeMap, fs, path::PathBuf};
 use texloom_build::{
-    engine::{self, Request},
+    engine::{self, CompilerProfiles, Request},
     scheduler::Cancellation,
 };
 fn program(name: &str) -> PathBuf {
@@ -118,6 +118,46 @@ fn first_pass_preview_is_unverified_and_cannot_hide_later_failure_or_cancellatio
     fs::write(root.join("report.json"), serde_json::to_vec_pretty(&rows).unwrap()).unwrap();
     println!("First-pass observer: {} engine/condition controls passed", rows.len());
 }
+
+#[test]
+#[ignore = "requires installed pdfLaTeX, LuaLaTeX and XeLaTeX; run --ignored explicitly"]
+fn a_confirmed_profile_survives_a_source_error_and_repair() {
+    let root = PathBuf::from(std::env::var_os("TEXLOOM_BUILD_REPORT_DIR").expect("Set report directory"))
+        .join("repair-profile");
+    for engine in ["pdflatex", "xelatex", "lualatex"] {
+        let folder = root.join(engine);
+        let project = folder.join("project");
+        fs::create_dir_all(&project).unwrap();
+        let original = r"\documentclass{article}\begin{document}Fixture\end{document}";
+        fs::write(project.join("main.tex"), original).unwrap();
+        let compiler = program(engine);
+        let profiles = CompilerProfiles::default();
+        let support = BTreeMap::new();
+        let build = |stage: &str, body: &str| {
+            let directory = folder.join(stage);
+            let source = format!("\\documentclass{{article}}\n\\begin{{document}}\n{body}\n\\end{{document}}\n");
+            let sources = BTreeMap::from([("main.tex".into(), source)]);
+            engine::build_with_profiles(Request {
+                project_root: &project, directory: &directory, sources: &sources, main: "main.tex",
+                support: &support, compiler: &compiler, engine,
+            }, &Cancellation::default(), &profiles).unwrap()
+        };
+
+        let cold_error = build("cold-error", r"\DefinitelyUndefinedCommand");
+        assert!(!cold_error.ok && !cold_error.timings.version_reused);
+        let first_valid = build("valid", "Valid source.");
+        assert!(first_valid.eligible && !first_valid.timings.version_reused);
+        let warm_error = build("warm-error", r"\DefinitelyUndefinedCommand");
+        assert!(!warm_error.ok && !warm_error.eligible && warm_error.pdf.is_empty());
+        assert!(warm_error.timings.version_reused);
+        assert!(warm_error.diagnostics.iter().any(|d| d.code == "latex_error" && d.file.as_deref() == Some("main.tex")));
+        let repaired = build("repair", "Valid repaired source.");
+        assert!(repaired.eligible && repaired.timings.version_reused && repaired.pdf.starts_with(b"%PDF-"));
+        repaired.receipt.verify().unwrap();
+        assert_eq!(fs::read_to_string(project.join("main.tex")).unwrap(), original);
+    }
+}
+
 #[test]
 #[ignore = "requires installed pdfLaTeX, LuaLaTeX and XeLaTeX; run --ignored explicitly"]
 fn real_three_engine_corpus() {

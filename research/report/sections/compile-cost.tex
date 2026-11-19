@@ -687,3 +687,39 @@ On a fixture with two failed page lookups, both arms reported the
 earliest failing page. The experiment ends at first page paint inside
 the prepared view. See
 \path{docs/evidence/pdf-reading-page-fetch-2026-11-19.json}.
+
+
+\subsection{Compiler diagnostics and source-error repair}
+
+The diagnostic parser computes its source markers once, checks for
+the numeric field required by a source location, and finishes when
+the first 200 diagnostics have been retained. It keeps the original
+source lookup order and exact diagnostic content. Standalone optimized
+Rust parsing with 600 source names saved 6.4~ms for an ordinary
+synthetic log and 92.6~ms for a verbose log of about 60~KiB.
+Twelve measured pairs followed two warm-ups per condition. Exact
+diagnostic controls included overlapping names, Unicode, malformed
+locations, warning text and the retention boundary.
+
+An independent native comparison compiled a 600-file project that
+printed 950 notices per pass. Four measured pairs followed a warm-up.
+The paired median native reduction was 263.1~ms. Every pair matched
+its verified output and recorded dependency fields. This fixture
+isolates the diagnostic-heavy case.
+
+The engine's identification cache now retains an established profile
+across an attributed source error when the runtime banner agrees.
+The failed build remains ineligible for delivery. A later build
+verifies its own snapshot and output. The paired controls started
+with valid source, compiled an error in the editor buffer, and then
+compiled a correction. Across the quiet measurements, the paired
+median repair savings were 275.1~ms with pdf\LaTeX{},
+291.5~ms with Xe\LaTeX{} and 182.8~ms with Lua\LaTeX{}.
+
+The tests matched failed-build diagnostics and the repaired PDFs and
+receipts. The prototype still ran identification after a cold source
+failure and when the recorded environment changed. Original source
+bytes stayed intact. The native interval through the repaired result
+excludes editor and preview rendering.
+\path{docs/evidence/compiler-diagnostics-and-repair-2026-11-19.json}
+records each measured pair and the controls.

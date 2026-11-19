@@ -129,7 +129,7 @@ impl CompilerProfiles {
         let index = cached.iter().position(|profile| profile.same_project_and_command(receipt))?;
         // Remove mismatched entries too, so restoring an older environment
         // after a failed build cannot bring back its old identification.
-        // A matched profile returns to the front only after a successful build.
+        // Restoring a matched profile requires a confirmed runtime banner.
         cached.remove(index).filter(|profile| profile.matches_inputs(receipt))
     }
 
@@ -316,6 +316,7 @@ fn build_inner(
     let mut bibliography_digest = None;
     let mut bibliography_disabled = false;
     let mut bibliography_errors = Vec::new();
+    let mut matched_runtime_after_source_error = false;
     for pass in 1..=MAX_PASSES {
         cancel.check()?;
         let verify_started = Instant::now();
@@ -357,6 +358,14 @@ fn build_inner(
         truncated |= output.truncated;
         diagnostics = parse_diagnostics(&output.text, request.sources);
         if !output.success {
+            // An attributed TeX error can confirm an existing identity. Only a
+            // successful, eligible build can add a new compiler profile.
+            matched_runtime_after_source_error = timings.version_reused
+                && !truncated
+                && diagnostics.iter().any(|diagnostic| diagnostic.code == "latex_error" && diagnostic.file.is_some())
+                && expected_runtime.as_ref().is_some_and(|expected| {
+                    runtime_banner(&receipt.directory).as_ref() == Some(expected)
+                });
             break;
         }
         if profiles.is_some() {
@@ -460,7 +469,7 @@ fn build_inner(
         success && converged && !diagnostics.iter().any(|d| d.severity == Severity::Error);
     receipt.persist()?;
     cancel.check()?;
-    if eligible {
+    if eligible || matched_runtime_after_source_error {
         if let (Some(profiles), Some(runtime)) = (profiles, expected_runtime) {
             profiles.remember(&receipt, miktex, runtime);
         }
@@ -571,16 +580,23 @@ fn rerun_requested(log: &str) -> bool {
 }
 pub fn parse_diagnostics(log: &str, sources: &BTreeMap<String, String>) -> Vec<Diagnostic> {
     let mut result = Vec::new();
+    let markers: Vec<_> = sources.keys().map(|name| (name, format!("{name}:"))).collect();
     for raw in log.lines() {
         let lower = raw.to_ascii_lowercase();
         let mut location = None;
-        for name in sources.keys() {
-            if let Some(pos) = raw.find(&format!("{name}:")) {
-                let tail = &raw[pos + name.len() + 1..];
-                if let Some((number, message)) = tail.split_once(':') {
-                    if let Ok(line) = number.parse::<usize>() {
-                        location = Some((name.clone(), line, message.trim().to_string()));
-                        break;
+        // A source location requires a numeric field between two colons.
+        let fields = raw.split(':').skip(1);
+        let has_line_field = fields.clone().zip(fields.skip(1))
+            .any(|(field, _)| field.parse::<usize>().is_ok());
+        if has_line_field {
+            for (name, marker) in &markers {
+                if let Some(pos) = raw.find(marker) {
+                    let tail = &raw[pos + marker.len()..];
+                    if let Some((number, message)) = tail.split_once(':') {
+                        if let Ok(line) = number.parse::<usize>() {
+                            location = Some(((*name).clone(), line, message.trim().to_string()));
+                            break;
+                        }
                     }
                 }
             }
@@ -629,8 +645,9 @@ pub fn parse_diagnostics(log: &str, sources: &BTreeMap<String, String>) -> Vec<D
             }
         }
         if let Some(d) = d {
-            if result.len() < 200 {
-                result.push(d);
+            result.push(d);
+            if result.len() == 200 {
+                break;
             }
         }
     }
