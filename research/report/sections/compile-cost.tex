@@ -798,3 +798,25 @@ delivery to the caller. It uses four fixtures without bibliography
 generation and does not estimate the cost of presenting the PDF in the
 desktop. \path{docs/evidence/cumulative-native-compile-2026-11-19.json}
 contains the pair-level timings and output checks.
+
+\subsection{Cost of refusing oversized dependencies}
+
+Build dependency fingerprints have a 256~MiB per-file limit. PR~91
+checks the open file's metadata after its first full 64~KiB buffer and
+keeps the running-byte limit for changes during the read. Files smaller
+than a buffer take the original path without the metadata call.
+
+An optimized Rust harness compared the extracted fingerprint routines on
+six generated file sizes. Each size had one warm-up pair and eight timed
+pairs in alternating order. Each pair agreed on the returned fingerprint
+or the refusal. The median paired savings for refusing 256~MiB plus one
+byte and 512~MiB were 173.15 and 174.08~ms. At the largest accepted size,
+the paired median was 3.76~ms slower with the early check. The observed
+paired differences for accepted files included both signs at each size.
+The production regression accepts exactly 256~MiB and reports the same
+size error for a file one byte larger.
+
+These component timings describe refusal cost on the sampled files. The
+end-to-end compile comparisons above use their own fixtures and timings.
+The 21 November engineering evidence linked from the source README
+contains the individual pairs, including warm-ups.

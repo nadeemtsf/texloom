@@ -1,4 +1,6 @@
-Latest artifact, 19 November, **v29, 43 pages and 35 references**. This revision adds the cumulative three-engine comparison against the pre-optimization compiler checkpoint. All pages were rendered and reviewed. See `docs/evidence/report-full-draft-v29-2026-11-19.json`.
+Latest artifact, 21 November, **v30, 43 pages and 35 references**. This revision records overlapping project-open regressions and the cost of refusing oversized build dependencies. All pages were rendered and reviewed. See `docs/evidence/report-full-draft-v30-2026-11-21.json` and `docs/evidence/project-opening-and-dependency-refusal-2026-11-21.json`.
+
+Previous artifact, 19 November, **v29, 43 pages and 35 references**. This revision adds the cumulative three-engine comparison against the pre-optimization compiler checkpoint. All pages were rendered and reviewed. See `docs/evidence/report-full-draft-v29-2026-11-19.json`.
 
 Previous artifact, 19 November, **v28, 42 pages and 35 references**. This revision adds the Biber startup measurement, paired native bibliography builds and fallback controls. All pages were rendered and reviewed. See `docs/evidence/report-full-draft-v28-2026-11-19.json`.
 

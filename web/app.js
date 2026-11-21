@@ -165,6 +165,7 @@ function activateSourceFile(file){
   }
 }
 function fresh(){return !!state.result&&state.result.verification_eligible!==false&&state.revision===state.compiled&&!state.previewZooming&&!state.busy&&!state.client?.pending&&!state.client?.error&&!state.mutating&&!state.saving&&!state.composing&&!state.opening}
+function canExport(){return !!state.project&&!!state.client&&!state.busy&&!state.opening&&!state.mutating&&!state.composing&&!state.saving&&!state.client.error}
 function updateControls(){
   typingRecovery.renderProtection();
   const ready=fresh(),legacy=ready&&!!state.selected,object=ready&&!!state.objectSelection;
@@ -175,7 +176,7 @@ function updateControls(){
   $('object-reset').disabled=!object||state.objectSelection?.kind!=='object'||(!state.objectSelection.dx&&!state.objectSelection.dy);
   $('compile').disabled=state.busy||!!state.saving||!!state.client?.error;
   $('save').disabled=!!state.saving||state.busy||state.composing||!!state.client?.error;
-  $('export').disabled=!state.project||state.busy||state.opening||state.mutating||state.composing||!!state.saving||!!state.client?.error;
+  $('export').disabled=!canExport();
   $('open').disabled=!!state.saving||state.mutating||state.opening;
   for(const id of ['projects','layout-controls','import-image'])$(id).disabled=state.busy||state.composing||state.mutating||state.opening||!!state.saving;
   $('engine').disabled=!!state.saving||state.mutating||!!state.client?.error;
@@ -975,20 +976,31 @@ $('compile').onclick=()=>compile();$('save').onclick=saveProject;$('save-copy').
 $('cancel-compile').onclick=cancelCompile;
 $('open').onclick=async()=>{try{const path=await open({multiple:false,filters:[{name:'LaTeX document',extensions:['tex']}]});if(typeof path==='string')await openProject(path)}catch(error){toast(message(error))}};
 $('export').onclick=async()=>{
-  if(!state.project||state.busy)return toast('Wait for the current operation before exporting.');
+  const client=state.client;
+  const ready=()=>{
+    if(state.client!==client){toast('The project changed. Choose Export again.');return false}
+    if(!canExport()){toast('Wait for the current operation before exporting.');return false}
+    return true;
+  };
+  if(!ready())return;
   let prepared=null,ownsJob=false;
   try{
-    const path=await save({defaultPath:'document.pdf',filters:[{name:'PDF document',extensions:['pdf']}]});if(!path)return;
-    await state.client.flush();if(state.busy)return toast('Wait for compilation before exporting.');
+    const path=await save({defaultPath:'document.pdf',filters:[{name:'PDF document',extensions:['pdf']}]});
+    if(!path||!ready())return;
+    await client.flush();if(!ready())return;
     state.busy=true;state.cancelRequested=false;ownsJob=true;clearTimeout(state.compileTimer);updateControls();
-    const identity=sessionIdentity(state),revision=state.revision,client=state.client;
+    const identity=sessionIdentity(state),revision=state.revision;
     const candidate=await stageCandidate({revision,identity,getIdentity:()=>sessionIdentity(state),
       compile:()=>client.compile(null,'export'),prepare:prepareResult,policy:null,requireVerified:true,verify:result=>client.verify(result.build_id)});
     prepared=candidate.prepared;
+    if(sessionIdentity(state)!==identity)throw new StaleCandidate();
     state.mutating=true;editorReadOnly();updateControls();
     await client.exportBuild(candidate.result.build_id,path);
     toast('PDF exported from a clean build of this source revision.');
-  }catch(error){showFailure(error)}finally{
+  }catch(error){
+    if(state.client===client)showFailure(error);
+    else toast('The project changed. Choose Export again.');
+  }finally{
     try{
       try{prepared?.dispose?.()}catch{}
       try{if(prepared?.pdf)await prepared.pdf.destroy()}catch{}
