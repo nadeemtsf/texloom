@@ -186,6 +186,10 @@ function updateControls(){
   $('redo').disabled=!state.canRedo||state.mutating||state.saving||state.composing||!!state.client?.error;
   undoContext.set(!$('undo').disabled);redoContext.set(!$('redo').disabled);
   $('compile-state').textContent=state.busy?'Compiling candidate…':'';
+  const timing=$('last-compile-time');
+  const seconds=state.result?.seconds;
+  const lastCompile=Number.isFinite(seconds)?`Last compile ${seconds.toFixed(2)} s`:'';
+  if(timing.textContent!==lastCompile)timing.textContent=lastCompile;
   $('pages').classList.toggle('stale',state.revision!==state.compiled||state.busy);
   $('selection-hint').textContent=state.mode==='read'?'Drag over text to highlight and copy it.':
     state.result&&!state.result.objects?.length&&!state.result.blocks?.length?
@@ -534,7 +538,7 @@ function publishPrepared(prepared,result){
   setupHelp.update(result.verification_eligible===false?new CompilationFailure(result.log,result.diagnostics):null);
   if(result.verification_eligible===false){$('banner').textContent='PDF compiled with unresolved diagnostics. Resolve them before visual editing or export.';$('banner').classList.remove('hidden')}
   renderOverlays();renderInspector();
-  status((dirty()?'Unsaved':'Saved')+' · '+result.seconds.toFixed(2)+'s · '+result.engine);
+  status((dirty()?'Unsaved':'Saved')+' · '+result.engine);
   if(previous&&previous!==prepared.pdf){
     try{Promise.resolve(previous.destroy()).catch(error=>toast(message(error)))}catch(error){toast(message(error))}
   }

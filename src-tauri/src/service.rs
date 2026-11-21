@@ -865,7 +865,7 @@ fn choose_engine(request: &str, source: &str) -> Result<String> {
     .into())
 }
 
-fn find_program(name: &str) -> Option<PathBuf> {
+pub(crate) fn find_program(name: &str) -> Option<PathBuf> {
     let executable = if cfg!(windows) {
         format!("{name}.exe")
     } else {

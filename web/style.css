@@ -59,3 +59,4 @@ header{gap:7px;padding:0 12px}header #project-name{max-width:160px;overflow:hidd
 .preliminary-heading button{flex-shrink:0}
 .preliminary-pages{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;display:grid;justify-items:center;align-content:start;padding:24px}
 .preliminary-pages canvas{max-width:100%;box-shadow:0 5px 24px #243d2422;pointer-events:none}
+#last-compile-time{color:#4b614f;font-variant-numeric:tabular-nums;white-space:nowrap}

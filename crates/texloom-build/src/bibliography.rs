@@ -301,16 +301,7 @@ pub fn execute(
             cancel,
             Some(Duration::from_secs(60)),
         )?;
-        let paths = output
-            .text
-            .lines()
-            .map(str::trim)
-            .filter(|l| !l.is_empty())
-            .collect::<Vec<_>>();
-        if paths.len() != 1 {
-            return Err("The bibliography style lookup was ambiguous".into());
-        }
-        let path = PathBuf::from(paths[0])
+        let path = bibliography_style_path(&output.text)?
             .canonicalize()
             .map_err(|e| e.to_string())?;
         if !snapshot::toolchain_roots(&receipt.compiler.path)
@@ -407,6 +398,19 @@ pub fn execute(
     Ok(format!("\n--- {} ---\n{}", recipe.tool, result.text))
 }
 
+fn bibliography_style_path(output: &str) -> Result<&Path> {
+    // MiKTeX can report pending maintenance on stderr alongside its result.
+    let mut lines = output.lines().map(str::trim).filter(|line| {
+        !line.is_empty()
+            && !line.starts_with("kpsewhich: major issue:")
+            && !line.starts_with("kpsewhich: minor issue:")
+    });
+    match (lines.next(), lines.next()) {
+        (Some(path), None) => Ok(Path::new(path)),
+        _ => Err("The bibliography style lookup was ambiguous".into()),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -452,6 +456,17 @@ mod tests {
         assert!(biber_startup_version(&oversized).is_none());
         assert!(biber_startup_version(&normal.replace("Logfile is", "Reading")).is_none());
         assert!(biber_startup_version(&format!("INFO - Reading inputs\n{normal}")).is_none());
+    }
+
+    #[test]
+    fn bibliography_style_lookup_accepts_miktex_maintenance_warnings() {
+        let output = "C:/MiKTeX/bibtex/plain.bst\r\nkpsewhich: major issue: So far, you have not checked for MiKTeX updates.\r\n";
+        assert_eq!(
+            bibliography_style_path(output).unwrap(),
+            Path::new("C:/MiKTeX/bibtex/plain.bst")
+        );
+        assert!(bibliography_style_path(&format!("{output}C:/Other/plain.bst\n")).is_err());
+        assert!(bibliography_style_path("kpsewhich: major issue: Pending updates\n").is_err());
     }
 
     #[test]

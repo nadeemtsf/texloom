@@ -3,6 +3,13 @@ mod document_protocol;
 mod build_protocol;
 mod compile_transport;
 mod workspace_protocol;
+#[cfg(windows)]
+mod setup_probe;
+
+#[cfg(windows)]
+pub fn check_latex_for_setup(install_packages: bool) -> i32 {
+    setup_probe::check(install_packages)
+}
 #[cfg(feature = "typegen")]
 pub use document_protocol::bindings as protocol_bindings;
 
