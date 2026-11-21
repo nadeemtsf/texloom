@@ -3,7 +3,7 @@ use std::{
     collections::BTreeMap,
     fs::{self, File},
     io::Read,
-    path::Path,
+    path::{Path, PathBuf},
     time::Duration,
 };
 use texloom_build::{
@@ -15,19 +15,37 @@ use uuid::Uuid;
 const READY: i32 = 0;
 const MISSING: i32 = 10;
 const UNAVAILABLE: i32 = 11;
-const SAMPLE: &str =
-    "\\documentclass{article}\n\\begin{document}\nTexloom setup check.\n\\end{document}\n";
+const ARTICLE: &str = include_str!("../../resources/templates/article.tex");
+const MULTILINGUAL: &str = include_str!("../../resources/templates/multilingual.tex");
 
-pub(crate) fn check() -> i32 {
-    let compilers: Vec<_> = ["pdflatex", "xelatex", "lualatex"]
-        .into_iter()
-        .filter_map(crate::service::find_program)
-        .filter(|compiler| compiler.is_absolute())
-        .collect();
-    check_compilers(&compilers)
+pub(crate) fn check(install_packages: bool) -> i32 {
+    if install_packages {
+        // Setup has permission to install dependencies for these bundled templates.
+        for (engine, source) in [("pdflatex", ARTICLE), ("xelatex", MULTILINGUAL)] {
+            let result = check_compilers(&compilers(&[engine]), source, true);
+            if result != READY {
+                return result;
+            }
+        }
+        READY
+    } else {
+        check_compilers(
+            &compilers(&["pdflatex", "xelatex", "lualatex"]),
+            ARTICLE,
+            false,
+        )
+    }
 }
 
-fn check_compilers(compilers: &[std::path::PathBuf]) -> i32 {
+fn compilers(engines: &[&str]) -> Vec<PathBuf> {
+    engines
+        .iter()
+        .filter_map(|engine| crate::service::find_program(engine))
+        .filter(|path| path.is_absolute())
+        .collect()
+}
+
+fn check_compilers(compilers: &[PathBuf], source: &str, install_packages: bool) -> i32 {
     if compilers.is_empty() {
         return MISSING;
     }
@@ -36,10 +54,10 @@ fn check_compilers(compilers: &[std::path::PathBuf]) -> i32 {
     if fs::create_dir(&directory).is_err() {
         return UNAVAILABLE;
     }
-    let ready = fs::write(directory.join("sample.tex"), SAMPLE).is_ok()
+    let ready = fs::write(directory.join("sample.tex"), source).is_ok()
         && compilers
             .iter()
-            .any(|compiler| compile_sample(compiler, &directory));
+            .any(|compiler| compile_sample(compiler, &directory, install_packages));
     let _ = fs::remove_dir_all(&directory);
     if ready {
         READY
@@ -54,13 +72,15 @@ mod tests {
 
     #[test]
     fn missing_and_unusable_compilers_have_distinct_setup_outcomes() {
-        assert_eq!(check_compilers(&[]), MISSING);
-        let vanished = std::env::temp_dir().join(Uuid::new_v4().to_string()).join("pdflatex.exe");
-        assert_eq!(check_compilers(&[vanished]), UNAVAILABLE);
+        assert_eq!(check_compilers(&[], ARTICLE, false), MISSING);
+        let vanished = std::env::temp_dir()
+            .join(Uuid::new_v4().to_string())
+            .join("pdflatex.exe");
+        assert_eq!(check_compilers(&[vanished], ARTICLE, false), UNAVAILABLE);
     }
 }
 
-fn compile_sample(compiler: &Path, directory: &Path) -> bool {
+fn compile_sample(compiler: &Path, directory: &Path, install_packages: bool) -> bool {
     let run = |arguments: &[&str], seconds| {
         let args: Vec<_> = arguments.iter().map(|arg| (*arg).into()).collect();
         process::run(
@@ -86,8 +106,13 @@ fn compile_sample(compiler: &Path, directory: &Path) -> bool {
         "-interaction=nonstopmode",
         "-halt-on-error",
     ];
-    if banner.contains("miktex") {
-        arguments.push("--disable-installer");
+    let miktex = banner.contains("miktex");
+    if miktex {
+        arguments.push(if install_packages {
+            "--enable-installer"
+        } else {
+            "--disable-installer"
+        });
     } else if !banner.contains("tex live") {
         return false;
     }
@@ -97,7 +122,8 @@ fn compile_sample(compiler: &Path, directory: &Path) -> bool {
         return false;
     }
     arguments.push("sample.tex");
-    if run(&arguments, 20).is_none() {
+    let timeout = if miktex && install_packages { 180 } else { 20 };
+    if run(&arguments, timeout).is_none() {
         return false;
     }
     let mut header = [0; 5];

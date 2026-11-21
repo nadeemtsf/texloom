@@ -7,8 +7,8 @@ mod workspace_protocol;
 mod setup_probe;
 
 #[cfg(windows)]
-pub fn check_latex_for_setup() -> i32 {
-    setup_probe::check()
+pub fn check_latex_for_setup(install_packages: bool) -> i32 {
+    setup_probe::check(install_packages)
 }
 #[cfg(feature = "typegen")]
 pub use document_protocol::bindings as protocol_bindings;

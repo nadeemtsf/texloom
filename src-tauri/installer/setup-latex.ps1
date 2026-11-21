@@ -35,12 +35,17 @@ try {
         $file.Dispose()
     }
 
-    Write-Output 'MiKTeX wizard closed. Checking that LaTeX compiles.'
+    Write-Output 'MiKTeX wizard closed. Setting up packages and compiling the Texloom templates.'
     # Include paths added by MiKTeX while the Texloom installer was running.
     $env:Path = @([Environment]::GetEnvironmentVariable('Path', 'Machine'),
         [Environment]::GetEnvironmentVariable('Path', 'User'), $env:Path) -join ';'
-    $probe = Start-Process -FilePath $TexloomPath -ArgumentList '--check-latex-for-setup' -WindowStyle Hidden -PassThru -Wait
-    if ($probe.ExitCode -ne 0) { throw 'A LaTeX compiler did not pass the Texloom sample after setup.' }
+    $probe = Start-Process -FilePath $TexloomPath -ArgumentList '--prepare-latex-for-setup' -WindowStyle Hidden -PassThru
+    try {
+        $probe.WaitForExit()
+        if ($probe.ExitCode -ne 0) { throw 'LaTeX could not compile the Texloom templates after setup.' }
+    } finally {
+        $probe.Dispose()
+    }
     $result = 0
 } catch {
     Write-Output $_.Exception.Message

@@ -6,7 +6,7 @@ This is a separate desktop implementation. It does not replace or convert the ea
 
 ## Install on Windows
 
-Download the Windows x64 `Setup.exe` from [GitHub Releases](https://github.com/nadeemtsf/texloom/releases). Preview builds are unsigned. Setup can install WebView2 when needed. It checks for a working MiKTeX or TeX Live compiler and offers the official MiKTeX setup wizard if it finds neither. The Basic MiKTeX download requires an internet connection. You can skip it and install either distribution later. Windows 11 x64 is required for the MiKTeX setup path.
+Download the Windows x64 `Setup.exe` from [GitHub Releases](https://github.com/nadeemtsf/texloom/releases). Preview builds are unsigned. Setup can install WebView2 when needed. It checks whether an existing LaTeX distribution can compile the bundled Article template. If it finds no compiler, setup offers the official MiKTeX wizard and installs the packages needed by Texloom's bundled templates. This requires an internet connection and Windows 11 x64. You can skip it and install MiKTeX or TeX Live later.
 
 Once setup verifies a sample compile, you can open a `.tex` file and compile it. Projects can require extra LaTeX packages or fonts. Check the compiler output for missing dependencies. Legacy projects using `\StudioBlock` still need `studio.sty` alongside their source when you compile them outside Texloom.
 
