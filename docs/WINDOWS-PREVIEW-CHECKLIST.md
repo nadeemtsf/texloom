@@ -16,8 +16,10 @@ removal on a disposable Windows account or machine.
 ## With no LaTeX distribution installed
 
 1. Start setup on Windows 11 x64. Confirm it offers MiKTeX after installing
-   Texloom. Choose Yes and follow the official MiKTeX wizard. Record whether
-   the Texloom installer reports that the sample successfully compiled.
+   Texloom. Choose Yes and follow the official MiKTeX wizard. Leave **Tell me
+   more** checked on the wizard's final page and click **Close**. When the
+   browser opens, leave it open and confirm that the Texloom installer finishes
+   and reports a successful sample compile.
 2. Open Texloom and compile an Article. Confirm the PDF and compile time.
 3. On a separate clean test run, skip or cancel MiKTeX. Verify that Texloom
    opens and shows setup guidance when you try to compile.

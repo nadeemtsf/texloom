@@ -14,7 +14,7 @@
       MessageBox MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON1 "Texloom is installed. Install MiKTeX now to compile LaTeX documents? Setup will download the official installer (about 142 MiB). You can also install MiKTeX or TeX Live later." IDNO texloom_latex_done
       InitPluginsDir
       File "/oname=$PLUGINSDIR\texloom-setup-latex.ps1" "${TEXLOOM_LATEX_SETUP}"
-      DetailPrint "Downloading MiKTeX. Its setup wizard will open after verification..."
+      DetailPrint "Setting up MiKTeX. Follow its separate setup wizard when it opens."
       nsExec::ExecToLog '"$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$PLUGINSDIR\texloom-setup-latex.ps1" -TexloomPath "$INSTDIR\${MAINBINARYNAME}.exe"'
       Pop $0
       ${If} $0 == 0

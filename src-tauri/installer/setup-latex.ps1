@@ -23,12 +23,19 @@ try {
             throw 'The MiKTeX download did not match the published SHA-256 hash.'
         }
         Write-Output 'Verified the MiKTeX download. Opening its setup wizard.'
-        $setup = Start-Process -FilePath $download -WorkingDirectory $directory -WindowStyle Normal -PassThru -Wait
-        if ($setup.ExitCode -ne 0) { throw "MiKTeX setup exited with code $($setup.ExitCode)." }
+        $setup = Start-Process -FilePath $download -WorkingDirectory $directory -WindowStyle Normal -PassThru
+        try {
+            # The wizard can open a browser on completion. Wait only for setup.
+            $setup.WaitForExit()
+            if ($setup.ExitCode -ne 0) { throw "MiKTeX setup exited with code $($setup.ExitCode)." }
+        } finally {
+            $setup.Dispose()
+        }
     } finally {
         $file.Dispose()
     }
 
+    Write-Output 'MiKTeX wizard closed. Checking that LaTeX compiles.'
     # Include paths added by MiKTeX while the Texloom installer was running.
     $env:Path = @([Environment]::GetEnvironmentVariable('Path', 'Machine'),
         [Environment]::GetEnvironmentVariable('Path', 'User'), $env:Path) -join ';'
