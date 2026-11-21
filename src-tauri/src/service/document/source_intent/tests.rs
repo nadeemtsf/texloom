@@ -25,6 +25,51 @@ fn refused(reply: &SourceDraftReply, requested: u64, observed: u64, expected: So
 }
 
 #[test]
+fn adjacent_reorder_protects_two_changed_ranges_in_one_history_entry() {
+    fixture(|backend, project, root| {
+        let list = targets(backend, project, 0);
+        let operation = "8".repeat(32);
+        let intent = DraftSourceIntent::MoveAdjacentParagraph {
+            target: list[1].handle.clone(),
+            neighbor: list[2].handle.clone(),
+            position: DraftParagraphPosition::After,
+        };
+        let wire = serde_json::to_value(&intent).unwrap();
+        assert_eq!(wire["kind"], "move_adjacent_paragraph");
+        assert_eq!(wire["position"], "after");
+        let reply = backend.document_source_intent(&project.id, 0, &operation, intent.clone()).unwrap();
+        applied(&reply, 0, 1, true);
+        let expected = SOURCE.replace("Repeated.\r\n\r\nTail.", "Tail.\r\n\r\nRepeated.");
+        assert_eq!(reply.snapshot.sources["main.tex"], expected);
+        assert_eq!(reply.snapshot.recovery.protected_revision, Some(1));
+        assert_eq!(fs::read_to_string(root.join("project/main.tex")).unwrap(), SOURCE);
+        assert_eq!(backend.document_history(&project.id, 1, false).unwrap().sources["main.tex"], SOURCE);
+        let retry = backend.document_source_intent(&project.id, 0, &operation, intent).unwrap();
+        applied(&retry, 0, 1, true);
+        assert_eq!(retry.snapshot.revision, 2);
+        assert_eq!(retry.snapshot.sources["main.tex"], SOURCE);
+        assert_eq!(backend.document_history(&project.id, 2, true).unwrap().sources["main.tex"], expected);
+    });
+}
+
+#[test]
+fn adjacent_reorder_refuses_an_invalid_or_unrelated_neighbor() {
+    fixture(|backend, project, _| {
+        let list = targets(backend, project, 0);
+        let before = serde_json::to_value(backend.document_snapshot(&project.id).unwrap()).unwrap();
+        let request = |neighbor| DraftSourceIntent::MoveAdjacentParagraph {
+            target: list[0].handle.clone(), neighbor, position: DraftParagraphPosition::After,
+        };
+        assert!(backend.document_source_intent(&project.id, 0, &"a".repeat(32), request("offset=42".into())).is_err());
+        let unavailable = backend.document_source_intent(&project.id, 0, &"b".repeat(32), request("c".repeat(32))).unwrap();
+        refused(&unavailable, 0, 0, SourceDraftRefusalReason::TargetUnavailable);
+        let nonadjacent = backend.document_source_intent(&project.id, 0, &"c".repeat(32), request(list[2].handle.clone())).unwrap();
+        refused(&nonadjacent, 0, 0, SourceDraftRefusalReason::ParagraphsNotAdjacent);
+        assert_eq!(serde_json::to_value(nonadjacent.snapshot).unwrap(), before);
+    });
+}
+
+#[test]
 fn pre_mutation_refusal_has_a_stable_lookup_receipt_and_no_source_or_history_change() {
     fixture(|b,p,_| {
         let list=targets(b,p,0);

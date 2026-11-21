@@ -14,6 +14,17 @@ pub enum SourceIntent {
     DeleteParagraphContent {
         target: EntityReference,
     },
+    MoveAdjacentParagraph {
+        target: EntityReference,
+        neighbor: EntityReference,
+        position: ParagraphPosition,
+    },
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ParagraphPosition {
+    Before,
+    After,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -24,6 +35,7 @@ pub enum PlanError {
     ParagraphBreakRequiresStructuralIntent,
     ControlCharacter,
     LiteralTooLarge,
+    ExpectedAdjacentParagraphs,
 }
 impl From<EditError> for PlanError {
     fn from(value: EditError) -> Self {
@@ -36,6 +48,11 @@ impl From<EditError> for PlanError {
 pub enum RequiredProof {
     LiteralParagraphReplacement { requested_text: String },
     ParagraphContentDeletion,
+    ParagraphReorder {
+        original_target: Range<usize>,
+        original_neighbor: Range<usize>,
+        position: ParagraphPosition,
+    },
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -43,7 +60,7 @@ pub enum LayoutEffect {
     DocumentReflowRequiringVerification,
 }
 
-/// Private construction guarantees one rederived source-range write. The plan
+/// Private construction guarantees a rederived edit of one source file. The plan
 /// does not expose its Prepared object or a geometry-acceptance method.
 pub struct IntentPlan {
     kind: OperationKind,
@@ -142,6 +159,13 @@ impl Session {
         let (target, text) = match &intent {
             SourceIntent::ReplaceLiteralParagraph { target, text } => (target, Some(text)),
             SourceIntent::DeleteParagraphContent { target } => (target, None),
+            SourceIntent::MoveAdjacentParagraph {
+                target,
+                neighbor,
+                position,
+            } => {
+                return self.plan_adjacent_paragraph_move(target, neighbor, *position);
+            }
         };
         // Resolve ownership/revision first. No nearest equal-text lookup or
         // frontend-supplied raw range can authorize another occurrence.
@@ -195,6 +219,65 @@ impl Session {
             kind,
             prepared,
             required_proof,
+        })
+    }
+
+    fn plan_adjacent_paragraph_move(
+        &self,
+        target: &EntityReference,
+        neighbor: &EntityReference,
+        position: ParagraphPosition,
+    ) -> Result<IntentPlan, PlanError> {
+        let target = self.resolve_entity_reference(target)?;
+        let neighbor = self.resolve_entity_reference(neighbor)?;
+        let target_range = target.range();
+        let neighbor_range = neighbor.range();
+        if target.file() != neighbor.file() || target_range == neighbor_range {
+            return Err(PlanError::ExpectedAdjacentParagraphs);
+        }
+        let target_precedes_neighbor = target_range.start < neighbor_range.start;
+        let (earlier, later) = if target_precedes_neighbor {
+            (&target_range, &neighbor_range)
+        } else {
+            (&neighbor_range, &target_range)
+        };
+        let projection = self.source_projection(target.file())?;
+        let adjacent = projection.regions().windows(3).any(|window| {
+            window[0].kind() == RegionKind::PlainParagraph
+                && window[0].range() == *earlier
+                && window[1].kind() == RegionKind::Trivia
+                && window[2].kind() == RegionKind::PlainParagraph
+                && window[2].range() == *later
+        });
+        if !adjacent {
+            return Err(PlanError::ExpectedAdjacentParagraphs);
+        }
+        let move_required = target_precedes_neighbor != (position == ParagraphPosition::Before);
+        let mut edits = Vec::new();
+        if move_required && target.text() != neighbor.text() {
+            // Preserve the separator verbatim. Shared history treats both writes as one edit.
+            edits.extend([
+                Replacement {
+                    range: target_range.clone(),
+                    expected: target.text().into(),
+                    text: neighbor.text().into(),
+                },
+                Replacement {
+                    range: neighbor_range.clone(),
+                    expected: neighbor.text().into(),
+                    text: target.text().into(),
+                },
+            ]);
+            edits.sort_by_key(|edit| edit.range.start);
+        }
+        Ok(IntentPlan {
+            kind: OperationKind::ReorderContent,
+            prepared: self.prepare_source_edit(self.revision(), target.file(), edits)?,
+            required_proof: RequiredProof::ParagraphReorder {
+                original_target: target_range,
+                original_neighbor: neighbor_range,
+                position,
+            },
         })
     }
 }

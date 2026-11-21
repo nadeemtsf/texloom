@@ -7,7 +7,7 @@ use crate::service::{
     CloseReply, DocumentSnapshot, EditorSelection, PreparedReply, RecoveryReply, RecoveryStatus,
     SelectionReply, SourceEditReply, CompileResult, PositionedBlock, MappedTextObject,
     SourceLocation, SourceRectangle, SelectionPoint, ResolvedSelection,
-    DraftSourceIntent, SourceDraftOutcome, SourceDraftRefusalReason, SourceDraftReply, SourceTarget, SourceTargetsReply,
+    DraftParagraphPosition, DraftSourceIntent, SourceDraftOutcome, SourceDraftRefusalReason, SourceDraftReply, SourceTarget, SourceTargetsReply,
 };
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
@@ -35,7 +35,7 @@ pub fn declarations() -> String {
         ProfileRequest,
         HistoryRequest,
         CommitRequest,
-        DraftSourceIntent, SourceDraftOutcome, SourceDraftRefusalReason, SourceDraftReply, SourceTarget, SourceTargetsReply,
+        DraftParagraphPosition, DraftSourceIntent, SourceDraftOutcome, SourceDraftRefusalReason, SourceDraftReply, SourceTarget, SourceTargetsReply,
         SourceTargetsRequest, SourceIntentRequest, SourceIntentStatusRequest,
         SourceTargetsCommand, SourceIntentCommand, SourceIntentStatusCommand,
         texloom_build::engine::Severity,
@@ -158,7 +158,8 @@ pub fn fixtures() -> Value {
         selection: Some(selection()), recovery: protection(7) };
     let refusals = [SourceDraftRefusalReason::RevisionChanged, SourceDraftRefusalReason::TargetUnavailable,
         SourceDraftRefusalReason::UnsupportedTarget, SourceDraftRefusalReason::EmptyLiteral, SourceDraftRefusalReason::ParagraphBreak,
-        SourceDraftRefusalReason::ControlCharacter, SourceDraftRefusalReason::LiteralTooLarge, SourceDraftRefusalReason::SourceGuardRejected]
+        SourceDraftRefusalReason::ControlCharacter, SourceDraftRefusalReason::LiteralTooLarge,
+        SourceDraftRefusalReason::ParagraphsNotAdjacent, SourceDraftRefusalReason::SourceGuardRejected]
         .into_iter().map(|reason| SourceDraftReply { operation_id: "d".repeat(32),
             outcome: SourceDraftOutcome::SourceDraftRefused { requested_revision: if reason == SourceDraftRefusalReason::RevisionChanged {6}else{7}, observed_revision: 7, reason },
             snapshot: snapshot() }).collect::<Vec<_>>();

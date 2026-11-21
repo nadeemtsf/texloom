@@ -541,3 +541,56 @@ and resulting requests. Physical input, native dialog behavior and the
 full multi-project lifecycle still require separate checks.
 The before-and-after request counts are recorded in the 21 November
 engineering evidence linked from this report's source README.
+
+\subsection{Export retains its project and revision}
+The export command keeps the source client that was active when the user
+requested a destination. The production-shell harness covered an open
+project changing during that request and an open overlapping the source
+flush. Both schedules could start an export build before the guard was
+added. The guarded path refuses both schedules before a build starts.
+A separate control covered cancellation after verification and before the
+destination write. An ordinary export still sends its requested destination,
+original project and newly verified build identifier to native code and
+retains the displayed preview.
+
+\subsection{Verified builds can become stale before display}
+A controlled schedule acknowledged an editor change after native PDF
+verification and before the prepared result returned to the publication
+handler. The former handler replaced the earlier displayed PDF in this
+case. A final revision and client check now keeps the earlier PDF and its
+original revision. The superseded candidate is discarded without pinning
+it for later use. Another schedule compiled a good source revision, reported
+a source error on the next revision and successfully presented a corrected
+third revision. The failure retained the last displayed PDF and the
+successful correction cleared the error. These schedules use the shipped
+shell with controlled native replies. They do not establish Windows
+interaction results.
+
+\subsection{Adjacent paragraph reorder as a protected source draft}
+\label{sec:adjacent-paragraph-draft}
+The source planner accepts two references to plain paragraphs in the same
+file and revision. The requested position is immediately before or after the
+neighbor. Swapping the two source ranges keeps the separator and all other
+bytes intact. One history entry covers the two writes and Undo restores the
+earlier bytes and selection. The planner refuses intervening content,
+opaque syntax, cross-file moves and invalid references. Byte-identical
+paragraphs and an already satisfied order leave source and history unchanged.
+
+Six targeted core regressions cover the order, bytes and file boundaries,
+Undo/Redo, repeated text, multibyte text and stale references. The native
+tests submit both handles through the protected draft command and confirm
+their recovery revision, receipt reuse and refusal behavior. The browser
+protocol checks the two handles and explicit logical direction before the
+request is sent. Applied receipts retain the unresolved render obligation.
+
+Three Latin single-page fixtures covered moving upward, moving downward and
+moving the second of two equal paragraphs across its distinct neighbor. Each
+candidate matched a separately specified source byte for byte. We compiled the
+original, candidate and reference with pdf\LaTeX{}, Xe\LaTeX{} and Lua\LaTeX{}.
+All nine fixture--engine comparisons recovered the expected reading order
+in Poppler. Their candidate and reference 96 DPI page rasters matched, and
+each differed from its baseline. The rendered-order diagnostic invokes the
+core candidate example. Native recovery and history are exercised by the
+separate draft tests. This evidence covers those inputs and the protected
+source path. Visual selection and an independent general reorder policy
+remain to be validated.

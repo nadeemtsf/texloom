@@ -27,6 +27,18 @@ choice and the locked dependency files must be recorded when reproducing a
 build. A successful command is a check of the named code/environment, not an
 installed-artifact or native-interaction result.
 
+To reproduce the adjacent-paragraph reading-order diagnostic, build the
+core candidate example. Run the Python tool with the resulting executable
+and a new output directory. MiKTeX and Poppler must be on the command path.
+\begin{verbatim}
+cargo build --locked -p texloom-core --example source_intent_candidate
+python research/tools/adjacent_paragraph_order.py `
+  target/debug/examples/source_intent_candidate.exe `
+  artifacts/adjacent-paragraph-order
+\end{verbatim}
+The tool retains the three source variants, compiler logs, extracted text
+and page images for every fixture and engine.
+
 The opt-in native development example is built without launching the app:
 \begin{verbatim}
 cargo build --locked -p texloom-desktop --features benchmark `

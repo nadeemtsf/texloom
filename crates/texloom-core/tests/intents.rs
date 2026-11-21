@@ -454,3 +454,159 @@ fn escaped_literal_candidates_can_be_projected_and_replaced_again() {
         original.replace("Target.", "Second update.")
     );
 }
+
+#[test]
+fn a_paragraph_moves_once_with_its_bytes_and_shared_undo() {
+    let mut s = state("Same.\r\n\r\nLonger שלום.\r\n \t\r\nSame.\r\n\r\nTail.");
+    let original = s.sources().clone();
+    let offset = original["main.tex"].rfind("Same.").unwrap();
+    let neighbor = original["main.tex"].find("Longer").unwrap();
+    s.set_selection(Selection {
+        file: "main.tex".into(),
+        anchor: offset,
+        head: offset + "Same.".len(),
+        secondary: vec![],
+    })
+    .unwrap();
+
+    let plan = s
+        .plan_source_intent(SourceIntent::MoveAdjacentParagraph {
+            target: target(&s, 2),
+            neighbor: target(&s, 1),
+            position: ParagraphPosition::Before,
+        })
+        .unwrap();
+    let expected = document("Same.\r\n\r\nSame.\r\n \t\r\nLonger שלום.\r\n\r\nTail.");
+    assert_eq!(plan.candidate_sources(&s).unwrap()["main.tex"], expected);
+    let receipt = s.apply_source_intent_draft(plan).unwrap();
+    assert_eq!(receipt.kind(), OperationKind::ReorderContent);
+    assert!(receipt.changed());
+    assert_eq!(
+        receipt.required_proof(),
+        &RequiredProof::ParagraphReorder {
+            original_target: offset..offset + "Same.".len(),
+            original_neighbor: neighbor..neighbor + "Longer שלום.".len(),
+            position: ParagraphPosition::Before,
+        }
+    );
+    assert_eq!(s.sources()["main.tex"], expected);
+    assert_eq!(s.sources()["keep.sty"], original["keep.sty"]);
+    assert!(s.selection().is_none());
+    assert_eq!(s.history_len(), 1);
+    assert!(s.undo().unwrap());
+    assert_eq!(s.sources(), &original);
+    assert_eq!(s.selection().unwrap().anchor, offset);
+    assert!(s.redo().unwrap());
+    assert_eq!(s.sources()["main.tex"], expected);
+}
+
+#[test]
+fn moving_after_its_neighbor_is_repeatable_without_an_extra_history_entry() {
+    let mut s = state("Earlier.\r\n\r\nLater.");
+    for (moved, neighbor, changed) in [(0, 1, true), (1, 0, false)] {
+        let intent = SourceIntent::MoveAdjacentParagraph {
+            target: target(&s, moved),
+            neighbor: target(&s, neighbor),
+            position: ParagraphPosition::After,
+        };
+        let plan = s.plan_source_intent(intent).unwrap();
+        assert_eq!(
+            s.apply_source_intent_draft(plan).unwrap().changed(),
+            changed
+        );
+        assert_eq!(s.sources()["main.tex"], document("Later.\r\n\r\nEarlier."));
+        assert_eq!(s.revision(), Revision(1));
+        assert_eq!(s.history_len(), 1);
+    }
+}
+
+#[test]
+fn paragraph_reorder_refuses_crossing_content_and_opaque_boundaries() {
+    for (body, neighbor) in [
+        ("First.\r\n\r\nMiddle.\r\n\r\nLast.", 2),
+        ("First.\r\n\r\n% Attached discussion\r\n\r\nLast.", 1),
+        (
+            "First.\r\n\r\n\\begin{quote}Other scope.\\end{quote}\r\n\r\nLast.",
+            1,
+        ),
+        ("First.\r\n\r\nLast.", 0),
+    ] {
+        let s = state(body);
+        assert!(matches!(
+            s.plan_source_intent(SourceIntent::MoveAdjacentParagraph {
+                target: target(&s, 0),
+                neighbor: target(&s, neighbor),
+                position: ParagraphPosition::After,
+            }),
+            Err(PlanError::ExpectedAdjacentParagraphs)
+        ));
+        assert_eq!(s.revision(), Revision(0));
+        assert!(!s.can_undo());
+    }
+}
+
+#[test]
+fn a_move_checks_the_neighbor_identity_and_revision_independently() {
+    let mut s = state("First.\r\n\r\nLast.");
+    let foreign = state("First.\r\n\r\nLast.");
+    let plan = |s: &Session, neighbor| {
+        s.plan_source_intent(SourceIntent::MoveAdjacentParagraph {
+            target: target(s, 0),
+            neighbor,
+            position: ParagraphPosition::After,
+        })
+    };
+    assert!(matches!(
+        plan(&s, target(&foreign, 1)),
+        Err(PlanError::Source(EditError::ForeignSession))
+    ));
+    let stale = target(&s, 1);
+    let move_plan = plan(&s, target(&s, 1)).unwrap();
+    s.apply_source_intent_draft(move_plan).unwrap();
+    assert!(matches!(
+        plan(&s, stale),
+        Err(PlanError::Source(EditError::StaleRevision))
+    ));
+}
+
+#[test]
+fn paragraph_moves_stay_within_one_source_file() {
+    let s = Session::new(
+        BTreeMap::from([
+            ("main.tex".into(), document("First.")),
+            ("other.tex".into(), document("Second.")),
+        ]),
+        Profile {
+            main: "main.tex".into(),
+            engine: "auto".into(),
+        },
+    )
+    .unwrap();
+    let projection = s.source_projection("other.tex").unwrap();
+    let neighbor = (0..projection.regions().len())
+        .find_map(|index| projection.entity_reference(index))
+        .unwrap();
+    assert!(matches!(
+        s.plan_source_intent(SourceIntent::MoveAdjacentParagraph {
+            target: target(&s, 0),
+            neighbor,
+            position: ParagraphPosition::After,
+        }),
+        Err(PlanError::ExpectedAdjacentParagraphs)
+    ));
+}
+
+#[test]
+fn identical_paragraph_bytes_do_not_create_an_undetectable_source_move() {
+    let mut s = state("Same.\r\n\r\nSame.");
+    let plan = s
+        .plan_source_intent(SourceIntent::MoveAdjacentParagraph {
+            target: target(&s, 0),
+            neighbor: target(&s, 1),
+            position: ParagraphPosition::After,
+        })
+        .unwrap();
+    assert!(!s.apply_source_intent_draft(plan).unwrap().changed());
+    assert_eq!(s.revision(), Revision(0));
+    assert!(!s.can_undo());
+}
