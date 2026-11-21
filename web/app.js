@@ -302,12 +302,12 @@ function renderFiles(){
 async function openProject(path=null,supplied=null,{compileOnOpen=false}={}){
   if(state.opening||(!supplied&&(state.busy||state.saving||state.mutating||state.composing)))return toast('Wait for the current operation before opening another project.');
   state.opening=true;editorReadOnly();updateControls();
-  let client=null;
+  let client=null,project=null;
   try{
     if(state.client&&!state.client.error)await state.client.flush();
     if(!supplied&&state.project&&dirty()&&!await confirm('Discard the current unsaved edits before opening another project?',{title:'Unsaved source',kind:'warning'}))return;
     preliminary?.clear();state.pending=false;clearTimeout(state.compileTimer);
-    const project=supplied||await invoke('open_project',{path});
+    project=supplied||await invoke('open_project',{path});
     const snapshot=await invoke('document_snapshot',{projectId:project.id});
     client=new DocumentClient(invoke,project.id,snapshot,{changed:next=>{if(state.client===client)acceptDocument(next)},failed:syncFailed});
     pdfNavigation.cancelZoom();state.previewZooming=false;surfaceElements.pages.classList.remove('zooming');state.renderAbort?.abort();state.view?.dispose?.();pdfSearch.reset();canvas.clear();const previous=state.pdf,previousProject=state.project?.id,previousRevision=state.client?.snapshot.revision;
@@ -342,6 +342,9 @@ async function openProject(path=null,supplied=null,{compileOnOpen=false}={}){
       return;
     }
   }catch(error){
+    if(!supplied&&project&&state.project?.id!==project.id){
+      await invoke('close_document',{projectId:project.id}).catch(()=>{});
+    }
     toast(message(error));
     if(!state.project){
       status('Could not open project');
@@ -412,27 +415,35 @@ async function showSaveRecovery(){
     renderRecoveryFiles();if(!$('recovery-dialog').open)$('recovery-dialog').showModal();
   }catch(error){toast('Save recovery could not be read. Your editor text is retained. '+message(error))}
 }
+function selectedSaveRecovery(){
+  if(state.saving||state.opening||state.mutating||state.composing||state.busy)return null;
+  return state.project?.recoveries?.find(item=>item.id===$('recovery-choice').value);
+}
 async function applySaveRecovery(finish){
-  const draft=state.project?.recoveries?.find(item=>item.id===$('recovery-choice').value);
-  if(!draft||state.saving)return;
-  if(dirty()&&!await confirm('Recovery will reopen files from disk and discard the current unsaved editor version. Save a project copy first to retain it. Continue?',{title:'Reopen recovered files',kind:'warning'}))return;
-  const client=state.client;let adopted=false;state.saving=true;editorReadOnly();updateControls();
+  const draft=selectedSaveRecovery();if(!draft)return;
+  const client=state.client,project=state.project;
+  let reopened=null;state.saving=true;editorReadOnly();updateControls();
   try{
+    if(dirty()&&!await confirm('Recovery will reopen files from disk and discard the current unsaved editor version. Save a project copy first to retain it. Continue?',{title:'Reopen recovered files',kind:'warning'}))return;
     await client.flush();
-    const project=await invoke('recover_document',{projectId:state.project.id,revision:state.revision,transactionId:draft.id,finish});
-    if(state.client!==client){await invoke('close_document',{projectId:project.id});return}
-    $('recovery-dialog').close();await openProject(null,project);adopted=true;
-    toast(finish?'The interrupted Save was completed.':'Earlier files restored. The recovery draft is retained until you discard it.');
+    reopened=await invoke('recover_document',{projectId:project.id,revision:state.revision,transactionId:draft.id,finish});
+    if(state.client!==client)throw Error('The open project changed. Reopen the recovered project to review its files.');
+    await openProject(null,reopened);
+    if(state.project?.id!==reopened.id)throw Error('The recovered files could not be displayed. Reopen the project to review them.');
+    $('recovery-dialog').close();
+    const outcome=finish?'The interrupted Save was completed.':'Earlier files restored. The recovery draft is retained until you discard it.';
+    toast(outcome+' Review the source and choose Compile to rebuild the PDF.');
   }catch(error){toast(message(error))}
-  finally{state.saving=false;editorReadOnly();updateControls()}
-  if(adopted)toast('Recovered source opened. Review it and choose Compile to rebuild the PDF.');
+  finally{
+    if(reopened&&state.project?.id!==reopened.id)await invoke('close_document',{projectId:reopened.id}).catch(()=>{});
+    state.saving=false;editorReadOnly();updateControls();
+  }
 }
 async function discardSaveRecovery(){
-  const draft=state.project?.recoveries?.find(item=>item.id===$('recovery-choice').value);
-  if(!draft||state.saving)return;
-  if(!await confirm('Keep the current project files and discard this recovery draft? Edits stored only in the draft will be removed.',{title:'Discard save draft',kind:'warning'}))return;
+  const draft=selectedSaveRecovery();if(!draft)return;
   state.saving=true;editorReadOnly();updateControls();
   try{
+    if(!await confirm('Keep the current project files and discard this recovery draft? Edits stored only in the draft will be removed.',{title:'Discard save draft',kind:'warning'}))return;
     await state.client.flush();
     state.project.recoveries=await invoke('discard_document_recovery',{projectId:state.project.id,revision:state.revision,transactionId:draft.id});
     renderSaveRecoveries();if(!state.project.recoveries.length)$('recovery-dialog').close();

@@ -132,7 +132,7 @@ test('a later compiler failure clears the preliminary view and retains the earli
 
 // Run the complete production shell. IDs come only from the shipped HTML;
 // looking up a missing control returns null, as it does in the actual WebView.
-function boot({markup=html,openFailure=null,pathFailure=null,badSnapshot=false,adapterFailure=null,deferCompile=false,enablePreliminary=false}={}){
+function boot({markup=html,openFailure=null,pathFailure=null,badSnapshot=false,adapterFailure=null,deferCompile=false,enablePreliminary=false,pendingSave=null,badRecoverySnapshot=false}={}){
   const calls=[],compileStates=[],elements=new Map(),options={},handlers={};
   function element(id=''){
     const classes=new Set(),attributes=new Map();
@@ -150,7 +150,7 @@ function boot({markup=html,openFailure=null,pathFailure=null,badSnapshot=false,a
     elements.set(match[1],element(match[1]));
   }
   const source='\\documentclass{article}\n\\begin{document}\nNative shell fixture\n\\end{document}\n';
-  const project={id:'fixture',name:'Fixture',main:'main.tex',sources:{'main.tex':source},recoveries:[],recovery_error:null,restored:false,draft_warning:null,source_only:false};
+  const project={id:'fixture',name:'Fixture',main:'main.tex',sources:{'main.tex':source},recoveries:pendingSave?[pendingSave]:[],recovery_error:null,restored:false,draft_warning:null,source_only:false};
   const snapshot={revision:0,sources:project.sources,main:project.main,engine:'auto',can_undo:false,can_redo:false,selection:null,recovery:{draft_id:null,protected_revision:null,error:null}};
   const model={value:'',setValue(v){this.value=v},setEOL(){},getValue(){return this.value}};
   const editor={createContextKey:()=>({set(){}}),updateOptions:o=>Object.assign(options,o),
@@ -180,7 +180,10 @@ function boot({markup=html,openFailure=null,pathFailure=null,badSnapshot=false,a
         if(args.path&&pathFailure)throw Error(pathFailure);
         return args.path?{...project,id:'opened-path',name:'Opened path'}:project;
       }
-      if(name==='document_snapshot')return badSnapshot?{...snapshot,sources:null}:snapshot;
+      if(name==='document_snapshot')return badSnapshot||badRecoverySnapshot&&args.projectId==='recovered-save'?{...snapshot,sources:null}:snapshot;
+      if(name==='project_recoveries')return project.recoveries;
+      if(name==='recover_document')return {...project,id:'recovered-save',recoveries:[]};
+      if(name==='discard_document_recovery')return [];
       if(name==='document_edit'){
         const [{offset,length,text}]=args.changes;
         nativeSource=nativeSource.slice(0,offset)+text+nativeSource.slice(offset+length);
@@ -409,6 +412,37 @@ test('an invalid native snapshot cannot replace the existing editor or destroy i
   assert.equal(t.context.shell.state.project,previous);
   assert.equal(t.context.shell.state.sources['main.tex'],'Unsaved accepted text');
   assert.equal(t.model.value,'Unsaved accepted text');assert.equal(destroyed,0);assert.equal(aborted,0);
+  assert.deepEqual(t.calls.filter(([name])=>name==='close_document').map(([,args])=>args.projectId),['fixture']);
+});
+
+const pendingSave={id:'pending-save',state:'prepared',files:['main.tex']};
+
+test('the interrupted Save confirmation excludes a competing recovery action',async()=>{
+  const t=boot({pendingSave});await t.context.startup;
+  const state=t.context.shell.state;
+  state.saved={'main.tex':'Earlier saved text'};
+  t.elements.get('recovery-choice').value=pendingSave.id;
+  let resolveConfirm,confirmations=0;
+  const decision=new Promise(resolve=>{resolveConfirm=resolve});
+  t.context.confirm=()=>{confirmations++;return decision};
+  const applying=t.elements.get('recovery-finish').onclick();
+  const discarding=t.elements.get('recovery-discard').onclick();
+  resolveConfirm(true);await Promise.all([applying,discarding]);
+  assert.equal(confirmations,1);
+  assert.equal(t.calls.filter(([name])=>name==='recover_document').length,1);
+  assert.equal(t.calls.some(([name])=>name==='discard_document_recovery'),false);
+  assert.equal(state.project.id,'recovered-save');assert.equal(state.saving,false);
+});
+
+test('a recovered Save with an invalid snapshot releases the rejected session',async()=>{
+  const t=boot({pendingSave,badRecoverySnapshot:true});await t.context.startup;
+  const state=t.context.shell.state,client=state.client;
+  t.elements.get('recovery-choice').value=pendingSave.id;
+  await t.elements.get('recovery-finish').onclick();
+  assert.equal(state.client,client);assert.equal(state.project.id,'fixture');
+  assert.deepEqual(t.calls.filter(([name])=>name==='close_document').map(([,args])=>args.projectId),['recovered-save']);
+  assert.match(t.elements.get('toast').textContent,/could not be displayed/i);
+  assert.equal(state.saving,false);
 });
 
 test('a refused layout value stays readable inside the open modal and cannot change source or history',async()=>{

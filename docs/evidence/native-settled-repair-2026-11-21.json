@@ -1,0 +1,145 @@
+{
+  "runs": [
+    {
+      "builds": [
+        "e6ac23337b2d45db8ecda992d7c6b7a0",
+        "8ba06bde6fc84319a555ef380573cfaa",
+        "9d76d9115d1a4e2d94ecb219c2cc64ad"
+      ],
+      "elapsed_seconds": [
+        3.7270564,
+        0.7903538,
+        2.9883376999999998
+      ],
+      "engine": "pdflatex",
+      "failed_build_refused": true,
+      "failed_diagnostics": [
+        {
+          "code": "latex_error",
+          "file": "main.tex",
+          "line": 4,
+          "message": "Undefined control sequence.",
+          "severity": "error"
+        },
+        {
+          "code": "latex_error",
+          "file": "main.tex",
+          "line": 4,
+          "message": "==> Fatal error occurred, no output PDF file produced!",
+          "severity": "error"
+        }
+      ],
+      "good_revision_verified": true,
+      "previous_build_refused_for_broken_revision": true,
+      "repaired_revision_verified": true,
+      "revisions": [
+        1,
+        2,
+        3
+      ],
+      "version": "MiKTeX-pdfTeX 4.23 (MiKTeX 25.12)",
+      "before": {
+        "text": "Original settled text.",
+        "pdf_sha256": "e02611c5a743efa18027c1c60a9605e03ce804e7a3b07dbaa1e49a6dc1673c34"
+      },
+      "after": {
+        "text": "Corrected settled text.",
+        "pdf_sha256": "89be5063a82c99eb30e88b4cf7dc2e0f632a54edc0fdc3896f493bd5449ef282"
+      },
+      "original_file_sha256": "61c21e575fce8bba794a6999dded895aa0a43323ec303a55ebaf1c9ade341f46"
+    },
+    {
+      "builds": [
+        "9e1009d26373444aaf7d4e24df7c34ae",
+        "589ca87dac3f414eb59fb2563743a092",
+        "a15887e19e4f4db5a7bb39945a0e7ee0"
+      ],
+      "elapsed_seconds": [
+        5.8960243,
+        0.7922849,
+        5.0775123
+      ],
+      "engine": "xelatex",
+      "failed_build_refused": true,
+      "failed_diagnostics": [
+        {
+          "code": "latex_error",
+          "file": "main.tex",
+          "line": 4,
+          "message": "Undefined control sequence.",
+          "severity": "error"
+        }
+      ],
+      "good_revision_verified": true,
+      "previous_build_refused_for_broken_revision": true,
+      "repaired_revision_verified": true,
+      "revisions": [
+        1,
+        2,
+        3
+      ],
+      "version": "MiKTeX-XeTeX 4.16 (MiKTeX 25.12)",
+      "before": {
+        "text": "Original settled text.",
+        "pdf_sha256": "6ba55a5db5245bd51b9d2fd81647c5352b50234e9b397b05dca289b5c724c4e6"
+      },
+      "after": {
+        "text": "Corrected settled text.",
+        "pdf_sha256": "6dad4127df516991621803355f675c090e1120e310e9c05d51a477b4d9c34712"
+      },
+      "original_file_sha256": "61c21e575fce8bba794a6999dded895aa0a43323ec303a55ebaf1c9ade341f46"
+    },
+    {
+      "builds": [
+        "32291c301f104af389d2751ecbf6316d",
+        "1cf6df90788d4356aac5b3659f30f634",
+        "be8084bd0be74d5d80e20a4fe15c1a8c"
+      ],
+      "elapsed_seconds": [
+        4.6098104,
+        1.7916752,
+        4.32771
+      ],
+      "engine": "lualatex",
+      "failed_build_refused": true,
+      "failed_diagnostics": [
+        {
+          "code": "latex_error",
+          "file": "main.tex",
+          "line": 4,
+          "message": "Undefined control sequence.",
+          "severity": "error"
+        },
+        {
+          "code": "latex_error",
+          "file": "main.tex",
+          "line": 4,
+          "message": "==> Fatal error occurred, no output PDF file produced!",
+          "severity": "error"
+        }
+      ],
+      "good_revision_verified": true,
+      "previous_build_refused_for_broken_revision": true,
+      "repaired_revision_verified": true,
+      "revisions": [
+        1,
+        2,
+        3
+      ],
+      "version": "This is LuaHBTeX, Version 1.24.0 (MiKTeX 25.12)",
+      "before": {
+        "text": "Original settled text.",
+        "pdf_sha256": "50f833ddb520d20554ee013ddcc70b49eb4d1793313267171ce38a080e0b7e15"
+      },
+      "after": {
+        "text": "Corrected settled text.",
+        "pdf_sha256": "7cec368d4b135d8cf844cc4da582b688b8469ca3e6fd54403d3016e05dd74512"
+      },
+      "original_file_sha256": "61c21e575fce8bba794a6999dded895aa0a43323ec303a55ebaf1c9ade341f46"
+    }
+  ],
+  "schema": 1,
+  "scope": "Native compile service and display-pin commands without physical input or a renderer.",
+  "driver_sha256": "be75177815ee9bd5e2ac767303368e9aca590902821d2fb2231e18c5b40103bd",
+  "driver_source_sha256": "8bdd5e04388dad4a45a310c3cd0a0ecd57fb31cf4500025993f87664b21c78ab"
+}
