@@ -31,10 +31,12 @@ export class ProjectControls {
   path(){const path=this.$('project-path').value.trim().replace(/^"(.*)"$/u,'$1');if(!path)throw Error('Enter a project file or folder path.');return path;}
   canCompileOpened(project){return !!project&&!project.source_only&&!project.restored&&!project.recovery_error&&!project.recoveries?.length&&typeof project.main==='string'&&project.main.endsWith('.tex');}
   async switchProject(load,{compileOnOpen=false}={}) {
-    this.ready();await this.flush();
-    if(this.isDirty()&&!await this.confirm('Open another project and discard the current unsaved editor version? Save a copy first to retain it.',{title:'Unsaved source',kind:'warning'}))return;
+    this.ready();
     this.lock();let project=null,adopted=false,client=null,shouldCompile=false;
-    try{project=await load();shouldCompile=compileOnOpen&&this.canCompileOpened(project);await this.adopt(project,{compileOnOpen:shouldCompile});adopted=this.getState().project?.id===project.id;
+    try{
+      await this.flush();
+      if(this.isDirty()&&!await this.confirm('Open another project and discard the current unsaved editor version? Save a copy first to retain it.',{title:'Unsaved source',kind:'warning'}))return;
+      project=await load();shouldCompile=compileOnOpen&&this.canCompileOpened(project);await this.adopt(project,{compileOnOpen:shouldCompile});adopted=this.getState().project?.id===project.id;
       client=this.getState().client;
       if(!adopted)throw Error('The project could not be displayed.');this.$('project-dialog').close();this.$('encoding-dialog').close();
     }finally{if(project&&!adopted)await this.invoke('close_document',{projectId:project.id}).catch(()=>{});this.unlock()}

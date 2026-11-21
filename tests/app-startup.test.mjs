@@ -195,6 +195,28 @@ test('a missing Projects path retains the displayed source and never requests an
   assert.match(t.elements.get('toast').textContent,/does not exist/);
 });
 
+test('toolbar Open reserves the project switch while confirming unsaved source',async()=>{
+  const t=boot();await t.context.startup;
+  const state=t.context.shell.state,client=state.client;
+  state.saved={'main.tex':'Earlier saved text'};
+  t.context.open=async()=> 'C:/first/main.tex';
+  let resolveConfirm,showConfirm;
+  const confirmation=new Promise(resolve=>{resolveConfirm=resolve});
+  const confirming=new Promise(resolve=>{showConfirm=resolve});
+  t.context.confirm=()=>{showConfirm();return confirmation};
+  const first=t.elements.get('open').onclick();
+  await confirming;
+  assert.equal(t.options.readOnly,true);
+  t.elements.get('project-path').value='C:/second/main.tex';
+  const second=t.elements.get('project-open-path').onclick();
+  resolveConfirm(false);
+  await Promise.all([first,second]);
+  assert.equal(t.calls.filter(([name])=>name==='open_project').length,1);
+  assert.equal(state.client,client);assert.equal(state.opening,false);assert.ok(!state.saving);
+  assert.equal(t.options.readOnly,false);
+  assert.match(t.elements.get('toast').textContent,/Wait for the current operation/);
+});
+
 test('removing the cancel control reproduces the native startup regression',()=>{
   const markup=html.replace(/<button id="cancel-compile"[^>]*>.*?<\/button>/,'');
   assert.notEqual(markup,html);

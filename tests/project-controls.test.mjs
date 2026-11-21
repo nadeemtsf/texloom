@@ -1,16 +1,39 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {ProjectControls} from '../web/core/project-controls.js';
-function setup(){const elements=new Map(),calls=[],notices=[];let locked=false;
+function setup(){const elements=new Map(),calls=[],notices=[];
  const element=id=>({id,value:'',children:[],disabled:false,open:false,addEventListener(){},setAttribute(){},append(...items){this.children.push(...items)},replaceChildren(){this.children=[]},close(){this.open=false},showModal(){this.open=true}});
  const document={getElementById:id=>{if(!elements.has(id))elements.set(id,element(id));return elements.get(id)},createElement:()=>element('generated')};
  const state={project:{id:'p',name:'Project'},sources:{'main.tex':'Original'},revision:0,client:{},result:{build_id:'before'}};
- const options={document,getState:()=>state,flush:async()=>{calls.push('flush')},isDirty:()=>false,lock:()=>{locked=true},unlock:()=>{locked=false},
+ const options={document,getState:()=>state,flush:async()=>{calls.push('flush')},isDirty:()=>false,lock:()=>{state.saving=true},unlock:()=>{state.saving=false},
   invoke:async(name,args)=>{calls.push({name,args});if(name==='export_project_archive')return null;if(name==='import_image')return {asset:'images/image-test.png'};if(name==='open_project')return {id:'new',main:'main.tex',recoveries:[],recovery_error:null};throw Error(name)},
   confirm:async()=>false,open:async()=>null,save:async()=>null,adopt:async project=>{state.project=project},compile:async()=>calls.push('compile'),notify:text=>notices.push(text),cursor:()=>({file:'main.tex',source:'Original',selection:[0,0]}),insertImage:async()=>calls.push('insert')};
- const controls=new ProjectControls(options);return {controls,state,elements,calls,notices,options,locked:()=>locked};
+ const controls=new ProjectControls(options);return {controls,state,elements,calls,notices,options,locked:()=>!!state.saving};
 }
 test('opening a path retains dirty work when switching is declined',async()=>{const t=setup();t.controls.isDirty=()=>true;t.elements.get('project-path').value='C:/fixture/main.tex';await t.controls.openPath();assert.equal(t.state.project.id,'p');assert.deepEqual(t.calls,['flush']);assert.equal(t.locked(),false)});
+
+test('a second project switch cannot join an in-flight source flush',async()=>{
+ const t=setup();let release;
+ const flushed=new Promise(resolve=>{release=resolve});
+ t.controls.flush=()=>flushed;
+ t.elements.get('project-path').value='C:/first/main.tex';
+ const first=t.controls.openPath();
+ t.elements.get('project-path').value='C:/second/main.tex';
+ const second=t.elements.get('project-open-path').onclick();
+ release();await Promise.all([first,second]);
+ assert.deepEqual(t.calls.filter(call=>call?.name==='open_project').map(call=>call.args.path),['C:/first/main.tex']);
+ assert.equal(t.calls.filter(call=>call==='compile').length,1);
+ assert.match(t.notices[0],/Wait for the current operation/);
+ assert.equal(t.locked(),false);
+});
+
+test('a failed source flush releases the project switch lock',async()=>{
+ const t=setup();t.controls.flush=async()=>{throw Error('Source could not be synchronized')};
+ t.elements.get('project-path').value='C:/fixture/main.tex';
+ await assert.rejects(t.controls.openPath(),/Source could not be synchronized/);
+ assert.equal(t.state.project.id,'p');assert.equal(t.locked(),false);
+ assert.deepEqual(t.calls,[]);
+});
 
 test('valid existing path opens and compiles once only after adoption and unlock',async()=>{
  const t=setup();let adoptedOptions;
