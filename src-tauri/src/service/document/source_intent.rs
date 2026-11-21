@@ -1,7 +1,7 @@
 //! Explicit source drafts, never a visual approval or a Save operation.
 //! Handles and operation receipts belong to this open native document only.
 use super::*;
-use texloom_core::document::{intent::{IntentPlan, PlanError, SourceIntent}, structure::EntityReference};
+use texloom_core::document::{intent::{IntentPlan, ParagraphPosition, PlanError, SourceIntent}, structure::EntityReference};
 
 const MAX_OPERATIONS: usize = 128;
 const MAX_OPERATION_BYTES: usize = 4_000_000;
@@ -14,19 +14,51 @@ const MAX_TARGET_BYTES: usize = 8_000_000;
 pub enum DraftSourceIntent {
     ReplaceLiteralParagraph { target: String, text: String },
     DeleteParagraphContent { target: String },
+    MoveAdjacentParagraph { target: String, neighbor: String, position: DraftParagraphPosition },
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub enum DraftParagraphPosition {
+    Before,
+    After,
 }
 impl DraftSourceIntent {
     fn target(&self) -> &str {
-        match self { Self::ReplaceLiteralParagraph { target, .. } | Self::DeleteParagraphContent { target } => target }
+        match self {
+            Self::ReplaceLiteralParagraph { target, .. }
+            | Self::DeleteParagraphContent { target }
+            | Self::MoveAdjacentParagraph { target, .. } => target,
+        }
+    }
+    fn handles_valid(&self) -> bool {
+        valid_id(self.target()) && match self {
+            Self::MoveAdjacentParagraph { neighbor, .. } => valid_id(neighbor),
+            _ => true,
+        }
     }
     fn bytes(&self) -> usize {
-        self.target().len() + match self { Self::ReplaceLiteralParagraph { text, .. } => text.len(), _ => 0 }
+        self.target().len() + match self {
+            Self::ReplaceLiteralParagraph { text, .. } => text.len(),
+            Self::MoveAdjacentParagraph { neighbor, .. } => neighbor.len(),
+            Self::DeleteParagraphContent { .. } => 0,
+        }
     }
-    fn core(&self, target: EntityReference) -> SourceIntent {
-        match self {
+    fn core(&self, target_for: impl Fn(&str) -> std::result::Result<EntityReference, SourceDraftRefusalReason>) -> std::result::Result<SourceIntent, SourceDraftRefusalReason> {
+        let target = target_for(self.target())?;
+        Ok(match self {
             Self::ReplaceLiteralParagraph { text, .. } => SourceIntent::ReplaceLiteralParagraph { target, text: text.clone() },
             Self::DeleteParagraphContent { .. } => SourceIntent::DeleteParagraphContent { target },
-        }
+            Self::MoveAdjacentParagraph { neighbor, position, .. } => SourceIntent::MoveAdjacentParagraph {
+                target,
+                neighbor: target_for(neighbor)?,
+                position: match position {
+                    DraftParagraphPosition::Before => ParagraphPosition::Before,
+                    DraftParagraphPosition::After => ParagraphPosition::After,
+                },
+            },
+        })
     }
 }
 
@@ -89,6 +121,7 @@ pub enum SourceDraftRefusalReason {
     ParagraphBreak,
     ControlCharacter,
     LiteralTooLarge,
+    ParagraphsNotAdjacent,
     SourceGuardRejected,
 }
 impl From<PlanError> for SourceDraftRefusalReason {
@@ -99,6 +132,7 @@ impl From<PlanError> for SourceDraftRefusalReason {
             PlanError::ParagraphBreakRequiresStructuralIntent => Self::ParagraphBreak,
             PlanError::ControlCharacter => Self::ControlCharacter,
             PlanError::LiteralTooLarge => Self::LiteralTooLarge,
+            PlanError::ExpectedAdjacentParagraphs => Self::ParagraphsNotAdjacent,
             PlanError::Source(core::EditError::StaleRevision | core::EditError::ForeignSession) => Self::TargetUnavailable,
             PlanError::Source(_) => Self::SourceGuardRejected,
         }
@@ -147,8 +181,8 @@ impl DocumentSlot {
     fn prepare_source_intent(&self, base: u64, intent: &DraftSourceIntent) -> std::result::Result<IntentPlan, SourceDraftRefusalReason> {
         if self.session.revision() != Revision(base) { return Err(SourceDraftRefusalReason::RevisionChanged); }
         if self.source_intents.target_revision != Some(base) { return Err(SourceDraftRefusalReason::TargetUnavailable); }
-        let target = self.source_intents.targets.get(intent.target()).ok_or(SourceDraftRefusalReason::TargetUnavailable)?.clone();
-        self.session.plan_source_intent(intent.core(target)).map_err(Into::into)
+        let intent = intent.core(|handle| self.source_intents.targets.get(handle).cloned().ok_or(SourceDraftRefusalReason::TargetUnavailable))?;
+        self.session.plan_source_intent(intent).map_err(Into::into)
     }
     fn finish_source_intent(&mut self, base: u64, operation_id: &str, intent: DraftSourceIntent, outcome: SourceDraftOutcome) -> SourceDraftOutcome {
         self.source_intents.operation_bytes += intent.bytes();
@@ -237,7 +271,7 @@ impl Backend {
     fn source_intent_with<R>(&self, id: &str, base: u64, operation_id: &str, intent: DraftSourceIntent,
         reply: impl Fn(&DocumentSlot,SourceDraftOutcome,Option<&str>)->R) -> Result<R> {
         safe_revision(base)?;
-        if !valid_id(operation_id) || !valid_id(intent.target()) { return Err("Invalid operation ID or source target".into()); }
+        if !valid_id(operation_id) || !intent.handles_valid() { return Err("Invalid operation ID or source target".into()); }
         let mut docs = self.documents.lock().map_err(fail)?;
         let slot = docs.get_mut(id).ok_or("Reopen this project")?;
         // Resolve duplicates before freshness: retry after Undo returns the old

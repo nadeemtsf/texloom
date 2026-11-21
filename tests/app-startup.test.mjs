@@ -30,6 +30,12 @@ function sendPreliminary(t){
  args.onPreview.onmessage({schema:1,phase:'first_pass',project_id:args.projectId,revision:args.revision,
   request_id:args.requestId,engine:'pdflatex',seconds:.1,diagnostics:[],pdf:[37,80,68,70,45]});
 }
+async function changeSource(t,transform){
+ const original=t.model.value;
+ t.model.value=transform(original);
+ t.handlers.change({changes:[{rangeOffset:0,rangeLength:original.length,text:t.model.value}]});
+ await t.context.shell.state.client.flush();
+}
 
 test('the shipped shell requests and publishes only a settled PDF',async()=>{
  const t=boot({deferCompile:true});await tick();
@@ -48,6 +54,52 @@ test('the shipped shell requests and publishes only a settled PDF',async()=>{
  assert.equal(t.context.finalPDFLoads,1);
  assert.equal(t.context.workerDisposals,0);
  assert.equal(t.calls.some(([name])=>name==='verify_build'),true);
+});
+
+test('a source edit between verification and publication retains the earlier PDF',async()=>{
+ const t=boot({deferCompile:true});await tick();
+ t.context.finishCompile(structuredClone(finalReply));await t.context.startup;
+ const state=t.context.shell.state,previous=state.pdf;
+ const stage=t.context.stageCandidate;
+ t.context.stageCandidate=async options=>{
+   const candidate=await stage(options);
+   await changeSource(t,source=>source.replace('shell fixture','newer source'));
+   return candidate;
+ };
+ const compiling=t.elements.get('compile').onclick();await tick();
+ t.context.finishCompile({...structuredClone(finalReply),build_id:'stale-preview'});
+ await compiling;
+ assert.equal(state.revision,1);assert.match(state.sources['main.tex'],/newer source/);
+ assert.equal(state.pdf,previous);assert.equal(state.result.build_id,'settled');
+ assert.equal(state.compiled,0);assert.equal(state.busy,false);
+ assert.equal(t.calls.some(([name,args])=>name==='pin_displayed_build'&&args.buildId==='stale-preview'),false);
+ assert.equal(t.context.workerDisposals,1);
+});
+
+test('after a source error the shipped shell keeps the last PDF and publishes the corrected source',async()=>{
+ const t=boot({deferCompile:true});await tick();
+ t.context.finishCompile(structuredClone(finalReply));await t.context.startup;
+ const state=t.context.shell.state,previous=state.pdf;
+ const original=state.sources['main.tex'];
+ await changeSource(t,source=>source.replace('Native shell fixture','\\MissingFixtureCommand'));
+ const failed=t.elements.get('compile').onclick();await tick();
+ assert.equal(t.context.progressRequest.revision,1);
+ t.context.finishCompile({...structuredClone(finalReply),ok:false,pdf:[],verification_eligible:false,
+   revision:1,build_id:'failed',log:'! Undefined control sequence.'});
+ await failed;
+ assert.equal(state.pdf,previous);assert.equal(state.compiled,0);
+ assert.match(t.elements.get('banner').textContent,/Undefined control sequence/);
+ assert.equal(t.elements.get('banner').classList.contains('hidden'),false);
+
+ await changeSource(t,()=>original.replace('Native shell fixture','Corrected source'));
+ const corrected=t.elements.get('compile').onclick();await tick();
+ assert.equal(t.context.progressRequest.revision,2);
+ t.context.finishCompile({...structuredClone(finalReply),revision:2,build_id:'corrected'});await corrected;
+ assert.notEqual(state.pdf,previous);assert.equal(state.result.build_id,'corrected');
+ assert.equal(state.compiled,2);assert.equal(state.busy,false);
+ assert.equal(t.elements.get('banner').classList.contains('hidden'),true);
+ assert.equal(t.calls.some(([name,args])=>name==='pin_displayed_build'&&args.buildId==='failed'),false);
+ assert.equal(t.calls.some(([name,args])=>name==='pin_displayed_build'&&args.buildId==='corrected'),true);
 });
 
 test('the experimental shell keeps preliminary bytes out of settled state, pinning and verification until final publication',async()=>{
@@ -102,8 +154,9 @@ function boot({markup=html,openFailure=null,pathFailure=null,badSnapshot=false,a
   const snapshot={revision:0,sources:project.sources,main:project.main,engine:'auto',can_undo:false,can_redo:false,selection:null,recovery:{draft_id:null,protected_revision:null,error:null}};
   const model={value:'',setValue(v){this.value=v},setEOL(){},getValue(){return this.value}};
   const editor={createContextKey:()=>({set(){}}),updateOptions:o=>Object.assign(options,o),
-    onDidChangeModelContent(){},onDidChangeCursorPosition(){},onDidChangeCursorSelection(){},
+    onDidChangeModelContent(fn){handlers.change=fn},onDidChangeCursorPosition(){},onDidChangeCursorSelection(){},
     addAction(){},addCommand(){},getDomNode:()=>element(),getSelections:()=>[],hasTextFocus:()=>false};
+  let nativeSource=source;
   const context={...transactions,bindPDFScrolling,SourceHighlight,selectionSourceRange,applyTextInputAppearance,renderProtectedCommands,positionDialogNear,clearDialogPosition,DocumentClient,editorText,sameSources,TypingRecoveryController,CloseController,createWorkspaceInvoke,ProjectControls,PDFSearch,SetupHelp,installPerformanceDiagnostics,performanceOutcome,structuredClone,console,
     createCompileInvoke,startPDFWorker,PreliminaryPreview,PreliminaryPDFSurface,renderPreliminaryPDF,acceptUnverifiedPreview,
     capturePDFScrollAnchor:()=>null,
@@ -128,6 +181,12 @@ function boot({markup=html,openFailure=null,pathFailure=null,badSnapshot=false,a
         return args.path?{...project,id:'opened-path',name:'Opened path'}:project;
       }
       if(name==='document_snapshot')return badSnapshot?{...snapshot,sources:null}:snapshot;
+      if(name==='document_edit'){
+        const [{offset,length,text}]=args.changes;
+        nativeSource=nativeSource.slice(0,offset)+text+nativeSource.slice(offset+length);
+        return {...snapshot,kind:'source_delta',base_revision:args.revision,revision:args.revision+1,
+          can_undo:true,sources:{'main.tex':nativeSource}};
+      }
       if(name==='typing_drafts')return {drafts:[],errors:[]};
       if(name==='close_document')return {warning:null};
       if(name==='compile_document')compileStates.push({saving:context.shell.state.saving,opening:context.shell.state.opening,projectId:context.shell.state.project.id});

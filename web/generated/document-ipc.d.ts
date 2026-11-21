@@ -34,11 +34,13 @@ export type HistoryRequest = { projectId: string, revision: number, redo: boolea
 
 export type CommitRequest = { projectId: string, token: string, buildId: string, };
 
-export type DraftSourceIntent = { "kind": "replace_literal_paragraph", target: string, text: string, } | { "kind": "delete_paragraph_content", target: string, };
+export type DraftParagraphPosition = "before" | "after";
+
+export type DraftSourceIntent = { "kind": "replace_literal_paragraph", target: string, text: string, } | { "kind": "delete_paragraph_content", target: string, } | { "kind": "move_adjacent_paragraph", target: string, neighbor: string, position: DraftParagraphPosition, };
 
 export type SourceDraftOutcome = { "status": "source_draft_applied", from_revision: number, revision: number, changed: boolean, render_verification: 'unresolved', } | { "status": "source_draft_refused", requested_revision: number, observed_revision: number, reason: SourceDraftRefusalReason, } | { "status": "protection_uncertain", from_revision: number, error: string, } | { "status": "unknown" };
 
-export type SourceDraftRefusalReason = "revision_changed" | "target_unavailable" | "unsupported_target" | "empty_literal" | "paragraph_break" | "control_character" | "literal_too_large" | "source_guard_rejected";
+export type SourceDraftRefusalReason = "revision_changed" | "target_unavailable" | "unsupported_target" | "empty_literal" | "paragraph_break" | "control_character" | "literal_too_large" | "paragraphs_not_adjacent" | "source_guard_rejected";
 
 export type SourceDraftReply = { operation_id: string, outcome: SourceDraftOutcome,
 /**

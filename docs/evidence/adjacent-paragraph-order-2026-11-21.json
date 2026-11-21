@@ -1,0 +1,119 @@
+{
+  "schema": 1,
+  "candidate_executable_sha256": "48d72e305cae3d3b1e923b216d8f1ef55dc2efb8bead63ca062f5c1ea8d5d4c8",
+  "engines": {
+    "pdflatex": "MiKTeX-pdfTeX 4.23 (MiKTeX 25.12)",
+    "xelatex": "MiKTeX-XeTeX 4.16 (MiKTeX 25.12)",
+    "lualatex": "This is LuaHBTeX, Version 1.24.0 (MiKTeX 25.12)"
+  },
+  "comparisons": [
+    {
+      "fixture": "later-before-earlier",
+      "engine": "pdflatex",
+      "baseline_source_sha256": "da0db5ba9154dcc9c4791ccea72114b0156203deb5104eac74fa36a8d24401f4",
+      "candidate_source_sha256": "92f2b61decc224ecc7e90807bf702d358b32b6e5ae2e52e83b657f39e98edff4",
+      "baseline_reading_order": "Amber origin. Blue target. Copper tail.",
+      "candidate_reading_order": "Blue target. Amber origin. Copper tail.",
+      "reference_reading_order": "Blue target. Amber origin. Copper tail.",
+      "baseline_page_png_sha256": "63b63fa700bf098e89dde2a07ccec73bf06f8a651ffd1d9b481935eb8d6b42be",
+      "candidate_page_png_sha256": "85a0890bd14cf0346bad873cbbae6dab78f93eae5322c81e2a079009a0f99004",
+      "reference_page_png_sha256": "85a0890bd14cf0346bad873cbbae6dab78f93eae5322c81e2a079009a0f99004"
+    },
+    {
+      "fixture": "later-before-earlier",
+      "engine": "xelatex",
+      "baseline_source_sha256": "da0db5ba9154dcc9c4791ccea72114b0156203deb5104eac74fa36a8d24401f4",
+      "candidate_source_sha256": "92f2b61decc224ecc7e90807bf702d358b32b6e5ae2e52e83b657f39e98edff4",
+      "baseline_reading_order": "Amber origin. Blue target. Copper tail.",
+      "candidate_reading_order": "Blue target. Amber origin. Copper tail.",
+      "reference_reading_order": "Blue target. Amber origin. Copper tail.",
+      "baseline_page_png_sha256": "0abb4b93ebf5ab2970de3be09189b874631325dd74ac98810ca90a6022bb1b0a",
+      "candidate_page_png_sha256": "01426ef88827a0142c1d89e4cdaa8130d9c0c5942233e2c9d96e13b727e122ab",
+      "reference_page_png_sha256": "01426ef88827a0142c1d89e4cdaa8130d9c0c5942233e2c9d96e13b727e122ab"
+    },
+    {
+      "fixture": "later-before-earlier",
+      "engine": "lualatex",
+      "baseline_source_sha256": "da0db5ba9154dcc9c4791ccea72114b0156203deb5104eac74fa36a8d24401f4",
+      "candidate_source_sha256": "92f2b61decc224ecc7e90807bf702d358b32b6e5ae2e52e83b657f39e98edff4",
+      "baseline_reading_order": "Amber origin. Blue target. Copper tail.",
+      "candidate_reading_order": "Blue target. Amber origin. Copper tail.",
+      "reference_reading_order": "Blue target. Amber origin. Copper tail.",
+      "baseline_page_png_sha256": "0abb4b93ebf5ab2970de3be09189b874631325dd74ac98810ca90a6022bb1b0a",
+      "candidate_page_png_sha256": "01426ef88827a0142c1d89e4cdaa8130d9c0c5942233e2c9d96e13b727e122ab",
+      "reference_page_png_sha256": "01426ef88827a0142c1d89e4cdaa8130d9c0c5942233e2c9d96e13b727e122ab"
+    },
+    {
+      "fixture": "earlier-after-neighbor",
+      "engine": "pdflatex",
+      "baseline_source_sha256": "86cd5b2c77759a3b4b1c30c28d024fe231c0736ba18d7e4262cdbc220aa2a1e7",
+      "candidate_source_sha256": "c06b3d691efcb4068f8c8500e2f03e574b67a35ed11347ebb13e7d176f6873d6",
+      "baseline_reading_order": "Short first. Much longer neighbor sentence. Last anchor.",
+      "candidate_reading_order": "Much longer neighbor sentence. Short first. Last anchor.",
+      "reference_reading_order": "Much longer neighbor sentence. Short first. Last anchor.",
+      "baseline_page_png_sha256": "bd505174476470eabaa426269746036488b49fd8a7c202075e56b49b8543571a",
+      "candidate_page_png_sha256": "090f7f610629e7c27059da1b225d7d59b91ffd5dc8cda3ee94cab43ec7f19ef3",
+      "reference_page_png_sha256": "090f7f610629e7c27059da1b225d7d59b91ffd5dc8cda3ee94cab43ec7f19ef3"
+    },
+    {
+      "fixture": "earlier-after-neighbor",
+      "engine": "xelatex",
+      "baseline_source_sha256": "86cd5b2c77759a3b4b1c30c28d024fe231c0736ba18d7e4262cdbc220aa2a1e7",
+      "candidate_source_sha256": "c06b3d691efcb4068f8c8500e2f03e574b67a35ed11347ebb13e7d176f6873d6",
+      "baseline_reading_order": "Short first. Much longer neighbor sentence. Last anchor.",
+      "candidate_reading_order": "Much longer neighbor sentence. Short first. Last anchor.",
+      "reference_reading_order": "Much longer neighbor sentence. Short first. Last anchor.",
+      "baseline_page_png_sha256": "69b0a0b2e2a5568280ba6f881529221b845d1307cd35eae551e872ceade64bf1",
+      "candidate_page_png_sha256": "acfc62198109ad64df6004ae0d9c843bde8f224e297eb57e4a3caefcfd965f28",
+      "reference_page_png_sha256": "acfc62198109ad64df6004ae0d9c843bde8f224e297eb57e4a3caefcfd965f28"
+    },
+    {
+      "fixture": "earlier-after-neighbor",
+      "engine": "lualatex",
+      "baseline_source_sha256": "86cd5b2c77759a3b4b1c30c28d024fe231c0736ba18d7e4262cdbc220aa2a1e7",
+      "candidate_source_sha256": "c06b3d691efcb4068f8c8500e2f03e574b67a35ed11347ebb13e7d176f6873d6",
+      "baseline_reading_order": "Short first. Much longer neighbor sentence. Last anchor.",
+      "candidate_reading_order": "Much longer neighbor sentence. Short first. Last anchor.",
+      "reference_reading_order": "Much longer neighbor sentence. Short first. Last anchor.",
+      "baseline_page_png_sha256": "fb4242f914620cddc66cab5aca550b97ba2c40e9a01d8c93c052bd25b98850cf",
+      "candidate_page_png_sha256": "5759a5e761fc3293fd9640164e13e2c7171a18e9b691e2069e2352f4b6dac3a6",
+      "reference_page_png_sha256": "5759a5e761fc3293fd9640164e13e2c7171a18e9b691e2069e2352f4b6dac3a6"
+    },
+    {
+      "fixture": "second-repeated-occurrence",
+      "engine": "pdflatex",
+      "baseline_source_sha256": "0c9796bca425c78028e7f5dd7ba8a3aa5d002cc2470e5fb22fe601c4fb591af5",
+      "candidate_source_sha256": "edeb6e73282ce76f357f63c23f4fbdda0e8d492dfe4e6fa2f5b200be0fc0b76b",
+      "baseline_reading_order": "Repeat body. Marker between. Repeat body. Final anchor.",
+      "candidate_reading_order": "Repeat body. Repeat body. Marker between. Final anchor.",
+      "reference_reading_order": "Repeat body. Repeat body. Marker between. Final anchor.",
+      "baseline_page_png_sha256": "bfb47cedfe54a29e1752f1c607768d6f5e1724d572a3f612bd07f8f9e4dd0b06",
+      "candidate_page_png_sha256": "2db2d361813774d6ffccfeda8e532320e9df468d8406f11add51acbbd51844e6",
+      "reference_page_png_sha256": "2db2d361813774d6ffccfeda8e532320e9df468d8406f11add51acbbd51844e6"
+    },
+    {
+      "fixture": "second-repeated-occurrence",
+      "engine": "xelatex",
+      "baseline_source_sha256": "0c9796bca425c78028e7f5dd7ba8a3aa5d002cc2470e5fb22fe601c4fb591af5",
+      "candidate_source_sha256": "edeb6e73282ce76f357f63c23f4fbdda0e8d492dfe4e6fa2f5b200be0fc0b76b",
+      "baseline_reading_order": "Repeat body. Marker between. Repeat body. Final anchor.",
+      "candidate_reading_order": "Repeat body. Repeat body. Marker between. Final anchor.",
+      "reference_reading_order": "Repeat body. Repeat body. Marker between. Final anchor.",
+      "baseline_page_png_sha256": "1f545bb669da30210e7220baf8120fc75e3ef9b24040d6fca705c4f879e46360",
+      "candidate_page_png_sha256": "e5b9c36c02db6068ff429e1d01beaae257dd590d52da4a8bd83dbb719f5f5f5a",
+      "reference_page_png_sha256": "e5b9c36c02db6068ff429e1d01beaae257dd590d52da4a8bd83dbb719f5f5f5a"
+    },
+    {
+      "fixture": "second-repeated-occurrence",
+      "engine": "lualatex",
+      "baseline_source_sha256": "0c9796bca425c78028e7f5dd7ba8a3aa5d002cc2470e5fb22fe601c4fb591af5",
+      "candidate_source_sha256": "edeb6e73282ce76f357f63c23f4fbdda0e8d492dfe4e6fa2f5b200be0fc0b76b",
+      "baseline_reading_order": "Repeat body. Marker between. Repeat body. Final anchor.",
+      "candidate_reading_order": "Repeat body. Repeat body. Marker between. Final anchor.",
+      "reference_reading_order": "Repeat body. Repeat body. Marker between. Final anchor.",
+      "baseline_page_png_sha256": "1f545bb669da30210e7220baf8120fc75e3ef9b24040d6fca705c4f879e46360",
+      "candidate_page_png_sha256": "e5b9c36c02db6068ff429e1d01beaae257dd590d52da4a8bd83dbb719f5f5f5a",
+      "reference_page_png_sha256": "e5b9c36c02db6068ff429e1d01beaae257dd590d52da4a8bd83dbb719f5f5f5a"
+    }
+  ]
+}

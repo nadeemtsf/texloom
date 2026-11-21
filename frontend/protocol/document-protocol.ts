@@ -125,12 +125,16 @@ export function preparedReply(value: unknown, base: number): PreparedReply {
 
 const sourceId = (value: unknown): value is string => typeof value === 'string' && /^[0-9a-f]{32}$/u.test(value);
 const sourceRefusalReasons = new Set(['revision_changed','target_unavailable','unsupported_target','empty_literal',
-  'paragraph_break','control_character','literal_too_large','source_guard_rejected']);
+  'paragraph_break','control_character','literal_too_large','paragraphs_not_adjacent','source_guard_rejected']);
 export function assertSourceOperationId(value: unknown): asserts value is string { require(sourceId(value), 'Invalid source operation ID'); }
 export function assertDraftSourceIntent(value: unknown): asserts value is DraftSourceIntent {
   record(value);
   if (value.kind === 'replace_literal_paragraph') {
     record(value,['kind','target','text']); require(typeof value.text === 'string','Invalid source replacement literal');
+  } else if (value.kind === 'move_adjacent_paragraph') {
+    record(value,['kind','target','neighbor','position']);
+    require(sourceId(value.neighbor),'Invalid native source neighbor handle');
+    require(value.position === 'before' || value.position === 'after','Invalid paragraph position');
   } else { record(value,['kind','target']); require(value.kind === 'delete_paragraph_content','Invalid source intent kind'); }
   require(sourceId(value.target),'Invalid native source target handle');
 }

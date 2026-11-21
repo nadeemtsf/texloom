@@ -548,7 +548,8 @@ async function compile(reason='manual'){
         },
         prepare:result=>prepareResult(result,workerStartup),policy:null,previousPageCount:state.view?.pageCount,verify:result=>client.verify(result.build_id),trace});
     prepared=candidate.prepared;
-    publishPrepared(candidate.prepared,candidate.result);
+    if(state.client!==client||sessionIdentity(state)!==identity)throw new StaleCandidate();
+    publishPrepared(prepared,candidate.result);
     const view=state.view;trace?.mark('published');trace?.finish('published',{paint:!view.lazy,isCurrent:()=>state.view===view&&sessionIdentity(state)===identity});
   }catch(error){
     if(prepared?.pdf&&prepared.pdf===state.pdf){state.compiled=-1;try{canvas.clear()}catch{}}

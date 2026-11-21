@@ -30,8 +30,22 @@ test('actual Rust Serde target and source-draft fixtures pass the strict runtime
   assert.deepEqual(sourceTargetsReply(wire.source_targets_reply,wire.snapshot,'main.tex'),wire.source_targets_reply);
   const reply=sourceDraftReply(wire.source_draft_reply,'d'.repeat(32),wire.snapshot,7);
   assert.equal(reply.outcome.render_verification,'unresolved');assert.equal(reply.snapshot.revision,8);
-  assert.equal(wire.source_draft_refusals.length,8);
+  assert.equal(wire.source_draft_refusals.length,9);
   for(const refusal of wire.source_draft_refusals)assert.deepEqual(sourceDraftReply(refusal,'d'.repeat(32),wire.snapshot,refusal.outcome.requested_revision),refusal);
+});
+
+test('the draft client accepts an exact reorder request with two guarded native handles',async()=>{
+  const calls=[],before=initial(0,'First.\n\nSecond.'),after=initial(1,'Second.\n\nFirst.');
+  const client=new DocumentClient(async(name,args)=>{calls.push([name,args]);return applied(after)},'p',before);
+  const move={kind:'move_adjacent_paragraph',target:handle,neighbor:'c'.repeat(32),position:'after'};
+  for(const invalid of [{...move,neighbor:'raw offset'}, {...move,position:'left'}, {...move,end:20}]){
+    assert.throws(()=>client.sourceIntent(0,op,invalid));
+  }
+  assert.deepEqual(calls,[]);
+  const reply=await client.sourceIntent(0,op,move);
+  assert.deepEqual(calls,[['document_source_intent',{request:{projectId:'p',revision:0,operationId:op,intent:move}}]]);
+  assert.equal(reply.outcome.render_verification,'unresolved');
+  assert.deepEqual(client.snapshot,after);
 });
 
 test('lost refusal acknowledgement resolves to nonexecution and releases queued editing only after lookup',async()=>{

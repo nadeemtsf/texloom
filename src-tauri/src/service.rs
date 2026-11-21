@@ -25,7 +25,7 @@ pub use adapters::{describe as describe_adapters, plan as plan_adapter};
 pub use layout_gate::VisualOperation;
 pub use document::{
     CloseReply, DocumentSnapshot, EditorChange, EditorRange, PreparedReply, RecoveryReply, SelectionReply, SourceEditReply,
-    DraftSourceIntent, SourceDraftOutcome, SourceDraftRefusalReason, SourceDraftReply, SourceTarget, SourceTargetsReply,
+    DraftParagraphPosition, DraftSourceIntent, SourceDraftOutcome, SourceDraftRefusalReason, SourceDraftReply, SourceTarget, SourceTargetsReply,
 };
 #[cfg(feature = "typegen")]
 pub use document::{EditorSelection, RecoveryStatus};
