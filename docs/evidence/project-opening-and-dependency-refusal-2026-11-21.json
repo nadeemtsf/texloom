@@ -1,0 +1,296 @@
+{
+  "schema": 1,
+  "project_opening": {
+    "baseline": "0e9d12f02f528522a30cd466a9d073e21ce8b60e",
+    "fixed": "d494aa792d6d655e57148fc4dcb0b73dbb5e79b9",
+    "runtime": "v25.2.1",
+    "command": "node --test tests/project-controls.test.mjs tests/app-startup.test.mjs",
+    "baseline_method": "Run the new tests against the previous production handlers.",
+    "fixed_focused_suite_passed": 27,
+    "cases": [
+      {
+        "schedule": "Two Projects actions during one source flush",
+        "opens_before": 2,
+        "opens_after": 1
+      },
+      {
+        "schedule": "Projects action while the toolbar's discard prompt waits, followed by decline",
+        "additional_opens_before": 1,
+        "additional_opens_after": 0
+      },
+      {
+        "schedule": "Project switch flush rejects",
+        "project_retained_after": true,
+        "switch_lock_released_after": true
+      }
+    ],
+    "scope": "Shipped JavaScript handlers with synthetic dialogs and stubbed native calls."
+  },
+  "dependency_refusal": {
+    "pull_request": 91,
+    "fixed": "389b12c69d9bfed8c08bbef14007212a4b82d041",
+    "method": "Optimized Rust harness with the fingerprint routines and generated zero-filled Windows files. Alternating order, starting with baseline. Every pair asserted matching fingerprint or error.",
+    "cases": [
+      {
+        "bytes": 4096,
+        "accepted_by_both": true,
+        "warmup_baseline_and_candidate_ms": [
+          0.1732,
+          0.1033
+        ],
+        "measured_baseline_and_candidate_ms": [
+          [
+            0.0696,
+            0.0769
+          ],
+          [
+            0.0603,
+            0.0569
+          ],
+          [
+            0.0551,
+            0.0746
+          ],
+          [
+            0.0643,
+            0.0502
+          ],
+          [
+            0.0615,
+            0.0631
+          ],
+          [
+            0.0677,
+            0.0532
+          ],
+          [
+            0.0518,
+            0.0636
+          ],
+          [
+            0.0677,
+            0.0985
+          ]
+        ],
+        "paired_median_saving_ms": -0.00445
+      },
+      {
+        "bytes": 131072,
+        "accepted_by_both": true,
+        "warmup_baseline_and_candidate_ms": [
+          0.2361,
+          0.1765
+        ],
+        "measured_baseline_and_candidate_ms": [
+          [
+            0.1651,
+            0.1841
+          ],
+          [
+            0.1948,
+            0.1712
+          ],
+          [
+            0.1392,
+            0.144
+          ],
+          [
+            0.1253,
+            0.1328
+          ],
+          [
+            0.1341,
+            0.1474
+          ],
+          [
+            0.1533,
+            0.1264
+          ],
+          [
+            0.1267,
+            0.1791
+          ],
+          [
+            0.1272,
+            0.1358
+          ]
+        ],
+        "paired_median_saving_ms": -0.00805
+      },
+      {
+        "bytes": 33554432,
+        "accepted_by_both": true,
+        "warmup_baseline_and_candidate_ms": [
+          24.1628,
+          22.7528
+        ],
+        "measured_baseline_and_candidate_ms": [
+          [
+            22.6305,
+            22.3013
+          ],
+          [
+            21.9286,
+            21.423
+          ],
+          [
+            21.849,
+            21.6385
+          ],
+          [
+            25.4987,
+            25.0272
+          ],
+          [
+            21.469,
+            21.7456
+          ],
+          [
+            21.762,
+            21.7283
+          ],
+          [
+            21.6866,
+            21.5727
+          ],
+          [
+            21.6341,
+            21.9333
+          ]
+        ],
+        "paired_median_saving_ms": 0.1622
+      },
+      {
+        "bytes": 268435456,
+        "accepted_by_both": true,
+        "warmup_baseline_and_candidate_ms": [
+          172.5756,
+          172.7655
+        ],
+        "measured_baseline_and_candidate_ms": [
+          [
+            172.5068,
+            179.6069
+          ],
+          [
+            173.8237,
+            172.2569
+          ],
+          [
+            173.3187,
+            181.7142
+          ],
+          [
+            171.6449,
+            173.3567
+          ],
+          [
+            172.6317,
+            173.7443
+          ],
+          [
+            177.1112,
+            171.5454
+          ],
+          [
+            202.5476,
+            208.5199
+          ],
+          [
+            175.9848,
+            181.7951
+          ]
+        ],
+        "paired_median_saving_ms": -3.76105
+      },
+      {
+        "bytes": 268435457,
+        "accepted_by_both": false,
+        "warmup_baseline_and_candidate_ms": [
+          186.7036,
+          0.1614
+        ],
+        "measured_baseline_and_candidate_ms": [
+          [
+            176.4117,
+            0.0607
+          ],
+          [
+            174.9318,
+            0.1578
+          ],
+          [
+            176.2894,
+            0.076
+          ],
+          [
+            173.1457,
+            0.1428
+          ],
+          [
+            171.858,
+            0.0609
+          ],
+          [
+            172.6171,
+            0.2051
+          ],
+          [
+            171.2211,
+            0.0766
+          ],
+          [
+            173.4496,
+            0.1558
+          ]
+        ],
+        "paired_median_saving_ms": 173.14835
+      },
+      {
+        "bytes": 536870912,
+        "accepted_by_both": false,
+        "warmup_baseline_and_candidate_ms": [
+          173.1574,
+          0.1858
+        ],
+        "measured_baseline_and_candidate_ms": [
+          [
+            185.2128,
+            0.0752
+          ],
+          [
+            173.6665,
+            0.136
+          ],
+          [
+            175.2236,
+            0.0576
+          ],
+          [
+            180.7266,
+            0.1372
+          ],
+          [
+            174.4121,
+            0.0553
+          ],
+          [
+            173.3241,
+            0.1436
+          ],
+          [
+            172.7591,
+            0.0772
+          ],
+          [
+            173.9336,
+            0.1365
+          ]
+        ],
+        "paired_median_saving_ms": 174.07695
+      }
+    ],
+    "production_test": "dependency_fingerprint_accepts_the_exact_byte_limit_and_refuses_extra_bytes",
+    "scope": "Single dependency fingerprint and refusal, excluding compiler and renderer."
+  }
+}

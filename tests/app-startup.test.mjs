@@ -129,10 +129,10 @@ function boot({markup=html,openFailure=null,pathFailure=null,badSnapshot=false,a
       }
       if(name==='document_snapshot')return badSnapshot?{...snapshot,sources:null}:snapshot;
       if(name==='typing_drafts')return {drafts:[],errors:[]};
-      if(name==='close_document')return {};
+      if(name==='close_document')return {warning:null};
       if(name==='compile_document')compileStates.push({saving:context.shell.state.saving,opening:context.shell.state.opening,projectId:context.shell.state.project.id});
       if(name==='compile_document'&&deferCompile){context.progressRequest=args;return new Promise((resolve,reject)=>{context.finishCompile=resolve;context.failCompile=reject})}
-      if(deferCompile&&['verify_build','pin_displayed_build','cancel_compilation'].includes(name))return null;
+      if(deferCompile&&['verify_build','pin_displayed_build','cancel_compilation','export_document_build'].includes(name))return null;
       if(name==='plan_adapter'&&adapterFailure)throw Error(adapterFailure);
       throw Error('Test compiler unavailable');
     }};
@@ -215,6 +215,84 @@ test('toolbar Open reserves the project switch while confirming unsaved source',
   assert.equal(state.client,client);assert.equal(state.opening,false);assert.ok(!state.saving);
   assert.equal(t.options.readOnly,false);
   assert.match(t.elements.get('toast').textContent,/Wait for the current operation/);
+});
+
+test('an export whose destination arrives after a project switch cannot export the replacement',async()=>{
+  const t=boot({deferCompile:true});await tick();
+  t.context.finishCompile(structuredClone(finalReply));await t.context.startup;
+  let selectPath;
+  t.context.save=()=>new Promise(resolve=>{selectPath=resolve});
+  const exporting=t.elements.get('export').onclick();
+  t.context.open=async()=> 'C:/other/main.tex';
+  await t.elements.get('open').onclick();
+  assert.equal(t.context.shell.state.project.id,'opened-path');
+
+  selectPath('C:/fixture/first-project.pdf');await tick();
+  const builds=t.calls.filter(([name,args])=>name==='compile_document'&&args.purpose==='export');
+  if(builds.length)t.context.finishCompile({...structuredClone(finalReply),build_id:'wrong-project'});
+  await exporting;
+
+  assert.deepEqual(builds,[]);
+  assert.equal(t.calls.some(([name])=>name==='export_document_build'),false);
+  assert.match(t.elements.get('toast').textContent,/Project changed.*Export again/i);
+});
+
+test('an export cannot start when its source flush overlaps a project switch',async()=>{
+  const t=boot({deferCompile:true});await tick();
+  t.context.finishCompile(structuredClone(finalReply));await t.context.startup;
+  const client=t.context.shell.state.client;
+  let acknowledgeSource;
+  client.tail=new Promise(resolve=>{acknowledgeSource=resolve});
+  t.context.save=async()=> 'C:/fixture/first-project.pdf';
+  const exporting=t.elements.get('export').onclick();await tick();
+  t.context.open=async()=> 'C:/other/main.tex';
+  const opening=t.elements.get('open').onclick();await tick();
+  assert.equal(t.context.shell.state.opening,true);
+
+  acknowledgeSource();await tick();
+  const builds=t.calls.filter(([name,args])=>name==='compile_document'&&args.purpose==='export');
+  if(builds.length)t.context.finishCompile({...structuredClone(finalReply),build_id:'overlapping-export'});
+  await Promise.all([opening,exporting]);
+
+  assert.deepEqual(builds,[]);
+  assert.equal(t.calls.some(([name])=>name==='export_document_build'),false);
+  assert.equal(t.context.shell.state.project.id,'opened-path');
+  assert.match(t.elements.get('toast').textContent,/Wait for the current operation before exporting/i);
+});
+
+test('an export for the active project builds and writes its requested destination',async()=>{
+  const t=boot({deferCompile:true});await tick();
+  t.context.finishCompile(structuredClone(finalReply));await t.context.startup;
+  t.context.save=async()=> 'C:/fixture/export.pdf';
+  const exporting=t.elements.get('export').onclick();await tick();
+  assert.equal(t.context.progressRequest.purpose,'export');
+  t.context.finishCompile({...structuredClone(finalReply),build_id:'exported'});
+  await exporting;
+  const command=t.calls.find(([name])=>name==='export_document_build');
+  assert.equal(command[1].projectId,'fixture');assert.equal(command[1].buildId,'exported');
+  assert.equal(command[1].path,'C:/fixture/export.pdf');
+  assert.equal(t.context.shell.state.result.build_id,'settled');
+  assert.equal(t.context.shell.state.busy,false);
+});
+
+test('cancelling at the verified export boundary prevents the destination write',async()=>{
+  const t=boot({deferCompile:true});await tick();
+  t.context.finishCompile(structuredClone(finalReply));await t.context.startup;
+  const stage=t.context.stageCandidate;
+  t.context.stageCandidate=async options=>{
+    const prepared=await stage(options);
+    await t.elements.get('cancel-compile').onclick();
+    return prepared;
+  };
+  t.context.save=async()=> 'C:/fixture/export.pdf';
+  const exporting=t.elements.get('export').onclick();await tick();
+  t.context.finishCompile({...structuredClone(finalReply),build_id:'cancelled-export'});
+  await exporting;
+
+  assert.equal(t.calls.some(([name,args])=>name==='verify_build'&&args.buildId==='cancelled-export'),true);
+  assert.equal(t.calls.some(([name])=>name==='export_document_build'),false);
+  assert.equal(t.context.shell.state.result.build_id,'settled');
+  assert.equal(t.context.shell.state.busy,false);
 });
 
 test('removing the cancel control reproduces the native startup regression',()=>{

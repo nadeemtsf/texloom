@@ -516,3 +516,28 @@ The result supports this bounded native-entry path and shows that native source
 rederivation rejects these proposed-source corruptions. It does not establish
 full PDF-selection correctness, an independently labelled acceptance rate,
 native UI usability or latency. The final evaluation remains pending.
+
+\subsection{Project switching during pending source work}
+\label{sec:project-switching}
+Two controlled schedules exercised the production project-opening handlers.
+In the Projects dialog, the first open waited for an acknowledged source
+flush. A second open entered before that flush finished, and both requests
+reached the native open boundary. In the shell harness, toolbar Open waited
+for a discard decision while the Projects handler opened a different path.
+The native open count increased even though the discard prompt was declined.
+
+The project-opening handlers now reserve the switch before the first source
+flush or confirmation and keep it reserved through project adoption. A
+declined prompt or a failed flush releases the reservation. The same schedules
+now produce one open and one approved compile in the first case, and no new
+open or associated compile in the second. The second case also retains the
+same source client and restores editor input. A separate failure injection
+checks that rejecting the flush preserves the existing project and unlocks it.
+
+All 27 tests in the two focused suites passed on the updated source. The shell
+harness invokes the shipped JavaScript handlers with synthetic dialogs and a
+stubbed native boundary. This provides evidence about the scheduled overlap
+and resulting requests. Physical input, native dialog behavior and the
+full multi-project lifecycle still require separate checks.
+The before-and-after request counts are recorded in the 21 November
+engineering evidence linked from this report's source README.
