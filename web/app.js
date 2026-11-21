@@ -176,7 +176,7 @@ function updateControls(){
   $('compile').disabled=state.busy||!!state.saving||!!state.client?.error;
   $('save').disabled=!!state.saving||state.busy||state.composing||!!state.client?.error;
   $('export').disabled=!state.project||state.busy||state.opening||state.mutating||state.composing||!!state.saving||!!state.client?.error;
-  $('open').disabled=!!state.saving||state.mutating;
+  $('open').disabled=!!state.saving||state.mutating||state.opening;
   for(const id of ['projects','layout-controls','import-image'])$(id).disabled=state.busy||state.composing||state.mutating||state.opening||!!state.saving;
   $('engine').disabled=!!state.saving||state.mutating||!!state.client?.error;
   $('main-file').disabled=!!state.saving||state.mutating||!!state.client?.error;
@@ -299,15 +299,16 @@ function renderFiles(){
   $('main-file').value=state.project.main;$('engine').value=state.engine;
 }
 async function openProject(path=null,supplied=null,{compileOnOpen=false}={}){
-  preliminary?.clear();
-  if((state.busy||state.opening||state.saving)&&!supplied)return toast('Wait for the current operation before opening another project.');
-  if(state.client&&!state.client.error)await state.client.flush();
-  if(!supplied&&state.project&&dirty()&&!await confirm('Discard the current unsaved edits before opening another project?',{title:'Unsaved source',kind:'warning'}))return;
-  state.opening=true;state.pending=false;clearTimeout(state.compileTimer);editorReadOnly();
+  if(state.opening||(!supplied&&(state.busy||state.saving||state.mutating||state.composing)))return toast('Wait for the current operation before opening another project.');
+  state.opening=true;editorReadOnly();updateControls();
+  let client=null;
   try{
+    if(state.client&&!state.client.error)await state.client.flush();
+    if(!supplied&&state.project&&dirty()&&!await confirm('Discard the current unsaved edits before opening another project?',{title:'Unsaved source',kind:'warning'}))return;
+    preliminary?.clear();state.pending=false;clearTimeout(state.compileTimer);
     const project=supplied||await invoke('open_project',{path});
     const snapshot=await invoke('document_snapshot',{projectId:project.id});
-    const client=new DocumentClient(invoke,project.id,snapshot,{changed:next=>{if(state.client===client)acceptDocument(next)},failed:syncFailed});
+    client=new DocumentClient(invoke,project.id,snapshot,{changed:next=>{if(state.client===client)acceptDocument(next)},failed:syncFailed});
     pdfNavigation.cancelZoom();state.previewZooming=false;surfaceElements.pages.classList.remove('zooming');state.renderAbort?.abort();state.view?.dispose?.();pdfSearch.reset();canvas.clear();const previous=state.pdf,previousProject=state.project?.id,previousRevision=state.client?.snapshot.revision;
     Object.assign(state,{project,sources:{...project.sources},saved:{...project.sources},file:project.main,
       revision:snapshot.revision,compiled:-1,result:null,pdf:null,view:null,selected:null,lastHistory:0,canUndo:false,canRedo:false,
@@ -324,7 +325,6 @@ async function openProject(path=null,supplied=null,{compileOnOpen=false}={}){
     if(previous)try{await previous.destroy()}catch(error){toast(message(error))}
     if(previousProject)await invoke('close_document',{projectId:previousProject,revision:previousRevision,discardRecovery:true})
       .then(reply=>{if(reply?.warning)toast(reply.warning)}).catch(error=>toast(message(error)));
-    state.opening=false;editorReadOnly();sendSelection();
     renderSaveRecoveries();
     await typingRecovery.refresh();
     if(project.restored)$('save-copy').classList.remove('hidden');
@@ -340,7 +340,6 @@ async function openProject(path=null,supplied=null,{compileOnOpen=false}={}){
       if(!compileOnOpen){$('banner').textContent='Project source opened. Review it before choosing Compile. LaTeX runs locally and can access files using your account.';$('banner').classList.remove('hidden')}
       return;
     }
-    await compile();
   }catch(error){
     toast(message(error));
     if(!state.project){
@@ -348,7 +347,12 @@ async function openProject(path=null,supplied=null,{compileOnOpen=false}={}){
       $('banner').textContent='Could not open a project: '+message(error)+'. Choose Open project to try again.';
       $('banner').classList.remove('hidden');
     }
-  }finally{state.opening=false;editorReadOnly();updateControls()}
+    return;
+  }finally{
+    state.opening=false;editorReadOnly();updateControls();
+    if(client&&state.client===client)sendSelection();
+  }
+  await compile();
 }
 async function saveProject(){
   if(!state.project||state.saving||state.opening||state.mutating||state.composing)return;
