@@ -73,7 +73,7 @@ $env:TEXLOOM_NATIVE_CORPUS=Join-Path $env:TEXLOOM_PROOF_REPORT_DIR 'compiled'
 Invoke-Check 'native-three-engine-corpus' 'cargo' @('test','--locked','-p','texloom-build','--test','engine_worker_corpus','--','--ignored','--nocapture')
 Invoke-Check 'three-engine-build-corpus' 'cargo' @('test','--locked','-p','texloom-build','--test','engine_corpus','--','--ignored','--nocapture')
 Invoke-Check 'bibliography' 'cargo' @('test','--locked','-p','texloom-build','--test','bibliography','--','--ignored','--nocapture')
-Invoke-Check 'windows-build' 'npm.cmd' @('run','desktop:build','--','--no-bundle','--target','x86_64-pc-windows-msvc')
+Invoke-Check 'windows-build' 'npm.cmd' @('run','desktop:build','--','--target','x86_64-pc-windows-msvc')
 Invoke-Check 'portable-package' (Join-Path $PSHOME 'pwsh.exe') @('-NoProfile','-ExecutionPolicy','Bypass','-File','scripts/ci-package.ps1','-ArtifactRoot',(Join-Path $ArtifactRoot 'portable'))
 Invoke-Check 'source-benchmark' 'cargo' @('run','--locked','--release','-p','texloom-desktop','--features','benchmark','--example','source_benchmark','--target','x86_64-pc-windows-msvc','--',(Join-Path $ArtifactRoot 'source-benchmark'))
 Write-Host "All local CI steps passed. Evidence: $ArtifactRoot"

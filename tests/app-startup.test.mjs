@@ -47,9 +47,11 @@ test('the shipped shell requests and publishes only a settled PDF',async()=>{
  assert.equal(t.elements.get('pages').inert,false);
  assert.equal(t.context.workerStarts,1);
  assert.equal(t.context.finalPDFLoads,0);
+ assert.equal(t.elements.get('last-compile-time').textContent,'');
  t.context.finishCompile(structuredClone(finalReply));await t.context.startup;
  assert.equal(state.result.build_id,'settled');
  assert.equal(state.compiled,0);
+ assert.equal(t.elements.get('last-compile-time').textContent,'Last compile 1.00 s');
  assert.equal(t.context.temporaryRenders,0);
  assert.equal(t.context.finalPDFLoads,1);
  assert.equal(t.context.workerDisposals,0);
@@ -88,18 +90,30 @@ test('after a source error the shipped shell keeps the last PDF and publishes th
    revision:1,build_id:'failed',log:'! Undefined control sequence.'});
  await failed;
  assert.equal(state.pdf,previous);assert.equal(state.compiled,0);
+ assert.equal(t.elements.get('last-compile-time').textContent,'Last compile 1.00 s');
  assert.match(t.elements.get('banner').textContent,/Undefined control sequence/);
  assert.equal(t.elements.get('banner').classList.contains('hidden'),false);
 
  await changeSource(t,()=>original.replace('Native shell fixture','Corrected source'));
  const corrected=t.elements.get('compile').onclick();await tick();
  assert.equal(t.context.progressRequest.revision,2);
- t.context.finishCompile({...structuredClone(finalReply),revision:2,build_id:'corrected'});await corrected;
+ t.context.finishCompile({...structuredClone(finalReply),revision:2,build_id:'corrected',seconds:2.34});await corrected;
  assert.notEqual(state.pdf,previous);assert.equal(state.result.build_id,'corrected');
  assert.equal(state.compiled,2);assert.equal(state.busy,false);
  assert.equal(t.elements.get('banner').classList.contains('hidden'),true);
+ assert.equal(t.elements.get('last-compile-time').textContent,'Last compile 2.34 s');
  assert.equal(t.calls.some(([name,args])=>name==='pin_displayed_build'&&args.buildId==='failed'),false);
  assert.equal(t.calls.some(([name,args])=>name==='pin_displayed_build'&&args.buildId==='corrected'),true);
+});
+
+test('opening an uncompiled project clears the previous project compile time',async()=>{
+ const t=boot({deferCompile:true});await tick();
+ t.context.finishCompile(structuredClone(finalReply));await t.context.startup;
+ assert.equal(t.elements.get('last-compile-time').textContent,'Last compile 1.00 s');
+ t.context.open=async()=> 'C:/other/main.tex';
+ await t.elements.get('open').onclick();
+ assert.equal(t.context.shell.state.project.id,'opened-path');
+ assert.equal(t.elements.get('last-compile-time').textContent,'');
 });
 
 test('the experimental shell keeps preliminary bytes out of settled state, pinning and verification until final publication',async()=>{

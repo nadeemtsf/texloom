@@ -4,9 +4,15 @@
 
 This is a separate desktop implementation. It does not replace or convert the earlier Python application or its saved projects.
 
+## Install on Windows
+
+Download the Windows x64 `Setup.exe` from [GitHub Releases](https://github.com/nadeemtsf/texloom/releases). Preview builds are unsigned. Setup can install WebView2 when needed. It checks for a working MiKTeX or TeX Live compiler and offers the official MiKTeX setup wizard if it finds neither. The Basic MiKTeX download requires an internet connection. You can skip it and install either distribution later. Windows 11 x64 is required for the MiKTeX setup path.
+
+Once setup verifies a sample compile, you can open a `.tex` file and compile it. Projects can require extra LaTeX packages or fonts. Check the compiler output for missing dependencies. Legacy projects using `\StudioBlock` still need `studio.sty` alongside their source when you compile them outside Texloom.
+
 ## Development status
 
-Version 0.3 is under development in the primary repository, https://github.com/nadeemtsf/texloom. Source/history, compiler/mapping and workspace messages have Rust-generated TypeScript contracts and runtime checks. The current candidate adds project ZIP import/export, recents, explicit encoding conversion into a new copy, editable templates, BibTeX/Biber recipes, image import and bounded source layout controls. English, Arabic and Hebrew are the current language scope. See docs/IMPLEMENTATION-STATUS.md, docs/FINAL-NATIVE-ACCEPTANCE.md and docs/REMAINING-WORK.md for actual results and remaining work. New native/installation tests are currently deferred at the owner's request; headless checks continue. The research draft, development pilot and later evaluation plan are described in research/README.md; no final evaluation or publication is implied.
+Version 0.3 is under development in the primary repository, https://github.com/nadeemtsf/texloom. Source/history, compiler/mapping and workspace messages have Rust-generated TypeScript contracts and runtime checks. The current candidate adds project ZIP import/export, recents, explicit encoding conversion into a new copy, editable templates, BibTeX/Biber recipes, image import and bounded source layout controls. English, Arabic and Hebrew are the current language scope. See docs/IMPLEMENTATION-STATUS.md, docs/FINAL-NATIVE-ACCEPTANCE.md and docs/REMAINING-WORK.md for actual results and remaining work. Windows installation and interaction results are recorded against the exact preview build. The research draft, development pilot and later evaluation plan are described in research/README.md; no final evaluation or publication is implied.
 
 ## Implemented in source
 
@@ -54,7 +60,7 @@ target/x86_64-pc-windows-msvc/release/bundle/nsis/
 
 Errors stop the script and remain visible. The presence of source files or successful frontend tests does not mean that the native app builds successfully. Resolve any compiler or dependency errors before treating the executable as usable.
 
-Rust and Node.js are **build-time** dependencies. The installed app does not need Python or Node.js. It currently needs a working local LaTeX installation; its installer can arrange WebView2 if it is missing. No LaTeX distribution is bundled in this source prototype.
+Rust and Node.js are **build-time** dependencies. The installed app needs WebView2 and one working LaTeX distribution for compilation. Interactive setup can arrange these prerequisites. Silent and passive installation leave LaTeX provisioning to the caller.
 
 ## Source checks
 
@@ -88,7 +94,7 @@ Automatic recovery is separate from Save. Protection status stays visible beside
 - BibTeX and Biber run declared local recipes with fixed arguments. Remote bibliography sources, project configuration scripts and shell-escape recipes are refused.
 - Image dimensions, supported table column widths, explicit lengths, margins, font size/leading, line factors, styles and float placement have source controls. Unsupported grammars retain source access.
 - Imported projects open for source review before Compile runs LaTeX under the user's Windows account. Turning shell escape off is not an operating-system isolation boundary.
-- Portable and NSIS development packages include the dependency inventory, source-availability notices and pinned PDFium notices. They are unsigned. Clean-machine installation/uninstall and a human usability trial remain private release gates. Public distribution and Store submission are outside the roadmap.
+- Portable and NSIS preview packages are unsigned and include the dependency inventory, source-availability notices and pinned PDFium notices. See the versioned Windows acceptance records before making installation or usability claims.
 - Automated and real-engine results do not substitute for the exact native acceptance matrix. Current status and measured performance limits are documented rather than inferred from a successful build.
 
 ## Source access and development roadmap

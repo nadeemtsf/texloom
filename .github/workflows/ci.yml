@@ -60,8 +60,8 @@ jobs:
           $env:TEXLOOM_PDFIUM_TEST_WORKER = Join-Path (Get-Location) 'src-tauri/resources/verification/pdfium_worker.exe'
           cargo test --locked -p texloom-desktop --lib -- --ignored
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Build unsigned desktop executable
-        run: npm run desktop:build -- --no-bundle --target x86_64-pc-windows-msvc
+      - name: Build unsigned desktop executable and setup
+        run: npm run desktop:build -- --target x86_64-pc-windows-msvc
       - name: Package portable build with notices
         shell: pwsh
         id: portable
