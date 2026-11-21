@@ -63,9 +63,10 @@ export class TypingRecoveryController {
   }
   async restore() {
     const draft=this.selected();if(!draft||this.blocked())return;
-    if(this.isDirty()&&!await this.confirm('Open this recovered project and discard the current unsaved editor version? Save a project copy first to retain it.',{title:'Open recovered work',kind:'warning'}))return;
-    const client=this.getState().client;let project=null,adopted=false;this.lock();
+    const client=this.getState().client;let project=null,adopted=false,confirmed=false;this.lock();
     try {
+      if(this.isDirty()&&!await this.confirm('Open this recovered project and discard the current unsaved editor version? Save a project copy first to retain it.',{title:'Open recovered work',kind:'warning'}))return;
+      confirmed=true;
       await client?.flush();
       project=await this.invoke('open_typing_draft',{draftId:draft.id});
       if(this.getState().client!==client)throw Error('The open project changed. Recovered work was retained.');
@@ -75,14 +76,14 @@ export class TypingRecoveryController {
       this.notify('Recovered work opened with undo history. Review it before saving. The earlier draft is retained.');
     }catch(error){this.notify(String(error?.message||error))}finally{
       if(project&&!adopted)await this.invoke('close_document',{projectId:project.id}).catch(()=>{});
-      this.unlock();await this.refresh();
+      this.unlock();if(confirmed)await this.refresh();
     }
   }
   async discard() {
     const draft=this.selected();if(!draft||this.blocked())return;
-    if(!await this.confirm('Permanently discard this unsaved-work draft? Original project files and the current editor are kept.',{title:'Discard recovery draft',kind:'warning'}))return;
     this.lock();
     try {
+      if(!await this.confirm('Permanently discard this unsaved-work draft? Original project files and the current editor are kept.',{title:'Discard recovery draft',kind:'warning'}))return;
       this.inventory=await this.invoke('discard_typing_draft',{draftId:draft.id});this.render();
       if(!this.inventory.drafts.length&&!this.inventory.errors.length)this.ui.dialog.close();
       this.notify('Recovery draft discarded.');

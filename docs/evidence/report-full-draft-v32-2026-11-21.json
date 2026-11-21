@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "kind": "technical_report_v32_build_visual_review",
+  "reviewed_pages": 45,
+  "reviewed_references": 35,
+  "readable_pages": [
+    20,
+    21,
+    42
+  ],
+  "underfull_notices": 4,
+  "pdf": {
+    "file": "Texloom-technical-report-full-draft-2026-11-21-v32.pdf",
+    "sha256": "859f24929839c496ecb9a6f901bf3ce665c1626cb3fd5d3caf037b9451ba6b01",
+    "bytes": 735732
+  },
+  "editable_sources": {
+    "file": "Texloom-technical-report-editable-sources-2026-11-21-v32.zip",
+    "sha256": "4dd7b985f81ee9afe4553d58ab64d5caaf3e603b478e855c0d28c55c3b1c9335",
+    "bytes": 90363,
+    "members": 17
+  },
+  "source_sha256": {
+    "followup-references.bib": "98364f41534dad85698ed4405a0e749be50304e5b863ec47d08db0448c2f11e2",
+    "main.tex": "6643c7c7e237a4ea9c79c808b19a91dacd3cb24c79eef256e62ce666dca3a0d7",
+    "README.md": "929177afba8fa6ec897316a4163f01ab9560ba79adf76a9c76f0d68614a2dc55",
+    "references.bib": "1c6bef9292f8599cbc86bb610e9b1e3b44a604b3db66370c8e9604a849121493",
+    "sections/01-scope.tex": "8a081ce27cdd63ca9a623512aa0fc12ca7686477759b3f3de307ea7a9c701196",
+    "sections/02-workflow.tex": "ec6d7c640050e864421a33b05e54b2a278299e76a695ac570faca4a9388ddf5d",
+    "sections/03-contracts.tex": "46fc40be341983f0fd993ce675bbc1253fe9ab937538cc81eadb39e3b93e4c19",
+    "sections/04-related-work.tex": "a2225909003758d3c4262168bc12821c02ed9edc118f4ed83685107abdadf23e",
+    "sections/05-evaluation.tex": "71346c4c1e896eed0fed97844a50ea35a626cc7604f7fb96d4884ad2fb021bf3",
+    "sections/06-development-evidence.tex": "76e9ecd323fff0327a184eab0c006e286ddac6e7f1a2cd8b8a58cf9c0edd7dd7",
+    "sections/07-timing.tex": "15ce75420430c5ef4bf8c57ea69a90317fe2cae80e67ecbc29a6889c634084bf",
+    "sections/08-reproducibility.tex": "683c95e3224da775acd9c4c1baf722eb51078edd17ed7d68e52e84a533125c49",
+    "sections/09-limitations.tex": "5c57086b0dfa3a9af349cf032b653ed1e6c6b7f2b6ff192e505bf386586c862e",
+    "sections/appendix-artifacts.tex": "e00e2105b8b70e7e514a29c3cf90d7aa1e75c8c2ad82f64af2eef21e5cfdf2c2",
+    "sections/appendix-protocol.tex": "941e7098b5bda83b5078268c6abbbbc11e2124c35141c7531165a8fba62c00da",
+    "sections/appendix-reproduction.tex": "d54d2b2a1f7dbce035702cbaea1da1b0904535237c74874d450858c3afdcf7ef",
+    "sections/compile-cost.tex": "6072408b69f415fc814c550c20dc27d6360a7e976f8384477fb1af02995f1ea5"
+  },
+  "evidence_sha256": {
+    "native-settled-repair-2026-11-21.json": "0d2febece998c9048a039627917cc9fae765b95f4b4ca29d8b526480eb3c4a1e"
+  }
+}

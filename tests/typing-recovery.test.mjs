@@ -51,8 +51,20 @@ test('reviewing a crash inventory lists project identity but never restores auto
 test('declining replacement or discard leaves editor sources and native drafts untouched',async()=>{
  const t=setup({dirty:true,confirmed:false});await t.controller.show();t.element('draft-choice').value=draft.id;t.controller.renderDetails();
  await t.controller.restore();await t.controller.discard();
- assert.equal(t.state.sources['main.tex'],'CURRENT');assert.ok(!t.events.includes('lock'));
+ assert.equal(t.state.sources['main.tex'],'CURRENT');assert.equal(t.state.saving,false);
  assert.ok(!t.events.some(e=>Array.isArray(e)&&['open_typing_draft','discard_typing_draft'].includes(e[0])));
+});
+
+test('an open recovery confirmation excludes a competing discard request',async()=>{
+ const t=setup({dirty:true});await t.controller.show();t.element('draft-choice').value=draft.id;t.controller.renderDetails();
+ let confirm;const decision=new Promise(resolve=>{confirm=resolve});
+ t.controller.confirm=()=>{t.events.push('confirm');return decision};
+ const restoring=t.controller.restore();
+ const discarding=t.controller.discard();
+ confirm(true);await Promise.all([restoring,discarding]);
+ assert.equal(t.events.filter(event=>event==='confirm').length,1);
+ assert.equal(t.state.project.id,'recovered');assert.equal(t.state.saving,false);
+ assert.ok(!t.events.some(event=>Array.isArray(event)&&event[0]==='discard_typing_draft'));
 });
 
 test('recovery adoption flushes the active editor, sends only the draft ID and releases locking',async()=>{

@@ -1,4 +1,6 @@
-Latest artifact, 21 November, **v31, 45 pages and 35 references**. This revision adds export and preview publication checks and the adjacent-paragraph reading-order diagnostic. All pages were rendered and reviewed. See `docs/evidence/report-full-draft-v31-2026-11-21.json` and `docs/evidence/adjacent-paragraph-order-2026-11-21.json`.
+Latest artifact, 21 November, **v32, 45 pages and 35 references**. This revision adds recovery-session checks and a three-engine native source-error and repair control. All pages were rendered and reviewed. See `docs/evidence/report-full-draft-v32-2026-11-21.json` and `docs/evidence/native-settled-repair-2026-11-21.json`.
+
+Previous artifact, 21 November, **v31, 45 pages and 35 references**. This revision adds export and preview publication checks and the adjacent-paragraph reading-order diagnostic. All pages were rendered and reviewed. See `docs/evidence/report-full-draft-v31-2026-11-21.json` and `docs/evidence/adjacent-paragraph-order-2026-11-21.json`.
 
 Previous artifact, 21 November, **v30, 43 pages and 35 references**. This revision records overlapping project-open regressions and the cost of refusing oversized build dependencies. All pages were rendered and reviewed. See `docs/evidence/report-full-draft-v30-2026-11-21.json` and `docs/evidence/project-opening-and-dependency-refusal-2026-11-21.json`.
 

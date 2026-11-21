@@ -39,6 +39,16 @@ python research/tools/adjacent_paragraph_order.py `
 The tool retains the three source variants, compiler logs, extracted text
 and page images for every fixture and engine.
 
+The native settled build and repair sequence uses a fresh absolute path.
+It stores the two valid PDFs and the failed compiler log for each engine.
+\begin{verbatim}
+$run = Join-Path (Get-Location) 'artifacts/native-settled-repair'
+cargo run --locked -p texloom-desktop --features benchmark `
+  --example settled_repair_development -- $run
+pdftotext -nopgbrk "$run/pdflatex/after.pdf" -
+\end{verbatim}
+Repeat the text check for the Xe\LaTeX{} and Lua\LaTeX{} folders.
+
 The opt-in native development example is built without launching the app:
 \begin{verbatim}
 cargo build --locked -p texloom-desktop --features benchmark `

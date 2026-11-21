@@ -563,8 +563,35 @@ it for later use. Another schedule compiled a good source revision, reported
 a source error on the next revision and successfully presented a corrected
 third revision. The failure retained the last displayed PDF and the
 successful correction cleared the error. These schedules use the shipped
-shell with controlled native replies. They do not establish Windows
-interaction results.
+shell with controlled native replies. Windows interaction still requires
+owner acceptance.
+
+\subsection{A genuine source error and repair in the native service}
+For each of pdf\LaTeX{}, Xe\LaTeX{} and Lua\LaTeX{}, a disposable project
+produced a settled PDF at revision~1. The native edit command then inserted
+an undefined control sequence. Compilation at revision~2 returned an error
+diagnostic and empty PDF bytes. The service refused that build for
+verification and display pinning. The earlier successful PDF remained
+available to the pin command. The service refused it as the verified build
+for the broken source revision. Replacing
+the bad source at revision~3 produced a verified build with no compiler
+diagnostics. The original file on disk kept its exact bytes throughout.
+
+Poppler extracted the declared original text from all three baseline PDFs
+and the declared corrected text from all three repaired PDFs. This exercises
+the real native compile and pin commands. The controlled shell schedules
+above cover preview replacement and the error display. Native window input
+remains a separate acceptance step.
+
+\subsection{Recovery confirmation and rejected sessions}
+A confirmation for restoring unsaved work now reserves the recovery action
+before a competing discard can begin. The interrupted Save handlers use the
+same ordering for their confirmation. Two controlled interleavings formerly
+admitted a competing confirmation. After the guard, each admitted just the
+first requested action. A rejected snapshot also releases its new native
+session, whether it came from toolbar Open or from reopening a recovered
+Save. Those checks retain the earlier editor and avoid reporting a reopened
+project when its snapshot was refused.
 
 \subsection{Adjacent paragraph reorder as a protected source draft}
 \label{sec:adjacent-paragraph-draft}
