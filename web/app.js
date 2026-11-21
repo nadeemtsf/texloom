@@ -270,15 +270,24 @@ function showFailure(error){
   $('banner').classList.remove('hidden');
 }
 function renderDiagnostics(diagnostics){
+  const client=state.client;
   $('diagnostics').replaceChildren();
   for(const d of diagnostics){
     const el=document.createElement(d.file?'button':'p');
     el.className='diagnostic '+d.severity;el.textContent=(d.file?d.file+(d.line?':'+d.line:'')+' — ':'')+d.message;
-    if(d.file)el.onclick=async()=>{try{await state.client.flush();if(state.sources[d.file]===undefined)return;
-      state.lastHistory=0;activateSourceFile(d.file);editor.setPosition({lineNumber:Math.min(d.line||1,model.getLineCount()),column:1});editor.focus();sendSelection();
-    }catch(error){syncFailed(error)}};
+    if(d.file)el.onclick=()=>navigateProjectSource(client,d.file,d.line||1);
     $('diagnostics').append(el);
   }
+}
+async function navigateProjectSource(client,file,line=null){
+  if(!client||client!==state.client||state.opening)return;
+  try{
+    await client.flush();
+    if(client!==state.client||state.opening||!Object.hasOwn(state.sources,file))return;
+    state.lastHistory=0;activateSourceFile(file);
+    if(line!==null){editor.setPosition({lineNumber:Math.min(line,model.getLineCount()),column:1});editor.focus()}
+    sendSelection();
+  }catch(error){if(client===state.client&&!state.opening)syncFailed(error)}
 }
 async function cancelCompile(){
   preliminary?.clear();
@@ -287,11 +296,12 @@ async function cancelCompile(){
 }
 function renderFiles(){
   if(!state.project)return;
+  const client=state.client;
   $('file-list').replaceChildren();
   for(const name of Object.keys(state.sources).sort()){
     const button=document.createElement('button');button.textContent=name;button.title=name;
     button.classList.toggle('active',name===state.file);
-    button.onclick=async()=>{try{await state.client.flush();state.lastHistory=0;activateSourceFile(name);sendSelection()}catch(error){syncFailed(error)}};$('file-list').append(button);
+    button.onclick=()=>navigateProjectSource(client,name);$('file-list').append(button);
   }
   $('main-file').replaceChildren();
   for(const name of Object.keys(state.sources).filter(n=>n.endsWith('.tex'))){
