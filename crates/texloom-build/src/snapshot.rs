@@ -134,6 +134,8 @@ impl Fingerprint {
     }
     pub fn file(path: &Path) -> Result<Self> {
         let mut file = fs::File::open(path).map_err(fail)?;
+        const LIMIT: u64 = 256 * 1024 * 1024;
+        let oversized = || format!("Dependency exceeds 256 MiB: {}", path.display());
         let mut hash = Sha256::new();
         let mut total = 0u64;
         let mut buffer = [0; 64 * 1024];
@@ -142,9 +144,14 @@ impl Fingerprint {
             if n == 0 {
                 break;
             }
+            // Small files skip the metadata lookup. The streaming limit still
+            // applies if the length is unavailable or changes during the read.
+            if total == 0 && n == buffer.len() && file.metadata().is_ok_and(|m| m.len() > LIMIT) {
+                return Err(oversized());
+            }
             total += n as u64;
-            if total > 256 * 1024 * 1024 {
-                return Err(format!("Dependency exceeds 256 MiB: {}", path.display()));
+            if total > LIMIT {
+                return Err(oversized());
             }
             hash.update(&buffer[..n]);
         }

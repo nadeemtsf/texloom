@@ -92,6 +92,21 @@ fn recorder_requires_declared_inputs_and_checks_toolchain_changes() {
     assert!(r.verify().is_err());
 }
 #[test]
+fn dependency_fingerprint_accepts_the_exact_byte_limit_and_refuses_extra_bytes() {
+    let workspace = Workspace::new();
+    let path = workspace.0.join("large-dependency.bin");
+    let writer = fs::File::create_new(&path).unwrap();
+    let limit = 256 * 1024 * 1024;
+    writer.set_len(limit).unwrap();
+    assert_eq!(Fingerprint::file(&path).unwrap().bytes, limit);
+    writer.set_len(limit + 1).unwrap();
+    assert_eq!(
+        Fingerprint::file(&path).unwrap_err(),
+        format!("Dependency exceeds 256 MiB: {}", path.display())
+    );
+}
+
+#[test]
 fn recorder_accepts_the_exact_byte_limit_and_refuses_extra_bytes() {
     let w = Workspace::new();
     let mut receipt = w.capture();
