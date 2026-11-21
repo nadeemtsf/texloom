@@ -132,7 +132,7 @@ test('a later compiler failure clears the preliminary view and retains the earli
 
 // Run the complete production shell. IDs come only from the shipped HTML;
 // looking up a missing control returns null, as it does in the actual WebView.
-function boot({markup=html,openFailure=null,pathFailure=null,badSnapshot=false,adapterFailure=null,deferCompile=false,enablePreliminary=false,pendingSave=null,badRecoverySnapshot=false}={}){
+function boot({markup=html,openFailure=null,pathFailure=null,badSnapshot=false,adapterFailure=null,deferCompile=false,enablePreliminary=false,pendingSave=null,badRecoverySnapshot=false,withChapter=false}={}){
   const calls=[],compileStates=[],elements=new Map(),options={},handlers={};
   function element(id=''){
     const classes=new Set(),attributes=new Map();
@@ -151,11 +151,13 @@ function boot({markup=html,openFailure=null,pathFailure=null,badSnapshot=false,a
   }
   const source='\\documentclass{article}\n\\begin{document}\nNative shell fixture\n\\end{document}\n';
   const project={id:'fixture',name:'Fixture',main:'main.tex',sources:{'main.tex':source},recoveries:pendingSave?[pendingSave]:[],recovery_error:null,restored:false,draft_warning:null,source_only:false};
+  if(withChapter)project.sources['chapter.tex']='Fixture chapter.\n';
   const snapshot={revision:0,sources:project.sources,main:project.main,engine:'auto',can_undo:false,can_redo:false,selection:null,recovery:{draft_id:null,protected_revision:null,error:null}};
-  const model={value:'',setValue(v){this.value=v},setEOL(){},getValue(){return this.value}};
+  const model={value:'',setValue(v){this.value=v},setEOL(){},getValue(){return this.value},getLineCount(){return this.value.split('\n').length}};
   const editor={createContextKey:()=>({set(){}}),updateOptions:o=>Object.assign(options,o),
     onDidChangeModelContent(fn){handlers.change=fn},onDidChangeCursorPosition(){},onDidChangeCursorSelection(){},
-    addAction(){},addCommand(){},getDomNode:()=>element(),getSelections:()=>[],hasTextFocus:()=>false};
+    addAction(){},addCommand(){},getDomNode:()=>element(),getSelections:()=>[],hasTextFocus:()=>false,
+    setPosition(position){handlers.lastPosition=position},focus(){}};
   let nativeSource=source;
   const context={...transactions,bindPDFScrolling,SourceHighlight,selectionSourceRange,applyTextInputAppearance,renderProtectedCommands,positionDialogNear,clearDialogPosition,DocumentClient,editorText,sameSources,TypingRecoveryController,CloseController,createWorkspaceInvoke,ProjectControls,PDFSearch,SetupHelp,installPerformanceDiagnostics,performanceOutcome,structuredClone,console,
     createCompileInvoke,startPDFWorker,PreliminaryPreview,PreliminaryPDFSurface,renderPreliminaryPDF,acceptUnverifiedPreview,
@@ -277,6 +279,50 @@ test('toolbar Open reserves the project switch while confirming unsaved source',
   assert.equal(state.client,client);assert.equal(state.opening,false);assert.ok(!state.saving);
   assert.equal(t.options.readOnly,false);
   assert.match(t.elements.get('toast').textContent,/Wait for the current operation/);
+});
+
+test('a file click waiting on the previous project cannot navigate its replacement',async()=>{
+  const t=boot({withChapter:true});await t.context.startup;
+  const state=t.context.shell.state,old=state.client,flush=old.flush.bind(old);
+  const chapter=t.elements.get('file-list').children.find(child=>child.textContent==='chapter.tex');
+  let release;
+  const pending=new Promise(resolve=>{release=resolve});
+  old.flush=()=>{old.flush=flush;return pending};
+  const navigating=chapter.onclick();
+  t.context.open=async()=> 'C:/other/main.tex';
+  await t.elements.get('open').onclick();
+  release(old.snapshot);await navigating;
+  assert.equal(state.project.id,'opened-path');assert.equal(state.file,'main.tex');
+});
+
+test('a diagnostic retains its project identity and still opens its file within that project',async()=>{
+  const t=boot({withChapter:true});await t.context.startup;
+  const state=t.context.shell.state,diagnostic={file:'chapter.tex',line:1,message:'Fixture problem',severity:'error'};
+  t.context.shell.showFailure(Object.assign(Error('Fixture error'),{diagnostics:[diagnostic]}));
+  const action=t.elements.get('diagnostics').children[0].onclick;
+  await action();
+  assert.equal(state.file,'chapter.tex');assert.equal(t.handlers.lastPosition.lineNumber,1);
+
+  t.context.open=async()=> 'C:/other/main.tex';
+  await t.elements.get('open').onclick();
+  await action();
+  assert.equal(state.project.id,'opened-path');assert.equal(state.file,'main.tex');
+});
+
+test('a previous project navigation failure cannot replace the current editor banner',async()=>{
+  const t=boot({withChapter:true});await t.context.startup;
+  const state=t.context.shell.state,old=state.client,flush=old.flush.bind(old);
+  const chapter=t.elements.get('file-list').children.find(child=>child.textContent==='chapter.tex');
+  let fail;
+  const pending=new Promise((_,reject)=>{fail=reject});
+  old.flush=()=>{old.flush=flush;return pending};
+  const navigating=chapter.onclick();
+  t.context.open=async()=> 'C:/other/main.tex';
+  await t.elements.get('open').onclick();
+  const banner=t.elements.get('banner'),current=banner.textContent;
+  fail(Error('Previous source disconnected'));await navigating;
+  assert.equal(state.project.id,'opened-path');assert.equal(state.file,'main.tex');
+  assert.equal(banner.textContent,current);assert.equal(t.options.readOnly,false);
 });
 
 test('an export whose destination arrives after a project switch cannot export the replacement',async()=>{
