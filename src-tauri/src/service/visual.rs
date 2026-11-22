@@ -117,6 +117,8 @@ mod tests {
             plain: false,
             literal_edits: None,
             spacing_edits: None,
+            neighbor: None,
+            before_neighbor: false,
         };
         let plan = plan_object_edit(request).unwrap();
         let result = &plan.sources["main.tex"];
@@ -156,6 +158,10 @@ pub struct ObjectEditRequest {
     pub literal_edits: Option<Vec<LiteralEditRequest>>,
     #[serde(default)]
     pub spacing_edits: Option<Vec<SpacingEditRequest>>,
+    #[serde(default)]
+    pub neighbor: Option<[usize; 2]>,
+    #[serde(default)]
+    pub before_neighbor: bool,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -278,10 +284,20 @@ fn mark_text_range(
     source: &str,
     range: std::ops::Range<usize>,
 ) -> Result<BTreeMap<String, String>> {
+    mark_text_ranges(request, source, &[(range, &request.id)])
+}
+
+fn mark_text_ranges(
+    request: &ObjectEditRequest,
+    source: &str,
+    ranges: &[(std::ops::Range<usize>, &str)],
+) -> Result<BTreeMap<String, String>> {
     let mut sources = request.sources.clone();
-    let marked = texloom_core::wrap_text_object(
-        source, range, &request.id, 0.0, 0.0, &request.sources[&request.main],
-    )?;
+    let document = &sources[&request.main];
+    let mut marked = source.to_owned();
+    for (range, id) in ranges {
+        marked = texloom_core::wrap_text_object(&marked, range.clone(), id, 0.0, 0.0, document)?;
+    }
     sources.insert(request.file.clone(), marked);
     let main = texloom_core::ensure_objects_package(&sources[&request.main])?;
     sources.insert(request.main.clone(), main);
@@ -365,7 +381,72 @@ pub(super) fn plan_direct_text(request: &ObjectEditRequest) -> Result<DirectText
     Ok(DirectTextPlan { sources, before_probe, after_probe, displacement })
 }
 
+pub(super) struct ReorderPlan {
+    pub(super) sources: BTreeMap<String, String>,
+    pub(super) before_probe: BTreeMap<String, String>,
+    pub(super) after_probe: BTreeMap<String, String>,
+}
+
+pub(super) fn plan_paragraph_reorder(request: &ObjectEditRequest) -> Result<ReorderPlan> {
+    use texloom_core::document::{Profile, Session, intent::{ParagraphPosition, SourceIntent}};
+    relative(&request.main)?;
+    relative(&request.file)?;
+    if request.file != request.main {
+        return Err("Reorder currently supports neighboring paragraphs in the main LaTeX file".into());
+    }
+    let session = Session::new(
+        request.sources.clone(), Profile { main: request.main.clone(), engine: "auto".into() },
+    ).map_err(fail)?;
+    let source = &session.sources()[&request.file];
+    let editor = EditorProjection::new(source);
+    let source_range = |range: Option<[usize; 2]>| -> Result<std::ops::Range<usize>> {
+        let [start, end] = range.ok_or("Select two paragraphs to reorder")?;
+        Ok(editor.source_offset(start).map_err(fail)?..editor.source_offset(end).map_err(fail)?)
+    };
+    let target = source_range(request.selection)?;
+    let neighbor = source_range(request.neighbor)?;
+    if source.get(target.clone()) != request.expected.as_deref() {
+        return Err("The selected paragraph changed. Select it again.".into());
+    }
+    let projection = session.source_projection(&request.file).map_err(fail)?;
+    let reference = |range: &std::ops::Range<usize>| {
+        projection.regions().iter().enumerate().find_map(|(index, region)| {
+            (region.range() == *range).then(|| projection.entity_reference(index)).flatten()
+        }).ok_or("Reorder requires two complete plain paragraphs")
+    };
+    let position = if request.before_neighbor { ParagraphPosition::Before } else { ParagraphPosition::After };
+    let plan = session.plan_source_intent(SourceIntent::MoveAdjacentParagraph {
+        target: reference(&target)?, neighbor: reference(&neighbor)?, position,
+    }).map_err(|_| "Reorder requires two adjacent paragraphs with no source structure between them")?;
+    if !plan.changed() {
+        return Err("The paragraphs already have the requested source order or identical text".into());
+    }
+    let sources = plan.candidate_sources(&session).map_err(fail)?;
+    let (earlier, later) = if target.start < neighbor.start { (&target, &neighbor) } else { (&neighbor, &target) };
+    let neighbor_id = format!("{}-neighbor", request.id);
+    let (earlier_id, later_id) = if target.start < neighbor.start {
+        (request.id.as_str(), neighbor_id.as_str())
+    } else {
+        (neighbor_id.as_str(), request.id.as_str())
+    };
+    let before_probe = mark_text_ranges(request, source, &[
+        (later.clone(), later_id), (earlier.clone(), earlier_id),
+    ])?;
+    let first = earlier.start..earlier.start + later.len();
+    let second = later.end - earlier.len()..later.end;
+    let after_probe = mark_text_ranges(request, &sources[&request.file], &[
+        (second, earlier_id), (first, later_id),
+    ])?;
+    Ok(ReorderPlan { sources, before_probe, after_probe })
+}
+
 pub fn plan_object_edit(mut request: ObjectEditRequest) -> Result<ObjectPlan> {
+    if request.action == "reorder_paragraph" {
+        let plan = plan_paragraph_reorder(&request)?;
+        return Ok(ObjectPlan {
+            sources: plan.sources, object_id: request.id, file: request.file, operation: request.action,
+        });
+    }
     if matches!(request.action.as_str(), "replace_source" | "append_paragraph" | "move_source") {
         let plan = plan_direct_text(&request)?;
         return Ok(ObjectPlan {

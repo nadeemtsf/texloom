@@ -105,6 +105,7 @@ const canvas=new CanvasController({
   getSession:()=>state,
   resolve:args=>resolveSourceSelection(args),
   move:(selection,dx,dy,trace)=>moveText(selection,dx,dy,trace),
+  reorder:(selection,destination)=>reorderText(selection,destination),
   edit:selection=>editText(selection),
   selected:selection=>showObjectInspector(selection),
   notify:text=>toast(text)
@@ -171,6 +172,9 @@ function updateControls(){
   const ready=fresh(),object=ready&&!!state.objectSelection;
   for(const id of ['add-text','show-pdf'])$(id).disabled=!ready;
   for(const id of ['object-apply','object-edit','object-source'])$(id).disabled=!object;
+  const destinations=object?canvas.reorderDestinations?.(state.objectSelection)||[]:[];
+  $('object-before').disabled=!destinations.some(item=>item.before);
+  $('object-after').disabled=!destinations.some(item=>!item.before);
   $('object-detach').disabled=!object||state.objectSelection?.kind!=='object';
   $('object-reset').disabled=!object||state.objectSelection?.kind!=='object'||(!state.objectSelection.dx&&!state.objectSelection.dy);
   $('compile').disabled=state.busy||!!state.saving||!!state.client?.error;
@@ -697,6 +701,25 @@ async function textOperation(selection,{dx,dy,content,literalEdits,spacingEdits,
     trace?.finish(performanceOutcome(error));toast(message(error));return false;
   }
 }
+async function reorderText(selection,{line,before,wholeParagraph=false}){
+  if(!fresh()||selection.expected_source!==state.sources[selection.file])return toast('Compile the current source and select the paragraph again.');
+  const identity=sessionIdentity(state),buildId=state.result.build_id;
+  try{
+    const neighbor=await resolveSourceSelection({buildId,page:selection.page,hits:[line],
+      points:[{x:line.x+Math.min(line.width/2,15),y:line.baseline-line.height*.35}]});
+    if(!fresh()||identity!==sessionIdentity(state)||state.result.build_id!==buildId)throw new StaleCandidate();
+    const edge=before?neighbor.proof.lines[0]:neighbor.proof.lines.at(-1);
+    if(neighbor.kind!=='paragraph'||neighbor.file!==selection.file||(!wholeParagraph&&edge!==line)){
+      return toast('Reorder needs a drop at the edge of a neighboring paragraph in the same source file.');
+    }
+    const request={sources:clone(state.sources),main:state.project.main,file:selection.file,
+      action:'reorder_paragraph',id:'reorder-'+crypto.randomUUID().slice(0,8),
+      selection:[selection.start,selection.end],expected:selection.content,
+      neighbor:[neighbor.start,neighbor.end],before_neighbor:before};
+    const plan=await invoke('plan_text_object',{request});
+    await commitSources(plan.sources,{file:plan.file,operation:{kind:'text',request},expectedIdentity:identity});
+  }catch(error){toast(message(error))}
+}
 function moveText(selection,dx,dy,trace=diagnostics.begin('text-move')){
   if(!selection){trace?.finish('refused');return}
   if(selection.kind==='source'&&(selection.unitKind==='group'||(selection.baselineLines?.length??0)>1)){
@@ -981,6 +1004,8 @@ $('add-text').onclick=()=>{
   $('plain-label').classList.add('hidden');
   $('edit-help').textContent='Enter one paragraph of plain text.';
 };
+$('object-before').onclick=()=>canvas.reorderNearby(true);
+$('object-after').onclick=()=>canvas.reorderNearby(false);
 $('object-edit').onclick=()=>editText();
 $('object-source').onclick=()=>showSource(state.objectSelection);
 $('object-detach').onclick=()=>textOperation(state.objectSelection,{detach:true});

@@ -711,3 +711,70 @@ fn direct_drag_real_engine_workflow() {
         println!("{engine}: two source-native drags and history, Save/reopen, external compile");
     }
 }
+
+fn reorder_request(source: &str, first: &str, second: &str, before: bool) -> ObjectEditRequest {
+    let range = |text: &str| {
+        let start = source.find(text).unwrap();
+        [start, start + text.len()]
+    };
+    serde_json::from_value(json!({
+        "sources": sources(source), "main":"main.tex", "file":"main.tex",
+        "action":"reorder_paragraph", "id":"drag-reorder", "selection":range(first),
+        "neighbor":range(second), "expected":first, "before_neighbor":before,
+    })).unwrap()
+}
+
+#[test]
+fn reorder_rejects_nonadjacent_and_noop_targets() {
+    let source = "\\documentclass{article}\n\\begin{document}\nOne.\n\nTwo.\n\nThree.\n\\end{document}\n";
+    assert!(visual::plan_paragraph_reorder(&reorder_request(source, "One.", "Three.", false)).is_err());
+    assert!(visual::plan_paragraph_reorder(&reorder_request(source, "One.", "Two.", true)).is_err());
+    assert!(visual::plan_paragraph_reorder(&reorder_request(source, "One.", "Two.", false)).is_ok());
+    let separated = source.replace("\n\nTwo.", "\n\n\\section{Boundary}\n\nTwo.");
+    assert!(visual::plan_paragraph_reorder(&reorder_request(&separated, "One.", "Two.", false)).is_err());
+}
+
+#[test]
+#[ignore = "requires the installed TeX engines and the pinned Windows verifier"]
+fn verified_reorder_real_engine_workflow() {
+    let long = "First paragraph wraps across PDF lines. ".repeat(5).trim_end().to_owned();
+    let short = "The second paragraph is shorter.";
+    let source = format!("\\documentclass[12pt]{{article}}\n\\begin{{document}}\n{long}\n\n{short}\n\nA neighboring paragraph stays here.\n\\end{{document}}\n");
+    let swapped = format!("\\documentclass[12pt]{{article}}\n\\begin{{document}}\n{short}\n\n{long}\n\nA neighboring paragraph stays here.\n\\end{{document}}\n");
+    for engine in ["pdflatex", "xelatex", "lualatex"] {
+        let mut f = Fixture::new(&source);
+        prepare_test_verifier(&mut f);
+        let path = f.root.join("project/main.tex").to_string_lossy().into_owned();
+        let project = f.backend.open_project_with_profile(Some(path.clone()), Some(ProjectProfile {
+            schema: 1, main: "main.tex".into(), engine: engine.into(),
+        })).unwrap();
+        let id = &project.id;
+        for (base, input, expected, before) in [(0, &source, &swapped, false), (1, &swapped, &source, true)] {
+            let baseline = f.backend.compile_document(id, base, None, None, base * 2 + 1).unwrap();
+            assert!(baseline.ok && baseline.verification_eligible, "{engine}: {}", baseline.log);
+            let request = reorder_request(input, &long, short, before);
+            let planned = visual::plan_object_edit(request.clone()).unwrap();
+            assert_eq!(planned.sources, sources(expected), "{engine}");
+            let prepared = f.backend.document_prepare_visual(
+                id, base, planned.sources, &baseline.build_id, Some(VisualOperation::Text { request }),
+            ).unwrap();
+            let result = f.backend.compile_document(id, base, Some(&prepared.token), None, base * 2 + 2)
+                .unwrap_or_else(|error| panic!("{engine} reorder {base}: {error}"));
+            assert!(result.ok && result.verification_eligible, "{engine}: {}", result.log);
+            assert!(result.objects.is_empty());
+            assert_eq!(f.backend.document_commit(id, &prepared.token, &result.build_id).unwrap().sources,sources(expected));
+        }
+        let undone = f.backend.document_history(id, 2, false).unwrap();
+        assert_eq!(undone.sources, sources(&swapped));
+        let redone = f.backend.document_history(id, undone.revision, true).unwrap();
+        assert_eq!(redone.sources, sources(&source));
+        let swapped_again = f.backend.document_history(id, redone.revision, false).unwrap();
+        f.backend.save_document(id, swapped_again.revision).unwrap();
+        assert_eq!(f.backend.open_project(Some(path)).unwrap().sources, sources(&swapped));
+        let result = Command::new(find_program(engine).unwrap())
+            .args(["-no-shell-escape", "-halt-on-error", "-interaction=nonstopmode", "main.tex"])
+            .current_dir(f.root.join("project")).output().unwrap();
+        assert!(result.status.success(), "{engine}: {}", String::from_utf8_lossy(&result.stdout));
+        println!("{engine}: reordered a wrapped paragraph in both directions and verified history, Save and external compile");
+    }
+}

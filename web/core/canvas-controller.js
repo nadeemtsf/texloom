@@ -3,8 +3,8 @@ import {performanceOutcome} from './performance-diagnostics.js';
 
 /** DOM gestures are isolated from source edits and compilation. */
 export class CanvasController {
-  constructor({getSession,resolve,move,edit,selected,notify,eventWindow=globalThis.window,diagnostics=null}) {
-    Object.assign(this,{getSession,resolve,move,edit,onSelected:selected,notify,eventWindow,diagnostics});
+  constructor({getSession,resolve,move,reorder,edit,selected,notify,eventWindow=globalThis.window,diagnostics=null}) {
+    Object.assign(this,{getSession,resolve,move,reorder,edit,onSelected:selected,notify,eventWindow,diagnostics});
     this.view=null;this.selection=null;this.pending=0;this.hits=[];
     this.cancelGesture=null;this.pageHandlers=new Map();
     this.onEscape=e=>{if(e.key==='Escape'){this.cancelGesture?.();this.clear()}};
@@ -102,17 +102,50 @@ export class CanvasController {
     frame.ondblclick=event=>{event.stopPropagation();this.edit(selection)};
     frame.onkeydown=event=>{
       const step=event.shiftKey?10:1,directions={ArrowLeft:[-step,0],ArrowRight:[step,0],ArrowUp:[0,-step],ArrowDown:[0,step]};
-      if(directions[event.key]){event.preventDefault();this.move(selection,...directions[event.key])}
+      if(event.altKey&&(event.key==='ArrowUp'||event.key==='ArrowDown')){
+        event.preventDefault();this.reorderNearby(event.key==='ArrowUp');
+      }else if(directions[event.key]){event.preventDefault();this.move(selection,...directions[event.key])}
       else if(event.key==='Enter'){event.preventDefault();this.edit(selection)}
     };
     page.shell.append(frame);return frame;
+  }
+  reorderDestinations(selection){
+    if(!this.reorder||selection?.kind!=='source'||selection.unitKind!=='paragraph')return [];
+    const page=this.view?.pages?.find(item=>item.number===selection.page);
+    const selected=selection.baselineLines;
+    if(!page||!selected?.length)return [];
+    const first=selected[0],last=selected.at(-1);
+    const firstIndex=page.lines.indexOf(first),lastIndex=page.lines.indexOf(last);
+    if(firstIndex<0||lastIndex<0)return [];
+    const candidates=[
+      ...page.lines.slice(0,firstIndex).reverse().map(line=>({line,before:true})),
+      ...page.lines.slice(lastIndex+1).map(line=>({line,before:false})),
+    ];
+    return candidates.map(({line,before})=>{
+      const y=before?line.y-4:line.y+line.height+4;
+      return {line,before,y};
+    });
+  }
+  reorderNearby(before){
+    if(!this.fresh())return;
+    const selection=this.selection;
+    const destination=this.reorderDestinations(selection).find(item=>item.before===before);
+    if(destination)return this.reorder(selection,{...destination,wholeParagraph:true});
+    this.notify('There is no neighboring paragraph in that direction.');
   }
   drag(event,frame,selection){
     if(event.button!==0||!this.fresh()||this.getSession().mode==='read')return;
     this.cancelGesture?.();const pointerId=event.pointerId;
     event.preventDefault();event.stopPropagation();frame.focus({preventScroll:true});frame.setPointerCapture(event.pointerId);
-    const origin={x:event.clientX,y:event.clientY};let delta=null,previewMeasured=false;
+    const origin={x:event.clientX,y:event.clientY};let delta=null,previewMeasured=false,destination=null,cue=null;
     const factor=this.view.scale;
+    const destinations=this.reorderDestinations(selection);
+    const shell=this.view.pages?.find(page=>page.number===selection.page)?.shell;
+    const destinationAt=e=>{
+      if(e.altKey||!destinations.length||!shell)return null;
+      const rect=shell.getBoundingClientRect(),x=(e.clientX-rect.left)/factor,y=(e.clientY-rect.top)/factor;
+      return destinations.find(item=>Math.abs(y-item.y)<=6&&x>=item.line.x-20&&x<=item.line.x+item.line.width+20)||null;
+    };
     const move=e=>{
       if(e.pointerId!==pointerId)return;
       const snap=v=>e.altKey?Math.round(v*100)/100:Math.round(v/2)*2;
@@ -121,13 +154,33 @@ export class CanvasController {
       delta={x:snap((e.clientX-origin.x)/factor),y:snap((e.clientY-origin.y)/factor)};
       frame.style.transform=`translate(${delta.x*this.view.scale}px,${delta.y*this.view.scale}px)`;
       frame.classList.add('dragging');
+      if(destinations.length&&shell){
+        destination=destinationAt(e);
+        if(destination){
+          if(!cue){
+            cue=document.createElement('div');cue.className='paragraph-drop-line';cue.textContent='Reorder here';
+            shell.append(cue);
+          }
+          const {line,y:dropY}=destination;
+          Object.assign(cue.style,{left:line.x*factor+'px',top:dropY*factor+'px',width:Math.max(40,line.width*factor)+'px'});
+        }else{cue?.remove();cue=null}
+      }
       trace?.mark('preview-updated');trace?.finish('feedback',{paint:true,isCurrent:()=>this.cancelGesture===cancel&&this.fresh()});
     };
     // A moving outline is honest feedback until target-only paint is proven.
     // Cropping the page would copy background ink; masking would erase it.
-    const clean=()=>{frame.style.transform='';frame.classList.remove('dragging');if(this.cancelGesture===cancel)this.cancelGesture=null};
+    const clean=()=>{cue?.remove();frame.style.transform='';frame.classList.remove('dragging');if(this.cancelGesture===cancel)this.cancelGesture=null};
     const unbind=()=>{frame.removeEventListener('pointermove',move);frame.removeEventListener('pointerup',up);frame.removeEventListener('pointercancel',cancel);frame.removeEventListener('lostpointercapture',cancel)};
-    const cancel=e=>{if(e&&e.pointerId!==pointerId)return;unbind();clean()};const up=async e=>{if(e.pointerId!==pointerId)return;const trace=delta&&(delta.x||delta.y)?this.diagnostics?.begin('text-move'):null;unbind();this.lastClick=null;try{if(delta&&(delta.x||delta.y))await this.move(selection,delta.x,delta.y,trace)}finally{clean()}};
+    const cancel=e=>{if(e&&e.pointerId!==pointerId)return;unbind();clean()};const up=async e=>{
+      if(e.pointerId!==pointerId)return;
+      unbind();this.lastClick=null;
+      const dropped=delta&&(Number.isFinite(e.clientX)?destinationAt(e):destination);
+      try{
+        if(!this.fresh())return;
+        if(dropped)await this.reorder(selection,dropped);
+        else if(delta&&(delta.x||delta.y))await this.move(selection,delta.x,delta.y,this.diagnostics?.begin('text-move'));
+      }finally{clean()}
+    };
     this.cancelGesture=cancel;frame.addEventListener('pointermove',move);frame.addEventListener('pointerup',up);frame.addEventListener('pointercancel',cancel);frame.addEventListener('lostpointercapture',cancel);
   }
   marquee(event,shell,lines,page){

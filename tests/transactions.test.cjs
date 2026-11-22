@@ -506,3 +506,37 @@ test('free dragging ordinary PDF text commits the direct source candidate',async
   assert.equal(t.native.history.length,1);
   assert.deepEqual(t.native.sources,{'main.tex':'Positioned ordinary LaTeX source','custom.sty':'Style source'});
 });
+
+test('reorder resolves the second paragraph independently and publishes the verified source',async()=>{
+ const t=await setup();
+ const source='Original source';
+ const selection="{kind:'source',unitKind:'paragraph',file:'main.tex',page:1,start:0,end:8,content:'Original',expected_source:'Original source'}";
+ t.run("const reorderLine={x:30,width:100,y:100,baseline:108,height:10};");
+ t.run("resolveSourceSelection=async()=>({kind:'paragraph',file:'main.tex',start:9,end:15,proof:{lines:[reorderLine]}});");
+ let plans=0;
+ t.control.plan=async request=>{
+  plans++;
+  assert.equal(request.action,'reorder_paragraph');
+  assert.deepEqual(Array.from(request.selection),[0,8]);
+  assert.deepEqual(Array.from(request.neighbor),[9,15]);
+  assert.equal(request.before_neighbor,false);
+  return {sources:{...request.sources,'main.tex':'source Original'},file:'main.tex'};
+ };
+ await t.run("reorderText("+selection+",{line:reorderLine,before:false})");
+ assert.equal(plans,1);
+ assert.equal(t.native.sources['main.tex'],'source Original');
+ assert.equal(t.native.history[0].sources['main.tex'],source);
+});
+
+test('dropping inside an unrelated wrapped paragraph cannot commit or fall back to free drag',async()=>{
+ const t=await setup();
+ const selection="{kind:'source',unitKind:'paragraph',file:'main.tex',page:1,start:0,end:8,content:'Original',expected_source:'Original source'}";
+ t.run("const reorderLine={x:30,width:100,y:100,baseline:108,height:10};");
+ t.run("resolveSourceSelection=async()=>({kind:'paragraph',file:'main.tex',start:9,end:15,proof:{lines:[reorderLine,{}]}});");
+ let plans=0;
+ t.control.plan=async()=>{plans++;throw Error('Unexpected plan')};
+ await t.run("reorderText("+selection+",{line:reorderLine,before:false})");
+ assert.equal(plans,0);
+ assert.equal(t.native.history.length,0);
+ assert.equal(t.native.sources['main.tex'],'Original source');
+});

@@ -125,3 +125,25 @@ test('rebinding reused PDF page shells removes old hits and pointer handlers',()
  t.c.bind(view);assert.notEqual(shell.events.get('pointerdown'),oldHandler);assert.equal(hits.length,1);assert.equal(removed,1);
  t.c.destroy();assert.equal(shell.events.has('pointerdown'),false);assert.equal(hits.length,0);
 });
+
+test('a drop at an independent neighbor is routed to reorder and Alt keeps free movement',async()=>{
+ const t=setup();
+ const selected={x:20,y:50,width:100,height:10},neighbor={x:20,y:80,width:100,height:10};
+ const shell={append(){},getBoundingClientRect:()=>({left:0,top:0})};
+ const reorders=[];
+ t.c.reorder=async(...args)=>reorders.push(args);
+ Object.assign(t.selection,{unitKind:'paragraph',baselineLines:[selected]});
+ t.c.view.pages=[{shell,number:1,lines:[selected,neighbor]}];
+ for(const altKey of [false,true]){
+  t.c.drag(t.event,t.frame,t.selection);
+  t.frame.events.get('pointermove')({pointerId:7,clientX:35,clientY:94,altKey});
+  assert.equal(reorders.length,0);
+  await t.frame.events.get('pointerup')({pointerId:7,clientX:35,clientY:94,altKey});
+  if(!altKey){
+   assert.deepEqual(reorders.pop(),[t.selection,{line:neighbor,before:false,y:94}]);
+   assert.equal(t.operations.length,0);
+   assert.equal(t.generated[0].removed,true);
+  }
+ }
+ assert.equal(t.operations.length,1);
+});
