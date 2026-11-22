@@ -36,6 +36,7 @@ pub enum PlanError {
     ControlCharacter,
     LiteralTooLarge,
     ExpectedAdjacentParagraphs,
+    ExpectedContinuousParagraphs,
 }
 impl From<EditError> for PlanError {
     fn from(value: EditError) -> Self {
@@ -66,6 +67,13 @@ pub struct IntentPlan {
     kind: OperationKind,
     prepared: PreparedSourceEdit,
     required_proof: RequiredProof,
+}
+
+/// Exact source ranges in visual order before and after a proposed move.
+pub struct ParagraphOrderPlan {
+    pub intent: IntentPlan,
+    pub original: Vec<Range<usize>>,
+    pub reordered: Vec<(usize, Range<usize>)>,
 }
 
 /// A source draft was applied through shared history. This does not attest to
@@ -228,49 +236,85 @@ impl Session {
         neighbor: &EntityReference,
         position: ParagraphPosition,
     ) -> Result<IntentPlan, PlanError> {
+        self.plan_paragraph_order(target, neighbor, position, 2)
+            .map(|plan| plan.intent)
+            .map_err(|error| match error {
+                PlanError::ExpectedContinuousParagraphs => PlanError::ExpectedAdjacentParagraphs,
+                other => other,
+            })
+    }
+
+    pub fn plan_visual_paragraph_order(
+        &self,
+        target: &EntityReference,
+        neighbor: &EntityReference,
+        position: ParagraphPosition,
+    ) -> Result<ParagraphOrderPlan, PlanError> {
+        self.plan_paragraph_order(target, neighbor, position, 8)
+    }
+
+    fn plan_paragraph_order(
+        &self,
+        target: &EntityReference,
+        neighbor: &EntityReference,
+        position: ParagraphPosition,
+        maximum_paragraphs: usize,
+    ) -> Result<ParagraphOrderPlan, PlanError> {
         let target = self.resolve_entity_reference(target)?;
         let neighbor = self.resolve_entity_reference(neighbor)?;
         let target_range = target.range();
         let neighbor_range = neighbor.range();
         if target.file() != neighbor.file() || target_range == neighbor_range {
-            return Err(PlanError::ExpectedAdjacentParagraphs);
+            return Err(PlanError::ExpectedContinuousParagraphs);
         }
-        let target_precedes_neighbor = target_range.start < neighbor_range.start;
-        let (earlier, later) = if target_precedes_neighbor {
-            (&target_range, &neighbor_range)
-        } else {
-            (&neighbor_range, &target_range)
-        };
         let projection = self.source_projection(target.file())?;
-        let adjacent = projection.regions().windows(3).any(|window| {
-            window[0].kind() == RegionKind::PlainParagraph
-                && window[0].range() == *earlier
-                && window[1].kind() == RegionKind::Trivia
-                && window[2].kind() == RegionKind::PlainParagraph
-                && window[2].range() == *later
-        });
-        if !adjacent {
-            return Err(PlanError::ExpectedAdjacentParagraphs);
+        let regions = projection.regions();
+        let index = |range: &Range<usize>| {
+            regions.iter().position(|region| region.kind() == RegionKind::PlainParagraph && region.range() == *range)
+                .ok_or(PlanError::ExpectedContinuousParagraphs)
+        };
+        let target_index = index(&target_range)?;
+        let neighbor_index = index(&neighbor_range)?;
+        let first = target_index.min(neighbor_index);
+        let last = target_index.max(neighbor_index);
+        let run = &regions[first..=last];
+        if run.len() > maximum_paragraphs * 2 - 1 || run.iter().enumerate().any(|(i, region)| {
+            region.kind() != if i % 2 == 0 { RegionKind::PlainParagraph } else { RegionKind::Trivia }
+        }) {
+            return Err(PlanError::ExpectedContinuousParagraphs);
         }
-        let move_required = target_precedes_neighbor != (position == ParagraphPosition::Before);
+        let original: Vec<_> = run.iter().step_by(2).map(|region| region.range()).collect();
+        let target_slot = (target_index - first) / 2;
+        let neighbor_slot = (neighbor_index - first) / 2;
+        let mut order: Vec<_> = (0..original.len()).collect();
+        let moved = order.remove(target_slot);
+        let destination = neighbor_slot - usize::from(target_slot < neighbor_slot)
+            + usize::from(position == ParagraphPosition::After);
+        order.insert(destination, moved);
+
+        let source = projection.source();
         let mut edits = Vec::new();
-        if move_required && target.text() != neighbor.text() {
-            // Preserve the separator verbatim. Shared history treats both writes as one edit.
-            edits.extend([
-                Replacement {
-                    range: target_range.clone(),
-                    expected: target.text().into(),
-                    text: neighbor.text().into(),
-                },
-                Replacement {
-                    range: neighbor_range.clone(),
-                    expected: neighbor.text().into(),
-                    text: target.text().into(),
-                },
-            ]);
-            edits.sort_by_key(|edit| edit.range.start);
+        let mut reordered = Vec::with_capacity(original.len());
+        let mut start = original[0].start;
+        for (slot, identity) in order.into_iter().enumerate() {
+            let old_range = &original[slot];
+            let new_range = &original[identity];
+            let previous = &source[old_range.clone()];
+            let replacement = &source[new_range.clone()];
+            if previous != replacement {
+                edits.push(Replacement {
+                    range: old_range.clone(),
+                    expected: previous.into(),
+                    text: replacement.into(),
+                });
+            }
+            let end = start + replacement.len();
+            reordered.push((identity, start..end));
+            if let Some(next) = original.get(slot + 1) {
+                start = end + next.start - old_range.end;
+            }
         }
-        Ok(IntentPlan {
+        let intent = IntentPlan {
             kind: OperationKind::ReorderContent,
             prepared: self.prepare_source_edit(self.revision(), target.file(), edits)?,
             required_proof: RequiredProof::ParagraphReorder {
@@ -278,8 +322,10 @@ impl Session {
                 original_neighbor: neighbor_range,
                 position,
             },
-        })
+        };
+        Ok(ParagraphOrderPlan { intent, original, reordered })
     }
+
 }
 
 #[cfg(test)]

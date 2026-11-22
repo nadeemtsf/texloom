@@ -666,3 +666,25 @@ pages to stay put, and checks exact source, Undo/Redo, explicit
 Save, reopening and an external build. Its evidence is scoped to this fixture
 and the tested engine configurations. Physical pointer interaction is
 checked separately.
+
+\subsection{Verified reorder within a run of source paragraphs}
+The PDF gesture exposes insertion cues above and below text lines. A
+drop must resolve to the edge of an independently identified destination
+paragraph. The planner moves the selected paragraph within an uninterrupted
+run of up to eight plain paragraphs in the main file. The traversed paragraph
+slots retain their original separators. A soft-wrapped paragraph moves as
+one unit.
+
+Private builds tag every affected paragraph with a distinct identity. The
+independent inspector checks the tagged and untagged PDFs for identity before
+checking that the run remains on one page, every marked paragraph has the
+expected visual order, and glyph multiplicities are preserved. Source and
+history change only after approval. The regression exercises both directions,
+exact source, Undo/Redo, Save, reopening and an external compile.
+
+At a page break an opening marker in vertical mode could attach to the
+previous page. The paragraph probe now enters horizontal mode before opening
+its marker. In a two-page fixture, all three engines reproduced the unmarked
+rasters, identified the complete first paragraph of page two, and reordered
+it below its neighbor with exact source bytes. Moves across pages and
+structured-source reorder require separate policies.

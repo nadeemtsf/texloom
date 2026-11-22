@@ -132,7 +132,7 @@ impl From<PlanError> for SourceDraftRefusalReason {
             PlanError::ParagraphBreakRequiresStructuralIntent => Self::ParagraphBreak,
             PlanError::ControlCharacter => Self::ControlCharacter,
             PlanError::LiteralTooLarge => Self::LiteralTooLarge,
-            PlanError::ExpectedAdjacentParagraphs => Self::ParagraphsNotAdjacent,
+            PlanError::ExpectedAdjacentParagraphs | PlanError::ExpectedContinuousParagraphs => Self::ParagraphsNotAdjacent,
             PlanError::Source(core::EditError::StaleRevision | core::EditError::ForeignSession) => Self::TargetUnavailable,
             PlanError::Source(_) => Self::SourceGuardRejected,
         }

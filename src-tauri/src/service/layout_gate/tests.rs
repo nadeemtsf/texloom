@@ -711,3 +711,142 @@ fn direct_drag_real_engine_workflow() {
         println!("{engine}: two source-native drags and history, Save/reopen, external compile");
     }
 }
+
+fn reorder_request(source: &str, first: &str, second: &str, before: bool) -> ObjectEditRequest {
+    let range = |text: &str| {
+        let start = source.find(text).unwrap();
+        [start, start + text.len()]
+    };
+    serde_json::from_value(json!({
+        "sources": sources(source), "main":"main.tex", "file":"main.tex",
+        "action":"reorder_paragraph", "id":"drag-reorder", "selection":range(first),
+        "neighbor":range(second), "expected":first, "before_neighbor":before,
+    })).unwrap()
+}
+
+#[test]
+fn reorder_rotates_a_plain_run_and_rejects_structural_and_noop_destinations() {
+    let source = "\\documentclass{article}\n\\begin{document}\nOne.\n\nTwo.\n\n\nThree.\n\\end{document}\n";
+    let plan = visual::plan_paragraph_reorder(&reorder_request(source, "One.", "Three.", false)).unwrap();
+    assert_eq!(plan.sources["main.tex"], source.replace("One.\n\nTwo.\n\n\nThree.", "Two.\n\nThree.\n\n\nOne."));
+    assert_eq!(plan.new_order, vec![1, 2, 0]);
+    let plan = visual::plan_paragraph_reorder(&reorder_request(source, "One.", "Three.", true)).unwrap();
+    assert_eq!(plan.new_order, vec![1, 0, 2]);
+    let plan = visual::plan_paragraph_reorder(&reorder_request(source, "Three.", "One.", false)).unwrap();
+    assert_eq!(plan.new_order, vec![0, 2, 1]);
+    assert!(visual::plan_paragraph_reorder(&reorder_request(source, "One.", "Two.", true)).is_err());
+    let separated = source.replace("\n\nTwo.", "\n\n\\section{Boundary}\n\nTwo.");
+    assert!(visual::plan_paragraph_reorder(&reorder_request(&separated, "One.", "Three.", false)).is_err());
+    let duplicate = source.replace("Three.", "Two.");
+    let request = reorder_request(&duplicate, "One.", "Two.", false);
+    let mut later = request.clone();
+    let last = duplicate.rfind("Two.").unwrap();
+    later.neighbor = Some([last, last + "Two.".len()]);
+    let plan = visual::plan_paragraph_reorder(&later).unwrap();
+    assert_eq!(plan.new_order, vec![1, 2, 0]);
+}
+
+#[test]
+#[ignore = "requires the installed TeX engines and the pinned Windows verifier"]
+fn verified_reorder_real_engine_workflow() {
+    let long = "First paragraph wraps across PDF lines. ".repeat(5).trim_end().to_owned();
+    let middle = "This intervening paragraph stays ahead of the destination.";
+    let short = "The destination paragraph is shorter.";
+    let source = format!("\\documentclass[12pt]{{article}}\n\\begin{{document}}\n{long}\n\n{middle}\n\n{short}\n\nA neighboring paragraph stays here.\n\\end{{document}}\n");
+    let swapped = format!("\\documentclass[12pt]{{article}}\n\\begin{{document}}\n{middle}\n\n{short}\n\n{long}\n\nA neighboring paragraph stays here.\n\\end{{document}}\n");
+    for engine in ["pdflatex", "xelatex", "lualatex"] {
+        let mut f = Fixture::new(&source);
+        prepare_test_verifier(&mut f);
+        let path = f.root.join("project/main.tex").to_string_lossy().into_owned();
+        let project = f.backend.open_project_with_profile(Some(path.clone()), Some(ProjectProfile {
+            schema: 1, main: "main.tex".into(), engine: engine.into(),
+        })).unwrap();
+        let id = &project.id;
+        for (base, input, expected, neighbor, before) in [(0, &source, &swapped, short, false), (1, &swapped, &source, middle, true)] {
+            let baseline = f.backend.compile_document(id, base, None, None, base * 2 + 1).unwrap();
+            assert!(baseline.ok && baseline.verification_eligible, "{engine}: {}", baseline.log);
+            let request = reorder_request(input, &long, neighbor, before);
+            let planned = visual::plan_object_edit(request.clone()).unwrap();
+            assert_eq!(planned.sources, sources(expected), "{engine}");
+            let prepared = f.backend.document_prepare_visual(
+                id, base, planned.sources, &baseline.build_id, Some(VisualOperation::Text { request }),
+            ).unwrap();
+            let result = f.backend.compile_document(id, base, Some(&prepared.token), None, base * 2 + 2)
+                .unwrap_or_else(|error| panic!("{engine} reorder {base}: {error}"));
+            assert!(result.ok && result.verification_eligible, "{engine}: {}", result.log);
+            assert!(result.objects.is_empty());
+            assert_eq!(f.backend.document_commit(id, &prepared.token, &result.build_id).unwrap().sources,sources(expected));
+        }
+        let undone = f.backend.document_history(id, 2, false).unwrap();
+        assert_eq!(undone.sources, sources(&swapped));
+        let redone = f.backend.document_history(id, undone.revision, true).unwrap();
+        assert_eq!(redone.sources, sources(&source));
+        let swapped_again = f.backend.document_history(id, redone.revision, false).unwrap();
+        f.backend.save_document(id, swapped_again.revision).unwrap();
+        assert_eq!(f.backend.open_project(Some(path)).unwrap().sources, sources(&swapped));
+        let result = Command::new(find_program(engine).unwrap())
+            .args(["-no-shell-escape", "-halt-on-error", "-interaction=nonstopmode", "main.tex"])
+            .current_dir(f.root.join("project")).output().unwrap();
+        assert!(result.status.success(), "{engine}: {}", String::from_utf8_lossy(&result.stdout));
+        println!("{engine}: reordered a wrapped paragraph in both directions and verified history, Save and external compile");
+    }
+}
+
+#[test]
+#[ignore = "requires the installed TeX engines and the pinned Windows verifier"]
+fn later_page_paragraph_real_engine_workflow() {
+    let leading = "Delta starts the second page.";
+    let next = "Echo is the next paragraph.";
+    let source = format!(
+        "\\documentclass[12pt]{{article}}\n\\usepackage[textheight=48pt]{{geometry}}\n\\begin{{document}}\n\
+         Alpha opens the first page.\n\nBravo is next.\n\nCharlie ends the first page.\n\n\
+         {leading}\n\n{next}\n\nFoxtrot ends the document.\n\\end{{document}}\n"
+    );
+    let expected = source.replace(&format!("{leading}\n\n{next}"), &format!("{next}\n\n{leading}"));
+    for engine in ["pdflatex", "xelatex", "lualatex"] {
+        let mut f = Fixture::new(&source);
+        prepare_test_verifier(&mut f);
+        let path = f.root.join("project/main.tex").to_string_lossy().into_owned();
+        let project = f.backend.open_project_with_profile(Some(path), Some(ProjectProfile {
+            schema: 1, main: "main.tex".into(), engine: engine.into(),
+        })).unwrap();
+        let id = &project.id;
+        let baseline = f.backend.compile_document(id, 0, None, None, 1).unwrap();
+        assert!(baseline.ok && baseline.verification_eligible, "{engine}: {}", baseline.log);
+        let request = reorder_request(&source, leading, next, false);
+        let mut probe = request.clone();
+        probe.action = "probe_paragraph".into();
+        probe.neighbor = None;
+        let probe_sources = visual::plan_object_edit(probe).unwrap().sources;
+        let prepared = f.backend.document_prepare_visual(id, 0, probe_sources, &baseline.build_id, None).unwrap();
+        let selected = f.backend.compile_document(id, 0, Some(&prepared.token), None, 2).unwrap();
+        assert!(selected.ok && selected.verification_eligible, "{engine}: {}", selected.log);
+        let marked = f.backend.layout_build(&selected.build_id).unwrap();
+        let baseline_build = f.backend.layout_build(&baseline.build_id).unwrap();
+        let cancel = Cancellation::default();
+        let baseline_pdf = f.backend.inspect_layout(&baseline_build, None, &cancel).unwrap();
+        let probe_pdf = f.backend.inspect_layout(&marked, None, &cancel).unwrap();
+        verification::compare(&baseline_pdf.view, &probe_pdf.view, Operation::Identity).unwrap();
+        let probe_pdf = f.backend.inspect_layout(&marked, Some("Texloom_drag-reorder"), &cancel).unwrap();
+        assert_eq!(reorder_bounds(&probe_pdf.view).unwrap().0, 1, "{engine}: selected page");
+        let marked_text = probe_pdf.view.glyphs.iter().filter(|glyph| glyph.target)
+            .flat_map(|glyph| glyph.text.chars()).filter(|ch| !ch.is_whitespace()).collect::<String>();
+        assert_eq!(marked_text, leading.replace(' ', ""), "{engine}: selected glyphs");
+        assert!(f.backend.document_commit(id, &prepared.token, &selected.build_id).is_err());
+        f.backend.document_discard(id, &prepared.token).unwrap();
+
+        let planned = visual::plan_object_edit(request.clone()).unwrap();
+        assert_eq!(planned.sources, sources(&expected), "{engine}");
+        let prepared = f.backend.document_prepare_visual(
+            id, 0, planned.sources, &baseline.build_id, Some(VisualOperation::Text { request }),
+        ).unwrap();
+        let reordered = f.backend.compile_document(id, 0, Some(&prepared.token), None, 3)
+            .unwrap_or_else(|error| panic!("{engine} later-page reorder: {error}"));
+        assert!(reordered.ok && reordered.verification_eligible, "{engine}: {}", reordered.log);
+        assert_eq!(
+            f.backend.document_commit(id, &prepared.token, &reordered.build_id).unwrap().sources,
+            sources(&expected),
+        );
+        println!("{engine}: selected the first paragraph on page two and reordered it below its neighbor");
+    }
+}

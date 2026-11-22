@@ -349,8 +349,13 @@ async function probeSetup(){
  t.control.prove=()=>({schema:1,build_id:'last-good',page:1,x:20,y:30,width:100,height:12,runs:[],lines:[]});
  return t;
 }
-test('selection probing never commits canonical source, history or the displayed PDF',async()=>{
+test('paragraph selection uses an anchored probe without committing source, history or the displayed PDF',async()=>{
  const t=await probeSetup();let finish,destroyed=false;t.control.prepare=()=>new Promise(r=>finish=r);
+ const plan=t.control.plan;
+ t.control.plan=async request=>{
+   assert.equal(request.action,'probe_paragraph');
+   return plan(request);
+ };
  const pending=t.run("resolveSourceSelection({buildId:'last-good',page:1,points:[],hits:[]})");await new Promise(setImmediate);
  assert.equal(t.run("state.sources['main.tex']"),'Original source');assert.equal(t.native.history.length,0);assert.equal(t.run('state.result.build_id'),'last-good');
  finish({pdf:{destroy:async()=>{destroyed=true}}});const result=await pending;
@@ -505,4 +510,38 @@ test('free dragging ordinary PDF text commits the direct source candidate',async
   assert.equal(await t.run("textOperation("+selection+",{dx:88,dy:70})"),true);
   assert.equal(t.native.history.length,1);
   assert.deepEqual(t.native.sources,{'main.tex':'Positioned ordinary LaTeX source','custom.sty':'Style source'});
+});
+
+test('reorder resolves the second paragraph independently and publishes the verified source',async()=>{
+ const t=await setup();
+ const source='Original source';
+ const selection="{kind:'source',unitKind:'paragraph',file:'main.tex',page:1,start:0,end:8,content:'Original',expected_source:'Original source'}";
+ t.run("const reorderLine={x:30,width:100,y:100,baseline:108,height:10};");
+ t.run("resolveSourceSelection=async()=>({kind:'paragraph',file:'main.tex',start:9,end:15,proof:{lines:[reorderLine]}});");
+ let plans=0;
+ t.control.plan=async request=>{
+  plans++;
+  assert.equal(request.action,'reorder_paragraph');
+  assert.deepEqual(Array.from(request.selection),[0,8]);
+  assert.deepEqual(Array.from(request.neighbor),[9,15]);
+  assert.equal(request.before_neighbor,false);
+  return {sources:{...request.sources,'main.tex':'source Original'},file:'main.tex'};
+ };
+ await t.run("reorderText("+selection+",{line:reorderLine,before:false})");
+ assert.equal(plans,1);
+ assert.equal(t.native.sources['main.tex'],'source Original');
+ assert.equal(t.native.history[0].sources['main.tex'],source);
+});
+
+test('dropping inside an unrelated wrapped paragraph cannot commit or fall back to free drag',async()=>{
+ const t=await setup();
+ const selection="{kind:'source',unitKind:'paragraph',file:'main.tex',page:1,start:0,end:8,content:'Original',expected_source:'Original source'}";
+ t.run("const reorderLine={x:30,width:100,y:100,baseline:108,height:10};");
+ t.run("resolveSourceSelection=async()=>({kind:'paragraph',file:'main.tex',start:9,end:15,proof:{lines:[reorderLine,{}]}});");
+ let plans=0;
+ t.control.plan=async()=>{plans++;throw Error('Unexpected plan')};
+ await t.run("reorderText("+selection+",{line:reorderLine,before:false})");
+ assert.equal(plans,0);
+ assert.equal(t.native.history.length,0);
+ assert.equal(t.native.sources['main.tex'],'Original source');
 });

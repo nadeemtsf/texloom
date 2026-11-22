@@ -138,7 +138,7 @@ export type AdapterParameter = { key: string, label: string, value: string, reas
 
 export type AdapterPlan = { sources: { [key in string]?: string }, file: string, };
 
-export type ObjectEditRequest = { sources: { [key in string]?: string }, main: string, file: string, action: string, id: string, selection: [number, number] | null, expected: string | null, dx: number | null, dy: number | null, content: string | null, plain: boolean, literal_edits: Array<LiteralEditRequest> | null, spacing_edits: Array<SpacingEditRequest> | null, };
+export type ObjectEditRequest = { sources: { [key in string]?: string }, main: string, file: string, action: string, id: string, selection: [number, number] | null, expected: string | null, dx: number | null, dy: number | null, content: string | null, plain: boolean, literal_edits: Array<LiteralEditRequest> | null, spacing_edits: Array<SpacingEditRequest> | null, neighbor: [number, number] | null, before_neighbor: boolean, };
 
 export type ObjectPlan = { sources: { [key in string]?: string }, object_id: string, file: string, operation: string, };
 

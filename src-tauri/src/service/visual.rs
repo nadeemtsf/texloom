@@ -117,6 +117,8 @@ mod tests {
             plain: false,
             literal_edits: None,
             spacing_edits: None,
+            neighbor: None,
+            before_neighbor: false,
         };
         let plan = plan_object_edit(request).unwrap();
         let result = &plan.sources["main.tex"];
@@ -156,6 +158,10 @@ pub struct ObjectEditRequest {
     pub literal_edits: Option<Vec<LiteralEditRequest>>,
     #[serde(default)]
     pub spacing_edits: Option<Vec<SpacingEditRequest>>,
+    #[serde(default)]
+    pub neighbor: Option<[usize; 2]>,
+    #[serde(default)]
+    pub before_neighbor: bool,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -278,10 +284,25 @@ fn mark_text_range(
     source: &str,
     range: std::ops::Range<usize>,
 ) -> Result<BTreeMap<String, String>> {
+    mark_text_ranges(request, source, &[(range, &request.id)], false)
+}
+
+fn mark_text_ranges(
+    request: &ObjectEditRequest,
+    source: &str,
+    ranges: &[(std::ops::Range<usize>, &str)],
+    anchor_paragraphs: bool,
+) -> Result<BTreeMap<String, String>> {
     let mut sources = request.sources.clone();
-    let marked = texloom_core::wrap_text_object(
-        source, range, &request.id, 0.0, 0.0, &request.sources[&request.main],
-    )?;
+    let document = &sources[&request.main];
+    let mut marked = source.to_owned();
+    for (range, id) in ranges {
+        marked = texloom_core::wrap_text_object(&marked, range.clone(), id, 0.0, 0.0, document)?;
+        if anchor_paragraphs {
+            // Keep the opening PDF marker with the first line when TeX breaks a page here.
+            marked.insert_str(range.start, "\\leavevmode ");
+        }
+    }
     sources.insert(request.file.clone(), marked);
     let main = texloom_core::ensure_objects_package(&sources[&request.main])?;
     sources.insert(request.main.clone(), main);
@@ -365,7 +386,69 @@ pub(super) fn plan_direct_text(request: &ObjectEditRequest) -> Result<DirectText
     Ok(DirectTextPlan { sources, before_probe, after_probe, displacement })
 }
 
+pub(super) struct ReorderPlan {
+    pub(super) sources: BTreeMap<String, String>,
+    pub(super) before_probe: BTreeMap<String, String>,
+    pub(super) after_probe: BTreeMap<String, String>,
+    pub(super) original_order: Vec<String>,
+    pub(super) new_order: Vec<usize>,
+}
+
+pub(super) fn plan_paragraph_reorder(request: &ObjectEditRequest) -> Result<ReorderPlan> {
+    use texloom_core::document::{Profile, Session, intent::ParagraphPosition};
+    relative(&request.main)?;
+    relative(&request.file)?;
+    if request.file != request.main {
+        return Err("Reorder currently supports neighboring paragraphs in the main LaTeX file".into());
+    }
+    let session = Session::new(
+        request.sources.clone(), Profile { main: request.main.clone(), engine: "auto".into() },
+    ).map_err(fail)?;
+    let source = &session.sources()[&request.file];
+    let editor = EditorProjection::new(source);
+    let source_range = |range: Option<[usize; 2]>| -> Result<std::ops::Range<usize>> {
+        let [start, end] = range.ok_or("Select two paragraphs to reorder")?;
+        Ok(editor.source_offset(start).map_err(fail)?..editor.source_offset(end).map_err(fail)?)
+    };
+    let target = source_range(request.selection)?;
+    let neighbor = source_range(request.neighbor)?;
+    if source.get(target.clone()) != request.expected.as_deref() {
+        return Err("The selected paragraph changed. Select it again.".into());
+    }
+    let projection = session.source_projection(&request.file).map_err(fail)?;
+    let reference = |range: &std::ops::Range<usize>| {
+        projection.regions().iter().enumerate().find_map(|(index, region)| {
+            (region.range() == *range).then(|| projection.entity_reference(index)).flatten()
+        }).ok_or("Reorder requires two complete plain paragraphs")
+    };
+    let position = if request.before_neighbor { ParagraphPosition::Before } else { ParagraphPosition::After };
+    let plan = session.plan_visual_paragraph_order(&reference(&target)?, &reference(&neighbor)?, position)
+        .map_err(|_| "Reorder requires an uninterrupted run of up to eight plain paragraphs")?;
+    if !plan.intent.changed() {
+        return Err("The paragraphs already have the requested source order or identical text".into());
+    }
+    let sources = plan.intent.candidate_sources(&session).map_err(fail)?;
+    let names: Vec<_> = (0..plan.original.len()).map(|index| format!("{}-{index}", request.id)).collect();
+    let before_ranges: Vec<_> = plan.original.iter().zip(&names).rev()
+        .map(|(range, name)| (range.clone(), name.as_str())).collect();
+    let after_ranges: Vec<_> = plan.reordered.iter().rev()
+        .map(|(index, range)| (range.clone(), names[*index].as_str())).collect();
+    let before_probe = mark_text_ranges(request, source, &before_ranges, true)?;
+    let after_probe = mark_text_ranges(request, &sources[&request.file], &after_ranges, true)?;
+    Ok(ReorderPlan {
+        sources, before_probe, after_probe,
+        original_order: names.into_iter().map(|name| format!("Texloom_{name}")).collect(),
+        new_order: plan.reordered.into_iter().map(|(index, _)| index).collect(),
+    })
+}
+
 pub fn plan_object_edit(mut request: ObjectEditRequest) -> Result<ObjectPlan> {
+    if request.action == "reorder_paragraph" {
+        let plan = plan_paragraph_reorder(&request)?;
+        return Ok(ObjectPlan {
+            sources: plan.sources, object_id: request.id, file: request.file, operation: request.action,
+        });
+    }
     if matches!(request.action.as_str(), "replace_source" | "append_paragraph" | "move_source") {
         let plan = plan_direct_text(&request)?;
         return Ok(ObjectPlan {
@@ -386,13 +469,19 @@ pub fn plan_object_edit(mut request: ObjectEditRequest) -> Result<ObjectPlan> {
         return Err("Project source exceeds supported limits".into());
     }
     let updated = match request.action.as_str() {
-        "wrap" => {
+        "wrap" | "probe_paragraph" => {
             let [start, end] = request.selection.ok_or("Select text before moving it")?;
             let projection = texloom_core::document::projection::EditorProjection::new(source);
             let range = projection.source_offset(start).map_err(fail)?
                 ..projection.source_offset(end).map_err(fail)?;
             if source.get(range.clone()) != request.expected.as_deref() {
                 return Err("The selected source has changed; select it again".into());
+            }
+            if request.action == "probe_paragraph" {
+                let sources = mark_text_ranges(&request, source, &[(range, &request.id)], true)?;
+                return Ok(ObjectPlan {
+                    sources, object_id: request.id, file: request.file, operation: request.action,
+                });
             }
             let wrapped = texloom_core::wrap_text_object(
                 source,

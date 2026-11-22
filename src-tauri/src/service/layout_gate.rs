@@ -41,6 +41,12 @@ enum Policy {
         dy: f64,
         zero: Sources,
     },
+    Reorder {
+        original_order: Vec<String>,
+        new_order: Vec<usize>,
+        before_probe: Sources,
+        after_probe: Sources,
+    },
     DirectText {
         marker: String,
         before_probe: Option<Sources>,
@@ -126,7 +132,13 @@ impl Plan {
                     return Err("The visual request does not match the current document".into());
                 }
                 let marker = format!("Texloom_{}", request.id);
-                if matches!(request.action.as_str(), "replace_source" | "append_paragraph" | "move_source") {
+                if request.action == "reorder_paragraph" {
+                    let plan = visual::plan_paragraph_reorder(&request)?;
+                    (plan.sources, Policy::Reorder {
+                        original_order: plan.original_order, new_order: plan.new_order,
+                        before_probe: plan.before_probe, after_probe: plan.after_probe,
+                    })
+                } else if matches!(request.action.as_str(), "replace_source" | "append_paragraph" | "move_source") {
                     let plan = visual::plan_direct_text(&request)?;
                     (plan.sources, Policy::DirectText {
                         marker,
@@ -220,6 +232,54 @@ fn reflow(old: &Inspection, new: &Inspection) -> Result<()> {
     }
     if !new.glyphs.iter().any(|g| g.target) {
         return Err("The edited text has no visible target".into());
+    }
+    Ok(())
+}
+
+// Compare the two independently marked occurrences. Counts retain repeated
+// glyphs and the ordering check uses nonoverlapping physical line bounds.
+fn reorder_bounds(view: &Inspection) -> Result<(usize, f64, f64)> {
+    let mut glyphs = view.glyphs.iter().filter(|glyph| glyph.target);
+    let first = glyphs.next().ok_or("The paragraph has no visible target")?;
+    let mut top = first.bounds.y;
+    let mut bottom = top + first.bounds.height;
+    for glyph in glyphs {
+        if glyph.page != first.page {
+            return Err("Reordering across pages needs a separate verification policy".into());
+        }
+        top = top.min(glyph.bounds.y);
+        bottom = bottom.max(glyph.bounds.y + glyph.bounds.height);
+    }
+    Ok((first.page, top, bottom))
+}
+fn verify_reorder_identity(before: &Inspection, after: &Inspection) -> Result<()> {
+    reflow(before, after)?;
+    let counts = |view: &Inspection| {
+        let mut counts = BTreeMap::new();
+        for glyph in view.glyphs.iter().filter(|glyph| glyph.target) {
+            *counts.entry(glyph.text.clone()).or_insert(0usize) += 1;
+        }
+        counts
+    };
+    if counts(before) != counts(after) || before.pages.len() != after.pages.len()
+        || before.pages.iter().zip(&after.pages).any(|(a,b)| {
+            a.width != b.width || a.height != b.height || a.annotations != 0 || b.annotations != 0
+        })
+    {
+        return Err("Reordering changed visible text or page structure".into());
+    }
+    Ok(())
+}
+fn verify_reorder_order(order: impl IntoIterator<Item = (usize, f64, f64)>) -> Result<()> {
+    let mut order = order.into_iter();
+    let Some((page, _, mut bottom)) = order.next() else {
+        return Err("The PDF has no reordering evidence".into());
+    };
+    for (next_page, next_top, next_bottom) in order {
+        if next_page != page || bottom > next_top {
+            return Err("The PDF does not show the paragraphs in the expected order on one page".into());
+        }
+        bottom = next_bottom;
     }
     Ok(())
 }
@@ -360,6 +420,26 @@ impl Backend {
                 // made. Require independent readable page/paint evidence.
                 let view = self.inspect_layout(&build, None, &lease.cancel)?;
                 verification::validate(&view.view).map_err(fail)?;
+            }
+            Policy::Reorder { original_order, new_order, before_probe, after_probe } => {
+                let before = self.equivalent_text_probe(request, before_probe, &plan.baseline, lease)?;
+                let after = self.equivalent_text_probe(request, after_probe, &build, lease)?;
+                let compare_marker = |marker: &str| -> Result<_> {
+                    let old = self.inspect_layout(&before, Some(marker), &lease.cancel)?;
+                    let next = self.inspect_layout(&after, Some(marker), &lease.cancel)?;
+                    verify_reorder_identity(&old.view, &next.view)?;
+                    let old_bounds = reorder_bounds(&old.view)?;
+                    let new_bounds = reorder_bounds(&next.view)?;
+                    if old_bounds.0 != new_bounds.0 {
+                        return Err("This reorder would move the paragraph to another page".into());
+                    }
+                    Ok((old_bounds, new_bounds))
+                };
+                let bounds = original_order.iter().map(|marker| compare_marker(marker))
+                    .collect::<Result<Vec<_>>>()?;
+                verify_reorder_order(bounds.iter().map(|(old, _)| *old))?;
+                verify_reorder_order(new_order.iter().map(|index| bounds[*index].1))?;
+                private_builds.extend([before, after]);
             }
             Policy::DirectText { marker, before_probe, after_probe, displacement } => {
                 let baseline = if let Some(sources) = before_probe {
