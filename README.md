@@ -6,12 +6,6 @@ Texloom is a Windows LaTeX editor with a live PDF canvas. Compile a project loca
 
 <!-- A short recording of the current editor can go here. -->
 
-## Try the Windows preview
-
-[Download Windows 11 x64 setup (.exe)](https://github.com/nadeemtsf/texloom/releases/download/v0.3.0-preview.1/Texloom-0.3.0-preview.1-Windows-x64-Setup.exe) · [Release notes and checksums](https://github.com/nadeemtsf/texloom/releases/tag/v0.3.0-preview.1)
-
-Texloom uses a local MiKTeX or TeX Live installation. The unsigned preview setup can offer MiKTeX when it finds no TeX compiler. The installer is Preview 1 and includes the earlier positioned-block tools. The workflow below describes the current source on `main`.
-
 ## Edit a LaTeX project
 
 1. Open the project's main `.tex` file and compile it. The editor and PDF preview sit side by side.
