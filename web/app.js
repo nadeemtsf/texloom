@@ -491,8 +491,9 @@ async function resolveSourceSelection({buildId,page,points,hits,trace=null}){
           await client.verify(buildId);assertCurrent();return {...resolved,proof:cached};
         }
         const id='selection-'+crypto.randomUUID().slice(0,8);
+        const action=resolved.kind==='paragraph'?'probe_paragraph':'wrap';
         const plan=await invoke('plan_text_object',{request:{sources:clone(state.sources),main:state.project.main,file:resolved.file,
-          action:'wrap',id,selection:[resolved.start,resolved.end],expected:resolved.content,dx:0,dy:0}});
+          action,id,selection:[resolved.start,resolved.end],expected:resolved.content,dx:0,dy:0}});
         assertCurrent();
         await baseline.prepareSelectionProof();assertCurrent();
         const candidate=await client.prepare(plan.sources,buildId);token=candidate.token;

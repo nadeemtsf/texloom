@@ -14,6 +14,9 @@
    Undo the change.
 5. Try a free drag away from the drop line. For single typeset lines it
    should adjust the position. Hold Alt to bypass the reorder cue.
+6. Open the later-page sample and select “Delta starts the second page.”
+   Drag it just below “Echo is the next paragraph.” Both should stay on page
+   two, and Delta should follow Echo in the source.
 
 This pass covers an uninterrupted run of up to eight plain paragraphs on
 one page in the main file. A source structure such as a section break must

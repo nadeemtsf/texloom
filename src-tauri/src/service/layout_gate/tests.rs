@@ -791,3 +791,62 @@ fn verified_reorder_real_engine_workflow() {
         println!("{engine}: reordered a wrapped paragraph in both directions and verified history, Save and external compile");
     }
 }
+
+#[test]
+#[ignore = "requires the installed TeX engines and the pinned Windows verifier"]
+fn first_paragraph_on_a_later_page_can_be_selected_and_reordered() {
+    let leading = "Delta starts the second page.";
+    let next = "Echo is the next paragraph.";
+    let source = format!(
+        "\\documentclass[12pt]{{article}}\n\\usepackage[textheight=48pt]{{geometry}}\n\\begin{{document}}\n\
+         Alpha opens the first page.\n\nBravo is next.\n\nCharlie ends the first page.\n\n\
+         {leading}\n\n{next}\n\nFoxtrot ends the document.\n\\end{{document}}\n"
+    );
+    let expected = source.replace(&format!("{leading}\n\n{next}"), &format!("{next}\n\n{leading}"));
+    for engine in ["pdflatex", "xelatex", "lualatex"] {
+        let mut f = Fixture::new(&source);
+        prepare_test_verifier(&mut f);
+        let path = f.root.join("project/main.tex").to_string_lossy().into_owned();
+        let project = f.backend.open_project_with_profile(Some(path), Some(ProjectProfile {
+            schema: 1, main: "main.tex".into(), engine: engine.into(),
+        })).unwrap();
+        let id = &project.id;
+        let baseline = f.backend.compile_document(id, 0, None, None, 1).unwrap();
+        assert!(baseline.ok && baseline.verification_eligible, "{engine}: {}", baseline.log);
+        let request = reorder_request(&source, leading, next, false);
+        let mut probe = request.clone();
+        probe.action = "probe_paragraph".into();
+        probe.neighbor = None;
+        let probe_sources = visual::plan_object_edit(probe).unwrap().sources;
+        let prepared = f.backend.document_prepare_visual(id, 0, probe_sources, &baseline.build_id, None).unwrap();
+        let selected = f.backend.compile_document(id, 0, Some(&prepared.token), None, 2).unwrap();
+        assert!(selected.ok && selected.verification_eligible, "{engine}: {}", selected.log);
+        let marked = f.backend.layout_build(&selected.build_id).unwrap();
+        let baseline_build = f.backend.layout_build(&baseline.build_id).unwrap();
+        let cancel = Cancellation::default();
+        let baseline_pdf = f.backend.inspect_layout(&baseline_build, None, &cancel).unwrap();
+        let probe_pdf = f.backend.inspect_layout(&marked, None, &cancel).unwrap();
+        verification::compare(&baseline_pdf.view, &probe_pdf.view, Operation::Identity).unwrap();
+        let probe_pdf = f.backend.inspect_layout(&marked, Some("Texloom_drag-reorder"), &cancel).unwrap();
+        assert_eq!(reorder_bounds(&probe_pdf.view).unwrap().0, 1, "{engine}: selected page");
+        let marked_text = probe_pdf.view.glyphs.iter().filter(|glyph| glyph.target)
+            .flat_map(|glyph| glyph.text.chars()).filter(|ch| !ch.is_whitespace()).collect::<String>();
+        assert_eq!(marked_text, leading.replace(' ', ""), "{engine}: selected glyphs");
+        assert!(f.backend.document_commit(id, &prepared.token, &selected.build_id).is_err());
+        f.backend.document_discard(id, &prepared.token).unwrap();
+
+        let planned = visual::plan_object_edit(request.clone()).unwrap();
+        assert_eq!(planned.sources, sources(&expected), "{engine}");
+        let prepared = f.backend.document_prepare_visual(
+            id, 0, planned.sources, &baseline.build_id, Some(VisualOperation::Text { request }),
+        ).unwrap();
+        let reordered = f.backend.compile_document(id, 0, Some(&prepared.token), None, 3)
+            .unwrap_or_else(|error| panic!("{engine} later-page reorder: {error}"));
+        assert!(reordered.ok && reordered.verification_eligible, "{engine}: {}", reordered.log);
+        assert_eq!(
+            f.backend.document_commit(id, &prepared.token, &reordered.build_id).unwrap().sources,
+            sources(&expected),
+        );
+        println!("{engine}: selected the first paragraph on page two and reordered it below its neighbor");
+    }
+}

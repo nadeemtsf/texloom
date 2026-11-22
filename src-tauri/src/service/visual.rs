@@ -284,19 +284,24 @@ fn mark_text_range(
     source: &str,
     range: std::ops::Range<usize>,
 ) -> Result<BTreeMap<String, String>> {
-    mark_text_ranges(request, source, &[(range, &request.id)])
+    mark_text_ranges(request, source, &[(range, &request.id)], false)
 }
 
 fn mark_text_ranges(
     request: &ObjectEditRequest,
     source: &str,
     ranges: &[(std::ops::Range<usize>, &str)],
+    anchor_paragraphs: bool,
 ) -> Result<BTreeMap<String, String>> {
     let mut sources = request.sources.clone();
     let document = &sources[&request.main];
     let mut marked = source.to_owned();
     for (range, id) in ranges {
         marked = texloom_core::wrap_text_object(&marked, range.clone(), id, 0.0, 0.0, document)?;
+        if anchor_paragraphs {
+            // Keep the opening PDF marker with the first line when TeX breaks a page here.
+            marked.insert_str(range.start, "\\leavevmode ");
+        }
     }
     sources.insert(request.file.clone(), marked);
     let main = texloom_core::ensure_objects_package(&sources[&request.main])?;
@@ -428,8 +433,8 @@ pub(super) fn plan_paragraph_reorder(request: &ObjectEditRequest) -> Result<Reor
         .map(|(range, name)| (range.clone(), name.as_str())).collect();
     let after_ranges: Vec<_> = plan.reordered.iter().rev()
         .map(|(index, range)| (range.clone(), names[*index].as_str())).collect();
-    let before_probe = mark_text_ranges(request, source, &before_ranges)?;
-    let after_probe = mark_text_ranges(request, &sources[&request.file], &after_ranges)?;
+    let before_probe = mark_text_ranges(request, source, &before_ranges, true)?;
+    let after_probe = mark_text_ranges(request, &sources[&request.file], &after_ranges, true)?;
     Ok(ReorderPlan {
         sources, before_probe, after_probe,
         original_order: names.into_iter().map(|name| format!("Texloom_{name}")).collect(),
@@ -464,13 +469,19 @@ pub fn plan_object_edit(mut request: ObjectEditRequest) -> Result<ObjectPlan> {
         return Err("Project source exceeds supported limits".into());
     }
     let updated = match request.action.as_str() {
-        "wrap" => {
+        "wrap" | "probe_paragraph" => {
             let [start, end] = request.selection.ok_or("Select text before moving it")?;
             let projection = texloom_core::document::projection::EditorProjection::new(source);
             let range = projection.source_offset(start).map_err(fail)?
                 ..projection.source_offset(end).map_err(fail)?;
             if source.get(range.clone()) != request.expected.as_deref() {
                 return Err("The selected source has changed; select it again".into());
+            }
+            if request.action == "probe_paragraph" {
+                let sources = mark_text_ranges(&request, source, &[(range, &request.id)], true)?;
+                return Ok(ObjectPlan {
+                    sources, object_id: request.id, file: request.file, operation: request.action,
+                });
             }
             let wrapped = texloom_core::wrap_text_object(
                 source,

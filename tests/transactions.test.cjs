@@ -349,8 +349,13 @@ async function probeSetup(){
  t.control.prove=()=>({schema:1,build_id:'last-good',page:1,x:20,y:30,width:100,height:12,runs:[],lines:[]});
  return t;
 }
-test('selection probing never commits canonical source, history or the displayed PDF',async()=>{
+test('paragraph selection uses an anchored probe without committing source, history or the displayed PDF',async()=>{
  const t=await probeSetup();let finish,destroyed=false;t.control.prepare=()=>new Promise(r=>finish=r);
+ const plan=t.control.plan;
+ t.control.plan=async request=>{
+   assert.equal(request.action,'probe_paragraph');
+   return plan(request);
+ };
  const pending=t.run("resolveSourceSelection({buildId:'last-good',page:1,points:[],hits:[]})");await new Promise(setImmediate);
  assert.equal(t.run("state.sources['main.tex']"),'Original source');assert.equal(t.native.history.length,0);assert.equal(t.run('state.result.build_id'),'last-good');
  finish({pdf:{destroy:async()=>{destroyed=true}}});const result=await pending;
