@@ -57,7 +57,7 @@ export class CanvasController {
       const proof=resolved.proof;
       if(proof?.schema!==1||proof.build_id!==buildId||proof.page!==page)throw new Error('This selection has no current layout proof.');
       const mapped=proof.lines;
-      this.hits=mapped;this.selection={...resolved,x:proof.x,y:proof.y,width:proof.width,height:proof.height,baselineRuns:proof.runs,page,kind:'source',unitKind:resolved.kind};
+      this.hits=mapped;this.selection={...resolved,x:proof.x,y:proof.y,width:proof.width,height:proof.height,baselineRuns:proof.runs,baselineLines:proof.lines,page,kind:'source',unitKind:resolved.kind};
       const frame=this.drawFrame();this.onSelected(this.selection);frame?.focus({preventScroll:true});
       trace?.mark('selection-ready');trace?.finish('selected',{paint:true,isCurrent:()=>serial===this.pending&&this.fresh()});
       this.notify(`Selected ${resolved.kind}${mapped.length>1?' · '+mapped.length+' visible lines':''}. Drag its frame or double-click to edit.`);

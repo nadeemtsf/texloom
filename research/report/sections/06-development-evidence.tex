@@ -642,3 +642,27 @@ The tagged verification replicas stay private through the workflow.
 Replacement uses two additional private builds and paragraph insertion uses
 one. These are operation counts. Interactive latency, unsupported constructs
 and native Windows input acceptance require separate evaluation.
+
+\subsection{Free positioning in ordinary LaTeX}
+A supported single typeset line can be displaced without declaring a
+Texloom package in the saved document. The source edit uses
+\code{\textbackslash raisebox} for vertical motion and a pair of opposed
+\TeX{} kerns for horizontal motion. Explicit height and depth arguments retain the
+line's vertical contribution to normal flow. A group feasibility probe found
+that leaving these arguments implicit moved text below the selection. A second move updates the same
+source construction. Restoring the original offset removes it.
+
+Two private tagged builds identify the selected glyphs before and after the
+move. Both have to match their respective unmarked PDFs. The native worker
+then translates the tagged baseline target and compares the candidate
+against that prediction, including the complete page rasters. Unsupported
+line structures or rendering differences refuse the operation before
+history changes. This analysis remains distinct from moving material to a
+different position in the source order.
+
+The regression fixture is a three-page Article. It tests two successive
+displacements of the first sentence, requires its neighbor and both later
+pages to stay put, and checks exact source, Undo/Redo, explicit
+Save, reopening and an external build. Its evidence is scoped to this fixture
+and the tested engine configurations. Physical pointer interaction is
+checked separately.

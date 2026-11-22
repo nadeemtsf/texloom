@@ -493,3 +493,16 @@ test('unchanged numeric spelling is a no-op while empty spacing is submitted for
    await pending;
    assert.equal(scroller.scrollTop,70);
  });
+
+test('free dragging ordinary PDF text commits the direct source candidate',async()=>{
+  const t=await setup();
+  t.control.plan=async request=>{
+    assert.equal(request.action,'move_source');
+    assert.equal(request.dx,88);assert.equal(request.dy,70);
+    return {sources:{...request.sources,'main.tex':'Positioned ordinary LaTeX source'},file:'main.tex'};
+  };
+  const selection="{kind:'source',file:'main.tex',start:0,end:15,content:'Original source',expected_source:'Original source'}";
+  assert.equal(await t.run("textOperation("+selection+",{dx:88,dy:70})"),true);
+  assert.equal(t.native.history.length,1);
+  assert.deepEqual(t.native.sources,{'main.tex':'Positioned ordinary LaTeX source','custom.sty':'Style source'});
+});

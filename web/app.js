@@ -661,8 +661,8 @@ async function textOperation(selection,{dx,dy,content,literalEdits,spacingEdits,
   const identity=sessionIdentity(state),id=selection.kind==='object'?selection.id:'text-'+crypto.randomUUID().slice(0,8);
   if((literalEdits||spacingEdits)&&!literalEdits?.length&&!spacingEdits?.length){trace?.finish('refused');return true}
   const isEdit=content!==undefined||literalEdits!==undefined||spacingEdits!==undefined;
-  const direct=selection.kind==='source'&&isEdit;
-  const action=detach?'detach':direct?'replace_source':selection.kind==='source'?'wrap':isEdit?'edit':'move';
+  const direct=selection.kind==='source';
+  const action=detach?'detach':direct?(isEdit?'replace_source':'move_source'):isEdit?'edit':'move';
   let accepted=false;
   try{
     const request={sources:clone(state.sources),main:state.project.main,file:selection.file,
@@ -699,6 +699,9 @@ async function textOperation(selection,{dx,dy,content,literalEdits,spacingEdits,
 }
 function moveText(selection,dx,dy,trace=diagnostics.begin('text-move')){
   if(!selection){trace?.finish('refused');return}
+  if(selection.kind==='source'&&(selection.unitKind==='group'||(selection.baselineLines?.length??0)>1)){
+    trace?.finish('refused');return toast('Free dragging supports one typeset line at a time.');
+  }
   const proposed={...selection,x:selection.x+dx,y:selection.y+dy};
   if(!inside(proposed,state.view.pageSizes.get(selection.page))){trace?.finish('refused');return toast('Keep the selected text inside the page.')}
   return textOperation(selection,{dx:(selection.dx||0)+dx,dy:(selection.dy||0)+dy},trace);

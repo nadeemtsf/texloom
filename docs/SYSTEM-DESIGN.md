@@ -65,6 +65,13 @@ Native source mapping remains read-only. SyncTeX gives evidence at source-line g
 
 ## 4. Source-preserving movement
 
+The source-native drag branch adds a bounded alternative for one typeset line.
+It writes standard LaTeX directly and uses private tagged builds to prove
+identity before comparing the candidate against the native displacement
+prediction. The earlier persisted wrapper design is recorded below for
+historical context and already-positioned projects.
+
+
 Removing selected prose and appending an absolutely positioned block changes the document's text flow and formatting context. That is unsuitable as the default for imported documents.
 
 The proposed text adapter wraps a verified source fragment in a portable macro:

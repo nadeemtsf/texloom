@@ -195,6 +195,8 @@ pub fn resolve_text_unit_in_document(source: &str, line: usize, document: &str) 
         while last + 1 < lines.len() && !boundary(&source[lines[last + 1].clone()]) && break_start(&source[lines[last].clone()]).is_none() { last += 1; }
         (first, last, trim_range(source, lines[first].start..lines[last].end), "paragraph")
     };
+    let range = standard_text_position(&source[range.clone()])
+        .map_or(range.clone(), |position| range.start + position.content.start..range.start + position.content.end);
     if range.is_empty() { return Err("There is no editable text at this source location".into()); }
     let content = source[range.clone()].to_string();
     validate_movable_text(&content, document)?;
@@ -228,6 +230,75 @@ pub fn combine_text_units_in_document(source: &str, units: &[SourceUnit], docume
     validate_movable_text(&content, document)?;
     Ok(SourceUnit { range, first_line: first.first_line, last_line: last.last_line,
         kind: if units.len() > 1 { "group" } else { first.kind }, content })
+}
+
+struct StandardTextPosition {
+    content: Range<usize>,
+    dx: f64,
+    dy: f64,
+}
+
+// Recognize only the exact balanced form emitted by position_text_range.
+// Other raisebox constructions retain their own source semantics.
+fn standard_text_position(source: &str) -> Option<StandardTextPosition> {
+    let offset = source.strip_prefix("\\raisebox{")?;
+    let (lift, rest) = offset.split_once("bp}[\\height][\\depth]{\\kern")?;
+    let (shift, rest) = rest.split_once("bp\\relax ")?;
+    let (content, back) = rest.rsplit_once("\\kern")?;
+    let back = back.strip_suffix("bp\\relax}")?;
+    let dx = shift.parse::<f64>().ok()?;
+    let dy = -lift.parse::<f64>().ok()?;
+    if number(dx, false).ok()?.as_str() != shift
+        || number(-dy, false).ok()?.as_str() != lift
+        || number(-dx, false).ok()?.as_str() != back
+    {
+        return None;
+    }
+    let start = source.len() - rest.len();
+    Some(StandardTextPosition { content: start..start + content.len(), dx, dy })
+}
+
+/// Use a LaTeX box whose width and height/depth match the original text.
+/// The caller must prove those dimensions and the rendered translation.
+pub fn position_text_range(
+    source: &str, range: Range<usize>, dx: f64, dy: f64, document: &str,
+) -> Result<(String, Range<usize>, f64, f64)> {
+    let content = source.get(range.clone()).ok_or("Invalid source selection")?;
+    if content.is_empty() || content.contains(['\r', '\n']) || visible_line_end(content) != content.len() || content.contains("\\\\") || content.contains("\\par") {
+        return Err("Free dragging supports one complete text line at a time".into());
+    }
+    validate_movable_text(content, document)?;
+    let first = source[..range.start].rfind('\n').map_or(0, |index| index + 1);
+    let last = source[range.end..].find('\n').map_or(source.len(), |index| range.end + index);
+    let raw_line = &source[first..last];
+    let text_end = break_start(raw_line).unwrap_or_else(|| visible_line_end(raw_line));
+    let line = trim_range(source, first..first + text_end);
+    let existing = standard_text_position(&source[line.clone()])
+        .filter(|position| line.start + position.content.start == range.start
+            && line.start + position.content.end == range.end);
+    let (replace, old_dx, old_dy) = match existing {
+        Some(position) => (line, position.dx, position.dy),
+        None => (range, 0.0, 0.0),
+    };
+    let round_offset = |value: f64| {
+        let rounded = (value * 100.0).round() / 100.0;
+        if rounded == 0.0 { 0.0 } else { rounded }
+    };
+    let target_dx = round_offset(old_dx + dx);
+    let target_dy = round_offset(old_dy + dy);
+    if target_dx == 0.0 && target_dy == 0.0 {
+        let start = replace.start;
+        let mut updated = source.to_owned();
+        updated.replace_range(replace, content);
+        return Ok((updated, start..start + content.len(), -old_dx, -old_dy));
+    }
+    let prefix = format!("\\raisebox{{{}bp}}[\\height][\\depth]{{\\kern{}bp\\relax ",
+        number(-target_dy, false)?, number(target_dx, false)?);
+    let suffix = format!("\\kern{}bp\\relax}}", number(-target_dx, false)?);
+    let start = replace.start + prefix.len();
+    let mut updated = source.to_owned();
+    updated.replace_range(replace, &format!("{prefix}{content}{suffix}"));
+    Ok((updated, start..start + content.len(), target_dx - old_dx, target_dy - old_dy))
 }
 
 pub fn ensure_objects_package(source: &str) -> Result<String> {
@@ -350,6 +421,28 @@ pub fn replace_plain_text(fragment: &str, value: &str, document: &str) -> Result
 mod tests {
     use super::*;
     const DOC: &str = "\\documentclass{article}\n\\newcommand{\\Person}{Dr. Example}\n\\begin{document}\nFirst paragraph.\nIt wraps over source lines.\n\n\\begin{minipage}{\\linewidth}\nBest regards,\\\\[10mm]\n\\textbf{\\Person}\\\\[2pt]\nExample Department\\\\[2pt]\nExample University\n\\end{minipage}\n\nFollowing paragraph.\n\\end{document}";
+    #[test]
+    fn repeat_positioning_preserves_forced_breaks_comments_and_original_bytes() {
+        let source = "\\begin{document}\r\n\\textbf{Name}\\\\[2pt] % Keep this\r\nDepartment\r\n\\end{document}\r\n";
+        let original = resolve_text_unit(source, 2).unwrap();
+        let (moved, range, dx, dy) = position_text_range(source, original.range, 3.126, -4.5, source).unwrap();
+        assert_eq!((dx, dy), (3.13, -4.5));
+        assert_eq!(
+            moved,
+            source.replace("\\textbf{Name}", "\\raisebox{4.5bp}[\\height][\\depth]{\\kern3.13bp\\relax \\textbf{Name}\\kern-3.13bp\\relax}"),
+        );
+        assert_eq!(resolve_text_unit(&moved, 2).unwrap().range, range);
+        let (restored, _, _, _) = position_text_range(&moved, range, -3.13, 4.5, &moved).unwrap();
+        assert_eq!(restored, source);
+    }
+
+    #[test]
+    fn positioning_refuses_multi_line_ranges_and_nonfinite_offsets() {
+        let source = "First\nSecond";
+        assert!(position_text_range(source, 0..source.len(), 10.0, 0.0, source).is_err());
+        assert!(position_text_range(source, 0..5, f64::INFINITY, 0.0, source).is_err());
+    }
+
     #[test] fn soft_wrapped_prose_is_one_unit() { let u = resolve_text_unit(DOC, 5).unwrap(); assert_eq!(u.kind,"paragraph"); assert_eq!((u.first_line,u.last_line),(4,5)); }
     #[test] fn page_breaks_bound_adjacent_paragraphs_without_becoming_movable_content() {
         for page_break in ["\\newpage", "\\clearpage", "\\cleardoublepage", "\\pagebreak", "\\pagebreak[2]", "\\nopagebreak[4]"] {
