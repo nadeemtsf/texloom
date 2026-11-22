@@ -62,7 +62,7 @@ export function acceptCompilation(value: unknown, context: CompileContext): Comp
   return value;
 }
 function assertCompilation(value: unknown, context: CompileContext): asserts value is CompileResult {
-  record(value, ['ok', 'build_id', 'revision', 'pdf', 'blocks', 'objects', 'log', 'engine', 'seconds',
+  record(value, ['ok', 'build_id', 'revision', 'pdf', 'objects', 'log', 'engine', 'seconds',
     'verification_eligible', 'passes', 'diagnostics', 'job_id']);
   require(typeof value.ok === 'boolean' && typeof value.verification_eligible === 'boolean' &&
     identity(value.build_id) && integer(value.revision) && value.revision === context.revision &&
@@ -73,9 +73,9 @@ function assertCompilation(value: unknown, context: CompileContext): asserts val
     (context.engine === 'auto' || context.engine === value.engine), 'Invalid compiler metadata');
   const errors = diagnosticErrors(value.diagnostics);
   pdfBytes(value.pdf);
-  require(Array.isArray(value.blocks) && Array.isArray(value.objects), 'Invalid compiled object inventory');
+  require(Array.isArray(value.objects), 'Invalid compiled object inventory');
   if (!value.ok) {
-    require(!value.verification_eligible && value.pdf.length === 0 && value.blocks.length === 0 && value.objects.length === 0,
+    require(!value.verification_eligible && value.pdf.length === 0 && value.objects.length === 0,
       'A failed compilation cannot supply PDF output or visual objects');
   } else {
     const pdf = value.pdf;
@@ -102,15 +102,8 @@ function pdfBytes(value: unknown): asserts value is number[] | Uint8Array {
   if (Array.isArray(value)) for (const byte of value) require(integer(byte) && byte <= 255, 'Invalid compiled PDF bytes');
 }
 function assertInventory(value: Record<string, unknown>, context: CompileContext): void {
-  require(Array.isArray(value.blocks) && Array.isArray(value.objects), 'Invalid compiled object inventory');
-  const blockIds = new Set<string>(), objectIds = new Set<string>();
-  for (const block of value.blocks) {
-    record(block, ['id', 'file', 'page', 'x', 'y', 'width', 'size', 'content', 'height', 'start', 'end', 'line']);
-    require(identity(block.id) && !blockIds.has(block.id), 'Invalid or duplicate positioned block identity');
-    blockIds.add(block.id); sourceRange(block, context.sources);
-    require(integer(block.page, 1) && finite(block.x) && finite(block.y) && finite(block.width) && block.width > 0 &&
-      finite(block.height) && block.height >= 0 && finite(block.size) && block.size > 0 && typeof block.content === 'string', 'Invalid positioned block geometry');
-  }
+  require(Array.isArray(value.objects), 'Invalid compiled object inventory');
+  const objectIds = new Set<string>();
   for (const object of value.objects) {
     record(object, ['id', 'file', 'dx', 'dy', 'plain_text', 'content', 'line', 'start', 'end']);
     require(identity(object.id) && !objectIds.has(object.id), 'Invalid or duplicate text object identity');

@@ -1,4 +1,4 @@
-//! Lossless LaTeX block edits. This crate intentionally has no dependencies.
+//! Lossless LaTeX source edits. This crate intentionally has no dependencies.
 use std::ops::Range;
 mod objects;
 pub use objects::*;
@@ -11,25 +11,6 @@ mod selection_hints;
 pub use selection_hints::resolve_selection_hint;
 
 pub type Result<T> = std::result::Result<T, String>;
-
-#[derive(Clone, Debug, PartialEq)]
-pub struct Block {
-    pub id: String,
-    pub page: usize,
-    pub x: f64,
-    pub y: f64,
-    pub width: f64,
-    pub size: f64,
-    pub content: String,
-    pub range: Range<usize>,
-    pub arguments: Vec<Range<usize>>,
-    pub line: usize,
-}
-
-#[derive(Clone, Debug)]
-pub enum Change {
-    Page(usize), X(f64), Y(f64), Width(f64), Size(f64), Content(String),
-}
 
 fn command(s: &str, start: usize) -> (&str, usize) {
     let b = s.as_bytes();
@@ -97,44 +78,6 @@ fn skip_literal(s: &str, cmd: &str, mut end: usize) -> Option<usize> {
     None
 }
 
-pub fn blocks(s: &str) -> Vec<Block> {
-    let mut result = Vec::new();
-    let mut line = 1;
-    let mut counted_to = 0;
-    let mut i = 0;
-    while i < s.len() {
-        if s.as_bytes()[i] == b'%' { i = comment_end(s, i); continue; }
-        if s.as_bytes()[i] != b'\\' { i += 1; continue; }
-        let (cmd, end) = command(s, i);
-        if let Some(after) = skip_literal(s, cmd, end) { i = after; continue; }
-        if cmd != "\\StudioBlock" { i = end; continue; }
-        let parsed = (|| -> Result<Block> {
-            let mut args = Vec::new();
-            let mut cursor = end;
-            for _ in 0..7 { let (range, after) = argument(s, cursor)?; args.push(range); cursor = after; }
-            let id = &s[args[0].clone()];
-            if id.is_empty() || id.len() > 64 || !id.bytes().all(|c| c.is_ascii_alphanumeric() || c == b'_' || c == b'-') {
-                return Err("Invalid block ID".into());
-            }
-            let page = s[args[1].clone()].trim().parse::<usize>().map_err(|_| "Invalid page")?;
-            let number = |n: usize| -> Result<f64> {
-                let value = s[args[n].clone()].trim().parse::<f64>().map_err(|_| "Invalid dimension")?;
-                if !value.is_finite() { return Err("Invalid dimension".into()); }
-                Ok(value)
-            };
-            let (x, y, width, size) = (number(2)?, number(3)?, number(4)?, number(5)?);
-            if page == 0 || width <= 0.0 || size <= 0.0 { return Err("Invalid block dimensions".into()); }
-            line += s.as_bytes()[counted_to..i].iter().filter(|&&c| c == b'\n').count();
-            counted_to = i;
-            Ok(Block { id: id.into(), page, x, y, width, size, content: s[args[6].clone()].into(),
-                range: i..cursor, arguments: args, line })
-        })();
-        if let Ok(block) = parsed { i = block.range.end; result.push(block); }
-        else { i = end; }
-    }
-    result
-}
-
 fn page_flow_command(cmd: &str) -> bool {
     matches!(cmd, "\\newpage" | "\\clearpage" | "\\cleardoublepage" | "\\pagebreak" | "\\nopagebreak")
 }
@@ -184,30 +127,6 @@ fn number(value: f64, positive: bool) -> Result<String> {
     Ok(format!("{value:.2}").trim_end_matches('0').trim_end_matches('.').to_string())
 }
 
-pub fn patch_block(source: &str, id: &str, changes: &[Change]) -> Result<String> {
-    let found: Vec<_> = blocks(source).into_iter().filter(|b| b.id == id).collect();
-    if found.len() != 1 { return Err("Block is missing or its ID is duplicated".into()); }
-    let block = &found[0];
-    let mut edits: Vec<(Range<usize>, String)> = Vec::new();
-    for change in changes {
-        let (index, value) = match change {
-            Change::Page(p) if *p > 0 => (1, p.to_string()),
-            Change::Page(_) => return Err("Page must be positive".into()),
-            Change::X(n) => (2, number(*n, false)?), Change::Y(n) => (3, number(*n, false)?),
-            Change::Width(n) => (4, number(*n, true)?), Change::Size(n) => (5, number(*n, true)?),
-            Change::Content(text) => { validate_fragment(text)?; (6, text.clone()) },
-        };
-        if edits.iter().any(|(r, _)| *r == block.arguments[index]) { return Err("A field may only be changed once".into()); }
-        edits.push((block.arguments[index].clone(), value));
-    }
-    edits.sort_by_key(|(r, _)| std::cmp::Reverse(r.start));
-    let mut updated = source.to_string();
-    for (range, value) in edits { updated.replace_range(range, &value); }
-    let current = blocks(&updated).into_iter().find(|b| b.id == id).ok_or("The edit would break the block")?;
-    for change in changes { if let Change::Content(text) = change { if current.content != *text { return Err("The edit would break the block's braces or comments".into()); } } }
-    Ok(updated)
-}
-
 fn document_bounds(s: &str) -> Result<(usize, usize, usize)> {
     let mut begin = None;
     let mut finish = None;
@@ -254,35 +173,23 @@ fn has_package(s: &str, package: &str) -> bool {
     false
 }
 
-#[derive(Clone, Debug)]
-pub struct NewBlock {
-    pub id: String, pub page: usize, pub x: f64, pub y: f64,
-    pub width: f64, pub size: f64, pub content: String,
-}
-
-pub fn insert_block(source: &str, block: &NewBlock, selection: Option<Range<usize>>) -> Result<String> {
-    if block.id.is_empty() || block.id.len() > 64 || !block.id.bytes().all(|c| c.is_ascii_alphanumeric() || c == b'_' || c == b'-') { return Err("Invalid block ID".into()); }
-    if blocks(source).iter().any(|b| b.id == block.id) { return Err("Duplicate block ID".into()); }
-    if block.page == 0 { return Err("Page must be positive".into()); }
-    let (x, y, width, size) = (number(block.x, false)?, number(block.y, false)?, number(block.width, true)?, number(block.size, true)?);
-    let (_, body, end) = document_bounds(source)?;
+/// Append a paragraph to the main document and return its exact source range.
+pub fn append_plain_paragraph(source: &str, text: &str) -> Result<(String, Range<usize>)> {
+    let text = text.trim();
+    if text.is_empty() || text.len() > 256_000 ||
+        text.chars().any(|ch| ch.is_control() || matches!(ch, '\u{2028}' | '\u{2029}'))
+    {
+        return Err("Enter one nonempty paragraph on a single line".into());
+    }
+    let (_, _, end) = document_bounds(source)?;
+    let newline = if source.find('\n')
+        .is_some_and(|offset| source[..offset].ends_with('\r')) { "\r\n" } else { "\n" };
+    let content = escape_text(text);
+    let start = end + 2 * newline.len();
+    let range = start..start + content.len();
     let mut updated = source.to_string();
-    let content = if let Some(range) = selection {
-        if range.start < body || range.end > end || range.start >= range.end || !source.is_char_boundary(range.start) || !source.is_char_boundary(range.end) {
-            return Err("Select complete content inside the document body".into());
-        }
-        let text = source[range.clone()].to_string(); validate_fragment(&text)?;
-        updated.replace_range(range, ""); text
-    } else { validate_fragment(&block.content)?; block.content.clone() };
-    let (preamble, _, _) = document_bounds(&updated)?;
-    if !has_package(&updated[..preamble], "studio") { updated.insert_str(preamble, "\\usepackage{studio}\n"); }
-    let (_, _, end) = document_bounds(&updated)?;
-    // A terminating newline prevents a trailing comment swallowing the closing brace.
-    let separator = if content.ends_with('\n') { "" } else { "\n" };
-    let text = format!("\n\\StudioBlock{{{}}}{{{}}}{{{x}}}{{{y}}}{{{width}}}{{{size}}}{{{content}{separator}}}\n", block.id, block.page);
-    updated.insert_str(end, &text);
-    if !blocks(&updated).iter().any(|b| b.id == block.id) { return Err("The selection does not form a complete movable block".into()); }
-    Ok(updated)
+    updated.insert_str(end, &format!("{newline}{newline}{content}{newline}{newline}"));
+    Ok((updated, range))
 }
 
 pub fn utf16_to_byte(s: &str, offset: usize) -> Result<usize> {
@@ -315,18 +222,6 @@ pub fn escape_text(s: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    const SOURCE: &str = "\\documentclass{article}\n\\usepackage{studio}\n\\begin{document}\n\\null\n\\StudioBlock{title}{1}{62}{100}{300}{20}{Hello \\textbf{world}.}\n\\end{document}\n";
-    fn new_block() -> NewBlock { NewBlock { id: "new".into(), page: 1, x: 50.0, y: 80.0, width: 300.0, size: 12.0, content: "New text".into() } }
-    #[test] fn preserves_every_other_character() {
-        let changed = patch_block(SOURCE, "title", &[Change::X(84.0), Change::Y(136.0)]).unwrap();
-        assert_eq!(changed, SOURCE.replace("{62}{100}", "{84}{136}"));
-    }
-    #[test] fn comments_and_verbatim_are_not_blocks() {
-        let literal = "\\StudioBlock{fake}{1}{1}{1}{1}{1}{Text}";
-        let s = format!("% {literal}\n\\begin{{verbatim}}{literal}\\end{{verbatim}}\n\\verb|{literal}|\n{SOURCE}");
-        assert_eq!(blocks(&s).len(), 1);
-    }
-    #[test] fn duplicate_ids_are_rejected() { assert!(patch_block(&format!("{SOURCE}{SOURCE}"), "title", &[Change::X(1.0)]).is_err()); }
     #[test] fn a_closing_environment_cannot_be_moved_on_its_own() { assert!(validate_fragment("\\end{center}").is_err()); }
     #[test] fn incomplete_and_mismatched_environments_are_rejected() {
         for s in ["\\begin{center}text", "\\begin{center}text\\end{quote}", "text}"] { assert!(validate_fragment(s).is_err()); }
@@ -339,15 +234,5 @@ mod tests {
         assert_eq!(byte_to_utf16(s, 5).unwrap(), 3);
         assert!(utf16_to_byte(s, 2).is_err());
     }
-    #[test] fn only_selected_text_leaves_flow() {
-        let source = "\\documentclass{article}\n% \\usepackage{studio}\n\\begin{document}\nFirst paragraph.\n\nSecond paragraph.\n\\end{document}";
-        let start = source.find("First").unwrap();
-        let changed = insert_block(source, &new_block(), Some(start..start + 16)).unwrap();
-        assert_eq!(changed.matches("First paragraph.").count(), 1);
-        assert!(changed.contains("Second paragraph."));
-        assert_eq!(changed.matches("\\usepackage{studio}").count(), 2);
-    }
-    #[test] fn visual_edits_cannot_insert_page_commands() { assert!(patch_block(SOURCE, "title", &[Change::Content("\\newpage text".into())]).is_err()); }
-    #[test] fn numeric_values_must_be_finite() { assert!(patch_block(SOURCE, "title", &[Change::X(f64::NAN)]).is_err()); }
     #[test] fn plain_text_escapes_special_characters() { assert_eq!(escape_text("50% & a_b"), "50\\% \\& a\\_b"); }
 }

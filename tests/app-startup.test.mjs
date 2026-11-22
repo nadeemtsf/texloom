@@ -23,7 +23,7 @@ import {acceptUnverifiedPreview} from '../web/core/build-protocol.js';
 
 const [app,html]=await Promise.all(['app.js','index.html'].map(name=>readFile(new URL('../web/'+name,import.meta.url),'utf8')));
 const tick=()=>new Promise(setImmediate);
-const finalReply={ok:true,build_id:'settled',revision:0,pdf:[37,80,68,70,45],blocks:[],objects:[],log:'',engine:'pdflatex',
+const finalReply={ok:true,build_id:'settled',revision:0,pdf:[37,80,68,70,45],objects:[],log:'',engine:'pdflatex',
  seconds:1,verification_eligible:true,passes:2,diagnostics:[],job_id:1};
 function sendPreliminary(t){
  const args=t.context.progressRequest;

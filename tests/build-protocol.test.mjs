@@ -74,8 +74,8 @@ test('actual Rust Serde compiler and mapping fixtures cross the strict runtime b
  assert.equal(acceptCompilation(fixture.compile_failure,context),fixture.compile_failure);
  assert.deepEqual(acceptSourceLocation(fixture.source_location,context.sources),{file:'main.tex',line:2});
  assert.equal(acceptSourceRectangle(fixture.source_rectangle).y,-3);
- const nullable=clone(fixture.compile_success);nullable.objects[0].plain_text=null;nullable.blocks[0].height=0;
- assert.equal(acceptCompilation(nullable,context),nullable,'unavailable plain previews and empty measured blocks remain readable');
+ const nullable=clone(fixture.compile_success);nullable.objects[0].plain_text=null;
+ assert.equal(acceptCompilation(nullable,context),nullable,'unavailable plain previews remain readable');
  assert.equal(fixture.compile_success.job_id,42,'native scheduler ID is not the browser request counter');
  assert.equal(acceptResolvedSelection(fixture.resolved_selection,{snapshot:context,buildId:fixture.compile_success.build_id,page:1}),fixture.resolved_selection);
 });
@@ -111,9 +111,6 @@ for(const [name,mutate] of [
  ['offset splitting surrogate pair',r=>r.objects[0].end=3],
  ['offset beyond source',r=>r.objects[0].end=999],
  ['duplicate text identity',r=>r.objects.push(clone(r.objects[0]))],
- ['duplicate block identity',r=>r.blocks.push(clone(r.blocks[0]))],
- ['guessed block geometry',r=>delete r.blocks[0].height],
- ['zero block width',r=>r.blocks[0].width=0],
  ['nonfinite object displacement',r=>r.objects[0].dy=NaN],
 ])test('compiler protocol refuses '+name,()=>{
  const reply=clone(fixture.compile_success);mutate(reply);
@@ -139,7 +136,7 @@ for(const binary of [false,true])test('prepared compiler replies are checked aga
   calls.push([name,args]);
   if(name==='document_prepare')return {token:'prepared',revision:8};
   if(name==='document_discard')return null;
-  const result={...fixture.compile_success,revision:8,blocks:[],objects:[{...fixture.compile_success.objects[0],end:10}]};
+  const result={...fixture.compile_success,revision:8,objects:[{...fixture.compile_success.objects[0],end:10}]};
   return binary?envelope(result):result;
  },'project',clone(fixture.snapshot));
  const reply=await client.prepare({'main.tex':'Long candidate source'},'baseline');

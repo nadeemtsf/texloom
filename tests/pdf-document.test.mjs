@@ -35,7 +35,7 @@ test('an aborted preliminary load disposes its PDF even when it resolves after c
 
 test('binary compile delivery preserves real PDF text and every rendered pixel',async()=>{
  const bytes=new Uint8Array(await readFile(new URL('./fixtures/objects/baseline.pdf',import.meta.url)));
- const logical={ok:true,build_id:'binary-render',revision:1,pdf:Array.from(bytes),blocks:[],objects:[],log:'',
+ const logical={ok:true,build_id:'binary-render',revision:1,pdf:Array.from(bytes),objects:[],log:'',
   engine:'pdflatex',seconds:0,verification_eligible:true,passes:2,diagnostics:[],job_id:1};
  const metadata=new TextEncoder().encode(JSON.stringify({...logical,pdf:[]}));
  const wire=new Uint8Array(8+metadata.length+bytes.length);wire.set([84,76,80,49]);
