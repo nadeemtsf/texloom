@@ -266,7 +266,96 @@ pub struct ObjectPlan {
     pub operation: String,
 }
 
+pub(super) struct DirectTextPlan {
+    pub(super) sources: BTreeMap<String, String>,
+    pub(super) before_probe: Option<BTreeMap<String, String>>,
+    pub(super) after_probe: BTreeMap<String, String>,
+}
+
+fn mark_text_range(
+    request: &ObjectEditRequest,
+    source: &str,
+    range: std::ops::Range<usize>,
+) -> Result<BTreeMap<String, String>> {
+    let mut sources = request.sources.clone();
+    let marked = texloom_core::wrap_text_object(
+        source, range, &request.id, 0.0, 0.0, &request.sources[&request.main],
+    )?;
+    sources.insert(request.file.clone(), marked);
+    let main = texloom_core::ensure_objects_package(&sources[&request.main])?;
+    sources.insert(request.main.clone(), main);
+    prepare_object_style(&mut sources)?;
+    Ok(sources)
+}
+
+pub(super) fn plan_direct_text(request: &ObjectEditRequest) -> Result<DirectTextPlan> {
+    relative(&request.main)?;
+    relative(&request.file)?;
+    let document = request.sources.get(&request.main).ok_or("Main document is missing")?;
+    let source = request.sources.get(&request.file).ok_or("Source file is missing")?;
+    if !request.file.ends_with(".tex") || source.len() > 4_000_000 || request.sources.len() > MAX_FILES {
+        return Err("Choose a supported LaTeX source file".into());
+    }
+    if request.dx.unwrap_or(0.0) != 0.0 || request.dy.unwrap_or(0.0) != 0.0 {
+        return Err("Change text and position in separate operations".into());
+    }
+    let (updated, range, before_probe) = match request.action.as_str() {
+        "append_paragraph" if request.file == request.main && request.plain
+            && request.selection.is_none() && request.expected.is_none()
+            && request.literal_edits.is_none() && request.spacing_edits.is_none() =>
+        {
+            let text = request.content.as_deref().ok_or("Enter the paragraph text")?;
+            let (updated, range) = texloom_core::append_plain_paragraph(source, text)?;
+            (updated, range, None)
+        }
+        "replace_source" => {
+            let [start, end] = request.selection.ok_or("Select the text to edit")?;
+            let projection = EditorProjection::new(source);
+            let range = projection.source_offset(start).map_err(fail)?
+                ..projection.source_offset(end).map_err(fail)?;
+            let expected = request.expected.as_deref().ok_or("Missing selected text")?;
+            if source.get(range.clone()) != Some(expected) {
+                return Err("The selected source changed. Select it again.".into());
+            }
+            let replacement = match request.content.as_deref() {
+                None => preview_edit_parameters(
+                    expected, expected, document,
+                    request.literal_edits.as_deref().unwrap_or(&[]),
+                    request.spacing_edits.as_deref().unwrap_or(&[]),
+                )?,
+                Some(text) if request.literal_edits.is_none() && request.spacing_edits.is_none() => {
+                    if request.plain {
+                        texloom_core::replace_plain_text(expected, text, document)?
+                    } else {
+                        text.to_owned()
+                    }
+                }
+                Some(_) => return Err("Choose either a text edit or parameter changes".into()),
+            };
+            if replacement == expected {
+                return Err("The source is unchanged".into());
+            }
+            let before_probe = mark_text_range(request, source, range.clone())?;
+            let new_range = range.start..range.start + replacement.len();
+            let mut updated = source.clone();
+            updated.replace_range(range, &replacement);
+            (updated, new_range, Some(before_probe))
+        }
+        _ => return Err("Unsupported direct text operation".into()),
+    };
+    let after_probe = mark_text_range(request, &updated, range)?;
+    let mut sources = request.sources.clone();
+    sources.insert(request.file.clone(), updated);
+    Ok(DirectTextPlan { sources, before_probe, after_probe })
+}
+
 pub fn plan_object_edit(mut request: ObjectEditRequest) -> Result<ObjectPlan> {
+    if matches!(request.action.as_str(), "replace_source" | "append_paragraph") {
+        let plan = plan_direct_text(&request)?;
+        return Ok(ObjectPlan {
+            sources: plan.sources, object_id: request.id, file: request.file, operation: request.action,
+        });
+    }
     relative(&request.main)?;
     relative(&request.file)?;
     let source = request

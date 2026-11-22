@@ -1,7 +1,7 @@
 // IPC boundary double for frontend integration tests. The actual native state
 // machine and byte-preservation behavior are tested separately in Rust.
 class NativeDocumentDouble {
- constructor(control){this.control=control;this.sources={'main.tex':'Original source','studio.sty':'Style source'};
+ constructor(control){this.control=control;this.sources={'main.tex':'Original source','custom.sty':'Style source'};
   this.revision=0;this.main='main.tex';this.engine='auto';this.history=[];this.redo=[];this.pending=new Map();}
  snapshot(){return structuredClone({sources:this.sources,revision:this.revision,main:this.main,engine:this.engine,
   can_undo:!!this.history.length,can_redo:!!this.redo.length,selection:null,recovery:{draft_id:null,protected_revision:null,error:null}});}
@@ -11,7 +11,6 @@ class NativeDocumentDouble {
   if(name==='preview_text_edit')return this.control.previewText?.(args);
   if(name==='resolve_text_selection')return {unit_id:'fixture-unit',first_line:1,last_line:1,plain_text:null,rectangles:[],...await this.control.resolve(args)};
   if(name==='plan_text_object'){const value=await this.control.plan(args.request);return {object_id:args.request.id||'fixture-object',operation:args.request.action,...value};}
-  if(name==='transform')return this.control.transform?.(args.request);
   if(name==='mark_clean_exit'){this.control.cleanExits=(this.control.cleanExits??0)+1;return null;}
   if(name==='verify_build')return (await this.control.verify?.(args))??null;
   if(name==='cancel_compilation')return null;
@@ -30,7 +29,7 @@ class NativeDocumentDouble {
    const revision=pending?pending.base+1:this.revision;
    const reply=await this.control.compile({sources:pending?.sources??this.sources,revision});
    const result={build_id:'fixture-build',log:'',engine:'pdflatex',seconds:0,passes:reply.ok?2:1,
-    job_id:args.requestId,pdf:reply.ok?[37,80,68,70,45,49,46,55,10]:[],blocks:[],objects:[],
+    job_id:args.requestId,pdf:reply.ok?[37,80,68,70,45,49,46,55,10]:[],objects:[],
     diagnostics:[],verification_eligible:!!reply.ok,...reply};
    if(pending&&result.ok)pending.build=result.build_id;
    return {...result,revision:result.revision??revision};

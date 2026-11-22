@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 #[cfg(test)]
 use serde_json::json;
 use std::{
@@ -10,7 +9,7 @@ use std::{
     sync::{Arc, Mutex},
     time::Duration,
 };
-use texloom_core::{document::projection::EditorProjection, Block, Change, NewBlock};
+use texloom_core::document::projection::EditorProjection;
 use uuid::Uuid;
 mod build_cache;
 mod document;
@@ -39,7 +38,6 @@ pub use visual::{
 };
 pub use visual::{ObjectEditRequest, ObjectPlan, ResolvedSelection, SelectionPoint};
 
-const STYLE: &str = include_str!("../../resources/studio.sty");
 const EXAMPLE: &str = include_str!("../../resources/main.tex");
 const OBJECT_STYLE: &str = include_str!("../../resources/texloom-objects.sty");
 const LEGACY_OBJECT_STYLE: &str = include_str!("../../resources/legacy/texloom-objects-v03.sty");
@@ -151,23 +149,6 @@ pub struct CompileRequest {
 
 #[derive(Serialize)]
 #[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
-pub struct PositionedBlock {
-    pub id: String,
-    pub file: String,
-    pub page: usize,
-    pub x: f64,
-    pub y: f64,
-    pub width: f64,
-    pub size: f64,
-    pub content: String,
-    pub height: f64,
-    pub start: usize,
-    pub end: usize,
-    pub line: usize,
-}
-
-#[derive(Serialize)]
-#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
 pub struct MappedTextObject {
     pub id: String,
     pub file: String,
@@ -189,7 +170,6 @@ pub struct CompileResult {
     pub revision: u64,
     #[cfg_attr(feature = "typegen", ts(type = "number[] | Uint8Array"))]
     pub pdf: Vec<u8>,
-    pub blocks: Vec<PositionedBlock>,
     pub objects: Vec<MappedTextObject>,
     pub log: String,
     pub engine: String,
@@ -199,111 +179,6 @@ pub struct CompileResult {
     pub diagnostics: Vec<texloom_build::engine::Diagnostic>,
     #[cfg_attr(feature = "typegen", ts(type = "number"))]
     pub job_id: u64,
-}
-
-#[derive(Clone, Serialize, Deserialize)]
-#[cfg_attr(feature="typegen",derive(ts_rs::TS))]
-pub struct TransformRequest {
-    pub source: String,
-    pub action: String,
-    pub id: String,
-    #[serde(default)]
-    #[cfg_attr(feature="typegen",ts(type="Record<string, unknown>"))]
-    pub changes: BTreeMap<String, Value>,
-    #[serde(default)]
-    pub selection: Option<[usize; 2]>,
-    #[serde(default)]
-    pub content: String,
-    #[serde(default)]
-    pub plain: bool,
-    #[serde(default = "one")]
-    pub page: usize,
-    #[serde(default = "x_default")]
-    pub x: f64,
-    #[serde(default = "y_default")]
-    pub y: f64,
-    #[serde(default = "width_default")]
-    pub width: f64,
-    #[serde(default = "size_default")]
-    pub size: f64,
-}
-fn one() -> usize {
-    1
-}
-fn x_default() -> f64 {
-    62.0
-}
-fn y_default() -> f64 {
-    100.0
-}
-fn width_default() -> f64 {
-    270.0
-}
-fn size_default() -> f64 {
-    12.0
-}
-
-pub fn transform(request: TransformRequest) -> Result<String> {
-    if request.source.len() > 4_000_000 {
-        return Err("Source file exceeds 4 MB".into());
-    }
-    if request.action == "patch" {
-        let mut changes = Vec::new();
-        for (name, value) in request.changes {
-            let number = || {
-                value
-                    .as_f64()
-                    .ok_or_else(|| "Enter a numeric dimension".to_string())
-            };
-            changes.push(match name.as_str() {
-                "x" => Change::X(number()?),
-                "y" => Change::Y(number()?),
-                "width" => Change::Width(number()?),
-                "size" => Change::Size(number()?),
-                "page" => {
-                    Change::Page(value.as_u64().ok_or("Page must be a positive integer")? as usize)
-                }
-                "content" => Change::Content(value.as_str().ok_or("Content must be text")?.into()),
-                _ => return Err("Unknown block property".into()),
-            });
-        }
-        texloom_core::patch_block(&request.source, &request.id, &changes)
-    } else if request.action == "delete" {
-        let matches: Vec<_> = texloom_core::blocks(&request.source).into_iter()
-            .filter(|b| b.id == request.id).collect();
-        if matches.len() != 1 { return Err("Select one unique positioned block".into()); }
-        let mut source = request.source;
-        source.replace_range(matches[0].range.clone(), "");
-        Ok(source)
-    } else if request.action == "insert" {
-        let projection = texloom_core::document::projection::EditorProjection::new(&request.source);
-        let selection = request
-            .selection
-            .map(|[a, b]| {
-                Ok::<_, String>(
-                    projection.source_offset(a).map_err(fail)?
-                        ..projection.source_offset(b).map_err(fail)?,
-                )
-            })
-            .transpose()?;
-        let content = if request.plain {
-            texloom_core::escape_text(&request.content)
-        } else {
-            request.content
-        };
-        let block = NewBlock {
-            id: request.id,
-            page: request.page,
-            x: request.x,
-            y: request.y,
-            width: request.width,
-            size: request.size,
-            content,
-        };
-        texloom_core::insert_block(&request.source, &block, selection)
-    } else {
-        Err("Unknown visual edit".into())
-    }
 }
 
 #[derive(Clone)]
@@ -376,13 +251,10 @@ impl Backend {
                 (path, None)
             }
         } else {
-            let root = self.root.join("Examples/Visual text 0.3");
+            let root = self.root.join("Examples/LaTeX example");
             fs::create_dir_all(&root).map_err(fail)?;
             if !root.join("main.tex").exists() {
                 fs::write(root.join("main.tex"), EXAMPLE).map_err(fail)?;
-            }
-            if !root.join("studio.sty").exists() {
-                fs::write(root.join("studio.sty"), STYLE).map_err(fail)?;
             }
             (root, Some("main.tex".into()))
         };
@@ -464,14 +336,6 @@ impl Backend {
         if disk.root != root { return Err("The project directory changed".into()); }
         let mut desired = sources.clone();
         desired.insert(texloom_build::project_io::PROFILE.into(),serde_json::to_string_pretty(&ProjectProfile{schema:1,main:main.into(),engine:engine.into()}).map_err(fail)?+"\n");
-        // Preserve the existing isolated StudioBlock compatibility dependency.
-        // Normal text-object dependencies already belong to canonical source.
-        if !desired.contains_key("studio.sty")
-            && (sources.values().any(|s|s.contains("\\StudioBlock"))
-                || disk.files.get("studio.sty").is_some_and(Option::is_some))
-        {
-            desired.insert("studio.sty".into(), STYLE.into());
-        }
         match disk.save(&desired)? {
             texloom_build::persistence::SaveOutcome::Saved => Ok(()),
             texloom_build::persistence::SaveOutcome::Conflicts(conflicts) => {
@@ -508,7 +372,6 @@ impl Backend {
         let directory = build_root.join(&id);
         let mut workspace = build_cache::Workspace::new(&build_root, &directory)?;
         let support = BTreeMap::from([
-            ("studio.sty".into(), STYLE.into()),
             ("texloom-objects.sty".into(), OBJECT_STYLE.into()),
         ]);
         let build_request = texloom_build::engine::Request {
@@ -527,8 +390,6 @@ impl Backend {
             texloom_build::engine::build_with_profiles(build_request, &lease.cancel, &self.compiler_profiles)?
         };
         lease.cancel.check()?;
-        let metrics = measurements(&output.receipt.directory.join(".out/preview.studio"));
-        let mut mapped = Vec::new();
         let mut objects = Vec::new();
         let mut ids = std::collections::HashSet::new();
         if output.ok {
@@ -538,10 +399,6 @@ impl Backend {
                     continue;
                 }
                 let mut projection = None;
-                for block in texloom_core::blocks(source) {
-                    let projection = projection.get_or_insert_with(|| EditorProjection::new(source));
-                    mapped.push(ui_block(&block, name, projection, &metrics)?);
-                }
                 for object in texloom_core::text_objects(source)? {
                     if !ids.insert(object.id.clone()) {
                         return Err("Text object IDs must be unique across the project".into());
@@ -587,7 +444,6 @@ impl Backend {
             build_id: id,
             revision: request.revision,
             pdf: output.pdf,
-            blocks: mapped,
             objects,
             log: output.log,
             engine,
@@ -793,41 +649,6 @@ pub struct SourceRectangle {
     pub y: f64,
     pub width: f64,
     pub height: f64,
-}
-
-fn ui_block(
-    block: &Block,
-    file: &str,
-    projection: &EditorProjection<'_>,
-    metrics: &HashMap<(String, usize), f64>,
-) -> Result<PositionedBlock> {
-    Ok(PositionedBlock {
-        id: block.id.clone(), file: file.into(), page: block.page, x: block.x, y: block.y,
-        width: block.width, size: block.size, content: block.content.clone(),
-        height: metrics.get(&(block.id.clone(), block.page)).copied().unwrap_or(block.size * 1.3),
-        start: projection.editor_offset(block.range.start).map_err(fail)?,
-        end: projection.editor_offset(block.range.end).map_err(fail)?, line: block.line,
-    })
-}
-
-fn measurements(path: &Path) -> HashMap<(String, usize), f64> {
-    let mut out = HashMap::new();
-    if let Ok(text) = fs::read_to_string(path) {
-        for line in text.lines() {
-            let p: Vec<_> = line.split('|').collect();
-            if p.len() != 5 {
-                continue;
-            }
-            if let (Ok(page), Ok(h), Ok(d)) = (
-                p[1].parse::<usize>(),
-                p[3].trim_end_matches("pt").parse::<f64>(),
-                p[4].trim_end_matches("pt").parse::<f64>(),
-            ) {
-                out.insert((p[0].to_string(), page), (h + d) * 72.0 / 72.27);
-            }
-        }
-    }
-    out
 }
 
 fn choose_engine(request: &str, source: &str) -> Result<String> {

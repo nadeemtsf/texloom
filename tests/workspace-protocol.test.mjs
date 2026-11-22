@@ -32,3 +32,15 @@ test('unit acknowledgements are exact and native errors propagate without becomi
   const failure=new Error('Disk is locked');const invoke=createWorkspaceInvoke(async()=>{throw failure});await assert.rejects(invoke('open_project',{}),e=>e===failure);
   assert.equal(await createWorkspaceInvoke(async()=>null)('mark_clean_exit',{}),null);
 });
+
+test('direct PDF text plans can change only the selected source file',()=>{
+  const args={request:{sources:{'main.tex':'Main','part.tex':'Old'},main:'main.tex',file:'part.tex',id:'target',action:'replace_source'}};
+  const plan={sources:{...args.request.sources,'part.tex':'New'},file:'part.tex',object_id:'target',operation:'replace_source'};
+  assert.equal(acceptWorkspaceReply('plan_text_object',args,plan),plan);
+  for(const bad of [
+    {...plan,sources:{...plan.sources,'main.tex':'Changed'}},
+    {...plan,sources:{...plan.sources,'texloom-objects.sty':'Support file'}},
+    {...plan,object_id:'other'},
+    {...plan,operation:'wrap'},
+  ])assert.throws(()=>acceptWorkspaceReply('plan_text_object',args,bad),WorkspaceProtocolError);
+});

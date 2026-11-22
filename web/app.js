@@ -69,7 +69,7 @@ const editor=monaco.editor.create($('editor'),{model,theme:'texloom',automaticLa
   unicodeHighlight:{ambiguousCharacters:false},accessibilitySupport:'auto'});
 const state={
   project:null,sources:{},saved:{},savedProfile:null,file:'',engine:'auto',revision:0,compiled:-1,result:null,pdf:null,view:null,
-  selected:null,objectSelection:null,lastHistory:0,typingGroup:0,suppress:false,client:null,
+  objectSelection:null,lastHistory:0,typingGroup:0,suppress:false,client:null,
   canUndo:false,canRedo:false,opening:false,mutating:false,composing:false,
   buildEpoch:0,cancelRequested:false,
   recovery:null,restoredDirty:false,
@@ -168,9 +168,8 @@ function fresh(){return !!state.result&&state.result.verification_eligible!==fal
 function canExport(){return !!state.project&&!!state.client&&!state.busy&&!state.opening&&!state.mutating&&!state.composing&&!state.saving&&!state.client.error}
 function updateControls(){
   typingRecovery.renderProtection();
-  const ready=fresh(),legacy=ready&&!!state.selected,object=ready&&!!state.objectSelection;
-  for(const id of ['add-text','pin'])$(id).disabled=!ready;
-  for(const id of ['apply-position','apply-size','apply-content','edit-block','delete-block'])$(id).disabled=!legacy;
+  const ready=fresh(),object=ready&&!!state.objectSelection;
+  for(const id of ['add-text','show-pdf'])$(id).disabled=!ready;
   for(const id of ['object-apply','object-edit','object-source'])$(id).disabled=!object;
   $('object-detach').disabled=!object||state.objectSelection?.kind!=='object';
   $('object-reset').disabled=!object||state.objectSelection?.kind!=='object'||(!state.objectSelection.dx&&!state.objectSelection.dy);
@@ -188,12 +187,12 @@ function updateControls(){
   $('compile-state').textContent=state.busy?'Compiling candidate…':'';
   $('pages').classList.toggle('stale',state.revision!==state.compiled||state.busy);
   $('selection-hint').textContent=state.mode==='read'?'Drag over text to highlight and copy it.':
-    state.result&&!state.result.objects?.length&&!state.result.blocks?.length?
+    state.result&&!state.result.objects?.length?
       'Click text to select it. Shift-click or draw a box for a group.':
       'Select text or an object. Drag its frame; double-click to edit.';
 }
 function sourceChanged(revision){
-  state.revision=revision??state.revision+1;canvas.clear();state.selected=null;renderInspector();status();scheduleCompile();updateControls();
+  state.revision=revision??state.revision+1;canvas.clear();status();scheduleCompile();updateControls();
 }
 let layoutContext=null;
 function layoutFeedback(text){
@@ -322,7 +321,7 @@ async function openProject(path=null,supplied=null,{compileOnOpen=false}={}){
     client=new DocumentClient(invoke,project.id,snapshot,{changed:next=>{if(state.client===client)acceptDocument(next)},failed:syncFailed});
     pdfNavigation.cancelZoom();state.previewZooming=false;surfaceElements.pages.classList.remove('zooming');state.renderAbort?.abort();state.view?.dispose?.();pdfSearch.reset();canvas.clear();const previous=state.pdf,previousProject=state.project?.id,previousRevision=state.client?.snapshot.revision;
     Object.assign(state,{project,sources:{...project.sources},saved:{...project.sources},file:project.main,
-      revision:snapshot.revision,compiled:-1,result:null,pdf:null,view:null,selected:null,lastHistory:0,canUndo:false,canRedo:false,
+      revision:snapshot.revision,compiled:-1,result:null,pdf:null,view:null,lastHistory:0,canUndo:false,canRedo:false,
       recovery:snapshot.recovery,restoredDirty:!!project.restored});
     state.savedProfile={main:snapshot.main,engine:snapshot.engine};state.compileApproved=!path&&!supplied;
     state.client=client;acceptDocument(snapshot);
@@ -330,7 +329,7 @@ async function openProject(path=null,supplied=null,{compileOnOpen=false}={}){
     $('project-name').textContent=project.name;$('pages').replaceChildren();$('empty').classList.remove('hidden');$('page-count').textContent='Not compiled';
     $('banner').classList.add('hidden');$('log-panel').classList.add('hidden');$('log').textContent='';
     renderDiagnostics([]);
-    syncEditor();renderInspector();status();updateControls();
+    syncEditor();status();updateControls();
     // The new project is already adopted. An old renderer's cleanup failure
     // must not skip native close/recovery setup for that project.
     if(previous)try{await previous.destroy()}catch(error){toast(message(error))}
@@ -533,7 +532,6 @@ function publishPrepared(prepared,result){
   renderDiagnostics(result.diagnostics||[]);
   setupHelp.update(result.verification_eligible===false?new CompilationFailure(result.log,result.diagnostics):null);
   if(result.verification_eligible===false){$('banner').textContent='PDF compiled with unresolved diagnostics. Resolve them before visual editing or export.';$('banner').classList.remove('hidden')}
-  renderOverlays();renderInspector();
   status((dirty()?'Unsaved':'Saved')+' · '+result.seconds.toFixed(2)+'s · '+result.engine);
   if(previous&&previous!==prepared.pdf){
     try{Promise.resolve(previous.destroy()).catch(error=>toast(message(error)))}catch(error){toast(message(error))}
@@ -623,7 +621,7 @@ async function commitSources(sources,{file=state.file,policy=null,operation=null
       if(!committed)trace?.mark('native-committed');
       try{acceptDocument(client.snapshot)}catch{}
       state.file=Object.hasOwn(state.sources,file)?file:state.project.main;state.lastHistory=0;
-      state.compiled=-1;state.selected=null;
+      state.compiled=-1;
       try{canvas.clear()}catch{}
       try{syncEditor()}catch{}
       const failure=new CommittedPresentationFailure(error);
@@ -635,7 +633,7 @@ async function commitSources(sources,{file=state.file,policy=null,operation=null
       // An unusable/missing acknowledgement is not proof that native source
       // stayed unchanged. Do not retry or send newer writes from this replica.
       const failure=new CommitStatusUnknown(error);client.error=failure;
-      state.compiled=-1;state.selected=null;
+      state.compiled=-1;
       try{canvas.clear()}catch{}
       trace?.finish(performanceOutcome(failure));showFailure(failure);
       throw failure;
@@ -657,17 +655,14 @@ async function commitSources(sources,{file=state.file,policy=null,operation=null
     }
   }
 }
-function visualTransaction(file,source,request){
-  const candidate=clone(state.sources);candidate[file]=source;
-  return commitSources(candidate,{file,operation:{kind:'legacy',file,request}});
-}
 async function textOperation(selection,{dx,dy,content,literalEdits,spacingEdits,plain=false,detach=false}={},trace=diagnostics.begin('text-edit')){
   if(!fresh()){trace?.finish('refused');return toast('Compile the current source before changing the canvas.')}
   if(selection.kind==='source'&&state.sources[selection.file]!==selection.expected_source){trace?.finish('stale');return toast('That source selection changed. Select it again.')}
   const identity=sessionIdentity(state),id=selection.kind==='object'?selection.id:'text-'+crypto.randomUUID().slice(0,8);
   if((literalEdits||spacingEdits)&&!literalEdits?.length&&!spacingEdits?.length){trace?.finish('refused');return true}
   const isEdit=content!==undefined||literalEdits!==undefined||spacingEdits!==undefined;
-  const action=detach?'detach':selection.kind==='source'?'wrap':isEdit?'edit':'move';
+  const direct=selection.kind==='source'&&isEdit;
+  const action=detach?'detach':direct?'replace_source':selection.kind==='source'?'wrap':isEdit?'edit':'move';
   let accepted=false;
   try{
     const request={sources:clone(state.sources),main:state.project.main,file:selection.file,
@@ -678,19 +673,24 @@ async function textOperation(selection,{dx,dy,content,literalEdits,spacingEdits,
     trace?.mark('planned');
     if(sessionIdentity(state)!==identity){trace?.finish('stale');return toast('The source changed. Select the text again.')}
     const kind=detach?'detach':spacingEdits?.length?'spacing':isEdit?'edit':'move';
-    const selectedRuns=new Set(selection.kind==='object'?state.view.objects.get(id)?.runs:
-      selection.baselineRuns||canvas.hits.flatMap(line=>line.runs));
-    const unchangedRuns=state.view.pages.flatMap(page=>page.runs).filter(run=>!selectedRuns.has(run));
+    let policy=null;
+    if(!direct){
+      policy={id,kind,unchangedRuns:null};
+      if(kind==='move'){
+        const selectedRuns=new Set(selection.kind==='object'?state.view.objects.get(id)?.runs:
+          selection.baselineRuns||canvas.hits.flatMap(line=>line.runs));
+        policy.unchangedRuns=state.view.pages.flatMap(page=>page.runs).filter(run=>!selectedRuns.has(run));
+      }
+    }
     const ok=await commitSources(plan.sources,{file:plan.file,expectedIdentity:identity,
-      operation:{kind:'text',request},trace,
-      policy:{id,kind,unchangedRuns:kind==='move'?unchangedRuns:null}});
+      operation:{kind:'text',request},trace,policy});
     accepted=!!ok;
-    if(ok&&!detach)canvas.selectObject(id,{record:false});
+    if(ok&&!detach&&!direct)canvas.selectObject(id,{record:false});
     const view=state.view;trace?.finish(ok?'published':'refused',{paint:!!ok&&!view.lazy,isCurrent:()=>state.view===view&&fresh()});
     return ok;
   }catch(error){
     if(accepted){
-      state.compiled=-1;state.selected=null;
+      state.compiled=-1;
       try{canvas.clear()}catch{}
       error=new CommittedPresentationFailure(error);showFailure(error);
     }
@@ -745,13 +745,13 @@ function showObjectInspector(selection){
   state.objectSelection=selection;
   $('object-selection').classList.toggle('hidden',!selection);
   if(selection){
-    state.selected=null;$('selection').classList.add('hidden');$('no-selection').classList.add('hidden');
+    $('no-selection').classList.add('hidden');
     $('object-title').textContent=selection.kind==='source'?'Selected '+selection.unitKind:'Movable text';
     $('object-summary').textContent='Source: '+selection.file+'. Movement keeps its normal layout space.';
     $('object-dx').value=((selection.dx||0)/PT_PER_MM).toFixed(2);
     $('object-dy').value=((selection.dy||0)/PT_PER_MM).toFixed(2);
     $('object-preview').textContent=selection.plain_text??selection.content;
-  }else if(!state.selected)$('no-selection').classList.remove('hidden');
+  }else $('no-selection').classList.remove('hidden');
   sourceHighlight.update(selection);updateControls();
 }
 function showSource(selection){
@@ -776,7 +776,7 @@ async function finishPDFZoom(){
   try{
     if(!await view.finishZoom()||state.view!==view)return;
     state.previewZooming=false;surfaceElements.pages.classList.remove('zooming');
-    canvas.bind(view);renderOverlays();updateControls();
+    canvas.bind(view);updateControls();
   }catch(error){
     if(state.view!==view||/superseded|closed|Rendering cancelled/i.test(message(error)))return;
     // Keep layout commands fenced if the displayed geometry did not finish preparing.
@@ -790,66 +790,34 @@ function renderPDF(){
   const fit=!state.zoom;zoomPDF(scale);if(fit)state.zoom=0;return finishPDFZoom().then(()=>{$('fit').textContent=state.zoom?Math.round(scale*100)+'%':'Fit'});
 }
 
-// Legacy absolute-positioned blocks retain their existing dimension controls.
-async function patchBlock(changes,block=state.selected){
-  if(!block||!fresh())return;
-  const identity=sessionIdentity(state);
+async function showCurrentSourceInPDF(){
+  if(!fresh())return;
+  const identity=sessionIdentity(state),client=state.client,view=state.view;
+  const file=state.file,line=editor.getPosition()?.lineNumber;
+  if(!line||!file.endsWith('.tex'))return toast('Place the cursor on a typeset source line.');
   try{
-    const request={source:state.sources[block.file],action:'patch',id:block.id,changes};
-    const source=await invoke('transform',{request});
-    if(identity===sessionIdentity(state))await visualTransaction(block.file,source,request);
-  }catch(error){toast(message(error));renderInspector()}
+    const mapped=await client.forward(state.result.build_id,file,line);
+    if(identity!==sessionIdentity(state)||state.view!==view||state.file!==file||editor.getPosition()?.lineNumber!==line)return;
+    const page=view.pages[mapped.page-1];
+    if(!page)throw Error('Could not locate that source line in the PDF.');
+    const scroller=surfaceElements.scroller;
+    const offset=page.shell.getBoundingClientRect().top-scroller.getBoundingClientRect().top
+      +mapped.y*view.scale-scroller.clientHeight/2;
+    scroller.scrollTop+=offset;
+  }catch(error){if(identity===sessionIdentity(state))toast(message(error))}
 }
-function selectBlock(block){canvas.clear();state.selected={...block};renderInspector();document.querySelectorAll('.block').forEach(el=>el.classList.toggle('selected',el.dataset.id===block.id&&el.dataset.file===block.file));updateControls()}
-function renderInspector(){
-  $('selection').classList.toggle('hidden',!state.selected);
-  $('no-selection').classList.toggle('hidden',!!state.selected||!!state.objectSelection);
-  if(!state.selected)return;
-  const current=state.result?.blocks.find(b=>b.id===state.selected.id&&b.file===state.selected.file);
-  if(current)state.selected={...current};
-  const block=state.selected;$('block-name').textContent=block.id;
-  for(const field of ['x','y','width','size','page'])$(field).value=Number(block[field].toFixed(2));
-  $('content').value=block.content;
-}
-function renderOverlays(){
-  document.querySelectorAll('.block').forEach(el=>el.remove());
-  for(const block of state.result?.blocks||[]){
-    const page=document.querySelector('.pdf-page[data-page="'+block.page+'"]');if(!page)continue;
-    const factor=Number(page.dataset.scale),el=document.createElement('div');
-    el.className='block';el.dataset.id=block.id;el.dataset.file=block.file;
-    el.classList.toggle('selected',state.selected?.id===block.id&&state.selected?.file===block.file);
-    Object.assign(el.style,{left:block.x*factor+'px',top:block.y*factor+'px',width:block.width*factor+'px',height:Math.max(8,block.height)*factor+'px'});
-    el.tabIndex=0;el.setAttribute('role','button');el.setAttribute('aria-label','Move '+block.id);
-    const label=document.createElement('span');label.className='block-title';label.textContent=block.id+' · drag to move';
-    const handle=document.createElement('span');handle.className='handle';handle.title='Resize block width';el.append(label,handle);
-    el.onclick=e=>{e.stopPropagation();selectBlock(block)};
-    el.ondblclick=e=>{e.stopPropagation();selectBlock(block);editBlock(block)};
-    el.onpointerdown=e=>startBlockDrag(e,block,el,page);
-    el.onkeydown=e=>{const step=e.shiftKey?10:1,changes={ArrowLeft:{x:block.x-step},ArrowRight:{x:block.x+step},ArrowUp:{y:block.y-step},ArrowDown:{y:block.y+step}};
-      if(changes[e.key]){e.preventDefault();patchBlock(changes[e.key],block)}else if(e.key==='Enter')editBlock(block)};
-    page.append(el);
-  }
-}
-function startBlockDrag(event,block,el,page){
-  if(event.button!==0||state.mode==='read'||!fresh())return;
-  const pointerId=event.pointerId;
-  event.preventDefault();event.stopPropagation();canvas.clear();state.selected={...block};renderInspector();
-  document.querySelectorAll('.block').forEach(e=>e.classList.remove('selected'));el.classList.add('selected');
-  const resize=event.target.classList.contains('handle'),factor=Number(page.dataset.scale),start=[event.clientX,event.clientY];let changes=null;
-  const originalStyle={left:el.style.left,top:el.style.top,width:el.style.width};
-  el.setPointerCapture(event.pointerId);
-  const move=e=>{if(e.pointerId!==pointerId)return;const dx=(e.clientX-start[0])/factor,dy=(e.clientY-start[1])/factor;if(Math.abs(dx)+Math.abs(dy)<1)return;
-    const snap=v=>e.altKey?Math.round(v*100)/100:Math.round(v/4)*4;
-    if(resize){changes={width:Math.max(12,snap(block.width+dx))};el.style.width=changes.width*factor+'px'}
-    else{changes={x:Math.max(0,snap(block.x+dx)),y:Math.max(0,snap(block.y+dy))};el.style.left=changes.x*factor+'px';el.style.top=changes.y*factor+'px'}};
-  const reset=()=>Object.assign(el.style,originalStyle);
-  const clean=()=>{el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',up);el.removeEventListener('pointercancel',cancel);el.removeEventListener('lostpointercapture',cancel);if(canvas.cancelGesture===cancel)canvas.cancelGesture=null};
-  const up=async e=>{if(e.pointerId!==pointerId)return;clean();try{if(changes)await patchBlock(changes,block)}finally{reset();renderOverlays()}},cancel=e=>{if(e&&e.pointerId!==pointerId)return;clean();reset();renderOverlays()};
-  canvas.cancelGesture=cancel;el.addEventListener('pointermove',move);el.addEventListener('pointerup',up);el.addEventListener('pointercancel',cancel);el.addEventListener('lostpointercapture',cancel);
+async function appendParagraph(context,content){
+  if(!fresh()||context.identity!==sessionIdentity(state))return toast('Compile the current source before adding a paragraph.');
+  const file=state.project.main,id='text-'+crypto.randomUUID().slice(0,8);
+  const request={sources:clone(state.sources),main:file,file,action:'append_paragraph',id,content,plain:true};
+  try{
+    const plan=await invoke('plan_text_object',{request});
+    await commitSources(plan.sources,{file,operation:{kind:'text',request},expectedIdentity:context.identity});
+  }catch(error){toast(message(error))}
 }
 function positionTextEditor(){
   const dialog=$('edit-dialog');if(!dialog.open)return;
-  const selected=state.dialog?.selection||state.dialog?.block;
+  const selected=state.dialog?.selection;
   const page=selected&&state.view?.pages.find(page=>page.number===selected.page);
   let target=null;
   if(page&&[selected.x,selected.y,selected.width,selected.height,state.view.scale].every(Number.isFinite)){
@@ -869,28 +837,6 @@ function showEditor(title,value,plain,locked=false){
   $('edit-title').textContent=title;$('edit-text').value=value;$('plain').checked=plain;$('plain').disabled=locked;$('edit-dialog').showModal();$('edit-text').focus();
   positionTextEditor();
 }
-function editBlock(block=state.selected){
-  if(!block)return;state.dialog={kind:'block',block:{...block},original:state.sources[block.file]};
-  const simple=!/[\\{}%]/.test(block.content);showEditor('Edit '+block.id,block.content,simple,!simple);
-}
-function currentPage(){const top=$('preview-scroll').getBoundingClientRect().top;return Number([...document.querySelectorAll('.pdf-page')].find(p=>p.getBoundingClientRect().bottom>top+50)?.dataset.page||1)}
-async function insertBlock({content='',plain=false,selection=null,page=currentPage(),x=62,y=100,width=270,size=12}={}){
-  const id='block-'+crypto.randomUUID().slice(0,8),file=state.project.main,identity=sessionIdentity(state);
-  try{const request={source:state.sources[file],action:'insert',id,content,plain,selection,page,x,y,width,size};
-    const source=await invoke('transform',{request});
-    if(identity!==sessionIdentity(state))return toast('The source changed. Retry the insertion.');
-    if(await visualTransaction(file,source,request)){const block=state.result.blocks.find(b=>b.id===id);if(block)selectBlock(block)}
-  }catch(error){toast(message(error))}
-}
-async function pinSelection(){
-  if(state.file!==state.project.main)return toast('Select a complete source fragment in the main document.');
-  const selection=editor.getSelection();if(!selection||selection.isEmpty())return toast('Select complete source content, or click text on the PDF.');
-  const start=model.getOffsetAt(selection.getStartPosition()),end=model.getOffsetAt(selection.getEndPosition());
-  const identity=sessionIdentity(state);
-  try{const mapped=await state.client.forward(state.result.build_id,state.file,selection.startLineNumber);
-    if(identity===sessionIdentity(state))await insertBlock({selection:[start,end],page:mapped.page,x:mapped.x,y:mapped.y,width:Math.min(500,mapped.width)});
-  }catch(error){toast(message(error))}
-}
 async function undo(redo=false){
   preliminary?.clear();
   if(!state.client||state.mutating||state.saving||state.composing||state.client.error)return;
@@ -900,7 +846,7 @@ async function undo(redo=false){
     const before=clone(state.sources),snapshot=await state.client.history(redo);
     const changed=Object.keys(snapshot.sources).find(name=>snapshot.sources[name]!==before[name]);
     state.file=snapshot.selection?.file||changed|| (snapshot.sources[state.file]!==undefined?state.file:snapshot.main);
-    state.lastHistory=0;state.selected=null;syncEditor();sourceChanged(snapshot.revision);renderInspector();
+    state.lastHistory=0;syncEditor();sourceChanged(snapshot.revision);
     if(snapshot.selection){
       const selections=[snapshot.selection,...(snapshot.selection.secondary||[])].map(range=>{
         const anchor=model.getPositionAt(range.anchor),head=model.getPositionAt(range.head);
@@ -911,10 +857,6 @@ async function undo(redo=false){
       editor.revealPositionInCenter(model.getPositionAt(snapshot.selection.head));
     }
   }catch(error){syncFailed(error)}finally{state.mutating=false;editorReadOnly();updateControls()}
-}
-function escapeLatex(text){
-  const map={'\\':'\\textbackslash{}','{':'\\{','}':'\\}','%':'\\%','&':'\\&','#':'\\#','_':'\\_','$':'\\$','~':'\\textasciitilde{}','^':'\\textasciicircum{}'};
-  return [...text].map(c=>map[c]||c).join('').replace(/\n\n/g,'\n\\par\n');
 }
 function setMode(value){
   state.mode=value;$('pages').classList.toggle('read-mode',value==='read');
@@ -963,16 +905,13 @@ editor.addCommand(monaco.KeyMod.CtrlCmd|monaco.KeyCode.KeyY,()=>undo(true));
 $('edit-form').onsubmit=async event=>{
   event.preventDefault();const context=state.dialog;if(context?.switching)return;
   const text=$('edit-text').value,plain=$('plain').checked;$('edit-dialog').close();
-  if(context?.kind==='new')return insertBlock({content:text,plain});
+  if(context?.kind==='paragraph')return appendParagraph(context,text);
   if(context?.kind==='text-object'){
     if(context.identity!==sessionIdentity(state))return toast('The source changed. Reopen the text editor.');
     if(context.literalMode)return textOperation(context.selection,{literalEdits:literalChanges(context),spacingEdits:spacingChanges(context)});
     return textOperation(context.selection,{content:text,plain});
   }
-  if(context?.kind==='block'){
-    if(state.sources[context.block.file]!==context.original)return toast('The source changed. Reopen the editor.');
-    return patchBlock({content:plain?escapeLatex(text):text},context.block);
-  }
+
 };
 $('cancel-edit').onclick=()=>$('edit-dialog').close();
 $('edit-dialog').addEventListener('close',()=>clearDialogPosition($('edit-dialog')));
@@ -994,7 +933,7 @@ $('edit-latex').onclick=async()=>{
     $('plain-label').classList.remove('hidden');$('plain').checked=false;$('plain').disabled=true;$('edit-help').textContent='LaTeX mode: edit commands carefully. Changes are compiled before acceptance.';$('edit-text').focus();
   }catch(error){toast(message(error))}finally{context.switching=false;for(const run of editInputs(context))run.input.disabled=false;$('edit-latex').disabled=false}
 };
-$('compile').onclick=()=>compile();$('save').onclick=saveProject;$('save-copy').onclick=saveProjectCopy;$('recover-save').onclick=showSaveRecovery;$('undo').onclick=()=>undo();$('redo').onclick=()=>undo(true);$('pin').onclick=pinSelection;
+$('compile').onclick=()=>compile();$('save').onclick=saveProject;$('save-copy').onclick=saveProjectCopy;$('recover-save').onclick=showSaveRecovery;$('undo').onclick=()=>undo();$('redo').onclick=()=>undo(true);$('show-pdf').onclick=showCurrentSourceInPDF;
 $('cancel-compile').onclick=cancelCompile;
 $('open').onclick=async()=>{try{const path=await open({multiple:false,filters:[{name:'LaTeX document',extensions:['tex']}]});if(typeof path==='string')await openProject(path)}catch(error){toast(message(error))}};
 $('export').onclick=async()=>{
@@ -1032,14 +971,13 @@ $('export').onclick=async()=>{
 $('engine').onchange=()=>{if(!state.project)return;state.engine=$('engine').value;state.client.profile(state.project.main,state.engine).catch(()=>{});sourceChanged()};
 $('main-file').onchange=()=>{if(!state.project)return;state.project.main=$('main-file').value;state.client.profile(state.project.main,state.engine).catch(()=>{});sourceChanged()};
 $('auto').onchange=()=>{if($('auto').checked&&state.compiled!==state.revision)compile('auto')};
-$('add-text').onclick=()=>{state.dialog={kind:'new'};showEditor('Add a positioned text block','',true)};
-$('edit-block').onclick=()=>editBlock();$('apply-content').onclick=()=>patchBlock({content:$('content').value});$('apply-size').onclick=()=>patchBlock({size:Number($('size').value)});
-$('apply-position').onclick=()=>{const page=Number($('page').value);if(!Number.isInteger(page)||page<1||page>(state.pdf?.numPages||0))return toast('Choose an existing physical page.');patchBlock({x:Number($('x').value),y:Number($('y').value),width:Number($('width').value),page})};
-$('delete-block').onclick=async()=>{const block=state.selected;if(!block||!fresh())return;
-  const identity=sessionIdentity(state),request={source:state.sources[block.file],action:'delete',id:block.id};
-  try{const source=await invoke('transform',{request});
-    if(identity===sessionIdentity(state)&&await visualTransaction(block.file,source,request)){state.selected=null;renderInspector()}
-  }catch(error){toast(message(error))}};
+$('add-text').onclick=()=>{
+  if(!fresh())return;
+  state.dialog={kind:'paragraph',identity:sessionIdentity(state)};
+  showEditor('Add paragraph at end of document','',true,true);
+  $('plain-label').classList.add('hidden');
+  $('edit-help').textContent='Enter one paragraph of plain text.';
+};
 $('object-edit').onclick=()=>editText();
 $('object-source').onclick=()=>showSource(state.objectSelection);
 $('object-detach').onclick=()=>textOperation(state.objectSelection,{detach:true});

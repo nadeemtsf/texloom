@@ -30,18 +30,8 @@ async function setup({tracing=false,presentation=false}={}){
  const editor={onDidChangeModelContent(fn){control.onEdit=fn},onDidChangeCursorPosition(){},onDidChangeCursorSelection(fn){control.onSelection=fn},addCommand(){},
   createContextKey(name,value){const key={value,set(next){this.value=next}};(control.contextKeys??=new Map()).set(name,key);return key},
   addAction(action){(control.actions??=[]).push(action)},hasTextFocus:()=>false,updateOptions(){},getDomNode:()=>({addEventListener(name,fn){composition[name]=fn}})};
- const control={frames:new Map(),frameId:0,compile:async()=>({ok:true,log:'',seconds:0,engine:'pdflatex',build_id:'new-pdf',blocks:[],objects:[]}),prepare:async result=>({result,pdf:{destroy:async()=>{}},pageCount:1,objects:new Map(),unclosed:new Set(),pageSizes:new Map()})};
+ const control={frames:new Map(),frameId:0,compile:async()=>({ok:true,log:'',seconds:0,engine:'pdflatex',build_id:'new-pdf',objects:[]}),prepare:async result=>({result,pdf:{destroy:async()=>{}},pageCount:1,objects:new Map(),unclosed:new Set(),pageSizes:new Map()})};
  const {NativeDocumentDouble}=require('./native-document-double.cjs');const native=new NativeDocumentDouble(control);
- function legacyGesture(resize=false){
-  const listeners=new Map(),original={left:'20px',top:'30px',width:'100px'};
-  const frame={style:{...original},classList:{add(){},remove(){}},setPointerCapture(){},
-   addEventListener:(name,fn)=>listeners.set(name,fn),removeEventListener:(name,fn)=>{if(listeners.get(name)===fn)listeners.delete(name)}};
-  const block={id:'block',file:'main.tex',x:20,y:30,width:100};
-  context.legacyFrame=frame;context.legacyBlock=block;context.legacyEvent={button:0,pointerId:1,clientX:10,clientY:10,
-   target:{classList:{contains:()=>resize}},preventDefault(){},stopPropagation(){}};
-  run("startBlockDrag(legacyEvent,legacyBlock,legacyFrame,{dataset:{scale:'1'}})");
-  return {frame,listeners,original};
- }
  const context=vm.createContext({
   createCompileInvoke,startPDFWorker,PreliminaryPreview,PreliminaryPDFSurface,renderPreliminaryPDF,acceptUnverifiedPreview,
   capturePDFScrollAnchor:()=>null,Channel:class{constructor(callback){this.onmessage=callback}},
@@ -60,9 +50,9 @@ async function setup({tracing=false,presentation=false}={}){
  let script=fs.readFileSync(require('node:path').join(__dirname,'../web/app.js'),'utf8').replace(/^import .*;\r?$/gm,'');
  script=script.replace(/\nopenProject\(\);\s*$/,'\n');vm.runInContext(script,context);
  const run=s=>vm.runInContext(s,context);
- run("state.project={id:'test',main:'main.tex'};state.compileApproved=true;state.sources={'main.tex':'Original source','studio.sty':'Style source'};state.saved=structuredClone(state.sources);state.file='main.tex';state.revision=0;state.compiled=0;state.result={build_id:'last-good',blocks:[]};state.view={pageCount:1,pages:[],scale:1,prepareSelectionProof:async()=>{}};syncEditor=()=>{};renderOverlays=()=>{};renderInspector=()=>{};publishPrepared=(prepared,result)=>{state.pdf=prepared.pdf;state.result=result;state.compiled=state.revision};");
+ run("state.project={id:'test',main:'main.tex'};state.compileApproved=true;state.sources={'main.tex':'Original source','custom.sty':'Style source'};state.saved=structuredClone(state.sources);state.file='main.tex';state.revision=0;state.compiled=0;state.result={build_id:'last-good'};state.view={pageCount:1,pages:[],scale:1,prepareSelectionProof:async()=>{}};syncEditor=()=>{};publishPrepared=(prepared,result)=>{state.pdf=prepared.pdf;state.result=result;state.compiled=state.revision};");
  run("state.client=new DocumentClient(invoke,'test',initialSnapshot,{changed:acceptDocument,failed:syncFailed});");
- return {run,control,native,model,composition,legacyGesture,elements};
+ return {run,control,native,model,composition,elements};
 }
 
 test('PDF wheel scrolling and Ctrl zoom never compile or mutate native document history',async()=>{
@@ -78,17 +68,37 @@ test('PDF wheel scrolling and Ctrl zoom never compile or mutate native document 
  assert.equal(JSON.stringify(t.native.snapshot()),before);assert.equal(t.native.history.length,0);
 });
 
-for(const failure of ['prepare','compile'])test(`legacy movement preview restores accepted bounds after ${failure} rejection`,async()=>{
- const t=await setup();t.control.transform=async()=> 'Moved source';
+for(const failure of ['prepare','compile'])test(`paragraph insertion keeps the accepted source and PDF after ${failure} rejection`,async()=>{
+ const t=await setup();
+ t.control.plan=async request=>{
+  assert.equal(request.action,'append_paragraph');
+  assert.equal(request.plain,true);
+  assert.equal(request.content,'New text');
+  return {sources:{...request.sources,'main.tex':'New source'},file:'main.tex',object_id:request.id,operation:request.action};
+ };
  if(failure==='prepare')t.control.prepareFailure='Native preparation refused';
  else t.control.compile=async()=>({ok:false,log:'Compilation failed'});
- const g=t.legacyGesture();
- for(let n=0;n<10;n++)g.listeners.get('pointermove')({pointerId:1,clientX:30+n,clientY:40,altKey:false});
- assert.notEqual(g.frame.style.left,g.original.left);assert.equal(t.native.pending.size,0);assert.equal(t.native.history.length,0);
- await g.listeners.get('pointerup')({pointerId:1});
- assert.deepEqual(g.frame.style,g.original);assert.equal(g.listeners.size,0);
+ await t.run("appendParagraph({identity:sessionIdentity(state)},'New text')");
  assert.equal(t.run("state.sources['main.tex']"),'Original source');assert.equal(t.run('state.result.build_id'),'last-good');
  assert.equal(t.native.history.length,0);assert.equal(t.native.pending.size,0);
+});
+
+test('editing ordinary PDF text commits only the source file and keeps shared undo and redo',async()=>{
+ const t=await setup();
+ let plans=0;
+ t.control.plan=async request=>{
+  plans++;
+  assert.equal(request.action,'replace_source');
+  assert.equal(request.content,'Edited & saved');
+  assert.equal(request.expected,'Original source');
+  return {sources:{...request.sources,'main.tex':'Edited & saved'},file:'main.tex'};
+ };
+ const selection="{kind:'source',file:'main.tex',start:0,end:15,content:'Original source',expected_source:'Original source'}";
+ assert.equal(await t.run("textOperation("+selection+",{content:'Edited & saved',plain:true})"),true);
+ assert.equal(plans,1);assert.equal(t.native.history.length,1);
+ assert.deepEqual(t.native.sources,{'main.tex':'Edited & saved','custom.sty':'Style source'});
+ await t.run('undo()');assert.equal(t.native.sources['main.tex'],'Original source');
+ await t.run('undo(true)');assert.equal(t.native.sources['main.tex'],'Edited & saved');
 });
 
 test('a native commit followed by publication failure remains a commit and preserves an adopted PDF',async()=>{
@@ -118,13 +128,6 @@ test('an ordinary compile waiting for an old client never compiles a newly opene
  const pending=t.run('compile()');
  t.run("state.client={error:null,compile(){throw Error('New unapproved client was compiled')}};state.compileApproved=false;self.releaseCompileFlush()");
  await pending;assert.equal(calls,0);assert.equal(t.run('state.busy'),false);
-});
-
-for(const cancellation of ['pointercancel','lostpointercapture','gesture-hook'])test(`legacy resize cancellation (${cancellation}) restores its accepted width without a transaction`,async()=>{
- const t=await setup();const g=t.legacyGesture(true);g.listeners.get('pointermove')({pointerId:1,clientX:75,clientY:10,altKey:false});
- assert.notEqual(g.frame.style.width,g.original.width);
- if(cancellation==='gesture-hook')t.run('canvas.cancelGesture()');else g.listeners.get(cancellation)();
- assert.deepEqual(g.frame.style,g.original);assert.equal(g.listeners.size,0);assert.equal(t.native.history.length,0);assert.equal(t.native.pending.size,0);
 });
 
 test('clean close marks the cache while refusing a dirty close preserves its recovery copies',async()=>{
@@ -162,23 +165,23 @@ test('an unsynchronized editor cannot close while claiming the latest text is pr
 
 test('compiler failure leaves source, history, revision and last good PDF intact',async()=>{
  const t=await setup();t.control.compile=async()=>({ok:false,log:'main.tex:8: Undefined control sequence.'});
- assert.equal(await t.run("visualTransaction('main.tex','Broken candidate')"),false);
+ assert.equal(await t.run("commitSources({...state.sources,'main.tex':'Broken candidate'})"),false);
  assert.equal(t.run("state.sources['main.tex']"),'Original source');assert.equal(t.run('state.revision'),0);
  assert.equal(t.native.history.length,0);assert.equal(t.run('state.result.build_id'),'last-good');
 });
 test('source commits after PDF preparation and retains other files and undo snapshot',async()=>{
  const t=await setup();let finish;t.control.prepare=()=>new Promise(r=>finish=r);
- const pending=t.run("visualTransaction('main.tex','Moved source')");await new Promise(setImmediate);
+ const pending=t.run("commitSources({...state.sources,'main.tex':'Moved source'})");await new Promise(setImmediate);
  assert.equal(t.run("state.sources['main.tex']"),'Original source');assert.equal(t.native.history.length,0);
  finish({pageCount:1,pdf:{}});assert.equal(await pending,true);
- assert.equal(t.run("state.sources['main.tex']"),'Moved source');assert.equal(t.run("state.sources['studio.sty']"),'Style source');
+ assert.equal(t.run("state.sources['main.tex']"),'Moved source');assert.equal(t.run("state.sources['custom.sty']"),'Style source');
  assert.equal(t.native.history[0].sources['main.tex'],'Original source');assert.equal(t.run('state.revision'),1);
 });
 
 test('enabled tracing records a failed visual candidate without publication or history changes',async()=>{
  const t=await setup({tracing:true});t.control.compile=async()=>({ok:false,log:'! Synthetic compilation failure'});
  const before=structuredClone(t.native.sources);
- assert.equal(await t.run("commitSources({'main.tex':'Candidate','studio.sty':'Style source'},{trace:diagnostics.begin('text-move')})"),false);
+ assert.equal(await t.run("commitSources({'main.tex':'Candidate','custom.sty':'Style source'},{trace:diagnostics.begin('text-move')})"),false);
  assert.deepEqual(t.native.sources,before);assert.equal(t.native.history.length,0);assert.equal(t.run('state.result.build_id'),'last-good');
  const record=t.run('diagnostics.snapshot().records[0]');assert.equal(record.outcome,'compile-failed');assert.equal(record.frame_proxy_ms,null);
  assert.deepEqual(Array.from(record.phases,p=>p.name),['native-prepared','build-returned']);
@@ -206,20 +209,20 @@ test('a published compile schedules its frame proxy before the busy flag is rele
 });
 test('typing during compile prevents the older candidate from committing',async()=>{
  const t=await setup();let finish;t.control.compile=()=>new Promise(r=>finish=r);
- const pending=t.run("visualTransaction('main.tex','Older move')");
+ const pending=t.run("commitSources({...state.sources,'main.tex':'Older move'})");
  await new Promise(setImmediate);
  t.run("state.sources['main.tex']='Newer typed source';state.revision++");finish({ok:true,build_id:'old-pdf'});await pending;
  assert.equal(t.run("state.sources['main.tex']"),'Newer typed source');assert.equal(t.run('state.result.build_id'),'last-good');
 });
 test('late PDF preparation is destroyed when source changes',async()=>{
  const t=await setup();let finish,destroyed=false;t.control.prepare=()=>new Promise(r=>finish=r);
- const pending=t.run("visualTransaction('main.tex','Older move')");await new Promise(setImmediate);
+ const pending=t.run("commitSources({...state.sources,'main.tex':'Older move'})");await new Promise(setImmediate);
  t.run('state.revision++');finish({pdf:{destroy:async()=>{destroyed=true}}});await pending;
  assert.equal(destroyed,true);assert.equal(t.run('state.result.build_id'),'last-good');assert.equal(t.native.history.length,0);
 });
 test('PDF parse/render failure preserves the entire accepted document',async()=>{
  const t=await setup();t.control.prepare=async()=>{throw new Error('PDF render failed')};
- await t.run("visualTransaction('main.tex','Candidate')");assert.equal(t.run("state.sources['main.tex']"),'Original source');
+ await t.run("commitSources({...state.sources,'main.tex':'Candidate'})");assert.equal(t.run("state.sources['main.tex']"),'Original source');
  assert.equal(t.run('state.compiled'),0);assert.equal(t.run('state.result.build_id'),'last-good');
 });
 test('layout validation rejection destroys prepared PDF and does not add undo history',async()=>{
@@ -229,7 +232,7 @@ test('layout validation rejection destroys prepared PDF and does not add undo hi
  assert.equal(destroyed,true);assert.equal(t.native.history.length,0);assert.equal(t.run('state.revision'),0);
 });
 test('shared undo and redo restore source, main file and engine',async()=>{
- const t=await setup();await t.run("visualTransaction('main.tex','Moved source')");
+ const t=await setup();await t.run("commitSources({...state.sources,'main.tex':'Moved source'})");
  await t.run('undo()');assert.equal(t.run("state.sources['main.tex']"),'Original source');
  await t.run('undo(true)');assert.equal(t.run("state.sources['main.tex']"),'Moved source');
 });
@@ -248,12 +251,12 @@ test('an editor no-op reconciles its optimistic revision without losing unrelate
  const t=await setup();t.control.onEdit({changes:[]});
  await t.run('state.client.flush()');
  assert.equal(t.native.revision,0);assert.equal(t.run('state.revision'),0);
- assert.equal(t.run("state.sources['studio.sty']"),'Style source');assert.equal(t.native.history.length,0);
+ assert.equal(t.run("state.sources['custom.sty']"),'Style source');assert.equal(t.native.history.length,0);
 });
 
 test('a successful compiler result for the wrong revision cannot publish or commit',async()=>{
  const t=await setup();t.control.compile=async()=>({ok:true,build_id:'wrong-revision',revision:999});
- assert.equal(await t.run("visualTransaction('main.tex','Candidate')"),false);
+ assert.equal(await t.run("commitSources({...state.sources,'main.tex':'Candidate'})"),false);
  assert.equal(t.native.history.length,0);assert.equal(t.run('state.result.build_id'),'last-good');
 });
 
@@ -274,7 +277,7 @@ test('composition pauses canvas actions, compilation and history until it ends',
 
 test('context menu history follows native canvas commits after Monaco resets',async()=>{
  const t=await setup();const undoKey=t.control.contextKeys.get('texloomCanUndo'),redoKey=t.control.contextKeys.get('texloomCanRedo');
- assert.equal(undoKey.value,false);await t.run("visualTransaction('main.tex','Moved source')");
+ assert.equal(undoKey.value,false);await t.run("commitSources({...state.sources,'main.tex':'Moved source'})");
  assert.equal(undoKey.value,true);assert.equal(redoKey.value,false);
  await t.control.actions.find(a=>a.id==='texloom.undo').run();
  assert.equal(t.native.sources['main.tex'],'Original source');assert.equal(undoKey.value,false);assert.equal(redoKey.value,true);
@@ -286,20 +289,20 @@ test('dependencies changing during PDF preparation reject the candidate and dest
  const t=await setup();let destroyed=false;
  t.control.prepare=async()=>({pageCount:1,pdf:{destroy:async()=>{destroyed=true}}});
  t.control.verify=async()=>{throw new Error('Build dependency changed')};
- assert.equal(await t.run("visualTransaction('main.tex','Candidate')"),false);
+ assert.equal(await t.run("commitSources({...state.sources,'main.tex':'Candidate'})"),false);
  assert.equal(destroyed,true);assert.equal(t.native.history.length,0);assert.equal(t.run('state.result.build_id'),'last-good');
 });
 
 test('unresolved compiler diagnostics cannot commit visual source',async()=>{
  const t=await setup();t.control.compile=async()=>({ok:true,build_id:'unresolved',verification_eligible:false,log:'Unresolved references',
   diagnostics:[{code:'unresolved_reference',severity:'error',message:'Reference missing',file:null,line:null}]});
- assert.equal(await t.run("visualTransaction('main.tex','Candidate')"),false);assert.equal(t.native.history.length,0);
+ assert.equal(await t.run("commitSources({...state.sources,'main.tex':'Candidate'})"),false);assert.equal(t.native.history.length,0);
 });
 
 test('a malformed successful compiler reply cannot render, publish or commit and does not block later typing',async()=>{
  const t=await setup();let renders=0;t.control.prepare=async()=>{renders++;throw Error('Must not render malformed bytes')};
  t.control.compile=async()=>({ok:true,build_id:'malformed',pdf:[37,80,68,70,45,256]});
- assert.equal(await t.run("visualTransaction('main.tex','Candidate')"),false);
+ assert.equal(await t.run("commitSources({...state.sources,'main.tex':'Candidate'})"),false);
  assert.equal(renders,0);assert.equal(t.native.history.length,0);assert.equal(t.native.pending.size,0);
  assert.equal(t.run('state.result.build_id'),'last-good');assert.equal(t.run('state.client.error'),null);
  await t.run("state.client.edit('main.tex',[{offset:0,length:15,text:'Later typed text'}])");
@@ -310,7 +313,7 @@ test('a malformed verification acknowledgement destroys the candidate PDF and ca
  const t=await setup();let destroyed=0;
  t.control.verify=async()=>({ok:true});
  t.control.prepare=async()=>({pageCount:1,pdf:{destroy:async()=>{destroyed++}}});
- assert.equal(await t.run("visualTransaction('main.tex','Candidate')"),false);
+ assert.equal(await t.run("commitSources({...state.sources,'main.tex':'Candidate'})"),false);
  assert.equal(destroyed,1);assert.equal(t.native.history.length,0);assert.equal(t.native.pending.size,0);
  assert.equal(t.run("state.sources['main.tex']"),'Original source');assert.equal(t.run('state.result.build_id'),'last-good');
 });
@@ -318,7 +321,7 @@ test('a malformed verification acknowledgement destroys the candidate PDF and ca
 test('cancellation after the compiler finishes still prevents PDF/source publication',async()=>{
  const t=await setup();let finish,destroyed=false;
  t.control.prepare=()=>new Promise(r=>finish=r);
- const pending=t.run("visualTransaction('main.tex','Candidate')");await new Promise(setImmediate);
+ const pending=t.run("commitSources({...state.sources,'main.tex':'Candidate'})");await new Promise(setImmediate);
  await t.run('cancelCompile()');finish({pageCount:1,pdf:{destroy:async()=>{destroyed=true}}});
  assert.equal(await pending,false);assert.equal(destroyed,true);assert.equal(t.native.history.length,0);
  assert.equal(t.run('state.pending'),false);assert.equal(t.run('state.result.build_id'),'last-good');
@@ -342,7 +345,7 @@ test('superseded auto builds wait for idle typing instead of restarting on each 
 
 async function probeSetup(){
  const t=await setup();t.control.resolve=async()=>({schema:1,build_id:'last-good',revision:0,file:'main.tex',expected_source:'Original source',content:'Original source',start:0,end:15,kind:'paragraph'});
- t.control.plan=async()=>({sources:{'main.tex':'Private probe','studio.sty':'Style source'},file:'main.tex'});
+ t.control.plan=async()=>({sources:{'main.tex':'Private probe','custom.sty':'Style source'},file:'main.tex'});
  t.control.prove=()=>({schema:1,build_id:'last-good',page:1,x:20,y:30,width:100,height:12,runs:[],lines:[]});
  return t;
 }
@@ -455,3 +458,38 @@ test('unchanged numeric spelling is a no-op while empty spacing is submitted for
  const t=await spacingSetup();t.run("state.dialog.spacingInputs[0].input.value='2.0'");assert.equal(t.run('spacingChanges(state.dialog).length'),0);
  t.run("state.dialog.spacingInputs[0].input.value=''");assert.equal(t.run('spacingChanges(state.dialog).length'),1);
 });
+
+ test('source cursor jumps to the verified PDF location without compiling or changing history', async () => {
+   const t = await setup();
+   t.run("editor.getPosition=()=>({lineNumber:1});state.view.scale=2;state.view.pages=[{shell:{getBoundingClientRect:()=>({top:280})}}];");
+   const scroller = t.elements.get('preview-scroll');
+   Object.assign(scroller, {scrollTop:70, clientHeight:250, getBoundingClientRect:()=>({top:20})});
+   const before = t.native.snapshot();
+   let requests = 0;
+   t.native.invoke = async (name, args) => {
+     assert.equal(name, 'pdf_from_source');
+     assert.deepEqual(args, {buildId:'last-good',file:'main.tex',line:1});
+     requests++;
+     return {page:1,x:30,y:50,width:10,height:10};
+   };
+   await t.run('showCurrentSourceInPDF()');
+   assert.equal(requests, 1);
+   assert.equal(scroller.scrollTop, 305);
+   assert.deepEqual(t.native.snapshot(), before);
+   assert.equal(t.native.history.length, 0);
+ });
+ test('a changed cursor line suppresses an earlier mapping response', async () => {
+   const t = await setup();
+   t.run("self.line=1;editor.getPosition=()=>({lineNumber:self.line});state.view.pages=[{shell:{getBoundingClientRect:()=>({top:280})}}];");
+   const scroller = t.elements.get('preview-scroll');
+   Object.assign(scroller, {scrollTop:70, clientHeight:250, getBoundingClientRect:()=>({top:20})});
+   let admit, release;
+   const requested = new Promise(resolve => {admit=resolve});
+   t.native.invoke = async () => new Promise(resolve => {release=resolve;admit()});
+   const pending = t.run('showCurrentSourceInPDF()');
+   await requested;
+   t.run('self.line=2');
+   release({page:1,x:30,y:50,width:10,height:10});
+   await pending;
+   assert.equal(scroller.scrollTop,70);
+ });

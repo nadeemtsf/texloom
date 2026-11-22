@@ -19,9 +19,6 @@ record!(AdapterCommandRequest {
 record!(ObjectCommandRequest {
     request: ObjectEditRequest
 });
-record!(TransformCommandRequest {
-    request: TransformRequest
-});
 record!(TextModelRequest {
     content: String,
     document: String

@@ -1,6 +1,6 @@
 //! Source-preserving text objects and deliberately conservative selection units.
 use std::{collections::HashSet, ops::Range};
-use super::{argument, blocks, command, comment_end, document_bounds, has_package, number, skip_literal, skip_space, validate_fragment, Result};
+use super::{argument, command, comment_end, document_bounds, has_package, number, skip_literal, skip_space, validate_fragment, Result};
 
 #[derive(Clone, Debug)]
 pub struct TextObject {
@@ -95,7 +95,7 @@ pub fn validate_movable_text(fragment: &str, document: &str) -> Result<()> {
                 b'\\' => {
                     let (cmd, end) = command(s, i);
                     if skip_literal(s, cmd, end).is_some() { return Err("Literal/code environments cannot be moved as ordinary text".into()); }
-                    if ["\\begin", "\\end", "\\section", "\\subsection", "\\chapter", "\\part", "\\caption", "\\label", "\\ref", "\\pageref", "\\cite", "\\href", "\\url", "\\hyperlink", "\\hyperref", "\\footnote", "\\marginpar", "\\includegraphics", "\\newcommand", "\\renewcommand", "\\def", "\\gdef", "\\write", "\\special", "\\TexloomObject", "\\StudioBlock", "\\enlargethispage", "\\vspace", "\\hspace", "\\fontsize", "\\selectfont", "\\color", "\\bfseries", "\\itshape", "\\centering", "\\raggedright", "\\input", "\\include", "\\usepackage", "\\documentclass"].contains(&cmd) {
+                    if ["\\begin", "\\end", "\\section", "\\subsection", "\\chapter", "\\part", "\\caption", "\\label", "\\ref", "\\pageref", "\\cite", "\\href", "\\url", "\\hyperlink", "\\hyperref", "\\footnote", "\\marginpar", "\\includegraphics", "\\newcommand", "\\renewcommand", "\\def", "\\gdef", "\\write", "\\special", "\\TexloomObject", "\\enlargethispage", "\\vspace", "\\hspace", "\\fontsize", "\\selectfont", "\\color", "\\bfseries", "\\itshape", "\\centering", "\\raggedright", "\\input", "\\include", "\\usepackage", "\\documentclass"].contains(&cmd) {
                         return Err(format!("{cmd} needs source editing or a dedicated layout adapter"));
                     }
                     let basic = ["\\textbf", "\\textit", "\\textsl", "\\textsc", "\\textsf", "\\textrm", "\\texttt", "\\emph", "\\underline", "\\textcolor", "\\mbox", "\\par", "\\\\", "\\%", "\\&", "\\$", "\\#", "\\_", "\\{", "\\}", "\\ ", "\\,", "\\;", "\\:", "\\!", "\\-", "\\'", "\\\"", "\\`", "\\^", "\\~", "\\c", "\\v", "\\H", "\\u", "\\b", "\\d", "\\r", "\\oe", "\\OE", "\\ae", "\\AE", "\\ss", "\\o", "\\O", "\\textbackslash", "\\textasciitilde", "\\textasciicircum", "\\LaTeX", "\\TeX", "\\ldots", "\\dots"];
@@ -165,7 +165,7 @@ fn break_start(line: &str) -> Option<usize> {
 fn boundary(line: &str) -> bool {
     let text = line.trim_start();
     if text.starts_with('\\') && super::page_flow_command(command(text, 0).0) { return true; }
-    text.is_empty() || text.starts_with('%') || ["\\begin", "\\end", "\\section", "\\subsection", "\\chapter", "\\enlargethispage", "\\vspace", "\\noindent", "\\TexloomObject", "\\StudioBlock"].iter().any(|prefix| text.starts_with(prefix))
+    text.is_empty() || text.starts_with('%') || ["\\begin", "\\end", "\\section", "\\subsection", "\\chapter", "\\enlargethispage", "\\vspace", "\\noindent", "\\TexloomObject"].iter().any(|prefix| text.starts_with(prefix))
 }
 
 pub fn resolve_text_unit(source: &str, line: usize) -> Result<SourceUnit> {
@@ -180,7 +180,7 @@ pub fn resolve_text_unit_in_document(source: &str, line: usize, document: &str) 
     if let Ok((_, body, end)) = document_bounds(source) {
         if lines[index].start < body || lines[index].end > end { return Err("Generated text or macro definitions in the preamble cannot be moved here".into()); }
     }
-    if blocks(source).iter().any(|block| block.range.contains(&lines[index].start)) || text_objects(source)?.iter().any(|object| object.range.contains(&lines[index].start)) {
+    if text_objects(source)?.iter().any(|object| object.range.contains(&lines[index].start)) {
         return Err("Select the existing object's frame to edit it".into());
     }
     let forced = break_start(raw);

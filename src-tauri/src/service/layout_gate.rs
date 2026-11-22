@@ -18,12 +18,7 @@ pub enum VisualOperation {
     Text {
         request: ObjectEditRequest,
     },
-    /// Existing positioned StudioBlock controls have a separate compatibility
-    /// contract. They do not authorize arbitrary source replacements.
-    Legacy {
-        file: String,
-        request: TransformRequest,
-    },
+
 }
 
 pub(super) struct Plan {
@@ -48,7 +43,11 @@ enum Policy {
         dy: f64,
         zero: Sources,
     },
-    Legacy,
+    DirectText {
+        marker: String,
+        before_probe: Option<Sources>,
+        after_probe: Sources,
+    },
 }
 /// Retained only inside the pending native transaction. Artifacts are pinned
 /// against cache eviction until commit/discard. Not serializable or cloneable.
@@ -91,9 +90,6 @@ fn object(sources: &Sources, file: &str, id: &str) -> Result<texloom_core::TextO
 fn source_receipt(build: &Build, sources: &Sources, main: &str) -> Result<()> {
     let mut expected = sources.clone();
     expected
-        .entry("studio.sty".into())
-        .or_insert_with(|| STYLE.into());
-    expected
         .entry("texloom-objects.sty".into())
         .or_insert_with(|| OBJECT_STYLE.into());
     let mut expected = expected
@@ -131,76 +127,76 @@ impl Plan {
                     return Err("The visual request does not match the current document".into());
                 }
                 let marker = format!("Texloom_{}", request.id);
-                let planned = visual::plan_object_edit(request.clone())?;
-                let policy = match request.action.as_str() {
-                    "wrap" => {
-                        // Privately prove the same wrapper and package at zero
-                        // offset before authorizing either movement or reflow.
-                        let mut zero_request = request.clone();
-                        zero_request.dx = Some(0.0);
-                        zero_request.dy = Some(0.0);
-                        zero_request.content = None;
-                        zero_request.literal_edits = None;
-                        zero_request.spacing_edits = None;
-                        let zero = visual::plan_object_edit(zero_request)?.sources;
-                        let original = object(&zero, &request.file, &request.id)?;
-                        let next = object(&planned.sources, &request.file, &request.id)?;
-                        if original.content == next.content {
+                if matches!(request.action.as_str(), "replace_source" | "append_paragraph") {
+                    let plan = visual::plan_direct_text(&request)?;
+                    (plan.sources, Policy::DirectText {
+                        marker,
+                        before_probe: plan.before_probe,
+                        after_probe: plan.after_probe,
+                    })
+                } else {
+                    let planned = visual::plan_object_edit(request.clone())?;
+                    let policy = match request.action.as_str() {
+                        "wrap" => {
+                            // Privately prove the same wrapper and package at zero
+                            // offset before authorizing either movement or reflow.
+                            let mut zero_request = request.clone();
+                            zero_request.dx = Some(0.0);
+                            zero_request.dy = Some(0.0);
+                            zero_request.content = None;
+                            zero_request.literal_edits = None;
+                            zero_request.spacing_edits = None;
+                            let zero = visual::plan_object_edit(zero_request)?.sources;
+                            let original = object(&zero, &request.file, &request.id)?;
+                            let next = object(&planned.sources, &request.file, &request.id)?;
+                            if original.content == next.content {
+                                Policy::Move {
+                                    marker,
+                                    dx: next.dx,
+                                    dy: next.dy,
+                                    zero: Some(zero),
+                                }
+                            } else {
+                                if next.dx != 0.0 || next.dy != 0.0 {
+                                    return Err(
+                                        "Edit the text and move it in separate operations".into()
+                                    );
+                                }
+                                Policy::Reflow {
+                                    marker,
+                                    zero: Some(zero),
+                                }
+                            }
+                        }
+                        "move" => {
+                            let old = object(before, &request.file, &request.id)?;
+                            let next = object(&planned.sources, &request.file, &request.id)?;
                             Policy::Move {
                                 marker,
-                                dx: next.dx,
-                                dy: next.dy,
-                                zero: Some(zero),
+                                dx: next.dx - old.dx,
+                                dy: next.dy - old.dy,
+                                zero: None,
                             }
-                        } else {
-                            if next.dx != 0.0 || next.dy != 0.0 {
-                                return Err(
-                                    "Edit the text and move it in separate operations".into()
-                                );
-                            }
-                            Policy::Reflow {
+                        }
+                        "edit" => Policy::Reflow { marker, zero: None },
+                        "detach" => {
+                            let old = object(before, &request.file, &request.id)?;
+                            let mut zero_request = request.clone();
+                            zero_request.action = "move".into();
+                            zero_request.dx = Some(0.0);
+                            zero_request.dy = Some(0.0);
+                            let zero = visual::plan_object_edit(zero_request)?.sources;
+                            Policy::Detach {
                                 marker,
-                                zero: Some(zero),
+                                dx: -old.dx,
+                                dy: -old.dy,
+                                zero,
                             }
                         }
-                    }
-                    "move" => {
-                        let old = object(before, &request.file, &request.id)?;
-                        let next = object(&planned.sources, &request.file, &request.id)?;
-                        Policy::Move {
-                            marker,
-                            dx: next.dx - old.dx,
-                            dy: next.dy - old.dy,
-                            zero: None,
-                        }
-                    }
-                    "edit" => Policy::Reflow { marker, zero: None },
-                    "detach" => {
-                        let old = object(before, &request.file, &request.id)?;
-                        let mut zero_request = request.clone();
-                        zero_request.action = "move".into();
-                        zero_request.dx = Some(0.0);
-                        zero_request.dy = Some(0.0);
-                        let zero = visual::plan_object_edit(zero_request)?.sources;
-                        Policy::Detach {
-                            marker,
-                            dx: -old.dx,
-                            dy: -old.dy,
-                            zero,
-                        }
-                    }
-                    _ => return Err("Unsupported text operation".into()),
-                };
-                (planned.sources, policy)
-            }
-            VisualOperation::Legacy { file, request } => {
-                relative(&file)?;
-                if before.get(&file) != Some(&request.source) {
-                    return Err("The positioned-block source changed".into());
+                        _ => return Err("Unsupported text operation".into()),
+                    };
+                    (planned.sources, policy)
                 }
-                let mut sources = before.clone();
-                sources.insert(file, transform(request)?);
-                (sources, Policy::Legacy)
             }
         };
         if expected != *proposed {
@@ -348,6 +344,20 @@ impl Backend {
         }
         self.layout_build(&result.build_id)
     }
+    fn equivalent_text_probe(
+        &self,
+        request: &CompileRequest,
+        sources: &Sources,
+        unmarked: &Build,
+        lease: &Lease,
+    ) -> Result<Arc<Build>> {
+        let probe = self.private_layout_build(request, sources.clone(), lease)?;
+        same_recipe(unmarked, &probe)?;
+        let original = self.inspect_layout(unmarked, None, &lease.cancel)?;
+        let marked = self.inspect_layout(&probe, None, &lease.cancel)?;
+        verification::compare(&original.view, &marked.view, Operation::Identity).map_err(fail)?;
+        Ok(probe)
+    }
     fn predict_layout(&self,build:&Build,marker:&str,dx:f64,dy:f64,cancel:&Cancellation)->Result<CheckedInspection>{
         let sha=&build.receipt.outputs.get(".out/preview.pdf").ok_or("PDF receipt is missing")?.sha256;
         self.verifier.as_ref().ok_or("Layout verification is unavailable in this build")?.as_ref().map_err(Clone::clone)?.predict_displacement(&build.directory.join(".out/preview.pdf"),sha,marker,dx,dy,cancel)
@@ -383,7 +393,22 @@ impl Backend {
                 let view = self.inspect_layout(&build, None, &lease.cancel)?;
                 verification::validate(&view.view).map_err(fail)?;
             }
-            Policy::Legacy => { /* Native source plan plus existing PDF.js block acceptance. */ }
+            Policy::DirectText { marker, before_probe, after_probe } => {
+                let baseline = if let Some(sources) = before_probe {
+                    let probe = self.equivalent_text_probe(request, sources, &plan.baseline, lease)?;
+                    private_builds.push(probe.clone());
+                    probe
+                } else {
+                    plan.baseline.clone()
+                };
+                let candidate = self.equivalent_text_probe(request, after_probe, &build, lease)?;
+                let before = self.inspect_layout(
+                    &baseline, before_probe.as_ref().map(|_| marker.as_str()), &lease.cancel,
+                )?;
+                let after = self.inspect_layout(&candidate, Some(marker), &lease.cancel)?;
+                reflow(&before.view, &after.view)?;
+                private_builds.push(candidate);
+            }
             Policy::Move { marker, zero, .. } | Policy::Reflow { marker, zero } => {
                 let tagged = if let Some(sources) = zero {
                     let probe = self.private_layout_build(request, sources.clone(), lease)?;

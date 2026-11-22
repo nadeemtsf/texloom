@@ -25,7 +25,7 @@
 \fancyhf{}
 \fancyhead[L]{\small Texloom: methods and evidence}
 \fancyhead[R]{\small TECHNICAL REPORT DRAFT}
-\fancyfoot[L]{\small 21 November 2026; final evaluation pending}
+\fancyfoot[L]{\small 22 November 2026; final evaluation pending}
 \fancyfoot[R]{\small\thepage}
 \renewcommand{\headrulewidth}{0.3pt}
 \newcommand{\pending}{\textit{Pending: no final evaluation has been run.}}
@@ -33,7 +33,7 @@
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 \title{\vspace{-1.7em}Texloom: Checking Source-Preserving Visual Edits\\to Compiled \LaTeX\ Documents}
 \author{Texloom Project\\\small Technical report draft; methods, development evidence and evaluation design}
-\date{21 November 2026}
+\date{22 November 2026}
 
 \begin{document}
 \maketitle
@@ -45,9 +45,8 @@ Texloom is a Windows prototype that translates selected edits to compiled
 operation is single-page text displacement that retains the fragment's
 contribution to document flow. Source evidence, private identity probes,
 immutable compilation, independent PDF inspection and revision-bound commit
-form a chain of checks. Replacement, semantic parameter changes and legacy
-positioned blocks have different acceptance policies and must be evaluated
-separately. This technical report documents the implemented mechanism, the
+form a chain of checks. Direct text changes and semantic parameter changes have their own
+acceptance policies. This technical report documents the implemented mechanism, the
 limits of its checks, recorded development evidence and a proposed fixed-version
 evaluation. Component pilots are reported with explicit entry layers.
 A native candidate-boundary pilot met declared source, render and Undo

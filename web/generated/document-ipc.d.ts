@@ -72,11 +72,9 @@ export type Severity = "error" | "warning" | "info";
 
 export type Diagnostic = { code: string, severity: Severity, message: string, file: string | null, line: number | null, };
 
-export type PositionedBlock = { id: string, file: string, page: number, x: number, y: number, width: number, size: number, content: string, height: number, start: number, end: number, line: number, };
-
 export type MappedTextObject = { id: string, file: string, dx: number, dy: number, plain_text: string | null, content: string, line: number, start: number, end: number, };
 
-export type CompileResult = { ok: boolean, build_id: string, revision: number, pdf: number[] | Uint8Array, blocks: Array<PositionedBlock>, objects: Array<MappedTextObject>, log: string, engine: string, seconds: number, verification_eligible: boolean, passes: number, diagnostics: Array<Diagnostic>, job_id: number, };
+export type CompileResult = { ok: boolean, build_id: string, revision: number, pdf: number[] | Uint8Array, objects: Array<MappedTextObject>, log: string, engine: string, seconds: number, verification_eligible: boolean, passes: number, diagnostics: Array<Diagnostic>, job_id: number, };
 
 export type UnverifiedCompilePreview = { schema: number, phase: "first_pass", project_id: string, revision: number, request_id: number, engine: string, seconds: number, diagnostics: Array<Diagnostic>, pdf: number[] | Uint8Array, };
 
@@ -140,8 +138,6 @@ export type AdapterParameter = { key: string, label: string, value: string, reas
 
 export type AdapterPlan = { sources: { [key in string]?: string }, file: string, };
 
-export type TransformRequest = { source: string, action: string, id: string, changes: Record<string, unknown>, selection: [number, number] | null, content: string, plain: boolean, page: number, x: number, y: number, width: number, size: number, };
-
 export type ObjectEditRequest = { sources: { [key in string]?: string }, main: string, file: string, action: string, id: string, selection: [number, number] | null, expected: string | null, dx: number | null, dy: number | null, content: string | null, plain: boolean, literal_edits: Array<LiteralEditRequest> | null, spacing_edits: Array<SpacingEditRequest> | null, };
 
 export type ObjectPlan = { sources: { [key in string]?: string }, object_id: string, file: string, operation: string, };
@@ -156,7 +152,7 @@ export type SpacingView = { id: number, value: number | null, unit: string, sour
 
 export type TextEditModel = { runs: Array<LiteralRunView>, protected: Array<string>, spacing: Array<SpacingView>, };
 
-export type VisualOperation = { "kind": "adapter", request: AdapterRequest, } | { "kind": "text", request: ObjectEditRequest, } | { "kind": "legacy", file: string, request: TransformRequest, };
+export type VisualOperation = { "kind": "adapter", request: AdapterRequest, } | { "kind": "text", request: ObjectEditRequest, };
 
 export type EmptyRequest = Record<string, never>;
 
@@ -175,8 +171,6 @@ export type SourceControlsRequest = { source: string, };
 export type AdapterCommandRequest = { request: AdapterRequest, };
 
 export type ObjectCommandRequest = { request: ObjectEditRequest, };
-
-export type TransformCommandRequest = { request: TransformRequest, };
 
 export type TextModelRequest = { content: string, document: string, };
 
@@ -243,7 +237,7 @@ export interface BuildRequests {
 }
 
 export interface BuildReplies {
-  compile_document: { ok: boolean, build_id: string, revision: number, pdf: number[] | Uint8Array, blocks: Array<PositionedBlock>, objects: Array<MappedTextObject>, log: string, engine: string, seconds: number, verification_eligible: boolean, passes: number, diagnostics: Array<Diagnostic>, job_id: number, };
+  compile_document: { ok: boolean, build_id: string, revision: number, pdf: number[] | Uint8Array, objects: Array<MappedTextObject>, log: string, engine: string, seconds: number, verification_eligible: boolean, passes: number, diagnostics: Array<Diagnostic>, job_id: number, };
   cancel_compilation: null;
   verify_build: null;
   pin_displayed_build: null;
@@ -278,7 +272,6 @@ export interface WorkspaceRequests {
   document_prepare: PrepareVisualRequest;
   describe_adapters: SourceControlsRequest;
   plan_adapter: AdapterCommandRequest;
-  transform: TransformCommandRequest;
   plan_text_object: ObjectCommandRequest;
   describe_text_edit: TextModelRequest;
   preview_text_edit: TextPreviewRequest;
@@ -308,7 +301,6 @@ export interface WorkspaceReplies {
   document_prepare: { token: string, revision: number, };
   describe_adapters: Array<{ id: number, kind: string, label: string, line: number, parameters: Array<AdapterParameter>, reason: string | null, }>;
   plan_adapter: { sources: { [key in string]?: string }, file: string, };
-  transform: string;
   plan_text_object: { sources: { [key in string]?: string }, object_id: string, file: string, operation: string, };
   describe_text_edit: { runs: Array<LiteralRunView>, protected: Array<string>, spacing: Array<SpacingView>, };
   preview_text_edit: string;
