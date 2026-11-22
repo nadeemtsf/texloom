@@ -725,22 +725,35 @@ fn reorder_request(source: &str, first: &str, second: &str, before: bool) -> Obj
 }
 
 #[test]
-fn reorder_rejects_nonadjacent_and_noop_targets() {
-    let source = "\\documentclass{article}\n\\begin{document}\nOne.\n\nTwo.\n\nThree.\n\\end{document}\n";
-    assert!(visual::plan_paragraph_reorder(&reorder_request(source, "One.", "Three.", false)).is_err());
+fn reorder_rotates_a_plain_run_and_rejects_structural_and_noop_destinations() {
+    let source = "\\documentclass{article}\n\\begin{document}\nOne.\n\nTwo.\n\n\nThree.\n\\end{document}\n";
+    let plan = visual::plan_paragraph_reorder(&reorder_request(source, "One.", "Three.", false)).unwrap();
+    assert_eq!(plan.sources["main.tex"], source.replace("One.\n\nTwo.\n\n\nThree.", "Two.\n\nThree.\n\n\nOne."));
+    assert_eq!(plan.new_order, vec![1, 2, 0]);
+    let plan = visual::plan_paragraph_reorder(&reorder_request(source, "One.", "Three.", true)).unwrap();
+    assert_eq!(plan.new_order, vec![1, 0, 2]);
+    let plan = visual::plan_paragraph_reorder(&reorder_request(source, "Three.", "One.", false)).unwrap();
+    assert_eq!(plan.new_order, vec![0, 2, 1]);
     assert!(visual::plan_paragraph_reorder(&reorder_request(source, "One.", "Two.", true)).is_err());
-    assert!(visual::plan_paragraph_reorder(&reorder_request(source, "One.", "Two.", false)).is_ok());
     let separated = source.replace("\n\nTwo.", "\n\n\\section{Boundary}\n\nTwo.");
-    assert!(visual::plan_paragraph_reorder(&reorder_request(&separated, "One.", "Two.", false)).is_err());
+    assert!(visual::plan_paragraph_reorder(&reorder_request(&separated, "One.", "Three.", false)).is_err());
+    let duplicate = source.replace("Three.", "Two.");
+    let request = reorder_request(&duplicate, "One.", "Two.", false);
+    let mut later = request.clone();
+    let last = duplicate.rfind("Two.").unwrap();
+    later.neighbor = Some([last, last + "Two.".len()]);
+    let plan = visual::plan_paragraph_reorder(&later).unwrap();
+    assert_eq!(plan.new_order, vec![1, 2, 0]);
 }
 
 #[test]
 #[ignore = "requires the installed TeX engines and the pinned Windows verifier"]
 fn verified_reorder_real_engine_workflow() {
     let long = "First paragraph wraps across PDF lines. ".repeat(5).trim_end().to_owned();
-    let short = "The second paragraph is shorter.";
-    let source = format!("\\documentclass[12pt]{{article}}\n\\begin{{document}}\n{long}\n\n{short}\n\nA neighboring paragraph stays here.\n\\end{{document}}\n");
-    let swapped = format!("\\documentclass[12pt]{{article}}\n\\begin{{document}}\n{short}\n\n{long}\n\nA neighboring paragraph stays here.\n\\end{{document}}\n");
+    let middle = "This intervening paragraph stays ahead of the destination.";
+    let short = "The destination paragraph is shorter.";
+    let source = format!("\\documentclass[12pt]{{article}}\n\\begin{{document}}\n{long}\n\n{middle}\n\n{short}\n\nA neighboring paragraph stays here.\n\\end{{document}}\n");
+    let swapped = format!("\\documentclass[12pt]{{article}}\n\\begin{{document}}\n{middle}\n\n{short}\n\n{long}\n\nA neighboring paragraph stays here.\n\\end{{document}}\n");
     for engine in ["pdflatex", "xelatex", "lualatex"] {
         let mut f = Fixture::new(&source);
         prepare_test_verifier(&mut f);
@@ -749,10 +762,10 @@ fn verified_reorder_real_engine_workflow() {
             schema: 1, main: "main.tex".into(), engine: engine.into(),
         })).unwrap();
         let id = &project.id;
-        for (base, input, expected, before) in [(0, &source, &swapped, false), (1, &swapped, &source, true)] {
+        for (base, input, expected, neighbor, before) in [(0, &source, &swapped, short, false), (1, &swapped, &source, middle, true)] {
             let baseline = f.backend.compile_document(id, base, None, None, base * 2 + 1).unwrap();
             assert!(baseline.ok && baseline.verification_eligible, "{engine}: {}", baseline.log);
-            let request = reorder_request(input, &long, short, before);
+            let request = reorder_request(input, &long, neighbor, before);
             let planned = visual::plan_object_edit(request.clone()).unwrap();
             assert_eq!(planned.sources, sources(expected), "{engine}");
             let prepared = f.backend.document_prepare_visual(

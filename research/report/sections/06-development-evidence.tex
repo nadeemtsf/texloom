@@ -667,18 +667,18 @@ Save, reopening and an external build. Its evidence is scoped to this fixture
 and the tested engine configurations. Physical pointer interaction is
 checked separately.
 
-\subsection{Verified reorder between adjacent source paragraphs}
+\subsection{Verified reorder within a run of source paragraphs}
 The PDF gesture exposes insertion cues above and below text lines. A
-drop must resolve to the edge of an independently identified neighboring
-paragraph. The native planner accepts adjacent plain paragraphs in the
-main file and reuses the guarded source-intent planner to swap their byte
-ranges while preserving the intervening separator. A soft-wrapped paragraph
-moves as one unit.
+drop must resolve to the edge of an independently identified destination
+paragraph. The planner moves the selected paragraph within an uninterrupted
+run of up to eight plain paragraphs in the main file. The traversed paragraph
+slots retain their original separators. A soft-wrapped paragraph moves as
+one unit.
 
-Private builds tag both paragraphs with distinct identities. The independent
-inspector checks the tagged and untagged PDFs for identity before checking
-that both paragraphs remain on one page with reversed vertical order and
-preserved glyph multiplicities. Source and history change only after this
+Private builds tag every affected paragraph with a distinct identity. The
+independent inspector checks the tagged and untagged PDFs for identity before
+checking that the run remains on one page, every marked paragraph has the
+expected visual order, and glyph multiplicities are preserved. Source and history change only after this
 approval. The regression exercises both directions, exact source, Undo/Redo,
 Save, reopening and an external compile. Cross-page and structured-source
 moves require separate policies.

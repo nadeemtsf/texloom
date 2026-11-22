@@ -385,10 +385,12 @@ pub(super) struct ReorderPlan {
     pub(super) sources: BTreeMap<String, String>,
     pub(super) before_probe: BTreeMap<String, String>,
     pub(super) after_probe: BTreeMap<String, String>,
+    pub(super) original_order: Vec<String>,
+    pub(super) new_order: Vec<usize>,
 }
 
 pub(super) fn plan_paragraph_reorder(request: &ObjectEditRequest) -> Result<ReorderPlan> {
-    use texloom_core::document::{Profile, Session, intent::{ParagraphPosition, SourceIntent}};
+    use texloom_core::document::{Profile, Session, intent::ParagraphPosition};
     relative(&request.main)?;
     relative(&request.file)?;
     if request.file != request.main {
@@ -415,29 +417,24 @@ pub(super) fn plan_paragraph_reorder(request: &ObjectEditRequest) -> Result<Reor
         }).ok_or("Reorder requires two complete plain paragraphs")
     };
     let position = if request.before_neighbor { ParagraphPosition::Before } else { ParagraphPosition::After };
-    let plan = session.plan_source_intent(SourceIntent::MoveAdjacentParagraph {
-        target: reference(&target)?, neighbor: reference(&neighbor)?, position,
-    }).map_err(|_| "Reorder requires two adjacent paragraphs with no source structure between them")?;
-    if !plan.changed() {
+    let plan = session.plan_visual_paragraph_order(&reference(&target)?, &reference(&neighbor)?, position)
+        .map_err(|_| "Reorder requires an uninterrupted run of up to eight plain paragraphs")?;
+    if !plan.intent.changed() {
         return Err("The paragraphs already have the requested source order or identical text".into());
     }
-    let sources = plan.candidate_sources(&session).map_err(fail)?;
-    let (earlier, later) = if target.start < neighbor.start { (&target, &neighbor) } else { (&neighbor, &target) };
-    let neighbor_id = format!("{}-neighbor", request.id);
-    let (earlier_id, later_id) = if target.start < neighbor.start {
-        (request.id.as_str(), neighbor_id.as_str())
-    } else {
-        (neighbor_id.as_str(), request.id.as_str())
-    };
-    let before_probe = mark_text_ranges(request, source, &[
-        (later.clone(), later_id), (earlier.clone(), earlier_id),
-    ])?;
-    let first = earlier.start..earlier.start + later.len();
-    let second = later.end - earlier.len()..later.end;
-    let after_probe = mark_text_ranges(request, &sources[&request.file], &[
-        (second, earlier_id), (first, later_id),
-    ])?;
-    Ok(ReorderPlan { sources, before_probe, after_probe })
+    let sources = plan.intent.candidate_sources(&session).map_err(fail)?;
+    let names: Vec<_> = (0..plan.original.len()).map(|index| format!("{}-{index}", request.id)).collect();
+    let before_ranges: Vec<_> = plan.original.iter().zip(&names).rev()
+        .map(|(range, name)| (range.clone(), name.as_str())).collect();
+    let after_ranges: Vec<_> = plan.reordered.iter().rev()
+        .map(|(index, range)| (range.clone(), names[*index].as_str())).collect();
+    let before_probe = mark_text_ranges(request, source, &before_ranges)?;
+    let after_probe = mark_text_ranges(request, &sources[&request.file], &after_ranges)?;
+    Ok(ReorderPlan {
+        sources, before_probe, after_probe,
+        original_order: names.into_iter().map(|name| format!("Texloom_{name}")).collect(),
+        new_order: plan.reordered.into_iter().map(|(index, _)| index).collect(),
+    })
 }
 
 pub fn plan_object_edit(mut request: ObjectEditRequest) -> Result<ObjectPlan> {

@@ -9,9 +9,12 @@
 3. Undo and redo. Select the moved paragraph again and use **Move before**
    in the inspector, or press Alt+Up while its frame is focused. It should
    go back above its previous neighbor.
-4. Try a free drag away from the drop line. For single typeset lines it
+4. In the same sample, drag the long paragraph below the third paragraph. Verify
+   that it passes both intervening and destination paragraphs in source and PDF.
+   Undo the change.
+5. Try a free drag away from the drop line. For single typeset lines it
    should adjust the position. Hold Alt to bypass the reorder cue.
 
-This pass covers adjacent plain paragraphs on one page in the main file.
-The same paragraph, a nonadjacent destination, or a source structure such
-as a section break must refuse a reorder.
+This pass covers an uninterrupted run of up to eight plain paragraphs on
+one page in the main file. A source structure such as a section break must
+refuse a reorder.

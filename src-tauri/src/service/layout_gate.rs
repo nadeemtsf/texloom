@@ -42,8 +42,8 @@ enum Policy {
         zero: Sources,
     },
     Reorder {
-        marker: String,
-        before_neighbor: bool,
+        original_order: Vec<String>,
+        new_order: Vec<usize>,
         before_probe: Sources,
         after_probe: Sources,
     },
@@ -135,7 +135,7 @@ impl Plan {
                 if request.action == "reorder_paragraph" {
                     let plan = visual::plan_paragraph_reorder(&request)?;
                     (plan.sources, Policy::Reorder {
-                        marker, before_neighbor: request.before_neighbor,
+                        original_order: plan.original_order, new_order: plan.new_order,
                         before_probe: plan.before_probe, after_probe: plan.after_probe,
                     })
                 } else if matches!(request.action.as_str(), "replace_source" | "append_paragraph" | "move_source") {
@@ -270,9 +270,16 @@ fn verify_reorder_identity(before: &Inspection, after: &Inspection) -> Result<()
     }
     Ok(())
 }
-fn verify_reorder_order(target: (usize, f64, f64), neighbor: (usize, f64, f64), before: bool) -> Result<()> {
-    if target.0 != neighbor.0 || (before && target.2 > neighbor.1) || (!before && neighbor.2 > target.1) {
-        return Err("The PDF does not show the two paragraphs in the expected order on one page".into());
+fn verify_reorder_order(order: impl IntoIterator<Item = (usize, f64, f64)>) -> Result<()> {
+    let mut order = order.into_iter();
+    let Some((page, _, mut bottom)) = order.next() else {
+        return Err("The PDF has no reordering evidence".into());
+    };
+    for (next_page, next_top, next_bottom) in order {
+        if next_page != page || bottom > next_top {
+            return Err("The PDF does not show the paragraphs in the expected order on one page".into());
+        }
+        bottom = next_bottom;
     }
     Ok(())
 }
@@ -414,7 +421,7 @@ impl Backend {
                 let view = self.inspect_layout(&build, None, &lease.cancel)?;
                 verification::validate(&view.view).map_err(fail)?;
             }
-            Policy::Reorder { marker, before_neighbor, before_probe, after_probe } => {
+            Policy::Reorder { original_order, new_order, before_probe, after_probe } => {
                 let before = self.equivalent_text_probe(request, before_probe, &plan.baseline, lease)?;
                 let after = self.equivalent_text_probe(request, after_probe, &build, lease)?;
                 let compare_marker = |marker: &str| -> Result<_> {
@@ -428,10 +435,10 @@ impl Backend {
                     }
                     Ok((old_bounds, new_bounds))
                 };
-                let (old_target, new_target) = compare_marker(marker)?;
-                let (old_neighbor, new_neighbor) = compare_marker(&format!("{marker}-neighbor"))?;
-                verify_reorder_order(old_target, old_neighbor, !before_neighbor)?;
-                verify_reorder_order(new_target, new_neighbor, *before_neighbor)?;
+                let bounds = original_order.iter().map(|marker| compare_marker(marker))
+                    .collect::<Result<Vec<_>>>()?;
+                verify_reorder_order(bounds.iter().map(|(old, _)| *old))?;
+                verify_reorder_order(new_order.iter().map(|index| bounds[*index].1))?;
                 private_builds.extend([before, after]);
             }
             Policy::DirectText { marker, before_probe, after_probe, displacement } => {
