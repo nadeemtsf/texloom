@@ -270,6 +270,7 @@ pub(super) struct DirectTextPlan {
     pub(super) sources: BTreeMap<String, String>,
     pub(super) before_probe: Option<BTreeMap<String, String>>,
     pub(super) after_probe: BTreeMap<String, String>,
+    pub(super) displacement: Option<(f64, f64)>,
 }
 
 fn mark_text_range(
@@ -296,9 +297,12 @@ pub(super) fn plan_direct_text(request: &ObjectEditRequest) -> Result<DirectText
     if !request.file.ends_with(".tex") || source.len() > 4_000_000 || request.sources.len() > MAX_FILES {
         return Err("Choose a supported LaTeX source file".into());
     }
-    if request.dx.unwrap_or(0.0) != 0.0 || request.dy.unwrap_or(0.0) != 0.0 {
+    let dx = request.dx.unwrap_or(0.0);
+    let dy = request.dy.unwrap_or(0.0);
+    if request.action != "move_source" && (dx != 0.0 || dy != 0.0) {
         return Err("Change text and position in separate operations".into());
     }
+    let mut displacement = None;
     let (updated, range, before_probe) = match request.action.as_str() {
         "append_paragraph" if request.file == request.main && request.plain
             && request.selection.is_none() && request.expected.is_none()
@@ -308,7 +312,7 @@ pub(super) fn plan_direct_text(request: &ObjectEditRequest) -> Result<DirectText
             let (updated, range) = texloom_core::append_plain_paragraph(source, text)?;
             (updated, range, None)
         }
-        "replace_source" => {
+        "replace_source" | "move_source" => {
             let [start, end] = request.selection.ok_or("Select the text to edit")?;
             let projection = EditorProjection::new(source);
             let range = projection.source_offset(start).map_err(fail)?
@@ -317,40 +321,52 @@ pub(super) fn plan_direct_text(request: &ObjectEditRequest) -> Result<DirectText
             if source.get(range.clone()) != Some(expected) {
                 return Err("The selected source changed. Select it again.".into());
             }
-            let replacement = match request.content.as_deref() {
-                None => preview_edit_parameters(
-                    expected, expected, document,
-                    request.literal_edits.as_deref().unwrap_or(&[]),
-                    request.spacing_edits.as_deref().unwrap_or(&[]),
-                )?,
-                Some(text) if request.literal_edits.is_none() && request.spacing_edits.is_none() => {
-                    if request.plain {
-                        texloom_core::replace_plain_text(expected, text, document)?
-                    } else {
-                        text.to_owned()
-                    }
-                }
-                Some(_) => return Err("Choose either a text edit or parameter changes".into()),
-            };
-            if replacement == expected {
-                return Err("The source is unchanged".into());
-            }
             let before_probe = mark_text_range(request, source, range.clone())?;
-            let new_range = range.start..range.start + replacement.len();
-            let mut updated = source.clone();
-            updated.replace_range(range, &replacement);
-            (updated, new_range, Some(before_probe))
+            if request.action == "move_source" {
+                if request.content.is_some() || request.literal_edits.is_some() || request.spacing_edits.is_some() {
+                    return Err("Change text and position in separate operations".into());
+                }
+                let (updated, range, dx, dy) = texloom_core::position_text_range(source, range, dx, dy, document)?;
+                if dx == 0.0 && dy == 0.0 {
+                    return Err("The text position is unchanged".into());
+                }
+                displacement = Some((dx, dy));
+                (updated, range, Some(before_probe))
+            } else {
+                let replacement = match request.content.as_deref() {
+                    None => preview_edit_parameters(
+                        expected, expected, document,
+                        request.literal_edits.as_deref().unwrap_or(&[]),
+                        request.spacing_edits.as_deref().unwrap_or(&[]),
+                    )?,
+                    Some(text) if request.literal_edits.is_none() && request.spacing_edits.is_none() => {
+                        if request.plain {
+                            texloom_core::replace_plain_text(expected, text, document)?
+                        } else {
+                            text.to_owned()
+                        }
+                    }
+                    Some(_) => return Err("Choose either a text edit or parameter changes".into()),
+                };
+                if replacement == expected {
+                    return Err("The source is unchanged".into());
+                }
+                let new_range = range.start..range.start + replacement.len();
+                let mut updated = source.clone();
+                updated.replace_range(range, &replacement);
+                (updated, new_range, Some(before_probe))
+            }
         }
         _ => return Err("Unsupported direct text operation".into()),
     };
     let after_probe = mark_text_range(request, &updated, range)?;
     let mut sources = request.sources.clone();
     sources.insert(request.file.clone(), updated);
-    Ok(DirectTextPlan { sources, before_probe, after_probe })
+    Ok(DirectTextPlan { sources, before_probe, after_probe, displacement })
 }
 
 pub fn plan_object_edit(mut request: ObjectEditRequest) -> Result<ObjectPlan> {
-    if matches!(request.action.as_str(), "replace_source" | "append_paragraph") {
+    if matches!(request.action.as_str(), "replace_source" | "append_paragraph" | "move_source") {
         let plan = plan_direct_text(&request)?;
         return Ok(ObjectPlan {
             sources: plan.sources, object_id: request.id, file: request.file, operation: request.action,

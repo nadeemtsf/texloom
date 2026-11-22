@@ -227,42 +227,22 @@ fn selection_probes_cannot_commit_even_with_an_eligible_compiled_pdf() {
 }
 
 #[test]
-fn wrap_plan_derives_zero_identity_and_delta_from_the_emitted_source() {
-    let source="\\documentclass{article}\n\\begin{document}\nBefore\n\nFirst\\\\[2pt]Second\n\nNeighbor\n\\end{document}";
+fn a_private_selection_wrapper_cannot_be_planned_as_a_saved_visual_move() {
+    let source = "\\documentclass{article}\n\\begin{document}\nFirst\n\\end{document}";
     let f = Fixture::new(source);
     let current = f.backend.document_snapshot("project").unwrap();
     let (_, baseline) = f.build(&current.sources, 0, b"PDF", None);
     let start = source.find("First").unwrap();
-    let end = start + "First\\\\[2pt]Second".len();
     let mut request = f.request("wrap");
-    request.selection = Some([start, end]);
-    request.expected = Some(source[start..end].into());
-    request.dx = Some(3.1256);
-    request.dy = Some(8.0);
-    let proposed = visual::plan_object_edit(request.clone()).unwrap().sources;
-    let plan = Plan::prepare(
-        baseline,
-        &current.sources,
-        "main.tex",
-        &proposed,
-        VisualOperation::Text { request },
-    )
-    .unwrap();
-    let Policy::Move {
-        dx,
-        dy,
-        zero: Some(zero),
-        ..
-    } = plan.policy
-    else {
-        panic!("Expected guarded wrap")
-    };
-    let next = object(&proposed, "main.tex", "sig").unwrap();
-    assert_eq!(dx, next.dx);
-    assert_eq!(dy, next.dy);
-    let zero = object(&zero, "main.tex", "sig").unwrap();
-    assert_eq!((zero.dx, zero.dy), (0., 0.));
-    assert_eq!(zero.content, next.content);
+    request.selection = Some([start, start + "First".len()]);
+    request.expected = Some("First".into());
+    request.dx = Some(0.0);
+    request.dy = Some(0.0);
+    let probe = visual::plan_object_edit(request.clone()).unwrap().sources;
+    assert!(probe.contains_key("texloom-objects.sty"));
+    assert!(Plan::prepare(
+        baseline, &current.sources, "main.tex", &probe, VisualOperation::Text { request },
+    ).is_err());
 }
 
 fn prepare_test_verifier(f: &mut Fixture) {
@@ -675,5 +655,59 @@ fn direct_text_real_engine_workflow() {
         assert!(checked.status.success(), "{engine}: {}", String::from_utf8_lossy(&checked.stdout));
         assert!(saved_pdf.join("main.pdf").is_file(), "{engine}");
         println!("{engine}: approved edit and insertion, Undo/Redo, Save/reopen and external build");
+    }
+}
+
+#[test]
+#[ignore = "requires installed pdfLaTeX, XeLaTeX, LuaLaTeX and the pinned Windows verifier"]
+fn direct_drag_real_engine_workflow() {
+    let source = "\\documentclass[12pt]{article}\n\\begin{document}\nThe PDF starts here on the first page.\n\nThis neighboring paragraph should stay put.\n\n\\newpage\nThis text belongs to the second page.\n\n\\newpage\nThe cursor should take you to this sentence on page three.\n\\end{document}\n";
+    let content = "The PDF starts here on the first page.";
+    for engine in ["pdflatex", "xelatex", "lualatex"] {
+        let mut f = Fixture::new(source);
+        prepare_test_verifier(&mut f);
+        let path = f.root.join("project/main.tex").to_string_lossy().into_owned();
+        let project = f.backend.open_project_with_profile(
+            Some(path.clone()), Some(ProjectProfile { schema: 1, main: "main.tex".into(), engine: engine.into() }),
+        ).unwrap();
+        let id = &project.id;
+        let mut expected = source.to_owned();
+        for (base, dx, dy, total_dx, total_dy) in [(0, 88, 70, 88, 70), (1, -15, 5, 73, 75)] {
+            let current = f.backend.document_snapshot(id).unwrap();
+            let baseline = f.backend.compile_document(id, base, None, None, base * 2 + 1).unwrap();
+            assert!(baseline.ok && baseline.verification_eligible, "{engine}: {}", baseline.log);
+            let unit=texloom_core::resolve_text_unit(&expected, 3).unwrap();
+            assert_eq!(unit.content, content);
+            let request: ObjectEditRequest = serde_json::from_value(json!({
+                "sources": current.sources, "main":"main.tex", "file":"main.tex",
+                "action":"move_source", "id":"drag-test", "selection":[unit.range.start,unit.range.end],
+                "expected": content, "dx": dx, "dy": dy,
+            })).unwrap();
+            expected = source.replace(content, &format!(
+                "\\raisebox{{-{total_dy}bp}}[\\height][\\depth]{{\\kern{total_dx}bp\\relax {content}\\kern-{total_dx}bp\\relax}}"
+            ));
+            let planned = visual::plan_object_edit(request.clone()).unwrap();
+            assert_eq!(planned.sources, sources(&expected), "{engine}");
+            let prepared = f.backend.document_prepare_visual(
+                id, base, planned.sources, &baseline.build_id, Some(VisualOperation::Text { request }),
+            ).unwrap();
+            let result = f.backend.compile_document(id, base, Some(&prepared.token), None, base * 2 + 2)
+                .unwrap_or_else(|error| panic!("{engine} move {base}: {error}"));
+            assert!(result.ok && result.verification_eligible, "{engine}: {}", result.log);
+            assert!(result.objects.is_empty(), "{engine} published a private marker");
+            assert_eq!(fs::read_to_string(&path).unwrap(), source);
+            f.backend.document_commit(id, &prepared.token, &result.build_id).unwrap();
+        }
+        let undone = f.backend.document_history(id, 2, false).unwrap();
+        assert!(undone.sources["main.tex"].contains("\\raisebox{-70bp}"));
+        let redone = f.backend.document_history(id, undone.revision, true).unwrap();
+        assert_eq!(redone.sources, sources(&expected));
+        f.backend.save_document(id, redone.revision).unwrap();
+        assert_eq!(f.backend.open_project(Some(path)).unwrap().sources, sources(&expected));
+        let checked = Command::new(find_program(engine).unwrap())
+            .args(["-no-shell-escape", "-halt-on-error", "-interaction=nonstopmode", "main.tex"])
+            .current_dir(f.root.join("project")).output().unwrap();
+        assert!(checked.status.success(), "{engine}: {}", String::from_utf8_lossy(&checked.stdout));
+        println!("{engine}: two source-native drags and history, Save/reopen, external compile");
     }
 }

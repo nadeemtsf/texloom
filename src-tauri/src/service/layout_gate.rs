@@ -31,11 +31,9 @@ enum Policy {
         marker: String,
         dx: f64,
         dy: f64,
-        zero: Option<Sources>,
     },
     Reflow {
         marker: String,
-        zero: Option<Sources>,
     },
     Detach {
         marker: String,
@@ -47,6 +45,7 @@ enum Policy {
         marker: String,
         before_probe: Option<Sources>,
         after_probe: Sources,
+        displacement: Option<(f64, f64)>,
     },
 }
 /// Retained only inside the pending native transaction. Artifacts are pinned
@@ -127,47 +126,17 @@ impl Plan {
                     return Err("The visual request does not match the current document".into());
                 }
                 let marker = format!("Texloom_{}", request.id);
-                if matches!(request.action.as_str(), "replace_source" | "append_paragraph") {
+                if matches!(request.action.as_str(), "replace_source" | "append_paragraph" | "move_source") {
                     let plan = visual::plan_direct_text(&request)?;
                     (plan.sources, Policy::DirectText {
                         marker,
                         before_probe: plan.before_probe,
                         after_probe: plan.after_probe,
+                        displacement: plan.displacement,
                     })
                 } else {
                     let planned = visual::plan_object_edit(request.clone())?;
                     let policy = match request.action.as_str() {
-                        "wrap" => {
-                            // Privately prove the same wrapper and package at zero
-                            // offset before authorizing either movement or reflow.
-                            let mut zero_request = request.clone();
-                            zero_request.dx = Some(0.0);
-                            zero_request.dy = Some(0.0);
-                            zero_request.content = None;
-                            zero_request.literal_edits = None;
-                            zero_request.spacing_edits = None;
-                            let zero = visual::plan_object_edit(zero_request)?.sources;
-                            let original = object(&zero, &request.file, &request.id)?;
-                            let next = object(&planned.sources, &request.file, &request.id)?;
-                            if original.content == next.content {
-                                Policy::Move {
-                                    marker,
-                                    dx: next.dx,
-                                    dy: next.dy,
-                                    zero: Some(zero),
-                                }
-                            } else {
-                                if next.dx != 0.0 || next.dy != 0.0 {
-                                    return Err(
-                                        "Edit the text and move it in separate operations".into()
-                                    );
-                                }
-                                Policy::Reflow {
-                                    marker,
-                                    zero: Some(zero),
-                                }
-                            }
-                        }
                         "move" => {
                             let old = object(before, &request.file, &request.id)?;
                             let next = object(&planned.sources, &request.file, &request.id)?;
@@ -175,10 +144,9 @@ impl Plan {
                                 marker,
                                 dx: next.dx - old.dx,
                                 dy: next.dy - old.dy,
-                                zero: None,
                             }
                         }
-                        "edit" => Policy::Reflow { marker, zero: None },
+                        "edit" => Policy::Reflow { marker },
                         "detach" => {
                             let old = object(before, &request.file, &request.id)?;
                             let mut zero_request = request.clone();
@@ -393,7 +361,7 @@ impl Backend {
                 let view = self.inspect_layout(&build, None, &lease.cancel)?;
                 verification::validate(&view.view).map_err(fail)?;
             }
-            Policy::DirectText { marker, before_probe, after_probe } => {
+            Policy::DirectText { marker, before_probe, after_probe, displacement } => {
                 let baseline = if let Some(sources) = before_probe {
                     let probe = self.equivalent_text_probe(request, sources, &plan.baseline, lease)?;
                     private_builds.push(probe.clone());
@@ -406,27 +374,22 @@ impl Backend {
                     &baseline, before_probe.as_ref().map(|_| marker.as_str()), &lease.cancel,
                 )?;
                 let after = self.inspect_layout(&candidate, Some(marker), &lease.cancel)?;
-                reflow(&before.view, &after.view)?;
+                if let Some((dx, dy)) = displacement {
+                    let prediction = self.predict_layout(&baseline, marker, *dx, *dy, &lease.cancel)?;
+                    verification::compare_prediction(&before.view, &after.view, *dx, *dy, &prediction.view)
+                        .map_err(fail)?;
+                } else {
+                    reflow(&before.view, &after.view)?;
+                }
                 private_builds.push(candidate);
             }
-            Policy::Move { marker, zero, .. } | Policy::Reflow { marker, zero } => {
-                let tagged = if let Some(sources) = zero {
-                    let probe = self.private_layout_build(request, sources.clone(), lease)?;
-                    same_recipe(&plan.baseline, &probe)?;
-                    let original = self.inspect_layout(&plan.baseline, None, &lease.cancel)?;
-                    let probe_view = self.inspect_layout(&probe, None, &lease.cancel)?;
-                    verification::compare(&original.view, &probe_view.view, Operation::Identity)
-                        .map_err(fail)?;
-                    private_builds.push(probe.clone());
-                    probe
-                } else {
-                    plan.baseline.clone()
-                };
-                let old = self.inspect_layout(&tagged, Some(marker), &lease.cancel)?;
+            Policy::Move { marker, .. } | Policy::Reflow { marker } => {
+                let tagged = &plan.baseline;
+                let old = self.inspect_layout(tagged, Some(marker), &lease.cancel)?;
                 let next = self.inspect_layout(&build, Some(marker), &lease.cancel)?;
                 match &plan.policy {
                     Policy::Move { dx, dy, .. } => {
-                        let prediction=self.predict_layout(&tagged,marker,*dx,*dy,&lease.cancel)?;
+                        let prediction=self.predict_layout(tagged,marker,*dx,*dy,&lease.cancel)?;
                         verification::compare_prediction(
                             &old.view,
                             &next.view,
