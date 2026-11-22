@@ -794,7 +794,7 @@ fn verified_reorder_real_engine_workflow() {
 
 #[test]
 #[ignore = "requires the installed TeX engines and the pinned Windows verifier"]
-fn first_paragraph_on_a_later_page_can_be_selected_and_reordered() {
+fn later_page_paragraph_real_engine_workflow() {
     let leading = "Delta starts the second page.";
     let next = "Echo is the next paragraph.";
     let source = format!(
