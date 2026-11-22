@@ -59,7 +59,7 @@ foreach ($entry in @(@('pdfium_worker.exe', $manifest.worker_sha256), @('pdfium.
     if ($entry[1] -notmatch '^[a-f0-9]{64}$') { throw 'Invalid native verifier receipt.' }
     Copy-PackageFile (Join-Path $verifierSource $entry[0]) ('verification/' + $entry[0]) $entry[1]
 }
-foreach ($name in @('main.tex', 'texloom-objects.sty')) { Copy-PackageFile (Join-Path $projectRoot "resources/$name") ('Example/' + $name) }
+Copy-PackageFile (Join-Path $projectRoot 'resources/main.tex') 'Example/main.tex'
 
 foreach ($name in @('DEPENDENCIES.json', 'SOURCE-AVAILABILITY.txt', 'THIRD-PARTY-NOTICES.txt')) {
     Copy-PackageFile (Join-Path $projectRoot ('src-tauri/resources/distribution/' + $name)) $name
