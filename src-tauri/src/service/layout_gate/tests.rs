@@ -42,7 +42,6 @@ impl Fixture {
             "main.tex",
             sources,
             &BTreeMap::from([
-                ("studio.sty".into(), STYLE.into()),
                 ("texloom-objects.sty".into(), OBJECT_STYLE.into()),
             ]),
             &self.root.join("compiler"),
@@ -80,6 +79,7 @@ impl Fixture {
 }
 impl Drop for Fixture {
     fn drop(&mut self) {
+        self.backend.documents.get_mut().unwrap().clear();
         fs::remove_dir_all(&self.root).unwrap();
     }
 }
@@ -89,19 +89,12 @@ fn sources(source: &str) -> Sources {
 fn document() -> &'static str {
     "\\documentclass{article}\n\\usepackage{texloom-objects}\n\\begin{document}\nBefore\n\n\\TexloomObject{sig}{0}{0}{First\\\\[2pt]Second}\n\nNeighbor\n\\end{document}\n"
 }
-fn legacy(source: &str) -> TransformRequest {
-    serde_json::from_value(
-        json!({"source":source,"action":"patch","id":"block","changes":{"x":20}}),
-    )
-    .unwrap()
-}
 fn result(id: &str) -> CompileResult {
     CompileResult {
         ok: true,
         build_id: id.into(),
         revision: 1,
         pdf: vec![],
-        blocks: vec![],
         objects: vec![],
         log: String::new(),
         engine: "pdflatex".into(),
@@ -272,15 +265,33 @@ fn wrap_plan_derives_zero_identity_and_delta_from_the_emitted_source() {
     assert_eq!(zero.content, next.content);
 }
 
+fn prepare_test_verifier(f: &mut Fixture) {
+    let program = PathBuf::from(
+        std::env::var_os("TEXLOOM_PDFIUM_TEST_WORKER").expect("Set checked worker path"),
+    );
+    let library =
+        PathBuf::from(std::env::var_os("TEXLOOM_PDFIUM_TEST_DLL").expect("Set pinned DLL path"));
+    f.backend.verifier = Some(
+        Worker::new(
+            program.clone(),
+            Fingerprint::file(&program).unwrap().sha256,
+            library,
+            f.root.join("evidence"),
+        )
+        .map_err(fail),
+    );
+}
+
 #[test]
+#[ignore = "requires the explicitly prepared Windows worker and PDFium"]
 fn native_approvals_are_one_shot_cancelled_and_rechecked_before_history() {
-    let source="\\documentclass{article}\n\\usepackage{studio}\n\\begin{document}\n\\StudioBlock{block}{1}{10}{40}{100}{12}{First}\n\\end{document}";
-    let f = Fixture::new(source);
+    let mut f = Fixture::new(document());
+    prepare_test_verifier(&mut f);
     let current = f.backend.document_snapshot("project").unwrap();
-    let (baseline, _) = f.build(&current.sources, 0, b"PDF", None);
-    let request = legacy(source);
-    let mut proposed = current.sources.clone();
-    proposed.insert("main.tex".into(), transform(request.clone()).unwrap());
+    let (baseline, _) = f.build(&current.sources, 0, &simple_pdf(0, 0, 180), None);
+    let request = f.request("move");
+    let proposed = visual::plan_object_edit(request.clone()).unwrap().sources;
+    let candidate_pdf = simple_pdf(3, 8, 180);
     let prepared = f
         .backend
         .document_prepare_visual(
@@ -288,10 +299,7 @@ fn native_approvals_are_one_shot_cancelled_and_rechecked_before_history() {
             0,
             proposed.clone(),
             &baseline,
-            Some(VisualOperation::Legacy {
-                file: "main.tex".into(),
-                request,
-            }),
+            Some(VisualOperation::Text { request }),
         )
         .unwrap();
     let lease = f
@@ -301,7 +309,7 @@ fn native_approvals_are_one_shot_cancelled_and_rechecked_before_history() {
         .unwrap()
         .acquire()
         .unwrap();
-    let (build_id, build) = f.build(&proposed, 1, b"VERIFIED PDF", Some(&lease));
+    let (build_id, build) = f.build(&proposed, 1, &candidate_pdf, Some(&lease));
     let plan = f.backend.documents.lock().unwrap()["project"].pending[&prepared.token]
         .plan
         .clone()
@@ -320,7 +328,7 @@ fn native_approvals_are_one_shot_cancelled_and_rechecked_before_history() {
     assert!(approval.check("project", 0, "different-build").is_err());
     fs::write(build.directory.join(".out/preview.pdf"), b"TAMPERED").unwrap();
     assert!(approval.check("project", 0, &build_id).is_err());
-    fs::write(build.directory.join(".out/preview.pdf"), b"VERIFIED PDF").unwrap();
+    fs::write(build.directory.join(".out/preview.pdf"), &candidate_pdf).unwrap();
     lease.cancel.cancel();
     assert!(approval.check("project", 0, &build_id).is_err());
     drop(lease);
@@ -340,7 +348,7 @@ fn native_approvals_are_one_shot_cancelled_and_rechecked_before_history() {
             &lease
         )
         .is_err());
-    let (build_id, _) = f.build(&proposed, 1, b"VERIFIED PDF", Some(&lease));
+    let (build_id, _) = f.build(&proposed, 1, &candidate_pdf, Some(&lease));
     let approval = f
         .backend
         .approve_layout(
@@ -420,20 +428,7 @@ fn simple_pdf(dx: i32, dy: i32, neighbor: i32) -> Vec<u8> {
 #[ignore = "requires the explicitly prepared Windows worker and PDFium"]
 fn independent_native_movement_approval_refuses_neighbor_drift_and_preserves_history() {
     let mut f = Fixture::new(document());
-    let program = PathBuf::from(
-        std::env::var_os("TEXLOOM_PDFIUM_TEST_WORKER").expect("Set checked worker path"),
-    );
-    let library =
-        PathBuf::from(std::env::var_os("TEXLOOM_PDFIUM_TEST_DLL").expect("Set pinned DLL path"));
-    f.backend.verifier = Some(
-        Worker::new(
-            program.clone(),
-            Fingerprint::file(&program).unwrap().sha256,
-            library,
-            f.root.join("evidence"),
-        )
-        .map_err(fail),
-    );
+    prepare_test_verifier(&mut f);
     let current = f.backend.document_snapshot("project").unwrap();
     let (baseline, _) = f.build(&current.sources, 0, &simple_pdf(0, 0, 180), None);
     let request = f.request("move");
@@ -578,4 +573,107 @@ fn matching_recipe_normalizes_only_the_checked_private_output_directory() {
         .environment
         .insert("TEXMFOUTPUT".into(), f.root.to_string_lossy().into());
     assert!(same_recipe(&a, &b).is_err());
+}
+
+#[test]
+fn direct_text_plans_keep_packages_out_of_the_candidate_and_refuse_stale_text() {
+    let source = "\u{feff}\\documentclass{article}\r\n\\begin{document}\r\nFirst.\r\n\r\nA \\textbf{word}.\r\n\\end{document}\r\n";
+    let f = Fixture::new(source);
+    let mut request = f.request("replace_source");
+    request.sources.insert("custom.sty".into(), "% Keep me".into());
+    let projection = EditorProjection::new(source);
+    let content = "A \\textbf{word}.";
+    let start = source.find(content).unwrap();
+    request.selection = Some([
+        projection.editor_offset(start).unwrap(),
+        projection.editor_offset(start + content.len()).unwrap(),
+    ]);
+    request.expected = Some(content.into());
+    request.dx = None;
+    request.dy = None;
+    request.literal_edits = Some(vec![LiteralEditRequest { id: 1, text: "phrase & text".into() }]);
+    let plan = visual::plan_direct_text(&request).unwrap();
+    assert_eq!(plan.sources["main.tex"], source.replace("word", "phrase \\& text"));
+    assert_eq!(plan.sources["custom.sty"], "% Keep me");
+    assert_eq!(plan.sources.len(), 2);
+    assert!(plan.before_probe.unwrap()["main.tex"].contains("\\TexloomObject"));
+    assert!(plan.after_probe["main.tex"].contains("\\TexloomObject"));
+    request.expected = Some("Stale text".into());
+    assert!(visual::plan_direct_text(&request).is_err());
+    request.expected = Some(content.into());
+    request.dx = Some(1.0);
+    assert!(visual::plan_direct_text(&request).is_err());
+}
+
+#[test]
+#[ignore = "requires installed pdfLaTeX, XeLaTeX, LuaLaTeX and the pinned Windows verifier"]
+fn direct_text_real_engine_workflow() {
+    let source = "\\documentclass{article}\n\\pagestyle{empty}\n\\begin{document}\nFirst paragraph.\n\nA \\textbf{word}.\n\nLast paragraph.\n\\end{document}\n";
+    for engine in ["pdflatex", "xelatex", "lualatex"] {
+        let mut f = Fixture::new(source);
+        prepare_test_verifier(&mut f);
+        // Use the normal project-open path so Save has a disk fingerprint.
+        let path = f.root.join("project/main.tex").to_string_lossy().into_owned();
+        let project = f.backend.open_project_with_profile(
+            Some(path.clone()), Some(ProjectProfile { schema: 1, main: "main.tex".into(), engine: engine.into() }),
+        ).unwrap();
+        let id = &project.id;
+        let mut expected = source.to_owned();
+        for (base, action) in [(0, "replace_source"), (1, "append_paragraph")] {
+            let current = f.backend.document_snapshot(id).unwrap();
+            let baseline = f.backend.compile_document(id, base, None, None, base * 2 + 1).unwrap();
+            assert!(baseline.ok && baseline.verification_eligible, "{engine}: {}", baseline.log);
+            let selected = "A \\textbf{word}.";
+            let start = source.find(selected).unwrap();
+            let request: ObjectEditRequest = if action == "replace_source" {
+                expected = expected.replace("\\textbf{word}", "\\textbf{phrase}");
+                serde_json::from_value(json!({
+                    "sources": current.sources, "main":"main.tex", "file":"main.tex",
+                    "action":action, "id":"direct-edit", "selection":[start,start+selected.len()],
+                    "expected":selected, "literal_edits":[{"id":1,"text":"phrase"}],
+                })).unwrap()
+            } else {
+                expected = expected.replace("\\end{document}", "\n\nAn \\& sign.\n\n\\end{document}");
+                serde_json::from_value(json!({
+                    "sources":current.sources,"main":"main.tex","file":"main.tex",
+                    "action":action,"id":"direct-append","content":"An & sign.","plain":true,
+                })).unwrap()
+            };
+            let planned = visual::plan_object_edit(request.clone()).unwrap();
+            assert_eq!(planned.sources, sources(&expected), "{engine} {action}");
+            let prepared = f.backend.document_prepare_visual(
+                id, base, planned.sources, &baseline.build_id, Some(VisualOperation::Text { request }),
+            ).unwrap();
+            let result = f.backend.compile_document(id, base, Some(&prepared.token), None, base * 2 + 2)
+                .unwrap_or_else(|error| panic!("{engine} {action}: {error}"));
+            assert!(result.ok && result.verification_eligible, "{engine} {action}: {}", result.log);
+            assert!(result.objects.is_empty(), "{engine} {action} published a private marker");
+            let compiled = f.backend.layout_build(&result.build_id).unwrap();
+            let rendered = f.backend.inspect_layout(&compiled, None, &Cancellation::default()).unwrap();
+            let text: String = rendered.view.glyphs.iter().map(|glyph| glyph.text.as_str()).collect();
+            let text: String = text.chars().filter(|ch| !ch.is_whitespace()).collect();
+            assert!(text.contains("Aphrase."), "{engine} {action}: {text}");
+            if base == 1 { assert!(text.contains("An&sign."), "{engine}: {text}"); }
+            assert_eq!(fs::read_to_string(&path).unwrap(), source);
+            f.backend.document_commit(id, &prepared.token, &result.build_id).unwrap();
+        }
+        let undone = f.backend.document_history(id, 2, false).unwrap();
+        assert_eq!(undone.sources, sources(&source.replace("\\textbf{word}", "\\textbf{phrase}")));
+        let redone = f.backend.document_history(id, undone.revision, true).unwrap();
+        assert_eq!(redone.sources, sources(&expected));
+        f.backend.save_document(id, redone.revision).unwrap();
+        let reopened = f.backend.open_project(Some(path)).unwrap();
+        assert_eq!(reopened.sources, sources(&expected));
+        // Invoke the installed engine directly from the saved project. The
+        // app's private build snapshots and bundled files are outside this path.
+        let saved_pdf = f.root.join("external");
+        fs::create_dir(&saved_pdf).unwrap();
+        let checked = Command::new(find_program(engine).unwrap())
+            .args(["-no-shell-escape", "-halt-on-error", "-interaction=nonstopmode"])
+            .arg(format!("-output-directory={}", saved_pdf.display()))
+            .arg("main.tex").current_dir(f.root.join("project")).output().unwrap();
+        assert!(checked.status.success(), "{engine}: {}", String::from_utf8_lossy(&checked.stdout));
+        assert!(saved_pdf.join("main.pdf").is_file(), "{engine}");
+        println!("{engine}: approved edit and insertion, Undo/Redo, Save/reopen and external build");
+    }
 }

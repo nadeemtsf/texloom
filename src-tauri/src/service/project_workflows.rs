@@ -297,7 +297,6 @@ impl Backend {
                 .map(|(name, text)| (name.clone(), text.as_bytes().to_vec())),
         );
         for (name, style, command) in [
-            ("studio.sty", STYLE, "\\StudioBlock"),
             ("texloom-objects.sty", OBJECT_STYLE, "\\TexloomObject"),
         ] {
             if !files.contains_key(name)

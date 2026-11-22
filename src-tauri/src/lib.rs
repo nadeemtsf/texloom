@@ -24,7 +24,7 @@ pub mod benchmark {
 use service::{
     Backend, CloseReply, DocumentSnapshot, EditorChange, EditorRange, ObjectEditRequest,
     ObjectPlan, PreparedReply, Project, RecoveryReply, ResolvedSelection, SelectionPoint, SelectionReply,
-    SourceEditReply, SourceLocation, SourceRectangle, TransformRequest, VisualOperation,
+    SourceEditReply, SourceLocation, SourceRectangle, VisualOperation,
 };
 use std::{collections::BTreeMap, sync::Arc};
 use tauri::{Manager, State};
@@ -362,11 +362,6 @@ fn document_discard(
 }
 
 #[tauri::command]
-async fn transform(request: TransformRequest) -> Result<String, String> {
-    let request=workspace_protocol::TransformCommandRequest{request};background(move||service::transform(request.request)).await
-}
-
-#[tauri::command]
 async fn plan_text_object(request: ObjectEditRequest) -> Result<ObjectPlan, String> {
     let request=workspace_protocol::ObjectCommandRequest{request};background(move||service::visual_plan(request.request)).await
 }
@@ -461,7 +456,6 @@ pub fn run() {
             document_prepare,
             document_commit,
             document_discard,
-            transform,
             source_from_pdf,
             pdf_from_source,
             plan_text_object,

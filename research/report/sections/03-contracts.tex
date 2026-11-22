@@ -1,7 +1,6 @@
 \section{What the checks establish and what they do not}
 The operation family is part of the contract. A displacement result cannot
-be inferred from a successful spacing edit, nor can a legacy positioned-block
-test certify the newer normal-text movement path. Table~\ref{tab:policies}
+be inferred from a successful spacing edit. Table~\ref{tab:policies}
 summarizes the implemented distinctions.
 
 \begin{table}[htbp]
@@ -13,7 +12,6 @@ Family & Acceptance evidence & Boundary\\
 Displacement / identity & Exact native source plan; target/page/glyph and non-text checks; complete same-renderer appearance & Bounded paint, target and page domain; not arbitrary document equivalence\\
 Replacement / reflow & Exact native plan; visible target; non-target extracted-text multiplicities; non-text object count & Allows layout changes; does not prove unchanged unrelated geometry or graphic appearance\\
 Parameter/style adapters & Exact source plan; eligible compile; independent readable inspection & Explicitly permits reflow; not the displacement preservation test\\
-Legacy positioned blocks & Native compatibility plan and existing frontend acceptance & Separate compatibility path; not independently certified normal-text displacement\\
 \bottomrule
 \end{tabularx}
 \caption{Distinct policies must remain distinct in experiments and claims.}
@@ -42,7 +40,7 @@ that every page supports layout manipulation. A valid intended edit can lie
 outside the supported subset and still be useful to a user, so its refusal is
 reported as lost coverage rather than relabelled as an unsafe request.
 
-\subsection{Reflow, parameters and legacy content}
+\subsection{Reflow and parameter changes}
 Replacement may intentionally change word length, wrapping and page count.
 The current reflow check preserves multiplicities of extracted non-target
 text, checks non-text object count and requires visible target content. Those
@@ -61,9 +59,16 @@ Semantic adapters likewise start with a bounded source grammar and exact
 operation rederivation, then require eligible compilation/readable independent
 inspection. Source-level image dimensions, table-column parameters and font/
 spacing changes can cause legitimate global reflow. Their useful coverage and
-failure cases need their own annotations. Legacy StudioBlock operations retain
-a compatibility contract; the existence of independent verification elsewhere
-does not imply that this older path has the same certification.
+failure cases need their own annotations.
+
+In the current source, replacement of mapped ordinary text and insertion of
+a plain paragraph produce candidates containing only the intended changes to
+the existing \LaTeX{} file. Native approval uses private tagged replicas to
+identify the target. Each tagged replica must match the corresponding untagged
+PDF under the identity policy. The reflow checks then compare text outside the
+target, non-text object count and visibility of the candidate target. The
+published candidate has no new marker or support style. Position changes
+continue to use the separate displacement policy.
 
 \subsection{Source preservation is not full TeX semantics}
 Preserving all bytes outside a declared patch is valuable even when a change

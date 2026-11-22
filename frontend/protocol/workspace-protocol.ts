@@ -76,7 +76,7 @@ const commands = new Set<keyof WorkspaceRequests>([
   'open_project', 'open_recent', 'recent_projects', 'create_project', 'import_project_archive', 'export_project_archive', 'import_image',
   'review_encoding', 'preview_encoding', 'convert_encoding', 'copy_document', 'project_recoveries', 'recover_document',
   'discard_document_recovery', 'typing_drafts', 'open_typing_draft', 'discard_typing_draft', 'close_document', 'mark_clean_exit',
-  'document_snapshot', 'document_prepare', 'describe_adapters', 'plan_adapter', 'transform', 'plan_text_object', 'describe_text_edit', 'preview_text_edit',
+  'document_snapshot', 'document_prepare', 'describe_adapters', 'plan_adapter', 'plan_text_object', 'describe_text_edit', 'preview_text_edit',
 ]);
 export function acceptWorkspaceReply<C extends keyof WorkspaceRequests>(name: C, args: WorkspaceRequests[C], value: unknown): WorkspaceReplies[C] {
   const a = args as unknown as Record<string, unknown>;
@@ -87,7 +87,7 @@ export function acceptWorkspaceReply<C extends keyof WorkspaceRequests>(name: C,
   else if (name === 'project_recoveries' || name === 'discard_document_recovery') saves(value);
   else if (name === 'mark_clean_exit' || name === 'export_project_archive') require(value === null, 'Invalid project acknowledgement: expected null');
   else if (name === 'close_document') { record(value, ['warning']); require(nullable(value.warning)); }
-  else if (name === 'preview_encoding' || name === 'copy_document' || name === 'transform' || name === 'preview_text_edit') require(text(value));
+  else if (name === 'preview_encoding' || name === 'copy_document' || name === 'preview_text_edit') require(text(value));
   else if (name === 'recent_projects') {
     require(Array.isArray(value) && value.length <= 20); const paths = new Set();
     for (const r of value) {
@@ -109,11 +109,16 @@ export function acceptWorkspaceReply<C extends keyof WorkspaceRequests>(name: C,
     record(value, name === 'plan_adapter' ? ['sources', 'file'] : ['sources', 'object_id', 'file', 'operation']);
     record(a.request); buffers(a.request.sources); buffers(value.sources);
     require(value.file === a.request.file && Object.hasOwn(value.sources, String(value.file)), 'Source plan changed its target');
-    const allowed = new Set([String(a.request.file), String(a.request.main), 'texloom-objects.sty', 'texloom-blocks.sty']);
+    const direct = name === 'plan_text_object' && (a.request.action === 'replace_source' || a.request.action === 'append_paragraph');
+    const allowed = new Set([String(a.request.file)]);
+    if (!direct) {
+      allowed.add(String(a.request.main));
+      allowed.add('texloom-objects.sty');
+    }
     for (const [file, source] of Object.entries(a.request.sources)) require(Object.hasOwn(value.sources, file) &&
       (allowed.has(file) || value.sources[file] === source), 'Source plan changed unrelated buffers');
     for (const file of Object.keys(value.sources)) require(Object.hasOwn(a.request.sources, file) || allowed.has(file), 'Source plan added an unrelated file');
-    if (name === 'plan_text_object') require(nonempty(value.object_id) && nonempty(value.operation));
+    if (name === 'plan_text_object') require(nonempty(value.object_id) && value.object_id === a.request.id && value.operation === a.request.action);
   } else throw new WorkspaceProtocolError('Missing project protocol validator');
   return value as WorkspaceReplies[C];
 }

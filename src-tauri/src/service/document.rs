@@ -687,9 +687,6 @@ impl Backend {
         let root = self.project_root(id)?;
         let mut sources = slot.session.sources().clone();
         sources.insert(texloom_build::project_io::PROFILE.into(),serde_json::to_string_pretty(&ProjectProfile{schema:1,main:slot.session.profile().main.clone(),engine:slot.session.profile().engine.clone()}).map_err(fail)?+"\n");
-        if !sources.contains_key("studio.sty") && sources.values().any(|s|s.contains("\\StudioBlock")||s.contains("\\usepackage{studio}")) {
-            sources.insert("studio.sty".into(),STYLE.into());
-        }
         if !sources.contains_key("texloom-objects.sty") && sources.values().any(|s|s.contains("\\TexloomObject")||s.contains("\\usepackage{texloom-objects}")) {
             sources.insert("texloom-objects.sty".into(),OBJECT_STYLE.into());
         }
@@ -1157,23 +1154,39 @@ mod tests {
         drop(backend);fs::remove_dir_all(root).unwrap();
     }
     #[test]
-    fn legacy_support_save_is_checked_and_external_style_changes_are_preserved() {
-        let source="\\documentclass{article}\n\\usepackage{studio}\n\\begin{document}\\StudioBlock{sig}{1}{10}{20}{100}{12}{Name}\\end{document}";
-        let (backend,project,root)=saved_project_fixture(source);
-        backend.save_document(&project.id,0).unwrap();backend.save_document(&project.id,0).unwrap();
-        assert_eq!(fs::read_to_string(root.join("project/studio.sty")).unwrap(),STYLE);
-        fs::write(root.join("project/studio.sty"),b"EXTERNAL STYLE").unwrap();
-        assert!(backend.save_document(&project.id,0).is_err());
-        assert_eq!(fs::read(root.join("project/studio.sty")).unwrap(),b"EXTERNAL STYLE");
-        assert_eq!(backend.document_snapshot(&project.id).unwrap().revision,0);
-        drop(backend);fs::remove_dir_all(root).unwrap();
+    fn startup_example_uses_only_latex_and_preserves_the_previous_example() {
+        let root = std::env::temp_dir().join(format!("texloom-example-{}", Uuid::new_v4().simple()));
+        let old = root.join("Examples/Visual text 0.3");
+        fs::create_dir_all(&old).unwrap();
+        fs::write(old.join("main.tex"), "Earlier example").unwrap();
+        fs::write(old.join("studio.sty"), "Earlier style").unwrap();
+        let backend = Backend::new(root.clone());
+        let project = backend.open_project(None).unwrap();
+        assert_eq!(project.sources, BTreeMap::from([("main.tex".into(), EXAMPLE.into())]));
+        assert_eq!(fs::read_to_string(old.join("main.tex")).unwrap(), "Earlier example");
+        assert_eq!(fs::read_to_string(old.join("studio.sty")).unwrap(), "Earlier style");
+        drop(backend);
+        fs::remove_dir_all(root).unwrap();
+    }
+    #[test]
+    fn save_and_copy_do_not_generate_a_style_for_old_source() {
+        let source = "\\documentclass{article}\n\\usepackage{studio}\n\\begin{document}Old source\\end{document}";
+        let (backend, project, root) = saved_project_fixture(source);
+        backend.save_document(&project.id, 0).unwrap();
+        let copy = PathBuf::from(backend.copy_document(&project.id, 0, &root.to_string_lossy()).unwrap());
+        for directory in [root.join("project"), copy] {
+            assert_eq!(fs::read(directory.join("main.tex")).unwrap(), source.as_bytes());
+            assert!(!directory.join("studio.sty").exists());
+        }
+        drop(backend);
+        fs::remove_dir_all(root).unwrap();
     }
 
     #[cfg(windows)]
     #[test]
     fn native_recovery_reopens_checked_files_and_discard_never_changes_editor_source() {
         use std::os::windows::fs::OpenOptionsExt;
-        let source="\\documentclass{article}\n\\usepackage{studio}\n\\begin{document}\\StudioBlock{sig}{1}{10}{20}{100}{12}{Before}\\end{document}";
+        let source="\\documentclass{article}\n\\begin{document}Before\\end{document}";
         let (backend,project,root)=saved_project_fixture(source);
         let edited=backend.document_edit(&project.id,0,"main.tex",vec![EditorChange{offset:source.find("Before").unwrap(),length:6,text:"Local".into()}],None).unwrap();
         let lock=fs::OpenOptions::new().read(true).share_mode(1).open(root.join("project/main.tex")).unwrap();
@@ -1184,7 +1197,7 @@ mod tests {
         let reopened=backend.recover_document(&project.id,edited.revision,&drafts[0].id,true).unwrap();
         assert!(reopened.recoveries.is_empty());
         assert_eq!(reopened.sources["main.tex"],edited.sources["main.tex"]);
-        assert_eq!(fs::read_to_string(root.join("project/studio.sty")).unwrap(),STYLE);
+        assert!(!root.join("project/studio.sty").exists());
         assert_eq!(backend.document_snapshot(&project.id).unwrap().sources,edited.sources);
         assert!(backend.project_recoveries(&reopened.id).unwrap().is_empty());
         let loaded=backend.document_snapshot(&reopened.id).unwrap();

@@ -395,7 +395,6 @@ impl Receipt {
         for name in [
             "preview.pdf",
             "preview.synctex.gz",
-            "preview.studio",
             "preview.fls",
         ] {
             let output = format!(".out/{name}");

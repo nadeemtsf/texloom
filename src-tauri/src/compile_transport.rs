@@ -56,7 +56,7 @@ mod tests {
         let pdf: Vec<u8> = (0..=255).collect();
         let result = CompileResult {
             ok: true, build_id: "build".into(), revision: 7, pdf: pdf.clone(),
-            blocks: vec![], objects: vec![], log: "Unicode: العربية".into(),
+            objects: vec![], log: "Unicode: العربية".into(),
             engine: "pdflatex".into(), seconds: 1.25, verification_eligible: true,
             passes: 2, diagnostics: vec![], job_id: 42,
         };

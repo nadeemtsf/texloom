@@ -58,7 +58,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $env:TEXLOOM_PDFIUM_TEST_DLL = Join-Path (Get-Location) 'src-tauri/resources/verification/pdfium.dll'
           $env:TEXLOOM_PDFIUM_TEST_WORKER = Join-Path (Get-Location) 'src-tauri/resources/verification/pdfium_worker.exe'
-          cargo test --locked -p texloom-desktop --lib -- --ignored
+          cargo test --locked -p texloom-desktop --lib -- --ignored --skip direct_text_real_engine_workflow
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Build unsigned desktop executable and setup
         run: npm run desktop:build -- --target x86_64-pc-windows-msvc

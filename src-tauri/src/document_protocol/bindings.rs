@@ -2,10 +2,10 @@
 use super::*;
 use crate::build_protocol::*;
 use crate::workspace_protocol::*;
-use crate::service::{Project,ProjectProfile,RecentProject,ImportedProject,ImportedImage,EncodingIssue,EncodingReview,EncodingChoice,AdapterRequest,AdapterControl,AdapterParameter,AdapterPlan,TransformRequest,ObjectEditRequest,ObjectPlan,LiteralEditRequest,LiteralRunView,SpacingEditRequest,SpacingView,TextEditModel,VisualOperation};
+use crate::service::{Project,ProjectProfile,RecentProject,ImportedProject,ImportedImage,EncodingIssue,EncodingReview,EncodingChoice,AdapterRequest,AdapterControl,AdapterParameter,AdapterPlan,ObjectEditRequest,ObjectPlan,LiteralEditRequest,LiteralRunView,SpacingEditRequest,SpacingView,TextEditModel,VisualOperation};
 use crate::service::{
     CloseReply, DocumentSnapshot, EditorSelection, PreparedReply, RecoveryReply, RecoveryStatus,
-    SelectionReply, SourceEditReply, CompileResult, PositionedBlock, MappedTextObject,
+    SelectionReply, SourceEditReply, CompileResult, MappedTextObject,
     SourceLocation, SourceRectangle, SelectionPoint, ResolvedSelection,
     DraftParagraphPosition, DraftSourceIntent, SourceDraftOutcome, SourceDraftRefusalReason, SourceDraftReply, SourceTarget, SourceTargetsReply,
 };
@@ -40,7 +40,6 @@ pub fn declarations() -> String {
         SourceTargetsCommand, SourceIntentCommand, SourceIntentStatusCommand,
         texloom_build::engine::Severity,
         texloom_build::engine::Diagnostic,
-        PositionedBlock,
         MappedTextObject,
         CompileResult,
         crate::compile_transport::UnverifiedCompilePreview,
@@ -60,8 +59,8 @@ pub fn declarations() -> String {
         ResolveSelectionRequest,
         texloom_build::persistence::SaveState,texloom_build::persistence::PendingSave,texloom_build::recovery::Draft,texloom_build::recovery::Inventory,
         Project,ProjectProfile,RecentProject,ImportedProject,ImportedImage,EncodingIssue,EncodingReview,EncodingChoice,
-        AdapterRequest,AdapterControl,AdapterParameter,AdapterPlan,TransformRequest,ObjectEditRequest,ObjectPlan,LiteralEditRequest,LiteralRunView,SpacingEditRequest,SpacingView,TextEditModel,VisualOperation,
-        EmptyRequest,OpenProjectRequest,PathRequest,CreateProjectRequest,ProjectRequest,DraftRequest,SourceControlsRequest,AdapterCommandRequest,ObjectCommandRequest,TransformCommandRequest,TextModelRequest,TextPreviewRequest,EncodingPreviewRequest,ConvertEncodingRequest,CopyProjectRequest,SaveRecoveryRequest,DiscardSaveRequest,ProjectFileRequest,CloseProjectRequest,PrepareVisualRequest
+        AdapterRequest,AdapterControl,AdapterParameter,AdapterPlan,ObjectEditRequest,ObjectPlan,LiteralEditRequest,LiteralRunView,SpacingEditRequest,SpacingView,TextEditModel,VisualOperation,
+        EmptyRequest,OpenProjectRequest,PathRequest,CreateProjectRequest,ProjectRequest,DraftRequest,SourceControlsRequest,AdapterCommandRequest,ObjectCommandRequest,TextModelRequest,TextPreviewRequest,EncodingPreviewRequest,ConvertEncodingRequest,CopyProjectRequest,SaveRecoveryRequest,DiscardSaveRequest,ProjectFileRequest,CloseProjectRequest,PrepareVisualRequest
     );
     text.push_str("export interface DocumentRequests {\n");
     macro_rules! commands {
@@ -132,7 +131,7 @@ pub fn declarations() -> String {
         copy_document:CopyProjectRequest=>String,project_recoveries:ProjectRequest=>Vec<texloom_build::persistence::PendingSave>,recover_document:SaveRecoveryRequest=>Project,discard_document_recovery:DiscardSaveRequest=>Vec<texloom_build::persistence::PendingSave>,
         typing_drafts:EmptyRequest=>texloom_build::recovery::Inventory,open_typing_draft:DraftRequest=>Project,discard_typing_draft:DraftRequest=>texloom_build::recovery::Inventory,close_document:CloseProjectRequest=>CloseReply,mark_clean_exit:EmptyRequest=>(),
         document_snapshot:ProjectRequest=>DocumentSnapshot,document_prepare:PrepareVisualRequest=>PreparedReply,
-        describe_adapters:SourceControlsRequest=>Vec<AdapterControl>,plan_adapter:AdapterCommandRequest=>AdapterPlan,transform:TransformCommandRequest=>String,plan_text_object:ObjectCommandRequest=>ObjectPlan,describe_text_edit:TextModelRequest=>TextEditModel,preview_text_edit:TextPreviewRequest=>String,
+        describe_adapters:SourceControlsRequest=>Vec<AdapterControl>,plan_adapter:AdapterCommandRequest=>AdapterPlan,plan_text_object:ObjectCommandRequest=>ObjectPlan,describe_text_edit:TextModelRequest=>TextEditModel,preview_text_edit:TextPreviewRequest=>String,
     );
     text.push_str("}\n");
     text.lines().map(str::trim_end).collect::<Vec<_>>().join("\n") + "\n"
@@ -166,7 +165,7 @@ pub fn fixtures() -> Value {
     let binary_result = CompileResult {
         ok: true, build_id: "binary-fixture".into(), revision: 7,
         pdf: b"%PDF-1.7\n".iter().copied().chain(0..=255).collect(),
-        blocks: vec![], objects: vec![], log: "Unicode: العربية".into(),
+        objects: vec![], log: "Unicode: العربية".into(),
         engine: "pdflatex".into(), seconds: 0.25, verification_eligible: true,
         passes: 2, diagnostics: vec![], job_id: 44,
     };
@@ -220,15 +219,12 @@ pub fn fixtures() -> Value {
             token: None, purpose: Some(BuildPurpose::Export), request_id: 1 },
         "compile_success": CompileResult { ok: true, build_id: "c".repeat(32), revision: 7,
             pdf: b"%PDF-1.7\n".to_vec(),
-            blocks: vec![PositionedBlock { id: "legacy".into(), file: "main.tex".into(), page: 1,
-                x: 12.0, y: 24.0, width: 100.0, size: 12.0, height: 15.0,
-                content: "A".into(), start: 0, end: 1, line: 1 }],
             objects: vec![MappedTextObject { id: "signature".into(), file: "main.tex".into(),
                 dx: 0.0, dy: 12.0, plain_text: Some("A".into()), content: "A".into(), line: 1, start: 0, end: 1 }],
             log: "Fixture only; not a renderable PDF".into(), engine: "pdflatex".into(), seconds: 0.25,
             verification_eligible: true, passes: 2, diagnostics: vec![], job_id: 42 },
         "compile_failure": CompileResult { ok: false, build_id: "d".repeat(32), revision: 7,
-            pdf: vec![], blocks: vec![], objects: vec![], log: "Compiler initialization failed".into(),
+            pdf: vec![], objects: vec![], log: "Compiler initialization failed".into(),
             engine: "pdflatex".into(), seconds: 0.1, verification_eligible: false, passes: 0,
             diagnostics: vec![texloom_build::engine::Diagnostic { code: "compiler_preflight_failed".into(),
                 severity: texloom_build::engine::Severity::Error, message: "Compiler unavailable".into(), file: None, line: None }],

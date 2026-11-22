@@ -621,3 +621,24 @@ core candidate example. Native recovery and history are exercised by the
 separate draft tests. This evidence covers those inputs and the protected
 source path. Visual selection and an independent general reorder policy
 remain to be validated.
+
+\subsection{Removing the positioned-block dependency}
+The startup sample contains one \code{.tex} file. The app no longer supplies
+\code{studio.sty} to new examples, private builds or saved copies. Existing
+project files retain their bytes. The source-native workflow offers plain
+paragraph insertion before the document end, and edits supported text and
+spacing directly in the selected source range. A source-to-PDF navigation
+action replaces the source toolbar's block conversion.
+
+The regression uses a disposable Article with a formatted target and
+neighbor paragraphs. For each of pdf\LaTeX{}, Xe\LaTeX{} and Lua\LaTeX{},
+the native service prepares and verifies a literal replacement followed by
+a paragraph containing an escaped ampersand. The expected source is compared
+byte for byte, the verified PDF is inspected for the edited text, and the
+original on disk is checked before Save. The test exercises Undo, Redo,
+Save and reopen, then calls the installed engine directly on the saved file.
+The tagged verification replicas stay private through the workflow.
+
+Replacement uses two additional private builds and paragraph insertion uses
+one. These are operation counts. Interactive latency, unsupported constructs
+and native Windows input acceptance require separate evaluation.

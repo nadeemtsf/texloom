@@ -8,7 +8,7 @@ This is a separate desktop implementation. It does not replace or convert the ea
 
 Download the Windows x64 `Setup.exe` from [GitHub Releases](https://github.com/nadeemtsf/texloom/releases). Preview builds are unsigned. Setup can install WebView2 when needed. It checks whether an existing LaTeX distribution can compile the bundled Article template. If it finds no compiler, setup offers the official MiKTeX wizard and installs the packages needed by Texloom's bundled templates. This requires an internet connection and Windows 11 x64. You can skip it and install MiKTeX or TeX Live later.
 
-Once setup verifies a sample compile, you can open a `.tex` file and compile it. Projects can require extra LaTeX packages or fonts. Check the compiler output for missing dependencies. Legacy projects using `\StudioBlock` still need `studio.sty` alongside their source when you compile them outside Texloom.
+Once setup verifies a sample compile, you can open a `.tex` file and compile it. Projects can require extra LaTeX packages or fonts. Check the compiler output for missing dependencies.
 
 ## Development status
 
@@ -82,7 +82,7 @@ The PowerShell execution-policy setting in the launcher applies to that process;
 
 Open a main .tex file with its supporting styles/images and select its engine. Rust owns canonical sources and shared undo/redo. Builds use private copied snapshots; typing does not write the original files. **Save** checks the loaded disk fingerprints and performs a recoverable multi-file write. External changes are refused, with the editor retained and a project-copy escape.
 
-Select objects mode resolves supported PDF text to a unique source unit; Read text permits highlighting/copying. A group frame shows the selected source scope. Supported normal-text movement retains the unit's contribution to flow and requires a compiled, independently checked candidate before committing. Double-click opens protected literal fields or an explicit LaTeX fallback; recognized numeric line-break spacing has separate reflow checks. Existing StudioBlock positioning remains an isolated compatibility adapter. Unsupported macros, geometry, paint or ambiguous identity receive a refusal and source fallback.
+Select objects mode resolves supported PDF text to a unique source unit; Read text permits highlighting/copying. A group frame shows the selected source scope. Supported normal-text movement retains the unit's contribution to flow and requires a compiled, independently checked candidate before committing. Double-click opens protected literal fields or an explicit LaTeX fallback; recognized numeric line-break spacing has separate reflow checks. Use **+ Paragraph** to append plain text and **Show in PDF** to find the source cursor in the compiled document. Editing ordinary PDF text or adding a paragraph updates the existing LaTeX file without adding a support style. Dragging text to a new position still uses Texloom’s separate movement adapter. Unsupported macros, geometry, paint or ambiguous identity receive a refusal and source fallback.
 
 Automatic recovery is separate from Save. Protection status stays visible beside the source, and storage errors leave editing/Save available. Recover work opens verified closed drafts for review with source and undo/redo; it never automatically overwrites originals. Earlier crash drafts stay until explicitly discarded. Missing-folder recovery can save source files to a new directory but cannot reconstruct missing images/assets. See docs/UNSAVED-RECOVERY.md.
 
