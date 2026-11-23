@@ -198,6 +198,7 @@ struct Build {
 
 pub struct Backend {
     root: PathBuf,
+    draft_recovery_enabled: bool,
     projects: Mutex<HashMap<String, PathBuf>>,
     builds: Mutex<HashMap<String, Arc<Build>>>,
     scheduler: texloom_build::scheduler::Scheduler,
@@ -214,6 +215,7 @@ impl Backend {
     pub fn new(root: PathBuf) -> Self {
         Self {
             root,
+            draft_recovery_enabled: true,
             projects: Mutex::new(HashMap::new()),
             builds: Mutex::new(HashMap::new()),
             scheduler: Default::default(),
@@ -225,6 +227,10 @@ impl Backend {
             verifier: None,
             recent_lock:Mutex::new(()),
         }
+    }
+    pub(crate) fn with_draft_recovery(mut self, enabled: bool) -> Self {
+        self.draft_recovery_enabled = enabled;
+        self
     }
     pub fn open_project(&self, path: Option<String>) -> Result<Project> {
         self.open_project_with_profile(path,None)
@@ -294,7 +300,9 @@ impl Backend {
         disk.track_project_profile()?;
         let id = Uuid::new_v4().simple().to_string();
         let mut slot = document::DocumentSlot::new_with_engine(sources.clone(), main.clone(),engine.clone())?;
-        slot.start_typing_recovery(&self.root, &disk);
+        if self.draft_recovery_enabled {
+            slot.start_typing_recovery(&self.root, &disk);
+        }
         self.documents.lock().map_err(fail)?.insert(
             id.clone(),
             slot,

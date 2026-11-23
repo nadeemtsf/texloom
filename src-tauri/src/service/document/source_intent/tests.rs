@@ -25,6 +25,37 @@ fn refused(reply: &SourceDraftReply, requested: u64, observed: u64, expected: So
 }
 
 #[test]
+fn paused_draft_recovery_preserves_old_drafts_and_allows_edit_save_and_close() {
+    fixture(|_, project, root| {
+        let recovery_store = root.join("paused-app/.source-recovery");
+        fs::create_dir_all(&recovery_store).unwrap();
+        let old_draft = recovery_store.join("existing-draft");
+        fs::write(&old_draft, "retained").unwrap();
+        let backend = Backend::new(root.join("paused-app")).with_draft_recovery(false);
+        let input = root.join("project/main.tex");
+        let opened = backend.open_project(Some(input.to_string_lossy().into_owned())).unwrap();
+        assert_eq!(opened.sources, project.sources);
+        let intent = DraftSourceIntent::ReplaceLiteralParagraph {
+            target: targets(&backend, &opened, 0)[0].handle.clone(),
+            text: "Updated paragraph.".into(),
+        };
+        let reply = backend.document_source_intent(&opened.id, 0, &"1".repeat(32), intent).unwrap();
+        applied(&reply, 0, 1, true);
+        assert!(reply.snapshot.recovery.draft_id.is_none());
+        assert_eq!(fs::read_to_string(&input).unwrap(), SOURCE);
+        assert!(backend.typing_drafts().is_err());
+        assert!(backend.open_typing_draft("existing-draft").is_err());
+        assert!(backend.discard_typing_draft("existing-draft").is_err());
+        assert!(backend.retry_typing_recovery(&opened.id, 1).is_err());
+        backend.save_document(&opened.id, 1).unwrap();
+        assert_eq!(fs::read_to_string(&input).unwrap(), reply.snapshot.sources["main.tex"]);
+        backend.close_document_checked(&opened.id, 1, true).unwrap();
+        assert_eq!(fs::read_to_string(old_draft).unwrap(), "retained");
+        assert_eq!(fs::read_dir(recovery_store).unwrap().count(), 1);
+    });
+}
+
+#[test]
 fn adjacent_reorder_protects_two_changed_ranges_in_one_history_entry() {
     fixture(|backend, project, root| {
         let list = targets(backend, project, 0);
@@ -219,6 +250,7 @@ fn strict_tagged_request_rejects_extra_fields_invalid_combinations_and_limits() 
     });
 }
 
+#[cfg(feature = "draft-recovery-tests")]
 #[test]
 fn recovery_failure_is_uncertain_cached_and_does_not_mutate_canonical_source() {
     fixture(|b,p,root| {
@@ -252,6 +284,7 @@ fn recovery_failure_is_uncertain_cached_and_does_not_mutate_canonical_source() {
     });
 }
 
+#[cfg(feature = "draft-recovery-tests")]
 #[test]
 fn accepted_draft_recovers_exact_shared_history_without_operation_or_visual_authority() {
     let root=std::env::temp_dir().join(format!("texloom-intent-restart-{}",Uuid::new_v4().simple()));

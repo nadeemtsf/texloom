@@ -40,7 +40,7 @@ async function setup({tracing=false,presentation=false}={}){
   monaco:{languages:{register(){},setMonarchTokensProvider(){},setLanguageConfiguration(){}},editor:{defineTheme(){},createModel:()=>model,create:()=>editor,EndOfLineSequence:{LF:0}},KeyMod:{CtrlCmd:1,Shift:2},KeyCode:{KeyS:1,Enter:2,KeyZ:3,KeyY:4}},
   pdfjs:{GlobalWorkerOptions:{}},structuredClone,crypto:require('node:crypto').webcrypto,
   document:{getElementById:element,createElement:()=>element('generated-'+Math.random()),querySelector:()=>null,querySelectorAll:()=>[],addEventListener(){}},window:{addEventListener(){}},
-  getCurrentWindow:()=>({onCloseRequested(fn){control.onClose=fn}}),open:async()=>null,save:async()=>control.save?.()??null,confirm:async()=>false,
+  draftRecoveryEnabled:false,getCurrentWindow:()=>({onCloseRequested(fn){control.onClose=fn}}),open:async()=>null,save:async()=>control.save?.()??null,confirm:async()=>false,
   installPerformanceDiagnostics:()=>installPerformanceDiagnostics({enabled:tracing,document:{visibilityState:'visible'},
     ...(presentation?{requestFrame:fn=>{control.frames.set(++control.frameId,fn);return control.frameId},cancelFrame:id=>control.frames.delete(id)}:{})}),
   nativeInvoke:(name,args)=>native.invoke(name,args),
@@ -130,18 +130,28 @@ test('an ordinary compile waiting for an old client never compiles a newly opene
  await pending;assert.equal(calls,0);assert.equal(t.run('state.busy'),false);
 });
 
-test('clean close marks the cache while refusing a dirty close preserves its recovery copies',async()=>{
- const t=await setup();let prevented=false;
- await t.control.onClose({preventDefault(){prevented=true}});
- assert.equal(t.control.cleanExits,1);assert.equal(prevented,false);
+test('clean close marks the cache and canceling a dirty close keeps the editor open',async()=>{
+ const saved=await setup();let prevented=false;
+ await saved.control.onClose({preventDefault(){prevented=true}});
+ assert.equal(saved.control.cleanExits,1);assert.equal(prevented,false);
+ const t=await setup();
  t.run("state.sources['main.tex']='Unsaved edit'");
- await t.control.onClose({preventDefault(){prevented=true}});
- assert.equal(prevented,true);assert.equal(t.control.cleanExits,1);
+ const closing=t.control.onClose({preventDefault(){prevented=true}});
+ const dialog=t.elements.get('unsaved-close-dialog');
+ assert.equal(dialog.open,true);
+ dialog.returnValue='cancel';dialog.listeners.get('close')();
+ await closing;
+ assert.equal(prevented,true);assert.equal(t.control.cleanExits,undefined);
+ assert.equal(t.run("state.sources['main.tex']"),'Unsaved edit');
 });
 
 test('restored work remains unsaved until explicitly saved even if buffers match the initial view',async()=>{
  const t=await setup();t.run('state.restoredDirty=true');let prevented=false;
- await t.control.onClose({preventDefault(){prevented=true}});
+ const closing=t.control.onClose({preventDefault(){prevented=true}});
+ const dialog=t.elements.get('unsaved-close-dialog');
+ assert.equal(dialog.open,true);
+ dialog.returnValue='cancel';dialog.listeners.get('close')();
+ await closing;
  assert.equal(prevented,true);assert.equal(t.control.cleanExits,undefined);assert.equal(t.control.closedRequests,undefined);
 });
 test('changing only the main document or engine still marks the project unsaved',async()=>{
@@ -157,7 +167,7 @@ test('a stale native close refusal keeps the editor available and does not mark 
 });
 
 test('an unsynchronized editor cannot close while claiming the latest text is protected',async()=>{
- const t=await setup();t.run("state.client.error=new Error('Acknowledgement failed');state.sources['main.tex']='Unsynchronized local edit';closeController.keepDraft=true");let prevented=false;
+ const t=await setup();t.run("state.client.error=new Error('Acknowledgement failed');state.sources['main.tex']='Unsynchronized local edit';closeController.approvedClose=true");let prevented=false;
  await t.control.onClose({preventDefault(){prevented=true}});
  assert.equal(prevented,true);assert.equal(t.control.cleanExits,undefined);assert.equal(t.control.closedRequests,undefined);
  assert.equal(t.run("state.sources['main.tex']"),'Unsynchronized local edit');

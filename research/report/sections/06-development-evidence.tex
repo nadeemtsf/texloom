@@ -583,6 +583,12 @@ the real native compile and pin commands. The controlled shell schedules
 above cover preview replacement and the error display. Native window input
 remains a separate acceptance step.
 
+\subsection{Draft-recovery configuration}
+Normal desktop builds now leave unsaved-draft journaling disabled. Explicit
+Save retains the existing disk fingerprint and interrupted-write safeguards.
+Earlier recovery experiments measured a configuration with journaling enabled
+and cannot be used to estimate timings for the default desktop configuration.
+
 \subsection{Recovery confirmation and rejected sessions}
 A confirmation for restoring unsaved work now reserves the recovery action
 before a competing discard can begin. The interrupted Save handlers use the

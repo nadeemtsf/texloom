@@ -414,7 +414,10 @@ pub fn run() {
             let root = app.path().app_data_dir()?;
             std::fs::create_dir_all(&root)?;
             let resources = app.path().resource_dir()?;
-            app.manage(Arc::new(Backend::new(root).with_verification_resources(resources)));
+            let draft_recovery = include_str!("../../web/draft-recovery.json").trim() == "true";
+            app.manage(Arc::new(Backend::new(root)
+                .with_draft_recovery(draft_recovery)
+                .with_verification_resources(resources)));
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
