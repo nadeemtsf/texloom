@@ -125,7 +125,7 @@ fn standalone_heading_lines_preserve_surrounding_paragraphs_and_exact_bytes() {
 
 #[test]
 fn literal_label_stays_with_its_heading_in_the_opaque_region() {
-    let heading = "\\subsection{مقدمة} \\label {sec:ch_1.intro}";
+    let heading = "\\subsection[Introduction]{مقدمة} \\label {sec:ch_1.intro}";
     let source = document(&format!("Before.\r\n  {heading}\r\nAfter."));
     let s = session(&source);
     let projection = s.source_projection("main.tex").unwrap();
@@ -145,7 +145,13 @@ fn literal_label_stays_with_its_heading_in_the_opaque_region() {
 #[test]
 fn complex_headings_do_not_expose_unproven_paragraphs() {
     for heading in [
-        "\\section[Short]{Long}",
+        "\\section*[Short]{Long}",
+        "\\section[Short {formatted}]{Long}",
+        "\\section[Short[bracket]]{Long}",
+        "\\section[Short\ncontinued]{Long}",
+        "\\section[Short% comment]{Long}",
+        "\\section[Short{Long}",
+        "\\section[]{Long}",
         "\\section{\\textbf{Title}}",
         "\\section{^^5cfoo}",
         "\\section{Title} inline",

@@ -813,8 +813,8 @@ fn verified_reorder_real_engine_workflow() {
     let long = "First paragraph wraps across PDF lines. ".repeat(5).trim_end().to_owned();
     let middle = "This intervening paragraph stays ahead of the destination.";
     let short = "The destination paragraph is shorter.";
-    let source = format!("\\documentclass[12pt]{{report}}\n\\begin{{document}}\n\\part{{Main matter}}\n\\chapter{{First chapter}}\\label{{ch:first}}\nText before heading.\n\\section{{Ordering}}\\label{{sec:ordering}}\n{long}\n\n{middle}\n\n{short}\n\\subsection*{{Next scope}}\nA neighboring paragraph stays here.\n\\end{{document}}\n");
-    let swapped = format!("\\documentclass[12pt]{{report}}\n\\begin{{document}}\n\\part{{Main matter}}\n\\chapter{{First chapter}}\\label{{ch:first}}\nText before heading.\n\\section{{Ordering}}\\label{{sec:ordering}}\n{middle}\n\n{short}\n\n{long}\n\\subsection*{{Next scope}}\nA neighboring paragraph stays here.\n\\end{{document}}\n");
+    let source = format!("\\documentclass[12pt]{{report}}\n\\begin{{document}}\n\\part{{Main matter}}\n\\chapter{{First chapter}}\\label{{ch:first}}\nText before heading.\n\\section[Order]{{Ordering}}\\label{{sec:ordering}}\n{long}\n\n{middle}\n\n{short}\n\\subsection*{{Next scope}}\nA neighboring paragraph stays here.\n\\end{{document}}\n");
+    let swapped = format!("\\documentclass[12pt]{{report}}\n\\begin{{document}}\n\\part{{Main matter}}\n\\chapter{{First chapter}}\\label{{ch:first}}\nText before heading.\n\\section[Order]{{Ordering}}\\label{{sec:ordering}}\n{middle}\n\n{short}\n\n{long}\n\\subsection*{{Next scope}}\nA neighboring paragraph stays here.\n\\end{{document}}\n");
     for engine in ["pdflatex", "xelatex", "lualatex"] {
         let mut f = Fixture::new(&source);
         prepare_test_verifier(&mut f);
@@ -853,6 +853,7 @@ fn verified_reorder_real_engine_workflow() {
         assert!(result.status.success(), "{engine}: {}", String::from_utf8_lossy(&result.stdout));
         let aux = fs::read_to_string(f.root.join("project/main.aux")).unwrap();
         assert!(aux.contains(r"\newlabel{sec:ordering}{"), "{engine}: section label missing");
+        assert!(aux.contains("Order}"), "{engine}: short title missing from auxiliary output");
         println!("{engine}: reordered a wrapped paragraph in both directions and verified history, Save and external compile");
     }
 }
