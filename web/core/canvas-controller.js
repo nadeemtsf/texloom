@@ -158,7 +158,7 @@ export class CanvasController {
         destination=destinationAt(e);
         if(destination){
           if(!cue){
-            cue=document.createElement('div');cue.className='paragraph-drop-line';cue.textContent='Reorder here';
+            cue=document.createElement('div');cue.className='paragraph-drop-line';
             shell.append(cue);
           }
           const {line,y:dropY}=destination;
