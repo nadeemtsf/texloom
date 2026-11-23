@@ -138,6 +138,11 @@ test('a drop at an independent neighbor is routed to reorder and Alt keeps free 
   t.c.drag(t.event,t.frame,t.selection);
   t.frame.events.get('pointermove')({pointerId:7,clientX:35,clientY:94,altKey});
   assert.equal(reorders.length,0);
+  if(!altKey){
+   assert.equal(t.generated[0].className,'paragraph-drop-line');
+   assert.equal(t.generated[0].textContent,undefined);
+   assert.equal(t.generated[0].style.top,'94px');
+  }
   await t.frame.events.get('pointerup')({pointerId:7,clientX:35,clientY:94,altKey});
   if(!altKey){
    assert.deepEqual(reorders.pop(),[t.selection,{line:neighbor,before:false,y:94}]);
