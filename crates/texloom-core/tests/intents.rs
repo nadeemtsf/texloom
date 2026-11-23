@@ -32,14 +32,20 @@ fn target(s: &Session, occurrence: usize) -> EntityReference {
 
 #[test]
 fn paragraph_reordering_cannot_cross_a_heading_boundary() {
-    let s = state("Before.\r\n\\section{Title}\r\nAfter.\r\n\r\nNext.");
-    assert!(matches!(
-        s.plan_visual_paragraph_order(&target(&s, 0), &target(&s, 1), ParagraphPosition::After),
-        Err(PlanError::ExpectedContinuousParagraphs)
-    ));
-    assert!(s.plan_visual_paragraph_order(
-        &target(&s, 1), &target(&s, 2), ParagraphPosition::After
-    ).is_ok());
+    for heading in [
+        r"\section{Title}",
+        r"\chapter{Title}\label{ch:title}",
+        r"\part*{Title}",
+    ] {
+        let s = state(&format!("Before.\r\n{heading}\r\nAfter.\r\n\r\nNext."));
+        assert!(matches!(
+            s.plan_visual_paragraph_order(&target(&s, 0), &target(&s, 1), ParagraphPosition::After),
+            Err(PlanError::ExpectedContinuousParagraphs)
+        ));
+        assert!(s.plan_visual_paragraph_order(
+            &target(&s, 1), &target(&s, 2), ParagraphPosition::After
+        ).is_ok());
+    }
 }
 
 #[test]

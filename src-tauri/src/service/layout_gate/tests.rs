@@ -813,8 +813,8 @@ fn verified_reorder_real_engine_workflow() {
     let long = "First paragraph wraps across PDF lines. ".repeat(5).trim_end().to_owned();
     let middle = "This intervening paragraph stays ahead of the destination.";
     let short = "The destination paragraph is shorter.";
-    let source = format!("\\documentclass[12pt]{{article}}\n\\begin{{document}}\nText before heading.\n\\section{{Ordering}}\\label{{sec:ordering}}\n{long}\n\n{middle}\n\n{short}\n\\subsection*{{Next scope}}\nA neighboring paragraph stays here.\n\\end{{document}}\n");
-    let swapped = format!("\\documentclass[12pt]{{article}}\n\\begin{{document}}\nText before heading.\n\\section{{Ordering}}\\label{{sec:ordering}}\n{middle}\n\n{short}\n\n{long}\n\\subsection*{{Next scope}}\nA neighboring paragraph stays here.\n\\end{{document}}\n");
+    let source = format!("\\documentclass[12pt]{{report}}\n\\begin{{document}}\n\\part{{Main matter}}\n\\chapter{{First chapter}}\\label{{ch:first}}\nText before heading.\n\\section{{Ordering}}\\label{{sec:ordering}}\n{long}\n\n{middle}\n\n{short}\n\\subsection*{{Next scope}}\nA neighboring paragraph stays here.\n\\end{{document}}\n");
+    let swapped = format!("\\documentclass[12pt]{{report}}\n\\begin{{document}}\n\\part{{Main matter}}\n\\chapter{{First chapter}}\\label{{ch:first}}\nText before heading.\n\\section{{Ordering}}\\label{{sec:ordering}}\n{middle}\n\n{short}\n\n{long}\n\\subsection*{{Next scope}}\nA neighboring paragraph stays here.\n\\end{{document}}\n");
     for engine in ["pdflatex", "xelatex", "lualatex"] {
         let mut f = Fixture::new(&source);
         prepare_test_verifier(&mut f);
