@@ -1,5 +1,9 @@
 # Unsaved source and history recovery
 
+Unsaved-draft recovery is off in normal desktop builds. Closing with edits offers Save and close, Discard changes, or Cancel. Earlier drafts stay on disk. Interrupted Save recovery remains available. The description below documents the optional workflow.
+
+To re-enable the workflow in a development build, set `web/draft-recovery.json` to `true`. Dedicated frontend checks run with `TEXLOOM_TEST_DRAFT_RECOVERY=1` and `node --test tests/typing-recovery.test.mjs`. Run its native checks with `cargo test --locked -p texloom-desktop --features draft-recovery-tests --lib`.
+
 P7 now journals accepted source edits, profile changes, undo/redo, selections and approved visual commits independently of explicit Save. Canonical buffers stay in Rust. Recovery storage is private app data, under `.source-recovery`, and never overwrites project originals. An acknowledgement reports the protected revision and any recovery error separately from source acceptance.
 
 Opening a project creates a flushed source/history checkpoint. Each accepted mutation appends a bounded record and calls `sync_all` before reporting that revision protected. If storage fails, the edit remains accepted, the protection acknowledgement reports the failure, and a persistent source-panel warning offers Save/copy and a protection retry. Compilation cannot hide that warning. Save uses the existing external-edit/recoverable-save protocol, then checkpoints the new saved baseline. A separate recovery failure cannot turn a successful disk Save into a reported failure.

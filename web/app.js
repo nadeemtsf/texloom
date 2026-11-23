@@ -24,6 +24,7 @@ import {inside,intersects} from './core/geometry.js';
 import {DocumentClient,editorText,sameSources} from './core/document-client.js';
 import {TypingRecoveryController} from './core/typing-recovery.js';
 import {CloseController} from './core/close-controller.js';
+import draftRecoveryEnabled from './draft-recovery.json';
 import {validateSelectionProbe} from './core/selection-proof.js';
 import {createWorkspaceInvoke} from './core/workspace-protocol.js';
 import {ProjectControls} from './core/project-controls.js';
@@ -110,10 +111,10 @@ const canvas=new CanvasController({
   selected:selection=>showObjectInspector(selection),
   notify:text=>toast(text)
 });
-const typingRecovery=new TypingRecoveryController({invoke,document,getState:()=>state,isDirty:dirty,
+const typingRecovery=draftRecoveryEnabled?new TypingRecoveryController({invoke,document,getState:()=>state,isDirty:dirty,
   adopt:project=>openProject(null,project),notify:toast,confirm,saveCopy:saveProjectCopy,
   lock:()=>{state.saving=true;editorReadOnly();updateControls()},
-  unlock:()=>{state.saving=false;editorReadOnly();updateControls()}});
+  unlock:()=>{state.saving=false;editorReadOnly();updateControls()}}):null;
 const projectControls=new ProjectControls({document,invoke,getState:()=>state,flush:()=>state.client?.flush(),isDirty:dirty,
   lock:()=>{state.saving=true;editorReadOnly();updateControls()},unlock:()=>{state.saving=false;editorReadOnly();updateControls()},
   confirm,open,save,adopt:(project,options)=>openProject(null,project,options),compile,notify:toast,
@@ -168,7 +169,7 @@ function activateSourceFile(file){
 function fresh(){return !!state.result&&state.result.verification_eligible!==false&&state.revision===state.compiled&&!state.previewZooming&&!state.busy&&!state.client?.pending&&!state.client?.error&&!state.mutating&&!state.saving&&!state.composing&&!state.opening}
 function canExport(){return !!state.project&&!!state.client&&!state.busy&&!state.opening&&!state.mutating&&!state.composing&&!state.saving&&!state.client.error}
 function updateControls(){
-  typingRecovery.renderProtection();
+  typingRecovery?.renderProtection();
   const ready=fresh(),object=ready&&!!state.objectSelection;
   for(const id of ['add-text','show-pdf'])$(id).disabled=!ready;
   for(const id of ['object-apply','object-edit','object-source'])$(id).disabled=!object;
@@ -340,7 +341,7 @@ async function openProject(path=null,supplied=null,{compileOnOpen=false}={}){
     if(previousProject)await invoke('close_document',{projectId:previousProject,revision:previousRevision,discardRecovery:true})
       .then(reply=>{if(reply?.warning)toast(reply.warning)}).catch(error=>toast(message(error)));
     renderSaveRecoveries();
-    await typingRecovery.refresh();
+    await typingRecovery?.refresh();
     if(project.restored)$('save-copy').classList.remove('hidden');
     if(project.source_only){
       $('banner').textContent='The original project folder is missing. Recovered source is editable. Save a copy writes source files; images and other missing assets must be restored separately.';
@@ -1020,7 +1021,16 @@ $('fit').onclick=()=>{pdfNavigation.cancelZoom();state.zoom=0;renderPDF()};
 let resizeTimer;window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{if(!state.zoom)renderPDF()},180)});
 $('log-toggle').onclick=()=>$('log-panel').classList.toggle('hidden');$('close-log').onclick=()=>$('log-panel').classList.add('hidden');
 $('banner').onclick=()=>$('log-panel').classList.remove('hidden');
+function chooseUnsavedAction(){
+  const dialog=$('unsaved-close-dialog');
+  dialog.returnValue='';
+  return new Promise(resolve=>{
+    dialog.showModal();
+    dialog.addEventListener('close',()=>resolve(dialog.returnValue),{once:true});
+  });
+}
 const closeController=new CloseController({getState:()=>state,isDirty:dirty,confirm,invoke,notify:toast,
+  chooseUnsavedAction:draftRecoveryEnabled?null:chooseUnsavedAction,saveProject,
   closeWindow:()=>getCurrentWindow().close(),
   lock:()=>{state.saving=true;editorReadOnly();updateControls()},
   unlock:()=>{state.saving=false;editorReadOnly();updateControls()}});

@@ -10,6 +10,7 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 
 [features]
 benchmark = []
+draft-recovery-tests = []
 typegen = ["dep:ts-rs", "texloom-build/typegen"]
 
 [[example]]

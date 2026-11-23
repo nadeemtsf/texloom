@@ -44,3 +44,28 @@ test('composition or an in-flight mutation prevents a close attempt',async()=>{
     assert.ok(!t.events.some(x=>x[0]==='confirm'));
   }
 });
+
+test('paused draft recovery offers Save, Discard or Cancel without touching a draft',async()=>{
+  for(const [choice,saveSucceeds] of [['save',true],['save',false],['discard',false],['cancel',false]]){
+    const t=setup(),first=t.event();
+    let dirty=true,saved=false;
+    Object.assign(t.controller,{
+      isDirty:()=>dirty,
+      chooseUnsavedAction:async()=>choice,
+      saveProject:async()=>{saved=true;if(saveSucceeds)dirty=false},
+    });
+    t.state.recovery=null;
+    await t.controller.handle(first);
+    assert.equal(first.prevented,true);
+    assert.equal(saved,choice==='save');
+    assert.equal(t.events.includes('request-close'),choice==='discard'||saveSucceeds);
+    if(t.events.includes('request-close')){
+      const second=t.event();
+      await t.controller.handle(second);
+      assert.equal(second.prevented,false);
+      assert.deepEqual(t.events.find(e=>e[0]==='close_document')[1],{projectId:'project',revision:4,discardRecovery:true});
+    }else{
+      assert.ok(!t.events.some(e=>e[0]==='close_document'));
+    }
+  }
+});

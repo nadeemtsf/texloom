@@ -2,6 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {TypingRecoveryController} from '../web/core/typing-recovery.js';
 
+const testDraftRecovery=process.env.TEXLOOM_TEST_DRAFT_RECOVERY==='1'?test:test.skip;
 const draft={id:'a'.repeat(32),project:'P:/Project',main:'main.tex',revision:3,files:2,source_bytes:32,warning:null};
 function setup({dirty=false,confirmed=true,invoke=null}={}){
  const elements=new Map(),events=[],state={project:{id:'active'},sources:{'main.tex':'CURRENT'},revision:0,
@@ -28,7 +29,7 @@ function setup({dirty=false,confirmed=true,invoke=null}={}){
  return {state,controller,events,element};
 }
 
-test('recovery protection warnings persist independently of compilation and never replace editor sources',()=>{
+testDraftRecovery('recovery protection warnings persist independently of compilation and never replace editor sources',()=>{
  const t=setup(),sources=t.state.sources;
  t.controller.renderProtection();assert.equal(t.element('draft-status').textContent,'Recovery copy protected');
  t.state.revision=1;t.controller.renderProtection();assert.equal(t.element('draft-status').textContent,'Protecting changes…');
@@ -41,21 +42,21 @@ test('recovery protection warnings persist independently of compilation and neve
  assert.match(t.element('draft-warning-text').textContent,/Interrupted record/);
 });
 
-test('reviewing a crash inventory lists project identity but never restores automatically',async()=>{
+testDraftRecovery('reviewing a crash inventory lists project identity but never restores automatically',async()=>{
  const t=setup();await t.controller.show();assert.equal(t.element('draft-dialog').open,true);
  assert.equal(t.element('draft-details').textContent,'');t.element('draft-choice').value=draft.id;t.controller.renderDetails();
  assert.match(t.element('draft-details').textContent,/P:\/Project.*\n2 source files/);
  assert.deepEqual(t.events.filter(e=>Array.isArray(e)&&e[0]==='open_typing_draft'),[]);
 });
 
-test('declining replacement or discard leaves editor sources and native drafts untouched',async()=>{
+testDraftRecovery('declining replacement or discard leaves editor sources and native drafts untouched',async()=>{
  const t=setup({dirty:true,confirmed:false});await t.controller.show();t.element('draft-choice').value=draft.id;t.controller.renderDetails();
  await t.controller.restore();await t.controller.discard();
  assert.equal(t.state.sources['main.tex'],'CURRENT');assert.equal(t.state.saving,false);
  assert.ok(!t.events.some(e=>Array.isArray(e)&&['open_typing_draft','discard_typing_draft'].includes(e[0])));
 });
 
-test('an open recovery confirmation excludes a competing discard request',async()=>{
+testDraftRecovery('an open recovery confirmation excludes a competing discard request',async()=>{
  const t=setup({dirty:true});await t.controller.show();t.element('draft-choice').value=draft.id;t.controller.renderDetails();
  let confirm;const decision=new Promise(resolve=>{confirm=resolve});
  t.controller.confirm=()=>{t.events.push('confirm');return decision};
@@ -67,7 +68,7 @@ test('an open recovery confirmation excludes a competing discard request',async(
  assert.ok(!t.events.some(event=>Array.isArray(event)&&event[0]==='discard_typing_draft'));
 });
 
-test('recovery adoption flushes the active editor, sends only the draft ID and releases locking',async()=>{
+testDraftRecovery('recovery adoption flushes the active editor, sends only the draft ID and releases locking',async()=>{
  const t=setup({dirty:true});await t.controller.show();t.element('draft-choice').value=draft.id;t.controller.renderDetails();await t.controller.restore();
  assert.equal(t.state.project.id,'recovered');assert.equal(t.state.saving,false);
  const open=t.events.find(e=>Array.isArray(e)&&e[0]==='open_typing_draft');assert.deepEqual(open[1],{draftId:draft.id});
@@ -75,7 +76,7 @@ test('recovery adoption flushes the active editor, sends only the draft ID and r
  assert.equal(t.element('draft-dialog').open,false);
 });
 
-test('a delayed recovery result cannot replace a different current project and its new native session is retained safely',async()=>{
+testDraftRecovery('a delayed recovery result cannot replace a different current project and its new native session is retained safely',async()=>{
  let finish;const t=setup({invoke:async(name,_args,state)=>{
   if(name==='typing_drafts')return {drafts:[draft],errors:[]};
   if(name==='open_typing_draft')return new Promise(resolve=>finish=resolve);
@@ -88,37 +89,37 @@ test('a delayed recovery result cannot replace a different current project and i
  assert.ok(!t.events.some(e=>Array.isArray(e)&&e[0]==='adopt'));
 });
 
-test('unreadable recovery evidence is visible and cannot enable restoration or deletion',async()=>{
+testDraftRecovery('unreadable recovery evidence is visible and cannot enable restoration or deletion',async()=>{
  const t=setup({invoke:async()=>{throw Error('Checksum mismatch')}});await t.controller.show();
  assert.match(t.element('draft-errors').textContent,/Checksum mismatch/);
  assert.equal(t.element('draft-restore').disabled,true);assert.equal(t.element('draft-discard').disabled,true);
  await t.controller.restore();await t.controller.discard();assert.equal(t.events.filter(Array.isArray).filter(e=>e[0]==='typing_drafts').length,1);
 });
 
-test('explicit draft discard changes neither current buffers nor project files through the frontend',async()=>{
+testDraftRecovery('explicit draft discard changes neither current buffers nor project files through the frontend',async()=>{
  const t=setup();await t.controller.show();t.element('draft-choice').value=draft.id;t.controller.renderDetails();const sources=t.state.sources;await t.controller.discard();
  assert.equal(t.state.sources,sources);assert.equal(t.state.project.id,'active');assert.equal(t.state.saving,false);
  assert.deepEqual(t.events.find(e=>Array.isArray(e)&&e[0]==='discard_typing_draft')[1],{draftId:draft.id});
  assert.equal(t.element('draft-dialog').open,false);
 });
 
-test('busy/composing/saving operations fence recovery and retry uses the ordered source client',async()=>{
+testDraftRecovery('busy/composing/saving operations fence recovery and retry uses the ordered source client',async()=>{
  const t=setup();t.state.composing=true;await t.controller.show();assert.ok(!t.events.some(e=>Array.isArray(e)&&e[0]==='typing_drafts'));
  t.state.composing=false;await t.controller.retry();assert.ok(t.events.includes('retry'));assert.equal(t.state.saving,false);
 });
 
-test('recovery never defaults to the first unrelated project',async()=>{
+testDraftRecovery('recovery never defaults to the first unrelated project',async()=>{
   const t=setup();await t.controller.show();
   assert.equal(t.element('draft-choice').value,'');assert.equal(t.element('draft-restore').disabled,true);
   await t.controller.restore();assert.ok(!t.events.some(e=>e[0]==='open_typing_draft'));
   t.element('draft-choice').value=draft.id;t.controller.renderDetails();assert.equal(t.element('draft-restore').disabled,false);
 });
-test('switching project invalidates a previous recovery choice',async()=>{
+testDraftRecovery('switching project invalidates a previous recovery choice',async()=>{
   const t=setup();await t.controller.show();t.element('draft-choice').value=draft.id;t.controller.renderDetails();
   t.state.project={id:'another'};await t.controller.refresh();
   assert.equal(t.element('draft-choice').value,'');assert.equal(t.element('draft-restore').disabled,true);
 });
-test('reopening recovery asks for an explicit project choice again',async()=>{
+testDraftRecovery('reopening recovery asks for an explicit project choice again',async()=>{
   const t=setup();await t.controller.show();t.element('draft-choice').value=draft.id;t.controller.renderDetails();
   t.element('draft-dialog').close();await t.controller.show();assert.equal(t.element('draft-choice').value,'');
 });

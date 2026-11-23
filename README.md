@@ -32,7 +32,7 @@ A visual edit starts as a proposed source patch. Texloom builds it in a private 
 - **Source mapping.** SyncTeX helps locate source for rendered text. Private builds confirm the selected occurrence, and offset conversion maps Monaco’s UTF-16 positions to Rust’s UTF-8 ranges.
 - **Local compilation.** A cancellable Rust service runs pdfLaTeX, XeLaTeX or LuaLaTeX, with BibTeX and Biber recipes for projects that need them.
 - **Typed commands.** Rust-generated TypeScript types describe the editor and desktop command boundary. The app checks incoming data at runtime.
-- **Recovery and Save.** A journal records unsaved edits and history. Save checks whether files changed on disk before writing the project.
+- **Recovery and Save.** Save checks for external file edits before writing the project and can recover an interrupted write.
 
 ## Current scope
 

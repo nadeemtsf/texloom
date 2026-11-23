@@ -56,11 +56,19 @@ impl DocumentSlot {
     }
 }
 impl Backend {
+    fn require_draft_recovery(&self) -> Result<()> {
+        if !self.draft_recovery_enabled {
+            return Err("Unsaved-draft recovery is disabled in this build".into());
+        }
+        Ok(())
+    }
+
     /// Durably accept a proposed source draft before publishing canonical RAM.
     /// Failure may follow partial OS writes, so the caller caches an uncertain
     /// outcome and must not claim this was a clean transactional refusal.
     pub(super) fn protect_source_intent(&self, id: &str, slot: &mut DocumentSlot,
         base: u64, patch: Patch, proposed: &core::Session) -> Result<()> {
+        if !self.draft_recovery_enabled { return Ok(()); }
         let result = (|| {
             let snapshots = self.disk_snapshots.lock().map_err(fail)?;
             let disk = snapshots.get(id).ok_or("The saved project baseline is missing")?;
@@ -82,6 +90,7 @@ impl Backend {
         base: u64,
         mutation: Mutation,
     ) {
+        if !self.draft_recovery_enabled { return; }
         let result = (|| {
             let snapshots = self.disk_snapshots.lock().map_err(fail)?;
             let Some(disk) = snapshots.get(id) else {
@@ -105,6 +114,7 @@ impl Backend {
         }
     }
     pub(super) fn checkpoint_typing_recovery(&self, id: &str, slot: &mut DocumentSlot) {
+        if !self.draft_recovery_enabled { return; }
         let result = (|| {
             let snapshots = self.disk_snapshots.lock().map_err(fail)?;
             let disk = snapshots
@@ -125,6 +135,7 @@ impl Backend {
         }
     }
     pub fn retry_typing_recovery(&self, id: &str, base: u64) -> Result<RecoveryReply> {
+        self.require_draft_recovery()?;
         let mut documents = self.documents.lock().map_err(fail)?;
         let slot = documents.get_mut(id).ok_or("Reopen this project")?;
         slot.require_resolved_source_intents()?;
@@ -138,9 +149,11 @@ impl Backend {
         })
     }
     pub fn typing_drafts(&self) -> Result<Inventory> {
+        self.require_draft_recovery()?;
         Store::open(&self.root.join(".source-recovery"))?.inventory()
     }
     pub fn open_typing_draft(&self, draft_id: &str) -> Result<Project> {
+        self.require_draft_recovery()?;
         let store = Store::open(&self.root.join(".source-recovery"))?;
         let inventory = store.inventory()?;
         let draft = inventory
@@ -204,6 +217,7 @@ impl Backend {
         })
     }
     pub fn discard_typing_draft(&self, draft_id: &str) -> Result<Inventory> {
+        self.require_draft_recovery()?;
         let store = Store::open(&self.root.join(".source-recovery"))?;
         let inventory = store.inventory()?;
         let draft = inventory
@@ -254,5 +268,5 @@ impl Backend {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "draft-recovery-tests"))]
 mod tests;
