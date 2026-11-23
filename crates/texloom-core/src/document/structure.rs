@@ -310,17 +310,26 @@ fn standalone_heading(source: &str, start: usize, after_command: usize) -> Optio
         return None;
     }
     let remainder = source[after_command..].split('\n').next()?;
-    let (title, suffix) = remainder
-        .strip_prefix('*')
-        .unwrap_or(remainder)
-        .trim_start_matches(ascii_space)
-        .strip_prefix('{')?
-        .split_once('}')?;
-    if title.trim().is_empty()
-        || title.chars().any(|c| {
-            c.is_control() || matches!(c, '\\' | '{' | '}' | '%' | '$' | '&' | '#' | '_' | '^' | '~')
-        })
-    {
+    fn literal_title(title: &str) -> bool {
+        !title.trim().is_empty()
+            && !title.chars().any(|c| {
+                c.is_control() || matches!(c, '\\' | '{' | '}' | '%' | '$' | '&' | '#' | '_' | '^' | '~')
+            })
+    }
+
+    let starred = remainder.strip_prefix('*');
+    let mut arguments = starred.unwrap_or(remainder).trim_start_matches(ascii_space);
+    if starred.is_none() {
+        if let Some(optional) = arguments.strip_prefix('[') {
+            let (short, rest) = optional.split_once(']')?;
+            if !literal_title(short) || short.contains('[') {
+                return None;
+            }
+            arguments = rest.trim_start_matches(ascii_space);
+        }
+    }
+    let (title, suffix) = arguments.strip_prefix('{')?.split_once('}')?;
+    if !literal_title(title) {
         return None;
     }
     let suffix = suffix.trim_matches(ascii_space);

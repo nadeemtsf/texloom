@@ -32,8 +32,9 @@ async function main(){
  try{
   Object.assign(receipt,await checkStagedTree(root,async()=>{
    if(process.platform!=='win32')throw Error('The full native pre-commit gate requires Windows x64.');
+   // Fresh Windows builds can exceed an hour before the last check finishes.
    const r=spawnSync('pwsh.exe',['-NoProfile','-ExecutionPolicy','Bypass','-File','scripts/check-ci.ps1','-ArtifactRoot',output],
-    {cwd:root,stdio:'inherit',windowsHide:true,timeout:3_600_000});
+    {cwd:root,stdio:'inherit',windowsHide:true});
    if(r.error)throw r.error;return r.status;
   }));receipt.status='passed';console.log('Local CI passed for staged tree '+receipt.tree);
  }catch(error){receipt.status='failed';receipt.error=error.message;console.error(error.message);process.exitCode=1}

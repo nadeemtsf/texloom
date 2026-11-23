@@ -69,26 +69,18 @@ The 5 November v5 review copy has 21 pages, including references and reproductio
 
 ## Rebuild
 
-Run from this directory using an existing LaTeX installation with the packages listed in `main.tex`. Compile **only `main.tex`**, with shell escape disabled; never compile `.text` files. Do not enable automatic package installation for this build.
-
-On this Windows/MiKTeX host, the reviewed build used the following sequence. Replace the output directory with a fresh local directory when preserving another version:
+On Windows, run the text check from the repository root with PowerShell 7,
+MiKTeX (pdfLaTeX and BibTeX), and `pdftotext` available.
 
 ```powershell
-$reportOutput = Join-Path (Resolve-Path '../..') 'artifacts/research-report/NEW_REPORT_BUILD'
-New-Item -ItemType Directory -Path $reportOutput -Force | Out-Null
-pdflatex --disable-installer -no-shell-escape -interaction=nonstopmode -halt-on-error -file-line-error "-output-directory=$reportOutput" main.tex
-$reportSource = (Get-Location).Path
-$previousBibInputs = $env:BIBINPUTS
-try {
-    $env:BIBINPUTS = "$reportSource;"
-    Push-Location $reportOutput
-    try { bibtex main } finally { Pop-Location }
-} finally { $env:BIBINPUTS = $previousBibInputs }
-pdflatex --disable-installer -no-shell-escape -interaction=nonstopmode -halt-on-error -file-line-error "-output-directory=$reportOutput" main.tex
-pdflatex --disable-installer -no-shell-escape -interaction=nonstopmode -halt-on-error -file-line-error "-output-directory=$reportOutput" main.tex
+pwsh -NoProfile -File ./research/report/Check-Report.ps1 -ExpectedText 'A phrase from the changed passage'
 ```
 
-Check every process exit status. `--disable-installer` is specific to MiKTeX; use the corresponding no-auto-install configuration on another distribution. Render all pages with Poppler and inspect the latest rendering after layout changes. Successful compilation alone does not establish visual quality or the truth of research claims.
+Omit `-ExpectedText` to build and check the report without matching a passage.
+The script compiles only `main.tex`, disables shell escape and automatic
+package installation, checks the final LaTeX log, and extracts the PDF text.
+Each run writes to a fresh ignored directory under `artifacts/research-report/`.
+Inspect page renders for layout changes and milestone PDFs.
 
 The reviewed v5 PDF cites fourteen primary references; the revised source includes additional citations that have not been compiled or rendered. Earlier eight-page versions remain preserved; they no longer set a length target. Development component results are separate from final results: the native-entry pilot includes a preserved invalid-reference run and a corrected protocol, without pooling reused cases or claiming actual PDF mouse selection. The initial missing `booktabs` dependency was removed from the source in favor of ordinary table rules; no global package was installed. Build logs, intermediate PDFs and page renders remain under ignored `artifacts/research-report/`, outside tracked research sources.
 
