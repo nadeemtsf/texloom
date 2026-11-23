@@ -31,6 +31,18 @@ fn target(s: &Session, occurrence: usize) -> EntityReference {
 }
 
 #[test]
+fn paragraph_reordering_cannot_cross_a_heading_boundary() {
+    let s = state("Before.\r\n\\section{Title}\r\nAfter.\r\n\r\nNext.");
+    assert!(matches!(
+        s.plan_visual_paragraph_order(&target(&s, 0), &target(&s, 1), ParagraphPosition::After),
+        Err(PlanError::ExpectedContinuousParagraphs)
+    ));
+    assert!(s.plan_visual_paragraph_order(
+        &target(&s, 1), &target(&s, 2), ParagraphPosition::After
+    ).is_ok());
+}
+
+#[test]
 fn typed_draft_intent_uses_shared_history_and_keeps_render_proof_unresolved() {
     let mut s = state("Same.\r\n\r\nSame.\r\n\r\nTail.");
     let original = s.sources().clone();

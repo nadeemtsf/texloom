@@ -207,6 +207,7 @@ fn opaque(source: &str, reason: OpaqueReason) -> Vec<SourceRegion> {
 struct Envelope {
     body: Range<usize>,
     blocked: Vec<Range<usize>>,
+    heading_lines: Vec<usize>,
 }
 
 /// Bounded lexical forms in the preamble only. This preserves their bytes and
@@ -302,12 +303,37 @@ fn preamble_form(source: &str, command: &str, end: usize) -> Option<Result<usize
     .contains(&command)
     .then(parsed)
 }
+// Preserve simple headings as opaque boundaries. Titles with optional
+// arguments, markup, comments or trailing content still decline projection.
+fn standalone_heading(source: &str, start: usize, after_command: usize) -> Option<Range<usize>> {
+    let line_start = source[..start].rfind('\n').map_or(0, |offset| offset + 1);
+    if !source[line_start..start].bytes().all(|b| matches!(b, b' ' | b'\t')) {
+        return None;
+    }
+    let remainder = source[after_command..].split('\n').next()?;
+    let title = remainder
+        .strip_prefix('*')
+        .unwrap_or(remainder)
+        .trim_matches(ascii_space)
+        .strip_prefix('{')?
+        .strip_suffix('}')?;
+    if title.trim().is_empty()
+        || title.chars().any(|c| {
+            c.is_control() || matches!(c, '\\' | '{' | '}' | '%' | '$' | '&' | '#' | '_' | '^' | '~')
+        })
+    {
+        return None;
+    }
+    Some(line_start..after_command + remainder.len())
+}
+
 fn envelope(source: &str) -> Result<Envelope, OpaqueReason> {
     let mut i = 0;
     let mut steps = 0;
     let mut groups = Vec::new();
     let mut envs: Vec<(&str, usize)> = Vec::new();
     let mut blocked = Vec::new();
+    let mut heading_lines = Vec::new();
     let mut begin = None;
     let mut finish = None;
     while i < source.len() {
@@ -413,6 +439,18 @@ fn envelope(source: &str) -> Result<Envelope, OpaqueReason> {
                     i = after;
                     continue;
                 }
+                if matches!(command, "\\section" | "\\subsection" | "\\subsubsection")
+                    && finish.is_none()
+                    && groups.is_empty()
+                    && matches!(envs.as_slice(), [("document", _)])
+                {
+                    let heading = standalone_heading(source, i, end)
+                        .ok_or(OpaqueReason::UnsupportedSyntax)?;
+                    heading_lines.push(heading.start);
+                    i = heading.end;
+                    blocked.push(heading);
+                    continue;
+                }
                 // First slice recognizes literal prose, not markup expansion.
                 if !["\\%", "\\&", "\\$", "\\#", "\\_", "\\{", "\\}", "\\ "].contains(&command) {
                     if ["\\[", "\\]", "\\(", "\\)"].contains(&command) {
@@ -483,6 +521,7 @@ fn envelope(source: &str) -> Result<Envelope, OpaqueReason> {
     Ok(Envelope {
         body,
         blocked: merged,
+        heading_lines,
     })
 }
 
@@ -524,9 +563,11 @@ fn project(source: &str) -> Vec<SourceRegion> {
     let mut offset = chunk;
     let mut blocked_index = 0;
     let mut chunks = Vec::new();
+    let mut heading_lines = view.heading_lines.into_iter().peekable();
     for line in source[view.body.clone()].split_inclusive('\n') {
         let end = offset + line.len();
-        if line.chars().all(ascii_space) {
+        let heading = heading_lines.next_if_eq(&offset).is_some();
+        if heading || line.chars().all(ascii_space) {
             if chunk < offset {
                 chunks.push(chunk..offset);
             }
