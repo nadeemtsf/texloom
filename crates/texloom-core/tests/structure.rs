@@ -110,6 +110,40 @@ fn opaque_markup_does_not_become_an_editable_paragraph() {
 }
 
 #[test]
+fn standalone_heading_lines_preserve_surrounding_paragraphs_and_exact_bytes() {
+    let source = document("Before.\r\n  \\section*{عنوان שלום}\r\nAfter.\r\n\\subsection {Next}\r\nLast.");
+    let s = session(&source);
+    let projection = s.source_projection("main.tex").unwrap();
+    exact_partition(&projection, &source);
+    let texts: Vec<_> = candidates(&projection).iter().map(|&i| projection.text(i).unwrap()).collect();
+    assert_eq!(texts, ["Before.", "After.", "Last."]);
+    let index = projection.regions().iter().position(|region|
+        source[region.range()].contains("\\section*")
+    ).unwrap();
+    assert!(projection.entity_reference(index).is_none());
+}
+
+#[test]
+fn complex_headings_do_not_expose_unproven_paragraphs() {
+    for heading in [
+        "\\section[Short]{Long}",
+        "\\section{\\textbf{Title}}",
+        "\\section{^^5cfoo}",
+        "\\section{Title} inline",
+        "\\section{Title}% comment",
+        "Inline \\section{Title}",
+        "\\section{\nMultiline}",
+        "\\begin{quote}\n\\section{Title}\n\\end{quote}",
+    ] {
+        let source = document(&format!("Before.\n\n{heading}\n\nAfter."));
+        let s = session(&source);
+        let projection = s.source_projection("main.tex").unwrap();
+        exact_partition(&projection, &source);
+        assert!(candidates(&projection).is_empty(), "{heading}");
+    }
+}
+
+#[test]
 fn environment_and_literal_contents_are_never_mistaken_for_top_level_prose() {
     let source=document("Before.\n\n\\begin{quote}\nInner.\n\nStill inner.\n\\end{quote}\n\n\\begin{verbatim}\n\\begin{document}\nFake body.\n\\end{document}\n\\end{verbatim}\n\nAfter.");
     let s = session(&source);
