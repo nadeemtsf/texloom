@@ -370,7 +370,7 @@ async function openProject(path=null,supplied=null,{compileOnOpen=false}={}){
     state.opening=false;editorReadOnly();updateControls();
     if(client&&state.client===client)sendSelection();
   }
-  await compile();
+  await compile('auto');
 }
 async function saveProject(){
   if(!state.project||state.saving||state.opening||state.mutating||state.composing)return;
@@ -998,7 +998,19 @@ $('export').onclick=async()=>{
 };
 $('engine').onchange=()=>{if(!state.project)return;state.engine=$('engine').value;state.client.profile(state.project.main,state.engine).catch(()=>{});sourceChanged()};
 $('main-file').onchange=()=>{if(!state.project)return;state.project.main=$('main-file').value;state.client.profile(state.project.main,state.engine).catch(()=>{});sourceChanged()};
-$('auto').onchange=()=>{if($('auto').checked&&state.compiled!==state.revision)compile('auto')};
+const autoCompilePreference='texloom.autoCompile';
+try{
+  const saved=localStorage.getItem(autoCompilePreference);
+  if(saved==='on'||saved==='off')$('auto').checked=saved==='on';
+}catch{}
+$('auto').onchange=()=>{
+  const enabled=$('auto').checked;
+  try{localStorage.setItem(autoCompilePreference,enabled?'on':'off')}catch{}
+  if(!enabled){
+    clearTimeout(state.compileTimer);
+    if(state.pending==='auto')state.pending=false;
+  }else if(state.compiled!==state.revision)compile('auto');
+};
 $('add-text').onclick=()=>{
   if(!fresh())return;
   state.dialog={kind:'paragraph',identity:sessionIdentity(state)};
