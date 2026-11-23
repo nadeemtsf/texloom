@@ -451,7 +451,10 @@ fn envelope(source: &str) -> Result<Envelope, OpaqueReason> {
                     i = after;
                     continue;
                 }
-                if matches!(command, "\\section" | "\\subsection" | "\\subsubsection")
+                if matches!(
+                    command,
+                    "\\part" | "\\chapter" | "\\section" | "\\subsection" | "\\subsubsection"
+                )
                     && finish.is_none()
                     && groups.is_empty()
                     && matches!(envs.as_slice(), [("document", _)])

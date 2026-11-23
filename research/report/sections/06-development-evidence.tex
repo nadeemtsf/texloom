@@ -600,8 +600,9 @@ Save. Those checks retain the earlier editor and avoid reporting a reopened
 project when its snapshot was refused.
 
 \subsection{Paragraph boundaries around section headings}
-The lossless projection treats standalone top-level section, subsection and
-subsubsection commands with literal titles as opaque boundaries. Paragraph
+The lossless projection treats standalone top-level part, chapter and section
+commands with literal titles as opaque boundaries, including subsections and
+subsubsections. Paragraph
 candidates can be identified on either side without a blank line. Source-model
 checks preserve the heading bytes, refuse reordering across the heading and
 allow a supported reorder within one section. A same-line literal label
