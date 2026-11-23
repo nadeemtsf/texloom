@@ -723,8 +723,8 @@ async function reorderText(selection,{line,before,wholeParagraph=false}){
 }
 function moveText(selection,dx,dy,trace=diagnostics.begin('text-move')){
   if(!selection){trace?.finish('refused');return}
-  if(selection.kind==='source'&&(selection.unitKind==='group'||(selection.baselineLines?.length??0)>1)){
-    trace?.finish('refused');return toast('Free dragging supports one typeset line at a time.');
+  if(selection.kind==='source'&&(selection.unitKind!=='group'&&(selection.baselineLines?.length??0)>1)){
+    trace?.finish('refused');return toast('Free dragging supports single lines and groups with explicit line breaks.');
   }
   const proposed={...selection,x:selection.x+dx,y:selection.y+dy};
   if(!inside(proposed,state.view.pageSizes.get(selection.page))){trace?.finish('refused');return toast('Keep the selected text inside the page.')}

@@ -85,6 +85,17 @@ fn simple_definitions(source: &str) -> Vec<(String, String)> {
 /// Movable text excludes operations with external state, annotations or page scope.
 pub fn validate_movable_text(fragment: &str, document: &str) -> Result<()> {
     validate_fragment(fragment)?;
+    let mut normalized = std::borrow::Cow::Borrowed(fragment);
+    for raw in line_ranges(fragment).into_iter().rev() {
+        let row = &fragment[raw.clone()];
+        let end = break_start(row).unwrap_or_else(|| visible_line_end(row));
+        let range = trim_range(fragment, raw.start..raw.start + end);
+        if let Some(position) = standard_text_position(&fragment[range.clone()]) {
+            let content = &fragment[range.start + position.content.start..range.start + position.content.end];
+            normalized.to_mut().replace_range(range, content);
+        }
+    }
+    let fragment = normalized.as_ref();
     let definitions = simple_definitions(document);
     fn inspect(s: &str, definitions: &[(String, String)], chain: &mut Vec<String>) -> Result<()> {
         let mut i = 0;
@@ -211,6 +222,13 @@ pub fn combine_text_units_in_document(source: &str, units: &[SourceUnit], docume
     let mut units = units.to_vec();
     units.sort_by_key(|u| u.range.start);
     units.dedup_by(|a, b| a.range == b.range);
+    if units.len() > 1 {
+        for unit in &mut units {
+            if let Some((wrapper, _)) = source_line_position(source, &unit.range) {
+                unit.range = wrapper;
+            }
+        }
+    }
     let first = units.first().ok_or("Select at least one text line")?;
     let last = units.last().unwrap();
     for pair in units.windows(2) {
@@ -258,6 +276,46 @@ fn standard_text_position(source: &str) -> Option<StandardTextPosition> {
     Some(StandardTextPosition { content: start..start + content.len(), dx, dy })
 }
 
+fn source_line_position(source: &str, range: &Range<usize>) -> Option<(Range<usize>, StandardTextPosition)> {
+    let first = source[..range.start].rfind('\n').map_or(0, |index| index + 1);
+    let last = source[range.end..].find('\n').map_or(source.len(), |index| range.end + index);
+    let raw_line = &source[first..last];
+    let text_end = break_start(raw_line).unwrap_or_else(|| visible_line_end(raw_line));
+    let line = trim_range(source, first..first + text_end);
+    standard_text_position(&source[line.clone()])
+        .filter(|position| line.start + position.content.start == range.start
+            && line.start + position.content.end == range.end)
+        .map(|position| (line, position))
+}
+
+/// Move adjacent explicit lines independently so TeX keeps the original breaks.
+pub fn position_text_group(
+    source: &str, range: Range<usize>, dx: f64, dy: f64, document: &str,
+) -> Result<(String, Range<usize>, f64, f64)> {
+    let fragment = source.get(range.clone()).ok_or("Invalid group selection")?;
+    let segments = forced_segments(fragment)?;
+    if !(2..=16).contains(&segments.len()) || segments.iter().any(|(line, _)| line.is_empty()) {
+        return Err("Free dragging a group requires adjacent explicit LaTeX line breaks".into());
+    }
+    let mut updated = source.to_owned();
+    let mut applied = None;
+    for (line, _) in segments.into_iter().rev() {
+        let line = range.start + line.start..range.start + line.end;
+        let inner = standard_text_position(&source[line.clone()]).map_or(line.clone(), |position| {
+            line.start + position.content.start..line.start + position.content.end
+        });
+        let (candidate, _, step_x, step_y) = position_text_range(&updated, inner, dx, dy, document)?;
+        if applied.is_some_and(|(x, y): (f64, f64)| (x - step_x).abs() > 0.00001 || (y - step_y).abs() > 0.00001) {
+            return Err("The selected lines cannot move by the same offset".into());
+        }
+        applied = Some((step_x, step_y));
+        updated = candidate;
+    }
+    let end = updated.len() - (source.len() - range.end);
+    let (step_x, step_y) = applied.ok_or("Empty group")?;
+    Ok((updated, range.start..end, step_x, step_y))
+}
+
 /// Use a LaTeX box whose width and height/depth match the original text.
 /// The caller must prove those dimensions and the rendered translation.
 pub fn position_text_range(
@@ -268,16 +326,9 @@ pub fn position_text_range(
         return Err("Free dragging supports one complete text line at a time".into());
     }
     validate_movable_text(content, document)?;
-    let first = source[..range.start].rfind('\n').map_or(0, |index| index + 1);
-    let last = source[range.end..].find('\n').map_or(source.len(), |index| range.end + index);
-    let raw_line = &source[first..last];
-    let text_end = break_start(raw_line).unwrap_or_else(|| visible_line_end(raw_line));
-    let line = trim_range(source, first..first + text_end);
-    let existing = standard_text_position(&source[line.clone()])
-        .filter(|position| line.start + position.content.start == range.start
-            && line.start + position.content.end == range.end);
+    let existing = source_line_position(source, &range);
     let (replace, old_dx, old_dy) = match existing {
-        Some(position) => (line, position.dx, position.dy),
+        Some((line, position)) => (line, position.dx, position.dy),
         None => (range, 0.0, 0.0),
     };
     let round_offset = |value: f64| {
@@ -441,6 +492,19 @@ mod tests {
         let source = "First\nSecond";
         assert!(position_text_range(source, 0..source.len(), 10.0, 0.0, source).is_err());
         assert!(position_text_range(source, 0..5, f64::INFINITY, 0.0, source).is_err());
+    }
+
+    #[test]
+    fn explicit_line_group_preserves_breaks_and_can_be_moved_again() {
+        let source = "Opening.\\\\[2pt]\r\nSecond.\r\n";
+        let range = 0..source.trim_end().len();
+        let (moved, span, _, _) = position_text_group(source, range, 6.0, 12.0, source).unwrap();
+        let units = [resolve_text_unit(&moved, 1).unwrap(), resolve_text_unit(&moved, 2).unwrap()];
+        assert_eq!(combine_text_units(&moved, &units).unwrap().range, span);
+        assert!(moved.contains("\\\\[2pt]\r\n"));
+        let (restored, _, _, _) = position_text_group(&moved, span, -6.0, -12.0, &moved).unwrap();
+        assert_eq!(restored, source);
+        assert!(position_text_group("wrapped\ntext", 0..12, 1.0, 2.0, source).is_err());
     }
 
     #[test] fn soft_wrapped_prose_is_one_unit() { let u = resolve_text_unit(DOC, 5).unwrap(); assert_eq!(u.kind,"paragraph"); assert_eq!((u.first_line,u.last_line),(4,5)); }

@@ -688,3 +688,13 @@ its marker. In a two-page fixture, all three engines reproduced the unmarked
 rasters, identified the complete first paragraph of page two, and reordered
 it below its neighbor with exact source bytes. Moves across pages and
 structured-source reorder require separate policies.
+
+\subsection{Free positioning of explicit line groups}
+The group planner applies one standard LaTeX positioning edit per selected
+line and retains the exact line breaks between them. Fixed box dimensions
+preserve the lines' contribution to flow. The release-independent gate
+compares the candidate to an independent PDF translation of the selected
+glyphs. A three-line signature fixture passed that check under pdfLaTeX,
+XeLaTeX and LuaLaTeX. A tighter fixture was refused when glyph attribution
+overlapped neighboring text. The source test also covers a subsequent move,
+zero-offset restoration and preservation of the original line endings.

@@ -347,7 +347,12 @@ pub(super) fn plan_direct_text(request: &ObjectEditRequest) -> Result<DirectText
                 if request.content.is_some() || request.literal_edits.is_some() || request.spacing_edits.is_some() {
                     return Err("Change text and position in separate operations".into());
                 }
-                let (updated, range, dx, dy) = texloom_core::position_text_range(source, range, dx, dy, document)?;
+                let move_text = if expected.contains("\\\\") {
+                    texloom_core::position_text_group
+                } else {
+                    texloom_core::position_text_range
+                };
+                let (updated, range, dx, dy) = move_text(source, range, dx, dy, document)?;
                 if dx == 0.0 && dy == 0.0 {
                     return Err("The text position is unchanged".into());
                 }
