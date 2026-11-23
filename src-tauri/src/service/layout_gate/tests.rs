@@ -712,6 +712,67 @@ fn direct_drag_real_engine_workflow() {
     }
 }
 
+#[test]
+#[ignore = "requires installed TeX engines and the pinned Windows verifier"]
+fn explicit_line_group_real_engine_workflow() {
+    let engine_source = r#"\documentclass[11pt]{article}
+\usepackage[margin=25mm]{geometry}
+\pagestyle{empty}
+\newcommand{\PersonName}{Dr. Example Researcher}
+
+\begin{document}
+Unchanged heading.
+
+The text before the chosen unit stays in place.
+
+\noindent
+% proof:begin
+\textbf{Dr. Example Researcher}\\[2pt]
+Head of the Example Department\\[2pt]
+Example University
+% proof:end
+
+
+\par\vspace{25mm}
+The text after the chosen unit stays in place.
+\end{document}
+"#;
+    let rows = [r"\textbf{Dr. Example Researcher}", "Head of the Example Department", "Example University"];
+    for engine in ["pdflatex", "xelatex", "lualatex"] {
+        let mut fixture = Fixture::new(engine_source);
+        prepare_test_verifier(&mut fixture);
+        let path = fixture.root.join("project/main.tex").to_string_lossy().into_owned();
+        let project = fixture.backend.open_project_with_profile(Some(path), Some(ProjectProfile {
+            schema: 1, main: "main.tex".into(), engine: engine.into(),
+        })).unwrap();
+        let id = &project.id;
+        let baseline = fixture.backend.compile_document(id, 0, None, None, 1).unwrap();
+        assert!(baseline.ok && baseline.verification_eligible, "{engine}: {}", baseline.log);
+        let start = engine_source.find(rows[0]).unwrap();
+        let end = engine_source.find(rows[2]).unwrap() + rows[2].len();
+        let request: ObjectEditRequest = serde_json::from_value(json!({
+            "sources": sources(&engine_source), "main":"main.tex", "file":"main.tex",
+            "action":"move_source", "id":"group-drag", "selection":[start,end],
+            "expected": &engine_source[start..end], "dx": 6, "dy": 12,
+        })).unwrap();
+        let mut expected = engine_source.to_owned();
+        for row in rows {
+            expected = expected.replace(row, &format!(
+                "\\raisebox{{-12bp}}[\\height][\\depth]{{\\kern6bp\\relax {row}\\kern-6bp\\relax}}"
+            ));
+        }
+        let planned = visual::plan_object_edit(request.clone()).unwrap();
+        assert_eq!(planned.sources, sources(&expected), "{engine}");
+        let prepared = fixture.backend.document_prepare_visual(
+            id, 0, planned.sources, &baseline.build_id, Some(VisualOperation::Text { request }),
+        ).unwrap();
+        let result = fixture.backend.compile_document(id, 0, Some(&prepared.token), None, 2)
+            .unwrap_or_else(|error| panic!("{engine} group move: {error}"));
+        assert!(result.ok && result.verification_eligible, "{engine}: {}", result.log);
+        assert_eq!(fixture.backend.document_commit(id, &prepared.token, &result.build_id).unwrap().sources, sources(&expected));
+    }
+}
+
 fn reorder_request(source: &str, first: &str, second: &str, before: bool) -> ObjectEditRequest {
     let range = |text: &str| {
         let start = source.find(text).unwrap();

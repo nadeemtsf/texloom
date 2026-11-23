@@ -10,8 +10,7 @@ Use a disposable copy of the three-page Article. Compile before starting.
    pages should look the same.
 3. Undo once and redo once. Check both the PDF and the offsets in the source.
    Save, reopen, then run the same engine from the saved project directory.
-4. Try an unsupported wrapped or grouped selection. The app should explain
-   the limit and preserve the accepted source and PDF.
+4. Try a soft-wrapped paragraph. Free dragging should refuse it and keep the current source and PDF.
 
 This check covers free positioning. A drop that changes the order of source
 units is tracked separately in issue #56.
