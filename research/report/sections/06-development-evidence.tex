@@ -598,7 +598,8 @@ The lossless projection treats standalone top-level section, subsection and
 subsubsection commands with literal titles as opaque boundaries. Paragraph
 candidates can be identified on either side without a blank line. Source-model
 checks preserve the heading bytes, refuse reordering across the heading and
-allow a supported reorder within one section. This extends lexical coverage;
+allow a supported reorder within one section. A same-line literal label
+is retained with the heading. This extends lexical coverage;
 rendered acceptance still requires the existing independent checks.
 
 \subsection{Adjacent paragraph reorder as a protected source draft}

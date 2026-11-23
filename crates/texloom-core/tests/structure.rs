@@ -124,6 +124,25 @@ fn standalone_heading_lines_preserve_surrounding_paragraphs_and_exact_bytes() {
 }
 
 #[test]
+fn literal_label_stays_with_its_heading_in_the_opaque_region() {
+    let heading = "\\subsection{مقدمة} \\label {sec:ch_1.intro}";
+    let source = document(&format!("Before.\r\n  {heading}\r\nAfter."));
+    let s = session(&source);
+    let projection = s.source_projection("main.tex").unwrap();
+    exact_partition(&projection, &source);
+
+    let paragraphs: Vec<_> = candidates(&projection)
+        .into_iter()
+        .map(|index| projection.text(index).unwrap())
+        .collect();
+    assert_eq!(paragraphs, ["Before.", "After."]);
+    let index = projection.regions().iter().position(|region| {
+        source[region.range()].contains(heading)
+    }).unwrap();
+    assert!(projection.entity_reference(index).is_none());
+}
+
+#[test]
 fn complex_headings_do_not_expose_unproven_paragraphs() {
     for heading in [
         "\\section[Short]{Long}",
@@ -131,6 +150,12 @@ fn complex_headings_do_not_expose_unproven_paragraphs() {
         "\\section{^^5cfoo}",
         "\\section{Title} inline",
         "\\section{Title}% comment",
+        "\\section{Title}\\label{}",
+        "\\section{Title}\\label{sec:^^61}",
+        "\\section{Title}\\label{\\key}",
+        "\\section{Title}\\label{sec:x}\\label{sec:y}",
+        "\\section{Title}\\label{sec:x}% comment",
+        "\\section{Title}\\label{sec:x} trailing text",
         "Inline \\section{Title}",
         "\\section{\nMultiline}",
         "\\begin{quote}\n\\section{Title}\n\\end{quote}",
