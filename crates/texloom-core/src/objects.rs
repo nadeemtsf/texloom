@@ -175,7 +175,12 @@ fn break_start(line: &str) -> Option<usize> {
 
 fn boundary(line: &str) -> bool {
     let text = line.trim_start();
-    if text.starts_with('\\') && super::page_flow_command(command(text, 0).0) { return true; }
+    if text.starts_with('\\') {
+        let (name, _) = command(text, 0);
+        if super::page_flow_command(name) || matches!(name, "\\part" | "\\subsubsection" | "\\label" | "\\par") {
+            return true;
+        }
+    }
     text.is_empty() || text.starts_with('%') || ["\\begin", "\\end", "\\section", "\\subsection", "\\chapter", "\\enlargethispage", "\\vspace", "\\noindent", "\\TexloomObject"].iter().any(|prefix| text.starts_with(prefix))
 }
 
@@ -521,6 +526,17 @@ mod tests {
         }
         let inline = "\\documentclass{article}\n\\begin{document}\nText.\\newpage\nAfter.\n\\end{document}";
         assert!(resolve_text_unit(inline, 3).is_err(), "inline structural content must still refuse");
+    }
+    #[test]
+    fn standalone_structure_stays_outside_adjacent_text_selections() {
+        for structure in [r"\part{Title}", r"\subsubsection*{Title}", r"\label{sec:title}", r"\par"] {
+            let source = format!("\\documentclass{{report}}\n\\begin{{document}}\nBefore.\n{structure}\nAfter.\n\\end{{document}}");
+            let before = resolve_text_unit(&source, 3).unwrap();
+            let after = resolve_text_unit(&source, 5).unwrap();
+            assert_eq!(before.content, "Before.");
+            assert_eq!(after.content, "After.");
+            assert!(resolve_text_unit(&source, 4).is_err());
+        }
     }
     #[test] fn signature_line_keeps_its_break_outside() { let u = resolve_text_unit(DOC,9).unwrap(); assert_eq!(u.content,"\\textbf{\\Person}"); assert_eq!(u.kind,"line"); }
     #[test] fn last_signature_line_is_independent() { assert_eq!(resolve_text_unit(DOC,11).unwrap().content,"Example University"); }

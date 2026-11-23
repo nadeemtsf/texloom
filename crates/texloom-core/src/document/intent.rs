@@ -279,7 +279,11 @@ impl Session {
         let last = target_index.max(neighbor_index);
         let run = &regions[first..=last];
         if run.len() > maximum_paragraphs * 2 - 1 || run.iter().enumerate().any(|(i, region)| {
-            region.kind() != if i % 2 == 0 { RegionKind::PlainParagraph } else { RegionKind::Trivia }
+            if i % 2 == 0 {
+                region.kind() != RegionKind::PlainParagraph
+            } else {
+                !matches!(region.kind(), RegionKind::Trivia | RegionKind::ParagraphBreak)
+            }
         }) {
             return Err(PlanError::ExpectedContinuousParagraphs);
         }

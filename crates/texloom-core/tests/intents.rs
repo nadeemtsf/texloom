@@ -31,13 +31,16 @@ fn target(s: &Session, occurrence: usize) -> EntityReference {
 }
 
 #[test]
-fn paragraph_reordering_cannot_cross_a_heading_boundary() {
-    for heading in [
+fn paragraph_reordering_cannot_cross_a_structural_boundary() {
+    for boundary in [
         r"\section{Title}",
         r"\chapter{Title}\label{ch:title}",
         r"\part*{Title}",
+        "\\section[Short]{Title}\r\n\\label{sec:title}",
+        r"\newpage",
+        r"\clearpage",
     ] {
-        let s = state(&format!("Before.\r\n{heading}\r\nAfter.\r\n\r\nNext."));
+        let s = state(&format!("Before.\r\n{boundary}\r\nAfter.\r\n\r\nNext."));
         assert!(matches!(
             s.plan_visual_paragraph_order(&target(&s, 0), &target(&s, 1), ParagraphPosition::After),
             Err(PlanError::ExpectedContinuousParagraphs)
@@ -46,6 +49,17 @@ fn paragraph_reordering_cannot_cross_a_heading_boundary() {
             &target(&s, 1), &target(&s, 2), ParagraphPosition::After
         ).is_ok());
     }
+}
+
+#[test]
+fn explicit_paragraph_breaks_keep_their_source_slots_during_reorder() {
+    let s = state("First.\r\n  \\par\t\r\nSecond.\r\n\r\nThird.");
+    let planned = s.plan_visual_paragraph_order(
+        &target(&s, 0), &target(&s, 2), ParagraphPosition::After
+    ).unwrap();
+    let candidate = planned.intent.candidate_sources(&s).unwrap();
+    assert_eq!(candidate["main.tex"], document("Second.\r\n  \\par\t\r\nThird.\r\n\r\nFirst."));
+    assert_eq!(candidate["keep.sty"], s.sources()["keep.sty"]);
 }
 
 #[test]

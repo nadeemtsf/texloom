@@ -33,6 +33,7 @@ pub enum OpaqueReason {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum RegionKind {
     PlainParagraph,
+    ParagraphBreak,
     Trivia,
     Opaque(OpaqueReason),
 }
@@ -73,7 +74,7 @@ impl SourceRegion {
         }
         match self.kind {
             RegionKind::Opaque(_) => Readiness::Unavailable(OpaqueSource),
-            RegionKind::Trivia => Readiness::Unavailable(NotContent),
+            RegionKind::Trivia | RegionKind::ParagraphBreak => Readiness::Unavailable(NotContent),
             RegionKind::PlainParagraph => match operation {
                 OperationKind::AdjustSpacing => Readiness::Unavailable(NoLocalParameter),
                 OperationKind::RemovePositioning => Readiness::Unavailable(NotPositioned),
@@ -204,10 +205,15 @@ fn opaque(source: &str, reason: OpaqueReason) -> Vec<SourceRegion> {
     }
 }
 
+struct Boundary {
+    range: Range<usize>,
+    kind: RegionKind,
+}
+
 struct Envelope {
     body: Range<usize>,
     blocked: Vec<Range<usize>>,
-    heading_lines: Vec<usize>,
+    boundaries: Vec<Boundary>,
 }
 
 /// Bounded lexical forms in the preamble only. This preserves their bytes and
@@ -303,13 +309,24 @@ fn preamble_form(source: &str, command: &str, end: usize) -> Option<Result<usize
     .contains(&command)
     .then(parsed)
 }
-// Preserve a simple heading and its optional literal label as one boundary.
-fn standalone_heading(source: &str, start: usize, after_command: usize) -> Option<Range<usize>> {
+// Recognize standalone flow commands without consuming the surrounding prose.
+fn standalone_boundary(
+    source: &str,
+    command: &str,
+    start: usize,
+    after_command: usize,
+) -> Option<Range<usize>> {
     let line_start = source[..start].rfind('\n').map_or(0, |offset| offset + 1);
     if !source[line_start..start].bytes().all(|b| matches!(b, b' ' | b'\t')) {
         return None;
     }
-    let remainder = source[after_command..].split('\n').next()?;
+    let mut lines = source[after_command..].split('\n');
+    let remainder = lines.next()?;
+    let line_end = after_command + remainder.len();
+    if matches!(command, "\\newpage" | "\\clearpage" | "\\par") {
+        return remainder.chars().all(ascii_space).then_some(line_start..line_end);
+    }
+
     fn literal_title(title: &str) -> bool {
         !title.trim().is_empty()
             && !title.chars().any(|c| {
@@ -332,20 +349,32 @@ fn standalone_heading(source: &str, start: usize, after_command: usize) -> Optio
     if !literal_title(title) {
         return None;
     }
+    fn literal_label(line: &str) -> bool {
+        line.trim_matches(ascii_space)
+            .strip_prefix("\\label")
+            .and_then(|text| text.trim_start_matches(ascii_space).strip_prefix('{'))
+            .and_then(|text| text.strip_suffix('}'))
+            .is_some_and(|key| {
+                !key.is_empty()
+                    && key.bytes().all(|byte| {
+                        byte.is_ascii_alphanumeric() || matches!(byte, b':' | b'-' | b'_' | b'.' | b'/')
+                    })
+            })
+    }
+
     let suffix = suffix.trim_matches(ascii_space);
     if !suffix.is_empty() {
-        let label = suffix
-            .strip_prefix("\\label")?
-            .trim_start_matches(ascii_space)
-            .strip_prefix('{')?
-            .strip_suffix('}')?;
-        if label.is_empty()
-            || !label.bytes().all(|b| b.is_ascii_alphanumeric() || matches!(b, b':' | b'-' | b'_' | b'.' | b'/'))
-        {
-            return None;
+        return literal_label(suffix).then_some(line_start..line_end);
+    }
+    // An immediately following literal label belongs to this heading. Leave
+    // anything else to the normal scanner, including an invalid label.
+    let mut boundary_end = line_end;
+    if let Some(next) = lines.next() {
+        if literal_label(next) {
+            boundary_end += 1 + next.len();
         }
     }
-    Some(line_start..after_command + remainder.len())
+    Some(line_start..boundary_end)
 }
 
 fn envelope(source: &str) -> Result<Envelope, OpaqueReason> {
@@ -354,7 +383,7 @@ fn envelope(source: &str) -> Result<Envelope, OpaqueReason> {
     let mut groups = Vec::new();
     let mut envs: Vec<(&str, usize)> = Vec::new();
     let mut blocked = Vec::new();
-    let mut heading_lines = Vec::new();
+    let mut boundaries = Vec::new();
     let mut begin = None;
     let mut finish = None;
     while i < source.len() {
@@ -463,16 +492,21 @@ fn envelope(source: &str) -> Result<Envelope, OpaqueReason> {
                 if matches!(
                     command,
                     "\\part" | "\\chapter" | "\\section" | "\\subsection" | "\\subsubsection"
+                        | "\\newpage" | "\\clearpage" | "\\par"
                 )
                     && finish.is_none()
                     && groups.is_empty()
                     && matches!(envs.as_slice(), [("document", _)])
                 {
-                    let heading = standalone_heading(source, i, end)
+                    let boundary = standalone_boundary(source, command, i, end)
                         .ok_or(OpaqueReason::UnsupportedSyntax)?;
-                    heading_lines.push(heading.start);
-                    i = heading.end;
-                    blocked.push(heading);
+                    i = boundary.end;
+                    let kind = if command == "\\par" {
+                        RegionKind::ParagraphBreak
+                    } else {
+                        RegionKind::Opaque(OpaqueReason::UnsupportedSyntax)
+                    };
+                    boundaries.push(Boundary { range: boundary, kind });
                     continue;
                 }
                 // First slice recognizes literal prose, not markup expansion.
@@ -545,7 +579,7 @@ fn envelope(source: &str) -> Result<Envelope, OpaqueReason> {
     Ok(Envelope {
         body,
         blocked: merged,
-        heading_lines,
+        boundaries,
     })
 }
 
@@ -563,9 +597,17 @@ fn append(regions: &mut Vec<SourceRegion>, source: &str, range: Range<usize>, ki
     };
     if let Some(last) = regions
         .last_mut()
-        .filter(|last| last.kind == kind && last.range.end == range.start)
+        .filter(|last| {
+            last.range.end == range.start
+                && (last.kind == kind || matches!((last.kind, kind),
+                    (RegionKind::Trivia, RegionKind::ParagraphBreak)
+                    | (RegionKind::ParagraphBreak, RegionKind::Trivia)))
+        })
     {
         last.range.end = range.end;
+        if kind == RegionKind::ParagraphBreak {
+            last.kind = kind;
+        }
     } else {
         regions.push(SourceRegion { range, kind });
     }
@@ -587,15 +629,24 @@ fn project(source: &str) -> Vec<SourceRegion> {
     let mut offset = chunk;
     let mut blocked_index = 0;
     let mut chunks = Vec::new();
-    let mut heading_lines = view.heading_lines.into_iter().peekable();
+    let mut boundaries = view.boundaries.into_iter().peekable();
     for line in source[view.body.clone()].split_inclusive('\n') {
         let end = offset + line.len();
-        let heading = heading_lines.next_if_eq(&offset).is_some();
-        if heading || line.chars().all(ascii_space) {
-            if chunk < offset {
-                chunks.push(chunk..offset);
+        if let Some(boundary) = boundaries.peek().filter(|boundary| boundary.range.start <= offset) {
+            if boundary.range.start == offset && chunk < offset {
+                chunks.push((chunk..offset, None));
+                chunk = offset;
             }
-            chunks.push(offset..end);
+            if boundary.range.end <= end {
+                chunks.push((chunk..end, Some(boundary.kind)));
+                chunk = end;
+                boundaries.next();
+            }
+        } else if line.chars().all(ascii_space) {
+            if chunk < offset {
+                chunks.push((chunk..offset, None));
+            }
+            chunks.push((offset..end, None));
             chunk = end;
         }
         offset = end;
@@ -604,9 +655,9 @@ fn project(source: &str) -> Vec<SourceRegion> {
         }
     }
     if chunk < view.body.end {
-        chunks.push(chunk..view.body.end);
+        chunks.push((chunk..view.body.end, None));
     }
-    for raw in chunks {
+    for (raw, boundary_kind) in chunks {
         let text = &source[raw.clone()];
         let start = raw.start + text.len() - text.trim_start_matches(ascii_space).len();
         let end = (raw.start + text.trim_end_matches(ascii_space).len()).max(start);
@@ -619,16 +670,12 @@ fn project(source: &str) -> Vec<SourceRegion> {
                 .blocked
                 .get(blocked_index)
                 .is_some_and(|r| r.start < end);
-            append(
-                &mut regions,
-                source,
-                start..end,
-                if blocked {
-                    RegionKind::Opaque(OpaqueReason::UnsupportedSyntax)
-                } else {
-                    RegionKind::PlainParagraph
-                },
-            );
+            let kind = if blocked {
+                RegionKind::Opaque(OpaqueReason::UnsupportedSyntax)
+            } else {
+                boundary_kind.unwrap_or(RegionKind::PlainParagraph)
+            };
+            append(&mut regions, source, start..end, kind);
         }
         append(&mut regions, source, end..raw.end, RegionKind::Trivia);
         if regions.len() > MAX_REGIONS {

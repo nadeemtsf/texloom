@@ -813,8 +813,8 @@ fn verified_reorder_real_engine_workflow() {
     let long = "First paragraph wraps across PDF lines. ".repeat(5).trim_end().to_owned();
     let middle = "This intervening paragraph stays ahead of the destination.";
     let short = "The destination paragraph is shorter.";
-    let source = format!("\\documentclass[12pt]{{report}}\n\\begin{{document}}\n\\part{{Main matter}}\n\\chapter{{First chapter}}\\label{{ch:first}}\nText before heading.\n\\section[Order]{{Ordering}}\\label{{sec:ordering}}\n{long}\n\n{middle}\n\n{short}\n\\subsection*{{Next scope}}\nA neighboring paragraph stays here.\n\\end{{document}}\n");
-    let swapped = format!("\\documentclass[12pt]{{report}}\n\\begin{{document}}\n\\part{{Main matter}}\n\\chapter{{First chapter}}\\label{{ch:first}}\nText before heading.\n\\section[Order]{{Ordering}}\\label{{sec:ordering}}\n{middle}\n\n{short}\n\n{long}\n\\subsection*{{Next scope}}\nA neighboring paragraph stays here.\n\\end{{document}}\n");
+    let source = format!("\\documentclass[12pt]{{report}}\n\\begin{{document}}\n\\part{{Main matter}}\n\\chapter{{First chapter}}\\label{{ch:first}}\nText before heading.\n\\section[Order]{{Ordering}}\n\\label{{sec:ordering}}\n{long}\n\n{middle}\n\\par\n{short}\n\\subsection*{{Next scope}}\nA neighboring paragraph stays here.\n\\newpage\nA paragraph stays on this later page.\n\\end{{document}}\n");
+    let swapped = format!("\\documentclass[12pt]{{report}}\n\\begin{{document}}\n\\part{{Main matter}}\n\\chapter{{First chapter}}\\label{{ch:first}}\nText before heading.\n\\section[Order]{{Ordering}}\n\\label{{sec:ordering}}\n{middle}\n\n{short}\n\\par\n{long}\n\\subsection*{{Next scope}}\nA neighboring paragraph stays here.\n\\newpage\nA paragraph stays on this later page.\n\\end{{document}}\n");
     for engine in ["pdflatex", "xelatex", "lualatex"] {
         let mut f = Fixture::new(&source);
         prepare_test_verifier(&mut f);
@@ -828,6 +828,16 @@ fn verified_reorder_real_engine_workflow() {
             assert!(baseline.ok && baseline.verification_eligible, "{engine}: {}", baseline.log);
             let crossing = reorder_request(input, &long, "Text before heading.", false);
             assert!(visual::plan_object_edit(crossing).is_err());
+            let across_page_break = reorder_request(
+                input, "A neighboring paragraph stays here.", "A paragraph stays on this later page.", false,
+            );
+            assert!(visual::plan_object_edit(across_page_break).is_err());
+            for text in [long.as_str(), neighbor] {
+                let offset = input.find(text).unwrap();
+                let line = input[..offset].bytes().filter(|byte| *byte == b'\n').count() + 1;
+                let selected = texloom_core::resolve_text_unit(input, line).unwrap();
+                assert_eq!(selected.content, text, "{engine}: PDF selection source unit");
+            }
             let request = reorder_request(input, &long, neighbor, before);
             let planned = visual::plan_object_edit(request.clone()).unwrap();
             assert_eq!(planned.sources, sources(expected), "{engine}");

@@ -605,10 +605,13 @@ commands with literal titles as opaque boundaries, including subsections and
 subsubsections. Paragraph
 candidates can be identified on either side without a blank line. Source-model
 checks preserve the heading bytes, refuse reordering across the heading and
-allow a supported reorder within one section. A same-line literal label
-is retained with the heading. Numbered headings can carry a literal short
-title in brackets. This extends lexical coverage;
-rendered acceptance still requires the existing independent checks.
+allow a supported reorder within one section. A literal label on the same or
+immediately following line is retained with the heading. Numbered headings can
+carry a literal short title in brackets. Standalone \texttt{\string\newpage}
+and \texttt{\string\clearpage} are opaque boundaries. A reorder can take place
+on either side of a page break, subject to the same source and rendered checks.
+Paragraph reordering retains a standalone \texttt{\textbackslash{}par} separator in
+its original source slot, including its surrounding whitespace.
 
 \subsection{Adjacent paragraph reorder as a protected source draft}
 \label{sec:adjacent-paragraph-draft}
@@ -705,6 +708,19 @@ its marker. In a two-page fixture, all three engines reproduced the unmarked
 rasters, identified the complete first paragraph of page two, and reordered
 it below its neighbor with exact source bytes. Moves across pages and
 structured-source reorder require separate policies.
+
+A development probe compared two one-page, three-item lists, an
+\texttt{itemize} and an \texttt{enumerate}, before and after swapping two
+item bodies. The paragraph marker changed all twelve 96 DPI Poppler
+raster pairs across pdfLaTeX, XeLaTeX and LuaLaTeX. A variant omitted
+\texttt{\string\leavevmode} before the item text and suppressed the
+extra line ending in the probe argument. It matched all twelve unmarked
+rasters and text extractions. The pinned PDFium worker attributed the
+list label with the body. The glyph multiset matched in all six
+bullet-item comparisons. In all six numbered comparisons, the visible
+number followed its source slot and changed for the moved item.
+Numbered lists therefore need a verification rule that distinguishes
+the item body from its generated counter.
 
 \subsection{Free positioning of explicit line groups}
 The group planner applies one standard LaTeX positioning edit per selected
