@@ -303,26 +303,38 @@ fn preamble_form(source: &str, command: &str, end: usize) -> Option<Result<usize
     .contains(&command)
     .then(parsed)
 }
-// Preserve simple headings as opaque boundaries. Titles with optional
-// arguments, markup, comments or trailing content still decline projection.
+// Preserve a simple heading and its optional literal label as one boundary.
 fn standalone_heading(source: &str, start: usize, after_command: usize) -> Option<Range<usize>> {
     let line_start = source[..start].rfind('\n').map_or(0, |offset| offset + 1);
     if !source[line_start..start].bytes().all(|b| matches!(b, b' ' | b'\t')) {
         return None;
     }
     let remainder = source[after_command..].split('\n').next()?;
-    let title = remainder
+    let (title, suffix) = remainder
         .strip_prefix('*')
         .unwrap_or(remainder)
-        .trim_matches(ascii_space)
+        .trim_start_matches(ascii_space)
         .strip_prefix('{')?
-        .strip_suffix('}')?;
+        .split_once('}')?;
     if title.trim().is_empty()
         || title.chars().any(|c| {
             c.is_control() || matches!(c, '\\' | '{' | '}' | '%' | '$' | '&' | '#' | '_' | '^' | '~')
         })
     {
         return None;
+    }
+    let suffix = suffix.trim_matches(ascii_space);
+    if !suffix.is_empty() {
+        let label = suffix
+            .strip_prefix("\\label")?
+            .trim_start_matches(ascii_space)
+            .strip_prefix('{')?
+            .strip_suffix('}')?;
+        if label.is_empty()
+            || !label.bytes().all(|b| b.is_ascii_alphanumeric() || matches!(b, b':' | b'-' | b'_' | b'.' | b'/'))
+        {
+            return None;
+        }
     }
     Some(line_start..after_command + remainder.len())
 }

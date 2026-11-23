@@ -813,8 +813,8 @@ fn verified_reorder_real_engine_workflow() {
     let long = "First paragraph wraps across PDF lines. ".repeat(5).trim_end().to_owned();
     let middle = "This intervening paragraph stays ahead of the destination.";
     let short = "The destination paragraph is shorter.";
-    let source = format!("\\documentclass[12pt]{{article}}\n\\begin{{document}}\n{long}\n\n{middle}\n\n{short}\n\nA neighboring paragraph stays here.\n\\end{{document}}\n");
-    let swapped = format!("\\documentclass[12pt]{{article}}\n\\begin{{document}}\n{middle}\n\n{short}\n\n{long}\n\nA neighboring paragraph stays here.\n\\end{{document}}\n");
+    let source = format!("\\documentclass[12pt]{{article}}\n\\begin{{document}}\nText before heading.\n\\section{{Ordering}}\\label{{sec:ordering}}\n{long}\n\n{middle}\n\n{short}\n\\subsection*{{Next scope}}\nA neighboring paragraph stays here.\n\\end{{document}}\n");
+    let swapped = format!("\\documentclass[12pt]{{article}}\n\\begin{{document}}\nText before heading.\n\\section{{Ordering}}\\label{{sec:ordering}}\n{middle}\n\n{short}\n\n{long}\n\\subsection*{{Next scope}}\nA neighboring paragraph stays here.\n\\end{{document}}\n");
     for engine in ["pdflatex", "xelatex", "lualatex"] {
         let mut f = Fixture::new(&source);
         prepare_test_verifier(&mut f);
@@ -826,6 +826,8 @@ fn verified_reorder_real_engine_workflow() {
         for (base, input, expected, neighbor, before) in [(0, &source, &swapped, short, false), (1, &swapped, &source, middle, true)] {
             let baseline = f.backend.compile_document(id, base, None, None, base * 2 + 1).unwrap();
             assert!(baseline.ok && baseline.verification_eligible, "{engine}: {}", baseline.log);
+            let crossing = reorder_request(input, &long, "Text before heading.", false);
+            assert!(visual::plan_object_edit(crossing).is_err());
             let request = reorder_request(input, &long, neighbor, before);
             let planned = visual::plan_object_edit(request.clone()).unwrap();
             assert_eq!(planned.sources, sources(expected), "{engine}");
@@ -849,6 +851,8 @@ fn verified_reorder_real_engine_workflow() {
             .args(["-no-shell-escape", "-halt-on-error", "-interaction=nonstopmode", "main.tex"])
             .current_dir(f.root.join("project")).output().unwrap();
         assert!(result.status.success(), "{engine}: {}", String::from_utf8_lossy(&result.stdout));
+        let aux = fs::read_to_string(f.root.join("project/main.aux")).unwrap();
+        assert!(aux.contains(r"\newlabel{sec:ordering}{"), "{engine}: section label missing");
         println!("{engine}: reordered a wrapped paragraph in both directions and verified history, Save and external compile");
     }
 }
