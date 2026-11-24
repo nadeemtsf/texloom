@@ -680,12 +680,10 @@ line structures or rendering differences refuse the operation before
 history changes. This analysis remains distinct from moving material to a
 different position in the source order.
 
-The regression fixture is a three-page Article. It tests two successive
-displacements of the first sentence, requires its neighbor and both later
-pages to stay put, and checks exact source, Undo/Redo, explicit
-Save, reopening and an external build. Its evidence is scoped to this fixture
-and the tested engine configurations. Physical pointer interaction is
-checked separately.
+The three-page Article fixture verifies two moves and an exact zero-offset
+reset on all three engines. The neighbor and both later pages stay put.
+Undo, Redo, Save, reopening and an external build preserve the expected
+source. Physical pointer interaction is checked separately.
 
 \subsection{Verified reorder within a run of source paragraphs}
 The PDF gesture exposes insertion cues above and below text lines. A

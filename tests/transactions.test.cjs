@@ -523,6 +523,42 @@ test('free dragging a PDF text group routes through the verified direct source c
   assert.deepEqual(t.native.sources,{'main.tex':'Positioned ordinary LaTeX source','custom.sty':'Style source'});
 });
 
+test('the inspector shows native offsets and resets positioned source with a relative move',async()=>{
+ const t=await setup();
+ t.run("state.view.pageSizes=new Map([[1,{width:600,height:800}]]);showObjectInspector({kind:'source',unitKind:'line',source_offset_bp:[20,-10],page:1,x:90,y:80,width:80,height:12,file:'main.tex',start:0,end:15,content:'Original source',expected_source:'Original source'});");
+ assert.equal(t.elements.get('object-dx').value,'7.06');
+ assert.equal(t.elements.get('object-dy').value,'-3.53');
+ assert.equal(t.elements.get('object-reset').disabled,false);
+ t.control.plan=async request=>{
+  assert.equal(request.action,'move_source');
+  assert.equal(request.dx,-20);
+  assert.equal(request.dy,10);
+  return {sources:{...request.sources,'main.tex':'Natural position'},file:'main.tex'};
+ };
+ assert.equal(await t.elements.get('object-reset').onclick(),true);
+ assert.equal(t.native.sources['main.tex'],'Natural position');
+ assert.equal(t.native.history.length,1);
+});
+
+test('offset fields preserve the unchanged axis and withhold a group-wide reset for mixed offsets',async()=>{
+ const t=await setup();
+ t.run("const positioned={kind:'source',unitKind:'group',source_offset_bp:[20,-10],page:1,x:90,y:80,width:80,height:20,file:'main.tex',start:0,end:15,content:'Original source',expected_source:'Original source'};state.view.pageSizes=new Map([[1,{width:600,height:800}]]);showObjectInspector(positioned);self.moves=[];textOperation=async(_selection,movement)=>self.moves.push(movement);");
+ t.elements.get('object-dx').valueAsNumber=Number(t.elements.get('object-dx').value);
+ t.elements.get('object-dy').valueAsNumber=Number(t.elements.get('object-dy').value);
+ await t.elements.get('object-apply').onclick();
+ assert.equal(t.run('self.moves.length'),0);
+ t.elements.get('object-dx').valueAsNumber=10;
+ await t.elements.get('object-apply').onclick();
+ assert.equal(t.run('self.moves[0].dy'),0);
+ assert.ok(Math.abs(t.run('self.moves[0].dx')-(10*72/25.4-20))<1e-9);
+ t.run('showObjectInspector({...positioned,source_offset_bp:null});');
+ assert.equal(t.elements.get('object-dx').value,'');
+ assert.equal(t.elements.get('object-reset').disabled,true);
+ assert.equal(t.elements.get('object-apply').disabled,true);
+ await t.elements.get('object-reset').onclick();
+ assert.equal(t.run('self.moves.length'),1);
+});
+
 test('reorder resolves the second paragraph independently and publishes the verified source',async()=>{
  const t=await setup();
  const source='Original source';

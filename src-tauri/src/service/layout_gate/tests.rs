@@ -672,20 +672,26 @@ fn direct_drag_real_engine_workflow() {
         ).unwrap();
         let id = &project.id;
         let mut expected = source.to_owned();
-        for (base, dx, dy, total_dx, total_dy) in [(0, 88, 70, 88, 70), (1, -15, 5, 73, 75)] {
+        let mut previous_offset = [0.0, 0.0];
+        for (base, target) in [(0, [88.0, 70.0]), (1, [73.0, 75.0]), (2, [0.0, 0.0])] {
             let current = f.backend.document_snapshot(id).unwrap();
             let baseline = f.backend.compile_document(id, base, None, None, base * 2 + 1).unwrap();
             assert!(baseline.ok && baseline.verification_eligible, "{engine}: {}", baseline.log);
             let unit=texloom_core::resolve_text_unit(&expected, 3).unwrap();
             assert_eq!(unit.content, content);
+            let offset = texloom_core::source_unit_offset(&expected, &unit).unwrap();
+            assert_eq!(offset, previous_offset);
             let request: ObjectEditRequest = serde_json::from_value(json!({
                 "sources": current.sources, "main":"main.tex", "file":"main.tex",
                 "action":"move_source", "id":"drag-test", "selection":[unit.range.start,unit.range.end],
-                "expected": content, "dx": dx, "dy": dy,
+                "expected": content, "dx": target[0] - offset[0], "dy": target[1] - offset[1],
             })).unwrap();
-            expected = source.replace(content, &format!(
-                "\\raisebox{{-{total_dy}bp}}[\\height][\\depth]{{\\kern{total_dx}bp\\relax {content}\\kern-{total_dx}bp\\relax}}"
-            ));
+            let [total_dx, total_dy] = target;
+            expected = if target == [0.0, 0.0] { source.to_owned() } else {
+                source.replace(content, &format!(
+                    "\\raisebox{{-{total_dy}bp}}[\\height][\\depth]{{\\kern{total_dx}bp\\relax {content}\\kern-{total_dx}bp\\relax}}"
+                ))
+            };
             let planned = visual::plan_object_edit(request.clone()).unwrap();
             assert_eq!(planned.sources, sources(&expected), "{engine}");
             let prepared = f.backend.document_prepare_visual(
@@ -697,9 +703,10 @@ fn direct_drag_real_engine_workflow() {
             assert!(result.objects.is_empty(), "{engine} published a private marker");
             assert_eq!(fs::read_to_string(&path).unwrap(), source);
             f.backend.document_commit(id, &prepared.token, &result.build_id).unwrap();
+            previous_offset = target;
         }
-        let undone = f.backend.document_history(id, 2, false).unwrap();
-        assert!(undone.sources["main.tex"].contains("\\raisebox{-70bp}"));
+        let undone = f.backend.document_history(id, 3, false).unwrap();
+        assert!(undone.sources["main.tex"].contains("\\raisebox{-75bp}"));
         let redone = f.backend.document_history(id, undone.revision, true).unwrap();
         assert_eq!(redone.sources, sources(&expected));
         f.backend.save_document(id, redone.revision).unwrap();
@@ -708,7 +715,7 @@ fn direct_drag_real_engine_workflow() {
             .args(["-no-shell-escape", "-halt-on-error", "-interaction=nonstopmode", "main.tex"])
             .current_dir(f.root.join("project")).output().unwrap();
         assert!(checked.status.success(), "{engine}: {}", String::from_utf8_lossy(&checked.stdout));
-        println!("{engine}: two source-native drags and history, Save/reopen, external compile");
+        println!("{engine}: two source movements, exact offset reset, Undo/Redo, Save/reopen and external compile");
     }
 }
 

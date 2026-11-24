@@ -102,7 +102,7 @@ export type InverseMappingRequest = { buildId: string, page: number, x: number, 
 
 export type SelectionPoint = { x: number, y: number, };
 
-export type ResolvedSelection = { schema: number, unit_id: string, build_id: string, revision: number, file: string, expected_source: string, start: number, end: number, first_line: number, last_line: number, kind: string, content: string, plain_text: string | null, rectangles: Array<SourceRectangle>, };
+export type ResolvedSelection = { schema: number, unit_id: string, build_id: string, revision: number, file: string, expected_source: string, start: number, end: number, first_line: number, last_line: number, kind: string, content: string, plain_text: string | null, source_offset_bp: [number, number] | null, rectangles: Array<SourceRectangle>, };
 
 export type ResolveSelectionRequest = { projectId: string, revision: number, buildId: string, page: number, points: Array<SelectionPoint>, candidate: number, };
 
@@ -245,7 +245,7 @@ export interface BuildReplies {
   export_document_build: null;
   source_from_pdf: { file: string, line: number, };
   pdf_from_source: { page: number, x: number, y: number, width: number, height: number, };
-  resolve_text_selection: { schema: number, unit_id: string, build_id: string, revision: number, file: string, expected_source: string, start: number, end: number, first_line: number, last_line: number, kind: string, content: string, plain_text: string | null, rectangles: Array<SourceRectangle>, };
+  resolve_text_selection: { schema: number, unit_id: string, build_id: string, revision: number, file: string, expected_source: string, start: number, end: number, first_line: number, last_line: number, kind: string, content: string, plain_text: string | null, source_offset_bp: [number, number] | null, rectangles: Array<SourceRectangle>, };
 }
 
 export interface WorkspaceRequests {

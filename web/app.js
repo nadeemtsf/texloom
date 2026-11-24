@@ -168,16 +168,25 @@ function activateSourceFile(file){
 }
 function fresh(){return !!state.result&&state.result.verification_eligible!==false&&state.revision===state.compiled&&!state.previewZooming&&!state.busy&&!state.client?.pending&&!state.client?.error&&!state.mutating&&!state.saving&&!state.composing&&!state.opening}
 function canExport(){return !!state.project&&!!state.client&&!state.busy&&!state.opening&&!state.mutating&&!state.composing&&!state.saving&&!state.client.error}
+function selectionOffsets(selection){
+  if(!selection)return null;
+  if(selection.kind!=='source')return [selection.dx||0,selection.dy||0];
+  if(selection.unitKind!=='group'&&(selection.baselineLines?.length??0)>1)return null;
+  return selection.source_offset_bp;
+}
+const displayOffset=points=>(points/PT_PER_MM).toFixed(2);
 function updateControls(){
   typingRecovery?.renderProtection();
   const ready=fresh(),object=ready&&!!state.objectSelection;
   for(const id of ['add-text','show-pdf'])$(id).disabled=!ready;
-  for(const id of ['object-apply','object-edit','object-source'])$(id).disabled=!object;
+  for(const id of ['object-edit','object-source'])$(id).disabled=!object;
+  const offsets=object?selectionOffsets(state.objectSelection):null;
+  for(const id of ['object-dx','object-dy','object-apply'])$(id).disabled=!offsets;
   const destinations=object?canvas.reorderDestinations?.(state.objectSelection)||[]:[];
   $('object-before').disabled=!destinations.some(item=>item.before);
   $('object-after').disabled=!destinations.some(item=>!item.before);
   $('object-detach').disabled=!object||state.objectSelection?.kind!=='object';
-  $('object-reset').disabled=!object||state.objectSelection?.kind!=='object'||(!state.objectSelection.dx&&!state.objectSelection.dy);
+  $('object-reset').disabled=!offsets?.some(value=>value!==0);
   $('compile').disabled=state.busy||!!state.saving||!!state.client?.error;
   $('save').disabled=!!state.saving||state.busy||state.composing||!!state.client?.error;
   $('export').disabled=!canExport();
@@ -729,7 +738,14 @@ function moveText(selection,dx,dy,trace=diagnostics.begin('text-move')){
   }
   const proposed={...selection,x:selection.x+dx,y:selection.y+dy};
   if(!inside(proposed,state.view.pageSizes.get(selection.page))){trace?.finish('refused');return toast('Keep the selected text inside the page.')}
-  return textOperation(selection,{dx:(selection.dx||0)+dx,dy:(selection.dy||0)+dy},trace);
+  const movement=selection.kind==='source'?{dx,dy}:{dx:(selection.dx||0)+dx,dy:(selection.dy||0)+dy};
+  return textOperation(selection,movement,trace);
+}
+function applyTextOffsets(selection,x,y){
+  const current=selectionOffsets(selection);
+  if(!current||!Number.isFinite(x)||!Number.isFinite(y))return;
+  const [dx,dy]=[x,y].map((value,axis)=>value===Number(displayOffset(current[axis]))?0:value*PT_PER_MM-current[axis]);
+  if(dx||dy)return moveText(selection,dx,dy);
 }
 async function editText(selection=state.objectSelection){
   if(!selection||!fresh())return;
@@ -776,8 +792,10 @@ function showObjectInspector(selection){
     $('no-selection').classList.add('hidden');
     $('object-title').textContent=selection.kind==='source'?'Selected '+selection.unitKind:'Movable text';
     $('object-summary').textContent='Source: '+selection.file+'. Movement keeps its normal layout space.';
-    $('object-dx').value=((selection.dx||0)/PT_PER_MM).toFixed(2);
-    $('object-dy').value=((selection.dy||0)/PT_PER_MM).toFixed(2);
+    const offsets=selectionOffsets(selection);
+    $('object-dx').value=offsets?displayOffset(offsets[0]):'';
+    $('object-dy').value=offsets?displayOffset(offsets[1]):'';
+    if(!offsets)$('object-summary').textContent+=' Offsets apply to one typeset line or explicit lines with the same offset.';
     $('object-preview').textContent=selection.plain_text??selection.content;
   }else $('no-selection').classList.remove('hidden');
   sourceHighlight.update(selection);updateControls();
@@ -1011,9 +1029,12 @@ $('object-after').onclick=()=>canvas.reorderNearby(false);
 $('object-edit').onclick=()=>editText();
 $('object-source').onclick=()=>showSource(state.objectSelection);
 $('object-detach').onclick=()=>textOperation(state.objectSelection,{detach:true});
-$('object-reset').onclick=()=>{const selection=state.objectSelection;if(selection?.kind==='object')moveText(selection,-selection.dx,-selection.dy)};
-$('object-apply').onclick=()=>{const selection=state.objectSelection;if(!selection)return;
-  moveText(selection,Number($('object-dx').value)*PT_PER_MM-(selection.dx||0),Number($('object-dy').value)*PT_PER_MM-(selection.dy||0))};
+$('object-reset').onclick=()=>{
+  const selection=state.objectSelection;
+  const offsets=selectionOffsets(selection);
+  if(offsets?.some(value=>value!==0))return moveText(selection,-offsets[0],-offsets[1]);
+};
+$('object-apply').onclick=()=>applyTextOffsets(state.objectSelection,$('object-dx').valueAsNumber,$('object-dy').valueAsNumber);
 $('select-mode').onclick=()=>setMode('select');$('read-mode').onclick=()=>setMode('read');
 $('zoom-in').onclick=()=>{pdfNavigation.cancelZoom();state.zoom=Math.min(2.5,(state.zoom||state.view?.scale||1)+0.1);renderPDF()};
 $('zoom-out').onclick=()=>{pdfNavigation.cancelZoom();state.zoom=Math.max(0.2,(state.zoom||state.view?.scale||1)-0.1);renderPDF()};

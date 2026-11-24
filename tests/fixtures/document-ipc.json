@@ -1168,6 +1168,10 @@
     "rectangles": [],
     "revision": 7,
     "schema": 1,
+    "source_offset_bp": [
+      2.25,
+      -3.5
+    ],
     "start": 0,
     "unit_id": "fixture:main.tex:3:4"
   },

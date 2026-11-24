@@ -84,7 +84,8 @@ test('selection mappings must match the exact captured source bytes and UTF-16 f
  const selectionContext={snapshot:context,buildId:fixture.compile_success.build_id,page:1};
  for(const mutate of [s=>s.build_id='other',s=>s.revision++,s=>s.expected_source='A\n😀\n',
   s=>s.content='Wrong target',s=>s.end=3,s=>s.file='outside.tex',s=>s.first_line=0,
-  s=>s.kind='arbitrary',s=>s.rectangles=[{...fixture.source_rectangle,page:2}]]){
+  s=>s.kind='arbitrary',s=>s.source_offset_bp=[Infinity,0],s=>s.source_offset_bp=[1],
+  s=>delete s.source_offset_bp,s=>s.rectangles=[{...fixture.source_rectangle,page:2}]]){
   const reply=clone(fixture.resolved_selection);mutate(reply);
   assert.throws(()=>acceptResolvedSelection(reply,selectionContext),{name:'BuildProtocolError'});
  }

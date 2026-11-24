@@ -26,6 +26,7 @@ pub struct ResolvedSelection {
     pub kind: String,
     pub content: String,
     pub plain_text: Option<String>,
+    pub source_offset_bp: Option<[f64; 2]>,
     pub rectangles: Vec<SourceRectangle>,
 }
 
@@ -674,6 +675,7 @@ impl Backend {
         let unit = texloom_core::resolve_selection_hint(&source, &lines, &document, candidate)?;
         texloom_core::validate_movable_text(&unit.content, &document)?;
         let plain_text = texloom_core::plain_text_preview(&unit.content, &document);
+        let source_offset_bp = texloom_core::source_unit_offset(&source, &unit);
         if started.elapsed() > Duration::from_secs(15) {
             return Err("Selection mapping exceeded its time limit. Use source editing.".into());
         }
@@ -697,6 +699,7 @@ impl Backend {
             kind: unit.kind.into(),
             content: unit.content,
             plain_text,
+            source_offset_bp,
             rectangles: Vec::new(),
         })
     }

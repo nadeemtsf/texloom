@@ -9,7 +9,7 @@ class NativeDocumentDouble {
  async invoke(name,args){
   if(name==='describe_text_edit'){const value=await this.control.describeText?.(args);return value?{spacing:[],...value}:value;}
   if(name==='preview_text_edit')return this.control.previewText?.(args);
-  if(name==='resolve_text_selection')return {unit_id:'fixture-unit',first_line:1,last_line:1,plain_text:null,rectangles:[],...await this.control.resolve(args)};
+  if(name==='resolve_text_selection')return {unit_id:'fixture-unit',first_line:1,last_line:1,plain_text:null,source_offset_bp:[0,0],rectangles:[],...await this.control.resolve(args)};
   if(name==='plan_text_object'){const value=await this.control.plan(args.request);return {object_id:args.request.id||'fixture-object',operation:args.request.action,...value};}
   if(name==='mark_clean_exit'){this.control.cleanExits=(this.control.cleanExits??0)+1;return null;}
   if(name==='verify_build')return (await this.control.verify?.(args))??null;

@@ -233,7 +233,8 @@ pub fn fixtures() -> Value {
         "source_rectangle": SourceRectangle { page: 1, x: 12.0, y: -3.0, width: 1.25, height: 8.0 },
         "resolved_selection": ResolvedSelection { schema: 1, unit_id: "fixture:main.tex:3:4".into(),
             build_id: "c".repeat(32), revision: 7, file: "main.tex".into(), expected_source: "\u{feff}A\r\n\u{1f600}\r\n".into(),
-            start: 0, end: 1, first_line: 1, last_line: 1, kind: "line".into(), content: "A".into(), plain_text: Some("A".into()), rectangles: vec![] },
+            start: 0, end: 1, first_line: 1, last_line: 1, kind: "line".into(), content: "A".into(), plain_text: Some("A".into()),
+            source_offset_bp: Some([2.25, -3.5]), rectangles: vec![] },
     })
 }
 

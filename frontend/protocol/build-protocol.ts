@@ -152,7 +152,7 @@ export function acceptResolvedSelection(value: unknown, context: SelectionContex
 }
 function assertResolvedSelection(value: unknown, {snapshot, buildId, page}: SelectionContext): asserts value is ResolvedSelection {
   record(value, ['schema', 'unit_id', 'build_id', 'revision', 'file', 'expected_source', 'start', 'end',
-    'first_line', 'last_line', 'kind', 'content', 'plain_text', 'rectangles']);
+    'first_line', 'last_line', 'kind', 'content', 'plain_text', 'source_offset_bp', 'rectangles']);
   require(value.schema === 1 && typeof value.unit_id === 'string' && value.unit_id.length > 0 && value.unit_id.length <= 8192 &&
     value.build_id === buildId && value.revision === snapshot.revision, 'Invalid mapped selection identity');
   const text = sourceText(snapshot.sources, value.file);
@@ -163,6 +163,9 @@ function assertResolvedSelection(value: unknown, {snapshot, buildId, page}: Sele
     typeof value.kind === 'string' && ['line', 'paragraph', 'group'].includes(value.kind) &&
     (value.plain_text === null || typeof value.plain_text === 'string') && Array.isArray(value.rectangles) && value.rectangles.length <= 64,
     'Invalid mapped selection metadata');
+  const position = value.source_offset_bp;
+  require(position === null || (Array.isArray(position) && position.length === 2
+    && [position[0], position[1]].every(offset => finite(offset) && Math.abs(offset) < 10_000)), 'Invalid mapped position offset');
   for (const rectangle of value.rectangles) require(acceptSourceRectangle(rectangle).page === page, 'Mapped selection crossed a page boundary');
 }
 export async function requestBuild<C extends keyof BuildRequests>(invoke: NativeInvoke, name: C, args: BuildRequests[C]): Promise<unknown> {

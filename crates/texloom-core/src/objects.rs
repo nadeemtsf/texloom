@@ -293,6 +293,26 @@ fn source_line_position(source: &str, range: &Range<usize>) -> Option<(Range<usi
         .map(|position| (line, position))
 }
 
+/// Decode the offset that can be displayed in the inspector. A group only
+/// has a single absolute offset when all its explicit lines share it.
+pub fn source_unit_offset(source: &str, unit: &SourceUnit) -> Option<[f64; 2]> {
+    let offset = |position: Option<StandardTextPosition>| {
+        position.map_or([0.0, 0.0], |position| [position.dx, position.dy])
+    };
+    if unit.kind != "group" {
+        return Some(offset(source_line_position(source, &unit.range).map(|(_, position)| position)));
+    }
+    let segments = forced_segments(&unit.content).ok()?;
+    if !(2..=16).contains(&segments.len()) || segments.iter().any(|(range, _)| range.is_empty()) {
+        return None;
+    }
+    let mut offsets = segments.into_iter().map(|(range, _)| {
+        offset(standard_text_position(&unit.content[range]))
+    });
+    let first = offsets.next()?;
+    offsets.all(|next| next == first).then_some(first)
+}
+
 /// Move adjacent explicit lines independently so TeX keeps the original breaks.
 pub fn position_text_group(
     source: &str, range: Range<usize>, dx: f64, dy: f64, document: &str,
@@ -488,6 +508,7 @@ mod tests {
             source.replace("\\textbf{Name}", "\\raisebox{4.5bp}[\\height][\\depth]{\\kern3.13bp\\relax \\textbf{Name}\\kern-3.13bp\\relax}"),
         );
         assert_eq!(resolve_text_unit(&moved, 2).unwrap().range, range);
+        assert_eq!(source_unit_offset(&moved, &resolve_text_unit(&moved, 2).unwrap()), Some([3.13, -4.5]));
         let (restored, _, _, _) = position_text_range(&moved, range, -3.13, 4.5, &moved).unwrap();
         assert_eq!(restored, source);
     }
@@ -505,7 +526,13 @@ mod tests {
         let range = 0..source.trim_end().len();
         let (moved, span, _, _) = position_text_group(source, range, 6.0, 12.0, source).unwrap();
         let units = [resolve_text_unit(&moved, 1).unwrap(), resolve_text_unit(&moved, 2).unwrap()];
-        assert_eq!(combine_text_units(&moved, &units).unwrap().range, span);
+        let group = combine_text_units(&moved, &units).unwrap();
+        assert_eq!(group.range, span);
+        assert_eq!(source_unit_offset(&moved, &group), Some([6.0, 12.0]));
+        let (mixed, _, _, _) = position_text_range(&moved, units[0].range.clone(), -1.0, 0.0, &moved).unwrap();
+        let mixed_units = [resolve_text_unit(&mixed, 1).unwrap(), resolve_text_unit(&mixed, 2).unwrap()];
+        let mixed_group = combine_text_units(&mixed, &mixed_units).unwrap();
+        assert_eq!(source_unit_offset(&mixed, &mixed_group), None);
         assert!(moved.contains("\\\\[2pt]\r\n"));
         let (restored, _, _, _) = position_text_group(&moved, span, -6.0, -12.0, &moved).unwrap();
         assert_eq!(restored, source);
