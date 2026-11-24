@@ -279,26 +279,38 @@ pub(super) struct DirectTextPlan {
     pub(super) displacement: Option<(f64, f64)>,
 }
 
+#[derive(Clone, Copy)]
+enum TextProbe {
+    Inline,
+    Paragraph,
+    BulletItem,
+}
+
 fn mark_text_range(
     request: &ObjectEditRequest,
     source: &str,
     range: std::ops::Range<usize>,
 ) -> Result<BTreeMap<String, String>> {
-    mark_text_ranges(request, source, &[(range, &request.id)], false)
+    mark_text_ranges(request, source, &[(range, &request.id)], TextProbe::Inline)
 }
 
 fn mark_text_ranges(
     request: &ObjectEditRequest,
     source: &str,
     ranges: &[(std::ops::Range<usize>, &str)],
-    anchor_paragraphs: bool,
+    probe: TextProbe,
 ) -> Result<BTreeMap<String, String>> {
     let mut sources = request.sources.clone();
     let document = &sources[&request.main];
     let mut marked = source.to_owned();
     for (range, id) in ranges {
-        marked = texloom_core::wrap_text_object(&marked, range.clone(), id, 0.0, 0.0, document)?;
-        if anchor_paragraphs {
+        marked = match probe {
+            TextProbe::BulletItem => texloom_core::wrap_bullet_item_probe(&marked, range.clone(), id, document)?,
+            TextProbe::Inline | TextProbe::Paragraph => {
+                texloom_core::wrap_text_object(&marked, range.clone(), id, 0.0, 0.0, document)?
+            }
+        };
+        if matches!(probe, TextProbe::Paragraph) {
             // Keep the opening PDF marker with the first line when TeX breaks a page here.
             marked.insert_str(range.start, "\\leavevmode ");
         }
@@ -400,7 +412,7 @@ pub(super) struct ReorderPlan {
 }
 
 pub(super) fn plan_paragraph_reorder(request: &ObjectEditRequest) -> Result<ReorderPlan> {
-    use texloom_core::document::{Profile, Session, intent::ParagraphPosition};
+    use texloom_core::document::{Profile, Session, intent::ParagraphPosition, structure::RegionKind};
     relative(&request.main)?;
     relative(&request.file)?;
     if request.file != request.main {
@@ -423,12 +435,25 @@ pub(super) fn plan_paragraph_reorder(request: &ObjectEditRequest) -> Result<Reor
     let projection = session.source_projection(&request.file).map_err(fail)?;
     let reference = |range: &std::ops::Range<usize>| {
         projection.regions().iter().enumerate().find_map(|(index, region)| {
-            (region.range() == *range).then(|| projection.entity_reference(index)).flatten()
-        }).ok_or("Reorder requires two complete plain paragraphs")
+            if region.range() == *range {
+                projection.entity_reference(index).map(|entity| (entity, region.kind()))
+            } else {
+                None
+            }
+        }).ok_or("Reorder requires complete plain paragraphs or bullet items")
     };
+    let (target, kind) = reference(&target)?;
+    let (neighbor, _) = reference(&neighbor)?;
     let position = if request.before_neighbor { ParagraphPosition::Before } else { ParagraphPosition::After };
-    let plan = session.plan_visual_paragraph_order(&reference(&target)?, &reference(&neighbor)?, position)
-        .map_err(|_| "Reorder requires an uninterrupted run of up to eight plain paragraphs")?;
+    let (plan, probe) = if kind == RegionKind::BulletItem {
+        let plan = session.plan_visual_bullet_order(&target, &neighbor, position)
+            .map_err(|_| "Reorder requires two plain items from the same bullet list")?;
+        (plan, TextProbe::BulletItem)
+    } else {
+        let plan = session.plan_visual_paragraph_order(&target, &neighbor, position)
+            .map_err(|_| "Reorder requires an uninterrupted run of up to eight plain paragraphs")?;
+        (plan, TextProbe::Paragraph)
+    };
     if !plan.intent.changed() {
         return Err("The paragraphs already have the requested source order or identical text".into());
     }
@@ -438,8 +463,8 @@ pub(super) fn plan_paragraph_reorder(request: &ObjectEditRequest) -> Result<Reor
         .map(|(range, name)| (range.clone(), name.as_str())).collect();
     let after_ranges: Vec<_> = plan.reordered.iter().rev()
         .map(|(index, range)| (range.clone(), names[*index].as_str())).collect();
-    let before_probe = mark_text_ranges(request, source, &before_ranges, true)?;
-    let after_probe = mark_text_ranges(request, &sources[&request.file], &after_ranges, true)?;
+    let before_probe = mark_text_ranges(request, source, &before_ranges, probe)?;
+    let after_probe = mark_text_ranges(request, &sources[&request.file], &after_ranges, probe)?;
     Ok(ReorderPlan {
         sources, before_probe, after_probe,
         original_order: names.into_iter().map(|name| format!("Texloom_{name}")).collect(),
@@ -474,7 +499,7 @@ pub fn plan_object_edit(mut request: ObjectEditRequest) -> Result<ObjectPlan> {
         return Err("Project source exceeds supported limits".into());
     }
     let updated = match request.action.as_str() {
-        "wrap" | "probe_paragraph" => {
+        "wrap" | "probe_paragraph" | "probe_bullet_item" => {
             let [start, end] = request.selection.ok_or("Select text before moving it")?;
             let projection = texloom_core::document::projection::EditorProjection::new(source);
             let range = projection.source_offset(start).map_err(fail)?
@@ -482,8 +507,18 @@ pub fn plan_object_edit(mut request: ObjectEditRequest) -> Result<ObjectPlan> {
             if source.get(range.clone()) != request.expected.as_deref() {
                 return Err("The selected source has changed; select it again".into());
             }
-            if request.action == "probe_paragraph" {
-                let sources = mark_text_ranges(&request, source, &[(range, &request.id)], true)?;
+            if matches!(request.action.as_str(), "probe_paragraph" | "probe_bullet_item") {
+                let probe = if request.action == "probe_bullet_item" {
+                    if request.file != request.main
+                        || texloom_core::document::structure::bullet_item_at(source, range.start).as_ref() != Some(&range)
+                    {
+                        return Err("Select a complete item from a supported bullet list".into());
+                    }
+                    TextProbe::BulletItem
+                } else {
+                    TextProbe::Paragraph
+                };
+                let sources = mark_text_ranges(&request, source, &[(range, &request.id)], probe)?;
                 return Ok(ObjectPlan {
                     sources, object_id: request.id, file: request.file, operation: request.action,
                 });

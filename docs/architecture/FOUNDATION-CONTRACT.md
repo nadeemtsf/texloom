@@ -43,6 +43,13 @@ A changed source revision invalidates these references even after Undo restores 
 
 Plain title-only `\part`, `\chapter`, `\section`, `\subsection` and `\subsubsection` commands on standalone top-level lines are opaque boundaries. The numbered and starred forms preserve their exact bytes and allow literal paragraphs on either side to be considered independently, including without an intervening blank line. One literal LaTeX label on the heading line or the immediately following line is retained with its heading. Label keys use ASCII letters, digits, or the punctuation `:`, `-`, `_`, `.` and `/`. Standalone top-level `\newpage` and `\clearpage` also delimit paragraphs. Paragraph reordering refuses to cross these boundaries. A standalone top-level `\par` is an explicit paragraph separator. Reordering across it keeps the command and surrounding whitespace in the original source slot. Numbered headings may have one literal short title in brackets. Starred forms with optional titles, title markup, multiline commands and comments on the heading line remain outside this subset.
 
+A top-level `itemize` with up to eight plain, single-source-line
+items exposes each item body independently. Blank lines and the `\item`
+commands stay in their source slots. The reorder planner accepts destinations
+within that list and requires marked PDF verification before committing. The
+PDF gesture handles soft-wrapped item bodies as one unit. Custom labels,
+nested lists, formatted items and numbered lists use source editing.
+
 ## Required contracts for the later commands
 
 - Replace/Insert: validated literal/context and correct escaping; distinguish plain text from explicit raw LaTeX.

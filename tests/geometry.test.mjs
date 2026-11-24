@@ -24,3 +24,11 @@ test('a valid in-page object passes without altering its geometry',()=>{
  const bounds={page:1,pages:new Set([1]),x:50,y:500,width:200,height:40};
  validateObjectLayout({pageCount:1,objects:new Map([['name',bounds]]),unclosed:new Set(),pageSizes:new Map([[1,{width:600,height:800}]])},{id:'name',kind:'move'},1);assert.equal(bounds.y,500);
 });
+
+test('a font with non-finite ascent still produces usable marked text bounds',()=>{
+ const items=[{type:'beginMarkedContent',tag:'Texloom_bullet'},text('Bullet'),{type:'endMarkedContent'}];
+ const fallback=extractTextGeometry(items,{},1,800);
+ const result=extractTextGeometry(items,{bold:{ascent:NaN}},1,800);
+ assert.deepEqual(result.objects.get('bullet'),fallback.objects.get('bullet'));
+ assert.ok(Number.isFinite(result.objects.get('bullet').y));
+});

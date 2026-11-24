@@ -709,18 +709,18 @@ rasters, identified the complete first paragraph of page two, and reordered
 it below its neighbor with exact source bytes. Moves across pages and
 structured-source reorder require separate policies.
 
-A development probe compared two one-page, three-item lists, an
-\texttt{itemize} and an \texttt{enumerate}, before and after swapping two
-item bodies. The paragraph marker changed all twelve 96 DPI Poppler
-raster pairs across pdfLaTeX, XeLaTeX and LuaLaTeX. A variant omitted
-\texttt{\string\leavevmode} before the item text and suppressed the
-extra line ending in the probe argument. It matched all twelve unmarked
-rasters and text extractions. The pinned PDFium worker attributed the
-list label with the body. The glyph multiset matched in all six
-bullet-item comparisons. In all six numbered comparisons, the visible
-number followed its source slot and changed for the moved item.
-Numbered lists therefore need a verification rule that distinguishes
-the item body from its generated counter.
+Two synthetic three-item lists were compiled before and after swapping
+the first two bodies. The standard paragraph probe changed all twelve
+96 DPI Poppler rasters. Omitting \texttt{\string\leavevmode} and suppressing
+the extra line ending matched every unmarked raster and text extraction.
+PDFium attributed the generated label with the body. All six tagged bullet
+glyph multisets matched after the move. Each numbered comparison changed
+the item's number because the counter followed the source slot.
+The checked-in SyncTeX and PDF.js regression selects the whole wrapped
+item in the pdfLaTeX and LuaLaTeX fixtures and refuses a different bullet.
+The XeLaTeX marker changed 31 canvas pixels at scale one on the development
+machine. The selection check refused it. Recompiling without marks matched
+exactly.
 
 \subsection{Free positioning of explicit line groups}
 The group planner applies one standard LaTeX positioning edit per selected

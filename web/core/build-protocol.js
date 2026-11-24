@@ -167,7 +167,7 @@ function assertResolvedSelection(value, { snapshot, buildId, page }) {
         boundary(text, value.start) && boundary(text, value.end) && value.start < value.end && typeof value.content === 'string' &&
         text.slice(value.start, value.end) === value.content.replace(/\r\n?|\n/gu, '\n'), 'Mapped selection does not match the current source');
     require(integer(value.first_line, 1) && integer(value.last_line, value.first_line) && value.last_line <= text.split('\n').length &&
-        typeof value.kind === 'string' && ['line', 'paragraph', 'group'].includes(value.kind) &&
+        typeof value.kind === 'string' && ['line', 'paragraph', 'group', 'bullet_item'].includes(value.kind) &&
         (value.plain_text === null || typeof value.plain_text === 'string') && Array.isArray(value.rectangles) && value.rectangles.length <= 64, 'Invalid mapped selection metadata');
     for (const rectangle of value.rectangles)
         require(acceptSourceRectangle(rectangle).page === page, 'Mapped selection crossed a page boundary');

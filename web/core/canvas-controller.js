@@ -92,8 +92,8 @@ export class CanvasController {
     const frame=selection.kind==='object'?[...page.shell.querySelectorAll('.text-object-hit')].find(el=>el.dataset.object===selection.id):document.createElement('div');
     if(!frame)return;
     frame.classList.add('text-object-frame');if(selection.kind==='source')frame.classList.add('source-selection-frame');frame.tabIndex=0;
-    frame.setAttribute('role','button');frame.setAttribute('aria-label','Move selected text');this.position(frame,selection,this.view.scale);
-    const label=document.createElement('span');label.className='object-frame-label';label.textContent=selection.kind==='source'?`Selected ${selection.unitKind} · drag to move`:'Text object · drag to move';frame.append(label);
+    frame.setAttribute('role','button');frame.setAttribute('aria-label',selection.unitKind==='bullet_item'?'Reorder selected bullet item':'Move selected text');this.position(frame,selection,this.view.scale);
+    const label=document.createElement('span');label.className='object-frame-label';label.textContent=selection.kind==='source'?`Selected ${selection.unitKind} · drag to move`:'Text object · drag to move';if(selection.unitKind==='bullet_item')label.textContent='Selected bullet item · drag to reorder';frame.append(label);
     frame.onpointerdown=event=>this.drag(event,frame,selection);
     if(selection.kind==='source')frame.onclick=event=>{
       const last=this.lastClick;
@@ -110,7 +110,7 @@ export class CanvasController {
     page.shell.append(frame);return frame;
   }
   reorderDestinations(selection){
-    if(!this.reorder||selection?.kind!=='source'||selection.unitKind!=='paragraph')return [];
+    if(!this.reorder||selection?.kind!=='source'||!['paragraph','bullet_item'].includes(selection.unitKind))return [];
     const page=this.view?.pages?.find(item=>item.number===selection.page);
     const selected=selection.baselineLines;
     if(!page||!selected?.length)return [];
@@ -131,7 +131,7 @@ export class CanvasController {
     const selection=this.selection;
     const destination=this.reorderDestinations(selection).find(item=>item.before===before);
     if(destination)return this.reorder(selection,{...destination,wholeParagraph:true});
-    this.notify('There is no neighboring paragraph in that direction.');
+    this.notify('There is no neighboring text in that direction.');
   }
   drag(event,frame,selection){
     if(event.button!==0||!this.fresh()||this.getSession().mode==='read')return;

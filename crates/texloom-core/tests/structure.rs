@@ -163,6 +163,48 @@ fn following_literal_label_and_heading_share_one_opaque_boundary() {
 }
 
 #[test]
+fn literal_bullet_items_keep_markers_and_source_context_separate() {
+    let source = document(
+        "Before.\r\n  \\begin{itemize}\r\n  \\item First item.\r\n\r\n\t\\item Second item.  \r\n  \\end{itemize}\r\nAfter.",
+    );
+    let s = session(&source);
+    let projection = s.source_projection("main.tex").unwrap();
+    exact_partition(&projection, &source);
+    let texts = |kind| projection.regions().iter().enumerate()
+        .filter(|(_, region)| region.kind() == kind)
+        .map(|(index, _)| projection.text(index).unwrap())
+        .collect::<Vec<_>>();
+    assert_eq!(texts(RegionKind::PlainParagraph), ["Before.", "After."]);
+    assert_eq!(texts(RegionKind::BulletItem), ["First item.", "Second item."]);
+    assert_eq!(texts(RegionKind::BulletItemSeparator), ["\r\n\r\n\t\\item "]);
+    for (index, region) in projection.regions().iter().enumerate() {
+        if region.kind() == RegionKind::BulletItem {
+            assert!(projection.entity_reference(index).is_some());
+            assert_eq!(region.readiness(OperationKind::ReorderContent), Readiness::CandidateRequiringPlanAndProof);
+            assert_eq!(region.readiness(OperationKind::DeleteContent), Readiness::Unavailable(UnavailableReason::OpaqueSource));
+        }
+    }
+}
+
+#[test]
+fn complex_lists_do_not_expose_bullet_item_references() {
+    for list in [
+        "\\begin{itemize}\n\\item[Custom] Text.\n\\end{itemize}",
+        "\\begin{itemize}\n\\item \\textbf{Text.}\n\\end{itemize}",
+        "\\begin{itemize}\n\\item Text continues\non another source line.\n\\end{itemize}",
+        "\\begin{itemize}\n\\item A list.\n\\begin{itemize}\n\\item Nested.\n\\end{itemize}\n\\end{itemize}",
+        "\\begin{enumerate}\n\\item Numbered.\n\\end{enumerate}",
+        "\\begin{quote}\n\\begin{itemize}\n\\item Nested.\n\\end{itemize}\n\\end{quote}",
+    ] {
+        let source = document(list);
+        let s = session(&source);
+        let projection = s.source_projection("main.tex").unwrap();
+        exact_partition(&projection, &source);
+        assert!(projection.regions().iter().all(|r| r.kind() != RegionKind::BulletItem), "{list}");
+    }
+}
+
+#[test]
 fn standalone_page_breaks_preserve_neighboring_paragraphs() {
     for page_break in [r"\newpage", r"\clearpage"] {
         let source = document(&format!("Before.\r\n  {page_break}\t\r\nAfter."));

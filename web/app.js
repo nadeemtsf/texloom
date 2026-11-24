@@ -172,7 +172,11 @@ function updateControls(){
   typingRecovery?.renderProtection();
   const ready=fresh(),object=ready&&!!state.objectSelection;
   for(const id of ['add-text','show-pdf'])$(id).disabled=!ready;
-  for(const id of ['object-apply','object-edit','object-source'])$(id).disabled=!object;
+  const bullet=state.objectSelection?.unitKind==='bullet_item';
+  for(const id of ['object-apply','object-edit'])$(id).disabled=!object||bullet;
+  for(const id of ['object-dx','object-dy'])$(id).disabled=bullet;
+  $('object-nudge-hint').classList.toggle('hidden',bullet);
+  $('object-source').disabled=!object;
   const destinations=object?canvas.reorderDestinations?.(state.objectSelection)||[]:[];
   $('object-before').disabled=!destinations.some(item=>item.before);
   $('object-after').disabled=!destinations.some(item=>!item.before);
@@ -492,7 +496,8 @@ async function resolveSourceSelection({buildId,page,points,hits,trace=null}){
           await client.verify(buildId);assertCurrent();return {...resolved,proof:cached};
         }
         const id='selection-'+crypto.randomUUID().slice(0,8);
-        const action=resolved.kind==='paragraph'?'probe_paragraph':'wrap';
+        const action=resolved.kind==='bullet_item'?'probe_bullet_item':
+          resolved.kind==='paragraph'?'probe_paragraph':'wrap';
         const plan=await invoke('plan_text_object',{request:{sources:clone(state.sources),main:state.project.main,file:resolved.file,
           action,id,selection:[resolved.start,resolved.end],expected:resolved.content,dx:0,dy:0}});
         assertCurrent();
@@ -711,8 +716,8 @@ async function reorderText(selection,{line,before,wholeParagraph=false}){
       points:[{x:line.x+Math.min(line.width/2,15),y:line.baseline-line.height*.35}]});
     if(!fresh()||identity!==sessionIdentity(state)||state.result.build_id!==buildId)throw new StaleCandidate();
     const edge=before?neighbor.proof.lines[0]:neighbor.proof.lines.at(-1);
-    if(neighbor.kind!=='paragraph'||neighbor.file!==selection.file||(!wholeParagraph&&edge!==line)){
-      return toast('Reorder needs a drop at the edge of a neighboring paragraph in the same source file.');
+    if(neighbor.kind!==selection.unitKind||neighbor.file!==selection.file||(!wholeParagraph&&edge!==line)){
+      return toast('Drop at the edge of a neighboring paragraph or bullet item of the same kind.');
     }
     const request={sources:clone(state.sources),main:state.project.main,file:selection.file,
       action:'reorder_paragraph',id:'reorder-'+crypto.randomUUID().slice(0,8),
@@ -724,6 +729,9 @@ async function reorderText(selection,{line,before,wholeParagraph=false}){
 }
 function moveText(selection,dx,dy,trace=diagnostics.begin('text-move')){
   if(!selection){trace?.finish('refused');return}
+  if(selection.unitKind==='bullet_item'){
+    trace?.finish('refused');return toast('Drop between items to change their order.');
+  }
   if(selection.kind==='source'&&(selection.unitKind!=='group'&&(selection.baselineLines?.length??0)>1)){
     trace?.finish('refused');return toast('Free dragging supports single lines and groups with explicit line breaks.');
   }
@@ -733,6 +741,7 @@ function moveText(selection,dx,dy,trace=diagnostics.begin('text-move')){
 }
 async function editText(selection=state.objectSelection){
   if(!selection||!fresh())return;
+  if(selection.unitKind==='bullet_item')return showSource(selection);
   const identity=sessionIdentity(state);let textModel=null;
   try{textModel=await invoke('describe_text_edit',{content:selection.content,document:state.sources[state.project.main]})}catch{}
   if(identity!==sessionIdentity(state)||!fresh())return;
@@ -774,8 +783,11 @@ function showObjectInspector(selection){
   $('object-selection').classList.toggle('hidden',!selection);
   if(selection){
     $('no-selection').classList.add('hidden');
-    $('object-title').textContent=selection.kind==='source'?'Selected '+selection.unitKind:'Movable text';
-    $('object-summary').textContent='Source: '+selection.file+'. Movement keeps its normal layout space.';
+    const bullet=selection.unitKind==='bullet_item';
+    $('object-title').textContent=selection.kind==='source'?'Selected '+(bullet?'bullet item':selection.unitKind):'Movable text';
+    $('object-summary').textContent=bullet?
+      'Drop between items to change their order.':
+      'Source: '+selection.file+'. Movement keeps its normal layout space.';
     $('object-dx').value=((selection.dx||0)/PT_PER_MM).toFixed(2);
     $('object-dy').value=((selection.dy||0)/PT_PER_MM).toFixed(2);
     $('object-preview').textContent=selection.plain_text??selection.content;

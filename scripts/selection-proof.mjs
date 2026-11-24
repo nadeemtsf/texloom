@@ -16,7 +16,9 @@ const manifest=JSON.parse(await readFile(join(root,'tests/fixtures/proof/manifes
 const movement=JSON.parse(await readFile(join(base,'report.json'),'utf8'));
 const output=process.env.TEXLOOM_SELECTION_REPORT_DIR ? resolve(process.env.TEXLOOM_SELECTION_REPORT_DIR) : join(root,'artifacts/selection');await mkdir(output,{recursive:true});
 const examples=resolve(root,process.env.CARGO_TARGET_DIR||'target','debug/examples');
-const hint=join(examples,'selection_hint'+(process.platform==='win32'?'.exe':''));
+const executable=process.platform==='win32'?'.exe':'';
+const hint=join(examples,'selection_hint'+executable);
+const candidateProgram=join(examples,'proof_candidate'+executable);
 const report={schema:1,createdAt:new Date().toISOString(),status:'pending',cases:[],limitations:['Synthetic source/SyncTeX/probe corpus; native mouse acceptance remains open.','Rotated/cropped/UserUnit pages, arbitrary TeX and independent runtime inspection are not certified.']};
 function run(exe,args,cwd=root){const r=spawnSync(exe,args,{cwd,encoding:'utf8',windowsHide:true,timeout:90_000,maxBuffer:8*1024*1024});if(r.error||r.status!==0)throw new Error(r.error?.message||(r.stderr+r.stdout).slice(-1500));return r.stdout}
 async function view(path,id){
@@ -35,6 +37,64 @@ async function view(path,id){
  }finally{await pdf.destroy()}
 }
 function equivalent(a,b){return a.page===b.page&&a.text===b.text&&['x','y','width','height','size','baseline'].every(k=>Math.abs(a[k]-b[k])<=1e-6)}
+async function checkBulletSelection(engine) {
+ const fixture=join(root,'tests/fixtures/proof/bullet-selection/main.tex');
+ const source=await readFile(fixture,'utf8'),opening='\\item Alpha opens a longer list item.';
+ const command=source.indexOf(opening);
+ if(command<0)throw Error('The expected bullet is missing from the fixture');
+ const item=command+'\\item '.length;
+ const lineEnd=source.indexOf('\n',item);
+ if(lineEnd<0)throw Error('The bullet fixture requires a complete source line');
+ const itemEnd=source[lineEnd-1]==='\r'?lineEnd-1:lineEnd;
+ const start=Buffer.byteLength(source.slice(0,item)),end=Buffer.byteLength(source.slice(0,itemEnd));
+ const marker='proof_bullet';
+ const work=join(output,engine.name,'bullet-selection');
+ const baselineDir=join(work,'baseline'),probeDir=join(work,'tagged');
+ await mkdir(baselineDir,{recursive:true});
+ await mkdir(probeDir,{recursive:true});
+ await cp(fixture,join(baselineDir,'main.tex'));
+ const marked=run(candidateProgram,[fixture,fixture,String(start),String(end),marker,'0','0','bullet-probe']);
+ await writeFile(join(probeDir,'main.tex'),marked);
+ await cp(join(root,'resources/texloom-objects.sty'),join(probeDir,'texloom-objects.sty'));
+ const args=['-interaction=nonstopmode','-halt-on-error','-file-line-error','-no-shell-escape','-synctex=1'];
+ if(engine.miktex)args.push('--disable-installer');
+ for(const dir of [baselineDir,probeDir]){
+  const log=run(engine.name,[...args,'main.tex'],dir);
+  await writeFile(join(dir,'compiler.log'),log);
+ }
+ const original=join(baselineDir,'main.pdf');
+ const baseline=await view(original,'bullet-baseline'),probe=await view(join(probeDir,'main.pdf'),'bullet-probe');
+ const page=baseline.pages[0];
+ const first=page.lines.find(line=>line.text.includes('Alpha opens a longer list item.'));
+ const wrapped=page.lines.find(line=>line!==first&&line.text.includes('will wrap at the line boundary.'));
+ const other=page.lines.find(line=>line.text.includes('Bravo is short.'));
+ if(!first||!wrapped||!other)throw Error('Bullet fixture must wrap and show the neighboring item');
+ for(const hit of [first,wrapped]){
+  const x=hit.x+Math.min(hit.width/2,15),y=hit.baseline-hit.height*.35;
+  const response=run('synctex',['edit','-o','1:'+x+':'+y+':'+original],baselineDir);
+  const input=response.match(/^Input:(.+)$/m)?.[1]?.trim(),line=response.match(/^Line:(\d+)$/m)?.[1];
+  if(!input||!line||resolve(baselineDir,input)!==join(baselineDir,'main.tex'))throw Error('SyncTeX did not return the bullet source line');
+  const unit=JSON.parse(run(hint,[fixture,fixture,line]));
+  if(unit.kind!=='bullet_item'||unit.start!==start||unit.end!==end)throw Error('The clicked line did not resolve the complete bullet item');
+ }
+ const row={engine:engine.name,fixture:'bullet-selection'};
+ try{
+  const proof=validateSelectionProbe(baseline,probe,marker,[first,wrapped],1);
+  if(proof.lines.length<2||proof.lines.includes(other))throw Error('Selection did not isolate the wrapped item');
+ }catch(error){
+  if(engine.name==='xelatex'&&/probe changed the page appearance/.test(error.message)){
+   // The marker can alter XeLaTeX pixels even when the source hint is exact.
+   return {...row,status:'expected-refusal',reason:error.message};
+  }
+  throw error;
+ }
+ let refused=false;
+ try{validateSelectionProbe(baseline,probe,marker,[other],1)}
+ catch(error){if(!/does not produce all the clicked text/.test(error.message))throw error;refused=true}
+ if(!refused)throw Error('Bullet marker authorized the neighboring item');
+ return {...row,status:'pass',kind:'bullet_item'};
+}
+
 try{
  if(movement.status!=='pass')throw new Error('The movement fixture preparation/engine matrix must pass first');
  for(const engine of movement.engines){
@@ -113,6 +173,8 @@ try{
     if(row.status==='expected-refusal')row.limitation='Measured unsupported pdfLaTeX mixed-format probe; the runtime pixel check remains strict.';
    }
   }
+  try{report.cases.push(await checkBulletSelection(engine))}
+  catch(error){report.cases.push({engine:engine.name,fixture:'bullet-selection',status:'fail',reason:error.message})}
  }
  report.status=report.cases.some(r=>r.status==='fail')?'fail':'pass';
 }catch(e){report.status='fail';report.error=e.message}

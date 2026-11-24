@@ -9,6 +9,11 @@ fn run() -> Result<String, String> {
     let end = a[3].parse::<usize>().map_err(|e| e.to_string())?;
     let dx = a[5].parse::<f64>().map_err(|e| e.to_string())?;
     let dy = a[6].parse::<f64>().map_err(|e| e.to_string())?;
+    if a[7] == "bullet-probe" {
+        if dx != 0.0 || dy != 0.0 { return Err("A bullet probe cannot move text".into()); }
+        let wrapped = texloom_core::wrap_bullet_item_probe(&source, start..end, &a[4], &document)?;
+        return texloom_core::ensure_objects_package(&wrapped);
+    }
     let wrapped = texloom_core::wrap_text_object(&source, start..end, &a[4], dx, dy, &document)?;
     if a[7] == "detach" { texloom_core::unwrap_text_object(&wrapped, &a[4]) }
     else if a[7] == "wrap" { Ok(wrapped) }

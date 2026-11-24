@@ -192,6 +192,21 @@ pub fn resolve_text_unit_in_document(source: &str, line: usize, document: &str) 
     let lines = line_ranges(source);
     let index = line.checked_sub(1).filter(|n| *n < lines.len()).ok_or("The mapped source line is outside this file")?;
     let raw = &source[lines[index].clone()];
+    let trimmed = raw.trim_start();
+    if trimmed.starts_with('\\') {
+        let (name, after_command) = command(trimmed, 0);
+        if name == "\\item" {
+            let body = trimmed[after_command..].trim();
+            let end = lines[index].start + raw.trim_end().len();
+            let start = end - body.len();
+            let range = crate::document::structure::bullet_item_at(source, start)
+                .filter(|range| *range == (start..end))
+                .ok_or("Select a plain bullet item, or edit this list in the source.")?;
+            return Ok(SourceUnit {
+                range, first_line: line, last_line: line, kind: "bullet_item", content: body.to_owned(),
+            });
+        }
+    }
     if boundary(raw) { return Err("This PDF point maps to structural source. Select the text itself or use source editing.".into()); }
     if let Ok((_, body, end)) = document_bounds(source) {
         if lines[index].start < body || lines[index].end > end { return Err("Generated text or macro definitions in the preamble cannot be moved here".into()); }
@@ -365,12 +380,23 @@ pub fn ensure_objects_package(source: &str) -> Result<String> {
 }
 
 pub fn wrap_text_object(source: &str, range: Range<usize>, id: &str, dx: f64, dy: f64, document: &str) -> Result<String> {
+    wrap_text_object_with_end(source, range, id, dx, dy, document, "\n")
+}
+
+/// Private-build marker for an already projected plain bullet item body.
+pub fn wrap_bullet_item_probe(source: &str, range: Range<usize>, id: &str, document: &str) -> Result<String> {
+    wrap_text_object_with_end(source, range, id, 0.0, 0.0, document, "%\n")
+}
+
+fn wrap_text_object_with_end(
+    source: &str, range: Range<usize>, id: &str, dx: f64, dy: f64, document: &str, end: &str,
+) -> Result<String> {
     if !valid_id(id) { return Err("Invalid object identifier".into()); }
     let existing = text_objects(source)?;
     if existing.iter().any(|o| o.id == id || o.range.start < range.end && o.range.end > range.start) { return Err("Duplicate or nested text objects are not supported".into()); }
     let content = source.get(range.clone()).filter(|s| !s.trim().is_empty()).ok_or("Invalid source selection")?;
     validate_movable_text(content, document)?;
-    let replacement = format!("\\TexloomObject{{{id}}}{{{}}}{{{}}}{{{}\n}}", number(dx, false)?, number(dy, false)?, content);
+    let replacement = format!("\\TexloomObject{{{id}}}{{{}}}{{{}}}{{{content}{end}}}", number(dx, false)?, number(dy, false)?);
     let mut updated = source.to_string(); updated.replace_range(range, &replacement);
     text_objects(&updated)?; Ok(updated)
 }
@@ -537,6 +563,14 @@ mod tests {
             assert_eq!(after.content, "After.");
             assert!(resolve_text_unit(&source, 4).is_err());
         }
+    }
+    #[test]
+    fn a_bullet_selection_uses_just_the_supported_item_body() {
+        let source = "\\documentclass{article}\n\\begin{document}\n\\begin{itemize}\n  \\item First item.  \n\\end{itemize}\n\\end{document}\n";
+        let item = resolve_text_unit(source, 4).unwrap();
+        assert_eq!(item.kind, "bullet_item");
+        assert_eq!(&source[item.range], "First item.");
+        assert!(resolve_text_unit(&source.replace("itemize", "enumerate"), 4).is_err());
     }
     #[test] fn signature_line_keeps_its_break_outside() { let u = resolve_text_unit(DOC,9).unwrap(); assert_eq!(u.content,"\\textbf{\\Person}"); assert_eq!(u.kind,"line"); }
     #[test] fn last_signature_line_is_independent() { assert_eq!(resolve_text_unit(DOC,11).unwrap().content,"Example University"); }

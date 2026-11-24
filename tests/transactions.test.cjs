@@ -544,6 +544,26 @@ test('reorder resolves the second paragraph independently and publishes the veri
  assert.equal(t.native.history[0].sources['main.tex'],source);
 });
 
+test('bullet items use the verified reorder path and refuse free dragging or a prose drop',async()=>{
+ const t=await setup();
+ const selected="{kind:'source',unitKind:'bullet_item',file:'main.tex',page:1,start:0,end:8,content:'Original',expected_source:'Original source'}";
+ t.run("const reorderLine={x:30,width:100,y:100,baseline:108,height:10};");
+ let plans=0;
+ t.control.plan=async request=>{
+  plans++;
+  assert.equal(request.action,'reorder_paragraph');
+  return {sources:{...request.sources,'main.tex':'source Original'},file:'main.tex'};
+ };
+ await t.run("moveText("+selected+",5,10)");
+ t.run("resolveSourceSelection=async()=>({kind:'paragraph',file:'main.tex',start:9,end:15,proof:{lines:[reorderLine]}});");
+ await t.run("reorderText("+selected+",{line:reorderLine,before:false})");
+ assert.equal(plans,0);
+ t.run("resolveSourceSelection=async()=>({kind:'bullet_item',file:'main.tex',start:9,end:15,proof:{lines:[reorderLine]}});");
+ await t.run("reorderText("+selected+",{line:reorderLine,before:false})");
+ assert.equal(plans,1);
+ assert.equal(t.native.sources['main.tex'],'source Original');
+});
+
 test('dropping inside an unrelated wrapped paragraph cannot commit or fall back to free drag',async()=>{
  const t=await setup();
  const selection="{kind:'source',unitKind:'paragraph',file:'main.tex',page:1,start:0,end:8,content:'Original',expected_source:'Original source'}";

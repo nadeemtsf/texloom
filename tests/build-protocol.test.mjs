@@ -78,6 +78,8 @@ test('actual Rust Serde compiler and mapping fixtures cross the strict runtime b
  assert.equal(acceptCompilation(nullable,context),nullable,'unavailable plain previews remain readable');
  assert.equal(fixture.compile_success.job_id,42,'native scheduler ID is not the browser request counter');
  assert.equal(acceptResolvedSelection(fixture.resolved_selection,{snapshot:context,buildId:fixture.compile_success.build_id,page:1}),fixture.resolved_selection);
+ const bullet={...fixture.resolved_selection,kind:'bullet_item'};
+ assert.equal(acceptResolvedSelection(bullet,{snapshot:context,buildId:fixture.compile_success.build_id,page:1}),bullet);
 });
 
 test('selection mappings must match the exact captured source bytes and UTF-16 fragment before any probe',()=>{

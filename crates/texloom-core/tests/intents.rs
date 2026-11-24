@@ -18,12 +18,16 @@ fn state(body: &str) -> Session {
     .unwrap()
 }
 fn target(s: &Session, occurrence: usize) -> EntityReference {
+    target_of_kind(s, RegionKind::PlainParagraph, occurrence)
+}
+
+fn target_of_kind(s: &Session, kind: RegionKind, occurrence: usize) -> EntityReference {
     let p = s.source_projection("main.tex").unwrap();
     let index = p
         .regions()
         .iter()
         .enumerate()
-        .filter(|(_, r)| r.kind() == RegionKind::PlainParagraph)
+        .filter(|(_, r)| r.kind() == kind)
         .nth(occurrence)
         .unwrap()
         .0;
@@ -641,4 +645,32 @@ fn identical_paragraph_bytes_do_not_create_an_undetectable_source_move() {
     assert!(!s.apply_source_intent_draft(plan).unwrap().changed());
     assert_eq!(s.revision(), Revision(0));
     assert!(!s.can_undo());
+}
+
+
+#[test]
+fn bullet_item_reorder_preserves_tex_and_keeps_each_move_within_its_list() {
+    let body = "Before.\r\n\\begin{itemize}\r\n  \\item First.  \r\n\r\n\t\\item Second.\r\n\\item Third.\r\n\\end{itemize}\r\n\\begin{itemize}\r\n\\item Outside.\r\n\\end{itemize}";
+    let s = state(body);
+    let item = |occurrence| target_of_kind(&s, RegionKind::BulletItem, occurrence);
+    let first = item(0);
+    let third = item(2);
+    let plan = s.plan_visual_bullet_order(&first, &third, ParagraphPosition::After).unwrap();
+    let candidate = plan.intent.candidate_sources(&s).unwrap();
+    assert_eq!(candidate["main.tex"], document(
+        "Before.\r\n\\begin{itemize}\r\n  \\item Second.  \r\n\r\n\t\\item Third.\r\n\\item First.\r\n\\end{itemize}\r\n\\begin{itemize}\r\n\\item Outside.\r\n\\end{itemize}",
+    ));
+    assert_eq!(candidate["keep.sty"], s.sources()["keep.sty"]);
+    assert!(matches!(plan.intent.required_proof(), RequiredProof::BulletItemReorder { .. }));
+    assert!(s.plan_visual_paragraph_order(&first, &third, ParagraphPosition::After).is_err());
+    for destination in [item(3), target(&s, 0)] {
+        assert!(matches!(
+            s.plan_visual_bullet_order(&first, &destination, ParagraphPosition::After),
+            Err(PlanError::ExpectedContinuousBulletItems)
+        ));
+    }
+    assert!(matches!(
+        s.plan_source_intent(SourceIntent::DeleteParagraphContent { target: first }),
+        Err(PlanError::UnsupportedTarget)
+    ));
 }

@@ -870,6 +870,60 @@ fn verified_reorder_real_engine_workflow() {
 
 #[test]
 #[ignore = "requires the installed TeX engines and the pinned Windows verifier"]
+fn plain_bullet_reorder_real_engine_workflow() {
+    let first = "Alpha opens a longer list item. ".to_owned()
+        + &"This sentence wraps along with the rest of the item. ".repeat(6);
+    let first = first.trim_end();
+    let short = "Bravo is a shorter list item.";
+    let before = format!(
+        "\\documentclass[12pt]{{article}}\n\\begin{{document}}\nOutside above.\n\n\\begin{{itemize}}\n  \\item {first}\n\n  \\item {short}\n  \\item Charlie remains third.\n\\end{{itemize}}\nOutside below.\n\\end{{document}}\n"
+    );
+    let after = format!(
+        "\\documentclass[12pt]{{article}}\n\\begin{{document}}\nOutside above.\n\n\\begin{{itemize}}\n  \\item {short}\n\n  \\item {first}\n  \\item Charlie remains third.\n\\end{{itemize}}\nOutside below.\n\\end{{document}}\n"
+    );
+    let numbered = before.replace("itemize", "enumerate");
+    assert!(visual::plan_object_edit(reorder_request(&numbered, first, short, false)).is_err());
+    assert!(visual::plan_object_edit(reorder_request(&before, first, "Outside below.", false)).is_err());
+
+    for engine in ["pdflatex", "xelatex", "lualatex"] {
+        let mut fixture = Fixture::new(&before);
+        prepare_test_verifier(&mut fixture);
+        let path = fixture.root.join("project/main.tex").to_string_lossy().into_owned();
+        let project = fixture.backend.open_project_with_profile(Some(path), Some(ProjectProfile {
+            schema: 1, main: "main.tex".into(), engine: engine.into(),
+        })).unwrap();
+        let id = &project.id;
+        let baseline = fixture.backend.compile_document(id, 0, None, None, 1).unwrap();
+        assert!(baseline.ok && baseline.verification_eligible, "{engine}: {}", baseline.log);
+        let request = reorder_request(&before, first, short, false);
+        let offset = before.find(first).unwrap();
+        let item_line = before[..offset].lines().count();
+        let selected = texloom_core::resolve_selection_hint(&before, &[item_line], &before, 0).unwrap();
+        assert_eq!(selected.kind, "bullet_item");
+        assert_eq!(selected.range, offset..offset + first.len());
+        let mut probe = request.clone();
+        probe.action = "probe_bullet_item".into();
+        probe.neighbor = None;
+        let marked = visual::plan_object_edit(probe).unwrap();
+        assert!(marked.sources["main.tex"].contains(r"\TexloomObject{drag-reorder}{0}{0}{Alpha"));
+        let planned = visual::plan_object_edit(request.clone()).unwrap();
+        assert_eq!(planned.sources, sources(&after));
+        let prepared = fixture.backend.document_prepare_visual(
+            id, 0, planned.sources, &baseline.build_id, Some(VisualOperation::Text { request }),
+        ).unwrap();
+        let result = fixture.backend.compile_document(id, 0, Some(&prepared.token), None, 2)
+            .unwrap_or_else(|error| panic!("{engine} bullet reorder: {error}"));
+        assert!(result.ok && result.verification_eligible, "{engine}: {}", result.log);
+        assert!(result.objects.is_empty());
+        let committed = fixture.backend.document_commit(id, &prepared.token, &result.build_id).unwrap();
+        assert_eq!(committed.sources, sources(&after));
+        assert_eq!(fixture.backend.document_history(id, committed.revision, false).unwrap().sources, sources(&before));
+        println!("{engine}: reordered whole bullet-item bodies and preserved the list source");
+    }
+}
+
+#[test]
+#[ignore = "requires the installed TeX engines and the pinned Windows verifier"]
 fn later_page_paragraph_real_engine_workflow() {
     let leading = "Delta starts the second page.";
     let next = "Echo is the next paragraph.";

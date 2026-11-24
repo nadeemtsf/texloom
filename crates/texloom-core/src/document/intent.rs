@@ -37,6 +37,7 @@ pub enum PlanError {
     LiteralTooLarge,
     ExpectedAdjacentParagraphs,
     ExpectedContinuousParagraphs,
+    ExpectedContinuousBulletItems,
 }
 impl From<EditError> for PlanError {
     fn from(value: EditError) -> Self {
@@ -50,6 +51,11 @@ pub enum RequiredProof {
     LiteralParagraphReplacement { requested_text: String },
     ParagraphContentDeletion,
     ParagraphReorder {
+        original_target: Range<usize>,
+        original_neighbor: Range<usize>,
+        position: ParagraphPosition,
+    },
+    BulletItemReorder {
         original_target: Range<usize>,
         original_neighbor: Range<usize>,
         position: ParagraphPosition,
@@ -69,7 +75,7 @@ pub struct IntentPlan {
     required_proof: RequiredProof,
 }
 
-/// Exact source ranges in visual order before and after a proposed move.
+/// Exact ranges of the prose or item bodies before and after a proposed move.
 pub struct ParagraphOrderPlan {
     pub intent: IntentPlan,
     pub original: Vec<Range<usize>>,
@@ -236,7 +242,7 @@ impl Session {
         neighbor: &EntityReference,
         position: ParagraphPosition,
     ) -> Result<IntentPlan, PlanError> {
-        self.plan_paragraph_order(target, neighbor, position, 2)
+        self.plan_source_order(target, neighbor, position, 2, RegionKind::PlainParagraph)
             .map(|plan| plan.intent)
             .map_err(|error| match error {
                 PlanError::ExpectedContinuousParagraphs => PlanError::ExpectedAdjacentParagraphs,
@@ -250,42 +256,62 @@ impl Session {
         neighbor: &EntityReference,
         position: ParagraphPosition,
     ) -> Result<ParagraphOrderPlan, PlanError> {
-        self.plan_paragraph_order(target, neighbor, position, 8)
+        self.plan_source_order(target, neighbor, position, 8, RegionKind::PlainParagraph)
     }
 
-    fn plan_paragraph_order(
+    pub fn plan_visual_bullet_order(
         &self,
         target: &EntityReference,
         neighbor: &EntityReference,
         position: ParagraphPosition,
-        maximum_paragraphs: usize,
     ) -> Result<ParagraphOrderPlan, PlanError> {
+        self.plan_source_order(target, neighbor, position, 8, RegionKind::BulletItem)
+    }
+
+    fn plan_source_order(
+        &self,
+        target: &EntityReference,
+        neighbor: &EntityReference,
+        position: ParagraphPosition,
+        maximum_units: usize,
+        content_kind: RegionKind,
+    ) -> Result<ParagraphOrderPlan, PlanError> {
+        let bullet_list = content_kind == RegionKind::BulletItem;
+        let invalid_run = || {
+            if bullet_list {
+                PlanError::ExpectedContinuousBulletItems
+            } else {
+                PlanError::ExpectedContinuousParagraphs
+            }
+        };
         let target = self.resolve_entity_reference(target)?;
         let neighbor = self.resolve_entity_reference(neighbor)?;
         let target_range = target.range();
         let neighbor_range = neighbor.range();
         if target.file() != neighbor.file() || target_range == neighbor_range {
-            return Err(PlanError::ExpectedContinuousParagraphs);
+            return Err(invalid_run());
         }
         let projection = self.source_projection(target.file())?;
         let regions = projection.regions();
         let index = |range: &Range<usize>| {
-            regions.iter().position(|region| region.kind() == RegionKind::PlainParagraph && region.range() == *range)
-                .ok_or(PlanError::ExpectedContinuousParagraphs)
+            regions.iter().position(|region| region.kind() == content_kind && region.range() == *range)
+                .ok_or_else(invalid_run)
         };
         let target_index = index(&target_range)?;
         let neighbor_index = index(&neighbor_range)?;
         let first = target_index.min(neighbor_index);
         let last = target_index.max(neighbor_index);
         let run = &regions[first..=last];
-        if run.len() > maximum_paragraphs * 2 - 1 || run.iter().enumerate().any(|(i, region)| {
+        if run.len() > maximum_units * 2 - 1 || run.iter().enumerate().any(|(i, region)| {
             if i % 2 == 0 {
-                region.kind() != RegionKind::PlainParagraph
+                region.kind() != content_kind
+            } else if bullet_list {
+                region.kind() != RegionKind::BulletItemSeparator
             } else {
                 !matches!(region.kind(), RegionKind::Trivia | RegionKind::ParagraphBreak)
             }
         }) {
-            return Err(PlanError::ExpectedContinuousParagraphs);
+            return Err(invalid_run());
         }
         let original: Vec<_> = run.iter().step_by(2).map(|region| region.range()).collect();
         let target_slot = (target_index - first) / 2;
@@ -321,10 +347,18 @@ impl Session {
         let intent = IntentPlan {
             kind: OperationKind::ReorderContent,
             prepared: self.prepare_source_edit(self.revision(), target.file(), edits)?,
-            required_proof: RequiredProof::ParagraphReorder {
-                original_target: target_range,
-                original_neighbor: neighbor_range,
-                position,
+            required_proof: if bullet_list {
+                RequiredProof::BulletItemReorder {
+                    original_target: target_range,
+                    original_neighbor: neighbor_range,
+                    position,
+                }
+            } else {
+                RequiredProof::ParagraphReorder {
+                    original_target: target_range,
+                    original_neighbor: neighbor_range,
+                    position,
+                }
             },
         };
         Ok(ParagraphOrderPlan { intent, original, reordered })

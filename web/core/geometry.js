@@ -37,7 +37,8 @@ export function extractTextGeometry(items,styles,page,pageHeight) {
     if(typeof item.str!=='string'||!item.str.trim())continue;
     const [a,b,c,d,e,f]=item.transform;
     if(Math.abs(b)>0.01||Math.abs(c)>0.01)continue; // Rotated text needs its own adapter.
-    const height=Math.hypot(c,d),ascent=styles[item.fontName]?.ascent??0.8;
+    const height=Math.hypot(c,d),fontAscent=styles[item.fontName]?.ascent;
+    const ascent=Number.isFinite(fontAscent)?fontAscent:0.8;
     const run={text:item.str,x:e,y:pageHeight-f-height*ascent,width:Math.abs(item.width),height,baseline:pageHeight-f,font:item.fontName,size:height,page};
     runs.push(run);
     for(const id of stack.filter(Boolean)){if(!objects.has(id))objects.set(id,[]);objects.get(id).push(run)}

@@ -34,6 +34,8 @@ pub enum OpaqueReason {
 pub enum RegionKind {
     PlainParagraph,
     ParagraphBreak,
+    BulletItem,
+    BulletItemSeparator,
     Trivia,
     Opaque(OpaqueReason),
 }
@@ -74,7 +76,13 @@ impl SourceRegion {
         }
         match self.kind {
             RegionKind::Opaque(_) => Readiness::Unavailable(OpaqueSource),
-            RegionKind::Trivia | RegionKind::ParagraphBreak => Readiness::Unavailable(NotContent),
+            RegionKind::Trivia | RegionKind::ParagraphBreak | RegionKind::BulletItemSeparator => {
+                Readiness::Unavailable(NotContent)
+            }
+            RegionKind::BulletItem if operation == OperationKind::ReorderContent => {
+                Readiness::CandidateRequiringPlanAndProof
+            }
+            RegionKind::BulletItem => Readiness::Unavailable(OpaqueSource),
             RegionKind::PlainParagraph => match operation {
                 OperationKind::AdjustSpacing => Readiness::Unavailable(NoLocalParameter),
                 OperationKind::RemovePositioning => Readiness::Unavailable(NotPositioned),
@@ -112,7 +120,7 @@ impl<'a> SourceProjection<'a> {
     /// Snapshot-local identity, deliberately not serialized or accepted by IPC.
     pub fn entity_reference(&self, index: usize) -> Option<EntityReference> {
         let region = self.regions.get(index)?;
-        if region.kind != RegionKind::PlainParagraph {
+        if !matches!(region.kind, RegionKind::PlainParagraph | RegionKind::BulletItem) {
             return None;
         }
         Some(EntityReference {
@@ -207,7 +215,12 @@ fn opaque(source: &str, reason: OpaqueReason) -> Vec<SourceRegion> {
 
 struct Boundary {
     range: Range<usize>,
-    kind: RegionKind,
+    kind: BoundaryKind,
+}
+
+enum BoundaryKind {
+    Region(RegionKind),
+    BulletList(Vec<Range<usize>>),
 }
 
 struct Envelope {
@@ -309,6 +322,18 @@ fn preamble_form(source: &str, command: &str, end: usize) -> Option<Result<usize
     .contains(&command)
     .then(parsed)
 }
+fn standalone_line_start(source: &str, start: usize) -> Option<usize> {
+    let line_start = source[..start].rfind('\n').map_or(0, |offset| offset + 1);
+    source[line_start..start].bytes().all(|b| matches!(b, b' ' | b'\t')).then_some(line_start)
+}
+
+fn literal_text(text: &str) -> bool {
+    !text.trim().is_empty()
+        && !text.chars().any(|c| {
+            c.is_control() || matches!(c, '\\' | '{' | '}' | '%' | '$' | '&' | '#' | '_' | '^' | '~')
+        })
+}
+
 // Recognize standalone flow commands without consuming the surrounding prose.
 fn standalone_boundary(
     source: &str,
@@ -316,10 +341,7 @@ fn standalone_boundary(
     start: usize,
     after_command: usize,
 ) -> Option<Range<usize>> {
-    let line_start = source[..start].rfind('\n').map_or(0, |offset| offset + 1);
-    if !source[line_start..start].bytes().all(|b| matches!(b, b' ' | b'\t')) {
-        return None;
-    }
+    let line_start = standalone_line_start(source, start)?;
     let mut lines = source[after_command..].split('\n');
     let remainder = lines.next()?;
     let line_end = after_command + remainder.len();
@@ -327,26 +349,19 @@ fn standalone_boundary(
         return remainder.chars().all(ascii_space).then_some(line_start..line_end);
     }
 
-    fn literal_title(title: &str) -> bool {
-        !title.trim().is_empty()
-            && !title.chars().any(|c| {
-                c.is_control() || matches!(c, '\\' | '{' | '}' | '%' | '$' | '&' | '#' | '_' | '^' | '~')
-            })
-    }
-
     let starred = remainder.strip_prefix('*');
     let mut arguments = starred.unwrap_or(remainder).trim_start_matches(ascii_space);
     if starred.is_none() {
         if let Some(optional) = arguments.strip_prefix('[') {
             let (short, rest) = optional.split_once(']')?;
-            if !literal_title(short) || short.contains('[') {
+            if !literal_text(short) || short.contains('[') {
                 return None;
             }
             arguments = rest.trim_start_matches(ascii_space);
         }
     }
     let (title, suffix) = arguments.strip_prefix('{')?.split_once('}')?;
-    if !literal_title(title) {
+    if !literal_text(title) {
         return None;
     }
     fn literal_label(line: &str) -> bool {
@@ -375,6 +390,44 @@ fn standalone_boundary(
         }
     }
     Some(line_start..boundary_end)
+}
+
+// Start with literal one-line item bodies. TeX may wrap them in the PDF.
+fn standalone_bullet_list(source: &str, start: usize, after_open: usize) -> Option<Boundary> {
+    const MAX_ITEMS: usize = 8;
+    let list_start = standalone_line_start(source, start)?;
+    let mut lines = source[after_open..].split_inclusive('\n');
+    let rest_of_open = lines.next()?;
+    if !rest_of_open.chars().all(ascii_space) {
+        return None;
+    }
+
+    let mut items = Vec::new();
+    let mut line_start = after_open + rest_of_open.len();
+    for line in lines {
+        let trimmed = line.trim_matches(ascii_space);
+        if trimmed == r"\end{itemize}" {
+            let list_end = line_start + line.trim_end_matches('\n').len();
+            return (!items.is_empty()).then_some(Boundary {
+                range: list_start..list_end,
+                kind: BoundaryKind::BulletList(items),
+            });
+        }
+        if !trimmed.is_empty() {
+            let rest = trimmed.strip_prefix(r"\item")?;
+            if items.len() == MAX_ITEMS || !rest.starts_with(ascii_space) {
+                return None;
+            }
+            let text = rest.trim_start_matches(ascii_space);
+            if !literal_text(text) {
+                return None;
+            }
+            let text_end = line_start + line.trim_end_matches(ascii_space).len();
+            items.push(text_end - text.len()..text_end);
+        }
+        line_start += line.len();
+    }
+    None
 }
 
 fn envelope(source: &str) -> Result<Envelope, OpaqueReason> {
@@ -465,6 +518,15 @@ fn envelope(source: &str) -> Result<Envelope, OpaqueReason> {
                         return Err(OpaqueReason::UnsupportedSyntax);
                     }
                     if command == "\\begin" {
+                        if name == "itemize" && finish.is_none()
+                            && matches!(envs.as_slice(), [("document", _)])
+                        {
+                            if let Some(list) = standalone_bullet_list(source, i, after) {
+                                i = list.range.end;
+                                boundaries.push(list);
+                                continue;
+                            }
+                        }
                         if envs.len() >= MAX_SCOPES {
                             return Err(OpaqueReason::BudgetExceeded);
                         }
@@ -506,7 +568,7 @@ fn envelope(source: &str) -> Result<Envelope, OpaqueReason> {
                     } else {
                         RegionKind::Opaque(OpaqueReason::UnsupportedSyntax)
                     };
-                    boundaries.push(Boundary { range: boundary, kind });
+                    boundaries.push(Boundary { range: boundary, kind: BoundaryKind::Region(kind) });
                     continue;
                 }
                 // First slice recognizes literal prose, not markup expansion.
@@ -613,6 +675,12 @@ fn append(regions: &mut Vec<SourceRegion>, source: &str, range: Range<usize>, ki
     }
 }
 
+pub fn bullet_item_at(source: &str, offset: usize) -> Option<Range<usize>> {
+    project(source).into_iter()
+        .find(|region| region.kind == RegionKind::BulletItem && region.range.contains(&offset))
+        .map(|region| region.range)
+}
+
 fn project(source: &str) -> Vec<SourceRegion> {
     let view = match envelope(source) {
         Ok(view) => view,
@@ -629,7 +697,7 @@ fn project(source: &str) -> Vec<SourceRegion> {
     let mut offset = chunk;
     let mut blocked_index = 0;
     let mut chunks = Vec::new();
-    let mut boundaries = view.boundaries.into_iter().peekable();
+    let mut boundaries = view.boundaries.iter().peekable();
     for line in source[view.body.clone()].split_inclusive('\n') {
         let end = offset + line.len();
         if let Some(boundary) = boundaries.peek().filter(|boundary| boundary.range.start <= offset) {
@@ -638,7 +706,7 @@ fn project(source: &str) -> Vec<SourceRegion> {
                 chunk = offset;
             }
             if boundary.range.end <= end {
-                chunks.push((chunk..end, Some(boundary.kind)));
+                chunks.push((chunk..end, Some(&boundary.kind)));
                 chunk = end;
                 boundaries.next();
             }
@@ -658,6 +726,21 @@ fn project(source: &str) -> Vec<SourceRegion> {
         chunks.push((chunk..view.body.end, None));
     }
     for (raw, boundary_kind) in chunks {
+        if let Some(BoundaryKind::BulletList(items)) = boundary_kind {
+            let syntax = RegionKind::Opaque(OpaqueReason::UnsupportedSyntax);
+            let mut cursor = raw.start;
+            for (index, item) in items.iter().enumerate() {
+                let kind = if index == 0 { syntax } else { RegionKind::BulletItemSeparator };
+                append(&mut regions, source, cursor..item.start, kind);
+                append(&mut regions, source, item.clone(), RegionKind::BulletItem);
+                cursor = item.end;
+            }
+            append(&mut regions, source, cursor..raw.end, syntax);
+            if regions.len() > MAX_REGIONS {
+                return opaque(source, OpaqueReason::BudgetExceeded);
+            }
+            continue;
+        }
         let text = &source[raw.clone()];
         let start = raw.start + text.len() - text.trim_start_matches(ascii_space).len();
         let end = (raw.start + text.trim_end_matches(ascii_space).len()).max(start);
@@ -673,7 +756,10 @@ fn project(source: &str) -> Vec<SourceRegion> {
             let kind = if blocked {
                 RegionKind::Opaque(OpaqueReason::UnsupportedSyntax)
             } else {
-                boundary_kind.unwrap_or(RegionKind::PlainParagraph)
+                match boundary_kind {
+                    Some(BoundaryKind::Region(kind)) => *kind,
+                    _ => RegionKind::PlainParagraph,
+                }
             };
             append(&mut regions, source, start..end, kind);
         }

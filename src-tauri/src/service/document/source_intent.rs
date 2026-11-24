@@ -127,7 +127,7 @@ pub enum SourceDraftRefusalReason {
 impl From<PlanError> for SourceDraftRefusalReason {
     fn from(error: PlanError) -> Self {
         match error {
-            PlanError::UnsupportedTarget => Self::UnsupportedTarget,
+            PlanError::UnsupportedTarget | PlanError::ExpectedContinuousBulletItems => Self::UnsupportedTarget,
             PlanError::EmptyLiteral => Self::EmptyLiteral,
             PlanError::ParagraphBreakRequiresStructuralIntent => Self::ParagraphBreak,
             PlanError::ControlCharacter => Self::ControlCharacter,
