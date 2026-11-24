@@ -132,7 +132,7 @@ test('a later compiler failure clears the preliminary view and retains the earli
 
 // Run the complete production shell. IDs come only from the shipped HTML;
 // looking up a missing control returns null, as it does in the actual WebView.
-function boot({markup=html,openFailure=null,pathFailure=null,badSnapshot=false,adapterFailure=null,deferCompile=false,enablePreliminary=false,pendingSave=null,badRecoverySnapshot=false,withChapter=false}={}){
+function boot({markup=html,openFailure=null,pathFailure=null,badSnapshot=false,adapterFailure=null,deferCompile=false,enablePreliminary=false,pendingSave=null,badRecoverySnapshot=false,withChapter=false,preferences=new Map()}={}){
   const calls=[],compileStates=[],elements=new Map(),options={},handlers={};
   function element(id=''){
     const classes=new Set(),attributes=new Map();
@@ -149,6 +149,7 @@ function boot({markup=html,openFailure=null,pathFailure=null,badSnapshot=false,a
     assert.ok(!elements.has(match[1]),'Duplicate HTML ID: '+match[1]);
     elements.set(match[1],element(match[1]));
   }
+  elements.get('auto').checked=true;
   const source='\\documentclass{article}\n\\begin{document}\nNative shell fixture\n\\end{document}\n';
   const project={id:'fixture',name:'Fixture',main:'main.tex',sources:{'main.tex':source},recoveries:pendingSave?[pendingSave]:[],recovery_error:null,restored:false,draft_warning:null,source_only:false};
   if(withChapter)project.sources['chapter.tex']='Fixture chapter.\n';
@@ -159,6 +160,7 @@ function boot({markup=html,openFailure=null,pathFailure=null,badSnapshot=false,a
     addAction(){},addCommand(){},getDomNode:()=>element(),getSelections:()=>[],hasTextFocus:()=>false,
     setPosition(position){handlers.lastPosition=position},focus(){}};
   let nativeSource=source;
+  const autoTimers=new Map();let nextTimer=0;
   const context={draftRecoveryEnabled:false,...transactions,bindPDFScrolling,SourceHighlight,selectionSourceRange,applyTextInputAppearance,renderProtectedCommands,positionDialogNear,clearDialogPosition,DocumentClient,editorText,sameSources,TypingRecoveryController,CloseController,createWorkspaceInvoke,ProjectControls,PDFSearch,SetupHelp,installPerformanceDiagnostics,performanceOutcome,structuredClone,console,
     createCompileInvoke,startPDFWorker,PreliminaryPreview,PreliminaryPDFSurface,renderPreliminaryPDF,acceptUnverifiedPreview,
     capturePDFScrollAnchor:()=>null,
@@ -172,7 +174,10 @@ function boot({markup=html,openFailure=null,pathFailure=null,badSnapshot=false,a
     CanvasController:class{clear(){}bind(){}},
     document:{getElementById:id=>elements.get(id)||null,createElement:()=>element(),
       querySelectorAll:selector=>selector==='dialog[open]'?[...elements.values()].filter(e=>e.open):[],addEventListener:(name,fn)=>{handlers[name]=fn}},
-    window:{addEventListener(){}},setTimeout:()=>1,clearTimeout(){},
+    window:{addEventListener(){}},
+    setTimeout(fn,delay){const id=++nextTimer;if(delay===800)autoTimers.set(id,fn);return id},
+    clearTimeout:id=>autoTimers.delete(id),
+    localStorage:{getItem:key=>preferences.get(key)??null,setItem:(key,value)=>preferences.set(key,value)},
     getCurrentWindow:()=>({onCloseRequested:fn=>{handlers.close=fn}}),
     open:async()=>null,save:async()=>null,confirm:async()=>true,
     nativeInvoke:async(name,args)=>{
@@ -214,8 +219,28 @@ function boot({markup=html,openFailure=null,pathFailure=null,badSnapshot=false,a
   let script=app.replace(/^import .*;\r?$/gm,'').replace(/openProject\(\);\s*$/,'globalThis.startup = openProject();');
   if(enablePreliminary)script=script.replace('const ENABLE_PRELIMINARY_PREVIEW = false;','const ENABLE_PRELIMINARY_PREVIEW = true;');
   vm.runInNewContext(script+'\nglobalThis.shell={state,preliminary,updateControls,applyLayoutControl,showFailure,projectControls};',context,{filename:'web/app.js'});
-  return {context,calls,compileStates,elements,options,model,handlers};
+  return {context,calls,compileStates,elements,options,model,handlers,autoTimers};
 }
+
+test('disabling Auto compile survives relaunch and leaves typing and manual Compile available',async()=>{
+  const preferences=new Map();
+  const first=boot({preferences});await first.context.startup;
+  const checkbox=first.elements.get('auto');
+  await changeSource(first,source=>source.replace('Native shell fixture','Pending edit'));
+  assert.equal(first.autoTimers.size,1);
+  checkbox.checked=false;checkbox.onchange();
+  assert.equal(first.autoTimers.size,0);
+
+  const relaunched=boot({preferences});await relaunched.context.startup;
+  assert.equal(relaunched.elements.get('auto').checked,false);
+  assert.equal(relaunched.compileStates.length,0);
+  await changeSource(relaunched,source=>source.replace('Native shell fixture','Edited text'));
+  assert.match(relaunched.context.shell.state.sources['main.tex'],/Edited text/);
+  assert.equal(relaunched.compileStates.length,0);
+  assert.equal(relaunched.autoTimers.size,0);
+  await relaunched.elements.get('compile').onclick();
+  assert.equal(relaunched.compileStates.length,1);
+});
 
 test('the complete shipped shell opens a project and enables source editing',async()=>{
   const t=boot();await t.context.startup;
