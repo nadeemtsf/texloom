@@ -813,10 +813,25 @@ fn verified_reorder_real_engine_workflow() {
     let long = "First paragraph wraps across PDF lines. ".repeat(5).trim_end().to_owned();
     let middle = "This intervening paragraph stays ahead of the destination.";
     let short = "The destination paragraph is shorter.";
-    let source = format!("\\documentclass[12pt]{{report}}\n\\begin{{document}}\n\\part{{Main matter}}\n\\chapter{{First chapter}}\\label{{ch:first}}\nText before heading.\n\\section[Order]{{Ordering}}\n\\label{{sec:ordering}}\n{long}\n\n{middle}\n\\par\n{short}\n\\subsection*{{Next scope}}\nA neighboring paragraph stays here.\n\\newpage\nA paragraph stays on this later page.\n\\end{{document}}\n");
-    let swapped = format!("\\documentclass[12pt]{{report}}\n\\begin{{document}}\n\\part{{Main matter}}\n\\chapter{{First chapter}}\\label{{ch:first}}\nText before heading.\n\\section[Order]{{Ordering}}\n\\label{{sec:ordering}}\n{middle}\n\n{short}\n\\par\n{long}\n\\subsection*{{Next scope}}\nA neighboring paragraph stays here.\n\\newpage\nA paragraph stays on this later page.\n\\end{{document}}\n");
+    let prefix = "\\documentclass[12pt]{report}\n\\begin{document}\n\\part{Main matter}\n\\chapter{First chapter}\\label{ch:first}\nText before heading.\n\\section[Order]{Ordering}\n\\label{sec:ordering}\n";
+    let suffix = "\n\\subsection*{Next scope}\nA neighboring paragraph stays here.\n\n\\input{parts/notes.tex}\n\nA paragraph follows the included file.\n\\newpage\nA paragraph stays on this later page.\n\\end{document}\n";
+    let source = format!("{prefix}{long}\n\n{middle}\n\\par\n{short}{suffix}");
+    let swapped = format!("{prefix}{middle}\n\n{short}\n\\par\n{long}{suffix}");
+    let included = "Included notes stay in their own file.\n\nA second included paragraph.\n";
+    let with_input = |main: &str| {
+        let mut project_sources = sources(main);
+        project_sources.insert("parts/notes.tex".into(), included.into());
+        project_sources
+    };
+    let request_with_input = |main: &str, target: &str, neighbor: &str, before: bool| {
+        let mut request = reorder_request(main, target, neighbor, before);
+        request.sources = with_input(main);
+        request
+    };
     for engine in ["pdflatex", "xelatex", "lualatex"] {
         let mut f = Fixture::new(&source);
+        fs::create_dir(f.root.join("project/parts")).unwrap();
+        fs::write(f.root.join("project/parts/notes.tex"), included).unwrap();
         prepare_test_verifier(&mut f);
         let path = f.root.join("project/main.tex").to_string_lossy().into_owned();
         let project = f.backend.open_project_with_profile(Some(path.clone()), Some(ProjectProfile {
@@ -826,10 +841,14 @@ fn verified_reorder_real_engine_workflow() {
         for (base, input, expected, neighbor, before) in [(0, &source, &swapped, short, false), (1, &swapped, &source, middle, true)] {
             let baseline = f.backend.compile_document(id, base, None, None, base * 2 + 1).unwrap();
             assert!(baseline.ok && baseline.verification_eligible, "{engine}: {}", baseline.log);
-            let crossing = reorder_request(input, &long, "Text before heading.", false);
+            let crossing = request_with_input(input, &long, "Text before heading.", false);
             assert!(visual::plan_object_edit(crossing).is_err());
-            let across_page_break = reorder_request(
-                input, "A neighboring paragraph stays here.", "A paragraph stays on this later page.", false,
+            let across_input = request_with_input(
+                input, "A neighboring paragraph stays here.", "A paragraph follows the included file.", false,
+            );
+            assert!(visual::plan_object_edit(across_input).is_err());
+            let across_page_break = request_with_input(
+                input, "A paragraph follows the included file.", "A paragraph stays on this later page.", false,
             );
             assert!(visual::plan_object_edit(across_page_break).is_err());
             for text in [long.as_str(), neighbor] {
@@ -838,9 +857,9 @@ fn verified_reorder_real_engine_workflow() {
                 let selected = texloom_core::resolve_text_unit(input, line).unwrap();
                 assert_eq!(selected.content, text, "{engine}: PDF selection source unit");
             }
-            let request = reorder_request(input, &long, neighbor, before);
+            let request = request_with_input(input, &long, neighbor, before);
             let planned = visual::plan_object_edit(request.clone()).unwrap();
-            assert_eq!(planned.sources, sources(expected), "{engine}");
+            assert_eq!(planned.sources, with_input(expected), "{engine}");
             let prepared = f.backend.document_prepare_visual(
                 id, base, planned.sources, &baseline.build_id, Some(VisualOperation::Text { request }),
             ).unwrap();
@@ -848,15 +867,16 @@ fn verified_reorder_real_engine_workflow() {
                 .unwrap_or_else(|error| panic!("{engine} reorder {base}: {error}"));
             assert!(result.ok && result.verification_eligible, "{engine}: {}", result.log);
             assert!(result.objects.is_empty());
-            assert_eq!(f.backend.document_commit(id, &prepared.token, &result.build_id).unwrap().sources,sources(expected));
+            assert_eq!(f.backend.document_commit(id, &prepared.token, &result.build_id).unwrap().sources, with_input(expected));
         }
         let undone = f.backend.document_history(id, 2, false).unwrap();
-        assert_eq!(undone.sources, sources(&swapped));
+        assert_eq!(undone.sources, with_input(&swapped));
         let redone = f.backend.document_history(id, undone.revision, true).unwrap();
-        assert_eq!(redone.sources, sources(&source));
+        assert_eq!(redone.sources, with_input(&source));
         let swapped_again = f.backend.document_history(id, redone.revision, false).unwrap();
         f.backend.save_document(id, swapped_again.revision).unwrap();
-        assert_eq!(f.backend.open_project(Some(path)).unwrap().sources, sources(&swapped));
+        assert_eq!(f.backend.open_project(Some(path)).unwrap().sources, with_input(&swapped));
+        assert_eq!(fs::read_to_string(f.root.join("project/parts/notes.tex")).unwrap(), included);
         let result = Command::new(find_program(engine).unwrap())
             .args(["-no-shell-escape", "-halt-on-error", "-interaction=nonstopmode", "main.tex"])
             .current_dir(f.root.join("project")).output().unwrap();
@@ -864,7 +884,7 @@ fn verified_reorder_real_engine_workflow() {
         let aux = fs::read_to_string(f.root.join("project/main.aux")).unwrap();
         assert!(aux.contains(r"\newlabel{sec:ordering}{"), "{engine}: section label missing");
         assert!(aux.contains("Order}"), "{engine}: short title missing from auxiliary output");
-        println!("{engine}: reordered a wrapped paragraph in both directions and verified history, Save and external compile");
+        println!("{engine}: verified reorder, static input boundaries, unchanged included source and external compile");
     }
 }
 
