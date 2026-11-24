@@ -174,22 +174,32 @@ fn has_package(s: &str, package: &str) -> bool {
 }
 
 /// Append a paragraph to the main document and return its exact source range.
-pub fn append_plain_paragraph(source: &str, text: &str) -> Result<(String, Range<usize>)> {
+fn literal_paragraph(text: &str) -> Result<String> {
     let text = text.trim();
     if text.is_empty() || text.len() > 256_000 ||
         text.chars().any(|ch| ch.is_control() || matches!(ch, '\u{2028}' | '\u{2029}'))
     {
         return Err("Enter one nonempty paragraph on a single line".into());
     }
-    let (_, _, end) = document_bounds(source)?;
+    Ok(escape_text(text))
+}
+
+fn insert_paragraph_at(source: &str, offset: usize, content: &str, trailing_break: bool) -> (String, Range<usize>) {
     let newline = if source.find('\n')
         .is_some_and(|offset| source[..offset].ends_with('\r')) { "\r\n" } else { "\n" };
-    let content = escape_text(text);
-    let start = end + 2 * newline.len();
+    let separator = newline.repeat(2);
+    let start = offset + separator.len();
     let range = start..start + content.len();
-    let mut updated = source.to_string();
-    updated.insert_str(end, &format!("{newline}{newline}{content}{newline}{newline}"));
-    Ok((updated, range))
+    let suffix = if trailing_break { separator.as_str() } else { "" };
+    let mut updated = source.to_owned();
+    updated.insert_str(offset, &format!("{separator}{content}{suffix}"));
+    (updated, range)
+}
+
+pub fn append_plain_paragraph(source: &str, text: &str) -> Result<(String, Range<usize>)> {
+    let content = literal_paragraph(text)?;
+    let (_, _, end) = document_bounds(source)?;
+    Ok(insert_paragraph_at(source, end, &content, true))
 }
 
 pub fn utf16_to_byte(s: &str, offset: usize) -> Result<usize> {

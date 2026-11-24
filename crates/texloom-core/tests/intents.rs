@@ -73,6 +73,23 @@ fn formatted_deletion_refuses_comments_macros_and_scoped_content() {
 }
 
 #[test]
+fn insertion_after_a_paragraph_keeps_existing_separators_and_uses_the_exact_occurrence() {
+    let sample = "Repeat.\r\n\r\nMiddle.\r\n\r\nRepeat.\r\n\\par\r\nLast.";
+    let s = state(sample);
+    let source = &s.sources()["main.tex"];
+    let start = source.rfind("Repeat.").unwrap();
+    let end = start + "Repeat.".len();
+    let (updated, inserted) = s.insert_plain_paragraph_after("main.tex", start..end, "New & fresh.").unwrap();
+    let escaped = r"New \& fresh.";
+    assert_eq!(&updated[inserted], escaped);
+    assert_eq!(updated, format!("{}\r\n\r\n{escaped}{}", &source[..end], &source[end..]));
+    assert_eq!(&s.sources()["main.tex"], source);
+    assert!(s.insert_plain_paragraph_after("main.tex", start..end - 1, "Refused.").is_err());
+    assert!(s.insert_plain_paragraph_after("main.tex", start..end, "One\nTwo").is_err());
+    assert!(s.insert_plain_paragraph_after("keep.sty", start..end, "Refused.").is_err());
+}
+
+#[test]
 fn paragraph_reordering_cannot_cross_a_structural_boundary() {
     for boundary in [
         r"\section{Title}",

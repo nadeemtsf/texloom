@@ -348,7 +348,7 @@ fn isolated(w: Window, page: usize, raster: &Raster, a: &Inspection, b: &Inspect
 pub fn compare_text_deletion(before: &Inspection, after: &Inspection) -> Result<()> {
     validate(before)?;
     validate(after)?;
-    require(before.pages.len() == after.pages.len(), "Deletion changed the page count")?;
+    require(before.pages.len() == after.pages.len(), "The edit would change the PDF page count")?;
     let first = before.glyphs.iter().position(|glyph| glyph.target)
         .ok_or("The selection has no visible text")?;
     let last = before.glyphs.iter().rposition(|glyph| glyph.target).unwrap();
@@ -356,11 +356,11 @@ pub fn compare_text_deletion(before: &Inspection, after: &Inspection) -> Result<
     let removed = &before.glyphs[first..=last];
     require(
         removed.iter().all(|glyph| glyph.target && glyph.page == page),
-        "Delete requires one uninterrupted selection on a single page",
+        "This edit requires uninterrupted text on one page",
     )?;
     require(
         !before.graphics.iter().chain(&after.graphics).any(|graphic| graphic.page == page),
-        "Delete requires a text-only page",
+        "This edit requires a text-only page",
     )?;
     match_graphics(before, after)?;
 
@@ -368,7 +368,7 @@ pub fn compare_text_deletion(before: &Inspection, after: &Inspection) -> Result<
         require(
             old.width == new.width && old.height == new.height && old.crop == new.crop
                 && old.annotations == 0 && new.annotations == 0,
-            "Deletion changed page geometry or requires annotation support",
+            "This edit changed page geometry or requires annotation support",
         )?;
         let a = &before.rasters[i];
         let b = &after.rasters[i];
@@ -377,7 +377,7 @@ pub fn compare_text_deletion(before: &Inspection, after: &Inspection) -> Result<
                 && a.channels == b.channels && a.scale == b.scale,
             "Raster configuration changed",
         )?;
-        require(i == page || a.pixels == b.pixels, "Deletion changed another page's appearance")?;
+        require(i == page || a.pixels == b.pixels, "This edit changed another page's appearance")?;
     }
 
     let remaining = before.glyphs[..first].iter().chain(&before.glyphs[last + 1..]);
@@ -395,7 +395,7 @@ pub fn compare_text_deletion(before: &Inspection, after: &Inspection) -> Result<
                 };
                 expected.near(new.bounds, NEIGHBOR_TOLERANCE)
             }),
-        "Deletion changed text order, text geometry, or content outside the selection",
+        "This edit changed the surrounding text order, geometry, or content",
     )
 }
 

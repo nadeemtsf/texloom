@@ -840,6 +840,47 @@ fn paragraph_delete_real_engine_workflow() {
 }
 
 #[test]
+#[ignore = "requires installed TeX engines and the pinned Windows verifier"]
+fn insert_after_paragraph_real_engine_workflow() {
+    let source = "\\documentclass{article}\n\\begin{document}\nThe chosen position.\n\nBetween them.\n\nThe chosen position.\n\\par\nText after insertion.\n\\end{document}\n";
+    let anchor = "The chosen position.";
+    let end = source.rfind(anchor).unwrap() + anchor.len();
+    let expected = format!("{}\n\nNew \\& fresh.{}", &source[..end], &source[end..]);
+    for engine in ["pdflatex", "xelatex", "lualatex"] {
+        let mut fixture = Fixture::new(source);
+        prepare_test_verifier(&mut fixture);
+        let path = fixture.root.join("project/main.tex").to_string_lossy().into_owned();
+        let project = fixture.backend.open_project_with_profile(Some(path.clone()), Some(ProjectProfile {
+            schema: 1, main: "main.tex".into(), engine: engine.into(),
+        })).unwrap();
+        let baseline = fixture.backend.compile_document(&project.id, 0, None, None, 1).unwrap();
+        assert!(baseline.ok && baseline.verification_eligible, "{engine}: {}", baseline.log);
+        let request: ObjectEditRequest = serde_json::from_value(json!({
+            "sources": sources(source), "main":"main.tex", "file":"main.tex",
+            "action":"insert_paragraph_after", "id":"insert-paragraph", "selection":[end-anchor.len(),end],
+            "expected":anchor, "content":"New & fresh.", "plain":true,
+        })).unwrap();
+        let plan = visual::plan_object_edit(request.clone()).unwrap();
+        assert_eq!(plan.sources, sources(&expected));
+        let prepared = fixture.backend.document_prepare_visual(
+            &project.id, 0, plan.sources, &baseline.build_id, Some(VisualOperation::Text { request }),
+        ).unwrap();
+        let candidate = fixture.backend.compile_document(&project.id, 0, Some(&prepared.token), None, 2)
+            .unwrap_or_else(|error| panic!("{engine}: {error}"));
+        assert!(candidate.ok && candidate.verification_eligible, "{engine}: {}", candidate.log);
+        assert!(candidate.objects.is_empty());
+        let committed = fixture.backend.document_commit(&project.id, &prepared.token, &candidate.build_id).unwrap();
+        assert_eq!(committed.sources, sources(&expected));
+        let undo = fixture.backend.document_history(&project.id, committed.revision, false).unwrap();
+        assert_eq!(undo.sources, sources(source));
+        let redo = fixture.backend.document_history(&project.id, undo.revision, true).unwrap();
+        fixture.backend.save_document(&project.id, redo.revision).unwrap();
+        assert_eq!(fixture.backend.open_project(Some(path)).unwrap().sources, sources(&expected));
+        println!("{engine}: inserted after the second equal paragraph, kept its separator, and passed Undo, Redo and reopening");
+    }
+}
+
+#[test]
 #[ignore = "requires the installed TeX engines and the pinned Windows verifier"]
 fn formatted_paragraph_delete_real_engine_workflow() {
     let selected = r"A paragraph with a \textbf{bold \emph{word}} and \texttt{two words}.";

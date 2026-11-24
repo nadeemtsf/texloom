@@ -56,6 +56,7 @@ enum Policy {
         before_probe: Option<Sources>,
         after_probe: Sources,
         displacement: Option<(f64, f64)>,
+        check_insertion: bool,
     },
 }
 /// Retained only inside the pending native transaction. Artifacts are pinned
@@ -145,13 +146,14 @@ impl Plan {
                 } else if matches!(request.action.as_str(), "delete_paragraph" | "delete_lines") {
                     let plan = visual::plan_text_deletion(&request)?;
                     (plan.sources, Policy::DeleteText { marker, before_probe: plan.before_probe })
-                } else if matches!(request.action.as_str(), "replace_source" | "append_paragraph" | "move_source") {
+                } else if matches!(request.action.as_str(), "replace_source" | "append_paragraph" | "insert_paragraph_after" | "move_source") {
                     let plan = visual::plan_direct_text(&request)?;
                     (plan.sources, Policy::DirectText {
                         marker,
                         before_probe: plan.before_probe,
                         after_probe: plan.after_probe,
                         displacement: plan.displacement,
+                        check_insertion: request.action == "insert_paragraph_after",
                     })
                 } else {
                     let planned = visual::plan_object_edit(request.clone())?;
@@ -455,7 +457,7 @@ impl Backend {
                 verification::compare_text_deletion(&before.view, &after.view).map_err(fail)?;
                 private_builds.push(probe);
             }
-            Policy::DirectText { marker, before_probe, after_probe, displacement } => {
+            Policy::DirectText { marker, before_probe, after_probe, displacement, check_insertion } => {
                 let baseline = if let Some(sources) = before_probe {
                     let probe = self.equivalent_text_probe(request, sources, &plan.baseline, lease)?;
                     private_builds.push(probe.clone());
@@ -472,6 +474,10 @@ impl Backend {
                     let prediction = self.predict_layout(&baseline, marker, *dx, *dy, &lease.cancel)?;
                     verification::compare_prediction(&before.view, &after.view, *dx, *dy, &prediction.view)
                         .map_err(fail)?;
+                } else if *check_insertion {
+                    // The longer, marked candidate must become the baseline
+                    // when the inserted glyphs are taken out of the comparison.
+                    verification::compare_text_deletion(&after.view, &before.view).map_err(fail)?;
                 } else {
                     reflow(&before.view, &after.view)?;
                 }

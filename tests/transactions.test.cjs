@@ -78,7 +78,7 @@ for(const failure of ['prepare','compile'])test(`paragraph insertion keeps the a
  };
  if(failure==='prepare')t.control.prepareFailure='Native preparation refused';
  else t.control.compile=async()=>({ok:false,log:'Compilation failed'});
- await t.run("appendParagraph({identity:sessionIdentity(state)},'New text')");
+ await t.run("insertParagraph({identity:sessionIdentity(state)},'New text')");
  assert.equal(t.run("state.sources['main.tex']"),'Original source');assert.equal(t.run('state.result.build_id'),'last-good');
  assert.equal(t.native.history.length,0);assert.equal(t.native.pending.size,0);
 });
@@ -521,6 +521,40 @@ test('free dragging a PDF text group routes through the verified direct source c
   assert.equal(await t.run("moveText("+selection+",88,70)"),true);
   assert.equal(t.native.history.length,1);
   assert.deepEqual(t.native.sources,{'main.tex':'Positioned ordinary LaTeX source','custom.sty':'Style source'});
+});
+
+test('insert below sends the chosen paragraph and keeps the project file set',async()=>{
+ const t=await setup();
+ t.run("showObjectInspector({kind:'source',unitKind:'paragraph',file:'main.tex',start:0,end:15,content:'Original source',expected_source:'Original source'});");
+ assert.equal(t.elements.get('object-insert-after').disabled,false);
+ t.elements.get('object-insert-after').onclick();
+ let plans=0;
+ t.control.plan=async request=>{
+  plans++;
+  assert.equal(request.action,'insert_paragraph_after');
+  assert.deepEqual(Array.from(request.selection),[0,15]);
+  assert.equal(request.expected,'Original source');
+  assert.equal(request.content,'New & fresh.');
+  assert.equal(request.plain,true);
+  return {sources:{...request.sources,'main.tex':'Original source\n\nNew \\& fresh.'},file:'main.tex'};
+ };
+ t.elements.get('edit-text').value='New & fresh.';
+ await t.elements.get('edit-form').onsubmit({preventDefault(){}});
+ assert.equal(plans,1);
+ assert.equal(t.native.history.length,1);
+ assert.deepEqual(t.native.sources,{'main.tex':'Original source\n\nNew \\& fresh.','custom.sty':'Style source'});
+});
+
+test('insert below refuses a selection from an earlier source revision',async()=>{
+ const t=await setup();
+ t.run("showObjectInspector({kind:'source',unitKind:'paragraph',file:'main.tex',start:0,end:15,content:'Original source',expected_source:'Original source'});");
+ t.elements.get('object-insert-after').onclick();
+ t.control.plan=async()=>{assert.fail('Stale selection reached the source planner')};
+ t.run('state.revision++');
+ t.elements.get('edit-text').value='Late text.';
+ await t.elements.get('edit-form').onsubmit({preventDefault(){}});
+ assert.equal(t.native.history.length,0);
+ assert.equal(t.native.sources['main.tex'],'Original source');
 });
 
 test('reorder resolves the second paragraph independently and publishes the verified source',async()=>{

@@ -655,14 +655,12 @@ paragraph insertion before the document end, and edits supported text and
 spacing directly in the selected source range. A source-to-PDF navigation
 action replaces the source toolbar's block conversion.
 
-The regression uses a disposable Article with a formatted target and
-neighbor paragraphs. For each of pdf\LaTeX{}, Xe\LaTeX{} and Lua\LaTeX{},
-the native service prepares and verifies a literal replacement followed by
-a paragraph containing an escaped ampersand. The expected source is compared
-byte for byte, the verified PDF is inspected for the edited text, and the
-original on disk is checked before Save. The test exercises Undo, Redo,
-Save and reopen, then calls the installed engine directly on the saved file.
-The tagged verification replicas stay private through the workflow.
+A disposable Article tests literal replacement and an appended paragraph
+with an escaped ampersand on all three engines. The test checks exact source,
+compiled text, disk bytes before Save, Undo, Redo, reopening and an external
+compile. A second fixture inserts below the second of two matching paragraphs
+and retains the existing \code{\textbackslash par}. All three engines pass
+that insertion, Undo, Redo, Save and reopening.
 
 Replacement uses two additional private builds and paragraph insertion uses
 one. These are operation counts. Interactive latency, unsupported constructs

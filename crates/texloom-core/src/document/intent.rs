@@ -163,6 +163,24 @@ impl Session {
         })
     }
 
+    /// Prepare an insertion after the exact plain paragraph in the main file.
+    /// The caller still needs current selection and rendered insertion evidence.
+    pub fn insert_plain_paragraph_after(&self, file: &str, anchor: std::ops::Range<usize>, text: &str)
+        -> crate::Result<(String, std::ops::Range<usize>)>
+    {
+        if file != self.profile().main {
+            return Err("Select a paragraph in the main LaTeX file".into());
+        }
+        let projection = self.source_projection(file).map_err(|_| "The selected file is unavailable")?;
+        if !projection.regions().iter().any(|region| {
+            region.kind() == RegionKind::PlainParagraph && region.range() == anchor
+        }) {
+            return Err("Insert below requires a complete plain paragraph".into());
+        }
+        let content = crate::literal_paragraph(text)?;
+        Ok(crate::insert_paragraph_at(projection.source(), anchor.end, &content, false))
+    }
+
     pub fn plan_source_intent(&self, intent: SourceIntent) -> Result<IntentPlan, PlanError> {
         let (target, text) = match &intent {
             SourceIntent::ReplaceLiteralParagraph { target, text } => (target, Some(text)),

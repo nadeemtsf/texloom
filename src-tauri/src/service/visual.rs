@@ -333,6 +333,25 @@ pub(super) fn plan_direct_text(request: &ObjectEditRequest) -> Result<DirectText
             let (updated, range) = texloom_core::append_plain_paragraph(source, text)?;
             (updated, range, None)
         }
+        "insert_paragraph_after" if request.file == request.main && request.plain
+            && request.literal_edits.is_none() && request.spacing_edits.is_none()
+            && request.neighbor.is_none() && !request.before_neighbor =>
+        {
+            use texloom_core::document::{Profile, Session};
+            let [start, end] = request.selection.ok_or("Select the paragraph above the insertion")?;
+            let projection = EditorProjection::new(source);
+            let anchor = projection.source_offset(start).map_err(fail)?
+                ..projection.source_offset(end).map_err(fail)?;
+            let expected = request.expected.as_deref().ok_or("Missing selected paragraph text")?;
+            if source.get(anchor.clone()) != Some(expected) {
+                return Err("The selected paragraph changed. Select it again.".into());
+            }
+            let session = Session::new(request.sources.clone(), Profile { main: request.main.clone(), engine: "auto".into() })
+                .map_err(fail)?;
+            let text = request.content.as_deref().ok_or("Enter the paragraph text")?;
+            let (updated, range) = session.insert_plain_paragraph_after(&request.file, anchor, text)?;
+            (updated, range, None)
+        }
         "replace_source" | "move_source" => {
             let [start, end] = request.selection.ok_or("Select the text to edit")?;
             let projection = EditorProjection::new(source);
@@ -385,7 +404,7 @@ pub(super) fn plan_direct_text(request: &ObjectEditRequest) -> Result<DirectText
         }
         _ => return Err("Unsupported direct text operation".into()),
     };
-    let after_probe = mark_text_range(request, &updated, range)?;
+    let after_probe = mark_text_ranges(request, &updated, &[(range, &request.id)], request.action == "insert_paragraph_after")?;
     let mut sources = request.sources.clone();
     sources.insert(request.file.clone(), updated);
     Ok(DirectTextPlan { sources, before_probe, after_probe, displacement })
@@ -509,7 +528,7 @@ pub fn plan_object_edit(mut request: ObjectEditRequest) -> Result<ObjectPlan> {
             sources: plan.sources, object_id: request.id, file: request.file, operation: request.action,
         });
     }
-    if matches!(request.action.as_str(), "replace_source" | "append_paragraph" | "move_source") {
+    if matches!(request.action.as_str(), "replace_source" | "append_paragraph" | "insert_paragraph_after" | "move_source") {
         let plan = plan_direct_text(&request)?;
         return Ok(ObjectPlan {
             sources: plan.sources, object_id: request.id, file: request.file, operation: request.action,

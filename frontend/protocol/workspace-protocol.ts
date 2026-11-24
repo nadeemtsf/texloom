@@ -109,7 +109,7 @@ export function acceptWorkspaceReply<C extends keyof WorkspaceRequests>(name: C,
     record(value, name === 'plan_adapter' ? ['sources', 'file'] : ['sources', 'object_id', 'file', 'operation']);
     record(a.request); buffers(a.request.sources); buffers(value.sources);
     require(value.file === a.request.file && Object.hasOwn(value.sources, String(value.file)), 'Source plan changed its target');
-    const direct = name === 'plan_text_object' && (a.request.action === 'replace_source' || a.request.action === 'append_paragraph' || a.request.action === 'move_source' || a.request.action === 'reorder_paragraph' || a.request.action === 'delete_paragraph' || a.request.action === 'delete_lines');
+    const direct = name === 'plan_text_object' && (a.request.action === 'replace_source' || a.request.action === 'append_paragraph' || a.request.action === 'insert_paragraph_after' || a.request.action === 'move_source' || a.request.action === 'reorder_paragraph' || a.request.action === 'delete_paragraph' || a.request.action === 'delete_lines');
     const allowed = new Set([String(a.request.file)]);
     if (!direct) {
       allowed.add(String(a.request.main));

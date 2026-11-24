@@ -181,6 +181,7 @@ function updateControls(){
   const deleteButton=$('object-delete-text');
   deleteButton.disabled=!ready||!canDeleteText(state.objectSelection);
   deleteButton.textContent=state.objectSelection?.unitKind==='paragraph'?'Delete paragraph':'Delete selected lines';
+  $('object-insert-after').disabled=!ready||!canInsertParagraphAfter(state.objectSelection);
   const destinations=object?canvas.reorderDestinations?.(state.objectSelection)||[]:[];
   $('object-before').disabled=!destinations.some(item=>item.before);
   $('object-after').disabled=!destinations.some(item=>!item.before);
@@ -858,10 +859,26 @@ async function showCurrentSourceInPDF(){
     scroller.scrollTop+=offset;
   }catch(error){if(identity===sessionIdentity(state))toast(message(error))}
 }
-async function appendParagraph(context,content){
+function canInsertParagraphAfter(selection){
+  return selection?.kind==='source'&&selection.unitKind==='paragraph'&&selection.file===state.project?.main;
+}
+function openParagraphEditor(anchor=null){
+  if(!fresh())return;
+  if(anchor&&!canInsertParagraphAfter(anchor))return;
+  state.dialog={kind:'paragraph',identity:sessionIdentity(state),anchor};
+  showEditor(anchor?'Insert paragraph below selection':'Add paragraph at end of document','',true,true);
+  $('plain-label').classList.add('hidden');
+  $('edit-help').textContent='Enter one paragraph of plain text.';
+}
+async function insertParagraph(context,content){
   if(!fresh()||context.identity!==sessionIdentity(state))return toast('Compile the current source before adding a paragraph.');
   const file=state.project.main,id='text-'+crypto.randomUUID().slice(0,8);
   const request={sources:clone(state.sources),main:file,file,action:'append_paragraph',id,content,plain:true};
+  const {anchor}=context;
+  if(anchor){
+    if(!canInsertParagraphAfter(anchor)||anchor.expected_source!==state.sources[file])return toast('Select the current paragraph again.');
+    Object.assign(request,{action:'insert_paragraph_after',selection:[anchor.start,anchor.end],expected:anchor.content});
+  }
   try{
     const plan=await invoke('plan_text_object',{request});
     await commitSources(plan.sources,{file,operation:{kind:'text',request},expectedIdentity:context.identity});
@@ -957,7 +974,7 @@ editor.addCommand(monaco.KeyMod.CtrlCmd|monaco.KeyCode.KeyY,()=>undo(true));
 $('edit-form').onsubmit=async event=>{
   event.preventDefault();const context=state.dialog;if(context?.switching)return;
   const text=$('edit-text').value,plain=$('plain').checked;$('edit-dialog').close();
-  if(context?.kind==='paragraph')return appendParagraph(context,text);
+  if(context?.kind==='paragraph')return insertParagraph(context,text);
   if(context?.kind==='text-object'){
     if(context.identity!==sessionIdentity(state))return toast('The source changed. Reopen the text editor.');
     if(context.literalMode)return textOperation(context.selection,{literalEdits:literalChanges(context),spacingEdits:spacingChanges(context)});
@@ -1023,13 +1040,8 @@ $('export').onclick=async()=>{
 $('engine').onchange=()=>{if(!state.project)return;state.engine=$('engine').value;state.client.profile(state.project.main,state.engine).catch(()=>{});sourceChanged()};
 $('main-file').onchange=()=>{if(!state.project)return;state.project.main=$('main-file').value;state.client.profile(state.project.main,state.engine).catch(()=>{});sourceChanged()};
 $('auto').onchange=()=>{if($('auto').checked&&state.compiled!==state.revision)compile('auto')};
-$('add-text').onclick=()=>{
-  if(!fresh())return;
-  state.dialog={kind:'paragraph',identity:sessionIdentity(state)};
-  showEditor('Add paragraph at end of document','',true,true);
-  $('plain-label').classList.add('hidden');
-  $('edit-help').textContent='Enter one paragraph of plain text.';
-};
+$('add-text').onclick=()=>openParagraphEditor();
+$('object-insert-after').onclick=()=>openParagraphEditor(state.objectSelection);
 $('object-before').onclick=()=>canvas.reorderNearby(true);
 $('object-after').onclick=()=>canvas.reorderNearby(false);
 $('object-edit').onclick=()=>editText();

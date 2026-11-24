@@ -45,7 +45,7 @@ Plain title-only `\part`, `\chapter`, `\section`, `\subsection` and `\subsubsect
 
 ## Required contracts for the later commands
 
-- Replace/Insert: validated literal/context and correct escaping; distinguish plain text from explicit raw LaTeX.
+- Replace/Insert: validate the literal text and its source context. **Insert paragraph below** adds escaped text after the selected complete plain paragraph in the main file and keeps the existing separator. The verifier identifies the inserted glyphs and checks that the remaining text retains its order and geometry, apart from vertical reflow below the insertion on one text-only page. Other pages and project files stay unchanged.
 - Delete: the PDF canvas removes a complete plain paragraph or a paragraph with supported inline font commands from the main file. Supported braced styles include bold, italics, emphasis, slanted, small caps, and serif, sans-serif and monospace text. Deletion preserves the paragraph separators. Formatted paragraphs require their own checks for replacement and reorder. The native check permits vertical reflow below the deletion on a text-only page, preserves the other glyphs in order and preserves other pages' rasters. It refuses page-count changes, annotations and a target that spans pages. The source patch retains other files. In a standalone full-width minipage it deletes one or more complete explicit lines, preserves surviving line breaks and refuses removing the entire group.
 - Reorder: move the same source fragment once to a legal destination, preserving intended content and checking its new order.
 - Spacing/Format: affect only the declared local parameter/style scope; disclose allowed reflow instead of promising strict displacement.
