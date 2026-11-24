@@ -143,6 +143,96 @@ fn literal_label_stays_with_its_heading_in_the_opaque_region() {
 }
 
 #[test]
+fn following_literal_label_and_heading_share_one_opaque_boundary() {
+    let heading = "\\section[Methods]{Full methods}\r\n  \\label{sec:methods}";
+    let source = document(&format!("Before.\r\n{heading}\r\nAfter."));
+    let s = session(&source);
+    let projection = s.source_projection("main.tex").unwrap();
+    exact_partition(&projection, &source);
+    let paragraphs: Vec<_> = candidates(&projection)
+        .into_iter()
+        .map(|index| projection.text(index).unwrap())
+        .collect();
+    assert_eq!(paragraphs, ["Before.", "After."]);
+    let index = projection
+        .regions()
+        .iter()
+        .position(|region| &source[region.range()] == heading)
+        .unwrap();
+    assert!(projection.entity_reference(index).is_none());
+}
+
+#[test]
+fn standalone_page_breaks_preserve_neighboring_paragraphs() {
+    for page_break in [r"\newpage", r"\clearpage"] {
+        let source = document(&format!("Before.\r\n  {page_break}\t\r\nAfter."));
+        let s = session(&source);
+        let projection = s.source_projection("main.tex").unwrap();
+        exact_partition(&projection, &source);
+        let paragraphs: Vec<_> = candidates(&projection)
+            .into_iter()
+            .map(|index| projection.text(index).unwrap())
+            .collect();
+        assert_eq!(paragraphs, ["Before.", "After."]);
+        let index = projection
+            .regions()
+            .iter()
+            .position(|region| source[region.range()].contains(page_break))
+            .unwrap();
+        assert!(projection.entity_reference(index).is_none());
+    }
+}
+
+#[test]
+fn explicit_paragraph_break_is_preserved_without_becoming_editable_content() {
+    let source = document("Before.\r\n  \\par\t\r\n\r\nAfter.");
+    let s = session(&source);
+    let projection = s.source_projection("main.tex").unwrap();
+    exact_partition(&projection, &source);
+    let breaks: Vec<_> = projection.regions().iter().enumerate()
+        .filter(|(_, region)| region.kind() == RegionKind::ParagraphBreak)
+        .collect();
+    assert_eq!(breaks.len(), 1);
+    let (index, region) = breaks[0];
+    assert_eq!(projection.text(index), Some("\r\n  \\par\t\r\n\r\n"));
+    assert!(projection.entity_reference(index).is_none());
+    assert_eq!(region.readiness(OperationKind::ReorderContent), Readiness::Unavailable(UnavailableReason::NotContent));
+}
+
+#[test]
+fn inline_and_nested_paragraph_breaks_stay_opaque() {
+    for source in [
+        "Before.\\par\nAfter.",
+        "Before.\n\\par{}",
+        "Before.\n\\par % trailing comment",
+        "\\begin{quote}\nBefore.\n\\par\nAfter.\n\\end{quote}",
+    ] {
+        let source = document(source);
+        let s = session(&source);
+        let projection = s.source_projection("main.tex").unwrap();
+        exact_partition(&projection, &source);
+        assert!(candidates(&projection).is_empty(), "{source}");
+    }
+}
+
+#[test]
+fn complex_page_breaks_do_not_expose_unproven_paragraphs() {
+    for page_break in [
+        r"\newpage{}",
+        r"\newpage trailing text",
+        r"Inline \clearpage",
+        r"\clearpage% comment",
+        "\\begin{quote}\n\\newpage\n\\end{quote}",
+    ] {
+        let source = document(&format!("Before.\n{page_break}\nAfter."));
+        let s = session(&source);
+        let projection = s.source_projection("main.tex").unwrap();
+        exact_partition(&projection, &source);
+        assert!(candidates(&projection).is_empty(), "{page_break}");
+    }
+}
+
+#[test]
 fn complex_headings_do_not_expose_unproven_paragraphs() {
     for heading in [
         "\\section*[Short]{Long}",
@@ -162,6 +252,10 @@ fn complex_headings_do_not_expose_unproven_paragraphs() {
         "\\section{Title}\\label{sec:x}\\label{sec:y}",
         "\\section{Title}\\label{sec:x}% comment",
         "\\section{Title}\\label{sec:x} trailing text",
+        "\\section{Title}\n\\label{\\key}",
+        "\\section{Title}\n\n\\label{sec:detached}",
+        "\\section{Title}\\label{sec:a}\n\\label{sec:b}",
+        "\\section{Title}\n\\label{sec:a} trailing text",
         "Inline \\section{Title}",
         "\\section{\nMultiline}",
         "\\begin{quote}\n\\section{Title}\n\\end{quote}",
