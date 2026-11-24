@@ -600,18 +600,13 @@ Save. Those checks retain the earlier editor and avoid reporting a reopened
 project when its snapshot was refused.
 
 \subsection{Paragraph boundaries around section headings}
-The lossless projection treats standalone top-level part, chapter and section
-commands with literal titles as opaque boundaries, including subsections and
-subsubsections. Paragraph
-candidates can be identified on either side without a blank line. Source-model
-checks preserve the heading bytes, refuse reordering across the heading and
-allow a supported reorder within one section. A literal label on the same or
-immediately following line is retained with the heading. Numbered headings can
-carry a literal short title in brackets. Standalone \texttt{\string\newpage}
-and \texttt{\string\clearpage} are opaque boundaries. A reorder can take place
-on either side of a page break, subject to the same source and rendered checks.
-Paragraph reordering retains a standalone \texttt{\textbackslash{}par} separator in
-its original source slot, including its surrounding whitespace.
+The projection treats standalone part, chapter and section headings as
+opaque boundaries and preserves literal short titles and labels. The same
+rule applies to \texttt{\string\newpage}, \texttt{\string\clearpage} and a
+blank-line-bounded \texttt{\string\input} of project-local literal prose.
+Reorder retains a standalone \texttt{\textbackslash{}par} in its original source
+slot. On all three engines, reorder within a section preserved the included
+file and its directive. The planner refused crossing the include boundary.
 
 \subsection{Adjacent paragraph reorder as a protected source draft}
 \label{sec:adjacent-paragraph-draft}

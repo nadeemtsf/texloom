@@ -499,6 +499,57 @@ fn source_fragments_wait_for_included_file_context() {
 }
 
 #[test]
+fn a_blank_line_bounded_literal_input_preserves_main_paragraph_candidates() {
+    let input = "\\input{chapters/notes.tex}";
+    let styled = r"A \textbf{styled paragraph}.";
+    let source = document(&format!("Before.\n\n{input}\n\nAfter.\n\nNext.\n\n{styled}"));
+    let part = "First note.\r\n\\par\r\nSecond note.\r\n";
+    let s = Session::new(
+        BTreeMap::from([("main.tex".into(), source.clone()), ("chapters/notes.tex".into(), part.into())]),
+        Profile { main: "main.tex".into(), engine: "auto".into() },
+    ).unwrap();
+    let main = s.source_projection("main.tex").unwrap();
+    exact_partition(&main, &source);
+    assert_eq!(candidates(&main).into_iter().filter_map(|index| main.text(index)).collect::<Vec<_>>(),
+        ["Before.", "After.", "Next."]);
+    let (index, _) = main.regions().iter().enumerate().find(|(index, _)| main.text(*index) == Some(input)).unwrap();
+    assert!(main.entity_reference(index).is_none());
+    let (index, style) = main.regions().iter().enumerate()
+        .find(|(index, _)| main.text(*index) == Some(styled)).unwrap();
+    assert_eq!(style.kind(), RegionKind::FormattedParagraph);
+    assert!(main.entity_reference_for(index, OperationKind::DeleteContent).is_some());
+    assert!(main.entity_reference_for(index, OperationKind::ReorderContent).is_none());
+    let included = s.source_projection("chapters/notes.tex").unwrap();
+    exact_partition(&included, part);
+    assert!(candidates(&included).is_empty());
+}
+
+#[test]
+fn input_with_unknown_content_or_context_keeps_the_main_projection_opaque() {
+    for (include_line, fragment) in [
+        ("\\input{part.tex}", None),
+        ("\\input{part.tex}", Some("\\input{nested.tex}")),
+        ("\\input{part.tex}", Some("\\newpage\nA paragraph.")),
+        ("\\input{part.tex}", Some("\\global\\let\\par\\relax")),
+        ("\\input{part.tex}", Some("A paragraph. % comment")),
+        ("\\input{../part.tex}", Some("A paragraph.")),
+        ("\\input{part}", Some("A paragraph.")),
+        ("More text \\input{part.tex}", Some("A paragraph.")),
+        ("\\input{part.tex}\nContinued on the next source line.", Some("A paragraph.")),
+    ] {
+        let source = document(&format!("Before.\n\n{include_line}\n\nAfter."));
+        let mut sources = BTreeMap::from([("main.tex".into(), source.clone())]);
+        if let Some(fragment) = fragment {
+            sources.insert("part.tex".into(), fragment.into());
+        }
+        let s = Session::new(sources, Profile { main: "main.tex".into(), engine: "auto".into() }).unwrap();
+        let main = s.source_projection("main.tex").unwrap();
+        exact_partition(&main, &source);
+        assert!(candidates(&main).is_empty(), "{include_line} {fragment:?}");
+    }
+}
+
+#[test]
 fn multiline_math_cannot_expose_prose_candidates_between_delimiters() {
     for body in [
         "$\n\nlooks like prose\n\n$",

@@ -43,6 +43,8 @@ A changed source revision invalidates these references even after Undo restores 
 
 Plain title-only `\part`, `\chapter`, `\section`, `\subsection` and `\subsubsection` commands on standalone top-level lines are opaque boundaries. The numbered and starred forms preserve their exact bytes and allow literal paragraphs on either side to be considered independently, including without an intervening blank line. One literal LaTeX label on the heading line or the immediately following line is retained with its heading. Label keys use ASCII letters, digits, or the punctuation `:`, `-`, `_`, `.` and `/`. Standalone top-level `\newpage` and `\clearpage` also delimit paragraphs. Paragraph reordering refuses to cross these boundaries. A standalone top-level `\par` is an explicit paragraph separator. Reordering across it keeps the command and surrounding whitespace in the original source slot. Numbered headings may have one literal short title in brackets. Starred forms with optional titles, title markup, multiline commands and comments on the heading line remain outside this subset.
 
+A project-root main file can also use a standalone `\input{path/file.tex}` with a blank line on each side as an opaque boundary. The named project file must contain literal paragraphs or explicit paragraph separators. Main-file paragraphs on either side can be edited within their own region. Reorder refuses to cross the directive. Nested inputs, computed paths and unknown included content stay outside this subset.
+
 ## Required contracts for the later commands
 
 - Replace/Insert: validated literal/context and correct escaping; distinguish plain text from explicit raw LaTeX.

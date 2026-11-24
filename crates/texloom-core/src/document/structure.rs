@@ -1,11 +1,13 @@
 //! Read-only, lossless first slice of the visual editor's source projection.
 //! A lexical candidate is never permission to edit or evidence of PDF identity.
-use super::{EditError, EditResult, Revision, Session};
+use super::{EditError, EditResult, Revision, Session, Sources};
 use std::{ops::Range, sync::Arc};
 
 const MAX_STEPS: usize = 200_000;
 const MAX_SCOPES: usize = 128;
 const MAX_REGIONS: usize = 10_000;
+const MAX_STATIC_INPUTS: usize = 8;
+const MAX_STATIC_INPUT_BYTES: usize = 64_000;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum OperationKind {
@@ -166,12 +168,13 @@ impl Session {
             .sources
             .get_key_value(file)
             .ok_or_else(|| EditError::MissingFile(file.into()))?;
+        let root_sources = (file == &self.profile.main && !file.contains('/')).then_some(&self.sources);
         Ok(SourceProjection {
             owner: self.owner.clone(),
             file,
             revision: self.revision,
             source,
-            regions: project(source),
+            regions: project(source, root_sources),
         })
     }
     /// Resolves source identity only; it grants no mutation or render authority.
@@ -425,7 +428,42 @@ fn standalone_boundary(
     Some(line_start..boundary_end)
 }
 
-fn envelope(source: &str) -> Result<Envelope, OpaqueReason> {
+/// A project-local input can bound main-file paragraphs only when its whole
+/// source is ordinary text or explicit paragraph separators. Nested inputs
+/// and context-changing commands are opaque in this check.
+fn static_input(source: &str, command_start: usize, sources: &Sources) -> Option<Range<usize>> {
+    let line_start = source[..command_start].rfind('\n')? + 1;
+    let line_end = command_start + source[command_start..].find('\n')? + 1;
+    let line = source[line_start..line_end].trim_matches(ascii_space);
+    let path = line.strip_prefix("\\input{")?.strip_suffix('}')?;
+    if !path.ends_with(".tex") || !path.split('/').all(|part| {
+        !matches!(part, "" | "." | "..")
+            && part.bytes().all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'_' | b'-' | b'.'))
+    }) {
+        return None;
+    }
+    let previous = source[..line_start - 1].rsplit('\n').next()?;
+    let next = source[line_end..].split('\n').next()?;
+    if !previous.chars().all(ascii_space) || !next.chars().all(ascii_space) {
+        return None;
+    }
+    let fragment = sources.get(path)?;
+    if fragment.is_empty() || fragment.len() > MAX_STATIC_INPUT_BYTES {
+        return None;
+    }
+    let prefix = "\\begin{document}\n";
+    let wrapped = format!("{prefix}{fragment}\n\\end{{document}}\n");
+    let regions = project(&wrapped, None);
+    let fragment_range = prefix.len()..prefix.len() + fragment.len();
+    let mut body = regions.iter().filter(|region| {
+        region.range.start < fragment_range.end && fragment_range.start < region.range.end
+    }).peekable();
+    (body.peek().is_some() && body.all(|region| matches!(region.kind,
+        RegionKind::PlainParagraph | RegionKind::ParagraphBreak | RegionKind::Trivia
+    ))).then_some(line_start..line_end)
+}
+
+fn envelope(source: &str, sources: Option<&Sources>) -> Result<Envelope, OpaqueReason> {
     let mut i = 0;
     let mut steps = 0;
     let mut groups = Vec::new();
@@ -435,6 +473,7 @@ fn envelope(source: &str) -> Result<Envelope, OpaqueReason> {
     let mut boundaries = Vec::new();
     let mut begin = None;
     let mut finish = None;
+    let mut inputs = 0;
     while i < source.len() {
         steps += 1;
         if steps > MAX_STEPS {
@@ -500,6 +539,17 @@ fn envelope(source: &str) -> Result<Envelope, OpaqueReason> {
                     continue;
                 }
                 if finish.is_none() && groups.is_empty() && matches!(envs.as_slice(), [("document", _)]) {
+                    if command == "\\input" {
+                        if inputs == MAX_STATIC_INPUTS {
+                            return Err(OpaqueReason::BudgetExceeded);
+                        }
+                        let boundary = sources.and_then(|sources| static_input(source, i, sources))
+                            .ok_or(OpaqueReason::DynamicSyntax)?;
+                        i = boundary.end;
+                        inputs += 1;
+                        boundaries.push(Boundary { range: boundary, kind: RegionKind::Opaque(OpaqueReason::UnsupportedSyntax) });
+                        continue;
+                    }
                     if let Some(after) = literal_style_end(source, command, end, 0) {
                         steps += after - i;
                         if steps > MAX_STEPS {
@@ -673,8 +723,8 @@ fn append(regions: &mut Vec<SourceRegion>, source: &str, range: Range<usize>, ki
     }
 }
 
-fn project(source: &str) -> Vec<SourceRegion> {
-    let view = match envelope(source) {
+fn project(source: &str, sources: Option<&Sources>) -> Vec<SourceRegion> {
+    let view = match envelope(source, sources) {
         Ok(view) => view,
         Err(reason) => return opaque(source, reason),
     };

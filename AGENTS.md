@@ -12,10 +12,10 @@ Before every commit, stage all intended files and run the installed pre-commit g
 
 Merge completed work into `main` without additional owner confirmation once the full local gate and applicable GitHub checks have passed for the exact changes being merged, and GitHub's review and branch rules are satisfied. Resolve conflicts and validate the integrated result first. Confirm feature behavior with the established automated tests. Reuse relevant recorded owner acceptance for workflows already tested. Ask the owner to test when physical input, installation or other manual behavior is necessary to verify the change. Continue from updated `main` after merging. Reuse the current branch for unfinished work instead of creating copies of feature branches.
 
-Batch new hands-on checks into one checklist when they can use the same candidate. Check hosted CI by pull request and use quiet waits between checks.
+Batch new hands-on checks into one checklist when they can use the same candidate. Start with the local gate's `steps.json` or the pull request's check summary. Open the relevant step log to diagnose failures. Reuse passing results for the exact checked tree and use quiet waits while checks run.
 
 ## Technical report
 
-Edit the canonical LaTeX project in `research/report/`. Put generated PDFs, logs, extracted text and any page renders in the Git-ignored `artifacts/research-report/` directory.
+Record test outcomes as development proceeds. Update the technical report once at the end of the development iteration, when the feature and its evidence are ready to summarize. Edit the canonical LaTeX project in `research/report/`. Put generated PDFs, logs, extracted text and any page renders in the Git-ignored `artifacts/research-report/` directory.
 
-For prose edits, follow the report README to compile `main.tex`, check the final log for errors, unresolved citations or references, missing glyphs and overfull boxes, and verify the changed passage in extracted PDF text. Inspect page renders when the change affects layout, tables, figures or pagination, when checks reveal a layout concern, or when preparing a milestone PDF. Never compile `.text` files.
+For prose edits, run `pwsh -NoProfile -File ./research/report/Check-Report.ps1 -ExpectedText 'A phrase from the changed passage'` from the repository root. It compiles `main.tex`, checks the final log, and verifies the changed passage in extracted PDF text. Inspect the affected page renders when the change affects layout, tables, figures or pagination, when checks reveal a layout concern, or when preparing a milestone PDF. Never compile `.text` files.
