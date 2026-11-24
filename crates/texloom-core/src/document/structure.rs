@@ -419,7 +419,8 @@ fn standalone_bullet_list(source: &str, start: usize, after_open: usize) -> Opti
                 return None;
             }
             let text = rest.trim_start_matches(ascii_space);
-            if !literal_text(text) {
+            // TeX accepts an optional label after whitespace following \item.
+            if text.starts_with('[') || !literal_text(text) {
                 return None;
             }
             let text_end = line_start + line.trim_end_matches(ascii_space).len();

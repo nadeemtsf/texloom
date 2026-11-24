@@ -709,18 +709,17 @@ rasters, identified the complete first paragraph of page two, and reordered
 it below its neighbor with exact source bytes. Moves across pages and
 structured-source reorder require separate policies.
 
-Two synthetic three-item lists were compiled before and after swapping
-the first two bodies. The standard paragraph probe changed all twelve
-96 DPI Poppler rasters. Omitting \texttt{\string\leavevmode} and suppressing
-the extra line ending matched every unmarked raster and text extraction.
-PDFium attributed the generated label with the body. All six tagged bullet
-glyph multisets matched after the move. Each numbered comparison changed
-the item's number because the counter followed the source slot.
-The checked-in SyncTeX and PDF.js regression selects the whole wrapped
-item in the pdfLaTeX and LuaLaTeX fixtures and refuses a different bullet.
-The XeLaTeX marker changed 31 canvas pixels at scale one on the development
-machine. The selection check refused it. Recompiling without marks matched
-exactly.
+Two synthetic bullet and numbered lists tested markers before and after a
+swap. The paragraph marker changed all twelve Poppler raster pairs at 96 DPI.
+The compact marker preserved all twelve pairs.
+PDFium included the generated label, so numbers changed with their slots.
+PDF.js accepted the wrapped bullet under pdfLaTeX and LuaLaTeX. On MiKTeX,
+the default XeLaTeX marker changed 31 canvas pixels at scale one. Four or five
+PDF coordinate digits made the bullet pass at scales 1, 1.25 and 2.
+Of nine existing single-page fixtures, the default passed all nine,
+four digits passed eight, and five digits passed none. The refused pairs
+had identical pixels at scale one and different extracted text geometry.
+Texloom keeps the default precision and the exact appearance check.
 
 \subsection{Free positioning of explicit line groups}
 The group planner applies one standard LaTeX positioning edit per selected

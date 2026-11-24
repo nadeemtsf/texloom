@@ -190,6 +190,7 @@ fn literal_bullet_items_keep_markers_and_source_context_separate() {
 fn complex_lists_do_not_expose_bullet_item_references() {
     for list in [
         "\\begin{itemize}\n\\item[Custom] Text.\n\\end{itemize}",
+        "\\begin{itemize}\n\\item First.\n\\item \t[Custom] Text.\n\\end{itemize}",
         "\\begin{itemize}\n\\item \\textbf{Text.}\n\\end{itemize}",
         "\\begin{itemize}\n\\item Text continues\non another source line.\n\\end{itemize}",
         "\\begin{itemize}\n\\item A list.\n\\begin{itemize}\n\\item Nested.\n\\end{itemize}\n\\end{itemize}",
