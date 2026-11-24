@@ -447,17 +447,17 @@ pub(super) fn plan_paragraph_reorder(request: &ObjectEditRequest) -> Result<Reor
     })
 }
 
-pub(super) struct ParagraphDeletionPlan {
+pub(super) struct TextDeletionPlan {
     pub(super) sources: BTreeMap<String, String>,
     pub(super) before_probe: BTreeMap<String, String>,
 }
 
-pub(super) fn plan_paragraph_deletion(request: &ObjectEditRequest) -> Result<ParagraphDeletionPlan> {
+pub(super) fn plan_text_deletion(request: &ObjectEditRequest) -> Result<TextDeletionPlan> {
     use texloom_core::document::{Profile, Session, intent::SourceIntent, structure::RegionKind};
 
     relative(&request.main)?;
     if request.file != request.main || !request.file.ends_with(".tex") {
-        return Err("Delete requires a plain paragraph in the main LaTeX file".into());
+        return Err("Delete requires a supported text selection in the main LaTeX file".into());
     }
     if request.content.is_some() || request.literal_edits.is_some() || request.spacing_edits.is_some()
         || request.dx.is_some() || request.dy.is_some() || request.neighbor.is_some()
@@ -478,6 +478,13 @@ pub(super) fn plan_paragraph_deletion(request: &ObjectEditRequest) -> Result<Par
     if source.get(range.clone()) != Some(expected) {
         return Err("The selected paragraph changed. Select it again.".into());
     }
+    if request.action == "delete_lines" {
+        let updated = texloom_core::delete_explicit_minipage_lines(source, range.clone())?;
+        let before_probe = mark_text_range(request, source, range)?;
+        let mut sources = request.sources.clone();
+        sources.insert(request.file.clone(), updated);
+        return Ok(TextDeletionPlan { sources, before_probe });
+    }
     let projection = session.source_projection(&request.file).map_err(fail)?;
     let index = projection.regions().iter().position(|region| {
         region.kind() == RegionKind::PlainParagraph && region.range() == range
@@ -487,12 +494,12 @@ pub(super) fn plan_paragraph_deletion(request: &ObjectEditRequest) -> Result<Par
         .map_err(|_| "The paragraph cannot be removed in this source context")?;
     let sources = plan.candidate_sources(&session).map_err(fail)?;
     let before_probe = mark_text_ranges(request, source, &[(range, &request.id)], true)?;
-    Ok(ParagraphDeletionPlan { sources, before_probe })
+    Ok(TextDeletionPlan { sources, before_probe })
 }
 
 pub fn plan_object_edit(mut request: ObjectEditRequest) -> Result<ObjectPlan> {
-    if request.action == "delete_paragraph" {
-        let plan = plan_paragraph_deletion(&request)?;
+    if matches!(request.action.as_str(), "delete_paragraph" | "delete_lines") {
+        let plan = plan_text_deletion(&request)?;
         return Ok(ObjectPlan {
             sources: plan.sources, object_id: request.id, file: request.file, operation: request.action,
         });

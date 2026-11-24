@@ -642,13 +642,10 @@ separate draft tests. This evidence covers those inputs and the protected
 source path. Visual selection and an independent general reorder policy
 remain to be validated.
 
-Visual deletion reuses the exact paragraph draft patch and checks a
-marked baseline before committing. The edited page may reflow vertically
-below the deleted text. The worker checks the remaining glyph order and
-preserves the other pages' rasters. In a repeated-paragraph fixture,
-pdf\LaTeX{}, Xe\LaTeX{} and Lua\LaTeX{} all removed the second occurrence
-and retained the first. Undo, Redo, Save and reopen preserved the expected
-source bytes.
+Visual deletion verifies the source patch against a marked baseline.
+All three engines removed the second of two identical paragraphs and removed
+middle and trailing signature lines while retaining the surviving breaks.
+Undo restored the source. Paragraph Redo, Save and reopening also passed.
 
 \subsection{Removing the positioned-block dependency}
 The startup sample contains one \code{.tex} file. The app no longer supplies

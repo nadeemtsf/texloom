@@ -343,20 +343,20 @@ fn isolated(w: Window, page: usize, raster: &Raster, a: &Inspection, b: &Inspect
     }
     Ok(())
 }
-/// A marked baseline identifies a single contiguous paragraph. Its page may
+/// A marked baseline identifies a single contiguous text selection. Its page may
 /// reflow vertically, while pages outside the edit must keep their exact paint.
-pub fn compare_paragraph_deletion(before: &Inspection, after: &Inspection) -> Result<()> {
+pub fn compare_text_deletion(before: &Inspection, after: &Inspection) -> Result<()> {
     validate(before)?;
     validate(after)?;
     require(before.pages.len() == after.pages.len(), "Deletion changed the page count")?;
     let first = before.glyphs.iter().position(|glyph| glyph.target)
-        .ok_or("The paragraph has no visible target")?;
+        .ok_or("The selection has no visible text")?;
     let last = before.glyphs.iter().rposition(|glyph| glyph.target).unwrap();
     let page = before.glyphs[first].page;
     let removed = &before.glyphs[first..=last];
     require(
         removed.iter().all(|glyph| glyph.target && glyph.page == page),
-        "Delete requires one uninterrupted paragraph on a single page",
+        "Delete requires one uninterrupted selection on a single page",
     )?;
     require(
         !before.graphics.iter().chain(&after.graphics).any(|graphic| graphic.page == page),
@@ -395,7 +395,7 @@ pub fn compare_paragraph_deletion(before: &Inspection, after: &Inspection) -> Re
                 };
                 expected.near(new.bounds, NEIGHBOR_TOLERANCE)
             }),
-        "Deletion changed text order, text geometry, or content outside the selected paragraph",
+        "Deletion changed text order, text geometry, or content outside the selection",
     )
 }
 

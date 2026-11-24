@@ -156,7 +156,7 @@ test('a drop at an independent neighbor is routed to reorder and Alt keeps free 
 
 test('only an unmodified Delete press on a current PDF frame requests paragraph deletion',()=>{
  const t=setup(),deletions=[];
- t.c.deleteParagraph=selection=>deletions.push(selection);
+ t.c.deleteText=selection=>deletions.push(selection);
  t.c.view.objects=new Map();
  t.c.view.pages=[{number:1,shell:new Element()}];
  const frame=CanvasController.prototype.drawFrame.call(t.c);

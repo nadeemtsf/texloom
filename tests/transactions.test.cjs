@@ -553,9 +553,20 @@ test('Delete paragraph commits through the same verified transaction and preserv
   assert.equal(request.expected,'Original source');
   return {sources:{...request.sources,'main.tex':''},file:'main.tex'};
  };
- assert.equal(await t.run('$("object-delete-paragraph").onclick()'),true);
+ assert.equal(await t.run('$("object-delete-text").onclick()'),true);
  assert.deepEqual(t.native.sources,{'main.tex':'','custom.sty':'Style source'});
  assert.equal(t.native.history.length,1);
+});
+
+test('a selected line group uses the explicit-line deletion plan',async()=>{
+ const t=await setup();
+ t.run("state.objectSelection={kind:'source',unitKind:'group',file:'main.tex',start:0,end:15,content:'Original source',expected_source:'Original source'}");
+ t.control.plan=async request=>{
+  assert.equal(request.action,'delete_lines');
+  return {sources:{...request.sources,'main.tex':'Remaining lines'},file:'main.tex'};
+ };
+ assert.equal(await t.run('deleteText(state.objectSelection)'),true);
+ assert.equal(t.native.sources['main.tex'],'Remaining lines');
 });
 
 test('Delete paragraph ignores a plan whose canvas selection changed before it returned',async()=>{
@@ -565,7 +576,7 @@ test('Delete paragraph ignores a plan whose canvas selection changed before it r
   t.run("state.objectSelection=null");
   return {sources:{...request.sources,'main.tex':''},file:'main.tex'};
  };
- await t.run('deleteParagraph(state.objectSelection)');
+ await t.run('deleteText(state.objectSelection)');
  assert.equal(t.native.sources['main.tex'],'Original source');
  assert.equal(t.native.history.length,0);
 });

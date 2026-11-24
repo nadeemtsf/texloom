@@ -107,7 +107,7 @@ const canvas=new CanvasController({
   resolve:args=>resolveSourceSelection(args),
   move:(selection,dx,dy,trace)=>moveText(selection,dx,dy,trace),
   reorder:(selection,destination)=>reorderText(selection,destination),
-  deleteParagraph:selection=>deleteParagraph(selection),
+  deleteText:selection=>deleteText(selection),
   edit:selection=>editText(selection),
   selected:selection=>showObjectInspector(selection),
   notify:text=>toast(text)
@@ -169,15 +169,18 @@ function activateSourceFile(file){
 }
 function fresh(){return !!state.result&&state.result.verification_eligible!==false&&state.revision===state.compiled&&!state.previewZooming&&!state.busy&&!state.client?.pending&&!state.client?.error&&!state.mutating&&!state.saving&&!state.composing&&!state.opening}
 function canExport(){return !!state.project&&!!state.client&&!state.busy&&!state.opening&&!state.mutating&&!state.composing&&!state.saving&&!state.client.error}
-function canDeleteParagraph(selection){
-  return selection?.kind==='source'&&selection.unitKind==='paragraph'&&selection.file===state.project?.main;
+function canDeleteText(selection){
+  return selection?.kind==='source'&&['paragraph','line','group'].includes(selection.unitKind)
+    &&selection.file===state.project?.main;
 }
 function updateControls(){
   typingRecovery?.renderProtection();
   const ready=fresh(),object=ready&&!!state.objectSelection;
   for(const id of ['add-text','show-pdf'])$(id).disabled=!ready;
   for(const id of ['object-apply','object-edit','object-source'])$(id).disabled=!object;
-  $('object-delete-paragraph').disabled=!ready||!canDeleteParagraph(state.objectSelection);
+  const deleteButton=$('object-delete-text');
+  deleteButton.disabled=!ready||!canDeleteText(state.objectSelection);
+  deleteButton.textContent=state.objectSelection?.unitKind==='paragraph'?'Delete paragraph':'Delete selected lines';
   const destinations=object?canvas.reorderDestinations?.(state.objectSelection)||[]:[];
   $('object-before').disabled=!destinations.some(item=>item.before);
   $('object-after').disabled=!destinations.some(item=>!item.before);
@@ -727,14 +730,15 @@ async function reorderText(selection,{line,before,wholeParagraph=false}){
     await commitSources(plan.sources,{file:plan.file,operation:{kind:'text',request},expectedIdentity:identity});
   }catch(error){toast(message(error))}
 }
-async function deleteParagraph(selection){
+async function deleteText(selection){
   if(!fresh()||selection!==state.objectSelection||selection?.expected_source!==state.sources[selection?.file]){
     return toast('Compile the current source and select the paragraph again.');
   }
-  if(!canDeleteParagraph(selection))return toast('Delete requires a plain paragraph in the main LaTeX file.');
+  if(!canDeleteText(selection))return toast('Delete requires a plain paragraph or supported lines in the main LaTeX file.');
   const identity=sessionIdentity(state);
   const request={sources:clone(state.sources),main:state.project.main,file:selection.file,
-    action:'delete_paragraph',id:'delete-'+crypto.randomUUID().slice(0,8),
+    action:selection.unitKind==='paragraph'?'delete_paragraph':'delete_lines',
+    id:'delete-'+crypto.randomUUID().slice(0,8),
     selection:[selection.start,selection.end],expected:selection.content};
   try{
     const plan=await invoke('plan_text_object',{request});
@@ -1030,7 +1034,7 @@ $('object-before').onclick=()=>canvas.reorderNearby(true);
 $('object-after').onclick=()=>canvas.reorderNearby(false);
 $('object-edit').onclick=()=>editText();
 $('object-source').onclick=()=>showSource(state.objectSelection);
-$('object-delete-paragraph').onclick=()=>deleteParagraph(state.objectSelection);
+$('object-delete-text').onclick=()=>deleteText(state.objectSelection);
 $('object-detach').onclick=()=>textOperation(state.objectSelection,{detach:true});
 $('object-reset').onclick=()=>{const selection=state.objectSelection;if(selection?.kind==='object')moveText(selection,-selection.dx,-selection.dy)};
 $('object-apply').onclick=()=>{const selection=state.objectSelection;if(!selection)return;

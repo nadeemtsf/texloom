@@ -219,6 +219,67 @@ pub fn resolve_text_unit_in_document(source: &str, line: usize, document: &str) 
     Ok(SourceUnit { range, first_line: first + 1, last_line: last + 1, kind, content })
 }
 
+/// Delete complete text lines from a standalone full-width minipage.
+pub fn delete_explicit_minipage_lines(source: &str, selection: Range<usize>) -> Result<String> {
+    const MAX_LINES: usize = 16;
+    const UNSUPPORTED: &str = "Select complete text lines from one plain full-width minipage";
+    if source.get(selection.clone()).is_none_or(str::is_empty) {
+        return Err(UNSUPPORTED.into());
+    }
+    let (_, body, document_end) = document_bounds(source)?;
+    let lines = line_ranges(source);
+    let first = lines.partition_point(|line| line.end < selection.start);
+    let last = lines.partition_point(|line| line.end < selection.end);
+    let raw = |line: usize| source[lines[line].clone()].trim();
+    let opening = (0..first).rev().take(MAX_LINES).find(|line| {
+        matches!(raw(*line), r"\begin{minipage}{\linewidth}" | r"\noindent\begin{minipage}{\linewidth}")
+    }).ok_or(UNSUPPORTED)?;
+    let closing = (last + 1..lines.len()).take(MAX_LINES)
+        .find(|line| raw(*line) == r"\end{minipage}").ok_or(UNSUPPORTED)?;
+    if lines[opening].start < body || lines[closing].end > document_end || closing - opening > MAX_LINES + 1 {
+        return Err(UNSUPPORTED.into());
+    }
+    if first == opening + 1 && last == closing - 1 {
+        return Err("Leave at least one text line inside this minipage".into());
+    }
+
+    let block = &source[lines[opening + 1].start..lines[closing - 1].end];
+    if crate::spacing::describe(block, source)?.iter().any(|gap| gap.value.is_none()) {
+        return Err("This minipage has a computed line-break length. Edit it in the source.".into());
+    }
+    let preview = PlainTextPreview::new(source);
+    let mut regions = Vec::new();
+    for (index, line) in lines.iter().enumerate().take(closing).skip(opening + 1) {
+        let text = &source[line.clone()];
+        let forced = break_start(text);
+        if forced.is_some() != (index < closing - 1) || visible_line_end(text) != text.len() {
+            return Err(UNSUPPORTED.into());
+        }
+        let end = forced.map_or(line.end, |start| line.start + start);
+        let content = trim_range(source, line.start..end);
+        if preview.render(&source[content.clone()]).is_none_or(|text| text.is_empty()) {
+            return Err(UNSUPPORTED.into());
+        }
+        regions.push((content, forced.map(|offset| line.start + offset)));
+    }
+
+    let first_content = &regions[first - opening - 1].0;
+    let last_content = &regions[last - opening - 1].0;
+    if selection != (first_content.start..last_content.end) {
+        return Err(UNSUPPORTED.into());
+    }
+    let removed = if last == closing - 1 {
+        // There is no following line, so remove the previous separator too.
+        let previous_break = regions[first - opening - 2].1.ok_or(UNSUPPORTED)?;
+        previous_break..lines[last].end
+    } else {
+        lines[first].start..lines[last + 1].start
+    };
+    let mut updated = source.to_owned();
+    updated.replace_range(removed, "");
+    Ok(updated)
+}
+
 pub fn combine_text_units(source: &str, units: &[SourceUnit]) -> Result<SourceUnit> {
     combine_text_units_in_document(source, units, source)
 }
@@ -540,6 +601,42 @@ mod tests {
     }
     #[test] fn signature_line_keeps_its_break_outside() { let u = resolve_text_unit(DOC,9).unwrap(); assert_eq!(u.content,"\\textbf{\\Person}"); assert_eq!(u.kind,"line"); }
     #[test] fn last_signature_line_is_independent() { assert_eq!(resolve_text_unit(DOC,11).unwrap().content,"Example University"); }
+    #[test]
+    fn minipage_line_deletion_preserves_surviving_breaks_and_line_endings() {
+        let source = DOC.replace('\n', "\r\n");
+        let name = resolve_text_unit(&source, 9).unwrap();
+        let department = resolve_text_unit(&source, 10).unwrap();
+        let university = resolve_text_unit(&source, 11).unwrap();
+        assert_eq!(
+            delete_explicit_minipage_lines(&source, department.range.clone()).unwrap(),
+            source.replace("Example Department\\\\[2pt]\r\n", ""),
+        );
+        assert_eq!(
+            delete_explicit_minipage_lines(&source, name.range.start..department.range.end).unwrap(),
+            source.replace("\\textbf{\\Person}\\\\[2pt]\r\nExample Department\\\\[2pt]\r\n", ""),
+        );
+        assert_eq!(
+            delete_explicit_minipage_lines(&source, department.range.start..university.range.end).unwrap(),
+            source.replace("\\\\[2pt]\r\nExample Department\\\\[2pt]\r\nExample University", ""),
+        );
+    }
+
+    #[test]
+    fn minipage_line_deletion_refuses_partial_dynamic_and_empty_group_cases() {
+        let greeting = resolve_text_unit(DOC, 8).unwrap();
+        let last = resolve_text_unit(DOC, 11).unwrap();
+        assert!(delete_explicit_minipage_lines(DOC, greeting.range.start..last.range.end).is_err());
+        assert!(delete_explicit_minipage_lines(DOC, last.range.start + 1..last.range.end).is_err());
+        for source in [
+            DOC.replace("Example Department", "Example Department % keep comment"),
+            DOC.replace("[2pt]", r"[\baselineskip]"),
+            DOC.replace(r"{\linewidth}", r"{0.8\linewidth}"),
+        ] {
+            let unit = resolve_text_unit(&source, 11).unwrap();
+            assert!(delete_explicit_minipage_lines(&source, unit.range).is_err());
+        }
+    }
+
     #[test] fn adjacent_signature_lines_combine() { let a=resolve_text_unit(DOC,9).unwrap();let b=resolve_text_unit(DOC,10).unwrap(); let c=resolve_text_unit(DOC,11).unwrap(); let group=combine_text_units(DOC,&[c,a,b]).unwrap();assert_eq!(group.kind,"group");assert!(group.content.contains("\\\\[2pt]")); }
     #[test] fn group_cannot_swallow_an_unselected_line() { assert!(combine_text_units(DOC,&[resolve_text_unit(DOC,9).unwrap(),resolve_text_unit(DOC,11).unwrap()]).is_err()); }
     #[test] fn preamble_and_structural_lines_are_rejected() { for line in [1,2,3,7,12,15] { assert!(resolve_text_unit(DOC,line).is_err(),"line {line}"); } }

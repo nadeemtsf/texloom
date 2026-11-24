@@ -839,6 +839,46 @@ fn paragraph_delete_real_engine_workflow() {
     }
 }
 
+#[test]
+#[ignore = "requires the installed TeX engines and the pinned Windows verifier"]
+fn signature_line_delete_real_engine_workflow() {
+    let source = "\\documentclass{article}\n\\pagestyle{empty}\n\\begin{document}\nAbove the signature.\n\n\\noindent\\begin{minipage}{\\linewidth}\nBest regards,\\\\[10mm]\n\\textbf{Example Name}\\\\[2pt]\nThe example department.\\\\[2pt]\nThe example university.\n\\end{minipage}\n\nBelow the signature.\n\\end{document}\n";
+    let cases = [
+        ("\\textbf{Example Name}\\\\[2pt]\nThe example department.",
+            "\\textbf{Example Name}\\\\[2pt]\nThe example department.\\\\[2pt]\n"),
+        ("The example department.\\\\[2pt]\nThe example university.",
+            "\\\\[2pt]\nThe example department.\\\\[2pt]\nThe example university."),
+    ];
+    for engine in ["pdflatex", "xelatex", "lualatex"] {
+        for (selected, removed) in cases {
+            let expected = source.replace(removed, "");
+            let mut fixture = Fixture::new(source);
+            prepare_test_verifier(&mut fixture);
+            let path = fixture.root.join("project/main.tex").to_string_lossy().into_owned();
+            let project = fixture.backend.open_project_with_profile(Some(path), Some(ProjectProfile {
+                schema: 1, main: "main.tex".into(), engine: engine.into(),
+            })).unwrap();
+            let baseline = fixture.backend.compile_document(&project.id, 0, None, None, 1).unwrap();
+            assert!(baseline.ok && baseline.verification_eligible, "{engine}: {}", baseline.log);
+            let mut request = deletion_request(source, selected, source.find(selected).unwrap());
+            request.action = "delete_lines".into();
+            let plan = visual::plan_object_edit(request.clone()).unwrap();
+            assert_eq!(plan.sources, sources(&expected));
+            let transaction = fixture.backend.document_prepare_visual(
+                &project.id, 0, plan.sources, &baseline.build_id, Some(VisualOperation::Text { request }),
+            ).unwrap();
+            let candidate = fixture.backend.compile_document(&project.id, 0, Some(&transaction.token), None, 2)
+                .unwrap_or_else(|error| panic!("{engine} {selected:?}: {error}"));
+            assert!(candidate.ok && candidate.verification_eligible, "{engine}: {}", candidate.log);
+            let committed = fixture.backend.document_commit(&project.id, &transaction.token, &candidate.build_id).unwrap();
+            assert_eq!(committed.sources, sources(&expected));
+            let undo = fixture.backend.document_history(&project.id, committed.revision, false).unwrap();
+            assert_eq!(undo.sources, sources(source));
+        }
+        println!("{engine}: deleted internal and trailing line groups while preserving surviving separators");
+    }
+}
+
 fn reorder_request(source: &str, first: &str, second: &str, before: bool) -> ObjectEditRequest {
     let range = |text: &str| {
         let start = source.find(text).unwrap();

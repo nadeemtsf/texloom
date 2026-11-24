@@ -88,31 +88,31 @@ fn paragraph_deletion_keeps_repeated_ink_and_allows_only_downstream_vertical_ref
     after.glyphs.remove(1);
     after.glyphs[1].bounds.y = 16.0;
     paint(&mut after);
-    compare_paragraph_deletion(&before, &after).unwrap();
+    compare_text_deletion(&before, &after).unwrap();
 
     let mut changed = after.clone();
     changed.glyphs.reverse();
-    assert!(compare_paragraph_deletion(&before, &changed).is_err());
+    assert!(compare_text_deletion(&before, &changed).is_err());
     let mut changed = after.clone();
     changed.glyphs[1].bounds.x += 0.1;
-    assert!(compare_paragraph_deletion(&before, &changed).is_err());
+    assert!(compare_text_deletion(&before, &changed).is_err());
     let mut changed = after.clone();
     changed.glyphs[0].bounds.y += 0.1;
-    assert!(compare_paragraph_deletion(&before, &changed).is_err());
+    assert!(compare_text_deletion(&before, &changed).is_err());
     let mut changed = after.clone();
     changed.glyphs[1].bounds.width += 0.1;
-    assert!(compare_paragraph_deletion(&before, &changed).is_err());
+    assert!(compare_text_deletion(&before, &changed).is_err());
     let mut changed = after.clone();
     changed.graphics.push(Graphic { kind: 2, page: 0, bounds: bounds(1.0, 1.0) });
-    assert!(compare_paragraph_deletion(&before, &changed).is_err());
+    assert!(compare_text_deletion(&before, &changed).is_err());
 
     before.pages.push(before.pages[0].clone());
     before.rasters.push(before.rasters[0].clone());
     after.pages.push(after.pages[0].clone());
     after.rasters.push(before.rasters[1].clone());
-    compare_paragraph_deletion(&before, &after).unwrap();
+    compare_text_deletion(&before, &after).unwrap();
     after.rasters[1].pixels[0] ^= 255;
-    assert!(compare_paragraph_deletion(&before, &after).is_err());
+    assert!(compare_text_deletion(&before, &after).is_err());
 }
 
 fn compare_move(a: &Inspection, b: &Inspection) -> Result<Verified> {
