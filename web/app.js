@@ -734,7 +734,7 @@ async function deleteText(selection){
   if(!fresh()||selection!==state.objectSelection||selection?.expected_source!==state.sources[selection?.file]){
     return toast('Compile the current source and select the paragraph again.');
   }
-  if(!canDeleteText(selection))return toast('Delete requires a plain paragraph or supported lines in the main LaTeX file.');
+  if(!canDeleteText(selection))return toast('Delete requires a supported paragraph or line selection in the main LaTeX file.');
   const identity=sessionIdentity(state);
   const request={sources:clone(state.sources),main:state.project.main,file:selection.file,
     action:selection.unitKind==='paragraph'?'delete_paragraph':'delete_lines',

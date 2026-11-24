@@ -783,7 +783,7 @@ fn deletion_request(source: &str, selected: &str, start: usize) -> ObjectEditReq
 
 #[test]
 fn paragraph_delete_requires_the_exact_plain_source_range() {
-    let source = "\\documentclass{article}\n\\begin{document}\nSame.\n\nSame.\n\n\\textbf{Protected.}\n\\end{document}\n";
+    let source = "\\documentclass{article}\n\\begin{document}\nSame.\n\nSame.\n\n\\underline{Protected.}\n\\end{document}\n";
     let selected = source.rfind("Same.").unwrap();
     let request = deletion_request(source, "Same.", selected);
     let plan = visual::plan_object_edit(request.clone()).unwrap();
@@ -794,7 +794,7 @@ fn paragraph_delete_requires_the_exact_plain_source_range() {
     stale.expected = Some("Other".into());
     assert!(visual::plan_object_edit(stale).is_err());
     assert!(visual::plan_object_edit(deletion_request(source, "Same", selected)).is_err());
-    let formatted = r"\textbf{Protected.}";
+    let formatted = r"\underline{Protected.}";
     assert!(visual::plan_object_edit(deletion_request(source, formatted, source.find(formatted).unwrap())).is_err());
 }
 
@@ -836,6 +836,40 @@ fn paragraph_delete_real_engine_workflow() {
         fixture.backend.save_document(&project.id, redo.revision).unwrap();
         assert_eq!(fixture.backend.open_project(Some(path)).unwrap().sources, sources(&expected));
         println!("{engine}: deleted only the second identical paragraph, with verified Undo, Redo and Save");
+    }
+}
+
+#[test]
+#[ignore = "requires the installed TeX engines and the pinned Windows verifier"]
+fn formatted_paragraph_delete_real_engine_workflow() {
+    let selected = r"A paragraph with a \textbf{bold \emph{word}} and \texttt{two words}.";
+    let source = format!("\\documentclass{{article}}\n\\begin{{document}}\n{selected}\n\nBetween the two occurrences.\n\n{selected}\n\nText remains below it.\n\\end{{document}}\n");
+    let start = source.rfind(selected).unwrap();
+    let mut expected = source.clone();
+    expected.replace_range(start..start + selected.len(), "");
+    for engine in ["pdflatex", "xelatex", "lualatex"] {
+        let mut fixture = Fixture::new(&source);
+        prepare_test_verifier(&mut fixture);
+        let path = fixture.root.join("project/main.tex").to_string_lossy().into_owned();
+        let project = fixture.backend.open_project_with_profile(Some(path), Some(ProjectProfile {
+            schema: 1, main: "main.tex".into(), engine: engine.into(),
+        })).unwrap();
+        let baseline = fixture.backend.compile_document(&project.id, 0, None, None, 1).unwrap();
+        assert!(baseline.ok && baseline.verification_eligible, "{engine}: {}", baseline.log);
+        let request = deletion_request(&source, selected, start);
+        let plan = visual::plan_object_edit(request.clone()).unwrap();
+        assert_eq!(plan.sources, sources(&expected));
+        let prepared = fixture.backend.document_prepare_visual(
+            &project.id, 0, plan.sources, &baseline.build_id, Some(VisualOperation::Text { request }),
+        ).unwrap();
+        let candidate = fixture.backend.compile_document(&project.id, 0, Some(&prepared.token), None, 2)
+            .unwrap_or_else(|error| panic!("{engine}: {error}"));
+        assert!(candidate.ok && candidate.verification_eligible, "{engine}: {}", candidate.log);
+        let committed = fixture.backend.document_commit(&project.id, &prepared.token, &candidate.build_id).unwrap();
+        assert_eq!(committed.sources, sources(&expected));
+        let undo = fixture.backend.document_history(&project.id, committed.revision, false).unwrap();
+        assert_eq!(undo.sources, sources(&source));
+        println!("{engine}: deleted the second formatted paragraph and restored exact source with Undo");
     }
 }
 

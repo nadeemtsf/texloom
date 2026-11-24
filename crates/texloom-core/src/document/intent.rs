@@ -1,6 +1,6 @@
 //! Typed candidate planning and explicit source drafts. No UI, compilation or visual commit.
 use super::{
-    structure::{EntityReference, OperationKind, RegionKind},
+    structure::{EntityReference, OperationKind, Readiness, RegionKind},
     *,
 };
 
@@ -179,8 +179,10 @@ impl Session {
         // frontend-supplied raw range can authorize another occurrence.
         let resolved = self.resolve_entity_reference(target)?;
         let projection = self.source_projection(resolved.file())?;
+        let operation = if text.is_some() { OperationKind::ReplaceText } else { OperationKind::DeleteContent };
         if !projection.regions().iter().any(|region| {
-            region.kind() == RegionKind::PlainParagraph && region.range() == resolved.range()
+            region.range() == resolved.range()
+                && region.readiness(operation) == Readiness::CandidateRequiringPlanAndProof
         }) {
             return Err(PlanError::UnsupportedTarget);
         }

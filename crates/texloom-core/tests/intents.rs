@@ -31,6 +31,48 @@ fn target(s: &Session, occurrence: usize) -> EntityReference {
 }
 
 #[test]
+fn formatted_paragraphs_qualify_only_for_complete_deletion() {
+    let formatted = r"One \textbf{bold \emph{word}} and \texttt{two\_words}.";
+    let source = format!("{formatted}\r\n\r\nKeep this.\r\n\r\n{formatted}");
+    let s = state(&source);
+    let projection = s.source_projection("main.tex").unwrap();
+    let (index, region) = projection.regions().iter().enumerate()
+        .rfind(|(_, region)| region.kind() == RegionKind::FormattedParagraph).unwrap();
+    assert_eq!(projection.text(index), Some(formatted));
+    assert!(projection.entity_reference_for(index, OperationKind::ReorderContent).is_none());
+    let target = projection.entity_reference_for(index, OperationKind::DeleteContent).unwrap();
+    assert!(matches!(s.plan_source_intent(SourceIntent::ReplaceLiteralParagraph {
+        target: target.clone(), text: "Replacement".into(),
+    }), Err(PlanError::UnsupportedTarget)));
+    let range = region.range();
+    let mut expected = s.sources()["main.tex"].clone();
+    expected.replace_range(range, "");
+    let plan = s.plan_source_intent(SourceIntent::DeleteParagraphContent { target }).unwrap();
+    let candidate = plan.candidate_sources(&s).unwrap();
+    assert_eq!(candidate["main.tex"], expected);
+    assert_eq!(candidate["keep.sty"], s.sources()["keep.sty"]);
+}
+
+#[test]
+fn formatted_deletion_refuses_comments_macros_and_scoped_content() {
+    for source in [
+        "\\textbf{Keep % comment\nthis text}",
+        "\\textbf{First\n\nSecond}",
+        "\\textbf{Line\\\\break}",
+        "\\textbf{\\label{keep}}",
+        "\\textbf{Use \\Unknown{here}}",
+        "\\begin{quote}\n\n\\textbf{Scoped}\n\n\\end{quote}",
+        "\\textbf{Malformed",
+        "\\textbf{Keep} % adjacent comment",
+        "\\textbf{Keep}\\par",
+    ] {
+        let s = state(source);
+        let projection = s.source_projection("main.tex").unwrap();
+        assert!(!projection.regions().iter().any(|region| region.kind() == RegionKind::FormattedParagraph), "{source}");
+    }
+}
+
+#[test]
 fn paragraph_reordering_cannot_cross_a_structural_boundary() {
     for boundary in [
         r"\section{Title}",

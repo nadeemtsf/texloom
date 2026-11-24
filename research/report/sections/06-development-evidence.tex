@@ -642,10 +642,10 @@ separate draft tests. This evidence covers those inputs and the protected
 source path. Visual selection and an independent general reorder policy
 remain to be validated.
 
-Visual deletion verifies the source patch against a marked baseline.
-All three engines removed the second of two identical paragraphs and removed
-middle and trailing signature lines while retaining the surviving breaks.
-Undo restored the source. Paragraph Redo, Save and reopening also passed.
+Marked-baseline deletion and Undo passed on all three engines for repeated
+plain and styled paragraphs and signature line groups. Xe\LaTeX{} also passed
+for English, Arabic and Hebrew text with combining marks. Plain paragraph
+Redo, Save and reopening passed.
 
 \subsection{Removing the positioned-block dependency}
 The startup sample contains one \code{.tex} file. The app no longer supplies

@@ -453,7 +453,7 @@ pub(super) struct TextDeletionPlan {
 }
 
 pub(super) fn plan_text_deletion(request: &ObjectEditRequest) -> Result<TextDeletionPlan> {
-    use texloom_core::document::{Profile, Session, intent::SourceIntent, structure::RegionKind};
+    use texloom_core::document::{Profile, Session, intent::SourceIntent, structure::OperationKind};
 
     relative(&request.main)?;
     if request.file != request.main || !request.file.ends_with(".tex") {
@@ -486,10 +486,9 @@ pub(super) fn plan_text_deletion(request: &ObjectEditRequest) -> Result<TextDele
         return Ok(TextDeletionPlan { sources, before_probe });
     }
     let projection = session.source_projection(&request.file).map_err(fail)?;
-    let index = projection.regions().iter().position(|region| {
-        region.kind() == RegionKind::PlainParagraph && region.range() == range
-    }).ok_or("Delete requires a complete plain paragraph. Edit this text in the source.")?;
-    let target = projection.entity_reference(index).ok_or("The paragraph is unavailable")?;
+    let target = projection.regions().iter().position(|region| region.range() == range)
+        .and_then(|index| projection.entity_reference_for(index, OperationKind::DeleteContent))
+        .ok_or("Delete requires a complete supported paragraph. Edit this text in the source.")?;
     let plan = session.plan_source_intent(SourceIntent::DeleteParagraphContent { target })
         .map_err(|_| "The paragraph cannot be removed in this source context")?;
     let sources = plan.candidate_sources(&session).map_err(fail)?;

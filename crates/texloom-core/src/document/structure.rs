@@ -33,6 +33,7 @@ pub enum OpaqueReason {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum RegionKind {
     PlainParagraph,
+    FormattedParagraph,
     ParagraphBreak,
     Trivia,
     Opaque(OpaqueReason),
@@ -42,6 +43,7 @@ pub enum RegionKind {
 pub enum UnavailableReason {
     OpaqueSource,
     NotContent,
+    UnsupportedOperation,
     NoLocalParameter,
     NotPositioned,
     AssetLifecycleRequired,
@@ -75,6 +77,10 @@ impl SourceRegion {
         match self.kind {
             RegionKind::Opaque(_) => Readiness::Unavailable(OpaqueSource),
             RegionKind::Trivia | RegionKind::ParagraphBreak => Readiness::Unavailable(NotContent),
+            RegionKind::FormattedParagraph => match operation {
+                OperationKind::DeleteContent => Readiness::CandidateRequiringPlanAndProof,
+                _ => Readiness::Unavailable(UnsupportedOperation),
+            },
             RegionKind::PlainParagraph => match operation {
                 OperationKind::AdjustSpacing => Readiness::Unavailable(NoLocalParameter),
                 OperationKind::RemovePositioning => Readiness::Unavailable(NotPositioned),
@@ -111,8 +117,11 @@ impl<'a> SourceProjection<'a> {
     }
     /// Snapshot-local identity, deliberately not serialized or accepted by IPC.
     pub fn entity_reference(&self, index: usize) -> Option<EntityReference> {
+        self.entity_reference_for(index, OperationKind::ReplaceText)
+    }
+    pub fn entity_reference_for(&self, index: usize, operation: OperationKind) -> Option<EntityReference> {
         let region = self.regions.get(index)?;
-        if region.kind != RegionKind::PlainParagraph {
+        if region.readiness(operation) != Readiness::CandidateRequiringPlanAndProof {
             return None;
         }
         Some(EntityReference {
@@ -213,7 +222,46 @@ struct Boundary {
 struct Envelope {
     body: Range<usize>,
     blocked: Vec<Range<usize>>,
+    formatted: Vec<Range<usize>>,
     boundaries: Vec<Boundary>,
+}
+
+fn literal_escape(command: &str) -> bool {
+    matches!(command, "\\%" | "\\&" | "\\$" | "\\#" | "\\_" | "\\{" | "\\}" | "\\ ")
+}
+
+/// One inline style with a single literal braced argument. Keep commands that
+/// take options, change paragraph structure, or draw non-text objects opaque.
+fn literal_style_end(source: &str, command: &str, end: usize, depth: usize) -> Option<usize> {
+    if depth >= 16 || !matches!(command,
+        "\\textbf" | "\\textit" | "\\emph" | "\\textsl" | "\\textsc" | "\\textsf" | "\\textrm" | "\\texttt"
+    ) {
+        return None;
+    }
+    let spaces = source[end..].bytes().take_while(|c| matches!(c, b' ' | b'\t')).count();
+    let opening = end + spaces;
+    if source.as_bytes().get(opening) != Some(&b'{') {
+        return None;
+    }
+    let mut cursor = opening + 1;
+    let mut has_content = false;
+    while cursor < source.len() {
+        let character = source[cursor..].chars().next()?;
+        match character {
+            '}' => return has_content.then_some(cursor + 1),
+            '\\' => {
+                let (nested, after) = crate::command(source, cursor);
+                cursor = if literal_escape(nested) { after } else { literal_style_end(source, nested, after, depth + 1)? };
+                has_content = true;
+                continue;
+            }
+            '\r' | '\n' | '%' | '{' | '$' | '&' | '#' | '_' | '^' | '~' => return None,
+            value if value.is_control() && value != '\t' => return None,
+            value => has_content |= !value.is_whitespace(),
+        }
+        cursor += character.len_utf8();
+    }
+    None
 }
 
 /// Bounded lexical forms in the preamble only. This preserves their bytes and
@@ -383,6 +431,7 @@ fn envelope(source: &str) -> Result<Envelope, OpaqueReason> {
     let mut groups = Vec::new();
     let mut envs: Vec<(&str, usize)> = Vec::new();
     let mut blocked = Vec::new();
+    let mut formatted = Vec::new();
     let mut boundaries = Vec::new();
     let mut begin = None;
     let mut finish = None;
@@ -450,6 +499,17 @@ fn envelope(source: &str) -> Result<Envelope, OpaqueReason> {
                     i = after;
                     continue;
                 }
+                if finish.is_none() && groups.is_empty() && matches!(envs.as_slice(), [("document", _)]) {
+                    if let Some(after) = literal_style_end(source, command, end, 0) {
+                        steps += after - i;
+                        if steps > MAX_STEPS {
+                            return Err(OpaqueReason::BudgetExceeded);
+                        }
+                        formatted.push(i..after);
+                        i = after;
+                        continue;
+                    }
+                }
                 if command == "\\begin" || command == "\\end" {
                     let (arg, after) = crate::argument(source, end)
                         .map_err(|_| OpaqueReason::IncompleteStructure)?;
@@ -509,8 +569,7 @@ fn envelope(source: &str) -> Result<Envelope, OpaqueReason> {
                     boundaries.push(Boundary { range: boundary, kind });
                     continue;
                 }
-                // First slice recognizes literal prose, not markup expansion.
-                if !["\\%", "\\&", "\\$", "\\#", "\\_", "\\{", "\\}", "\\ "].contains(&command) {
+                if !literal_escape(command) {
                     if ["\\[", "\\]", "\\(", "\\)"].contains(&command) {
                         return Err(OpaqueReason::UnsupportedSyntax);
                     }
@@ -579,6 +638,7 @@ fn envelope(source: &str) -> Result<Envelope, OpaqueReason> {
     Ok(Envelope {
         body,
         blocked: merged,
+        formatted,
         boundaries,
     })
 }
@@ -628,6 +688,7 @@ fn project(source: &str) -> Vec<SourceRegion> {
     let mut chunk = view.body.start;
     let mut offset = chunk;
     let mut blocked_index = 0;
+    let mut formatted = view.formatted.into_iter().peekable();
     let mut chunks = Vec::new();
     let mut boundaries = view.boundaries.into_iter().peekable();
     for line in source[view.body.clone()].split_inclusive('\n') {
@@ -670,10 +731,18 @@ fn project(source: &str) -> Vec<SourceRegion> {
                 .blocked
                 .get(blocked_index)
                 .is_some_and(|r| r.start < end);
+            while formatted.peek().is_some_and(|range| range.end <= start) {
+                formatted.next();
+            }
+            let style_kind = if formatted.peek().is_some_and(|range| range.start < end) {
+                RegionKind::FormattedParagraph
+            } else {
+                RegionKind::PlainParagraph
+            };
             let kind = if blocked {
                 RegionKind::Opaque(OpaqueReason::UnsupportedSyntax)
             } else {
-                boundary_kind.unwrap_or(RegionKind::PlainParagraph)
+                boundary_kind.unwrap_or(style_kind)
             };
             append(&mut regions, source, start..end, kind);
         }
