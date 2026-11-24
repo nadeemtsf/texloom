@@ -544,6 +544,32 @@ test('reorder resolves the second paragraph independently and publishes the veri
  assert.equal(t.native.history[0].sources['main.tex'],source);
 });
 
+test('Delete paragraph commits through the same verified transaction and preserves other buffers',async()=>{
+ const t=await setup();
+ t.run("state.objectSelection={kind:'source',unitKind:'paragraph',file:'main.tex',start:0,end:15,content:'Original source',expected_source:'Original source'}");
+ t.control.plan=async request=>{
+  assert.equal(request.action,'delete_paragraph');
+  assert.deepEqual(Array.from(request.selection),[0,15]);
+  assert.equal(request.expected,'Original source');
+  return {sources:{...request.sources,'main.tex':''},file:'main.tex'};
+ };
+ assert.equal(await t.run('$("object-delete-paragraph").onclick()'),true);
+ assert.deepEqual(t.native.sources,{'main.tex':'','custom.sty':'Style source'});
+ assert.equal(t.native.history.length,1);
+});
+
+test('Delete paragraph ignores a plan whose canvas selection changed before it returned',async()=>{
+ const t=await setup();
+ t.run("state.objectSelection={kind:'source',unitKind:'paragraph',file:'main.tex',start:0,end:15,content:'Original source',expected_source:'Original source'}");
+ t.control.plan=async request=>{
+  t.run("state.objectSelection=null");
+  return {sources:{...request.sources,'main.tex':''},file:'main.tex'};
+ };
+ await t.run('deleteParagraph(state.objectSelection)');
+ assert.equal(t.native.sources['main.tex'],'Original source');
+ assert.equal(t.native.history.length,0);
+});
+
 test('dropping inside an unrelated wrapped paragraph cannot commit or fall back to free drag',async()=>{
  const t=await setup();
  const selection="{kind:'source',unitKind:'paragraph',file:'main.tex',page:1,start:0,end:8,content:'Original',expected_source:'Original source'}";

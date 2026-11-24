@@ -46,7 +46,7 @@ Plain title-only `\part`, `\chapter`, `\section`, `\subsection` and `\subsubsect
 ## Required contracts for the later commands
 
 - Replace/Insert: validated literal/context and correct escaping; distinguish plain text from explicit raw LaTeX.
-- Delete: exact intended content removed once, compatible source boundaries, unrelated source preserved; retain shared physical assets by default.
+- Delete: the PDF canvas removes a complete plain paragraph from the main file. The native check permits vertical reflow below the deletion on a text-only page, preserves the other glyphs in order and preserves other pages' rasters. It refuses page-count changes, annotations and a target that spans pages. The source patch retains the separators and other files.
 - Reorder: move the same source fragment once to a legal destination, preserving intended content and checking its new order.
 - Spacing/Format: affect only the declared local parameter/style scope; disclose allowed reflow instead of promising strict displacement.
 - Split/Join/structural edits: preserve syntax/scopes and declare legitimate dependent counter/reference/contents effects.

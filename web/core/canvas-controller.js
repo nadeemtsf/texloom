@@ -3,8 +3,8 @@ import {performanceOutcome} from './performance-diagnostics.js';
 
 /** DOM gestures are isolated from source edits and compilation. */
 export class CanvasController {
-  constructor({getSession,resolve,move,reorder,edit,selected,notify,eventWindow=globalThis.window,diagnostics=null}) {
-    Object.assign(this,{getSession,resolve,move,reorder,edit,onSelected:selected,notify,eventWindow,diagnostics});
+  constructor({getSession,resolve,move,reorder,edit,deleteParagraph,selected,notify,eventWindow=globalThis.window,diagnostics=null}) {
+    Object.assign(this,{getSession,resolve,move,reorder,edit,deleteParagraph,onSelected:selected,notify,eventWindow,diagnostics});
     this.view=null;this.selection=null;this.pending=0;this.hits=[];
     this.cancelGesture=null;this.pageHandlers=new Map();
     this.onEscape=e=>{if(e.key==='Escape'){this.cancelGesture?.();this.clear()}};
@@ -106,6 +106,10 @@ export class CanvasController {
         event.preventDefault();this.reorderNearby(event.key==='ArrowUp');
       }else if(directions[event.key]){event.preventDefault();this.move(selection,...directions[event.key])}
       else if(event.key==='Enter'){event.preventDefault();this.edit(selection)}
+      else if(event.key==='Delete'&&!event.repeat&&!event.altKey&&!event.ctrlKey&&!event.metaKey&&!event.shiftKey
+              &&this.deleteParagraph&&this.fresh()){
+        event.preventDefault();this.deleteParagraph(selection);
+      }
     };
     page.shell.append(frame);return frame;
   }

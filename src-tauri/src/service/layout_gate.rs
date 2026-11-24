@@ -47,6 +47,10 @@ enum Policy {
         before_probe: Sources,
         after_probe: Sources,
     },
+    DeleteParagraph {
+        marker: String,
+        before_probe: Sources,
+    },
     DirectText {
         marker: String,
         before_probe: Option<Sources>,
@@ -138,6 +142,9 @@ impl Plan {
                         original_order: plan.original_order, new_order: plan.new_order,
                         before_probe: plan.before_probe, after_probe: plan.after_probe,
                     })
+                } else if request.action == "delete_paragraph" {
+                    let plan = visual::plan_paragraph_deletion(&request)?;
+                    (plan.sources, Policy::DeleteParagraph { marker, before_probe: plan.before_probe })
                 } else if matches!(request.action.as_str(), "replace_source" | "append_paragraph" | "move_source") {
                     let plan = visual::plan_direct_text(&request)?;
                     (plan.sources, Policy::DirectText {
@@ -440,6 +447,13 @@ impl Backend {
                 verify_reorder_order(bounds.iter().map(|(old, _)| *old))?;
                 verify_reorder_order(new_order.iter().map(|index| bounds[*index].1))?;
                 private_builds.extend([before, after]);
+            }
+            Policy::DeleteParagraph { marker, before_probe } => {
+                let probe = self.equivalent_text_probe(request, before_probe, &plan.baseline, lease)?;
+                let before = self.inspect_layout(&probe, Some(marker), &lease.cancel)?;
+                let after = self.inspect_layout(&build, None, &lease.cancel)?;
+                verification::compare_paragraph_deletion(&before.view, &after.view).map_err(fail)?;
+                private_builds.push(probe);
             }
             Policy::DirectText { marker, before_probe, after_probe, displacement } => {
                 let baseline = if let Some(sources) = before_probe {

@@ -447,7 +447,56 @@ pub(super) fn plan_paragraph_reorder(request: &ObjectEditRequest) -> Result<Reor
     })
 }
 
+pub(super) struct ParagraphDeletionPlan {
+    pub(super) sources: BTreeMap<String, String>,
+    pub(super) before_probe: BTreeMap<String, String>,
+}
+
+pub(super) fn plan_paragraph_deletion(request: &ObjectEditRequest) -> Result<ParagraphDeletionPlan> {
+    use texloom_core::document::{Profile, Session, intent::SourceIntent, structure::RegionKind};
+
+    relative(&request.main)?;
+    if request.file != request.main || !request.file.ends_with(".tex") {
+        return Err("Delete requires a plain paragraph in the main LaTeX file".into());
+    }
+    if request.content.is_some() || request.literal_edits.is_some() || request.spacing_edits.is_some()
+        || request.dx.is_some() || request.dy.is_some() || request.neighbor.is_some()
+        || request.before_neighbor || request.plain
+    {
+        return Err("Delete can only remove the selected paragraph".into());
+    }
+
+    let session = Session::new(
+        request.sources.clone(),
+        Profile { main: request.main.clone(), engine: "auto".into() },
+    ).map_err(fail)?;
+    let source = &session.sources()[&request.file];
+    let [start, end] = request.selection.ok_or("Select a paragraph to delete")?;
+    let editor = EditorProjection::new(source);
+    let range = editor.source_offset(start).map_err(fail)?..editor.source_offset(end).map_err(fail)?;
+    let expected = request.expected.as_deref().ok_or("Missing selected paragraph text")?;
+    if source.get(range.clone()) != Some(expected) {
+        return Err("The selected paragraph changed. Select it again.".into());
+    }
+    let projection = session.source_projection(&request.file).map_err(fail)?;
+    let index = projection.regions().iter().position(|region| {
+        region.kind() == RegionKind::PlainParagraph && region.range() == range
+    }).ok_or("Delete requires a complete plain paragraph. Edit this text in the source.")?;
+    let target = projection.entity_reference(index).ok_or("The paragraph is unavailable")?;
+    let plan = session.plan_source_intent(SourceIntent::DeleteParagraphContent { target })
+        .map_err(|_| "The paragraph cannot be removed in this source context")?;
+    let sources = plan.candidate_sources(&session).map_err(fail)?;
+    let before_probe = mark_text_ranges(request, source, &[(range, &request.id)], true)?;
+    Ok(ParagraphDeletionPlan { sources, before_probe })
+}
+
 pub fn plan_object_edit(mut request: ObjectEditRequest) -> Result<ObjectPlan> {
+    if request.action == "delete_paragraph" {
+        let plan = plan_paragraph_deletion(&request)?;
+        return Ok(ObjectPlan {
+            sources: plan.sources, object_id: request.id, file: request.file, operation: request.action,
+        });
+    }
     if request.action == "reorder_paragraph" {
         let plan = plan_paragraph_reorder(&request)?;
         return Ok(ObjectPlan {

@@ -73,6 +73,48 @@ fn moved(a: &Inspection, dx: f64, dy: f64) -> Inspection {
     paint(&mut b);
     b
 }
+#[test]
+fn paragraph_deletion_keeps_repeated_ink_and_allows_only_downstream_vertical_reflow() {
+    let mut before = baseline();
+    before.glyphs.insert(0, Glyph {
+        text: "Lead".into(),
+        page: 0,
+        bounds: bounds(10.0, 4.0),
+        target: false,
+    });
+    before.glyphs[2].bounds.y = 24.0;
+    paint(&mut before);
+    let mut after = before.clone();
+    after.glyphs.remove(1);
+    after.glyphs[1].bounds.y = 16.0;
+    paint(&mut after);
+    compare_paragraph_deletion(&before, &after).unwrap();
+
+    let mut changed = after.clone();
+    changed.glyphs.reverse();
+    assert!(compare_paragraph_deletion(&before, &changed).is_err());
+    let mut changed = after.clone();
+    changed.glyphs[1].bounds.x += 0.1;
+    assert!(compare_paragraph_deletion(&before, &changed).is_err());
+    let mut changed = after.clone();
+    changed.glyphs[0].bounds.y += 0.1;
+    assert!(compare_paragraph_deletion(&before, &changed).is_err());
+    let mut changed = after.clone();
+    changed.glyphs[1].bounds.width += 0.1;
+    assert!(compare_paragraph_deletion(&before, &changed).is_err());
+    let mut changed = after.clone();
+    changed.graphics.push(Graphic { kind: 2, page: 0, bounds: bounds(1.0, 1.0) });
+    assert!(compare_paragraph_deletion(&before, &changed).is_err());
+
+    before.pages.push(before.pages[0].clone());
+    before.rasters.push(before.rasters[0].clone());
+    after.pages.push(after.pages[0].clone());
+    after.rasters.push(before.rasters[1].clone());
+    compare_paragraph_deletion(&before, &after).unwrap();
+    after.rasters[1].pixels[0] ^= 255;
+    assert!(compare_paragraph_deletion(&before, &after).is_err());
+}
+
 fn compare_move(a: &Inspection, b: &Inspection) -> Result<Verified> {
     compare(a, b, Operation::Displace { dx: 3.0, dy: 8.0 })
 }

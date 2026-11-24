@@ -343,6 +343,62 @@ fn isolated(w: Window, page: usize, raster: &Raster, a: &Inspection, b: &Inspect
     }
     Ok(())
 }
+/// A marked baseline identifies a single contiguous paragraph. Its page may
+/// reflow vertically, while pages outside the edit must keep their exact paint.
+pub fn compare_paragraph_deletion(before: &Inspection, after: &Inspection) -> Result<()> {
+    validate(before)?;
+    validate(after)?;
+    require(before.pages.len() == after.pages.len(), "Deletion changed the page count")?;
+    let first = before.glyphs.iter().position(|glyph| glyph.target)
+        .ok_or("The paragraph has no visible target")?;
+    let last = before.glyphs.iter().rposition(|glyph| glyph.target).unwrap();
+    let page = before.glyphs[first].page;
+    let removed = &before.glyphs[first..=last];
+    require(
+        removed.iter().all(|glyph| glyph.target && glyph.page == page),
+        "Delete requires one uninterrupted paragraph on a single page",
+    )?;
+    require(
+        !before.graphics.iter().chain(&after.graphics).any(|graphic| graphic.page == page),
+        "Delete requires a text-only page",
+    )?;
+    match_graphics(before, after)?;
+
+    for (i, (old, new)) in before.pages.iter().zip(&after.pages).enumerate() {
+        require(
+            old.width == new.width && old.height == new.height && old.crop == new.crop
+                && old.annotations == 0 && new.annotations == 0,
+            "Deletion changed page geometry or requires annotation support",
+        )?;
+        let a = &before.rasters[i];
+        let b = &after.rasters[i];
+        require(
+            a.width == b.width && a.height == b.height && a.stride == b.stride
+                && a.channels == b.channels && a.scale == b.scale,
+            "Raster configuration changed",
+        )?;
+        require(i == page || a.pixels == b.pixels, "Deletion changed another page's appearance")?;
+    }
+
+    let remaining = before.glyphs[..first].iter().chain(&before.glyphs[last + 1..]);
+    require(
+        before.glyphs.len() - removed.len() == after.glyphs.len()
+            && remaining.zip(&after.glyphs).enumerate().all(|(i, (old, new))| {
+                if old.page != new.page || old.text != new.text || new.target {
+                    return false;
+                }
+                // Downstream text on the edited page may move vertically.
+                let expected = if i >= first && old.page == page {
+                    Rect { y: new.bounds.y, ..old.bounds }
+                } else {
+                    old.bounds
+                };
+                expected.near(new.bounds, NEIGHBOR_TOLERANCE)
+            }),
+        "Deletion changed text order, text geometry, or content outside the selected paragraph",
+    )
+}
+
 /// Fail closed for unsupported coordinates, annotations, overlap, fractional
 /// raster shifts or bounded-resource exhaustion. No tolerances are supplied by
 /// the frontend. Identity requires complete same-renderer pixel equality.

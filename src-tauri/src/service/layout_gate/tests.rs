@@ -773,6 +773,72 @@ The text after the chosen unit stays in place.
     }
 }
 
+fn deletion_request(source: &str, selected: &str, start: usize) -> ObjectEditRequest {
+    serde_json::from_value(json!({
+        "sources":sources(source), "main":"main.tex", "file":"main.tex",
+        "action":"delete_paragraph", "id":"delete-paragraph", "selection":[start,start+selected.len()],
+        "expected":selected,
+    })).unwrap()
+}
+
+#[test]
+fn paragraph_delete_requires_the_exact_plain_source_range() {
+    let source = "\\documentclass{article}\n\\begin{document}\nSame.\n\nSame.\n\n\\textbf{Protected.}\n\\end{document}\n";
+    let selected = source.rfind("Same.").unwrap();
+    let request = deletion_request(source, "Same.", selected);
+    let plan = visual::plan_object_edit(request.clone()).unwrap();
+    let mut expected = source.to_owned();
+    expected.replace_range(selected..selected + "Same.".len(), "");
+    assert_eq!(plan.sources, sources(&expected));
+    let mut stale = request;
+    stale.expected = Some("Other".into());
+    assert!(visual::plan_object_edit(stale).is_err());
+    assert!(visual::plan_object_edit(deletion_request(source, "Same", selected)).is_err());
+    let formatted = r"\textbf{Protected.}";
+    assert!(visual::plan_object_edit(deletion_request(source, formatted, source.find(formatted).unwrap())).is_err());
+}
+
+#[test]
+#[ignore = "requires the installed TeX engines and the pinned Windows verifier"]
+fn paragraph_delete_real_engine_workflow() {
+    let selected = "A paragraph with the same words.";
+    let source = format!(
+        "\\documentclass[12pt]{{article}}\n\\begin{{document}}\n{selected}\n\nBetween the two occurrences.\n\n{selected}\n\nText remains below it.\n\\end{{document}}\n"
+    );
+    let start = source.rfind(selected).unwrap();
+    let mut expected = source.clone();
+    expected.replace_range(start..start + selected.len(), "");
+    for engine in ["pdflatex", "xelatex", "lualatex"] {
+        let mut fixture = Fixture::new(&source);
+        prepare_test_verifier(&mut fixture);
+        let path = fixture.root.join("project/main.tex").to_string_lossy().into_owned();
+        let project = fixture.backend.open_project_with_profile(Some(path.clone()), Some(ProjectProfile {
+            schema: 1, main: "main.tex".into(), engine: engine.into(),
+        })).unwrap();
+        let baseline = fixture.backend.compile_document(&project.id, 0, None, None, 1).unwrap();
+        assert!(baseline.ok && baseline.verification_eligible, "{engine}: {}", baseline.log);
+        let request = deletion_request(&source, selected, start);
+        let plan = visual::plan_object_edit(request.clone()).unwrap();
+        assert_eq!(plan.sources, sources(&expected));
+        let prepared = fixture.backend.document_prepare_visual(
+            &project.id, 0, plan.sources, &baseline.build_id, Some(VisualOperation::Text { request }),
+        ).unwrap();
+        let candidate = fixture.backend.compile_document(&project.id, 0, Some(&prepared.token), None, 2)
+            .unwrap_or_else(|error| panic!("{engine}: {error}"));
+        assert!(candidate.ok && candidate.verification_eligible, "{engine}: {}", candidate.log);
+        assert!(candidate.objects.is_empty());
+        assert_eq!(fs::read_to_string(&path).unwrap(), source);
+        let committed = fixture.backend.document_commit(&project.id, &prepared.token, &candidate.build_id).unwrap();
+        assert_eq!(committed.sources, sources(&expected));
+        let undo = fixture.backend.document_history(&project.id, committed.revision, false).unwrap();
+        assert_eq!(undo.sources, sources(&source));
+        let redo = fixture.backend.document_history(&project.id, undo.revision, true).unwrap();
+        fixture.backend.save_document(&project.id, redo.revision).unwrap();
+        assert_eq!(fixture.backend.open_project(Some(path)).unwrap().sources, sources(&expected));
+        println!("{engine}: deleted only the second identical paragraph, with verified Undo, Redo and Save");
+    }
+}
+
 fn reorder_request(source: &str, first: &str, second: &str, before: bool) -> ObjectEditRequest {
     let range = |text: &str| {
         let start = source.find(text).unwrap();

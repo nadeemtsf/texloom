@@ -9,6 +9,7 @@ class Element{
  addEventListener(name,fn){this.events.set(name,fn)}
  removeEventListener(name,fn){if(this.events.get(name)===fn)this.events.delete(name)}
  setAttribute(){}
+ append(){}
  setPointerCapture(id){this.capture=id}
  focus(options){this.focused=options}
  getContext(){return {drawImage(){}}}
@@ -151,4 +152,21 @@ test('a drop at an independent neighbor is routed to reorder and Alt keeps free 
   }
  }
  assert.equal(t.operations.length,1);
+});
+
+test('only an unmodified Delete press on a current PDF frame requests paragraph deletion',()=>{
+ const t=setup(),deletions=[];
+ t.c.deleteParagraph=selection=>deletions.push(selection);
+ t.c.view.objects=new Map();
+ t.c.view.pages=[{number:1,shell:new Element()}];
+ const frame=CanvasController.prototype.drawFrame.call(t.c);
+ let prevented=0;
+ const press=(additional={})=>frame.onkeydown({key:'Delete',preventDefault(){prevented++},...additional});
+ press({repeat:true});press({ctrlKey:true});press({shiftKey:true});
+ t.state.revision=1;press();
+ assert.equal(prevented,0);
+ assert.deepEqual(deletions,[]);
+ t.state.revision=0;press();
+ assert.equal(prevented,1);
+ assert.deepEqual(deletions,[t.selection]);
 });
