@@ -61,3 +61,6 @@ header{gap:7px;padding:0 12px}header #project-name{max-width:160px;overflow:hidd
 .preliminary-pages canvas{max-width:100%;box-shadow:0 5px 24px #243d2422;pointer-events:none}
 
 .paragraph-drop-line{position:absolute;z-index:8;border-top:3px solid #288249;pointer-events:none}
+.canvas-tools{height:auto;min-height:42px;flex-wrap:wrap;padding-block:5px;row-gap:4px}
+#last-compile-time{color:#4b614f;font-variant-numeric:tabular-nums;white-space:nowrap}
+.canvas-tools :is(#last-compile-time,#compile-state):empty{display:none}

@@ -68,6 +68,21 @@ test('PDF wheel scrolling and Ctrl zoom never compile or mutate native document 
  assert.equal(JSON.stringify(t.native.snapshot()),before);assert.equal(t.native.history.length,0);
 });
 
+test('the timer next to Auto compile follows the displayed build for this project',async()=>{
+ const t=await setup();
+ t.run("$('auto').checked=false;updateControls();");
+ const timer=t.elements.get('last-compile-time');
+ assert.equal(timer.textContent,'');
+ t.control.compile=async()=>({ok:true,log:'',seconds:1.28,engine:'pdflatex',build_id:'timed-pdf',objects:[]});
+ await t.run("compile('manual')");
+ assert.equal(timer.textContent,'Last compile 1.28 s');
+ t.control.compile=async()=>{throw Error('Candidate compilation failed')};
+ await t.run("compile('manual')");
+ assert.equal(timer.textContent,'Last compile 1.28 s');
+ t.run('state.result=null;updateControls();');
+ assert.equal(timer.textContent,'');
+});
+
 for(const failure of ['prepare','compile'])test(`paragraph insertion keeps the accepted source and PDF after ${failure} rejection`,async()=>{
  const t=await setup();
  t.control.plan=async request=>{
