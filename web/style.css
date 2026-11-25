@@ -20,6 +20,8 @@
 .pdf-typing{white-space:pre-wrap;overflow-wrap:break-word;cursor:text;position:absolute;z-index:5;border:0;border-radius:0;padding:0;background:#fff;color:#111;caret-color:#315d4d;overflow:hidden;resize:none;tab-size:4}
 /* Keep the real PDF visible while the browser accepts caret and keyboard input. */
 .pdf-typing:not(.pdf-typing-draft){opacity:0;pointer-events:none}
+.pdf-typing-line-draft{position:absolute;pointer-events:none;z-index:3}
+.pdf-page .pdf-typing-line-draft[hidden]{display:none}
 .pdf-typing-selection{position:absolute;inset:0;pointer-events:none;z-index:4}
 .pdf-typing-selection span{position:absolute;display:block}
 .pdf-typing-caret{background:#315d4d}

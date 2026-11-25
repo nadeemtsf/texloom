@@ -1,3 +1,6 @@
+import {paintInlineDraft} from './inline-draft.js';
+import {caretOffset} from './inline-text.js';
+
 // The browser owns the caret, IME, selection and keyboard editing. Keep each
 // logical break as an actual newline so Backspace can traverse styled spans.
 export class InlineSurface {
@@ -6,6 +9,10 @@ export class InlineSurface {
     this.markers=element.ownerDocument.createElement('div');
     this.markers.className='pdf-typing-selection';
     this.markers.setAttribute('aria-hidden','true');
+    this.draft=element.ownerDocument.createElement('canvas');
+    this.draft.className='pdf-typing-line-draft';
+    this.draft.setAttribute('aria-hidden','true');
+    this.draft.hidden=true;
   }
   get value() { return this.element.innerText.replace(/\r\n?/gu,'\n'); }
   get selection() {
@@ -74,12 +81,21 @@ export class InlineSurface {
     node.replaceChildren(fragment);
   }
   dispose() {
+    this.draft.remove();
     this.markers.remove();
     this.element.classList.remove('pdf-typing-draft');
   }
   refresh() {
-    this.element.classList.toggle('pdf-typing-draft',this.value!==this.entry.text);
+    const value=this.value, changed=value!==this.entry.text;
+    this.draftRows=changed?paintInlineDraft(this.draft,this.page,this.entry,value,this.scale,this.preferredRow):null;
+    this.draft.hidden=!this.draftRows;
+    this.element.classList.toggle('pdf-typing-draft',changed&&!this.draftRows);
     this.drawSelection();
+  }
+  offsetAt(row,x) {
+    const mapped=this.draftRows?.find(item=>item.line===row.line)||row;
+    const column=caretOffset(mapped.stops,x);
+    return column===null?null:mapped.offsets[column];
   }
   clearSelection() { this.markers.replaceChildren(); }
   drawSelection() {
@@ -90,7 +106,7 @@ export class InlineSurface {
     }
     const selection=this.selection;
     if(!selection){this.clearSelection();return}
-    const {rows}=this.entry;
+    const rows=this.draftRows||this.entry.rows;
     const {anchor,head}=selection, start=Math.min(anchor,head), end=Math.max(anchor,head);
     const fragment=node.ownerDocument.createDocumentFragment();
     const draw=(row,from,to,caret=false)=>{
@@ -106,8 +122,7 @@ export class InlineSurface {
     };
     if(start===end){
       const contains=row=>row.start<=head&&head<=row.end;
-      const row=this.preferredRow&&rows.includes(this.preferredRow)&&contains(this.preferredRow)?
-        this.preferredRow:rows.find(contains);
+      const row=rows.find(row=>row.line===this.preferredRow?.line&&contains(row))||rows.find(contains);
       if(row)draw(row,head,head,true);
     }else{
       for(const row of rows){
@@ -135,8 +150,9 @@ export class InlineSurface {
       width:Math.max(1,(right-left)*scale+1)+'px',minHeight:Math.min(maxHeight,last.y-first.y+natural)*scale+'px',maxHeight:Math.max(natural,maxHeight)*scale+'px',
       fontSize:first.height*scale+'px',lineHeight:natural*scale+'px'});
     this.entry=entry;
+    this.page=page;
     this.scale=scale;
-    if(this.markers.parentNode!==page.shell)page.shell.append(this.markers);
+    if(this.markers.parentNode!==page.shell)page.shell.append(this.draft,this.markers);
     this.refresh();
   }
 }
