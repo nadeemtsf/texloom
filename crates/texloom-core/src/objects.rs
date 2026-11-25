@@ -59,7 +59,7 @@ pub fn text_objects(source: &str) -> Result<Vec<TextObject>> {
     Ok(objects)
 }
 
-fn simple_definitions(source: &str) -> Vec<(String, String)> {
+pub(crate) fn simple_definitions(source: &str) -> Vec<(String, String)> {
     let mut found = Vec::new();
     let limit = document_bounds(source).map(|(end, _, _)| end).unwrap_or(0);
     let mut i = 0;
@@ -109,7 +109,7 @@ pub fn validate_movable_text(fragment: &str, document: &str) -> Result<()> {
                     if ["\\begin", "\\end", "\\section", "\\subsection", "\\chapter", "\\part", "\\caption", "\\label", "\\ref", "\\pageref", "\\cite", "\\href", "\\url", "\\hyperlink", "\\hyperref", "\\footnote", "\\marginpar", "\\includegraphics", "\\newcommand", "\\renewcommand", "\\def", "\\gdef", "\\write", "\\special", "\\TexloomObject", "\\enlargethispage", "\\vspace", "\\hspace", "\\fontsize", "\\selectfont", "\\color", "\\bfseries", "\\itshape", "\\centering", "\\raggedright", "\\input", "\\include", "\\usepackage", "\\documentclass"].contains(&cmd) {
                         return Err(format!("{cmd} needs source editing or a dedicated layout adapter"));
                     }
-                    let basic = ["\\textbf", "\\textit", "\\textsl", "\\textsc", "\\textsf", "\\textrm", "\\texttt", "\\emph", "\\underline", "\\textcolor", "\\mbox", "\\par", "\\\\", "\\%", "\\&", "\\$", "\\#", "\\_", "\\{", "\\}", "\\ ", "\\,", "\\;", "\\:", "\\!", "\\-", "\\'", "\\\"", "\\`", "\\^", "\\~", "\\c", "\\v", "\\H", "\\u", "\\b", "\\d", "\\r", "\\oe", "\\OE", "\\ae", "\\AE", "\\ss", "\\o", "\\O", "\\textbackslash", "\\textasciitilde", "\\textasciicircum", "\\LaTeX", "\\TeX", "\\ldots", "\\dots"];
+                    let basic = ["\\textbf", "\\textit", "\\textsl", "\\textsc", "\\textsf", "\\textrm", "\\texttt", "\\emph", "\\underline", "\\textcolor", "\\mbox", "\\par", "\\\\", "\\%", "\\&", "\\$", "\\#", "\\_", "\\{", "\\}", "\\ ", "\\,", "\\;", "\\:", "\\!", "\\-", "\\'", "\\\"", "\\`", "\\^", "\\~", "\\c", "\\v", "\\H", "\\u", "\\b", "\\d", "\\r", "\\oe", "\\OE", "\\ae", "\\AE", "\\ss", "\\o", "\\O", "\\textbackslash", "\\textasciitilde", "\\textasciicircum", "\\textless", "\\textgreater", "\\textquotesingle", "\\textasciigrave", "\\LaTeX", "\\TeX", "\\ldots", "\\dots"];
                     if !basic.contains(&cmd) {
                         let body = definitions.iter().rev().find(|(name, _)| name == cmd).map(|(_, text)| text)
                             .ok_or_else(|| format!("The effect of {cmd} is unknown. Edit this selection in the source editor."))?;

@@ -26,7 +26,8 @@ import {TypingRecoveryController} from './core/typing-recovery.js';
 import {CloseController} from './core/close-controller.js';
 import draftRecoveryEnabled from './draft-recovery.json';
 import {validateSelectionProbe} from './core/selection-proof.js';
-import {inlineTextSupported,inlineSourceText,nearbyInlineLines,inlineRows,caretOffset,findInlineFlow,documentBody,measuredCaretStops,inlineSourceReplacement} from './core/inline-text.js';
+import {buildInlineIndex,caretOffset} from './core/inline-text.js';
+import {InlineSurface} from './core/inline-surface.js';
 import {createWorkspaceInvoke} from './core/workspace-protocol.js';
 import {ProjectControls} from './core/project-controls.js';
 import {PDFSearch} from './core/pdf-search.js';
@@ -77,7 +78,8 @@ const state={
   recovery:null,restoredDirty:false,
   busy:false,pending:false,previewZooming:false,zoom:0,mode:'inline',compileTimer:null,renderSerial:0,renderAbort:null,dialog:null,compileApproved:false
 };
-let inlineEditContext=null;
+let inlineEditContext=null,inlineTransaction=null;
+const inlineSessions=new Set();
 // Dedicated keys follow native history even when setValue clears Monaco's stack.
 const undoContext=editor.createContextKey('texloomCanUndo',false);
 const redoContext=editor.createContextKey('texloomCanRedo',false);
@@ -106,12 +108,11 @@ const pdfSearch=new PDFSearch({document,getView:()=>preliminary?.visible?null:st
 const canvas=new CanvasController({
   diagnostics,
   getSession:()=>state,
-  resolve:resolveCanvasSelection,
+  resolve:resolveSourceSelection,
   move:(selection,dx,dy,trace)=>moveText(selection,dx,dy,trace),
   reorder:(selection,destination)=>reorderText(selection,destination),
   edit:selection=>editText(selection),
   inlineEdit:openInlineEdit,
-  beforeInlineEdit:finishInlineEdit,
   selected:selection=>showObjectInspector(selection),
   notify:text=>toast(text)
 });
@@ -174,7 +175,7 @@ function fresh(){return !!state.result&&state.result.verification_eligible!==fal
 function canExport(){return !!state.project&&!!state.client&&!state.busy&&!state.opening&&!state.mutating&&!state.composing&&!state.saving&&!state.client.error}
 function updateControls(){
   typingRecovery?.renderProtection();
-  const inlinePending=!!inlineEditContext&&(!!inlineEditContext.inFlight||$('inline-text').value!==inlineEditContext.draft);
+  const inlinePending=hasInlineDrafts();
   const ready=fresh()&&!inlinePending,object=ready&&!!state.objectSelection;
   for(const id of ['add-text','show-pdf'])$(id).disabled=!ready;
   for(const id of ['object-apply','object-edit','object-source'])$(id).disabled=!object;
@@ -184,7 +185,7 @@ function updateControls(){
   $('object-detach').disabled=!object||state.objectSelection?.kind!=='object';
   $('object-reset').disabled=!object||state.objectSelection?.kind!=='object'||(!state.objectSelection.dx&&!state.objectSelection.dy);
   $('compile').disabled=state.busy||!!state.saving||!!state.client?.error;
-  $('save').disabled=!!state.saving||state.busy||state.composing||!!state.client?.error;
+  $('save').disabled=!!state.saving||state.busy&&!inlineTransaction||state.composing||!!state.client?.error;
   $('export').disabled=!canExport()||inlinePending;
   $('open').disabled=!!state.saving||state.mutating||state.opening;
   for(const id of ['projects','layout-controls','import-image'])$(id).disabled=inlinePending||state.busy||state.composing||state.mutating||state.opening||!!state.saving;
@@ -200,7 +201,7 @@ function updateControls(){
   if(timing.textContent!==label)timing.textContent=label;
   $('pages').classList.toggle('stale',state.revision!==state.compiled||state.busy);
   $('selection-hint').textContent=inlineEditContext?.error||(state.mode==='read'?'Drag over text to highlight and copy it.':
-    state.mode==='inline'?'Click in plain text to place the cursor.':
+    state.mode==='inline'?'Click in the PDF text to type.':
     state.result&&!state.result.objects?.length?
       'Click text to select it. Shift-click or draw a box for a group.':
       'Select text or an object. Drag its frame; double-click to edit.');
@@ -477,43 +478,6 @@ async function discardSaveRecovery(){
   finally{state.saving=false;editorReadOnly();updateControls()}
 }
 const selectionProofs=new WeakMap();
-async function resolveCanvasSelection(args){
-  if(!args.inline)return resolveSourceSelection(args);
-  const [clicked]=args.hits,view=state.view,identity=sessionIdentity(state);
-  const page=view.pages.find(item=>item.number===args.page),file=state.project.main,source=state.sources[file];
-  const bind=resolved=>{
-    const text=resolved.file===file?inlineSourceText(resolved.content):null;
-    if(text===null)return null;
-    // Match against the rendered page. The marked baseline generated during
-    // the edit transaction verifies the exact occurrence before source changes.
-    for(let i=0;i<=page.lines.indexOf(clicked);i++){
-      const rows=inlineRows(page.lines.slice(i),text),caret=rows?.find(row=>row.line===clicked);
-      if(caret){
-        const measure=document.createElement('canvas').getContext?.('2d');
-        return {...resolved,inlineFlow:{text,rows,caret,stops:measuredCaretStops(clicked,measure)}};
-      }
-    }
-    return null;
-  };
-  const body=documentBody(source);
-  if(body){
-    const start=editorText(source.slice(0,body.start)).length;
-    const resolved=bind({file,expected_source:source,content:body.content,start,end:start+editorText(body.content).length});
-    if(resolved)return resolved;
-  }
-  const lines=nearbyInlineLines(page.lines,clicked);
-  const group=lines.map(line=>({x:line.x+Math.min(line.width/2,15),y:line.baseline-line.height*0.35}));
-  // SyncTeX reads the existing mapping files. Opening a caret never runs TeX.
-  for(const points of lines.length>1?[group,args.points]:[args.points]){
-    let hint;
-    try{hint=await state.client.resolve(args.buildId,args.page,points)}catch{}
-    if(identity!==sessionIdentity(state)||state.view!==view)throw new StaleCandidate();
-    const resolved=hint&&bind(hint);
-    if(resolved)return resolved;
-  }
-  throw Error('Use the source editor for this part of the document.');
-}
-
 async function resolveSourceSelection({buildId,page,points,hits,trace=null}){
   if(!fresh()||buildId!==state.result.build_id)throw new StaleCandidate();
   const identity=sessionIdentity(state),baseline=state.view,scale=baseline.scale,dpr=globalThis.devicePixelRatio||1,client=state.client,seen=new Set();
@@ -570,8 +534,15 @@ async function resolveSourceSelection({buildId,page,points,hits,trace=null}){
     throw lastError||new Error('This text could not be mapped safely. Use source editing.');
   }finally{finishJob()}
 }
-function prepareResult(result,workerStartup){
-  return preparePDFView(pdfViewLibrary,result,{width:$('preview-scroll').clientWidth,zoom:state.zoom,mode:state.mode,lazy:true,workerStartup});
+async function prepareResult(result,workerStartup,sources=state.sources){
+  const file=state.project.main,source=sources[file];
+  // Prepare the character map alongside PDF painting, before the page accepts input.
+  const projection=invoke('inline_flows',{source}).catch(error=>({error:message(error)}));
+  const view=await preparePDFView(pdfViewLibrary,result,{width:$('preview-scroll').clientWidth,zoom:state.zoom,mode:state.mode,lazy:true,workerStartup});
+  const flows=await projection;
+  view.inlineIndex=buildInlineIndex(view,Array.isArray(flows)?flows:[],file,source,document.createElement('canvas').getContext?.('2d'));
+  if(flows.error)view.inlineIndex.error=flows.error;
+  return view;
 }
 function publishPrepared(prepared,result,{preserveAnchor=false}={}){
   preliminary?.clear();
@@ -656,7 +627,7 @@ async function commitSources(sources,{file=state.file,policy=null,operation=null
     nativeCandidate=await client.prepare(sources,state.result.build_id,operation);
     trace?.mark('native-prepared');
     const candidate=await stageCandidate({revision:nativeCandidate.revision,identity:expectedIdentity,getIdentity:()=>sessionIdentity(state),
-      compile:()=>client.compile(nativeCandidate.token),prepare:prepareResult,policy,previousPageCount:state.view.pageCount,requireVerified:true,verify:result=>client.verify(result.build_id),trace});
+      compile:()=>client.compile(nativeCandidate.token),prepare:result=>prepareResult(result,null,sources),policy,previousPageCount:state.view.pageCount,requireVerified:true,verify:result=>client.verify(result.build_id),trace});
     prepared=candidate.prepared;
     if(sessionIdentity(state)!==expectedIdentity)throw new StaleCandidate();
     state.mutating=true;editorReadOnly();updateControls();
@@ -936,100 +907,153 @@ async function undo(redo=false){
     }
   }catch(error){syncFailed(error)}finally{state.mutating=false;editorReadOnly();updateControls()}
 }
-function positionInlineEdit(context){
-  const input=$('inline-text'),scroller=surfaceElements.scroller,scale=state.view.scale;
-  const {page,rows}=context,lines=rows.map(row=>row.line),first=lines[0],last=lines.at(-1);
-  const rect=page.shell.getBoundingClientRect(),viewport=scroller.getBoundingClientRect();
-  const font=first.runs[0],left=Math.min(...lines.map(line=>line.x));
-  const wrapped=rows.filter(row=>context.draft[row.end]===' ').map(row=>row.line.x+row.line.width);
-  const right=Math.max(wrapped.length?0:rect.width/scale-left,...wrapped,...lines.map(line=>line.x+line.width));
-  const fontFamily=font.font?JSON.stringify(font.font)+', Georgia, serif':'Georgia, serif';
-  const measure=document.createElement('canvas').getContext?.('2d');
-  let fontSize=font.size*scale;
-  if(measure){
-    measure.font=fontSize+'px '+fontFamily;
-    const width=measure.measureText(last.text).width;
-    if(width>0)fontSize*=Math.max(1,Math.min(1.18,last.width*scale/width));
-  }
-  const lineHeight=lines.length>1?(last.baseline-first.baseline)/(lines.length-1):font.size*1.2;
-  const height=(last.y+Math.max(last.height,lineHeight)-first.y)*scale;
-  Object.assign(input.style,{
-    left:rect.left-viewport.left+scroller.scrollLeft+left*scale+'px',
-    top:rect.top-viewport.top+scroller.scrollTop+first.y*scale+'px',
-    width:Math.max(1,(right-left)*scale)+'px',
-    height:height+'px',
-    textIndent:(first.x-left)*scale+'px',
-    fontSize:fontSize+'px',lineHeight:lineHeight*scale+'px',fontFamily
-  });
-  const following=page.lines?.find(line=>line.y>last.y+1);
-  const maxHeight=following?(following.y-first.y)*scale:rect.height-first.y*scale;
-  input.style.height=Math.max(height,Math.min(maxHeight,input.scrollHeight||0))+'px';
+function hasInlineDrafts(){
+  return !!inlineTransaction||[...inlineSessions].some(c=>c.surface.value!==c.entry.text);
 }
-
-function openInlineEdit(selection,page,x){
-  const {rows,caret,stops,text}=selection.inlineFlow;
-  const column=caretOffset(stops,x);
-  if(column===null)throw new Error('Click inside the text to place the cursor.');
-  const input=$('inline-text'),cursor=caret.offsets[column];
-  input.value=text;input.hidden=false;
-  inlineEditContext={selection,rows,page,draft:text,identity:sessionIdentity(state),error:''};
-  positionInlineEdit(inlineEditContext);
-  input.focus({preventScroll:true});input.setSelectionRange(cursor,cursor);
+function closeInlineEdit(context){
+  if(!inlineSessions.delete(context))return;
+  clearTimeout(context.timer);
+  const node=context.surface.element;
+  node.onblur=node.onfocus=node.oninput=node.onkeydown=node.oncompositionstart=node.oncompositionend=null;
+  if(node.id==='inline-text'){node.hidden=true;node.replaceChildren()}else node.remove();
+  if(inlineEditContext===context)inlineEditContext=[...inlineSessions].at(-1)||null;
   editorReadOnly();updateControls();
 }
 
-function closeInlineEdit(context){
-  if(context!==inlineEditContext)return;
-  clearTimeout(context.timer);inlineEditContext=null;
-  $('inline-text').hidden=true;editorReadOnly();updateControls();
-}
-
-function queueInlineEdit(){
-  const context=inlineEditContext;
-  if(!context)return;
-  context.error='';
-  positionInlineEdit(context);updateControls();
-  clearTimeout(context.timer);
-  context.timer=setTimeout(()=>flushInlineEdit(context),650);
-}
-
-function flushInlineEdit(context){
-  if(context!==inlineEditContext)return Promise.resolve(false);
-  if(context.inFlight)return context.inFlight;
-  clearTimeout(context.timer);
-  const text=$('inline-text').value,selection=context.selection;
-  if(text===context.draft)return Promise.resolve(true);
-  if(!inlineTextSupported(text)||context.identity!==sessionIdentity(state)||!fresh()){
-    context.error='Edit plain text, or press Esc to restore the last verified text.';
-    updateControls();return Promise.resolve(false);
+function openInlineEdit(line,page,x){
+  if(!(fresh()||inlineTransaction&&state.revision===state.compiled)||state.mode!=='inline')return;
+  const index=state.view.inlineIndex,mapped=index?.byLine.get(line);
+  if(!mapped)return toast(index?.error||'This text has no unique editable source in the current PDF.');
+  const {entry,row,stops}=mapped;
+  const column=caretOffset(stops,x);
+  if(column===null)return;
+  let context=[...inlineSessions].find(c=>c.entry===entry);
+  if(!context){
+    const template=$('inline-text'),node=template.hidden?template:template.cloneNode(false);
+    if(node!==template){node.removeAttribute('id');surfaceElements.scroller.append(node)}
+    node.hidden=false;
+    const surface=new InlineSurface(node);
+    context={entry,surface,error:'',composing:false};
+    inlineSessions.add(context);
+    surface.initialize(entry,state.view.scale);
+    surface.position(page,entry,state.view.scale,surfaceElements.scroller);
+    node.oninput=event=>{if(!event.isComposing&&!context.composing)queueInlineEdit(context)};
+    node.oncompositionstart=()=>{context.composing=true;clearTimeout(context.timer)};
+    node.oncompositionend=()=>{context.composing=false;queueInlineEdit(context)};
+    node.onfocus=()=>{inlineEditContext=context;updateControls()};
+    node.onblur=()=>{
+      // Pointer focus can move to another passage while verification is pending.
+      setTimeout(()=>{
+        if(!inlineSessions.has(context)||node.contains(document.activeElement))return;
+        if(!context.composing&&context.surface.value===context.entry.text&&!context.inFlight)closeInlineEdit(context);
+        else if(!context.composing)queueInlineEdit(context);
+      },0);
+    };
+    node.onkeydown=event=>inlineKeydown(event,context);
   }
-  const policy={kind:'inline-text',page:context.page.number,line:context.rows[0].line,text};
-  context.inFlight=(async()=>{
-    const ok=await textOperation(selection,{content:text,plain:true,inlinePolicy:policy});
-    if(ok){
-      const {page,rows}=findInlineFlow(state.view,policy);
-      const source=state.sources[selection.file];
-      const content=inlineSourceReplacement(text,source.includes('\r\n')?'\r\n\r\n':'\n\n');
-      Object.assign(context,{page,rows,draft:text,identity:sessionIdentity(state),selection:{...selection,content,
-        end:selection.start+editorText(content).length,expected_source:source}});
-      positionInlineEdit(context);
-    }else context.error='The PDF could not verify this edit. Keep typing or press Esc.';
-    return !!ok;
+  inlineEditContext=context;
+  context.surface.select(Math.min(row.offsets[column],context.surface.value.length));
+  editorReadOnly();updateControls();
+}
+
+function inlineKeydown(event,context){
+  if(event.isComposing||context.composing)return;
+  if(event.key==='Tab'&&!event.ctrlKey&&!event.metaKey&&!event.altKey){
+    event.preventDefault();
+    if(!event.shiftKey)context.surface.insert('\t');
+    return;
+  }
+  if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='s'){
+    event.preventDefault();void saveProject();return;
+  }
+  if((event.ctrlKey||event.metaKey)&&['z','y'].includes(event.key.toLowerCase())&&!hasInlineDrafts()){
+    event.preventDefault();void undo(event.key.toLowerCase()==='y'||event.shiftKey);return;
+  }
+  if(event.key==='Escape'&&!context.inFlight){
+    event.preventDefault();closeInlineEdit(context);return;
+  }
+  // Native arrows and deletion handle all rows in the same logical passage.
+  // At its edge arrow navigation can enter the next structural passage.
+  const backwards=event.key==='ArrowLeft'||event.key==='ArrowUp',forwards=event.key==='ArrowRight'||event.key==='ArrowDown';
+  if((backwards||forwards)&&!event.shiftKey&&!event.ctrlKey&&!event.metaKey&&!event.altKey){
+    const selection=context.surface.selection;
+    if(!selection||selection.anchor!==selection.head||selection.head!==(backwards?0:context.surface.value.length))return;
+    const entries=[...state.view.inlineIndex.byStart.values()],i=entries.indexOf(context.entry);
+    const neighbor=entries[i+(backwards?-1:1)];
+    if(!neighbor)return;
+    const row=backwards?neighbor.rows.at(-1):neighbor.rows[0];
+    event.preventDefault();
+    openInlineEdit(row.line,state.view.pages.find(p=>p.number===neighbor.page),row.line.x+(backwards?row.line.width:0));
+  }
+}
+
+function queueInlineEdit(context){
+  if(!inlineSessions.has(context))return;
+  context.error='';updateControls();
+  clearTimeout(context.timer);
+  // Keep an empty insertion point available for replacement typing until the user leaves.
+  if(context.surface.value.trim()||document.activeElement!==context.surface.element)
+    context.timer=setTimeout(()=>flushInlineEdit(context),650);
+}
+async function flushInlineEdit(context){
+  clearTimeout(context.timer);
+  // Serialize source transactions. All active surfaces remain editable while
+  // older drafts are being compiled and independently verified.
+  while(inlineTransaction)await inlineTransaction;
+  if(!inlineSessions.has(context))return true;
+  if(context.composing)return false;
+  const entry=context.entry,text=context.surface.value;
+  if(text===entry.text)return true;
+  if(!fresh()||state.sources[entry.file]!==entry.expected_source){
+    context.error='The source changed. Your draft is still on the page.';updateControls();return false;
+  }
+  const policy={kind:'inline-text',page:entry.page,line:entry.rows[0].line,start:entry.start,text};
+  context.inFlight=true;
+  inlineTransaction=(async()=>{
+    if(!await textOperation(entry,{content:text,plain:true,inlinePolicy:policy})){
+      context.error='Texloom could not verify this edit. Your draft is still on the page.';return false;
+    }
+    const source=state.sources[entry.file],delta=editorText(source).length-editorText(entry.expected_source).length;
+    for(const other of inlineSessions){
+      const old=other.entry;
+      if(other===context&&!text.trim()){
+        closeInlineEdit(other);continue;
+      }
+      const start=old.start>entry.start?old.start+delta:old.start;
+      const next=state.view.inlineIndex?.byStart.get(start);
+      if(!next||next.text!==(other===context?text:old.text)){
+        other.error='The edited passage moved outside its mapped page. Your draft is still available.';
+        continue;
+      }
+      const surface=other.surface,oldFonts=old.rows.flatMap(r=>r.line.runs),newFonts=next.rows.flatMap(r=>r.line.runs);
+      const fonts=new Map(oldFonts.map((run,i)=>[run.font,newFonts[i]?.font]));
+      for(const span of surface.element.querySelectorAll?.('span')||[]){
+        const oldFont=span.style.fontFamily.split(',')[0].replaceAll('"','').trim(),font=fonts.get(oldFont);
+        if(font)span.style.fontFamily=JSON.stringify(font)+', serif';
+      }
+      other.entry=next;
+      const page=state.view.pages.find(p=>p.number===next.page);
+      other.surface.position(page,next,state.view.scale,surfaceElements.scroller);
+    }
+    return !inlineSessions.has(context)||context.entry!==entry;
   })().catch(error=>{context.error=message(error);return false}).finally(()=>{
-    context.inFlight=null;updateControls();
-    const draft=$('inline-text').value;
-    if(inlineEditContext===context&&draft!==context.draft&&(!context.error||draft!==text))queueInlineEdit();
+    inlineTransaction=null;context.inFlight=false;updateControls();
+    if(!inlineSessions.has(context))return;
+    const draft=context.surface.value;
+    if(draft!==context.entry.text&&(!context.error||draft!==text))queueInlineEdit(context);
+    else if(!context.error&&document.activeElement!==context.surface.element)closeInlineEdit(context);
   });
-  return context.inFlight;
+  return inlineTransaction;
 }
 
 async function finishInlineEdit(){
-  const context=inlineEditContext;
-  if(!context)return true;
-  do {
-    if(!await flushInlineEdit(context))return false;
-  } while(inlineEditContext===context&&$('inline-text').value!==context.draft);
-  closeInlineEdit(context);return true;
+  for(const context of [...inlineSessions]){
+    while(inlineSessions.has(context)){
+      if(!await flushInlineEdit(context))return false;
+      if(context.surface.value===context.entry.text){closeInlineEdit(context);break}
+    }
+  }
+  return true;
 }
 
 function setMode(value){
@@ -1169,24 +1193,6 @@ $('object-apply').onclick=()=>{const selection=state.objectSelection;if(!selecti
 for(const mode of ['select','inline','read']){
   $(mode+'-mode').onclick=async()=>{if(await finishInlineEdit())setMode(mode)};
 }
-$('inline-text').oninput=event=>{if(!event.isComposing)queueInlineEdit()};
-$('inline-text').addEventListener('compositionend',queueInlineEdit);
-$('inline-text').onblur=()=>{if(inlineEditContext)void finishInlineEdit()};
-$('inline-text').onkeydown=event=>{
-  if(event.isComposing)return;
-  if(event.key==='Tab'&&!event.ctrlKey&&!event.metaKey&&!event.altKey){
-    event.preventDefault();
-    const input=$('inline-text');
-    if(!event.shiftKey)input.setRangeText('\t',input.selectionStart,input.selectionEnd,'end');
-    else if(input.selectionStart===input.selectionEnd&&input.value[input.selectionStart-1]==='\t')
-      input.setRangeText('',input.selectionStart-1,input.selectionEnd,'end');
-    queueInlineEdit();return;
-  }
-  if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='s'){event.preventDefault();void saveProject();return}
-  if(event.key==='Escape'&&inlineEditContext&&!inlineEditContext.inFlight){
-    event.preventDefault();closeInlineEdit(inlineEditContext);
-  }
-};
 $('zoom-in').onclick=()=>{pdfNavigation.cancelZoom();state.zoom=Math.min(2.5,(state.zoom||state.view?.scale||1)+0.1);renderPDF()};
 $('zoom-out').onclick=()=>{pdfNavigation.cancelZoom();state.zoom=Math.max(0.2,(state.zoom||state.view?.scale||1)-0.1);renderPDF()};
 $('fit').onclick=()=>{pdfNavigation.cancelZoom();state.zoom=0;renderPDF()};
@@ -1208,7 +1214,7 @@ const closeController=new CloseController({getState:()=>state,isDirty:dirty,conf
   unlock:()=>{state.saving=false;editorReadOnly();updateControls()}});
 getCurrentWindow().onCloseRequested(event=>{
   if(inlineEditContext){
-    if(inlineEditContext.inFlight||$('inline-text').value!==inlineEditContext.draft){
+    if(hasInlineDrafts()){
       event.preventDefault();void finishInlineEdit();toast('Let the current PDF edit finish before closing.');return;
     }
     closeInlineEdit(inlineEditContext);
@@ -1216,7 +1222,7 @@ getCurrentWindow().onCloseRequested(event=>{
   return closeController.handle(event);
 });
 document.addEventListener('keydown',event=>{
-  if(editor.hasTextFocus()||document.querySelectorAll('dialog[open]').length||event.target.closest('input,textarea,select'))return;
+  if(editor.hasTextFocus()||document.querySelectorAll('dialog[open]').length||event.target.closest('input,textarea,select,[contenteditable]'))return;
   if(event.ctrlKey||event.metaKey){
     if(event.key.toLowerCase()==='s'){event.preventDefault();saveProject()}
     else if(event.key==='Enter'){event.preventDefault();compile()}

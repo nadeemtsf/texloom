@@ -3,8 +3,8 @@ import {performanceOutcome} from './performance-diagnostics.js';
 
 /** DOM gestures are isolated from source edits and compilation. */
 export class CanvasController {
-  constructor({getSession,resolve,move,reorder,edit,inlineEdit,beforeInlineEdit,selected,notify,eventWindow=globalThis.window,diagnostics=null}) {
-    Object.assign(this,{getSession,resolve,move,reorder,edit,inlineEdit,beforeInlineEdit,onSelected:selected,notify,eventWindow,diagnostics});
+  constructor({getSession,resolve,move,reorder,edit,inlineEdit,selected,notify,eventWindow=globalThis.window,diagnostics=null}) {
+    Object.assign(this,{getSession,resolve,move,reorder,edit,inlineEdit,onSelected:selected,notify,eventWindow,diagnostics});
     this.view=null;this.selection=null;this.pending=0;this.hits=[];
     this.cancelGesture=null;this.pageHandlers=new Map();
     this.onEscape=e=>{if(e.key==='Escape'){this.cancelGesture?.();this.clear()}};
@@ -22,11 +22,13 @@ export class CanvasController {
         const hit=document.createElement('button');hit.type='button';hit.className='line-hit';hit.tabIndex=-1;
         hit.setAttribute('aria-label','Select text: '+line.text);
         this.position(hit,line,view.scale);shell.append(hit);
+        hit.onpointerdown=e=>{if(this.getSession().mode==='inline')e.preventDefault()};
         hit.onclick=e=>{
           e.stopPropagation();
           if(this.getSession().mode==='inline'){
             const x=(e.clientX-shell.getBoundingClientRect().left)/view.scale;
-            this.selectHits([line],number,false,x);
+            const page=view.pages.find(p=>p.number===number);
+            if(this.view===view)this.inlineEdit(line,page,x);
             return;
           }
           this.lastClick={time:performance.now(),x:e.clientX,y:e.clientY};
@@ -49,35 +51,21 @@ export class CanvasController {
   }
   position(el,r,scale){Object.assign(el.style,{left:r.x*scale+'px',top:r.y*scale+'px',width:Math.max(3,r.width*scale)+'px',height:Math.max(8,r.height*scale)+'px'})}
   fresh(){const s=this.getSession();return !!this.view&&s.result?.verification_eligible!==false&&!s.previewZooming&&!s.busy&&s.revision===s.compiled&&!s.client?.pending&&!s.client?.error&&!s.mutating&&!s.composing&&!s.opening}
-  async selectHits(hits,page,edit=false,inlineX=null){
-    const mode=this.getSession().mode,inline=inlineX!==null;
-    if(mode==='read'||inline!==(mode==='inline'))return;
-    if(inline){
-      const view=this.view;
-      if(!await this.beforeInlineEdit()||this.getSession().mode!==mode)return;
-      if(this.view!==view){
-        const line=hits[0];
-        hits=this.view?.pages.find(p=>p.number===page)?.lines.filter(candidate=>
-          candidate.text===line.text&&Math.abs(candidate.baseline-line.baseline)<1&&Math.abs(candidate.x-line.x)<1)||[];
-        if(hits.length!==1)return this.notify('The PDF changed. Click the line again.');
-      }
-    }
+  async selectHits(hits,page,edit=false){
+    const mode=this.getSession().mode;
+    if(mode!=='select')return;
     if(!this.fresh())return this.notify('Compile the current source before selecting layout objects. Read text remains available.');
     const reason=this.view.pages.find(p=>p.number===page)?.selectionReason;if(reason)return this.notify(reason);
     hits=[...new Map(hits.filter(h=>h.page===page).map(h=>[h.id,h])).values()];
     if(!hits.length||hits.length>64)return this.notify('Select between one and 64 adjacent text lines.');
     const serial=++this.pending,session=this.getSession(),buildId=session.result.build_id,revision=session.revision;
     const trace=this.diagnostics?.begin('source-selection');
-    if(!inline)this.notify('Mapping selected text to its source…');
+    this.notify('Mapping selected text to its source…');
     try{
-      const resolved=await this.resolve({buildId,page,hits,trace,inline,points:hits.map(h=>({x:h.x+Math.min(h.width/2,15),y:h.baseline-h.height*0.35}))});
+      const resolved=await this.resolve({buildId,page,hits,trace,points:hits.map(h=>({x:h.x+Math.min(h.width/2,15),y:h.baseline-h.height*0.35}))});
       const now=this.getSession();
       if(serial!==this.pending||revision!==now.revision||now.result?.build_id!==buildId||now.mode!==mode){trace?.finish('stale');return}
       if(now.sources[resolved.file]!==resolved.expected_source)throw new Error('The source changed. Select the text again.');
-      if(inline){
-        this.inlineEdit({...resolved,page,kind:'source'},this.view.pages.find(p=>p.number===page),inlineX);
-        trace?.finish('selected');return;
-      }
       const proof=resolved.proof;
       if(proof?.schema!==1||proof.build_id!==buildId||proof.page!==page)throw new Error('This selection has no current layout proof.');
       const mapped=proof.lines;

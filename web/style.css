@@ -17,9 +17,9 @@
 .selection-tools h2{font-size:14px;margin:0 0 8px}
 .inline-mode .text-object-hit{pointer-events:none;visibility:hidden}
 #preview-scroll{position:relative}
-#inline-text{position:absolute;z-index:5;border:0;border-radius:0;padding:0;background:#fff;color:#111;caret-color:#315d4d;overflow:hidden;resize:none;overflow-wrap:normal;tab-size:4}
-#inline-text:focus-visible{outline:0}
-#inline-text::selection{background:#c4d7b8}
+.pdf-typing{white-space:pre-wrap;overflow-wrap:break-word;cursor:text;position:absolute;z-index:5;border:0;border-radius:0;padding:0;background:#fff;color:#111;caret-color:#315d4d;overflow:hidden;resize:none;tab-size:4}
+.pdf-typing:focus-visible{outline:0}
+.pdf-typing::selection,.pdf-typing ::selection{background:#c4d7b8}
 .text-object-hit{z-index:3;cursor:move}.text-object-hit:hover{border-color:#668f5088;background:#9ab57b12}
 .text-object-frame{z-index:5;border:1px solid #668f50;background:#9ab57b0a;cursor:move;outline-offset:3px}
 .text-object-frame:hover{background:#9ab57b12}.text-object-frame.dragging{background:transparent}

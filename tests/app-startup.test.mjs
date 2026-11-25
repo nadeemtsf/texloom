@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
 import * as transactions from '../web/core/transactions.js';
+import {buildInlineIndex} from '../web/core/inline-text.js';
 import {DocumentClient,editorText,sameSources} from '../web/core/document-client.js';
 import {TypingRecoveryController} from '../web/core/typing-recovery.js';
 import {CloseController} from '../web/core/close-controller.js';
@@ -159,7 +160,7 @@ function boot({markup=html,openFailure=null,pathFailure=null,badSnapshot=false,a
     addAction(){},addCommand(){},getDomNode:()=>element(),getSelections:()=>[],hasTextFocus:()=>false,
     setPosition(position){handlers.lastPosition=position},focus(){}};
   let nativeSource=source;
-  const context={draftRecoveryEnabled:false,...transactions,bindPDFScrolling,SourceHighlight,selectionSourceRange,applyTextInputAppearance,renderProtectedCommands,positionDialogNear,clearDialogPosition,DocumentClient,editorText,sameSources,TypingRecoveryController,CloseController,createWorkspaceInvoke,ProjectControls,PDFSearch,SetupHelp,installPerformanceDiagnostics,performanceOutcome,structuredClone,console,
+  const context={buildInlineIndex,draftRecoveryEnabled:false,...transactions,bindPDFScrolling,SourceHighlight,selectionSourceRange,applyTextInputAppearance,renderProtectedCommands,positionDialogNear,clearDialogPosition,DocumentClient,editorText,sameSources,TypingRecoveryController,CloseController,createWorkspaceInvoke,ProjectControls,PDFSearch,SetupHelp,installPerformanceDiagnostics,performanceOutcome,structuredClone,console,
     createCompileInvoke,startPDFWorker,PreliminaryPreview,PreliminaryPDFSurface,renderPreliminaryPDF,acceptUnverifiedPreview,
     capturePDFScrollAnchor:()=>null,
     Channel:class{constructor(callback){this.onmessage=callback}},

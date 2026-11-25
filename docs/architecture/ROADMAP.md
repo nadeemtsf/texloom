@@ -2,6 +2,15 @@
 
 Planning baseline: 7 November 2026, application source `6f55bac`. This is a dependency-ordered roadmap with acceptance gates, not a dated promise, an implementation approval or a declaration that the current application has these features. [Architecture](ARCHITECTURE.md), [evidence](STANDARDS-AND-EVIDENCE.md) and [decisions](DECISIONS.md) explain the reasoning.
 
+## Current priority, 25 November 2026
+
+Start with the Windows typing interaction, then broaden navigation across document structure. The current sequence includes the performance targets, competitor evidence, failure cases and criteria for introducing an incremental engine. [Responsive editing plan](RESPONSIVE-EDITING.md) · [Live roadmap](https://github.com/nadeemtsf/texloom/issues/44) · [Layout experiment](https://github.com/nadeemtsf/texloom/issues/126)
+
+The earlier line-object goal is retired. #25–#27 and PRs #118, #119, #122 and #124 have left the active queue. Document-range deletion, Enter, structural paragraph/list moves and paragraph formatting continue under #55–#58 and #64.
+
+<details>
+<summary>Historical design and acceptance sequence from 7 November 2026</summary>
+
 ## 1. Intended product and explicit completion boundary
 
 The intended first full visual-authoring version lets a user open a supported LaTeX project, navigate and select supported content visually, edit/delete/reorder it, adjust spacing/formatting, place a caret and add text in flow, cut/copy/paste, and work with supported images and tables. All accepted edits appear as understandable source changes with coherent Undo/Redo, draft protection, Save/reopen and external compilation. Keyboard, pointer and accessible alternatives reach the same commands.
@@ -115,3 +124,4 @@ Existing development cases remain development cases. Review final labels/oracles
 - [ ] Research claims apply only to fixed measured versions. Private delivery is accepted; public distribution/Store work is excluded and no report publication/submission is implied.
 
 The roadmap is complete as a planning artifact when all these workstreams have actionable tasks and dependencies. The product is complete only when its declared acceptance is actually observed.
+</details>

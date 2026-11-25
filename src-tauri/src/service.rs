@@ -36,7 +36,7 @@ pub use visual::{
     TextEditModel,
     LiteralRunView, SpacingView,
 };
-pub use visual::{ObjectEditRequest, ObjectPlan, ResolvedSelection, SelectionPoint};
+pub use visual::{inline_flows, InlineFlowView, ObjectEditRequest, ObjectPlan, ResolvedSelection, SelectionPoint};
 #[cfg(feature="typegen")]
 pub use visual::InlineOrigin;
 

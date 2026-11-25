@@ -14,7 +14,7 @@ Texloom is a Windows LaTeX editor with a live PDF canvas. Compile a project loca
 ## Edit a LaTeX project
 
 1. Open the project's main `.tex` file and compile it. The editor and PDF preview sit side by side.
-2. Select supported text in the PDF to edit it or move a single typeset line. **Show in PDF** takes you from the source cursor to the compiled page. Use **+ Paragraph** to add ordinary LaTeX text.
+2. In **Type in PDF**, click between letters in a supported passage and type. Backspace joins neighboring paragraphs or explicit lines in that passage. **Show in PDF** takes you from the source cursor to the compiled page.
 3. Save the project to write the LaTeX files, or export the compiled PDF.
 
 ## How visual edits work

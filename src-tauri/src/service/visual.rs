@@ -286,7 +286,7 @@ pub struct ObjectPlan {
 pub(super) struct DirectTextPlan {
     pub(super) sources: BTreeMap<String, String>,
     pub(super) before_probe: Option<BTreeMap<String, String>>,
-    pub(super) after_probe: BTreeMap<String, String>,
+    pub(super) after_probe: Option<BTreeMap<String, String>>,
     pub(super) displacement: Option<(f64, f64)>,
 }
 
@@ -321,34 +321,25 @@ fn mark_text_ranges(
     Ok(sources)
 }
 
-const FLOW_TAB: &str = r"\mbox{\ \ \ \ }";
-
-pub(super) fn plain_flow_text(text: &str) -> bool {
-    text.len() <= 4096 && text.split('\n').count() <= 24 && text.split('\n').all(|paragraph| {
-        !paragraph.trim().is_empty() && !paragraph.contains("--")
-            && paragraph.bytes().all(|byte| byte.is_ascii_alphanumeric() || b" \t.,!?;:-".contains(&byte))
-    })
+#[derive(Clone, Debug, Serialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct InlineFlowView {
+    pub range: [usize; 2],
+    pub expected: String,
+    pub text: String,
 }
 
-fn decode_flow(source: &str) -> String {
-    source.replace("\r\n", "\n").split("\n\n").map(|paragraph| {
-        paragraph.replace("\n", " ").replace('\t', " ").replace(FLOW_TAB, "\t").replace(r"\ ", " ")
-    }).collect::<Vec<_>>().join("\n")
-}
-
-fn encode_flow(text: &str, separator: &str) -> String {
-    text.split('\n').map(|paragraph| {
-        let mut encoded = String::with_capacity(paragraph.len());
-        let bytes = paragraph.as_bytes();
-        for (index, byte) in bytes.iter().copied().enumerate() {
-            match byte {
-                b'\t' => encoded.push_str(FLOW_TAB),
-                b' ' if index == 0 || index + 1 == bytes.len() || bytes[index - 1] == b' ' => encoded.push_str(r"\ "),
-                _ => encoded.push(byte as char),
-            }
-        }
-        encoded
-    }).collect::<Vec<_>>().join(separator)
+pub fn inline_flows(source: &str) -> Result<Vec<InlineFlowView>> {
+    if source.len() > 4_000_000 { return Err("The source is too large for inline editing".into()); }
+    let editor = EditorProjection::new(source);
+    texloom_core::inline_flow::inline_flows(source).into_iter().map(|flow| {
+        Ok(InlineFlowView {
+            range: [editor.editor_offset(flow.range.start).map_err(fail)?,
+                    editor.editor_offset(flow.range.end).map_err(fail)?],
+            expected: source[flow.range].to_owned(),
+            text: flow.text,
+        })
+    }).collect()
 }
 
 pub(super) fn plan_direct_text(request: &ObjectEditRequest) -> Result<DirectTextPlan> {
@@ -383,20 +374,13 @@ pub(super) fn plan_direct_text(request: &ObjectEditRequest) -> Result<DirectText
                 ..projection.source_offset(end).map_err(fail)?;
             let old = request.expected.as_deref().ok_or("Missing selected text")?;
             let draft = request.content.as_deref().ok_or("Enter the edited text")?;
-            let previous = decode_flow(old);
-            if source.get(range.clone()) != Some(old)
-                || !plain_flow_text(&previous)
-                || !plain_flow_text(draft)
-                || previous == draft
-            {
-                return Err("Select a current run of plain paragraphs".into());
+            if source.get(range.clone()) != Some(old) {
+                return Err("The selected source changed. Select it again.".into());
             }
-            let separator = if source.contains("\r\n") { "\r\n\r\n" } else { "\n\n" };
-            let replacement = encode_flow(draft, separator);
-            let before = mark_text_ranges(request, source, &[(range.clone(), &request.id)], true)?;
-            let new_range = range.start..range.start + replacement.len();
-            let mut updated = source.clone();
-            updated.replace_range(range, &replacement);
+            let flow = texloom_core::inline_flow::inline_flows(source).into_iter()
+                .find(|flow| flow.range == range).ok_or("Select a current inline text flow")?;
+            let (updated, new_range) = texloom_core::inline_flow::edit_inline_flow(source, &flow, draft)?;
+            let before = mark_text_ranges(request, source, &[(range, &request.id)], true)?;
             (updated, new_range, Some(before))
         }
         "replace_source" | "move_source" => {
@@ -452,9 +436,13 @@ pub(super) fn plan_direct_text(request: &ObjectEditRequest) -> Result<DirectText
         _ => return Err("Unsupported direct text operation".into()),
     };
     let after_probe = if request.action == "edit_plain_flow" {
-        mark_text_ranges(request, &updated, &[(range, &request.id)], true)?
+        if request.content.as_deref().is_some_and(|draft| draft.trim().is_empty()) {
+            None
+        } else {
+            Some(mark_text_ranges(request, &updated, &[(range, &request.id)], true)?)
+        }
     } else {
-        mark_text_range(request, &updated, range)?
+        Some(mark_text_range(request, &updated, range)?)
     };
     let mut sources = request.sources.clone();
     sources.insert(request.file.clone(), updated);

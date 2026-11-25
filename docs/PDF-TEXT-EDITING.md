@@ -17,7 +17,15 @@ Word’s documented file structure stores main-story paragraphs and text runs. I
 
 ## Cursor placement and compilation
 
-The rendered PDF and current source provide a direct mapping for a plain document body on one page. Elsewhere, SyncTeX can help identify a supported run in the existing compile. Caret placement runs no TeX. On an actual edit, the background transaction compiles and checks the proposed source. An independently marked baseline confirms the original screen location before source and history change. This protects repeated text from edits to the wrong occurrence.
+While preparing a PDF, Texloom projects supported source passages into visible text, maps them to rendered rows, and prepares caret stops. Clicking a mapped passage looks up that position locally. A browser editing surface spans its paragraphs and forced line breaks. Clicking another mapped passage transfers focus immediately while an older edit is being checked. The background transaction verifies the source occurrence and typeset result before updating shared history.
+
+The bundled signature contains a minipage, optional break lengths and a bold local name macro. Editing that name changes its use site and preserves the original definition. Backspace can remove the break before the department line. A logical passage currently fits on one mapped page. The next steps cover cross-page positions, included-file origins and mixed-direction clusters. [Responsive editing roadmap](architecture/RESPONSIVE-EDITING.md)
+
+Run the packaged Windows pointer, typing, join, Undo and Save regression with Node from the repository root. Supply the path to the executable in a complete portable build. Test documents and results go under `artifacts/native-pdf-typing/`.
+
+```powershell
+node scripts/check-native-pdf-typing.mjs "C:\path\to\Texloom.exe"
+```
 
 The editor updates the affected draft on screen and batches edits before verification. A verification build still typesets the complete project. Page breaks, labels, generated lists, counters, and package code can affect later output after a local edit. A fragment compile would need evidence that the downstream output stays valid. Texloom’s existing repeated-build work reuses compiler identification and narrows dependency-check costs while preserving full build verification. [Technical report source](../research/report/sections/compile-cost.tex)
 

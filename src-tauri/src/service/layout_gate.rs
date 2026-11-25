@@ -50,7 +50,7 @@ enum Policy {
     DirectText {
         marker: String,
         before_probe: Option<Sources>,
-        after_probe: Sources,
+        after_probe: Option<Sources>,
         displacement: Option<(f64, f64)>,
         origin: Option<visual::InlineOrigin>,
     },
@@ -220,19 +220,35 @@ fn same_recipe(a: &Build, b: &Build) -> Result<()> {
     Ok(())
 }
 fn verify_inline_origin(view: &Inspection, origin: &visual::InlineOrigin) -> Result<()> {
-    let first = view.glyphs.iter().find(|glyph| glyph.target);
-    if !first.is_some_and(|glyph| {
+    let matches_origin = |glyph: &verification::Glyph| {
         glyph.page.checked_add(1) == Some(origin.page)
             && (glyph.bounds.x - origin.x).abs() <= 4.0
             && origin.y >= glyph.bounds.y - 4.0
             && origin.y <= glyph.bounds.y + glyph.bounds.height + 4.0
+    };
+    let first = view.glyphs.iter().find(|glyph| glyph.target)
+        .filter(|glyph| matches_origin(glyph))
+        .ok_or("The edit did not match the clicked text in the compiled PDF")?;
+    let a = first.bounds;
+    // The tolerance accounts for differences in PDF.js and PDFium text bounds.
+    // A second painted occurrence overlapping the same anchor is ambiguous.
+    if view.glyphs.iter().filter(|glyph| !glyph.target && matches_origin(glyph)).any(|glyph| {
+        let b = glyph.bounds;
+        let overlap_x = (a.x + a.width).min(b.x + b.width) - a.x.max(b.x);
+        let overlap_y = (a.y + a.height).min(b.y + b.height) - a.y.max(b.y);
+        overlap_x > a.width.min(b.width) * 0.5 && overlap_y > a.height.min(b.height) * 0.5
     }) {
-        return Err("The edit did not match the clicked text in the compiled PDF".into());
+        return Err("More than one passage overlaps the clicked text in the compiled PDF".into());
     }
     Ok(())
 }
 
+
 fn reflow(old: &Inspection, new: &Inspection) -> Result<()> {
+    verify_text_reflow(old, new, true)
+}
+
+fn verify_text_reflow(old: &Inspection, new: &Inspection, expect_target: bool) -> Result<()> {
     // Reflow may change page/line positions, but must not silently change the
     // content of unrelated text. Membership comes from inspected mark handles.
     let outside = |v: &Inspection| {
@@ -248,7 +264,7 @@ fn reflow(old: &Inspection, new: &Inspection) -> Result<()> {
     if old.graphics.len() != new.graphics.len() {
         return Err("A text edit changed non-text object count".into());
     }
-    if !new.glyphs.iter().any(|g| g.target) {
+    if expect_target && !new.glyphs.iter().any(|g| g.target) {
         return Err("The edited text has no visible target".into());
     }
     Ok(())
@@ -467,22 +483,27 @@ impl Backend {
                 } else {
                     plan.baseline.clone()
                 };
-                let candidate = self.equivalent_text_probe(request, after_probe, &build, lease)?;
                 let before = self.inspect_layout(
                     &baseline, before_probe.as_ref().map(|_| marker.as_str()), &lease.cancel,
                 )?;
-                let after = self.inspect_layout(&candidate, Some(marker), &lease.cancel)?;
                 if let Some(origin) = origin {
                     verify_inline_origin(&before.view, origin)?;
                 }
+                let after = if let Some(sources) = after_probe {
+                    let probe = self.equivalent_text_probe(request, sources, &build, lease)?;
+                    let inspection = self.inspect_layout(&probe, Some(marker), &lease.cancel)?;
+                    private_builds.push(probe);
+                    inspection
+                } else {
+                    self.inspect_layout(&build, None, &lease.cancel)?
+                };
                 if let Some((dx, dy)) = displacement {
                     let prediction = self.predict_layout(&baseline, marker, *dx, *dy, &lease.cancel)?;
                     verification::compare_prediction(&before.view, &after.view, *dx, *dy, &prediction.view)
                         .map_err(fail)?;
                 } else {
-                    reflow(&before.view, &after.view)?;
+                    verify_text_reflow(&before.view, &after.view, after_probe.is_some())?;
                 }
-                private_builds.push(candidate);
             }
             Policy::Move { marker, .. } | Policy::Reflow { marker } => {
                 let tagged = &plan.baseline;

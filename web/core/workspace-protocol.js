@@ -1,5 +1,5 @@
 // Generated from frontend/protocol/workspace-protocol.ts. Run npm run protocol:emit; do not edit.
-import { assertSnapshot, preparedReply } from './document-protocol.js';
+import { assertSnapshot, editorText, preparedReply } from './document-protocol.js';
 export class WorkspaceProtocolError extends Error {
     constructor(message) { super(message); this.name = 'WorkspaceProtocolError'; }
 }
@@ -93,7 +93,7 @@ const commands = new Set([
     'open_project', 'open_recent', 'recent_projects', 'create_project', 'import_project_archive', 'export_project_archive', 'import_image',
     'review_encoding', 'preview_encoding', 'convert_encoding', 'copy_document', 'project_recoveries', 'recover_document',
     'discard_document_recovery', 'typing_drafts', 'open_typing_draft', 'discard_typing_draft', 'close_document', 'mark_clean_exit',
-    'document_snapshot', 'document_prepare', 'describe_adapters', 'plan_adapter', 'plan_text_object', 'describe_text_edit', 'preview_text_edit',
+    'document_snapshot', 'document_prepare', 'describe_adapters', 'plan_adapter', 'plan_text_object', 'describe_text_edit', 'preview_text_edit', 'inline_flows',
 ]);
 export function acceptWorkspaceReply(name, args, value) {
     const a = args;
@@ -146,6 +146,19 @@ export function acceptWorkspaceReply(name, args, value) {
     }
     else if (name === 'describe_adapters')
         controls(value, a.source);
+    else if (name === 'inline_flows') {
+        require(text(a.source) && Array.isArray(value));
+        const source = editorText(a.source);
+        let previousEnd = 0;
+        for (const flow of value) {
+            record(flow, ['range', 'expected', 'text']);
+            require(Array.isArray(flow.range) && flow.range.length === 2 && text(flow.expected) && text(flow.text));
+            const [start, end] = flow.range;
+            require(integer(start, previousEnd) && integer(end, start + 1) && end <= source.length &&
+                source.slice(start, end) === flow.expected.replace(/\r\n?/gu, '\n'));
+            previousEnd = end;
+        }
+    }
     else if (name === 'describe_text_edit')
         model(value);
     else if (name === 'plan_adapter' || name === 'plan_text_object') {
