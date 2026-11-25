@@ -188,6 +188,16 @@ export class DocumentClient {
     const reply = await requestBuild(this.invoke, 'resolve_text_selection', { projectId: this.projectId, revision: snapshot.revision, buildId, page, points, candidate });
     this.assertMappingCurrent(snapshot); return acceptResolvedSelection(reply, { snapshot, buildId, page });
   }
+  async caretStops(buildId: string, probeBuildId: string, marker: string, page: number, text: string): Promise<number[]> {
+    const snapshot = await this.flush();
+    const reply = await requestBuild(this.invoke, 'inline_caret_stops', { projectId: this.projectId, revision: snapshot.revision, buildId, probeBuildId, marker, page, text });
+    this.assertMappingCurrent(snapshot);
+    if (!Array.isArray(reply) || reply.length !== text.length + 1
+      || reply.some((x, index) => !Number.isFinite(x) || x < 0 || (index > 0 && x <= reply[index - 1]))) {
+      throw new BuildProtocolError('Invalid PDF caret positions');
+    }
+    return reply;
+  }
   commit(token: string, buildId: string): Promise<Snapshot> { return this.enqueue('document_commit', { token, buildId }, false).then(snapshot => { this.candidates.delete(token); return snapshot; }); }
   async discard(token: string): Promise<void> {
     try { await invokeUnit(this.invoke, 'document_discard', { projectId: this.projectId, token }); }

@@ -26,6 +26,7 @@ import {TypingRecoveryController} from './core/typing-recovery.js';
 import {CloseController} from './core/close-controller.js';
 import draftRecoveryEnabled from './draft-recovery.json';
 import {validateSelectionProbe} from './core/selection-proof.js';
+import {inlineTextSupported,caretOffset} from './core/inline-text.js';
 import {createWorkspaceInvoke} from './core/workspace-protocol.js';
 import {ProjectControls} from './core/project-controls.js';
 import {PDFSearch} from './core/pdf-search.js';
@@ -108,6 +109,7 @@ const canvas=new CanvasController({
   move:(selection,dx,dy,trace)=>moveText(selection,dx,dy,trace),
   reorder:(selection,destination)=>reorderText(selection,destination),
   edit:selection=>editText(selection),
+  inlineEdit:openInlineEdit,
   selected:selection=>showObjectInspector(selection),
   notify:text=>toast(text)
 });
@@ -195,6 +197,7 @@ function updateControls(){
   if(timing.textContent!==label)timing.textContent=label;
   $('pages').classList.toggle('stale',state.revision!==state.compiled||state.busy);
   $('selection-hint').textContent=state.mode==='read'?'Drag over text to highlight and copy it.':
+    state.mode==='inline'?'Click a plain line to place the text cursor.':
     state.result&&!state.result.objects?.length?
       'Click text to select it. Shift-click or draw a box for a group.':
       'Select text or an object. Drag its frame; double-click to edit.';
@@ -469,7 +472,7 @@ async function discardSaveRecovery(){
   finally{state.saving=false;editorReadOnly();updateControls()}
 }
 const selectionProofs=new WeakMap();
-async function resolveSourceSelection({buildId,page,points,hits,trace=null}){
+async function resolveSourceSelection({buildId,page,points,hits,trace=null,inline=false}){
   if(!fresh()||buildId!==state.result.build_id)throw new StaleCandidate();
   const identity=sessionIdentity(state),baseline=state.view,scale=baseline.scale,dpr=globalThis.devicePixelRatio||1,client=state.client,seen=new Set();
   const assertCurrent=()=>{if(sessionIdentity(state)!==identity||state.view!==baseline||baseline.scale!==scale||(globalThis.devicePixelRatio||1)!==dpr||state.previewZooming)throw new StaleCandidate()};
@@ -491,8 +494,11 @@ async function resolveSourceSelection({buildId,page,points,hits,trace=null}){
         const key=JSON.stringify([resolved.file,resolved.start,resolved.end]);if(seen.has(key))continue;seen.add(key);
         attempts++;
         const cached=selectionProofs.get(baseline)?.get(key);
-        if(cached&&hits.every(h=>h.runs.every(r=>cached.runs.includes(r)))){
-          await client.verify(buildId);assertCurrent();return {...resolved,proof:cached};
+        if(inline&&(resolved.kind!=='paragraph'||resolved.file!==state.project.main||!inlineTextSupported(resolved.content))){
+          throw new Error('Type in PDF works on short, plain lines in the main file. Use the source editor for this text.');
+        }
+        if(cached&&(!inline||cached.caretStops)&&hits.every(h=>h.runs.every(r=>cached.runs.includes(r)))){
+          await client.verify(buildId);assertCurrent();return {...resolved,proof:cached,caretStops:cached.caretStops};
         }
         const id='selection-'+crypto.randomUUID().slice(0,8);
         const action=resolved.kind==='paragraph'?'probe_paragraph':'wrap';
@@ -508,9 +514,17 @@ async function resolveSourceSelection({buildId,page,points,hits,trace=null}){
         prepared=staged.prepared;
         const proof=validateSelectionProbe(baseline,prepared,id,hits,page);
         await client.verify(buildId);assertCurrent();
+        if(inline){
+          const [line]=proof.lines;
+          if(proof.lines.length!==1||line!==hits[0]||line.text!==resolved.content||line.runs.some(run=>!proof.runs.includes(run))){
+            throw new Error('This source does not match one complete PDF line. Edit it in the source editor.');
+          }
+          proof.caretStops=await client.caretStops(buildId,staged.result.build_id,id,page,resolved.content);
+          assertCurrent();
+        }
         let cache=selectionProofs.get(baseline);if(!cache){cache=new Map();selectionProofs.set(baseline,cache)}
         if(cache.size>=64)cache.delete(cache.keys().next().value);cache.set(key,proof);
-        return {...resolved,proof};
+        return {...resolved,proof,caretStops:proof.caretStops};
       }catch(error){
         if(error instanceof StaleCandidate||error.name==='CompilationCancelled')throw error;
         assertCurrent();lastError=error;
@@ -549,7 +563,7 @@ function publishPrepared(prepared,result){
 }
 async function compile(reason='manual'){
   if(!state.project)return;clearTimeout(state.compileTimer);
-  if(state.composing||state.saving||state.opening||state.mutating)return;
+  if(state.composing||state.saving||state.opening||state.mutating||$('inline-edit-dialog').open)return;
   if(reason==='auto'&&!$('auto').checked)return;
   if(!state.compileApproved&&reason!=='manual')return;
   if(reason==='manual')state.compileApproved=true;
@@ -563,7 +577,7 @@ async function compile(reason='manual'){
   // Flushing yields to project/trust, cancellation, history and save actions.
   // A request made for the old client must never compile the newly opened one.
   if(state.client!==client||state.buildEpoch!==epoch||state.opening||state.saving||state.mutating||state.composing||
-    !state.compileApproved||reason==='auto'&&!$('auto').checked){trace?.finish('superseded');return}
+    $('inline-edit-dialog').open||!state.compileApproved||reason==='auto'&&!$('auto').checked){trace?.finish('superseded');return}
   if(state.busy){trace?.finish('superseded');if(reason==='manual'||!state.pending)state.pending=reason;return}
   const identity=sessionIdentity(state),revision=state.revision;state.busy=true;state.cancelRequested=false;updateControls();
   let prepared=null,workerStartup=null;
@@ -889,11 +903,63 @@ async function undo(redo=false){
     }
   }catch(error){syncFailed(error)}finally{state.mutating=false;editorReadOnly();updateControls()}
 }
+let inlineEditContext=null;
+function openInlineEdit(selection,line,page,x){
+  const dialog=$('inline-edit-dialog'),input=$('inline-text'),scale=state.view.scale;
+  const cursor=caretOffset(selection.caretStops,x);
+  if(cursor===null)throw new Error('Click inside the text to place the cursor.');
+  const rect=page.shell.getBoundingClientRect(),viewport=$('preview-scroll').getBoundingClientRect();
+  const width=Math.min(viewport.width-12,Math.max(line.width*scale+8,310));
+  const left=Math.max(viewport.left+6,Math.min(rect.left+line.x*scale-3,viewport.right-width-6));
+  const top=Math.max(viewport.top,Math.min(rect.top+line.y*scale-2,viewport.bottom-68));
+  Object.assign(dialog.style,{top:top+'px',left:left+'px',width:width+'px'});
+  input.style.fontSize=Math.max(12,line.runs[0].size*scale)+'px';
+  input.value=selection.content;
+  inlineEditContext={selection,identity:sessionIdentity(state),view:state.view,applying:false};
+  $('inline-edit-status').textContent='Enter to apply · Esc to cancel';
+  dialog.showModal();
+  input.focus({preventScroll:true});input.setSelectionRange(cursor,cursor);
+}
+
+async function applyInlineEdit(event){
+  event.preventDefault();
+  const context=inlineEditContext;
+  if(!context||context.applying)return;
+  const input=$('inline-text'),status=$('inline-edit-status'),dialog=$('inline-edit-dialog'),text=input.value;
+  if(text===context.selection.content){dialog.close();return}
+  if(!inlineTextSupported(text)){
+    status.textContent='Use a short line of plain letters, numbers and punctuation.';
+    input.focus();return;
+  }
+  if(context.identity!==sessionIdentity(state)||context.view!==state.view||!fresh()){
+    status.textContent='The preview changed. Copy your draft, then select the line again.';return;
+  }
+  context.applying=true;
+  input.readOnly=true;$('inline-apply').disabled=true;$('inline-cancel').disabled=true;
+  status.textContent='Checking the edited PDF…';
+  try{
+    if(await textOperation(context.selection,{content:text,plain:true})){
+      dialog.close();return;
+    }
+    status.textContent='The edit could not be applied. Review the text or cancel.';
+  }finally{
+    context.applying=false;
+    input.readOnly=false;$('inline-apply').disabled=false;$('inline-cancel').disabled=false;
+    if(dialog.open)input.focus();
+  }
+}
+
 function setMode(value){
-  state.mode=value;$('pages').classList.toggle('read-mode',value==='read');
-  if(value==='read')sourceHighlight.clear();else sourceHighlight.update(state.objectSelection);
-  $('select-mode').classList.toggle('active',value==='select');$('read-mode').classList.toggle('active',value==='read');
-  $('select-mode').setAttribute('aria-pressed',String(value==='select'));$('read-mode').setAttribute('aria-pressed',String(value==='read'));
+  const changed=state.mode!==value;
+  state.mode=value;
+  if(changed)canvas.clear();
+  $('pages').classList.toggle('read-mode',value==='read');
+  $('pages').classList.toggle('inline-mode',value==='inline');
+  if(value==='select')sourceHighlight.update(state.objectSelection);else sourceHighlight.clear();
+  for(const mode of ['select','inline','read']){
+    $(mode+'-mode').classList.toggle('active',value===mode);
+    $(mode+'-mode').setAttribute('aria-pressed',String(value===mode));
+  }
   updateControls();
 }
 
@@ -1018,6 +1084,11 @@ $('object-reset').onclick=()=>{const selection=state.objectSelection;if(selectio
 $('object-apply').onclick=()=>{const selection=state.objectSelection;if(!selection)return;
   moveText(selection,Number($('object-dx').value)*PT_PER_MM-(selection.dx||0),Number($('object-dy').value)*PT_PER_MM-(selection.dy||0))};
 $('select-mode').onclick=()=>setMode('select');$('read-mode').onclick=()=>setMode('read');
+$('inline-mode').onclick=()=>setMode('inline');
+$('inline-edit-form').onsubmit=applyInlineEdit;
+$('inline-cancel').onclick=()=>{if(!inlineEditContext?.applying)$('inline-edit-dialog').close()};
+$('inline-edit-dialog').addEventListener('cancel',event=>{if(inlineEditContext?.applying)event.preventDefault()});
+$('inline-edit-dialog').addEventListener('close',()=>{if(!$('inline-edit-dialog').open)inlineEditContext=null});
 $('zoom-in').onclick=()=>{pdfNavigation.cancelZoom();state.zoom=Math.min(2.5,(state.zoom||state.view?.scale||1)+0.1);renderPDF()};
 $('zoom-out').onclick=()=>{pdfNavigation.cancelZoom();state.zoom=Math.max(0.2,(state.zoom||state.view?.scale||1)-0.1);renderPDF()};
 $('fit').onclick=()=>{pdfNavigation.cancelZoom();state.zoom=0;renderPDF()};
@@ -1037,7 +1108,12 @@ const closeController=new CloseController({getState:()=>state,isDirty:dirty,conf
   closeWindow:()=>getCurrentWindow().close(),
   lock:()=>{state.saving=true;editorReadOnly();updateControls()},
   unlock:()=>{state.saving=false;editorReadOnly();updateControls()}});
-getCurrentWindow().onCloseRequested(event=>closeController.handle(event));
+getCurrentWindow().onCloseRequested(event=>{
+  if($('inline-edit-dialog').open){
+    event.preventDefault();$('inline-edit-status').textContent='Apply or cancel the edit before closing.';return;
+  }
+  return closeController.handle(event);
+});
 document.addEventListener('keydown',event=>{
   if(editor.hasTextFocus()||document.querySelectorAll('dialog[open]').length||event.target.closest('input,textarea,select'))return;
   if(event.ctrlKey||event.metaKey){

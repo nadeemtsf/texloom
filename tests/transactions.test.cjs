@@ -7,6 +7,7 @@ async function setup({tracing=false,presentation=false}={}){
  const transactions=await import('../web/core/transactions.js');
  const {bindPDFScrolling}=await import('../web/core/pdf-scroll.js');
  const selectionProof=await import('../web/core/selection-proof.js');
+ const inlineText=await import('../web/core/inline-text.js');
  const {DocumentClient,editorText,sameSources}=await import('../web/core/document-client.js');
  const {TypingRecoveryController}=await import('../web/core/typing-recovery.js');
  const {CloseController}=await import('../web/core/close-controller.js');
@@ -35,7 +36,7 @@ async function setup({tracing=false,presentation=false}={}){
  const context=vm.createContext({
   createCompileInvoke,startPDFWorker,PreliminaryPreview,PreliminaryPDFSurface,renderPreliminaryPDF,acceptUnverifiedPreview,
   capturePDFScrollAnchor:()=>null,Channel:class{constructor(callback){this.onmessage=callback}},
-  ...transactions,...selectionProof,bindPDFScrolling,SourceHighlight,selectionSourceRange,applyTextInputAppearance,renderProtectedCommands,positionDialogNear,clearDialogPosition,validateSelectionProbe:(...args)=>control.prove?control.prove(...args):selectionProof.validateSelectionProbe(...args),DocumentClient,editorText,sameSources,TypingRecoveryController,CloseController,createWorkspaceInvoke,ProjectControls,PDFSearch,SetupHelp,installPerformanceDiagnostics,performanceOutcome,initialSnapshot:native.snapshot(),inside:()=>true,PDFPageView:class{},EventBus:class{},SimpleLinkService:class{},self:{},EditorWorker:class{},pdfWorkerURL:'test-worker',
+  ...transactions,...selectionProof,...inlineText,bindPDFScrolling,SourceHighlight,selectionSourceRange,applyTextInputAppearance,renderProtectedCommands,positionDialogNear,clearDialogPosition,validateSelectionProbe:(...args)=>control.prove?control.prove(...args):selectionProof.validateSelectionProbe(...args),DocumentClient,editorText,sameSources,TypingRecoveryController,CloseController,createWorkspaceInvoke,ProjectControls,PDFSearch,SetupHelp,installPerformanceDiagnostics,performanceOutcome,initialSnapshot:native.snapshot(),inside:()=>true,PDFPageView:class{},EventBus:class{},SimpleLinkService:class{},self:{},EditorWorker:class{},pdfWorkerURL:'test-worker',
   CanvasController:class{clear(){}bind(){}selectObject(){}},
   monaco:{languages:{register(){},setMonarchTokensProvider(){},setLanguageConfiguration(){}},editor:{defineTheme(){},createModel:()=>model,create:()=>editor,EndOfLineSequence:{LF:0}},KeyMod:{CtrlCmd:1,Shift:2},KeyCode:{KeyS:1,Enter:2,KeyZ:3,KeyY:4}},
   pdfjs:{GlobalWorkerOptions:{}},structuredClone,crypto:require('node:crypto').webcrypto,
@@ -374,6 +375,67 @@ async function probeSetup(){
  t.control.prove=()=>({schema:1,build_id:'last-good',page:1,x:20,y:30,width:100,height:12,runs:[],lines:[]});
  return t;
 }
+test('typing on a proved PDF line maps the click, then explicitly commits one source edit',async()=>{
+ const t=await probeSetup();
+ const original='Original source';
+ const line={text:original,x:20,y:32,width:150,runs:[{size:12}]};
+ const viewport=t.elements.get('preview-scroll');
+ viewport.getBoundingClientRect=()=>({top:0,left:0,bottom:600,right:550,width:550});
+ t.control.prove=(_before,_probe,_id,hits)=>({
+   schema:1,build_id:'last-good',page:1,x:20,y:32,width:150,height:12,runs:line.runs,lines:hits
+ });
+ let verified=0;
+ t.control.caretStops=args=>{
+   assert.equal(args.buildId,'last-good');
+   assert.equal(args.probeBuildId,'new-pdf');
+   assert.equal(args.text,original);
+   assert.equal(t.native.pending.size,1);
+   verified++;
+   return Array.from({length:original.length+1},(_,i)=>20+i*10);
+ };
+ const resolve=t.run('resolveSourceSelection');
+ const selected=await resolve({buildId:'last-good',page:1,points:[],hits:[line],inline:true});
+ await resolve({buildId:'last-good',page:1,points:[],hits:[line],inline:true});
+ assert.equal(verified,1);
+ assert.equal(t.native.pending.size,0);
+ assert.equal(t.native.history.length,0);
+ const dialog=t.elements.get('inline-edit-dialog'),input=t.run("$('inline-text')");
+ input.setSelectionRange=(start,end)=>{input.range=[start,end]};
+ t.run('openInlineEdit')({...selected,kind:'source'},line,{shell:{getBoundingClientRect:()=>({left:0,top:0})}},105);
+ assert.deepEqual(input.range,[8,8]);
+ assert.equal(input.value,original);
+ assert.equal(dialog.open,true);
+
+ t.control.plan=async request=>{
+   assert.equal(request.action,'replace_source');
+   assert.equal(request.plain,true);
+   assert.deepEqual(Array.from(request.selection),[0,15]);
+   assert.equal(request.content,'Original text');
+   return {sources:{'main.tex':request.content,'custom.sty':'Style source'},file:'main.tex'};
+ };
+ input.value='Original text';
+ assert.equal(t.native.sources['main.tex'],original);
+ await t.run('applyInlineEdit')({preventDefault(){}});
+ assert.equal(dialog.open,false,t.elements.get('toast')?.textContent || t.elements.get('banner')?.textContent);
+ assert.equal(t.native.sources['main.tex'],'Original text');
+ assert.equal(t.native.sources['custom.sty'],'Style source');
+ assert.equal(t.native.history.length,1);
+});
+
+test('the inline editor refuses an unproved line and malformed caret stops',async()=>{
+ const t=await probeSetup(),resolve=t.run('resolveSourceSelection');
+ const line={text:'Original source',runs:[{}]};
+ t.control.prove=()=>({lines:[line,{...line}],runs:line.runs});
+ const request={buildId:'last-good',page:1,points:[],hits:[line],inline:true};
+ await assert.rejects(resolve(request),/one complete PDF line/);
+ assert.equal(t.native.pending.size,0);
+ t.control.prove=()=>({lines:[line],runs:line.runs});
+ t.control.caretStops=()=>Array(16).fill(20);
+ await assert.rejects(resolve(request),/Invalid PDF caret positions/);
+ assert.equal(t.native.pending.size,0);
+ assert.equal(t.native.history.length,0);
+});
+
 test('paragraph selection uses an anchored probe without committing source, history or the displayed PDF',async()=>{
  const t=await probeSetup();let finish,destroyed=false;t.control.prepare=()=>new Promise(r=>finish=r);
  const plan=t.control.plan;

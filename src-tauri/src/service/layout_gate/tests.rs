@@ -587,6 +587,66 @@ fn direct_text_plans_keep_packages_out_of_the_candidate_and_refuse_stale_text() 
 
 #[test]
 #[ignore = "requires installed pdfLaTeX, XeLaTeX, LuaLaTeX and the pinned Windows verifier"]
+fn inline_caret_real_engine_workflow() {
+    let line = "Change red text.";
+    let source = format!("\\documentclass{{article}}\n\\pagestyle{{empty}}\n\\begin{{document}}\n{line}\n\n{line}\n\\end{{document}}\n");
+    let marker = "selection-1a2b3c4d";
+    for engine in ["pdflatex", "xelatex", "lualatex"] {
+        let mut f = Fixture::new(&source);
+        prepare_test_verifier(&mut f);
+        let path = f.root.join("project/main.tex").to_string_lossy().into_owned();
+        let project = f.backend.open_project_with_profile(Some(path.clone()), Some(ProjectProfile {
+            schema: 1, main: "main.tex".into(), engine: engine.into(),
+        })).unwrap();
+        let id = &project.id;
+        let baseline = f.backend.compile_document(id, 0, None, None, 1).unwrap();
+        assert!(baseline.ok && baseline.verification_eligible, "{engine}: {}", baseline.log);
+        let start = source.rfind(line).unwrap();
+        let mut request: ObjectEditRequest = serde_json::from_value(json!({
+            "sources":project.sources, "main":"main.tex", "file":"main.tex",
+            "action":"probe_paragraph", "id":marker, "selection":[start,start+line.len()], "expected":line,
+        })).unwrap();
+        let planned = visual::plan_object_edit(request.clone()).unwrap();
+        let token = f.backend.document_prepare_visual(id, 0, planned.sources, &baseline.build_id, None).unwrap().token;
+        let probe = f.backend.compile_document(id, 0, Some(&token), None, 2).unwrap();
+        let marked = f.backend.layout_build(&probe.build_id).unwrap();
+        let inspected = f.backend.inspect_layout(&marked, Some(&format!("Texloom_{marker}")), &Cancellation::default()).unwrap();
+        let first_y = inspected.view.glyphs.iter().find(|glyph| glyph.text == "C" && !glyph.target).unwrap().bounds.y;
+        let second_y = inspected.view.glyphs.iter().find(|glyph| glyph.text == "C" && glyph.target).unwrap().bounds.y;
+        assert!(second_y > first_y, "{engine} marked the wrong occurrence");
+        let request_stops = |page| crate::build_protocol::InlineCaretRequest {
+            project_id: id.clone(), revision: 0, build_id: baseline.build_id.clone(),
+            probe_build_id: probe.build_id.clone(), marker: marker.into(), page, text: line.into(),
+        };
+        let stops = f.backend.inline_caret_stops(request_stops(1)).unwrap_or_else(|error| panic!("{engine}: {error}"));
+        assert_eq!(stops.len(), line.len() + 1);
+        assert!(stops.windows(2).all(|pair| pair[0] < pair[1]));
+        assert!(f.backend.inline_caret_stops(request_stops(2)).is_err());
+        f.backend.document_discard(id, &token).unwrap();
+        assert_eq!(f.backend.document_snapshot(id).unwrap().sources, sources(&source));
+
+        request.action = "replace_source".into();
+        request.id = "inline-caret-edit".into();
+        request.content = Some("Change blue text.".into());
+        request.plain = true;
+        let mut expected = source.clone();
+        expected.replace_range(start..start + line.len(), "Change blue text.");
+        let planned = visual::plan_object_edit(request.clone()).unwrap();
+        assert_eq!(planned.sources, sources(&expected));
+        let prepared = f.backend.document_prepare_visual(
+            id, 0, planned.sources, &baseline.build_id, Some(VisualOperation::Text { request }),
+        ).unwrap();
+        let result = f.backend.compile_document(id, 0, Some(&prepared.token), None, 3).unwrap();
+        let committed = f.backend.document_commit(id, &prepared.token, &result.build_id).unwrap();
+        assert_eq!(committed.sources, sources(&expected));
+        assert_eq!(fs::read_to_string(&path).unwrap(), source);
+        assert_eq!(f.backend.document_history(id, committed.revision, false).unwrap().sources, sources(&source));
+        println!("{engine}: glyph positions and one edit of the second repeated line, with Undo");
+    }
+}
+
+#[test]
+#[ignore = "requires installed pdfLaTeX, XeLaTeX, LuaLaTeX and the pinned Windows verifier"]
 fn direct_text_real_engine_workflow() {
     let source = "\\documentclass{article}\n\\pagestyle{empty}\n\\begin{document}\nFirst paragraph.\n\nA \\textbf{word}.\n\nLast paragraph.\n\\end{document}\n";
     for engine in ["pdflatex", "xelatex", "lualatex"] {

@@ -284,6 +284,62 @@ fn verify_reorder_order(order: impl IntoIterator<Item = (usize, f64, f64)>) -> R
     Ok(())
 }
 
+fn inline_stops(glyphs: &[verification::Glyph], page: usize, text: &str) -> Result<Vec<f64>> {
+    const UNSUPPORTED: &str = "This line has no reliable character positions. Edit it in the source editor.";
+    if text.is_empty()
+        || text.len() > 160
+        || text.trim() != text
+        || text.contains("  ")
+        || text.contains("--")
+        || !text.bytes().all(|byte| byte.is_ascii_alphanumeric() || b" .,!?;:-".contains(&byte))
+    {
+        return Err(UNSUPPORTED.into());
+    }
+
+    let characters: Vec<_> = text.char_indices().filter(|(_, character)| *character != ' ').collect();
+    let marked: Vec<_> = glyphs.iter().filter(|glyph| glyph.target).collect();
+    if marked.len() != characters.len()
+        || marked.iter().zip(&characters).any(|(glyph, (_, character))| {
+            glyph.page != page || !glyph.text.starts_with(*character) || glyph.text.len() != 1
+                || glyph.bounds.width <= 0.0 || glyph.bounds.height <= 0.0
+        })
+    {
+        return Err(UNSUPPORTED.into());
+    }
+
+    let mut stops = Vec::with_capacity(text.len() + 1);
+    stops.push(marked[0].bounds.x);
+    for (pair, offsets) in marked.windows(2).zip(characters.windows(2)) {
+        let a = pair[0].bounds;
+        let b = pair[1].bounds;
+        let right = a.x + a.width;
+        let a_center = a.x + a.width / 2.0;
+        let b_center = b.x + b.width / 2.0;
+        let between = (right + b.x) / 2.0;
+        if b.x + b.width <= right || a_center >= between || between >= b_center {
+            return Err(UNSUPPORTED.into());
+        }
+        // All letters must share roughly the same baseline, even if their
+        // ascent and descent differ. The PDF.js proof also requires one line.
+        if (a.y + a.height - b.y - b.height).abs() > a.height.max(b.height) / 2.0 {
+            return Err(UNSUPPORTED.into());
+        }
+        if offsets[1].0 > offsets[0].0 + 1 {
+            stops.extend([right, b.x]);
+        } else {
+            stops.push(between);
+        }
+    }
+    let last = marked[marked.len() - 1].bounds;
+    stops.push(last.x + last.width);
+    if stops.iter().any(|x| !x.is_finite() || *x < 0.0)
+        || stops.windows(2).any(|pair| pair[0] >= pair[1])
+    {
+        return Err(UNSUPPORTED.into());
+    }
+    Ok(stops)
+}
+
 impl Backend {
     /// Resource directory is obtained from the native Tauri host, never IPC.
     pub fn with_verification_resources(mut self, resources: PathBuf) -> Self {
@@ -351,6 +407,28 @@ impl Backend {
                 marker,
                 cancel,
             )
+    }
+    pub fn inline_caret_stops(&self, request: crate::build_protocol::InlineCaretRequest) -> Result<Vec<f64>> {
+        let current = self.document_snapshot(&request.project_id)?;
+        if current.revision != request.revision
+            || request.marker.len() != 18
+            || !request.marker.strip_prefix("selection-").is_some_and(|suffix| suffix.bytes().all(|byte| byte.is_ascii_hexdigit()))
+        {
+            return Err("Select the text again after compiling the current document".into());
+        }
+        let before = self.layout_build(&request.build_id)?;
+        let probe = self.layout_build(&request.probe_build_id)?;
+        let probe_revision = request.revision.checked_add(1).ok_or("Invalid selection revision")?;
+        self.verify_project_build(&request.project_id, request.revision, &request.build_id, true)?;
+        self.verify_project_build(&request.project_id, probe_revision, &request.probe_build_id, true)?;
+        if probe.purpose != "visual" {
+            return Err("Select the text again to verify its character positions".into());
+        }
+        same_recipe(&before, &probe)?;
+        let marker = format!("Texloom_{}", request.marker);
+        let checked = self.inspect_layout(&probe, Some(&marker), &probe.cancel)?;
+        let page = request.page.checked_sub(1).ok_or("Invalid PDF page")?;
+        inline_stops(&checked.view.glyphs, page, &request.text)
     }
     fn private_layout_build(
         &self,

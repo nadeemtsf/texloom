@@ -57,6 +57,7 @@ pub fn declarations() -> String {
         SelectionPoint,
         ResolvedSelection,
         ResolveSelectionRequest,
+        InlineCaretRequest,
         texloom_build::persistence::SaveState,texloom_build::persistence::PendingSave,texloom_build::recovery::Draft,texloom_build::recovery::Inventory,
         Project,ProjectProfile,RecentProject,ImportedProject,ImportedImage,EncodingIssue,EncodingReview,EncodingChoice,
         AdapterRequest,AdapterControl,AdapterParameter,AdapterPlan,ObjectEditRequest,ObjectPlan,LiteralEditRequest,LiteralRunView,SpacingEditRequest,SpacingView,TextEditModel,VisualOperation,
@@ -113,6 +114,7 @@ pub fn declarations() -> String {
         source_from_pdf: InverseMappingRequest => SourceLocation,
         pdf_from_source: ForwardMappingRequest => SourceRectangle,
         resolve_text_selection: ResolveSelectionRequest => ResolvedSelection,
+        inline_caret_stops: InlineCaretRequest => Vec<f64>,
     );
     text.push_str("}\n");
     text.push_str("\nexport interface WorkspaceRequests {\n");

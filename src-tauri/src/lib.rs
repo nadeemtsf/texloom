@@ -379,6 +379,24 @@ async fn resolve_text_selection(
 }
 
 #[tauri::command]
+async fn inline_caret_stops(
+    state: State<'_, Arc<Backend>>,
+    project_id: String,
+    revision: u64,
+    build_id: String,
+    probe_build_id: String,
+    marker: String,
+    page: usize,
+    text: String,
+) -> Result<Vec<f64>, String> {
+    let request = build_protocol::InlineCaretRequest {
+        project_id, revision, build_id, probe_build_id, marker, page, text,
+    };
+    let backend = state.inner().clone();
+    background(move || backend.inline_caret_stops(request)).await
+}
+
+#[tauri::command]
 async fn source_from_pdf(
     state: State<'_, Arc<Backend>>,
     build_id: String,
@@ -457,7 +475,8 @@ pub fn run() {
             plan_text_object,
             describe_text_edit,
             preview_text_edit,
-            resolve_text_selection
+            resolve_text_selection,
+            inline_caret_stops
         ])
         .run(tauri::generate_context!())
         .expect("Texloom could not start its desktop window");

@@ -682,6 +682,17 @@ Save, reopening and an external build. Its evidence is scoped to this fixture
 and the tested engine configurations. Physical pointer interaction is
 checked separately.
 
+\paragraph{Character editing in a PDF line.}
+A development mode uses an appearance-preserving selection probe to
+identify one plain source line. The PDFium worker provides the glyph boxes
+for that occurrence. The browser places a caret at the closest supported
+character boundary, including either side of a space. The typed draft is
+local until Apply sends a single source edit through candidate verification.
+The repeated-line regression checks that the second occurrence alone
+changes and that Undo restores the source. This slice covers short ASCII
+lines. Native pointer placement, mixed direction and cluster-level caret
+behavior require separate evaluation.
+
 \subsection{Verified reorder within a run of source paragraphs}
 The PDF gesture exposes insertion cues above and below text lines. A
 drop must resolve to the edge of an independently identified destination

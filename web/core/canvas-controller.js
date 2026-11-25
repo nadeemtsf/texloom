@@ -3,8 +3,8 @@ import {performanceOutcome} from './performance-diagnostics.js';
 
 /** DOM gestures are isolated from source edits and compilation. */
 export class CanvasController {
-  constructor({getSession,resolve,move,reorder,edit,selected,notify,eventWindow=globalThis.window,diagnostics=null}) {
-    Object.assign(this,{getSession,resolve,move,reorder,edit,onSelected:selected,notify,eventWindow,diagnostics});
+  constructor({getSession,resolve,move,reorder,edit,inlineEdit,selected,notify,eventWindow=globalThis.window,diagnostics=null}) {
+    Object.assign(this,{getSession,resolve,move,reorder,edit,inlineEdit,onSelected:selected,notify,eventWindow,diagnostics});
     this.view=null;this.selection=null;this.pending=0;this.hits=[];
     this.cancelGesture=null;this.pageHandlers=new Map();
     this.onEscape=e=>{if(e.key==='Escape'){this.cancelGesture?.();this.clear()}};
@@ -22,8 +22,17 @@ export class CanvasController {
         const hit=document.createElement('button');hit.type='button';hit.className='line-hit';hit.tabIndex=-1;
         hit.setAttribute('aria-label','Select text: '+line.text);
         this.position(hit,line,view.scale);shell.append(hit);
-        hit.onclick=e=>{e.stopPropagation();this.lastClick={time:performance.now(),x:e.clientX,y:e.clientY};this.selectHits(e.shiftKey?[...this.hits,line]:[line],number)};
-        hit.ondblclick=e=>{e.stopPropagation();this.selectHits([line],number,true)};
+        hit.onclick=e=>{
+          e.stopPropagation();
+          if(this.getSession().mode==='inline'){
+            const x=(e.clientX-shell.getBoundingClientRect().left)/view.scale;
+            this.selectHits([line],number,false,x);
+            return;
+          }
+          this.lastClick={time:performance.now(),x:e.clientX,y:e.clientY};
+          this.selectHits(e.shiftKey?[...this.hits,line]:[line],number);
+        };
+        hit.ondblclick=e=>{e.stopPropagation();if(this.getSession().mode==='select')this.selectHits([line],number,true)};
       }
       const handler=event=>this.marquee(event,shell,lines,number);
       shell.addEventListener('pointerdown',handler);this.pageHandlers.set(shell,handler);
@@ -40,8 +49,9 @@ export class CanvasController {
   }
   position(el,r,scale){Object.assign(el.style,{left:r.x*scale+'px',top:r.y*scale+'px',width:Math.max(3,r.width*scale)+'px',height:Math.max(8,r.height*scale)+'px'})}
   fresh(){const s=this.getSession();return !!this.view&&s.result?.verification_eligible!==false&&!s.previewZooming&&!s.busy&&s.revision===s.compiled&&!s.client?.pending&&!s.client?.error&&!s.mutating&&!s.composing&&!s.opening}
-  async selectHits(hits,page,edit=false){
-    if(this.getSession().mode==='read')return;
+  async selectHits(hits,page,edit=false,inlineX=null){
+    const mode=this.getSession().mode,inline=inlineX!==null;
+    if(mode==='read'||inline!==(mode==='inline'))return;
     if(!this.fresh())return this.notify('Compile the current source before selecting layout objects. Read text remains available.');
     const reason=this.view.pages.find(p=>p.number===page)?.selectionReason;if(reason)return this.notify(reason);
     hits=[...new Map(hits.filter(h=>h.page===page).map(h=>[h.id,h])).values()];
@@ -50,14 +60,19 @@ export class CanvasController {
     const trace=this.diagnostics?.begin('source-selection');
     this.notify('Mapping selected text to its source…');
     try{
-      const resolved=await this.resolve({buildId,page,hits,trace,points:hits.map(h=>({x:h.x+Math.min(h.width/2,15),y:h.baseline-h.height*0.35}))});
+      const resolved=await this.resolve({buildId,page,hits,trace,inline,points:hits.map(h=>({x:h.x+Math.min(h.width/2,15),y:h.baseline-h.height*0.35}))});
       const now=this.getSession();
-      if(serial!==this.pending||revision!==now.revision||now.result?.build_id!==buildId||now.mode==='read'){trace?.finish('stale');return}
+      if(serial!==this.pending||revision!==now.revision||now.result?.build_id!==buildId||now.mode!==mode){trace?.finish('stale');return}
       if(now.sources[resolved.file]!==resolved.expected_source)throw new Error('The source changed. Select the text again.');
       const proof=resolved.proof;
       if(proof?.schema!==1||proof.build_id!==buildId||proof.page!==page)throw new Error('This selection has no current layout proof.');
       const mapped=proof.lines;
-      this.hits=mapped;this.selection={...resolved,x:proof.x,y:proof.y,width:proof.width,height:proof.height,baselineRuns:proof.runs,baselineLines:proof.lines,page,kind:'source',unitKind:resolved.kind};
+      const selection={...resolved,x:proof.x,y:proof.y,width:proof.width,height:proof.height,baselineRuns:proof.runs,baselineLines:proof.lines,page,kind:'source',unitKind:resolved.kind};
+      if(inline){
+        this.inlineEdit(selection,mapped[0],this.view.pages.find(p=>p.number===page),inlineX);
+        trace?.finish('selected');return;
+      }
+      this.hits=mapped;this.selection=selection;
       const frame=this.drawFrame();this.onSelected(this.selection);frame?.focus({preventScroll:true});
       trace?.mark('selection-ready');trace?.finish('selected',{paint:true,isCurrent:()=>serial===this.pending&&this.fresh()});
       this.notify(`Selected ${resolved.kind}${mapped.length>1?' · '+mapped.length+' visible lines':''}. Drag its frame or double-click to edit.`);
@@ -184,7 +199,7 @@ export class CanvasController {
     this.cancelGesture=cancel;frame.addEventListener('pointermove',move);frame.addEventListener('pointerup',up);frame.addEventListener('pointercancel',cancel);frame.addEventListener('lostpointercapture',cancel);
   }
   marquee(event,shell,lines,page){
-    if(event.button!==0||event.target.closest('button,.block,.text-object-frame')||!this.fresh()||this.getSession().mode==='read')return;
+    if(event.button!==0||event.target.closest('button,.block,.text-object-frame')||!this.fresh()||['inline','read'].includes(this.getSession().mode))return;
     this.cancelGesture?.();const pointerId=event.pointerId;
     const rect=shell.getBoundingClientRect(),scale=this.view.scale;
     const point=e=>({x:(e.clientX-rect.left)/scale,y:(e.clientY-rect.top)/scale}),origin=point(event);

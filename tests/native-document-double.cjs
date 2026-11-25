@@ -39,6 +39,7 @@ class NativeDocumentDouble {
    if(!pending||pending.base!==this.revision||pending.build!==args.buildId)throw new Error('Invalid native candidate');
    this.record();this.sources=structuredClone(pending.sources);this.revision++;this.pending.delete(args.token);return this.snapshot();
   }
+  if(name==='inline_caret_stops')return this.control.caretStops(args);
   if(name==='document_discard'){this.pending.delete(args.token);return null;}
   if(name==='document_edit'){
    if(args.revision!==this.revision)throw new Error('Stale source');

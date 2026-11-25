@@ -106,6 +106,8 @@ export type ResolvedSelection = { schema: number, unit_id: string, build_id: str
 
 export type ResolveSelectionRequest = { projectId: string, revision: number, buildId: string, page: number, points: Array<SelectionPoint>, candidate: number, };
 
+export type InlineCaretRequest = { projectId: string, revision: number, buildId: string, probeBuildId: string, marker: string, page: number, text: string, };
+
 export type SaveState = "preparing" | "prepared" | "committing" | "complete" | "rolled_back";
 
 export type PendingSave = { id: string, state: SaveState, files: Array<string>, };
@@ -234,6 +236,7 @@ export interface BuildRequests {
   source_from_pdf: InverseMappingRequest;
   pdf_from_source: ForwardMappingRequest;
   resolve_text_selection: ResolveSelectionRequest;
+  inline_caret_stops: InlineCaretRequest;
 }
 
 export interface BuildReplies {
@@ -246,6 +249,7 @@ export interface BuildReplies {
   source_from_pdf: { file: string, line: number, };
   pdf_from_source: { page: number, x: number, y: number, width: number, height: number, };
   resolve_text_selection: { schema: number, unit_id: string, build_id: string, revision: number, file: string, expected_source: string, start: number, end: number, first_line: number, last_line: number, kind: string, content: string, plain_text: string | null, rectangles: Array<SourceRectangle>, };
+  inline_caret_stops: Array<number>;
 }
 
 export interface WorkspaceRequests {
