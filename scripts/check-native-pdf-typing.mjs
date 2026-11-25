@@ -43,18 +43,34 @@ async function button(id){
   await until('!'+control(id)+'.disabled',id+' enabled');
   await evaluate(control(id)+'.click()');
 }
-async function clickLine(text,inset=1){
+async function clickLine(text,fraction=0){
   const point=await evaluate(`(()=>{
     const line=Array.from(document.querySelectorAll('.line-hit')).find(node=>node.ariaLabel==='Select text: '+${JSON.stringify(text)});
     if(!line)return null;
     line.scrollIntoView({block:'nearest'});
-    const r=line.getBoundingClientRect();return {x:r.left+${inset},y:r.top+r.height/2};
+    const r=line.getBoundingClientRect();return {x:r.left+Math.max(1,r.width*${fraction}),y:r.top+r.height/2};
   })()`);
   assert.ok(point,'Missing rendered line '+text);
   await send('Input.dispatchMouseEvent',{type:'mouseMoved',...point});
   for(const type of ['mousePressed','mouseReleased'])
     await send('Input.dispatchMouseEvent',{type,...point,button:'left',clickCount:1});
   assert.equal(await evaluate("document.activeElement?.matches('.pdf-typing')"),true,'Caret focus after clicking '+text);
+}
+async function signatureRaster(){
+  const clip=await evaluate(`(()=>{
+    const line=[...document.querySelectorAll('.line-hit')].find(node=>node.ariaLabel==='Select text: Head of the Example Department');
+    line.scrollIntoView({block:'nearest'});
+    const rect=line.getBoundingClientRect(), viewport=document.querySelector('#preview-scroll').getBoundingClientRect();
+    const x=Math.ceil(Math.max(viewport.left,rect.left-5)),y=Math.ceil(Math.max(viewport.top,rect.top-2*rect.height));
+    return {x,y,width:Math.min(Math.floor(viewport.right)-x,Math.ceil(rect.width*1.7)),
+      height:Math.min(Math.floor(viewport.bottom)-y,Math.ceil(rect.height*5)),scale:1};
+  })()`);
+  // Exclude the cursor itself, so any change to the text underneath fails.
+  await evaluate("document.querySelectorAll('.pdf-typing-selection').forEach(node=>node.style.visibility='hidden')");
+  try{
+    const {data}=await send('Page.captureScreenshot',{format:'png',clip});
+    return data;
+  }finally{await evaluate("document.querySelectorAll('.pdf-typing-selection').forEach(node=>node.style.removeProperty('visibility'))")}
 }
 async function key(key,virtual,modifiers=0){
   for(const type of ['keyDown','keyUp'])
@@ -118,6 +134,30 @@ try{
   await until("Array.from(document.querySelectorAll('.line-hit')).some(e=>e.ariaLabel==='Select text: Unchanged heading.')",'undo restored the separate first paragraph');
   source=await save(file);assert.match(source,/Unchanged heading\.\r?\n\r?\nAn ordinary/);
   const literal=await setup(sample.replace('\\textbf{\\PersonName}','\\textbf{Dr. Example Research}'),'Literal signature');
+  const before=await signatureRaster();
+  await clickLine('Head of the Example Department',0.42);
+  const after=await signatureRaster();
+  if(before!==after){
+    await writeFile(join(work,'signature-before.png'),Buffer.from(before,'base64'));
+    await writeFile(join(work,'signature-after.png'),Buffer.from(after,'base64'));
+    assert.fail('Placing the caret moved or obscured text in the signature: '+work);
+  }
+  const caret=await until(`(()=>{
+    const caret=document.querySelector('.pdf-typing-caret');
+    if(!caret)return null;
+    const hit=[...document.querySelectorAll('.line-hit')].find(node=>node.ariaLabel==='Select text: Head of the Example Department');
+    const box=hit.getBoundingClientRect(), rect=caret.getBoundingClientRect();
+    return {x:rect.left,y:rect.top,lineX:box.left,lineY:box.top,width:box.width};
+  })()`,'visible caret over the unchanged PDF');
+  assert.ok(Math.abs(caret.y-caret.lineY)<1,'Caret is on the department line');
+  assert.ok(Math.abs(caret.x-(caret.lineX+0.42*caret.width))<6,'Caret is at the clicked word');
+  await key('ArrowRight',39);
+  await until("document.querySelector('.pdf-typing-caret')?.getBoundingClientRect().left>"+caret.x,'caret advances along the department line');
+  await key('ArrowRight',39,8);
+  await until("document.querySelector('.pdf-typing-range')!==null",'keyboard range on original text');
+  await key('Escape',27);
+  assert.equal(await evaluate("document.querySelector('.pdf-typing-caret')"),null);
+  assert.equal(await readFile(literal,'utf8'),sample.replace('\\textbf{\\PersonName}','\\textbf{Dr. Example Research}'));
   await clickLine('Dr. Example Research');await key('End',35);await key('Tab',9);await type('A');
   assert.ok((await evaluate('document.activeElement.innerText')).includes('Research\tA'));
   source=await save(literal);
@@ -126,7 +166,8 @@ try{
   const timings=await evaluate('window.caretTimes');
   assert.ok(timings.length>=4);
   const result={executable,fixtures:[basename(dirname(file)),basename(dirname(literal))],
-    tests:['type into macro use','switch passages during verification','join hard line','join paragraphs','Undo and Save','literal bold name and Tab'],
+    tests:['type into macro use','switch passages during verification','join hard line','join paragraphs','Undo and Save',
+      'unchanged Windows raster on signature click','literal bold name and Tab'],
     pointerDownToFocusMs:timings};
   await writeFile(join(work,'result.json'),JSON.stringify(result,null,2));
   console.log('Passed Windows typing checks. Results in '+work);

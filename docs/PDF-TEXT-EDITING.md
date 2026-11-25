@@ -17,7 +17,7 @@ Word’s documented file structure stores main-story paragraphs and text runs. I
 
 ## Cursor placement and compilation
 
-While preparing a PDF, Texloom projects supported source passages into visible text, maps them to rendered rows, and prepares caret stops. Clicking a mapped passage looks up that position locally. A browser editing surface spans its paragraphs and forced line breaks. Clicking another mapped passage transfers focus immediately while an older edit is being checked. The background transaction verifies the source occurrence and typeset result before updating shared history.
+While preparing a PDF, Texloom projects supported source passages into visible text, maps them to rendered rows, and prepares caret stops. Clicking a mapped passage draws the caret at that position over the compiled page. The browser editing surface spans its paragraphs and forced line breaks, and shows its draft when the text changes. Clicking another mapped passage transfers focus immediately while an older edit is being checked. The background transaction verifies the source occurrence and typeset result before updating shared history.
 
 The bundled signature contains a minipage, optional break lengths and a bold local name macro. Editing that name changes its use site and preserves the original definition. Backspace can remove the break before the department line. A logical passage currently fits on one mapped page. The next steps cover cross-page positions, included-file origins and mixed-direction clusters. [Responsive editing roadmap](architecture/RESPONSIVE-EDITING.md)
 

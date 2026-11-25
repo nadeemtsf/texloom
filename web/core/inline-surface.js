@@ -1,11 +1,16 @@
 // The browser owns the caret, IME, selection and keyboard editing. Keep each
 // logical break as an actual newline so Backspace can traverse styled spans.
 export class InlineSurface {
-  constructor(element) { this.element=element; }
+  constructor(element) {
+    this.element=element;
+    this.markers=element.ownerDocument.createElement('div');
+    this.markers.className='pdf-typing-selection';
+    this.markers.setAttribute('aria-hidden','true');
+  }
   get value() { return this.element.innerText.replace(/\r\n?/gu,'\n'); }
   get selection() {
     const node=this.element,selection=node.ownerDocument.getSelection();
-    if(!selection?.rangeCount||!node.contains(selection.focusNode))return null;
+    if(!selection?.rangeCount||!node.contains(selection.focusNode)||!node.contains(selection.anchorNode))return null;
     const offset=(child,end)=>{
       // Count the semantic breaks between contenteditable blocks as well as text.
       const range=document.createRange();range.selectNodeContents(node);range.setEnd(child,end);
@@ -15,8 +20,9 @@ export class InlineSurface {
     };
     return {anchor:offset(selection.anchorNode,selection.anchorOffset),head:offset(selection.focusNode,selection.focusOffset)};
   }
-  select(offset) {
+  select(offset,row) {
     const node=this.element,selection=node.ownerDocument.getSelection();
+    this.preferredRow=row;
     node.focus({preventScroll:true});
     const range=document.createRange();
     for(const block of node.children){
@@ -67,6 +73,50 @@ export class InlineSurface {
     if(!block.hasChildNodes())block.append(document.createElement('br'));
     node.replaceChildren(fragment);
   }
+  dispose() {
+    this.markers.remove();
+    this.element.classList.remove('pdf-typing-draft');
+  }
+  refresh() {
+    this.element.classList.toggle('pdf-typing-draft',this.value!==this.entry.text);
+    this.drawSelection();
+  }
+  clearSelection() { this.markers.replaceChildren(); }
+  drawSelection() {
+    const node=this.element;
+    if(node.ownerDocument.activeElement!==node||node.classList.contains('pdf-typing-draft')){
+      this.clearSelection();
+      return;
+    }
+    const selection=this.selection;
+    if(!selection){this.clearSelection();return}
+    const {rows}=this.entry;
+    const {anchor,head}=selection, start=Math.min(anchor,head), end=Math.max(anchor,head);
+    const fragment=node.ownerDocument.createDocumentFragment();
+    const draw=(row,from,to,caret=false)=>{
+      const x=offset=>{
+        const column=row.offsets.findIndex(boundary=>boundary>=offset);
+        return column<0?row.stops.at(-1):row.stops[column];
+      };
+      const marker=node.ownerDocument.createElement('span'), left=x(from);
+      marker.className=caret?'pdf-typing-caret':'pdf-typing-range';
+      Object.assign(marker.style,{left:left*this.scale+'px',top:row.line.y*this.scale+'px',
+        height:row.line.height*this.scale+'px',width:caret?'1px':Math.max(1,(x(to)-left)*this.scale)+'px'});
+      fragment.append(marker);
+    };
+    if(start===end){
+      const contains=row=>row.start<=head&&head<=row.end;
+      const row=this.preferredRow&&rows.includes(this.preferredRow)&&contains(this.preferredRow)?
+        this.preferredRow:rows.find(contains);
+      if(row)draw(row,head,head,true);
+    }else{
+      for(const row of rows){
+        const from=Math.max(row.start,start),to=Math.min(row.end,end);
+        if(to>from)draw(row,from,to);
+      }
+    }
+    this.markers.replaceChildren(fragment);
+  }
   insert(text) {
     // Chromium dispatches a real input event and keeps this operation in the
     // browser's typing history (and replaces any active selection).
@@ -84,5 +134,9 @@ export class InlineSurface {
       top:rect.top-viewport.top+scroller.scrollTop+first.y*scale+'px',
       width:Math.max(1,(right-left)*scale+1)+'px',minHeight:Math.min(maxHeight,last.y-first.y+natural)*scale+'px',maxHeight:Math.max(natural,maxHeight)*scale+'px',
       fontSize:first.height*scale+'px',lineHeight:natural*scale+'px'});
+    this.entry=entry;
+    this.scale=scale;
+    if(this.markers.parentNode!==page.shell)page.shell.append(this.markers);
+    this.refresh();
   }
 }

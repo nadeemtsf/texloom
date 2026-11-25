@@ -18,6 +18,13 @@
 .inline-mode .text-object-hit{pointer-events:none;visibility:hidden}
 #preview-scroll{position:relative}
 .pdf-typing{white-space:pre-wrap;overflow-wrap:break-word;cursor:text;position:absolute;z-index:5;border:0;border-radius:0;padding:0;background:#fff;color:#111;caret-color:#315d4d;overflow:hidden;resize:none;tab-size:4}
+/* Keep the real PDF visible while the browser accepts caret and keyboard input. */
+.pdf-typing:not(.pdf-typing-draft){opacity:0;pointer-events:none}
+.pdf-typing-selection{position:absolute;inset:0;pointer-events:none;z-index:4}
+.pdf-typing-selection span{position:absolute;display:block}
+.pdf-typing-caret{background:#315d4d}
+.pdf-typing-range{background:#7aa26455}
+@media (forced-colors:active){.pdf-typing-selection span{forced-color-adjust:none;background:Highlight}}
 .pdf-typing:focus-visible{outline:0}
 .pdf-typing::selection,.pdf-typing ::selection{background:#c4d7b8}
 .text-object-hit{z-index:3;cursor:move}.text-object-hit:hover{border-color:#668f5088;background:#9ab57b12}
