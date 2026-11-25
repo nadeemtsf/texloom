@@ -323,23 +323,57 @@ fn mark_text_ranges(
 
 #[derive(Clone, Debug, Serialize)]
 #[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
-pub struct InlineFlowView {
+pub struct InlineRangeView {
     pub range: [usize; 2],
     pub expected: String,
     pub text: String,
 }
 
-pub fn inline_flows(source: &str) -> Result<Vec<InlineFlowView>> {
+#[derive(Clone, Debug, Serialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct InlineFlowView {
+    pub file: String,
+    pub primary: InlineRangeView,
+    pub paragraphs: Vec<InlineRangeView>,
+}
+
+#[derive(Deserialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct InlineProjectRequest {
+    pub main: String,
+    pub sources: BTreeMap<String,String>,
+}
+
+fn inline_range(source:&str, editor:&EditorProjection, flow:texloom_core::inline_flow::InlineFlow)
+    -> Result<InlineRangeView> {
+    Ok(InlineRangeView {
+        range: [editor.editor_offset(flow.range.start).map_err(fail)?,
+                editor.editor_offset(flow.range.end).map_err(fail)?],
+        expected: source[flow.range].to_owned(),
+        text: flow.text,
+    })
+}
+
+pub fn project_inline_flows(request:&InlineProjectRequest) -> Result<Vec<InlineFlowView>> {
+    if request.sources.len()>MAX_FILES || request.sources.values().any(|source|source.len()>4_000_000) {
+        return Err("The source project exceeds the inline editing budget".into());
+    }
+    relative(&request.main)?;
+    let mut editors=BTreeMap::new();
+    texloom_core::inline_flow::project_inline_flows(&request.sources,&request.main).into_iter().map(|(file,flow)|{
+        let source=&request.sources[file];
+        let editor=editors.entry(file).or_insert_with(||EditorProjection::new(source));
+        let paragraphs=texloom_core::inline_flow::inline_paragraphs(source,&flow).into_iter()
+            .map(|part|inline_range(source,editor,part)).collect::<Result<_>>()?;
+        Ok(InlineFlowView {file:file.into(),paragraphs,primary:inline_range(source,editor,flow)?})
+    }).collect()
+}
+
+#[cfg(test)]
+pub fn inline_flows(source: &str) -> Result<Vec<InlineRangeView>> {
     if source.len() > 4_000_000 { return Err("The source is too large for inline editing".into()); }
     let editor = EditorProjection::new(source);
-    texloom_core::inline_flow::inline_flows(source).into_iter().map(|flow| {
-        Ok(InlineFlowView {
-            range: [editor.editor_offset(flow.range.start).map_err(fail)?,
-                    editor.editor_offset(flow.range.end).map_err(fail)?],
-            expected: source[flow.range].to_owned(),
-            text: flow.text,
-        })
-    }).collect()
+    texloom_core::inline_flow::inline_flows(source).into_iter().map(|flow|inline_range(source,&editor,flow)).collect()
 }
 
 pub(super) fn plan_direct_text(request: &ObjectEditRequest) -> Result<DirectTextPlan> {
@@ -365,7 +399,7 @@ pub(super) fn plan_direct_text(request: &ObjectEditRequest) -> Result<DirectText
             let (updated, range) = texloom_core::append_plain_paragraph(source, text)?;
             (updated, range, None)
         }
-        "edit_plain_flow" if request.file == request.main && request.plain
+        "edit_plain_flow" if request.plain
             && request.literal_edits.is_none() && request.spacing_edits.is_none() =>
         {
             let [start, end] = request.selection.ok_or("Select the text to edit")?;
@@ -377,8 +411,12 @@ pub(super) fn plan_direct_text(request: &ObjectEditRequest) -> Result<DirectText
             if source.get(range.clone()) != Some(old) {
                 return Err("The selected source changed. Select it again.".into());
             }
-            let flow = texloom_core::inline_flow::inline_flows(source).into_iter()
-                .find(|flow| flow.range == range).ok_or("Select a current inline text flow")?;
+            let flow = texloom_core::inline_flow::project_inline_flows(&request.sources,&request.main).into_iter()
+                .filter(|(file,_)|*file==request.file)
+                .find_map(|(_,flow)| {
+                    if flow.range==range {Some(flow)}
+                    else {texloom_core::inline_flow::inline_paragraphs(source,&flow).into_iter().find(|part|part.range==range)}
+                }).ok_or("Select a current inline text flow with a unique project file")?;
             let (updated, new_range) = texloom_core::inline_flow::edit_inline_flow(source, &flow, draft)?;
             let before = mark_text_ranges(request, source, &[(range, &request.id)], true)?;
             (updated, new_range, Some(before))

@@ -1,5 +1,6 @@
 import {intersects,normalizedRectangle} from './geometry.js';
 import {performanceOutcome} from './performance-diagnostics.js';
+import {measuredCaretStops} from './inline-text.js';
 
 /** DOM gestures are isolated from source edits and compilation. */
 export class CanvasController {
@@ -17,17 +18,39 @@ export class CanvasController {
   clear(){this.cancelGesture?.();this.pending++;this.selection=null;this.hits=[];this.drawFrame();this.onSelected(null)}
   bind(view) {
     this.cancelGesture?.();this.unbindPages();this.view=view;this.pending++;this.hits=[];
-    for(const {shell,lines,number} of view.pages){
+    if(view.lazy){
+      const measure=document.createElement('canvas').getContext?.('2d');
+      view.pagePainted=page=>{
+        if(this.view!==view)return;
+        for(const line of page.lines){
+          const mapped=view.inlineIndex?.byLine.get(line);
+          if(mapped)mapped.row.stops=measuredCaretStops(line,measure);
+        }
+        this.bindPage(view,page);
+      };
+      view.pageEvicted=page=>this.unbindPage(page.shell);
+      for(const page of view.pages)if(page.paintedVersion>=0)view.pagePainted(page);
+    }else for(const page of view.pages)this.bindPage(view,page);
+    if(this.selection?.kind==='object'){
+      const object=(view.result.objects||[]).find(o=>o.id===this.selection.id),bounds=view.objects.get(this.selection.id);
+      this.selection=object&&bounds?{...object,...bounds,kind:'object'}:null;
+    }else this.selection=null;
+    this.drawFrame();this.onSelected(this.selection);
+  }
+  bindPage(view,page) {
+    const {shell,lines,number}=page;
+    if(this.pageHandlers.has(shell))return;
       for(const line of lines){
         const hit=document.createElement('button');hit.type='button';hit.className='line-hit';hit.tabIndex=-1;
         hit.setAttribute('aria-label','Select text: '+line.text);
+        const editable=view.inlineIndex?.byLine.get(line);
+        if(editable)hit.setAttribute('data-inline-source',editable.entry.file);
         this.position(hit,line,view.scale);shell.append(hit);
         hit.onpointerdown=e=>{if(this.getSession().mode==='inline')e.preventDefault()};
         hit.onclick=e=>{
           e.stopPropagation();
           if(this.getSession().mode==='inline'){
             const x=(e.clientX-shell.getBoundingClientRect().left)/view.scale;
-            const page=view.pages.find(p=>p.number===number);
             if(this.view===view)this.inlineEdit(line,page,x);
             return;
           }
@@ -38,16 +61,17 @@ export class CanvasController {
       }
       const handler=event=>this.marquee(event,shell,lines,number);
       shell.addEventListener('pointerdown',handler);this.pageHandlers.set(shell,handler);
-    }
-    if(this.selection?.kind==='object'){
-      const object=(view.result.objects||[]).find(o=>o.id===this.selection.id),bounds=view.objects.get(this.selection.id);
-      this.selection=object&&bounds?{...object,...bounds,kind:'object'}:null;
-    }else this.selection=null;
-    this.drawFrame();this.onSelected(this.selection);
+  }
+  unbindPage(shell) {
+    const handler=this.pageHandlers.get(shell);
+    if(!handler)return;
+    shell.removeEventListener('pointerdown',handler);
+    shell.querySelectorAll('.line-hit').forEach(hit=>hit.remove());
+    this.pageHandlers.delete(shell);
   }
   unbindPages(){
-    for(const [shell,handler] of this.pageHandlers){shell.removeEventListener('pointerdown',handler);shell.querySelectorAll('.line-hit').forEach(hit=>hit.remove())}
-    this.pageHandlers.clear();
+    if(this.view?.lazy){this.view.pagePainted=null;this.view.pageEvicted=null}
+    for(const shell of this.pageHandlers.keys())this.unbindPage(shell);
   }
   position(el,r,scale){Object.assign(el.style,{left:r.x*scale+'px',top:r.y*scale+'px',width:Math.max(3,r.width*scale)+'px',height:Math.max(8,r.height*scale)+'px'})}
   fresh(){const s=this.getSession();return !!this.view&&s.result?.verification_eligible!==false&&!s.previewZooming&&!s.busy&&s.revision===s.compiled&&!s.client?.pending&&!s.client?.error&&!s.mutating&&!s.composing&&!s.opening}

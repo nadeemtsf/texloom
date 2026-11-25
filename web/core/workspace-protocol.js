@@ -147,16 +147,28 @@ export function acceptWorkspaceReply(name, args, value) {
     else if (name === 'describe_adapters')
         controls(value, a.source);
     else if (name === 'inline_flows') {
-        require(text(a.source) && Array.isArray(value));
-        const source = editorText(a.source);
-        let previousEnd = 0;
-        for (const flow of value) {
-            record(flow, ['range', 'expected', 'text']);
-            require(Array.isArray(flow.range) && flow.range.length === 2 && text(flow.expected) && text(flow.text));
-            const [start, end] = flow.range;
-            require(integer(start, previousEnd) && integer(end, start + 1) && end <= source.length &&
-                source.slice(start, end) === flow.expected.replace(/\r\n?/gu, '\n'));
-            previousEnd = end;
+        buffers(a.sources);
+        require(nonempty(a.main) && Object.hasOwn(a.sources, a.main) && Array.isArray(value));
+        const ends = new Map();
+        for (const group of value) {
+            record(group, ['file', 'primary', 'paragraphs']);
+            require(text(group.file) && Object.hasOwn(a.sources, group.file) && Array.isArray(group.paragraphs));
+            const buffer = a.sources[group.file];
+            require(text(buffer));
+            const source = editorText(buffer);
+            const checkRange = (flow, previousEnd, limit) => {
+                record(flow, ['range', 'expected', 'text']);
+                require(Array.isArray(flow.range) && flow.range.length === 2 && text(flow.expected) && text(flow.text));
+                const [start, end] = flow.range;
+                require(integer(start, previousEnd) && integer(end, start + 1) && end <= limit &&
+                    source.slice(start, end) === flow.expected.replace(/\r\n?/gu, '\n'));
+                return { start, end };
+            };
+            const { start, end } = checkRange(group.primary, ends.get(group.file) ?? 0, source.length);
+            let previous = start;
+            for (const part of group.paragraphs)
+                previous = checkRange(part, previous, end).end;
+            ends.set(group.file, end);
         }
     }
     else if (name === 'describe_text_edit')

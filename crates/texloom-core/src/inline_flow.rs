@@ -7,7 +7,7 @@ use std::{collections::BTreeSet, ops::Range};
 const TAB: &str = r"\mbox{\ \ \ \ }";
 const EMPTY_LINE: &str = r"\mbox{}";
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 struct Piece {
     source: Range<usize>,
     text: String,
@@ -328,7 +328,11 @@ pub fn inline_flows(source: &str) -> Vec<InlineFlow> {
     let Ok((_, start, end)) = document_bounds(source) else {
         return Vec::new();
     };
-    let definitions = simple_definitions(source);
+    flows_in(source,start..end,&simple_definitions(source))
+}
+
+fn flows_in(source: &str, range: Range<usize>, definitions: &[(String,String)]) -> Vec<InlineFlow> {
+    let Range { start, end }=range;
     let mut flows = Vec::new();
     let mut scope = start;
     let mut cursor = start;
@@ -363,7 +367,7 @@ pub fn inline_flows(source: &str) -> Vec<InlineFlow> {
         let before = prelude
             .strip_suffix(r"\noindent")
             .map_or(cursor, |prefix| scope + prefix.len());
-        append_scope(source, scope..before, &definitions, false, &mut flows);
+        append_scope(source, scope..before, definitions, false, &mut flows);
         if env == "minipage" {
             let args = source[body..close].trim_start();
             let mut width = close - args.len();
@@ -381,7 +385,7 @@ pub fn inline_flows(source: &str) -> Vec<InlineFlow> {
             if valid {
                 if let Ok((_, inner)) = argument(source, width) {
                     if inner <= close {
-                        append_scope(source, inner..close, &definitions, true, &mut flows);
+                        append_scope(source, inner..close, definitions, true, &mut flows);
                     }
                 }
             }
@@ -390,14 +394,130 @@ pub fn inline_flows(source: &str) -> Vec<InlineFlow> {
         scope = cursor;
     }
     if cursor == end {
-        append_scope(source, scope..end, &definitions, false, &mut flows);
+        append_scope(source, scope..end, definitions, false, &mut flows);
     }
-    flows.retain(|flow| {
-        !flow.text.trim().is_empty()
-            && flow.text.len() <= 4096
-            && flow.text.split('\n').count() <= 24
-    });
-    flows
+    let fits=|flow: &InlineFlow| !flow.text.trim().is_empty()
+        && flow.text.len()<=4096 && flow.text.split('\n').count()<=24;
+    flows.into_iter().flat_map(|flow| {
+        if fits(&flow) { vec![flow] }
+        else { inline_paragraphs(source,&flow).into_iter().filter(fits).collect() }
+    }).collect()
+}
+
+pub fn inline_paragraphs(source: &str, flow: &InlineFlow) -> Vec<InlineFlow> {
+    if flow.hard_lines { return Vec::new(); }
+    let cuts:Vec<_>=flow.pieces.iter().enumerate().filter(|(_,piece)|
+        piece.text=="\n" && source[piece.source.clone()].trim().is_empty()).collect();
+    if cuts.is_empty() {return Vec::new()}
+    let (mut start,mut first)=(flow.range.start,0);
+    cuts.into_iter().map(|(index,piece)|(index,piece.source.start,piece.source.end))
+        .chain(std::iter::once((flow.pieces.len(),flow.range.end,flow.range.end)))
+        .filter_map(|(last,end,next)|{
+        let range=start..end;
+        let pieces=&flow.pieces[first..last];
+        start=next;
+        first=last+1;
+        let text: String=pieces.iter().map(|piece|piece.text.as_str()).collect();
+        (!text.trim().is_empty() && text.len()<=4096 && !text.contains('\n'))
+            .then(||InlineFlow{range,text,pieces:pieces.to_vec(),hard_lines:false})
+    }).collect()
+}
+
+fn literal_inputs<'a>(source: &str, range: Range<usize>, sources: &'a crate::document::Sources) -> Vec<(usize,&'a str)> {
+    let mut inputs=Vec::new();
+    let mut cursor=range.start;
+    let body=&source[..range.end];
+    let (mut groups,mut conditions)=(0usize,0usize);
+    while cursor<range.end {
+        match body.as_bytes()[cursor] {
+            b'%' => { cursor=crate::comment_end(body,cursor); continue; }
+            b'{' => groups+=1,
+            b'}' => groups=groups.saturating_sub(1),
+            b'\\' => {
+                let start=cursor;
+                let (name,after)=command(body,cursor);
+                cursor=after;
+                if let Some(after)=skip_literal(body,name,after) {cursor=after;continue}
+                if name.starts_with("\\if") { conditions+=1; continue; }
+                if name=="\\fi" { conditions=conditions.saturating_sub(1); continue; }
+                if groups!=0 || conditions!=0 { continue; }
+                if name=="\\begin" {
+                    let Ok((env,inner))=argument(body,after) else { break };
+                    let Some((_,end))=environment_end(body,inner,&body[env]) else { break };
+                    cursor=end;
+                } else if matches!(name,"\\input"|"\\include") {
+                    let Ok((path,end))=argument(body,after) else { continue };
+                    let path=&body[path];
+                    cursor=end;
+                    let line_start=body[..start].rfind('\n').map_or(0,|offset|offset+1);
+                    let remainder=body[end..].split('\n').next().unwrap_or("").trim();
+                    if !body[line_start..start].trim().is_empty() ||
+                        (!remainder.is_empty()&&!remainder.starts_with('%')) {continue}
+                    if !path.split('/').all(|part| !matches!(part,""|"."|"..") &&
+                        part.bytes().all(|b|b.is_ascii_alphanumeric()||matches!(b,b'_'|b'-'|b'.'))) {continue}
+                    let file=if path.ends_with(".tex") {path.to_owned()} else {format!("{path}.tex")};
+                    if let Some((file,_))=sources.get_key_value(&file) {inputs.push((start,file.as_str()))}
+                }
+                continue;
+            }
+            _=>(),
+        }
+        cursor+=1;
+    }
+    inputs
+}
+
+/// Literal project-local includes contribute their own byte ranges in document
+/// order. A reused input and its descendants have no single editable occurrence.
+pub fn project_inline_flows<'a>(sources: &'a crate::document::Sources, main: &str) -> Vec<(&'a str,InlineFlow)> {
+    fn walk<'a>(file:&'a str,range:Range<usize>,sources:&'a crate::document::Sources,defs:&[(String,String)],
+                seen:&mut BTreeSet<&'a str>,reused:&mut BTreeSet<&'a str>,out:&mut Vec<(&'a str,InlineFlow)>) {
+        if !seen.insert(file) {reused.insert(file);return}
+        let source=&sources[file];
+        let mut flows=flows_in(source,range.clone(),defs).into_iter().peekable();
+        for (position,input) in literal_inputs(source,range,sources) {
+            while flows.peek().is_some_and(|flow|flow.range.start<position) {
+                out.push((file,flows.next().unwrap()));
+            }
+            walk(input,0..sources[input].len(),sources,defs,seen,reused,out);
+        }
+        out.extend(flows.map(|flow|(file,flow)));
+    }
+    let Some((main,document))=sources.get_key_value(main) else {return Vec::new()};
+    let Ok((_,start,end))=document_bounds(document) else {return Vec::new()};
+    let mut seen=BTreeSet::new();
+    let mut reused=BTreeSet::new();
+    let mut out=Vec::new();
+    walk(main,start..end,sources,&simple_definitions(document),&mut seen,&mut reused,&mut out);
+    let mut pending:Vec<_>=reused.iter().copied().collect();
+    while let Some(file)=pending.pop() {
+        for (_,child) in literal_inputs(&sources[file],0..sources[file].len(),sources) {
+            if reused.insert(child) {pending.push(child)}
+        }
+    }
+    out.retain(|(file,_)|!reused.contains(file));
+    out
+}
+
+#[test]
+fn project_flows_preserve_source_order_and_refuse_reused_subtrees() {
+    let mut sources=crate::document::Sources::from([
+        ("main.tex".into(), "\\begin{document}\nBefore.\n\\input{sections/chapter}\nAfter.\n\\end{document}\n".into()),
+        ("sections/chapter.tex".into(), "\\section{Chapter}\r\nFirst paragraph.\r\n\r\nSecond paragraph.\r\n\\input{sections/detail.tex}\r\n".into()),
+        ("sections/detail.tex".into(), "A separate source.\n".into()),
+        ("unused.tex".into(), "This source is not included.\n".into()),
+    ]);
+    let flows=project_inline_flows(&sources,"main.tex");
+    assert_eq!(flows.iter().map(|(file,flow)|(*file,flow.text.as_str())).collect::<Vec<_>>(),vec![
+        ("main.tex","Before."),("sections/chapter.tex","First paragraph.\nSecond paragraph."),
+        ("sections/detail.tex","A separate source."),("main.tex","After."),
+    ]);
+    let parts=inline_paragraphs(&sources["sections/chapter.tex"],&flows[1].1);
+    assert_eq!(&sources["sections/chapter.tex"][parts[1].range.clone()],"Second paragraph.");
+    let main=sources.get_mut("main.tex").unwrap();
+    *main=main.replace("After.","\\input{sections/chapter}\nAfter.");
+    let files:Vec<_>=project_inline_flows(&sources,"main.tex").into_iter().map(|(file,_)|file).collect();
+    assert_eq!(files,vec!["main.tex","main.tex"]);
 }
 
 fn encode(text: &str, hard_lines: bool, line_ending: &str) -> String {

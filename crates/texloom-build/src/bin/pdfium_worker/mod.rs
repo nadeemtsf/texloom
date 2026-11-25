@@ -1,4 +1,5 @@
 mod api;
+mod links;
 mod target;
 use api::{Pdfium, Result};
 use serde::Deserialize;
@@ -22,6 +23,8 @@ struct Request {
     target_marker: Option<String>,
     #[serde(default)]
     target_translation: Option<[f64;2]>,
+    #[serde(default)]
+    page_window: Option<[i32; 2]>,
 }
 fn read(path: &Path, max: u64) -> Result<Vec<u8>> {
     let mut bytes = Vec::new();
@@ -82,14 +85,21 @@ fn inspect(request: &Request, prefix: &Path) -> Result<Value> {
         },
         api.FPDF_CloseDocument,
     )?;
-    let page_count = bounded(unsafe { (api.FPDF_GetPageCount)(document.raw) }, 20)?;
+    let page_count = bounded(unsafe { (api.FPDF_GetPageCount)(document.raw) },
+        if request.page_window.is_some() { 5000 } else { 20 })?;
     check(page_count > 0, "The PDF has no physical pages")?;
+    let (start,end) = if let Some([start,count]) = request.page_window {
+        check((0..page_count).contains(&start) && (1..=8).contains(&count)
+            && request.target_translation.is_none(), "Invalid inspection page window")?;
+        (start,(start+count).min(page_count))
+    } else { (0,page_count) };
     let (mut pages, mut records, mut graphics, mut rasters) =
         (Vec::new(), Vec::new(), Vec::new(), Vec::new());
     let mut total_pixels = 0usize;
     let mut instances = std::collections::BTreeSet::new();
     let mut target_glyphs = 0usize;
-    for index in 0..page_count {
+    for index in start..end {
+        let local_page=index-start+1;
         let page = api.own(
             unsafe { (api.FPDF_LoadPage)(document.raw, index) },
             api.FPDF_ClosePage,
@@ -120,7 +130,11 @@ fn inspect(request: &Request, prefix: &Path) -> Result<Value> {
             "Crop/rotation needs a coordinate adapter",
         )?;
         let annotations = bounded(unsafe { (api.FPDFPage_GetAnnotCount)(page.raw) }, 10_000)?;
-        pages.push(json!({"width":width,"height":height,"crop":crop,"rotation":rotation*90,"annotations":annotations}));
+        let mut page_info=json!({"width":width,"height":height,"crop":crop,"rotation":rotation*90,"annotations":annotations});
+        if request.page_window.is_some(){
+            page_info["links"]=json!(links::signatures(&api,document.raw,page.raw,annotations)?);
+        }
+        pages.push(page_info);
         let text = api.own(
             unsafe { (api.FPDFText_LoadPage)(page.raw) },
             api.FPDFText_ClosePage,
@@ -152,7 +166,7 @@ fn inspect(request: &Request, prefix: &Path) -> Result<Value> {
             )?;
             rectangle([left, bottom, right, top])?;
             check(records.len() < 50_000, "Document exceeds glyph budget")?;
-            records.push(json!({"text":value.to_string(),"page":index+1,"x":left,"y":height-top,"width":right-left,"height":top-bottom}));
+            records.push(json!({"text":value.to_string(),"page":local_page,"x":left,"y":height-top,"width":right-left,"height":top-bottom}));
         }
         let objects = bounded(unsafe { (api.FPDFPage_CountObjects)(page.raw) }, 10_000)?;
         for i in 0..objects {
@@ -198,11 +212,14 @@ fn inspect(request: &Request, prefix: &Path) -> Result<Value> {
                 graphics.len() < 10_000,
                 "Document exceeds non-text object budget",
             )?;
-            graphics.push(json!({"type":kind,"page":index+1,"x":left as f64,"y":height-top as f64,"width":right as f64-left as f64,"height":top as f64-bottom as f64}));
+            graphics.push(json!({"type":kind,"page":local_page,"x":left as f64,"y":height-top as f64,"width":right as f64-left as f64,"height":top as f64-bottom as f64}));
         }
         if request.target_marker.is_some() {
-            target_glyphs +=
-                target::attribute(&mut records[record_start..], &text_objects, height)?;
+            if request.page_window.is_some() && selected_objects.is_empty() {
+                for record in &mut records[record_start..]{record["target"]=json!(false);}
+            }else{
+                target_glyphs+=target::attribute(&mut records[record_start..],&text_objects,height)?;
+            }
         }
         // Predict the requested drawing with the inspector's own object API,
         // independently of TeX literals or candidate pixels. Geometry records
@@ -242,24 +259,24 @@ fn inspect(request: &Request, prefix: &Path) -> Result<Value> {
         check(!buffer.is_null(), "PDFium returned no raster buffer")?;
         // PDFium owns this exact stride*height allocation until bitmap drops.
         let pixels = unsafe { std::slice::from_raw_parts(buffer.cast::<u8>(), length) };
-        let path = prefix.with_extension(format!("p{}.raster", index + 1));
+        let path = prefix.with_extension(format!("p{local_page}.raster"));
         create(&path, pixels)?;
         rasters.push(json!({"path":path,"width":w,"height":h,"stride":stride,"channels":3,"scale":2,"sha256":digest(pixels)}));
     }
     if request.target_marker.is_some() {
         check(
-            instances.len() == 1,
+            instances.len() == 1 || (request.page_window.is_some() && instances.is_empty()),
             "Target marker is missing or has multiple rendered instances",
         )?;
-        check(target_glyphs > 0, "Target marker has no visible glyphs")?;
+        check(instances.is_empty() == (target_glyphs == 0), "Target marker has no visible glyphs")?;
     }
-    Ok(
-        json!({"schema":texloom_build::inspection_worker::PROTOCOL,"renderer":"pdfium","pdfium":texloom_build::inspection_worker::PDFIUM_VERSION,"binding":"rust-worker-v1",
+    let mut evidence=json!({"schema":texloom_build::inspection_worker::PROTOCOL,"renderer":"pdfium","pdfium":texloom_build::inspection_worker::PDFIUM_VERSION,"binding":"rust-worker-v1",
         "librarySha256":api::DLL_SHA256,"pdfSha256":request.pdf_sha256,
             "pages":pages,"records":records,"graphics":graphics,"rasters":rasters,
             "target":request.target_marker.as_ref().map(|name|json!({"marker":name,"instances":instances.len(),"glyphs":target_glyphs})),"translation":request.target_translation,
-            "limitations":["Experimental Windows worker; broader marker attribution, UserUnit and native commit binding need acceptance.","Forms and nonzero page origins/rotation are refused."]}),
-    )
+            "limitations":["Experimental Windows worker; broader marker attribution, UserUnit and native commit binding need acceptance.","Forms and nonzero page origins/rotation are refused."]});
+    if request.page_window.is_some(){evidence["window"]=json!({"start":start,"total":page_count});}
+    Ok(evidence)
 }
 pub fn run() -> Result<()> {
     check(

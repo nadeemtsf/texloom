@@ -2,6 +2,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
+const inlineGroup=(primary,file='main.tex',paragraphs=[])=>({file,primary,paragraphs});
 
 async function setup({tracing=false,presentation=false}={}){
  const transactions=await import('../web/core/transactions.js');
@@ -393,7 +394,7 @@ test('typing directly on a proved PDF line retains newer keystrokes across verif
  t.run('state.view').pages=[page];
  const {buildInlineIndex}=await import('../web/core/inline-text.js');
  t.control.flows=source=>[{range:[0,source.length],text:source,expected:source}];
- t.run('state.view').inlineIndex=buildInlineIndex(t.run('state.view'),t.control.flows(original),'main.tex',original);
+ t.run('state.view').inlineIndex=buildInlineIndex(t.run('state.view'),t.control.flows(original).map(flow=>inlineGroup(flow)),{'main.tex':original});
  t.run('openInlineEdit')(line,page,105);
  assert.equal(compiles,0);
  assert.deepEqual(input.range,[8,8]);
@@ -455,7 +456,7 @@ test('published rows share logical offsets through paragraphs, wrapping and a fo
  assert.deepEqual(rows.map(row=>[row.start,row.end]),[[0,10],[11,22],[23,41]]);
  assert.equal(text[rows[2].start-1],'\n');
  assert.equal(text[rows[1].start-1],' ');
- const index=buildInlineIndex({pages:[{lines}]},[{text,expected:'formatted',range:[10,19]}],'main.tex','formatted');
+ const index=buildInlineIndex({pages:[{lines}]},[inlineGroup({text,expected:'formatted',range:[10,19]})],{'main.tex':'formatted'});
  assert.equal(index.byLine.get(lines[0]).entry,index.byLine.get(lines[2]).entry);
  assert.equal(inlineRows([{text:'Good bye.'}],'Goodbye.')[0].end,8);
  assert.equal(inlineRows([{text:'Unexpected'}],text),null);
@@ -465,9 +466,26 @@ test('repeated passages need a unique correspondence before caret placement',asy
  const {buildInlineIndex}=await import('../web/core/inline-text.js');
  const lines=['Again.','Again.'].map(text=>({text,page:1}));
  const view={pages:[{lines}]},first={text:'Again.',range:[0,6],expected:'Again.'};
- assert.equal(buildInlineIndex(view,[first],'main.tex','').byLine.size,0);
+ assert.equal(buildInlineIndex(view,[inlineGroup(first)],{'main.tex':''}).byLine.size,0);
  const second={...first,range:[20,26]};
- assert.equal(buildInlineIndex(view,[first,second],'main.tex','').byLine.get(lines[1]).entry.start,20);
+ assert.equal(buildInlineIndex(view,[first,second].map(flow=>inlineGroup(flow)),{'main.tex':''}).byLine.get(lines[1]).entry.start,20);
+});
+
+test('long pages map separate project files and split a flow that crosses a page',async()=>{
+ const {buildInlineIndex,findInlineFlow}=await import('../web/core/inline-text.js');
+ const line=(text,page)=>({text,page,runs:[]});
+ const lead=line('Lead sentence.',20),next=line('Continued paragraph.',21),last=line('Final paragraph.',22);
+ const pages=[{number:20,lines:[lead],inlineReason:null,selectionReason:'Object movement is unavailable'},
+   {number:21,lines:[next],inlineReason:null},{number:22,lines:[last],inlineReason:null}];
+ const part=(text,start)=>({range:[start,start+text.length],text,expected:text});
+ const first='Lead sentence.\nContinued paragraph.';
+ const groups=[inlineGroup(part(first,0),'sections/part.tex',[part(lead.text,0),part(next.text,15)]),
+   inlineGroup(part(last.text,0),'sections/end.tex')];
+ const view={pages};
+ view.inlineIndex=buildInlineIndex(view,groups,{'sections/part.tex':first,'sections/end.tex':last.text});
+ assert.equal(view.inlineIndex.byLine.get(next).entry.start,15);
+ assert.equal(findInlineFlow(view,{file:'sections/end.tex',start:0,text:last.text}).page.number,22);
+ assert.equal(findInlineFlow(view,{file:'sections/part.tex',start:0,text:lead.text}).page.number,20);
 });
 
 test('a rendered line without matching source starts no mapping or compilation',async()=>{

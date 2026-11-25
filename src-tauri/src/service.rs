@@ -36,7 +36,9 @@ pub use visual::{
     TextEditModel,
     LiteralRunView, SpacingView,
 };
-pub use visual::{inline_flows, InlineFlowView, ObjectEditRequest, ObjectPlan, ResolvedSelection, SelectionPoint};
+pub use visual::{project_inline_flows, InlineFlowView, InlineProjectRequest, ObjectEditRequest, ObjectPlan, ResolvedSelection, SelectionPoint};
+#[cfg(feature="typegen")]
+pub(crate) use visual::InlineRangeView;
 #[cfg(feature="typegen")]
 pub use visual::InlineOrigin;
 

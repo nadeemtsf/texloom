@@ -9,28 +9,34 @@ export function selectionReasonForPage(page,viewport){
 }
 
 /** Prepare a complete PDF view offscreen. Publishing it is a separate operation. */
-export async function preparePDFView(pdfjs,result,{width,zoom=0,mode='select',signal,lazy=false,workerStartup}={}) {
+export async function preparePDFView(pdfjs,result,{width,zoom=0,mode='select',signal,lazy=false,inlineGeometry=false,workerStartup}={}) {
   const options={data:new Uint8Array(result.pdf),
     cMapUrl:new URL('/pdfjs/cmaps/',location.href).href,cMapPacked:true,
     standardFontDataUrl:new URL('/pdfjs/standard_fonts/',location.href).href,wasmUrl:new URL('/pdfjs/wasm/',location.href).href};
   const pdf=await loadPDFDocument(pdfjs,options,await workerStartup?.take());
-  try{return await prepareLoadedPDF(pdfjs,pdf,result,{width,zoom,mode,signal,lazy})}
+  try{return await prepareLoadedPDF(pdfjs,pdf,result,{width,zoom,mode,signal,lazy,inlineGeometry})}
   catch(error){try{await pdf.destroy()}catch{}throw error}
 }
 
-export async function prepareLoadedPDF(pdfjs,pdf,result,{width,zoom=0,mode='select',signal,lazy=false}={}) {
-  if(lazy&&pdf.numPages>20)return prepareLongPDF(pdfjs,pdf,result,{width,zoom,mode,signal});
-  return preparePagedPDF(pdfjs,pdf,result,{width,zoom,mode,signal,geometry:async(page,base,item,view)=>{
+export async function prepareLoadedPDF(pdfjs,pdf,result,{width,zoom=0,mode='select',signal,lazy=false,inlineGeometry=false}={}) {
+  const long=lazy&&pdf.numPages>20;
+  const geometry=async(page,base,item,view)=>{
     const text=await page.getTextContent({includeMarkedContent:true});
     const geometry=extractTextGeometry(text.items,text.styles,item.number,base.height);
-    for(const id of geometry.unclosed)view.unclosed.add(id);
-    for(const [id,bounds] of geometry.objects){
-      const existing=view.objects.get(id);
-      if(existing){existing.pages.add(item.number);Object.assign(existing,union([existing,bounds]));existing.runs.push(...bounds.runs);existing.instances+=bounds.instances}
-      else view.objects.set(id,{...bounds,pages:new Set([item.number])});
+    if(!long){
+      for(const id of geometry.unclosed)view.unclosed.add(id);
+      for(const [id,bounds] of geometry.objects){
+        const existing=view.objects.get(id);
+        if(existing){existing.pages.add(item.number);Object.assign(existing,union([existing,bounds]));existing.runs.push(...bounds.runs);existing.instances+=bounds.instances}
+        else view.objects.set(id,{...bounds,pages:new Set([item.number])});
+      }
     }
-    Object.assign(item,{lines:geometry.lines,runs:geometry.runs,selectionReason:selectionReasonForPage(page,base)});
-  }});
+    const reason=selectionReasonForPage(page,base);
+    Object.assign(item,{lines:geometry.lines,runs:geometry.runs,inlineReason:reason});
+    if(!long)item.selectionReason=reason;
+  };
+  if(long)return prepareLongPDF(pdfjs,pdf,result,{width,zoom,mode,signal,geometry:inlineGeometry?geometry:null});
+  return preparePagedPDF(pdfjs,pdf,result,{width,zoom,mode,signal,geometry});
 }
 
 export function capturePDFScrollAnchor(elements){

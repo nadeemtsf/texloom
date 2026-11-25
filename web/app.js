@@ -534,14 +534,19 @@ async function resolveSourceSelection({buildId,page,points,hits,trace=null}){
     throw lastError||new Error('This text could not be mapped safely. Use source editing.');
   }finally{finishJob()}
 }
-async function prepareResult(result,workerStartup,sources=state.sources){
-  const file=state.project.main,source=sources[file];
+async function prepareResult(result,workerStartup,sources=state.sources,policy=null){
   // Prepare the character map alongside PDF painting, before the page accepts input.
-  const projection=invoke('inline_flows',{source}).catch(error=>({error:message(error)}));
-  const view=await preparePDFView(pdfViewLibrary,result,{width:$('preview-scroll').clientWidth,zoom:state.zoom,mode:state.mode,lazy:true,workerStartup});
+  const projection=invoke('inline_flows',{main:state.project.main,sources}).catch(error=>({error:message(error)}));
+  const view=await preparePDFView(pdfViewLibrary,result,{width:$('preview-scroll').clientWidth,zoom:state.zoom,mode:state.mode,lazy:true,inlineGeometry:true,workerStartup});
   const flows=await projection;
-  view.inlineIndex=buildInlineIndex(view,Array.isArray(flows)?flows:[],file,source,document.createElement('canvas').getContext?.('2d'));
+  view.inlineIndex=buildInlineIndex(view,Array.isArray(flows)?flows:[],sources,document.createElement('canvas').getContext?.('2d'));
   if(flows.error)view.inlineIndex.error=flows.error;
+  if(view.lazy&&policy?.kind==='inline-text'){
+    const target=view.inlineIndex.bySource.get(policy.file)?.get(policy.start);
+    try{await view.ensurePage(target?.page??Math.min(policy.page,view.pageCount))}catch(error){
+      view.dispose();await view.pdf.destroy();throw error;
+    }
+  }
   return view;
 }
 function publishPrepared(prepared,result,{preserveAnchor=false}={}){
@@ -627,7 +632,7 @@ async function commitSources(sources,{file=state.file,policy=null,operation=null
     nativeCandidate=await client.prepare(sources,state.result.build_id,operation);
     trace?.mark('native-prepared');
     const candidate=await stageCandidate({revision:nativeCandidate.revision,identity:expectedIdentity,getIdentity:()=>sessionIdentity(state),
-      compile:()=>client.compile(nativeCandidate.token),prepare:result=>prepareResult(result,null,sources),policy,previousPageCount:state.view.pageCount,requireVerified:true,verify:result=>client.verify(result.build_id),trace});
+      compile:()=>client.compile(nativeCandidate.token),prepare:result=>prepareResult(result,null,sources,policy),policy,previousPageCount:state.view.pageCount,requireVerified:true,verify:result=>client.verify(result.build_id),trace});
     prepared=candidate.prepared;
     if(sessionIdentity(state)!==expectedIdentity)throw new StaleCandidate();
     state.mutating=true;editorReadOnly();updateControls();
@@ -987,7 +992,7 @@ function inlineKeydown(event,context){
   if((backwards||forwards)&&!event.shiftKey&&!event.ctrlKey&&!event.metaKey&&!event.altKey){
     const selection=context.surface.selection;
     if(!selection||selection.anchor!==selection.head||selection.head!==(backwards?0:context.surface.value.length))return;
-    const entries=[...state.view.inlineIndex.byStart.values()],i=entries.indexOf(context.entry);
+    const entries=state.view.inlineIndex.entries,i=entries.indexOf(context.entry);
     const neighbor=entries[i+(backwards?-1:1)];
     if(!neighbor)return;
     const row=backwards?neighbor.rows.at(-1):neighbor.rows[0];
@@ -1016,7 +1021,7 @@ async function flushInlineEdit(context){
   if(!fresh()||state.sources[entry.file]!==entry.expected_source){
     context.error='The source changed. Your draft is still on the page.';updateControls();return false;
   }
-  const policy={kind:'inline-text',page:entry.page,line:entry.rows[0].line,start:entry.start,text};
+  const policy={kind:'inline-text',file:entry.file,page:entry.page,line:entry.rows[0].line,start:entry.start,text};
   context.inFlight=true;
   inlineTransaction=(async()=>{
     if(!await textOperation(entry,{content:text,plain:true,inlinePolicy:policy})){
@@ -1028,8 +1033,8 @@ async function flushInlineEdit(context){
       if(other===context&&!text.trim()){
         closeInlineEdit(other);continue;
       }
-      const start=old.start>entry.start?old.start+delta:old.start;
-      const next=state.view.inlineIndex?.byStart.get(start);
+      const start=old.file===entry.file&&old.start>entry.start?old.start+delta:old.start;
+      const next=state.view.inlineIndex?.bySource.get(old.file)?.get(start);
       if(!next||next.text!==(other===context?text:old.text)){
         other.error='The edited passage moved outside its mapped page. Your draft is still available.';
         continue;
