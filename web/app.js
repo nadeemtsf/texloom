@@ -910,11 +910,14 @@ async function undo(redo=false){
 function hasInlineDrafts(){
   return !!inlineTransaction||[...inlineSessions].some(c=>c.surface.value!==c.entry.text);
 }
+document.addEventListener('selectionchange',()=>inlineEditContext?.surface.drawSelection());
+
 function closeInlineEdit(context){
   if(!inlineSessions.delete(context))return;
   clearTimeout(context.timer);
   const node=context.surface.element;
   node.onblur=node.onfocus=node.oninput=node.onkeydown=node.oncompositionstart=node.oncompositionend=null;
+  context.surface.dispose();
   if(node.id==='inline-text'){node.hidden=true;node.replaceChildren()}else node.remove();
   if(inlineEditContext===context)inlineEditContext=[...inlineSessions].at(-1)||null;
   editorReadOnly();updateControls();
@@ -924,8 +927,8 @@ function openInlineEdit(line,page,x){
   if(!(fresh()||inlineTransaction&&state.revision===state.compiled)||state.mode!=='inline')return;
   const index=state.view.inlineIndex,mapped=index?.byLine.get(line);
   if(!mapped)return toast(index?.error||'This text has no unique editable source in the current PDF.');
-  const {entry,row,stops}=mapped;
-  const column=caretOffset(stops,x);
+  const {entry,row}=mapped;
+  const column=caretOffset(row.stops,x);
   if(column===null)return;
   let context=[...inlineSessions].find(c=>c.entry===entry);
   if(!context){
@@ -937,11 +940,15 @@ function openInlineEdit(line,page,x){
     inlineSessions.add(context);
     surface.initialize(entry,state.view.scale);
     surface.position(page,entry,state.view.scale,surfaceElements.scroller);
-    node.oninput=event=>{if(!event.isComposing&&!context.composing)queueInlineEdit(context)};
+    node.oninput=event=>{
+      surface.refresh();
+      if(!event.isComposing&&!context.composing)queueInlineEdit(context);
+    };
     node.oncompositionstart=()=>{context.composing=true;clearTimeout(context.timer)};
-    node.oncompositionend=()=>{context.composing=false;queueInlineEdit(context)};
+    node.oncompositionend=()=>{context.composing=false;surface.refresh();queueInlineEdit(context)};
     node.onfocus=()=>{inlineEditContext=context;updateControls()};
     node.onblur=()=>{
+      surface.clearSelection();
       // Pointer focus can move to another passage while verification is pending.
       setTimeout(()=>{
         if(!inlineSessions.has(context)||node.contains(document.activeElement))return;
@@ -952,7 +959,8 @@ function openInlineEdit(line,page,x){
     node.onkeydown=event=>inlineKeydown(event,context);
   }
   inlineEditContext=context;
-  context.surface.select(Math.min(row.offsets[column],context.surface.value.length));
+  context.surface.select(Math.min(row.offsets[column],context.surface.value.length),row);
+  context.surface.drawSelection();
   editorReadOnly();updateControls();
 }
 

@@ -72,7 +72,10 @@ export function buildInlineIndex(view, flows, file, source, measure=null) {
     const entry={file,kind:'source',start:flow.range[0],end:flow.range[1],content:flow.expected,
       expected_source:source,text:flow.text,rows,page:rows[0].line.page};
     byStart.set(entry.start,entry);
-    for(const row of rows) byLine.set(row.line,{entry,row,stops:measuredCaretStops(row.line,measure)});
+    for(const row of rows) {
+      row.stops=measuredCaretStops(row.line,measure);
+      byLine.set(row.line,{entry,row});
+    }
   }
   return {byLine,byStart};
 }
