@@ -156,7 +156,11 @@ export type VisualOperation = { "kind": "adapter", request: AdapterRequest, } | 
 
 export type InlineOrigin = { page: number, x: number, y: number, };
 
-export type InlineFlowView = { range: [number, number], expected: string, text: string, };
+export type InlineFlowView = { file: string, primary: InlineRangeView, paragraphs: Array<InlineRangeView>, };
+
+export type InlineProjectRequest = { main: string, sources: { [key in string]?: string }, };
+
+export type InlineRangeView = { range: [number, number], expected: string, text: string, };
 
 export type EmptyRequest = Record<string, never>;
 
@@ -274,7 +278,7 @@ export interface WorkspaceRequests {
   mark_clean_exit: EmptyRequest;
   document_snapshot: ProjectRequest;
   document_prepare: PrepareVisualRequest;
-  inline_flows: SourceControlsRequest;
+  inline_flows: InlineProjectRequest;
   describe_adapters: SourceControlsRequest;
   plan_adapter: AdapterCommandRequest;
   plan_text_object: ObjectCommandRequest;
@@ -304,7 +308,7 @@ export interface WorkspaceReplies {
   mark_clean_exit: null;
   document_snapshot: { revision: number, sources: { [key in string]?: string }, main: string, engine: string, can_undo: boolean, can_redo: boolean, selection: EditorSelection | null, recovery: RecoveryStatus, };
   document_prepare: { token: string, revision: number, };
-  inline_flows: Array<{ range: [number, number], expected: string, text: string, }>;
+  inline_flows: Array<{ file: string, primary: InlineRangeView, paragraphs: Array<InlineRangeView>, }>;
   describe_adapters: Array<{ id: number, kind: string, label: string, line: number, parameters: Array<AdapterParameter>, reason: string | null, }>;
   plan_adapter: { sources: { [key in string]?: string }, file: string, };
   plan_text_object: { sources: { [key in string]?: string }, object_id: string, file: string, operation: string, };

@@ -270,6 +270,13 @@ fn verify_text_reflow(old: &Inspection, new: &Inspection, expect_target: bool) -
     Ok(())
 }
 
+#[derive(Default)]
+struct InlineEvidence {
+    outside: BTreeMap<String,usize>,
+    graphics: usize,
+    targets: usize,
+}
+
 // Compare the two independently marked occurrences. Counts retain repeated
 // glyphs and the ordering check uses nonoverlapping physical line bounds.
 fn reorder_bounds(view: &Inspection) -> Result<(usize, f64, f64)> {
@@ -420,6 +427,61 @@ impl Backend {
         verification::compare(&original.view, &marked.view, Operation::Identity).map_err(fail)?;
         Ok(probe)
     }
+    /// Fold contiguous windows into document-wide reflow evidence. Only the
+    /// current two windows retain rasters. Compare every tagged page with its
+    /// own unmarked build before granting source authority.
+    fn inline_evidence(&self,base:&Build,probe:Option<(&Build,&str)>,
+                       origin:Option<&visual::InlineOrigin>,cancel:&Cancellation) -> Result<InlineEvidence> {
+        const BATCH:usize=4;
+        let verifier=self.verifier.as_ref().ok_or("Layout verification is unavailable in this build")?
+            .as_ref().map_err(Clone::clone)?;
+        let bind=|build:&Build| -> Result<(PathBuf,String)> {
+            build.receipt.verify()?;
+            let output=build.receipt.outputs.get(".out/preview.pdf").ok_or("PDF receipt is missing")?;
+            Ok((build.directory.join(".out/preview.pdf"),output.sha256.clone()))
+        };
+        let (pdf,sha)=bind(base)?;
+        let tagged=probe.map(|(build,marker)|bind(build).map(|(pdf,sha)|(pdf,sha,marker))).transpose()?;
+        let mut evidence=InlineEvidence::default();
+        let (mut start,mut total)=(0,None);
+        loop {
+            cancel.check()?;
+            let ordinary=verifier.inspect_window(&pdf,&sha,None,start,BATCH,cancel)?;
+            if total.is_some_and(|count|count!=ordinary.page_total) {
+                return Err("PDF page count changed during inline verification".into());
+            }
+            total=Some(ordinary.page_total);
+            let count=ordinary.view.pages.len();
+            if let Some((pdf,sha,marker))=&tagged {
+                let mut marked=verifier.inspect_window(pdf,sha,Some(marker),start,BATCH,cancel)?;
+                if marked.page_total!=ordinary.page_total || marked.links!=ordinary.links {
+                    return Err("The inline probe changed the PDF page count or links".into());
+                }
+                evidence.targets+=marked.target_instances;
+                if evidence.targets>1 {return Err("The selected source has more than one rendered occurrence".into())}
+                if let Some(origin)=origin.filter(|_|marked.target_instances==1) {
+                    let mut local=origin.clone();
+                    local.page=origin.page.checked_sub(start).ok_or("The inline edit mapped to a different page")?;
+                    verify_inline_origin(&marked.view,&local)?;
+                }
+                evidence.graphics+=marked.view.graphics.len();
+                for glyph in &mut marked.view.glyphs {
+                    if !glyph.target {*evidence.outside.entry(glyph.text.clone()).or_default()+=1;}
+                    glyph.target=false;
+                }
+                verification::compare_inline_probe(&ordinary.view,&marked.view).map_err(fail)?;
+            }else{
+                evidence.graphics+=ordinary.view.graphics.len();
+                for glyph in ordinary.view.glyphs {
+                    *evidence.outside.entry(glyph.text).or_default()+=1;
+                }
+            }
+            start+=count;
+            if Some(start)==total {break}
+        }
+        if tagged.is_some()&&evidence.targets!=1{return Err("The edit has no unique visible target".into())}
+        Ok(evidence)
+    }
     fn predict_layout(&self,build:&Build,marker:&str,dx:f64,dy:f64,cancel:&Cancellation)->Result<CheckedInspection>{
         let sha=&build.receipt.outputs.get(".out/preview.pdf").ok_or("PDF receipt is missing")?.sha256;
         self.verifier.as_ref().ok_or("Layout verification is unavailable in this build")?.as_ref().map_err(Clone::clone)?.predict_displacement(&build.directory.join(".out/preview.pdf"),sha,marker,dx,dy,cancel)
@@ -475,7 +537,21 @@ impl Backend {
                 verify_reorder_order(new_order.iter().map(|index| bounds[*index].1))?;
                 private_builds.extend([before, after]);
             }
-            Policy::DirectText { marker, before_probe, after_probe, displacement, origin } => {
+            Policy::DirectText { marker, before_probe, after_probe, origin:Some(origin), .. } => {
+                let sources=before_probe.as_ref().ok_or("The inline edit is missing its source proof")?;
+                let probe=self.private_layout_build(request,sources.clone(),lease)?;
+                same_recipe(&plan.baseline,&probe)?;
+                let before=self.inline_evidence(&plan.baseline,Some((&probe,marker)),Some(origin),&lease.cancel)?;
+                private_builds.push(probe);
+                let next=after_probe.as_ref().map(|sources|self.private_layout_build(request,sources.clone(),lease)).transpose()?;
+                if let Some(probe)=&next {same_recipe(&build,probe)?;}
+                let after=self.inline_evidence(&build,next.as_ref().map(|probe|(probe.as_ref(),marker.as_str())),None,&lease.cancel)?;
+                if before.outside!=after.outside || before.graphics!=after.graphics {
+                    return Err("Text or graphics outside the edited passage changed".into());
+                }
+                private_builds.extend(next);
+            }
+            Policy::DirectText { marker, before_probe, after_probe, displacement, origin:None } => {
                 let baseline = if let Some(sources) = before_probe {
                     let probe = self.equivalent_text_probe(request, sources, &plan.baseline, lease)?;
                     private_builds.push(probe.clone());
@@ -486,9 +562,6 @@ impl Backend {
                 let before = self.inspect_layout(
                     &baseline, before_probe.as_ref().map(|_| marker.as_str()), &lease.cancel,
                 )?;
-                if let Some(origin) = origin {
-                    verify_inline_origin(&before.view, origin)?;
-                }
                 let after = if let Some(sources) = after_probe {
                     let probe = self.equivalent_text_probe(request, sources, &build, lease)?;
                     let inspection = self.inspect_layout(&probe, Some(marker), &lease.cancel)?;

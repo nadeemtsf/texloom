@@ -19,7 +19,9 @@ Word’s documented file structure stores main-story paragraphs and text runs. I
 
 While preparing a PDF, Texloom projects supported source passages into visible text, maps them to rendered rows, and prepares caret stops. Clicking a mapped passage draws the caret at that position over the compiled page. The browser editing surface spans its paragraphs and forced line breaks, and shows its draft when the text changes. Clicking another mapped passage transfers focus immediately while an older edit is being checked. The background transaction verifies the source occurrence and typeset result before updating shared history.
 
-The bundled signature contains a minipage, optional break lengths and a bold local name macro. Editing that name changes its use site and preserves the original definition. Backspace can remove the break before the department line. A logical passage currently fits on one mapped page. The next steps cover cross-page positions, included-file origins and mixed-direction clusters. [Responsive editing roadmap](architecture/RESPONSIVE-EDITING.md)
+The bundled signature contains a minipage, optional break lengths and a bold local name macro. Editing that name changes its use site and preserves the original definition. Backspace can remove the break before the department line.
+
+Type in PDF supports long projects and uniquely mapped prose in literal project-local inputs. The app tracks the file with each editable range and mounts caret controls for painted pages. The native verifier compares tagged and ordinary builds in windows of four pages, including the raster, text geometry and supported hyperlinks. Save writes the affected source file. A selected passage must fit on one page, and a verified edit may move the passage to a later page. Object movement keeps its separate 20-page limit. Reused inputs with multiple rendered occurrences and unsupported source structures stay available in the source editor. [Responsive editing roadmap](architecture/RESPONSIVE-EDITING.md)
 
 Character edits that fit on a mapped line display a draft at the compiled baseline and leave the neighboring PDF lines in place. Edits that change line breaks or need more room use the multiline draft before TeX publishes the verified layout.
 
@@ -27,6 +29,7 @@ Run the packaged Windows pointer, typing, join, Undo and Save regression with No
 
 ```powershell
 node scripts/check-native-pdf-typing.mjs "C:\path\to\Texloom.exe"
+node scripts/check-native-pdf-typing.mjs "C:\path\to\Texloom.exe" --full-report
 ```
 
 The editor updates the affected draft on screen and batches edits before verification. A verification build still typesets the complete project. Page breaks, labels, generated lists, counters, and package code can affect later output after a local edit. A fragment compile would need evidence that the downstream output stays valid. Texloom’s existing repeated-build work reuses compiler identification and narrows dependency-check costs while preserving full build verification. [Technical report source](../research/report/sections/compile-cost.tex)

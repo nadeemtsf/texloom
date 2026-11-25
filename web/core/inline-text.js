@@ -35,23 +35,30 @@ export function inlineRows(lines, text, first = 0) {
   return null;
 }
 
-export function buildInlineIndex(view, flows, file, source, measure=null) {
-  const byLine = new Map(), byStart = new Map();
-  const lines = (view.pages || []).flatMap(page=>page.selectionReason ? [] : page.lines);
+export function buildInlineIndex(view, groups, sources, measure=null) {
+  const byLine = new Map(), bySource = new Map(), entries=[];
+  const lines = (view.pages || []).flatMap(page=>
+    ('inlineReason' in page?page.inlineReason:page.selectionReason)?[]:page.lines);
   const byInitial = new Map();
   for (const [index,line] of lines.entries()) {
     const initial = (ligatures[line.text?.[0]] || line.text || '').trimStart()[0];
     if (!byInitial.has(initial)) byInitial.set(initial,[]);
     byInitial.get(initial).push(index);
   }
-  const matches = flows.map(flow=>{
+  const match=flow=>{
     const result = [];
     for (const n of byInitial.get(flow.text.trimStart()[0]) || []) {
       const rows = inlineRows(lines,flow.text,n);
       if (rows && rows.every(row=>row.line.page===lines[n].page)) result.push({n,end:n+rows.length,rows});
     }
     return result;
+  };
+  const candidates=groups.flatMap(({file,primary,paragraphs})=>{
+    const options=match(primary);
+    if(options.length)return [{file,flow:primary,options}];
+    return paragraphs.map(flow=>({file,flow,options:match(flow)}));
   });
+  const matches=candidates.map(item=>item.options);
   // Reading order resolves repeated occurrences when the entire sequence has
   // a unique alignment. Keep ambiguous rendered copies out of the index.
   const earliest=[],latest=[];
@@ -66,22 +73,24 @@ export function buildInlineIndex(view, flows, file, source, measure=null) {
     latest[i]=last;
     if(last) upper=last.n;
   }
-  for (const [i,flow] of flows.entries()) {
+  for (const [i,{file,flow}] of candidates.entries()) {
     if (!earliest[i] || earliest[i]!==latest[i]) continue;
     const {rows}=earliest[i];
     const entry={file,kind:'source',start:flow.range[0],end:flow.range[1],content:flow.expected,
-      expected_source:source,text:flow.text,rows,page:rows[0].line.page};
-    byStart.set(entry.start,entry);
+      expected_source:sources[file],text:flow.text,rows,page:rows[0].line.page};
+    if(!bySource.has(file))bySource.set(file,new Map());
+    bySource.get(file).set(entry.start,entry);
+    entries.push(entry);
     for(const row of rows) {
       row.stops=measuredCaretStops(row.line,measure);
       byLine.set(row.line,{entry,row});
     }
   }
-  return {byLine,byStart};
+  return {byLine,bySource,entries};
 }
 
 export function findInlineFlow(view,policy) {
-  const entry=view.inlineIndex?.byStart.get(policy.start);
+  const entry=view.inlineIndex?.bySource.get(policy.file)?.get(policy.start);
   if(entry && entry.text===policy.text)
     return {page:view.pages.find(p=>p.number===entry.page),rows:entry.rows,entry};
   throw Error('The typeset result could not be matched to the edited passage.');

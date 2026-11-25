@@ -355,9 +355,9 @@ fn document_discard(
 }
 
 #[tauri::command]
-async fn inline_flows(source: String) -> Result<Vec<service::InlineFlowView>, String> {
-    let request = workspace_protocol::SourceControlsRequest { source };
-    background(move || service::inline_flows(&request.source)).await
+async fn inline_flows(main: String, sources: std::collections::BTreeMap<String,String>) -> Result<Vec<service::InlineFlowView>, String> {
+    let request = service::InlineProjectRequest { main, sources };
+    background(move || service::project_inline_flows(&request)).await
 }
 
 #[tauri::command]

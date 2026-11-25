@@ -206,10 +206,17 @@ fn groups(view: &Inspection) -> BTreeMap<Key<'_>, Vec<usize>> {
     groups
 }
 fn match_glyphs(a: &Inspection, b: &Inspection, dx: f64, dy: f64, identity: bool) -> Result<f64> {
+    match_glyphs_with_budget(a,b,dx,dy,identity,false)
+}
+fn match_glyphs_with_budget(a: &Inspection, b: &Inspection, dx: f64, dy: f64, identity: bool, per_page: bool) -> Result<f64> {
     require(a.glyphs.len() == b.glyphs.len(), "Glyph count changed")?;
+    if per_page&&identity&&a.glyphs.iter().zip(&b.glyphs).all(|(old,new)|
+        old.text==new.text&&old.page==new.page&&old.target==new.target&&old.bounds.near(new.bounds,0.0)) {
+        return Ok(0.0);
+    }
     let old = groups(a);
     let new = groups(b);
-    let mut cost = 0usize;
+    let mut costs = vec![0usize;if per_page{a.pages.len()}else{1}];
     require(
         old.keys().eq(new.keys()),
         "Text, page or target identity changed",
@@ -218,7 +225,8 @@ fn match_glyphs(a: &Inspection, b: &Inspection, dx: f64, dy: f64, identity: bool
     for (key, before) in &old {
         let after = &new[key];
         require(before.len() == after.len(), "Glyph multiplicity changed")?;
-        cost = cost
+        let page=if per_page{key.1}else{0};
+        costs[page] = costs[page]
             .checked_add(
                 before
                     .len()
@@ -226,7 +234,7 @@ fn match_glyphs(a: &Inspection, b: &Inspection, dx: f64, dy: f64, identity: bool
                     .ok_or("Matching budget overflow")?,
             )
             .ok_or("Matching budget overflow")?;
-        require(cost <= 2_000_000, "Ambiguous text exceeds matching budget")?;
+        require(costs[page] <= 2_000_000, "Ambiguous text exceeds matching budget")?;
         let mut remaining = after.clone();
         for &i in before {
             let g = &a.glyphs[i];
@@ -347,7 +355,12 @@ fn isolated(w: Window, page: usize, raster: &Raster, a: &Inspection, b: &Inspect
 /// raster shifts or bounded-resource exhaustion. No tolerances are supplied by
 /// the frontend. Identity requires complete same-renderer pixel equality.
 pub fn compare(a: &Inspection, b: &Inspection, operation: Operation) -> Result<Verified> {
-    compare_impl(a,b,operation,None)
+    compare_impl(a,b,operation,None,false)
+}
+/// The inline caller compares sealed link evidence before the usual
+/// exact pixel and geometry comparison of the same page window.
+pub fn compare_inline_probe(a: &Inspection, b: &Inspection) -> Result<Verified> {
+    compare_impl(a,b,Operation::Identity,None,true)
 }
 /// `prediction` is a separately inspected baseline whose selected PDF text
 /// objects were translated by the pinned worker. No candidate pixel is used to
@@ -358,14 +371,18 @@ pub fn compare_prediction(a:&Inspection,b:&Inspection,dx:f64,dy:f64,prediction:&
     require(a.pages.len()==prediction.pages.len(),"Prediction page count changed")?;
     match_glyphs(a,prediction,0.0,0.0,true)?;match_graphics(a,prediction)?;
     for (p,q) in a.pages.iter().zip(&prediction.pages){require(p.width==q.width&&p.height==q.height&&p.crop==q.crop&&p.rotation==q.rotation&&p.annotations==q.annotations,"Prediction page geometry changed")?;}
-    compare_impl(a,b,Operation::Displace{dx,dy},Some(prediction))
+    compare_impl(a,b,Operation::Displace{dx,dy},Some(prediction),false)
 }
-fn compare_impl(a: &Inspection, b: &Inspection, operation: Operation,prediction:Option<&Inspection>) -> Result<Verified> {
+fn compare_impl(a: &Inspection, b: &Inspection, operation: Operation,prediction:Option<&Inspection>,checked_links:bool) -> Result<Verified> {
     let pixels = validate(a)?;
     validate(b)?;
     require(a.pages.len() == b.pages.len(), "Page count changed")?;
     for (p, q) in a.pages.iter().zip(&b.pages) {
-        require(p.annotations==0&&q.annotations==0,"Annotations require a separate movement adapter")?;
+        if checked_links {
+            require(p.annotations==q.annotations,"Annotations changed in the inline probe")?;
+        }else{
+            require(p.annotations==0&&q.annotations==0,"Annotations require a separate movement adapter")?;
+        }
         require(
             (p.width - q.width).abs() <= EPSILON && (p.height - q.height).abs() <= EPSILON,
             "Page dimensions changed",
@@ -398,7 +415,7 @@ fn compare_impl(a: &Inspection, b: &Inspection, operation: Operation,prediction:
             "Target crosses physical pages",
         )?;
     }
-    let max_geometry_error_bp = match_glyphs(a, b, dx, dy, identity)?;
+    let max_geometry_error_bp = match_glyphs_with_budget(a,b,dx,dy,identity,checked_links)?;
     match_graphics(a, b)?;
     let object_count = a.glyphs.len() + b.glyphs.len() + a.graphics.len() + b.graphics.len();
     require(

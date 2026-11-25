@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
 import {once} from 'node:events';
-import {mkdir,mkdtemp,readFile,writeFile} from 'node:fs/promises';
+import {cp,mkdir,mkdtemp,readFile,readdir,writeFile} from 'node:fs/promises';
 import {createServer} from 'node:net';
 import {basename,dirname,join,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -122,12 +122,121 @@ async function save(file){
 async function setup(source,name){
   const directory=join(work,name);await mkdir(directory);
   const file=join(directory,'main.tex');await writeFile(file,source);
+  await openProject(file,name);
+  return file;
+}
+async function openProject(file,name){
   await button('projects');await until(control('project-dialog')+'.open','Projects dialog');
   await evaluate(control('project-path')+'.value='+JSON.stringify(file));
   await button('project-open-path');
   await until('!'+control('project-dialog')+'.open && '+control('project-name')+'.textContent==='+JSON.stringify(name),'project adoption');
   await until('document.querySelector(".line-hit")!==null && !'+control('compile')+'.disabled','initial PDF');
-  return file;
+}
+
+async function fullReport(){
+  const name='Full technical report',directory=join(work,name),main=join(directory,'main.tex');
+  await cp(join(repo,'research','report'),directory,{recursive:true,filter:path=>!path.endsWith('.ps1')});
+  const paths=(await readdir(directory,{recursive:true,withFileTypes:true}))
+    .filter(entry=>entry.isFile()).map(entry=>join(entry.parentPath,entry.name));
+  const snapshots=new Map();
+  for(const path of paths)snapshots.set(path,await readFile(path,'utf8'));
+  await openProject(main,name);
+  const count=await evaluate("document.querySelectorAll('#pages > [data-page]').length");
+  assert.ok(count>20,'The real report must exceed the previous edit limit');
+  assert.equal(await evaluate(`!!document.querySelector('[data-page="${count}"] .line-hit')`),false,
+    'The last page is still painted on demand');
+  const observations=[];
+  async function visibleTargets(page){
+    await evaluate(`document.querySelector('[data-page="${page}"]').scrollIntoView({block:'start'})`);
+    await until(`!!document.querySelector('[data-page="${page}"] .line-hit')`,'page '+page+' available for typing');
+    return evaluate(`[...document.querySelectorAll('[data-page="${page}"] [data-inline-source]')].map(hit=>
+      ({page:${page},file:hit.dataset.inlineSource,line:hit.ariaLabel.slice(13)}))`);
+  }
+  const early=(await visibleTargets(2)).find(item=>item.file==='sections/01-scope.tex'&&item.line.length>=50);
+  assert.ok(early,'The early report page has mapped prose in its first included section');
+  let late;
+  for(let page=21;page<=count&&!late;page++)
+    late=(await visibleTargets(page)).find(item=>item.file.startsWith('sections/')&&item.line.length>=50);
+  assert.ok(late,'Find mapped text in an included file beyond page 20');
+  for(const {page,file:partial,line} of [early,late]){
+    await visibleTargets(page);
+    const before=await lineRaster(line,false);
+    await clickLine(line,0.42);
+    assert.equal((await lineRaster(line,false))===before,true,'Caret leaves rendered text unchanged');
+    const badge='Qzx';
+    const started=performance.now();
+    await type(badge);
+    await waitFor(async()=>{
+      const {refused,published}=await evaluate(`({
+        refused:document.getElementById('selection-hint').textContent.includes('Could not verify')
+          ||document.getElementById('selection-hint').textContent.includes('could not verify'),
+        published:[...document.querySelectorAll('.line-hit')].some(hit=>hit.ariaLabel.includes(${JSON.stringify(badge)})
+          && hit.dataset.inlineSource===${JSON.stringify(partial)})
+      })`);
+      if(refused)throw Error(await evaluate(control('banner')+'.textContent'));
+      return published;
+    },'verified edited text on page '+page,180000);
+    const verifyMs=Math.round(performance.now()-started);
+    const file=join(directory,partial),saved=await save(file);
+    assert.equal(saved.split(badge).length,2,'One insertion was saved');
+    assert.equal(saved.replace(badge,''),snapshots.get(file),'Save preserves all other source text');
+    for(const [path,original] of snapshots)if(path!==file)assert.equal(await readFile(path,'utf8'),original,path+' stays untouched');
+    const editedPage=await evaluate(`[...document.querySelectorAll('.line-hit')]
+      .find(hit=>hit.ariaLabel.includes(${JSON.stringify(badge)})&&hit.dataset.inlineSource===${JSON.stringify(partial)})
+      .closest('[data-page]').dataset.page`);
+    const canvasSelector='[data-page="'+editedPage+'"] .canvasWrapper canvas';
+    const rasterHash=`(async()=>{
+      const canvas=document.querySelector(${JSON.stringify(canvasSelector)});
+      if(!canvas)return null;
+      const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(canvas.toDataURL()));
+      return [...new Uint8Array(hash)].join(',');
+    })()`;
+    const verified=await until(rasterHash,'verified edited page raster');
+    await evaluate("window.previousReportShell=document.querySelector('#pages > [data-page]')");
+    await button('compile');
+    await until("document.querySelector('#pages > [data-page]')!==window.previousReportShell && !!document.querySelector('#pages > [data-page]')",
+      'clean build publishes fresh PDF');
+    await visibleTargets(Number(editedPage));
+    assert.equal(await until(rasterHash,'clean edited page raster'),verified,'A fresh compile agrees with the verified edited page');
+    await button('undo');
+    await evaluate(`document.querySelector('[data-page="${page}"]').scrollIntoView({block:'start'})`);
+    await waitFor(()=>evaluate(`[...document.querySelectorAll('[data-page="${page}"] .line-hit')]
+      .some(hit=>hit.ariaLabel===${JSON.stringify('Select text: '+line)})`),'Undo refreshes page '+page,120000);
+    assert.equal(await save(file),snapshots.get(file));
+    observations.push({page,file:partial,line,caretKeepsPixels:true,saveAndUndo:true,cleanCompile:true,verifyMs});
+    console.log('Verified editing, Save and Undo in '+partial+' from page '+page);
+  }
+  await openProject(main,name);
+  for(const [path,original] of snapshots)assert.equal(await readFile(path,'utf8'),original);
+  await writeFile(join(work,'long-report-result.json'),JSON.stringify({executable,pages:count,observations},null,2));
+  console.log('Passed Windows editing checks on the complete report. Results in '+work);
+}
+
+async function verifyPageReflow(){
+  const line='A short paragraph starts here.';
+  const added=' This additional sentence is long enough to require another typeset line at this width.';
+  const source=[
+    '\\documentclass[12pt]{article}','\\usepackage[textheight=80pt,textwidth=250pt]{geometry}',
+    '\\pagestyle{empty}','\\raggedbottom','\\clubpenalty=10000','\\widowpenalty=10000','\\begin{document}',
+    ...Array.from({length:20},(_,index)=>'Ordinary body text on page '+(index+1)+'.\n\\newpage'),
+    'The anchor stays in place.','','\\vspace{49pt}',line,'\\end{document}',''
+  ].join('\n');
+  const file=await setup(source,'Paragraph moves after page twenty');
+  await evaluate("document.querySelector('[data-page=\"21\"]').scrollIntoView({block:'start'})");
+  await rendered(line);
+  await clickLine(line);
+  await key('End',35);
+  await type(added);
+  await waitFor(async()=>{
+    const {refused,moved}=await evaluate(`({
+      refused:document.getElementById('selection-hint').textContent.includes('could not verify'),
+      moved:[...document.querySelectorAll('[data-page="22"] .line-hit')].some(hit=>hit.ariaLabel.includes(${JSON.stringify(line)}))
+    })`);
+    if(refused)throw Error(await evaluate(control('banner')+'.textContent'));
+    return moved;
+  },'verified target moves to page 22',150000);
+  assert.equal(await save(file),source.replace(line,line+'\\'+added));
+  console.log('Verified a paragraph reflowing from page 21 onto a new page 22');
 }
 try{
   const target=await waitFor(async()=>{
@@ -144,6 +253,10 @@ try{
     if(message.error)call.reject(Error(message.error.message));else call.resolve(message.result);
   });
   await until('document.querySelector(".line-hit")!==null','startup page');
+  if(process.argv.includes('--full-report')){
+    await fullReport();
+    await verifyPageReflow();
+  }else{
   const sample=await readFile(join(repo,'resources','main.tex'),'utf8');
   const file=await setup(sample,'Macro signature');
   await evaluate(`window.caretTimes=[];document.addEventListener('pointerdown',()=>{window.pressTime=performance.now()},true);
@@ -228,10 +341,11 @@ try{
     pointerDownToFocusMs:timings};
   await writeFile(join(work,'result.json'),JSON.stringify(result,null,2));
   console.log('Passed Windows typing checks. Results in '+work);
+  }
 }catch(error){
   if(socket?.readyState===1){
     const status=await evaluate("['status','selection-hint','banner','toast'].map(id=>document.getElementById(id)?.textContent)");
-    console.error(status,await evaluate("Array.from(document.querySelectorAll('.line-hit'),e=>e.ariaLabel)"));
+    console.error(status,await evaluate("Array.from(document.querySelectorAll('.line-hit')).slice(0,12).map(e=>e.ariaLabel)"));
   }
   throw error;
 }finally{

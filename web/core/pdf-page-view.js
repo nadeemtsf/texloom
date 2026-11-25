@@ -81,7 +81,7 @@ export async function preparePagedPDF(pdfjs,pdf,result,{width,zoom=0,mode='selec
         optionalContentConfigPromise:pdf.getOptionalContentConfig?.({intent:'display'})});
       pageView.setPdfPage(page);
       const item={number:n,shell,pageView,lines:[],runs:[],paintedVersion:-1,paintedDpr:0,
-        selectionReason:readingOnly?'This long document supports reading and source editing. Layout verification is limited to 20 pages.':null};
+        selectionReason:readingOnly?'Use Type in PDF to edit mapped text in a long document. Object movement is limited to 20 pages.':null};
       pages.push(item);pageSizes.set(n,{width:base.width,height:base.height});syncSize(item);fragment.append(shell);
       if(geometry)await geometry(page,base,item,view);
     }
@@ -103,6 +103,7 @@ export async function preparePagedPDF(pdfjs,pdf,result,{width,zoom=0,mode='selec
       await Promise.all([pv.draw(),textReady]);check();
       if(atVersion!==version||ratio!==pixelRatio())throw Error('PDF rendering was superseded.');
       item.paintedVersion=atVersion;item.paintedDpr=ratio;item.shell.classList.remove('pending-page');cache.set(item.number,++clock);evict(item.number);
+      view.pagePainted?.(item);
       return item;
     }finally{bus.off('textlayerrendered',onText);cancel()}
   }
@@ -110,7 +111,7 @@ export async function preparePagedPDF(pdfjs,pdf,result,{width,zoom=0,mode='selec
     if(!readingOnly)return;
     const selection=document.getSelection?.();
     const candidates=[...cache].filter(([n])=>n!==keep&&!running.has(n)&&!visible.has(n)&&!pages[n-1].shell.contains(selection?.anchorNode)&&!pages[n-1].shell.contains(selection?.focusNode)).sort((a,b)=>a[1]-b[1]);
-    while(cache.size>6&&candidates.length){const [n]=candidates.shift(),item=pages[n-1];item.pageView.reset();item.paintedVersion=-1;item.shell.classList.add('pending-page');cache.delete(n)}
+    while(cache.size>6&&candidates.length){const [n]=candidates.shift(),item=pages[n-1];item.pageView.reset();item.paintedVersion=-1;item.shell.classList.add('pending-page');cache.delete(n);view.pageEvicted?.(item)}
   }
   function pump(){
     while(!disposed&&running.size<2&&queue.length){
@@ -162,7 +163,7 @@ export async function preparePagedPDF(pdfjs,pdf,result,{width,zoom=0,mode='selec
   }
   async function prepareSelectionProof(){
     check();
-    if(readingOnly)throw Error('This long document supports reading and source editing only.');
+    if(readingOnly)throw Error('Object layout proof is limited to 20 pages. Use Type in PDF to edit mapped text.');
     const atVersion=version,ratio=pixelRatio();
     // Zoom deliberately leaves offscreen bitmaps at their previous resolution.
     // An identity proof compares EVERY page, so first paint the entire bounded

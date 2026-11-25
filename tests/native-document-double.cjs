@@ -7,7 +7,7 @@ class NativeDocumentDouble {
   can_undo:!!this.history.length,can_redo:!!this.redo.length,selection:null,recovery:{draft_id:null,protected_revision:null,error:null}});}
  record(){this.history.push(this.snapshot());this.redo=[];}
  async invoke(name,args){
-  if(name==='inline_flows')return this.control.flows?.(args.source)??[];
+  if(name==='inline_flows')return this.control.flows?.(args.sources[args.main]).map(primary=>({file:args.main,primary,paragraphs:[]}))??[];
   if(name==='describe_text_edit'){const value=await this.control.describeText?.(args);return value?{spacing:[],...value}:value;}
   if(name==='preview_text_edit')return this.control.previewText?.(args);
   if(name==='resolve_text_selection')return {unit_id:'fixture-unit',first_line:1,last_line:1,plain_text:null,rectangles:[],...await this.control.resolve(args)};

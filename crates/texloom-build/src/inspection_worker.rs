@@ -185,6 +185,8 @@ struct Request<'a> {
     pdf_sha256: &'a str,
     target_marker: Option<&'a str>,
     target_translation: Option<[f64;2]>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    page_window: Option<[usize; 2]>,
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -217,6 +219,13 @@ struct View {
     target: Option<TargetView>,
     #[serde(default)]
     translation: Option<[f64;2]>,
+    #[serde(default)]
+    window: Option<WindowView>,
+}
+#[derive(Deserialize)]
+struct WindowView {
+    start: usize,
+    total: usize,
 }
 #[derive(Deserialize)]
 struct PageView {
@@ -225,6 +234,8 @@ struct PageView {
     crop: [f64; 4],
     rotation: i32,
     annotations: usize,
+    #[serde(default)]
+    links: Option<Vec<String>>,
 }
 #[derive(Deserialize)]
 struct GlyphView {
@@ -272,6 +283,9 @@ pub struct CheckedInspection {
     pub view: Inspection,
     pub pdf_sha256: String,
     pub request_sha256: String,
+    pub page_total: usize,
+    pub target_instances: usize,
+    pub links: Vec<Vec<String>>,
     _workspace: Workspace,
 }
 impl Worker {
@@ -300,13 +314,20 @@ impl Worker {
         marker: Option<&str>,
         cancel: &Cancellation,
     ) -> Result<CheckedInspection> {
-        self.inspect_with_translation(pdf,pdf_sha256,marker,None,cancel)
+        self.inspect_request(pdf,pdf_sha256,marker,None,None,cancel)
+    }
+    /// Inspect a bounded contiguous window. Page indices in the returned
+    /// inspection are relative to the window and the document count is sealed.
+    pub fn inspect_window(&self, pdf: &Path, sha: &str, marker: Option<&str>,
+                          start: usize, count: usize, cancel: &Cancellation) -> Result<CheckedInspection> {
+        require(start < 5000 && (1..=8).contains(&count), "Invalid inspection page window")?;
+        self.inspect_request(pdf,sha,marker,None,Some([start,count]),cancel)
     }
     pub fn predict_displacement(&self,pdf:&Path,pdf_sha256:&str,marker:&str,dx:f64,dy:f64,cancel:&Cancellation)->Result<CheckedInspection>{
         require(dx.is_finite()&&dy.is_finite()&&dx.abs()<=2000.0&&dy.abs()<=2000.0,"Invalid independent displacement")?;
-        self.inspect_with_translation(pdf,pdf_sha256,Some(marker),Some([dx,dy]),cancel)
+        self.inspect_request(pdf,pdf_sha256,Some(marker),Some([dx,dy]),None,cancel)
     }
-    fn inspect_with_translation(&self,pdf:&Path,pdf_sha256:&str,marker:Option<&str>,translation:Option<[f64;2]>,cancel:&Cancellation)->Result<CheckedInspection>{
+    fn inspect_request(&self,pdf:&Path,pdf_sha256:&str,marker:Option<&str>,translation:Option<[f64;2]>,window:Option<[usize;2]>,cancel:&Cancellation)->Result<CheckedInspection>{
         cancel.check()?;
         let _program = pin(&self.program, &self.program_sha256, 50_000_000)?;
         let _library = pin(&self.library, DLL_SHA256, 30_000_000)?;
@@ -327,6 +348,7 @@ impl Worker {
             pdf_sha256,
             target_marker: marker,
             target_translation:translation,
+            page_window:window,
         };
         let bytes = serde_json::to_vec(&request).map_err(fail)?;
         let request_sha256 = digest(&bytes);
@@ -377,7 +399,7 @@ impl Worker {
             });
         }
         let reply: Reply = serde_json::from_str(output.text.trim()).map_err(fail)?;
-        let view = read_receipt_with_translation(
+        let (view,page_total,target_instances,links) = read_receipt_for_request(
             &workspace,
             &reply,
             request_id,
@@ -385,6 +407,7 @@ impl Worker {
             pdf_sha256,
             marker,
             translation,
+            window,
             cancel,
         )?;
         // Recheck the input at completion; the native document gate must also
@@ -398,6 +421,9 @@ impl Worker {
             view,
             pdf_sha256: pdf_sha256.into(),
             request_sha256,
+            page_total,
+            target_instances,
+            links,
             _workspace: workspace,
         })
     }
@@ -412,9 +438,9 @@ fn read_receipt(
     marker: Option<&str>,
     cancel: &Cancellation,
 ) -> Result<Inspection> {
-    read_receipt_with_translation(workspace,reply,id,request_sha,pdf_sha,marker,None,cancel)
+    read_receipt_for_request(workspace,reply,id,request_sha,pdf_sha,marker,None,None,cancel).map(|result|result.0)
 }
-fn read_receipt_with_translation(workspace:&Workspace,reply:&Reply,id:&str,request_sha:&str,pdf_sha:&str,marker:Option<&str>,translation:Option<[f64;2]>,cancel:&Cancellation)->Result<Inspection>{
+fn read_receipt_for_request(workspace:&Workspace,reply:&Reply,id:&str,request_sha:&str,pdf_sha:&str,marker:Option<&str>,translation:Option<[f64;2]>,window:Option<[usize;2]>,cancel:&Cancellation)->Result<(Inspection,usize,usize,Vec<Vec<String>>)>{
     cancel.check()?;
     require(
         reply.schema == PROTOCOL
@@ -455,6 +481,12 @@ fn read_receipt_with_translation(workspace:&Workspace,reply:&Reply,id:&str,reque
             && raw.rasters.len() == raw.pages.len(),
         "Inspection object budget exceeded",
     )?;
+    let page_total = match (window, raw.window.as_ref()) {
+        (None, None) => raw.pages.len(),
+        (Some([start,count]), Some(m)) if m.start == start && (1..=5000).contains(&m.total)
+            && m.total > start && raw.pages.len() == count.min(m.total-start) => m.total,
+        _ => return Err("Inspection evidence belongs to a different page window".into()),
+    };
     let selected = raw
         .records
         .iter()
@@ -463,15 +495,23 @@ fn read_receipt_with_translation(workspace:&Workspace,reply:&Reply,id:&str,reque
     match (marker, raw.target.as_ref()) {
         (Some(name), Some(target)) => require(
             target.marker == name
-                && target.instances == 1
                 && target.glyphs == selected
-                && selected > 0
+                && ((target.instances == 1 && selected > 0)
+                    || (window.is_some() && target.instances == 0 && selected == 0))
                 && raw.records.iter().all(|g| g.target.is_some()),
             "Independent target identity is incomplete or mismatched",
         )?,
         (None, None) => require(selected == 0, "Unrequested target evidence")?,
         _ => return Err("Independent target identity is missing or unexpected".into()),
     }
+    let target_instances=raw.target.as_ref().map_or(0,|target|target.instances);
+    let links=if window.is_some(){
+        raw.pages.iter().map(|page|{
+            let links=page.links.as_ref().filter(|links|links.len()==page.annotations
+                && links.iter().all(|value|hash_string(value))).ok_or("Missing PDF link evidence")?;
+            Ok(links.clone())
+        }).collect::<Result<Vec<_>>>()?
+    }else{Vec::new()};
     let pages = raw
         .pages
         .into_iter()
@@ -557,7 +597,7 @@ fn read_receipt_with_translation(workspace:&Workspace,reply:&Reply,id:&str,reque
         rasters,
     };
     crate::verification::validate(&view).map_err(fail)?;
-    Ok(view)
+    Ok((view,page_total,target_instances,links))
 }
 
 #[cfg(test)]
@@ -655,6 +695,21 @@ mod tests {
             assert_eq!(result.glyphs[0].target, marked);
             assert_eq!(result.rasters[0].pixels.len(), 768);
         }
+    }
+    #[test]
+    fn a_page_window_is_bound_to_its_offset_total_and_links() {
+        let mut f=Fixture::new(false);
+        f.raw["window"]=json!({"start":24,"total":25});
+        f.raw["pages"][0]["links"]=json!([]);
+        f.publish();
+        let checked=|f:&Fixture,start|read_receipt_for_request(
+            &f.workspace,&f.reply,ID,REQUEST,PDF,None,None,Some([start,4]),&Cancellation::default());
+        assert_eq!(checked(&f,24).unwrap().1,25);
+        assert!(checked(&f,23).is_err());
+        assert!(f.checked().is_err());
+        f.raw["pages"][0]["annotations"]=json!(1);
+        f.publish();
+        assert!(checked(&f,24).is_err());
     }
     #[test]
     fn replayed_response_or_other_input_identity_is_rejected() {
