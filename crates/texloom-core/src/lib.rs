@@ -1,6 +1,7 @@
 //! Lossless LaTeX source edits. This crate intentionally has no dependencies.
 use std::ops::Range;
 mod objects;
+pub mod inline_flow;
 pub use objects::*;
 pub mod document;
 pub mod literal_text;

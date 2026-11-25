@@ -2,7 +2,7 @@
 use super::*;
 use crate::build_protocol::*;
 use crate::workspace_protocol::*;
-use crate::service::{Project,ProjectProfile,RecentProject,ImportedProject,ImportedImage,EncodingIssue,EncodingReview,EncodingChoice,AdapterRequest,AdapterControl,AdapterParameter,AdapterPlan,ObjectEditRequest,ObjectPlan,LiteralEditRequest,LiteralRunView,SpacingEditRequest,SpacingView,TextEditModel,VisualOperation};
+use crate::service::{Project,ProjectProfile,RecentProject,ImportedProject,ImportedImage,EncodingIssue,EncodingReview,EncodingChoice,AdapterRequest,AdapterControl,AdapterParameter,AdapterPlan,ObjectEditRequest,ObjectPlan,LiteralEditRequest,LiteralRunView,SpacingEditRequest,SpacingView,TextEditModel,VisualOperation,InlineOrigin,InlineFlowView};
 use crate::service::{
     CloseReply, DocumentSnapshot, EditorSelection, PreparedReply, RecoveryReply, RecoveryStatus,
     SelectionReply, SourceEditReply, CompileResult, MappedTextObject,
@@ -59,7 +59,7 @@ pub fn declarations() -> String {
         ResolveSelectionRequest,
         texloom_build::persistence::SaveState,texloom_build::persistence::PendingSave,texloom_build::recovery::Draft,texloom_build::recovery::Inventory,
         Project,ProjectProfile,RecentProject,ImportedProject,ImportedImage,EncodingIssue,EncodingReview,EncodingChoice,
-        AdapterRequest,AdapterControl,AdapterParameter,AdapterPlan,ObjectEditRequest,ObjectPlan,LiteralEditRequest,LiteralRunView,SpacingEditRequest,SpacingView,TextEditModel,VisualOperation,
+        AdapterRequest,AdapterControl,AdapterParameter,AdapterPlan,ObjectEditRequest,ObjectPlan,LiteralEditRequest,LiteralRunView,SpacingEditRequest,SpacingView,TextEditModel,VisualOperation,InlineOrigin,InlineFlowView,
         EmptyRequest,OpenProjectRequest,PathRequest,CreateProjectRequest,ProjectRequest,DraftRequest,SourceControlsRequest,AdapterCommandRequest,ObjectCommandRequest,TextModelRequest,TextPreviewRequest,EncodingPreviewRequest,ConvertEncodingRequest,CopyProjectRequest,SaveRecoveryRequest,DiscardSaveRequest,ProjectFileRequest,CloseProjectRequest,PrepareVisualRequest
     );
     text.push_str("export interface DocumentRequests {\n");
@@ -131,7 +131,7 @@ pub fn declarations() -> String {
         copy_document:CopyProjectRequest=>String,project_recoveries:ProjectRequest=>Vec<texloom_build::persistence::PendingSave>,recover_document:SaveRecoveryRequest=>Project,discard_document_recovery:DiscardSaveRequest=>Vec<texloom_build::persistence::PendingSave>,
         typing_drafts:EmptyRequest=>texloom_build::recovery::Inventory,open_typing_draft:DraftRequest=>Project,discard_typing_draft:DraftRequest=>texloom_build::recovery::Inventory,close_document:CloseProjectRequest=>CloseReply,mark_clean_exit:EmptyRequest=>(),
         document_snapshot:ProjectRequest=>DocumentSnapshot,document_prepare:PrepareVisualRequest=>PreparedReply,
-        describe_adapters:SourceControlsRequest=>Vec<AdapterControl>,plan_adapter:AdapterCommandRequest=>AdapterPlan,plan_text_object:ObjectCommandRequest=>ObjectPlan,describe_text_edit:TextModelRequest=>TextEditModel,preview_text_edit:TextPreviewRequest=>String,
+        inline_flows:SourceControlsRequest=>Vec<InlineFlowView>,describe_adapters:SourceControlsRequest=>Vec<AdapterControl>,plan_adapter:AdapterCommandRequest=>AdapterPlan,plan_text_object:ObjectCommandRequest=>ObjectPlan,describe_text_edit:TextModelRequest=>TextEditModel,preview_text_edit:TextPreviewRequest=>String,
     );
     text.push_str("}\n");
     text.lines().map(str::trim_end).collect::<Vec<_>>().join("\n") + "\n"

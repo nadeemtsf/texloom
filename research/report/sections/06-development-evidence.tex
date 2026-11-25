@@ -682,6 +682,18 @@ Save, reopening and an external build. Its evidence is scoped to this fixture
 and the tested engine configurations. Physical pointer interaction is
 checked separately.
 
+\paragraph{Character editing in a PDF line.}
+A development mode uses an appearance-preserving selection probe to
+identify consecutive plain paragraphs on a page during verification.
+Caret placement matches the displayed rows to existing source without
+running TeX. The draft uses logical offsets through wrapped rows and
+paragraph boundaries. Input remains visible while a pause schedules
+a whole-project verification build. A regression joins two identical
+paragraphs, preserves explicit Tab spacing in the source, and restores
+both paragraphs through Undo. This slice covers bounded ASCII text in the
+main file. Native input and mixed-direction caret behavior require
+separate evaluation.
+
 \subsection{Verified reorder within a run of source paragraphs}
 The PDF gesture exposes insertion cues above and below text lines. A
 drop must resolve to the edge of an independently identified destination

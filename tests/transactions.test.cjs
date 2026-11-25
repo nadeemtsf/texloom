@@ -7,6 +7,7 @@ async function setup({tracing=false,presentation=false}={}){
  const transactions=await import('../web/core/transactions.js');
  const {bindPDFScrolling}=await import('../web/core/pdf-scroll.js');
  const selectionProof=await import('../web/core/selection-proof.js');
+ const inlineText=await import('../web/core/inline-text.js');
  const {DocumentClient,editorText,sameSources}=await import('../web/core/document-client.js');
  const {TypingRecoveryController}=await import('../web/core/typing-recovery.js');
  const {CloseController}=await import('../web/core/close-controller.js');
@@ -24,7 +25,7 @@ async function setup({tracing=false,presentation=false}={}){
  const {applyTextInputAppearance,renderProtectedCommands}=await import('../web/core/text-input-appearance.js');
  const {positionDialogNear,clearDialogPosition}=await import('../web/core/dialog-anchor.js');
  const elements=new Map();
- function element(id){if(!elements.has(id))elements.set(id,{value:'',checked:false,disabled:false,open:false,textContent:'',style:{},classList:{add(){},remove(){},toggle(){}},setAttribute(){},replaceChildren(){},append(){},listeners:new Map(),addEventListener(name,fn){this.listeners.set(name,fn)},removeEventListener(name,fn){if(this.listeners.get(name)===fn)this.listeners.delete(name)},focus(){},showModal(){this.open=true},close(){this.open=false}});return elements.get(id)}
+ function element(id){if(!elements.has(id))elements.set(id,{id,value:'',checked:false,disabled:false,open:false,textContent:'',style:{},classList:{add(){},remove(){},toggle(){}},setAttribute(){},replaceChildren(){},append(){},listeners:new Map(),addEventListener(name,fn){this.listeners.set(name,fn)},removeEventListener(name,fn){if(this.listeners.get(name)===fn)this.listeners.delete(name)},contains(){return false},focus(){},showModal(){this.open=true},close(){this.open=false}});return elements.get(id)}
  const model={setValue(){},setEOL(){},getValue:()=>'',getOffsetAt:p=>p.column-1};
  const composition={};
  const editor={onDidChangeModelContent(fn){control.onEdit=fn},onDidChangeCursorPosition(){},onDidChangeCursorSelection(fn){control.onSelection=fn},addCommand(){},
@@ -35,7 +36,8 @@ async function setup({tracing=false,presentation=false}={}){
  const context=vm.createContext({
   createCompileInvoke,startPDFWorker,PreliminaryPreview,PreliminaryPDFSurface,renderPreliminaryPDF,acceptUnverifiedPreview,
   capturePDFScrollAnchor:()=>null,Channel:class{constructor(callback){this.onmessage=callback}},
-  ...transactions,...selectionProof,bindPDFScrolling,SourceHighlight,selectionSourceRange,applyTextInputAppearance,renderProtectedCommands,positionDialogNear,clearDialogPosition,validateSelectionProbe:(...args)=>control.prove?control.prove(...args):selectionProof.validateSelectionProbe(...args),DocumentClient,editorText,sameSources,TypingRecoveryController,CloseController,createWorkspaceInvoke,ProjectControls,PDFSearch,SetupHelp,installPerformanceDiagnostics,performanceOutcome,initialSnapshot:native.snapshot(),inside:()=>true,PDFPageView:class{},EventBus:class{},SimpleLinkService:class{},self:{},EditorWorker:class{},pdfWorkerURL:'test-worker',
+  InlineSurface:class { constructor(element){this.element=element}get value(){return this.element.value}initialize(entry){this.element.value=entry.text}position(){}select(i){this.element.range=[i,i]}insert(s){const el=this.element,pos=el.range[0];el.value=el.value.slice(0,pos)+s+el.value.slice(el.range[1]);this.select(pos+s.length);el.oninput({})}},
+  ...transactions,...selectionProof,...inlineText,bindPDFScrolling,SourceHighlight,selectionSourceRange,applyTextInputAppearance,renderProtectedCommands,positionDialogNear,clearDialogPosition,validateSelectionProbe:(...args)=>control.prove?control.prove(...args):selectionProof.validateSelectionProbe(...args),DocumentClient,editorText,sameSources,TypingRecoveryController,CloseController,createWorkspaceInvoke,ProjectControls,PDFSearch,SetupHelp,installPerformanceDiagnostics,performanceOutcome,initialSnapshot:native.snapshot(),inside:()=>true,PDFPageView:class{},EventBus:class{},SimpleLinkService:class{},self:{},EditorWorker:class{},pdfWorkerURL:'test-worker',
   CanvasController:class{clear(){}bind(){}selectObject(){}},
   monaco:{languages:{register(){},setMonarchTokensProvider(){},setLanguageConfiguration(){}},editor:{defineTheme(){},createModel:()=>model,create:()=>editor,EndOfLineSequence:{LF:0}},KeyMod:{CtrlCmd:1,Shift:2},KeyCode:{KeyS:1,Enter:2,KeyZ:3,KeyY:4}},
   pdfjs:{GlobalWorkerOptions:{}},structuredClone,crypto:require('node:crypto').webcrypto,
@@ -374,6 +376,109 @@ async function probeSetup(){
  t.control.prove=()=>({schema:1,build_id:'last-good',page:1,x:20,y:30,width:100,height:12,runs:[],lines:[]});
  return t;
 }
+test('typing directly on a proved PDF line retains newer keystrokes across verification',async()=>{
+ const t=await probeSetup();
+ const original='Original source';
+ const line={text:original,x:20,y:32,width:150,height:12,baseline:42,runs:[{size:12}]};
+ const viewport=t.elements.get('preview-scroll');
+ viewport.getBoundingClientRect=()=>({top:0,left:0,bottom:600,right:550,width:550});
+ viewport.scrollTop=viewport.scrollLeft=0;
+ let compiles=0;
+ t.control.compile=async()=>{compiles++;throw Error('Clicking the PDF must not run TeX')};
+ t.run('state.view').pages=[{number:1,lines:[line]}];
+ const input=t.run("$('inline-text')");input.hidden=true;
+ const shell={getBoundingClientRect:()=>({left:0,top:0,width:550,height:700})};
+ line.page=1;
+ const page={number:1,shell,lines:[line]};
+ t.run('state.view').pages=[page];
+ const {buildInlineIndex}=await import('../web/core/inline-text.js');
+ t.control.flows=source=>[{range:[0,source.length],text:source,expected:source}];
+ t.run('state.view').inlineIndex=buildInlineIndex(t.run('state.view'),t.control.flows(original),'main.tex',original);
+ t.run('openInlineEdit')(line,page,105);
+ assert.equal(compiles,0);
+ assert.deepEqual(input.range,[8,8]);
+ assert.equal(input.value,original);
+ assert.equal(input.hidden,false);
+ t.run('document').activeElement=input;
+ t.run("publishPrepared=(prepared,result)=>{state.pdf=prepared.pdf;state.result=result;state.view=prepared;state.compiled=state.revision}");
+ let candidateText,holdBuild,completeBuild;
+ t.control.plan=async request=>{
+   assert.equal(request.action,'edit_plain_flow');
+   assert.equal(request.plain,true);
+   assert.equal(request.inline_origin.page,1);
+   assert.deepEqual(Array.from(request.selection),[0,request.expected.length]);
+   candidateText=request.content;
+   return {sources:{'main.tex':candidateText,'custom.sty':'Style source'},file:'main.tex'};
+ };
+ t.control.compile=async()=>{
+   if(candidateText==='Original text')await new Promise(resolve=>{completeBuild=resolve;holdBuild()});
+   return {ok:true,build_id:'updated-pdf'};
+ };
+ t.control.prepare=async result=>({
+   result,pdf:{destroy:async()=>{}},scale:1,pageCount:1,pages:[{number:1,shell,lines:[{...line,text:candidateText}]}]
+ });
+ const compiling=new Promise(resolve=>{holdBuild=resolve});
+ input.value='Original text';
+ t.run('queueInlineEdit(inlineEditContext)');
+ assert.equal(t.native.sources['main.tex'],original);
+ const first=t.run('flushInlineEdit(inlineEditContext)');
+ await compiling;
+ input.value='Original texts';input.range=[14,14];
+ t.run('queueInlineEdit(inlineEditContext)');
+ completeBuild();
+ assert.equal(await first,true);
+ assert.equal(input.value,'Original texts');
+ assert.deepEqual(input.range,[14,14]);
+ assert.equal(input.hidden,false);
+ assert.equal(t.native.sources['main.tex'],'Original text');
+
+ assert.equal(await t.run('flushInlineEdit(inlineEditContext)'),true);
+ assert.equal(t.native.sources['main.tex'],'Original texts');
+ assert.equal(t.native.sources['custom.sty'],'Style source');
+ assert.equal(input.hidden,false);
+ assert.equal(t.native.history.length,2);
+
+ input.value='This line now wraps';
+ t.control.prepare=async result=>({result,pdf:{destroy:async()=>{}},scale:1,pageCount:1,pages:[{number:1,shell,lines:[line]}]});
+ assert.equal(await t.run('flushInlineEdit(inlineEditContext)'),false);
+ assert.equal(t.native.sources['main.tex'],'Original texts');
+ assert.equal(input.value,'This line now wraps');
+ t.run('closeInlineEdit(inlineEditContext)');
+ assert.equal(input.hidden,true);
+});
+
+test('published rows share logical offsets through paragraphs, wrapping and a font change',async()=>{
+ const {inlineRows,buildInlineIndex}=await import('../web/core/inline-text.js');
+ const text='A red word wraps here.\nBlue text follows.';
+ const lines=['A red word','wraps here.','Blue text follows.'].map(text=>({text,page:1}));
+ const rows=inlineRows(lines,text);
+ assert.deepEqual(rows.map(row=>[row.start,row.end]),[[0,10],[11,22],[23,41]]);
+ assert.equal(text[rows[2].start-1],'\n');
+ assert.equal(text[rows[1].start-1],' ');
+ const index=buildInlineIndex({pages:[{lines}]},[{text,expected:'formatted',range:[10,19]}],'main.tex','formatted');
+ assert.equal(index.byLine.get(lines[0]).entry,index.byLine.get(lines[2]).entry);
+ assert.equal(inlineRows([{text:'Good bye.'}],'Goodbye.')[0].end,8);
+ assert.equal(inlineRows([{text:'Unexpected'}],text),null);
+});
+
+test('repeated passages need a unique correspondence before caret placement',async()=>{
+ const {buildInlineIndex}=await import('../web/core/inline-text.js');
+ const lines=['Again.','Again.'].map(text=>({text,page:1}));
+ const view={pages:[{lines}]},first={text:'Again.',range:[0,6],expected:'Again.'};
+ assert.equal(buildInlineIndex(view,[first],'main.tex','').byLine.size,0);
+ const second={...first,range:[20,26]};
+ assert.equal(buildInlineIndex(view,[first,second],'main.tex','').byLine.get(lines[1]).entry.start,20);
+});
+
+test('a rendered line without matching source starts no mapping or compilation',async()=>{
+ const t=await probeSetup();
+ const line={text:'Generated text',runs:[{size:12}]},page={number:1,lines:[line]};
+ t.run('state.view').pages=[page];
+ t.run('openInlineEdit')(line,page,30);
+ assert.match(t.elements.get('toast').textContent,/no unique editable source/);
+ assert.equal(t.native.pending.size,0);assert.equal(t.native.history.length,0);
+});
+
 test('paragraph selection uses an anchored probe without committing source, history or the displayed PDF',async()=>{
  const t=await probeSetup();let finish,destroyed=false;t.control.prepare=()=>new Promise(r=>finish=r);
  const plan=t.control.plan;

@@ -577,12 +577,97 @@ fn direct_text_plans_keep_packages_out_of_the_candidate_and_refuse_stale_text() 
     assert_eq!(plan.sources["custom.sty"], "% Keep me");
     assert_eq!(plan.sources.len(), 2);
     assert!(plan.before_probe.unwrap()["main.tex"].contains("\\TexloomObject"));
-    assert!(plan.after_probe["main.tex"].contains("\\TexloomObject"));
+    assert!(plan.after_probe.unwrap()["main.tex"].contains("\\TexloomObject"));
     request.expected = Some("Stale text".into());
     assert!(visual::plan_direct_text(&request).is_err());
     request.expected = Some(content.into());
     request.dx = Some(1.0);
     assert!(visual::plan_direct_text(&request).is_err());
+}
+
+#[test]
+fn inline_origin_rejects_overlapping_unrelated_occurrences() {
+    let first = verification::Glyph {
+        text: "R".into(), page: 0, target: true,
+        bounds: verification::Rect { x: 12.0, y: 20.0, width: 6.0, height: 11.0 },
+    };
+    let mut other = first.clone();
+    other.target = false;
+    other.bounds.y += 15.0;
+    let mut view = Inspection { pages: vec![], glyphs: vec![first, other], graphics: vec![], rasters: vec![] };
+    let origin = visual::InlineOrigin { page: 1, x: 11.5, y: 24.0 };
+    assert!(verify_inline_origin(&view, &origin).is_ok());
+    let wrong_line = visual::InlineOrigin { y: 39.0, ..origin.clone() };
+    assert!(verify_inline_origin(&view, &wrong_line).is_err());
+    view.glyphs[1].bounds.y = 21.0;
+    view.glyphs[1].bounds.x = 12.5;
+    assert!(verify_inline_origin(&view, &origin).unwrap_err().contains("overlaps"));
+}
+
+
+#[test]
+#[ignore = "requires installed pdfLaTeX, XeLaTeX, LuaLaTeX and the pinned Windows verifier"]
+fn inline_caret_real_engine_workflow() {
+    let line = "Change red text.";
+    let source = format!("\\documentclass{{article}}\n\\pagestyle{{empty}}\n\\begin{{document}}\n{line}\n\n{line}\n\\end{{document}}\n");
+    let marker = "selection-1a2b3c4d";
+    for engine in ["pdflatex", "xelatex", "lualatex"] {
+        let mut f = Fixture::new(&source);
+        prepare_test_verifier(&mut f);
+        let path = f.root.join("project/main.tex").to_string_lossy().into_owned();
+        let project = f.backend.open_project_with_profile(Some(path.clone()), Some(ProjectProfile {
+            schema: 1, main: "main.tex".into(), engine: engine.into(),
+        })).unwrap();
+        let id = &project.id;
+        let baseline = f.backend.compile_document(id, 0, None, None, 1).unwrap();
+        assert!(baseline.ok && baseline.verification_eligible, "{engine}: {}", baseline.log);
+        let start = source.find(line).unwrap();
+        let end = source.rfind(line).unwrap() + line.len();
+        let original = &source[start..end];
+        let mut request: ObjectEditRequest = serde_json::from_value(json!({
+            "sources":project.sources, "main":"main.tex", "file":"main.tex",
+            "action":"probe_paragraph", "id":marker, "selection":[start,end], "expected":original,
+        })).unwrap();
+        let planned = visual::plan_object_edit(request.clone()).unwrap();
+        let token = f.backend.document_prepare_visual(id, 0, planned.sources, &baseline.build_id, None).unwrap().token;
+        let probe = f.backend.compile_document(id, 0, Some(&token), None, 2).unwrap();
+        let marked = f.backend.layout_build(&probe.build_id).unwrap();
+        let inspected = f.backend.inspect_layout(&marked, Some(&format!("Texloom_{marker}")), &Cancellation::default()).unwrap();
+        let starts: Vec<_> = inspected.view.glyphs.iter().filter(|glyph| glyph.text == "C" && glyph.target).collect();
+        assert_eq!(starts.len(), 2, "{engine} did not mark both paragraphs");
+        assert!(starts[0].bounds.y < starts[1].bounds.y, "{engine} reversed the paragraph order");
+        let points = starts.iter().map(|glyph| SelectionPoint {
+            x: glyph.bounds.x + 15.0, y: glyph.bounds.y + glyph.bounds.height / 2.0,
+        }).collect();
+        let mapped = f.backend.resolve_text_selection(id, 0, &baseline.build_id, 1, points, 0).unwrap();
+        assert_eq!(mapped.kind, "group", "{engine} did not resolve the page text as one run");
+        assert_eq!(mapped.content, original, "{engine} mapped a different source range");
+        f.backend.document_discard(id, &token).unwrap();
+        assert_eq!(f.backend.document_snapshot(id).unwrap().sources, sources(&source));
+
+        request.action = "edit_plain_flow".into();
+        let bounds = starts[0].bounds;
+        request.inline_origin = Some(visual::InlineOrigin { page: 1, x: bounds.x, y: bounds.y + bounds.height / 2.0 });
+        let wrong_row = visual::InlineOrigin { page: 1, x: bounds.x, y: starts[1].bounds.y };
+        assert!(verify_inline_origin(&inspected.view, &wrong_row).is_err());
+        request.id = "inline-caret-edit".into();
+        let joined = format!("{line}\t{line}");
+        request.content = Some(joined);
+        request.plain = true;
+        let mut expected = source.clone();
+        expected.replace_range(start..end, &format!(r"{line}\mbox{{\ \ \ \ }}{line}"));
+        let planned = visual::plan_object_edit(request.clone()).unwrap();
+        assert_eq!(planned.sources, sources(&expected));
+        let prepared = f.backend.document_prepare_visual(
+            id, 0, planned.sources, &baseline.build_id, Some(VisualOperation::Text { request }),
+        ).unwrap();
+        let result = f.backend.compile_document(id, 0, Some(&prepared.token), None, 3).unwrap();
+        let committed = f.backend.document_commit(id, &prepared.token, &result.build_id).unwrap();
+        assert_eq!(committed.sources, sources(&expected));
+        assert_eq!(fs::read_to_string(&path).unwrap(), source);
+        assert_eq!(f.backend.document_history(id, committed.revision, false).unwrap().sources, sources(&source));
+        println!("{engine}: source range, origin check, join with Tab spacing, and Undo");
+    }
 }
 
 #[test]
@@ -944,5 +1029,80 @@ fn later_page_paragraph_real_engine_workflow() {
             sources(&expected),
         );
         println!("{engine}: selected the first paragraph on page two and reordered it below its neighbor");
+    }
+}
+
+#[test]
+#[ignore = "requires installed pdfLaTeX, XeLaTeX, LuaLaTeX and the pinned Windows verifier"]
+fn structured_inline_caret_shipped_real_engine_workflow() {
+    let source = crate::service::EXAMPLE;
+    for engine in ["pdflatex", "xelatex", "lualatex"] {
+        let mut fixture = Fixture::new(source);
+        prepare_test_verifier(&mut fixture);
+        let path = fixture.root.join("project/main.tex").to_string_lossy().into_owned();
+        let project = fixture.backend.open_project_with_profile(Some(path.clone()), Some(ProjectProfile {
+            schema: 1, main: "main.tex".into(), engine: engine.into(),
+        })).unwrap();
+        let backend = &fixture.backend;
+        let id = &project.id;
+        let mut expected = source.to_owned();
+        for revision in 0..5 {
+            let (prefix, first_glyph) = if revision < 2 { ("Best regards,", "B") }
+                else if revision == 2 { ("Unchanged heading.", "U") }
+                else { ("The paragraph after", "T") };
+            let current = backend.document_snapshot(id).unwrap();
+            let flows = visual::inline_flows(&current.sources["main.tex"]).unwrap();
+            let flow = flows.iter().find(|flow| flow.text.starts_with(prefix)).unwrap();
+            let draft = match revision {
+                0 => {
+                    assert_eq!(flow.text, "Best regards,\nDr. Example Researcher\nHead of the Example Department\nExample University");
+                    expected = expected.replace(r"\textbf{\PersonName}", r"\textbf{Dr. Sample Researcher}");
+                    flow.text.replace("Dr. Example", "Dr. Sample")
+                }
+                1 => {
+                    expected = expected.replace("\\\\[2pt]\nHead", "Head");
+                    flow.text.replace("Researcher\nHead", "ResearcherHead")
+                }
+                2 => {
+                    expected = expected.replace("Unchanged heading.", r"Unchanged heading.\ \&\ \textbackslash{}");
+                    flow.text.replace("Unchanged heading.", "Unchanged heading. & \\")
+                }
+                3 => {
+                    expected = expected.replace(&flow.expected, &format!("{}\n\n\\mbox{{}}\n\nCafé.", flow.expected));
+                    format!("{}\n\nCafé.", flow.text)
+                }
+                _ => {
+                    expected = expected.replace(&flow.expected, r"\mbox{}");
+                    String::new()
+                }
+            };
+            let baseline = backend.compile_document(id, revision, None, None, revision * 2 + 1).unwrap();
+            let artifact = backend.layout_build(&baseline.build_id).unwrap();
+            let inspection = backend.inspect_layout(&artifact, None, &Cancellation::default())
+                .unwrap_or_else(|error| panic!("{engine} revision {revision} baseline inspection: {error}"));
+            let glyph = inspection.view.glyphs.iter().find(|glyph| glyph.text == first_glyph).unwrap();
+            let request: ObjectEditRequest = serde_json::from_value(json!({
+                "sources": current.sources, "main":"main.tex", "file":"main.tex", "action":"edit_plain_flow",
+                "id":"structured-inline", "selection":flow.range, "expected":flow.expected, "content":draft, "plain":true,
+                "inline_origin":{"page":glyph.page+1, "x":glyph.bounds.x, "y":glyph.bounds.y+glyph.bounds.height/2.0},
+            })).unwrap();
+            let planned = visual::plan_object_edit(request.clone()).unwrap();
+            // The source may express spaces differently, but the edit cannot introduce TeX commands.
+            if revision != 2 { assert_eq!(planned.sources, sources(&expected)); }
+            else {
+                assert!(planned.sources["main.tex"].contains(r"heading.\ \& \textbackslash{}"));
+                expected = planned.sources["main.tex"].clone();
+            }
+            let prepared = backend.document_prepare_visual(
+                id, revision, planned.sources, &baseline.build_id, Some(VisualOperation::Text { request }),
+            ).unwrap();
+            let candidate = backend.compile_document(id, revision, Some(&prepared.token), None, revision * 2 + 2)
+                .unwrap_or_else(|error| panic!("{engine} revision {revision} {error}"));
+            let committed = backend.document_commit(id, &prepared.token, &candidate.build_id).unwrap();
+            assert_eq!(committed.sources, sources(&expected));
+            assert_eq!(fs::read_to_string(&path).unwrap(), source);
+        }
+        assert_eq!(backend.document_history(id, 5, false).unwrap().revision, 6);
+        println!("{engine}: shipped signature macro, hard-break join, literal punctuation, blank lines, and deletion");
     }
 }

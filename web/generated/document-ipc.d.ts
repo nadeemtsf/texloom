@@ -138,7 +138,7 @@ export type AdapterParameter = { key: string, label: string, value: string, reas
 
 export type AdapterPlan = { sources: { [key in string]?: string }, file: string, };
 
-export type ObjectEditRequest = { sources: { [key in string]?: string }, main: string, file: string, action: string, id: string, selection: [number, number] | null, expected: string | null, dx: number | null, dy: number | null, content: string | null, plain: boolean, literal_edits: Array<LiteralEditRequest> | null, spacing_edits: Array<SpacingEditRequest> | null, neighbor: [number, number] | null, before_neighbor: boolean, };
+export type ObjectEditRequest = { sources: { [key in string]?: string }, main: string, file: string, action: string, id: string, selection: [number, number] | null, expected: string | null, dx: number | null, dy: number | null, content: string | null, plain: boolean, literal_edits: Array<LiteralEditRequest> | null, spacing_edits: Array<SpacingEditRequest> | null, neighbor: [number, number] | null, before_neighbor: boolean, inline_origin: InlineOrigin | null, };
 
 export type ObjectPlan = { sources: { [key in string]?: string }, object_id: string, file: string, operation: string, };
 
@@ -153,6 +153,10 @@ export type SpacingView = { id: number, value: number | null, unit: string, sour
 export type TextEditModel = { runs: Array<LiteralRunView>, protected: Array<string>, spacing: Array<SpacingView>, };
 
 export type VisualOperation = { "kind": "adapter", request: AdapterRequest, } | { "kind": "text", request: ObjectEditRequest, };
+
+export type InlineOrigin = { page: number, x: number, y: number, };
+
+export type InlineFlowView = { range: [number, number], expected: string, text: string, };
 
 export type EmptyRequest = Record<string, never>;
 
@@ -270,6 +274,7 @@ export interface WorkspaceRequests {
   mark_clean_exit: EmptyRequest;
   document_snapshot: ProjectRequest;
   document_prepare: PrepareVisualRequest;
+  inline_flows: SourceControlsRequest;
   describe_adapters: SourceControlsRequest;
   plan_adapter: AdapterCommandRequest;
   plan_text_object: ObjectCommandRequest;
@@ -299,6 +304,7 @@ export interface WorkspaceReplies {
   mark_clean_exit: null;
   document_snapshot: { revision: number, sources: { [key in string]?: string }, main: string, engine: string, can_undo: boolean, can_redo: boolean, selection: EditorSelection | null, recovery: RecoveryStatus, };
   document_prepare: { token: string, revision: number, };
+  inline_flows: Array<{ range: [number, number], expected: string, text: string, }>;
   describe_adapters: Array<{ id: number, kind: string, label: string, line: number, parameters: Array<AdapterParameter>, reason: string | null, }>;
   plan_adapter: { sources: { [key in string]?: string }, file: string, };
   plan_text_object: { sources: { [key in string]?: string }, object_id: string, file: string, operation: string, };

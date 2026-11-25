@@ -355,6 +355,12 @@ fn document_discard(
 }
 
 #[tauri::command]
+async fn inline_flows(source: String) -> Result<Vec<service::InlineFlowView>, String> {
+    let request = workspace_protocol::SourceControlsRequest { source };
+    background(move || service::inline_flows(&request.source)).await
+}
+
+#[tauri::command]
 async fn plan_text_object(request: ObjectEditRequest) -> Result<ObjectPlan, String> {
     let request=workspace_protocol::ObjectCommandRequest{request};background(move||service::visual_plan(request.request)).await
 }
@@ -455,6 +461,7 @@ pub fn run() {
             source_from_pdf,
             pdf_from_source,
             plan_text_object,
+            inline_flows,
             describe_text_edit,
             preview_text_edit,
             resolve_text_selection

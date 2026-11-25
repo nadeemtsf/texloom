@@ -26,6 +26,8 @@ import {TypingRecoveryController} from './core/typing-recovery.js';
 import {CloseController} from './core/close-controller.js';
 import draftRecoveryEnabled from './draft-recovery.json';
 import {validateSelectionProbe} from './core/selection-proof.js';
+import {buildInlineIndex,caretOffset} from './core/inline-text.js';
+import {InlineSurface} from './core/inline-surface.js';
 import {createWorkspaceInvoke} from './core/workspace-protocol.js';
 import {ProjectControls} from './core/project-controls.js';
 import {PDFSearch} from './core/pdf-search.js';
@@ -74,8 +76,10 @@ const state={
   canUndo:false,canRedo:false,opening:false,mutating:false,composing:false,
   buildEpoch:0,cancelRequested:false,
   recovery:null,restoredDirty:false,
-  busy:false,pending:false,previewZooming:false,zoom:0,mode:'select',compileTimer:null,renderSerial:0,renderAbort:null,dialog:null,compileApproved:false
+  busy:false,pending:false,previewZooming:false,zoom:0,mode:'inline',compileTimer:null,renderSerial:0,renderAbort:null,dialog:null,compileApproved:false
 };
+let inlineEditContext=null,inlineTransaction=null;
+const inlineSessions=new Set();
 // Dedicated keys follow native history even when setValue clears Monaco's stack.
 const undoContext=editor.createContextKey('texloomCanUndo',false);
 const redoContext=editor.createContextKey('texloomCanRedo',false);
@@ -104,10 +108,11 @@ const pdfSearch=new PDFSearch({document,getView:()=>preliminary?.visible?null:st
 const canvas=new CanvasController({
   diagnostics,
   getSession:()=>state,
-  resolve:args=>resolveSourceSelection(args),
+  resolve:resolveSourceSelection,
   move:(selection,dx,dy,trace)=>moveText(selection,dx,dy,trace),
   reorder:(selection,destination)=>reorderText(selection,destination),
   edit:selection=>editText(selection),
+  inlineEdit:openInlineEdit,
   selected:selection=>showObjectInspector(selection),
   notify:text=>toast(text)
 });
@@ -137,7 +142,7 @@ function acceptDocument(snapshot){
   state.recovery=snapshot.recovery??state.recovery;
   status();updateControls();
 }
-function editorReadOnly(){editor.updateOptions({readOnly:state.opening||state.mutating||state.saving||!!state.client?.error});}
+function editorReadOnly(){editor.updateOptions({readOnly:state.opening||state.mutating||state.saving||!!state.client?.error||!!inlineEditContext});}
 function syncFailed(error){
   preliminary?.clear();
   editorReadOnly();
@@ -170,7 +175,8 @@ function fresh(){return !!state.result&&state.result.verification_eligible!==fal
 function canExport(){return !!state.project&&!!state.client&&!state.busy&&!state.opening&&!state.mutating&&!state.composing&&!state.saving&&!state.client.error}
 function updateControls(){
   typingRecovery?.renderProtection();
-  const ready=fresh(),object=ready&&!!state.objectSelection;
+  const inlinePending=hasInlineDrafts();
+  const ready=fresh()&&!inlinePending,object=ready&&!!state.objectSelection;
   for(const id of ['add-text','show-pdf'])$(id).disabled=!ready;
   for(const id of ['object-apply','object-edit','object-source'])$(id).disabled=!object;
   const destinations=object?canvas.reorderDestinations?.(state.objectSelection)||[]:[];
@@ -179,12 +185,12 @@ function updateControls(){
   $('object-detach').disabled=!object||state.objectSelection?.kind!=='object';
   $('object-reset').disabled=!object||state.objectSelection?.kind!=='object'||(!state.objectSelection.dx&&!state.objectSelection.dy);
   $('compile').disabled=state.busy||!!state.saving||!!state.client?.error;
-  $('save').disabled=!!state.saving||state.busy||state.composing||!!state.client?.error;
-  $('export').disabled=!canExport();
+  $('save').disabled=!!state.saving||state.busy&&!inlineTransaction||state.composing||!!state.client?.error;
+  $('export').disabled=!canExport()||inlinePending;
   $('open').disabled=!!state.saving||state.mutating||state.opening;
-  for(const id of ['projects','layout-controls','import-image'])$(id).disabled=state.busy||state.composing||state.mutating||state.opening||!!state.saving;
-  $('engine').disabled=!!state.saving||state.mutating||!!state.client?.error;
-  $('main-file').disabled=!!state.saving||state.mutating||!!state.client?.error;
+  for(const id of ['projects','layout-controls','import-image'])$(id).disabled=inlinePending||state.busy||state.composing||state.mutating||state.opening||!!state.saving;
+  $('engine').disabled=inlinePending||!!state.saving||state.mutating||!!state.client?.error;
+  $('main-file').disabled=inlinePending||!!state.saving||state.mutating||!!state.client?.error;
   $('cancel-compile').disabled=!state.busy||state.mutating;
   $('undo').disabled=!state.canUndo||state.mutating||state.saving||state.composing||!!state.client?.error;
   $('redo').disabled=!state.canRedo||state.mutating||state.saving||state.composing||!!state.client?.error;
@@ -194,10 +200,11 @@ function updateControls(){
   const label=Number.isFinite(seconds)&&seconds>=0?`Last compile ${seconds.toFixed(2)} s`:'';
   if(timing.textContent!==label)timing.textContent=label;
   $('pages').classList.toggle('stale',state.revision!==state.compiled||state.busy);
-  $('selection-hint').textContent=state.mode==='read'?'Drag over text to highlight and copy it.':
+  $('selection-hint').textContent=inlineEditContext?.error||(state.mode==='read'?'Drag over text to highlight and copy it.':
+    state.mode==='inline'?'Click in the PDF text to type.':
     state.result&&!state.result.objects?.length?
       'Click text to select it. Shift-click or draw a box for a group.':
-      'Select text or an object. Drag its frame; double-click to edit.';
+      'Select text or an object. Drag its frame; double-click to edit.');
 }
 function sourceChanged(revision){
   state.revision=revision??state.revision+1;canvas.clear();status();scheduleCompile();updateControls();
@@ -317,6 +324,7 @@ function renderFiles(){
   $('main-file').value=state.project.main;$('engine').value=state.engine;
 }
 async function openProject(path=null,supplied=null,{compileOnOpen=false}={}){
+  if(inlineEditContext&&!await finishInlineEdit())return;
   if(state.opening||(!supplied&&(state.busy||state.saving||state.mutating||state.composing)))return toast('Wait for the current operation before opening another project.');
   state.opening=true;editorReadOnly();updateControls();
   let client=null,project=null;
@@ -376,6 +384,7 @@ async function openProject(path=null,supplied=null,{compileOnOpen=false}={}){
   await compile();
 }
 async function saveProject(){
+  if(inlineEditContext&&!await finishInlineEdit())return;
   if(!state.project||state.saving||state.opening||state.mutating||state.composing)return;
   if(state.busy)return toast('Wait for the current compilation before saving.');
   state.saving=true;editorReadOnly();updateControls();
@@ -525,17 +534,24 @@ async function resolveSourceSelection({buildId,page,points,hits,trace=null}){
     throw lastError||new Error('This text could not be mapped safely. Use source editing.');
   }finally{finishJob()}
 }
-function prepareResult(result,workerStartup){
-  return preparePDFView(pdfViewLibrary,result,{width:$('preview-scroll').clientWidth,zoom:state.zoom,mode:state.mode,lazy:true,workerStartup});
+async function prepareResult(result,workerStartup,sources=state.sources){
+  const file=state.project.main,source=sources[file];
+  // Prepare the character map alongside PDF painting, before the page accepts input.
+  const projection=invoke('inline_flows',{source}).catch(error=>({error:message(error)}));
+  const view=await preparePDFView(pdfViewLibrary,result,{width:$('preview-scroll').clientWidth,zoom:state.zoom,mode:state.mode,lazy:true,workerStartup});
+  const flows=await projection;
+  view.inlineIndex=buildInlineIndex(view,Array.isArray(flows)?flows:[],file,source,document.createElement('canvas').getContext?.('2d'));
+  if(flows.error)view.inlineIndex.error=flows.error;
+  return view;
 }
-function publishPrepared(prepared,result){
+function publishPrepared(prepared,result,{preserveAnchor=false}={}){
   preliminary?.clear();
   const previous=state.pdf;
   state.renderSerial++;state.renderAbort?.abort();
   state.view?.dispose?.();pdfSearch.reset();
   state.pdf=prepared.pdf;state.result={...result,pdf:[]};state.compiled=state.revision;
   prepared.result=state.result;prepared.mode=state.mode;state.view=prepared;state.previewZooming=false;surfaceElements.pages.classList.remove('zooming');
-  publishPDFView(prepared,surfaceElements);canvas.bind(prepared);
+  publishPDFView(prepared,surfaceElements,{preserveAnchor});canvas.bind(prepared);
   $('fit').textContent=state.zoom?Math.round(prepared.scale*100)+'%':'Fit';
   $('log').textContent=result.log;$('banner').classList.add('hidden');
   renderDiagnostics(result.diagnostics||[]);
@@ -549,7 +565,7 @@ function publishPrepared(prepared,result){
 }
 async function compile(reason='manual'){
   if(!state.project)return;clearTimeout(state.compileTimer);
-  if(state.composing||state.saving||state.opening||state.mutating)return;
+  if(state.composing||state.saving||state.opening||state.mutating||inlineEditContext)return;
   if(reason==='auto'&&!$('auto').checked)return;
   if(!state.compileApproved&&reason!=='manual')return;
   if(reason==='manual')state.compileApproved=true;
@@ -563,7 +579,7 @@ async function compile(reason='manual'){
   // Flushing yields to project/trust, cancellation, history and save actions.
   // A request made for the old client must never compile the newly opened one.
   if(state.client!==client||state.buildEpoch!==epoch||state.opening||state.saving||state.mutating||state.composing||
-    !state.compileApproved||reason==='auto'&&!$('auto').checked){trace?.finish('superseded');return}
+    inlineEditContext||!state.compileApproved||reason==='auto'&&!$('auto').checked){trace?.finish('superseded');return}
   if(state.busy){trace?.finish('superseded');if(reason==='manual'||!state.pending)state.pending=reason;return}
   const identity=sessionIdentity(state),revision=state.revision;state.busy=true;state.cancelRequested=false;updateControls();
   let prepared=null,workerStartup=null;
@@ -611,7 +627,7 @@ async function commitSources(sources,{file=state.file,policy=null,operation=null
     nativeCandidate=await client.prepare(sources,state.result.build_id,operation);
     trace?.mark('native-prepared');
     const candidate=await stageCandidate({revision:nativeCandidate.revision,identity:expectedIdentity,getIdentity:()=>sessionIdentity(state),
-      compile:()=>client.compile(nativeCandidate.token),prepare:prepareResult,policy,previousPageCount:state.view.pageCount,requireVerified:true,verify:result=>client.verify(result.build_id),trace});
+      compile:()=>client.compile(nativeCandidate.token),prepare:result=>prepareResult(result,null,sources),policy,previousPageCount:state.view.pageCount,requireVerified:true,verify:result=>client.verify(result.build_id),trace});
     prepared=candidate.prepared;
     if(sessionIdentity(state)!==expectedIdentity)throw new StaleCandidate();
     state.mutating=true;editorReadOnly();updateControls();
@@ -619,7 +635,8 @@ async function commitSources(sources,{file=state.file,policy=null,operation=null
     await client.commit(nativeCandidate.token,candidate.result.build_id);
     committed=true;
     trace?.mark('native-committed');
-    state.file=file;state.lastHistory=0;syncEditor();publishPrepared(prepared,candidate.result);prepared=null;
+    state.file=file;state.lastHistory=0;syncEditor();
+    publishPrepared(prepared,candidate.result,{preserveAnchor:policy?.kind==='inline-text'});prepared=null;
     trace?.mark('published');
     return true;
   }catch(error){
@@ -664,25 +681,26 @@ async function commitSources(sources,{file=state.file,policy=null,operation=null
     }
   }
 }
-async function textOperation(selection,{dx,dy,content,literalEdits,spacingEdits,plain=false,detach=false}={},trace=diagnostics.begin('text-edit')){
+async function textOperation(selection,{dx,dy,content,literalEdits,spacingEdits,plain=false,detach=false,inlinePolicy=null}={},trace=diagnostics.begin('text-edit')){
   if(!fresh()){trace?.finish('refused');return toast('Compile the current source before changing the canvas.')}
   if(selection.kind==='source'&&state.sources[selection.file]!==selection.expected_source){trace?.finish('stale');return toast('That source selection changed. Select it again.')}
   const identity=sessionIdentity(state),id=selection.kind==='object'?selection.id:'text-'+crypto.randomUUID().slice(0,8);
   if((literalEdits||spacingEdits)&&!literalEdits?.length&&!spacingEdits?.length){trace?.finish('refused');return true}
   const isEdit=content!==undefined||literalEdits!==undefined||spacingEdits!==undefined;
   const direct=selection.kind==='source';
-  const action=detach?'detach':direct?(isEdit?'replace_source':'move_source'):isEdit?'edit':'move';
+  const action=inlinePolicy?'edit_plain_flow':detach?'detach':direct?(isEdit?'replace_source':'move_source'):isEdit?'edit':'move';
   let accepted=false;
   try{
     const request={sources:clone(state.sources),main:state.project.main,file:selection.file,
       action,id,selection:selection.kind==='source'?[selection.start,selection.end]:null,
       expected:selection.content,
+      inline_origin:inlinePolicy?{page:inlinePolicy.page,x:inlinePolicy.line.x,y:inlinePolicy.line.baseline-inlinePolicy.line.height*0.35}:null,
       dx:dx??selection.dx??0,dy:dy??selection.dy??0,content:content??null,literal_edits:literalEdits??null,spacing_edits:spacingEdits??null,plain};
     const plan=await invoke('plan_text_object',{request});
     trace?.mark('planned');
     if(sessionIdentity(state)!==identity){trace?.finish('stale');return toast('The source changed. Select the text again.')}
     const kind=detach?'detach':spacingEdits?.length?'spacing':isEdit?'edit':'move';
-    let policy=null;
+    let policy=inlinePolicy;
     if(!direct){
       policy={id,kind,unchangedRuns:null};
       if(kind==='move'){
@@ -776,13 +794,12 @@ function showObjectInspector(selection){
   state.objectSelection=selection;
   $('object-selection').classList.toggle('hidden',!selection);
   if(selection){
-    $('no-selection').classList.add('hidden');
     $('object-title').textContent=selection.kind==='source'?'Selected '+selection.unitKind:'Movable text';
     $('object-summary').textContent='Source: '+selection.file+'. Movement keeps its normal layout space.';
     $('object-dx').value=((selection.dx||0)/PT_PER_MM).toFixed(2);
     $('object-dy').value=((selection.dy||0)/PT_PER_MM).toFixed(2);
     $('object-preview').textContent=selection.plain_text??selection.content;
-  }else $('no-selection').classList.remove('hidden');
+  }
   sourceHighlight.update(selection);updateControls();
 }
 function showSource(selection){
@@ -795,7 +812,7 @@ function showSource(selection){
   editor.revealRangeInCenter(new monaco.Range(start.lineNumber,start.column,end.lineNumber,end.column));editor.focus();
 }
 function zoomPDF(scale,origin){
-  const view=state.view;if(!view?.zoomTo||state.busy)return;
+  const view=state.view;if(!view?.zoomTo||state.busy||inlineEditContext)return;
   if(!state.previewZooming){canvas.clear();state.previewZooming=true;surfaceElements.pages.classList.add('zooming')}
   state.zoom=scale;
   // PDF.js stretches its existing canvas synchronously; no compilation or view replacement.
@@ -869,6 +886,7 @@ function showEditor(title,value,plain,locked=false){
   positionTextEditor();
 }
 async function undo(redo=false){
+  if(inlineEditContext&&!await finishInlineEdit())return;
   preliminary?.clear();
   if(!state.client||state.mutating||state.saving||state.composing||state.client.error)return;
   state.mutating=true;editorReadOnly();updateControls();
@@ -889,11 +907,166 @@ async function undo(redo=false){
     }
   }catch(error){syncFailed(error)}finally{state.mutating=false;editorReadOnly();updateControls()}
 }
+function hasInlineDrafts(){
+  return !!inlineTransaction||[...inlineSessions].some(c=>c.surface.value!==c.entry.text);
+}
+function closeInlineEdit(context){
+  if(!inlineSessions.delete(context))return;
+  clearTimeout(context.timer);
+  const node=context.surface.element;
+  node.onblur=node.onfocus=node.oninput=node.onkeydown=node.oncompositionstart=node.oncompositionend=null;
+  if(node.id==='inline-text'){node.hidden=true;node.replaceChildren()}else node.remove();
+  if(inlineEditContext===context)inlineEditContext=[...inlineSessions].at(-1)||null;
+  editorReadOnly();updateControls();
+}
+
+function openInlineEdit(line,page,x){
+  if(!(fresh()||inlineTransaction&&state.revision===state.compiled)||state.mode!=='inline')return;
+  const index=state.view.inlineIndex,mapped=index?.byLine.get(line);
+  if(!mapped)return toast(index?.error||'This text has no unique editable source in the current PDF.');
+  const {entry,row,stops}=mapped;
+  const column=caretOffset(stops,x);
+  if(column===null)return;
+  let context=[...inlineSessions].find(c=>c.entry===entry);
+  if(!context){
+    const template=$('inline-text'),node=template.hidden?template:template.cloneNode(false);
+    if(node!==template){node.removeAttribute('id');surfaceElements.scroller.append(node)}
+    node.hidden=false;
+    const surface=new InlineSurface(node);
+    context={entry,surface,error:'',composing:false};
+    inlineSessions.add(context);
+    surface.initialize(entry,state.view.scale);
+    surface.position(page,entry,state.view.scale,surfaceElements.scroller);
+    node.oninput=event=>{if(!event.isComposing&&!context.composing)queueInlineEdit(context)};
+    node.oncompositionstart=()=>{context.composing=true;clearTimeout(context.timer)};
+    node.oncompositionend=()=>{context.composing=false;queueInlineEdit(context)};
+    node.onfocus=()=>{inlineEditContext=context;updateControls()};
+    node.onblur=()=>{
+      // Pointer focus can move to another passage while verification is pending.
+      setTimeout(()=>{
+        if(!inlineSessions.has(context)||node.contains(document.activeElement))return;
+        if(!context.composing&&context.surface.value===context.entry.text&&!context.inFlight)closeInlineEdit(context);
+        else if(!context.composing)queueInlineEdit(context);
+      },0);
+    };
+    node.onkeydown=event=>inlineKeydown(event,context);
+  }
+  inlineEditContext=context;
+  context.surface.select(Math.min(row.offsets[column],context.surface.value.length));
+  editorReadOnly();updateControls();
+}
+
+function inlineKeydown(event,context){
+  if(event.isComposing||context.composing)return;
+  if(event.key==='Tab'&&!event.ctrlKey&&!event.metaKey&&!event.altKey){
+    event.preventDefault();
+    if(!event.shiftKey)context.surface.insert('\t');
+    return;
+  }
+  if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='s'){
+    event.preventDefault();void saveProject();return;
+  }
+  if((event.ctrlKey||event.metaKey)&&['z','y'].includes(event.key.toLowerCase())&&!hasInlineDrafts()){
+    event.preventDefault();void undo(event.key.toLowerCase()==='y'||event.shiftKey);return;
+  }
+  if(event.key==='Escape'&&!context.inFlight){
+    event.preventDefault();closeInlineEdit(context);return;
+  }
+  // Native arrows and deletion handle all rows in the same logical passage.
+  // At its edge arrow navigation can enter the next structural passage.
+  const backwards=event.key==='ArrowLeft'||event.key==='ArrowUp',forwards=event.key==='ArrowRight'||event.key==='ArrowDown';
+  if((backwards||forwards)&&!event.shiftKey&&!event.ctrlKey&&!event.metaKey&&!event.altKey){
+    const selection=context.surface.selection;
+    if(!selection||selection.anchor!==selection.head||selection.head!==(backwards?0:context.surface.value.length))return;
+    const entries=[...state.view.inlineIndex.byStart.values()],i=entries.indexOf(context.entry);
+    const neighbor=entries[i+(backwards?-1:1)];
+    if(!neighbor)return;
+    const row=backwards?neighbor.rows.at(-1):neighbor.rows[0];
+    event.preventDefault();
+    openInlineEdit(row.line,state.view.pages.find(p=>p.number===neighbor.page),row.line.x+(backwards?row.line.width:0));
+  }
+}
+
+function queueInlineEdit(context){
+  if(!inlineSessions.has(context))return;
+  context.error='';updateControls();
+  clearTimeout(context.timer);
+  // Keep an empty insertion point available for replacement typing until the user leaves.
+  if(context.surface.value.trim()||document.activeElement!==context.surface.element)
+    context.timer=setTimeout(()=>flushInlineEdit(context),650);
+}
+async function flushInlineEdit(context){
+  clearTimeout(context.timer);
+  // Serialize source transactions. All active surfaces remain editable while
+  // older drafts are being compiled and independently verified.
+  while(inlineTransaction)await inlineTransaction;
+  if(!inlineSessions.has(context))return true;
+  if(context.composing)return false;
+  const entry=context.entry,text=context.surface.value;
+  if(text===entry.text)return true;
+  if(!fresh()||state.sources[entry.file]!==entry.expected_source){
+    context.error='The source changed. Your draft is still on the page.';updateControls();return false;
+  }
+  const policy={kind:'inline-text',page:entry.page,line:entry.rows[0].line,start:entry.start,text};
+  context.inFlight=true;
+  inlineTransaction=(async()=>{
+    if(!await textOperation(entry,{content:text,plain:true,inlinePolicy:policy})){
+      context.error='Texloom could not verify this edit. Your draft is still on the page.';return false;
+    }
+    const source=state.sources[entry.file],delta=editorText(source).length-editorText(entry.expected_source).length;
+    for(const other of inlineSessions){
+      const old=other.entry;
+      if(other===context&&!text.trim()){
+        closeInlineEdit(other);continue;
+      }
+      const start=old.start>entry.start?old.start+delta:old.start;
+      const next=state.view.inlineIndex?.byStart.get(start);
+      if(!next||next.text!==(other===context?text:old.text)){
+        other.error='The edited passage moved outside its mapped page. Your draft is still available.';
+        continue;
+      }
+      const surface=other.surface,oldFonts=old.rows.flatMap(r=>r.line.runs),newFonts=next.rows.flatMap(r=>r.line.runs);
+      const fonts=new Map(oldFonts.map((run,i)=>[run.font,newFonts[i]?.font]));
+      for(const span of surface.element.querySelectorAll?.('span')||[]){
+        const oldFont=span.style.fontFamily.split(',')[0].replaceAll('"','').trim(),font=fonts.get(oldFont);
+        if(font)span.style.fontFamily=JSON.stringify(font)+', serif';
+      }
+      other.entry=next;
+      const page=state.view.pages.find(p=>p.number===next.page);
+      other.surface.position(page,next,state.view.scale,surfaceElements.scroller);
+    }
+    return !inlineSessions.has(context)||context.entry!==entry;
+  })().catch(error=>{context.error=message(error);return false}).finally(()=>{
+    inlineTransaction=null;context.inFlight=false;updateControls();
+    if(!inlineSessions.has(context))return;
+    const draft=context.surface.value;
+    if(draft!==context.entry.text&&(!context.error||draft!==text))queueInlineEdit(context);
+    else if(!context.error&&document.activeElement!==context.surface.element)closeInlineEdit(context);
+  });
+  return inlineTransaction;
+}
+
+async function finishInlineEdit(){
+  for(const context of [...inlineSessions]){
+    while(inlineSessions.has(context)){
+      if(!await flushInlineEdit(context))return false;
+      if(context.surface.value===context.entry.text){closeInlineEdit(context);break}
+    }
+  }
+  return true;
+}
+
 function setMode(value){
-  state.mode=value;$('pages').classList.toggle('read-mode',value==='read');
-  if(value==='read')sourceHighlight.clear();else sourceHighlight.update(state.objectSelection);
-  $('select-mode').classList.toggle('active',value==='select');$('read-mode').classList.toggle('active',value==='read');
-  $('select-mode').setAttribute('aria-pressed',String(value==='select'));$('read-mode').setAttribute('aria-pressed',String(value==='read'));
+  const changed=state.mode!==value;
+  state.mode=value;
+  if(changed)canvas.clear();
+  $('pages').classList.toggle('read-mode',value==='read');
+  $('pages').classList.toggle('inline-mode',value==='inline');
+  if(value==='select')sourceHighlight.update(state.objectSelection);else sourceHighlight.clear();
+  for(const mode of ['select','inline','read']){
+    $(mode+'-mode').classList.toggle('active',value===mode);
+    $(mode+'-mode').setAttribute('aria-pressed',String(value===mode));
+  }
   updateControls();
 }
 
@@ -1017,7 +1190,9 @@ $('object-detach').onclick=()=>textOperation(state.objectSelection,{detach:true}
 $('object-reset').onclick=()=>{const selection=state.objectSelection;if(selection?.kind==='object')moveText(selection,-selection.dx,-selection.dy)};
 $('object-apply').onclick=()=>{const selection=state.objectSelection;if(!selection)return;
   moveText(selection,Number($('object-dx').value)*PT_PER_MM-(selection.dx||0),Number($('object-dy').value)*PT_PER_MM-(selection.dy||0))};
-$('select-mode').onclick=()=>setMode('select');$('read-mode').onclick=()=>setMode('read');
+for(const mode of ['select','inline','read']){
+  $(mode+'-mode').onclick=async()=>{if(await finishInlineEdit())setMode(mode)};
+}
 $('zoom-in').onclick=()=>{pdfNavigation.cancelZoom();state.zoom=Math.min(2.5,(state.zoom||state.view?.scale||1)+0.1);renderPDF()};
 $('zoom-out').onclick=()=>{pdfNavigation.cancelZoom();state.zoom=Math.max(0.2,(state.zoom||state.view?.scale||1)-0.1);renderPDF()};
 $('fit').onclick=()=>{pdfNavigation.cancelZoom();state.zoom=0;renderPDF()};
@@ -1037,9 +1212,17 @@ const closeController=new CloseController({getState:()=>state,isDirty:dirty,conf
   closeWindow:()=>getCurrentWindow().close(),
   lock:()=>{state.saving=true;editorReadOnly();updateControls()},
   unlock:()=>{state.saving=false;editorReadOnly();updateControls()}});
-getCurrentWindow().onCloseRequested(event=>closeController.handle(event));
+getCurrentWindow().onCloseRequested(event=>{
+  if(inlineEditContext){
+    if(hasInlineDrafts()){
+      event.preventDefault();void finishInlineEdit();toast('Let the current PDF edit finish before closing.');return;
+    }
+    closeInlineEdit(inlineEditContext);
+  }
+  return closeController.handle(event);
+});
 document.addEventListener('keydown',event=>{
-  if(editor.hasTextFocus()||document.querySelectorAll('dialog[open]').length||event.target.closest('input,textarea,select'))return;
+  if(editor.hasTextFocus()||document.querySelectorAll('dialog[open]').length||event.target.closest('input,textarea,select,[contenteditable]'))return;
   if(event.ctrlKey||event.metaKey){
     if(event.key.toLowerCase()==='s'){event.preventDefault();saveProject()}
     else if(event.key==='Enter'){event.preventDefault();compile()}
@@ -1057,5 +1240,5 @@ $('recovery-copy').onclick=saveProjectCopy;
 $('recovery-discard').onclick=discardSaveRecovery;
 $('recovery-close').onclick=()=>{if(!state.saving)$('recovery-dialog').close()};
 $('recovery-dialog').addEventListener('cancel',event=>{if(state.saving)event.preventDefault()});
-setMode('select');
+setMode('inline');
 openProject();

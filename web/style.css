@@ -9,6 +9,17 @@
 .read-mode .textLayer{pointer-events:auto;user-select:text}
 .line-hit,.text-object-hit,.text-object-frame{position:absolute;border:1px solid transparent;border-radius:1px;background:transparent;padding:0;min-height:0;touch-action:none}
 .line-hit{cursor:crosshair;z-index:2}.line-hit:hover{border-color:#799d7566;background:#799d7512}
+.inline-mode .line-hit{cursor:text}
+.inline-mode.stale .line-hit{pointer-events:auto;visibility:visible}
+.inline-mode .line-hit:hover,.inline-mode .line-hit:focus-visible{border-color:transparent;background:transparent;outline:none}
+.selection-tools{position:fixed;top:119px;right:18px;width:min(300px,40vw);z-index:14;pointer-events:none}
+.selection-tools #object-selection{pointer-events:auto;max-height:calc(100vh - 150px);overflow:auto;background:#f8faf1;border:1px solid #dfe5d7;border-radius:7px;padding:12px;box-shadow:0 6px 24px #31452b29}
+.selection-tools h2{font-size:14px;margin:0 0 8px}
+.inline-mode .text-object-hit{pointer-events:none;visibility:hidden}
+#preview-scroll{position:relative}
+.pdf-typing{white-space:pre-wrap;overflow-wrap:break-word;cursor:text;position:absolute;z-index:5;border:0;border-radius:0;padding:0;background:#fff;color:#111;caret-color:#315d4d;overflow:hidden;resize:none;tab-size:4}
+.pdf-typing:focus-visible{outline:0}
+.pdf-typing::selection,.pdf-typing ::selection{background:#c4d7b8}
 .text-object-hit{z-index:3;cursor:move}.text-object-hit:hover{border-color:#668f5088;background:#9ab57b12}
 .text-object-frame{z-index:5;border:1px solid #668f50;background:#9ab57b0a;cursor:move;outline-offset:3px}
 .text-object-frame:hover{background:#9ab57b12}.text-object-frame.dragging{background:transparent}

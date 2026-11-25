@@ -119,6 +119,7 @@ mod tests {
             spacing_edits: None,
             neighbor: None,
             before_neighbor: false,
+            inline_origin: None,
         };
         let plan = plan_object_edit(request).unwrap();
         let result = &plan.sources["main.tex"];
@@ -162,6 +163,16 @@ pub struct ObjectEditRequest {
     pub neighbor: Option<[usize; 2]>,
     #[serde(default)]
     pub before_neighbor: bool,
+    #[serde(default)]
+    pub inline_origin: Option<InlineOrigin>,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+#[cfg_attr(feature="typegen",derive(ts_rs::TS))]
+pub struct InlineOrigin {
+    pub page: usize,
+    pub x: f64,
+    pub y: f64,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -275,7 +286,7 @@ pub struct ObjectPlan {
 pub(super) struct DirectTextPlan {
     pub(super) sources: BTreeMap<String, String>,
     pub(super) before_probe: Option<BTreeMap<String, String>>,
-    pub(super) after_probe: BTreeMap<String, String>,
+    pub(super) after_probe: Option<BTreeMap<String, String>>,
     pub(super) displacement: Option<(f64, f64)>,
 }
 
@@ -310,6 +321,27 @@ fn mark_text_ranges(
     Ok(sources)
 }
 
+#[derive(Clone, Debug, Serialize)]
+#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
+pub struct InlineFlowView {
+    pub range: [usize; 2],
+    pub expected: String,
+    pub text: String,
+}
+
+pub fn inline_flows(source: &str) -> Result<Vec<InlineFlowView>> {
+    if source.len() > 4_000_000 { return Err("The source is too large for inline editing".into()); }
+    let editor = EditorProjection::new(source);
+    texloom_core::inline_flow::inline_flows(source).into_iter().map(|flow| {
+        Ok(InlineFlowView {
+            range: [editor.editor_offset(flow.range.start).map_err(fail)?,
+                    editor.editor_offset(flow.range.end).map_err(fail)?],
+            expected: source[flow.range].to_owned(),
+            text: flow.text,
+        })
+    }).collect()
+}
+
 pub(super) fn plan_direct_text(request: &ObjectEditRequest) -> Result<DirectTextPlan> {
     relative(&request.main)?;
     relative(&request.file)?;
@@ -332,6 +364,24 @@ pub(super) fn plan_direct_text(request: &ObjectEditRequest) -> Result<DirectText
             let text = request.content.as_deref().ok_or("Enter the paragraph text")?;
             let (updated, range) = texloom_core::append_plain_paragraph(source, text)?;
             (updated, range, None)
+        }
+        "edit_plain_flow" if request.file == request.main && request.plain
+            && request.literal_edits.is_none() && request.spacing_edits.is_none() =>
+        {
+            let [start, end] = request.selection.ok_or("Select the text to edit")?;
+            let projection = EditorProjection::new(source);
+            let range = projection.source_offset(start).map_err(fail)?
+                ..projection.source_offset(end).map_err(fail)?;
+            let old = request.expected.as_deref().ok_or("Missing selected text")?;
+            let draft = request.content.as_deref().ok_or("Enter the edited text")?;
+            if source.get(range.clone()) != Some(old) {
+                return Err("The selected source changed. Select it again.".into());
+            }
+            let flow = texloom_core::inline_flow::inline_flows(source).into_iter()
+                .find(|flow| flow.range == range).ok_or("Select a current inline text flow")?;
+            let (updated, new_range) = texloom_core::inline_flow::edit_inline_flow(source, &flow, draft)?;
+            let before = mark_text_ranges(request, source, &[(range, &request.id)], true)?;
+            (updated, new_range, Some(before))
         }
         "replace_source" | "move_source" => {
             let [start, end] = request.selection.ok_or("Select the text to edit")?;
@@ -385,7 +435,15 @@ pub(super) fn plan_direct_text(request: &ObjectEditRequest) -> Result<DirectText
         }
         _ => return Err("Unsupported direct text operation".into()),
     };
-    let after_probe = mark_text_range(request, &updated, range)?;
+    let after_probe = if request.action == "edit_plain_flow" {
+        if request.content.as_deref().is_some_and(|draft| draft.trim().is_empty()) {
+            None
+        } else {
+            Some(mark_text_ranges(request, &updated, &[(range, &request.id)], true)?)
+        }
+    } else {
+        Some(mark_text_range(request, &updated, range)?)
+    };
     let mut sources = request.sources.clone();
     sources.insert(request.file.clone(), updated);
     Ok(DirectTextPlan { sources, before_probe, after_probe, displacement })
@@ -454,7 +512,7 @@ pub fn plan_object_edit(mut request: ObjectEditRequest) -> Result<ObjectPlan> {
             sources: plan.sources, object_id: request.id, file: request.file, operation: request.action,
         });
     }
-    if matches!(request.action.as_str(), "replace_source" | "append_paragraph" | "move_source") {
+    if matches!(request.action.as_str(), "replace_source" | "append_paragraph" | "move_source" | "edit_plain_flow") {
         let plan = plan_direct_text(&request)?;
         return Ok(ObjectPlan {
             sources: plan.sources, object_id: request.id, file: request.file, operation: request.action,

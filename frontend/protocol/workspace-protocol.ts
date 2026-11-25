@@ -1,6 +1,6 @@
 /** Project/recovery/source-plan wire boundary. Rust retains edit and disk authority. */
 import type {WorkspaceRequests, WorkspaceReplies} from '../../web/generated/document-ipc.js';
-import {assertSnapshot, preparedReply, type NativeInvoke, type Sources} from './document-protocol.js';
+import {assertSnapshot, editorText, preparedReply, type NativeInvoke, type Sources} from './document-protocol.js';
 
 export class WorkspaceProtocolError extends Error {
   constructor(message: string) { super(message); this.name = 'WorkspaceProtocolError'; }
@@ -76,7 +76,7 @@ const commands = new Set<keyof WorkspaceRequests>([
   'open_project', 'open_recent', 'recent_projects', 'create_project', 'import_project_archive', 'export_project_archive', 'import_image',
   'review_encoding', 'preview_encoding', 'convert_encoding', 'copy_document', 'project_recoveries', 'recover_document',
   'discard_document_recovery', 'typing_drafts', 'open_typing_draft', 'discard_typing_draft', 'close_document', 'mark_clean_exit',
-  'document_snapshot', 'document_prepare', 'describe_adapters', 'plan_adapter', 'plan_text_object', 'describe_text_edit', 'preview_text_edit',
+  'document_snapshot', 'document_prepare', 'describe_adapters', 'plan_adapter', 'plan_text_object', 'describe_text_edit', 'preview_text_edit', 'inline_flows',
 ]);
 export function acceptWorkspaceReply<C extends keyof WorkspaceRequests>(name: C, args: WorkspaceRequests[C], value: unknown): WorkspaceReplies[C] {
   const a = args as unknown as Record<string, unknown>;
@@ -104,12 +104,24 @@ export function acceptWorkspaceReply<C extends keyof WorkspaceRequests>(name: C,
       require(nonempty(f.file) && !files.has(f.file) && nullable(f.detected) && integer(f.bytes) && hash(f.sha256)); files.add(f.file);
     }
   } else if (name === 'describe_adapters') controls(value, a.source);
-  else if (name === 'describe_text_edit') model(value);
+  else if (name === 'inline_flows') {
+    require(text(a.source) && Array.isArray(value));
+    const source = editorText(a.source);
+    let previousEnd = 0;
+    for (const flow of value) {
+      record(flow, ['range', 'expected', 'text']);
+      require(Array.isArray(flow.range) && flow.range.length === 2 && text(flow.expected) && text(flow.text));
+      const [start, end] = flow.range;
+      require(integer(start, previousEnd) && integer(end, start + 1) && end <= source.length &&
+        source.slice(start, end) === flow.expected.replace(/\r\n?/gu, '\n'));
+      previousEnd = end;
+    }
+  } else if (name === 'describe_text_edit') model(value);
   else if (name === 'plan_adapter' || name === 'plan_text_object') {
     record(value, name === 'plan_adapter' ? ['sources', 'file'] : ['sources', 'object_id', 'file', 'operation']);
     record(a.request); buffers(a.request.sources); buffers(value.sources);
     require(value.file === a.request.file && Object.hasOwn(value.sources, String(value.file)), 'Source plan changed its target');
-    const direct = name === 'plan_text_object' && (a.request.action === 'replace_source' || a.request.action === 'append_paragraph' || a.request.action === 'move_source' || a.request.action === 'reorder_paragraph');
+    const direct = name === 'plan_text_object' && (a.request.action === 'replace_source' || a.request.action === 'append_paragraph' || a.request.action === 'move_source' || a.request.action === 'reorder_paragraph' || a.request.action === 'edit_plain_flow');
     const allowed = new Set([String(a.request.file)]);
     if (!direct) {
       allowed.add(String(a.request.main));
