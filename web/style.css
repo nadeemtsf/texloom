@@ -12,7 +12,7 @@
 .inline-mode .line-hit{cursor:text}
 .inline-mode .text-object-hit{pointer-events:none;visibility:hidden}
 #preview-scroll{position:relative}
-#inline-text{position:absolute;z-index:5;border:0;border-radius:0;padding:0;background:#fff;color:#111;caret-color:#315d4d;line-height:1}
+#inline-text{position:absolute;z-index:5;border:0;border-radius:0;padding:0;background:#fff;color:#111;caret-color:#315d4d;overflow:hidden;resize:none;overflow-wrap:normal}
 #inline-text:focus-visible{outline:0}
 #inline-text::selection{background:#c4d7b8}
 .text-object-hit{z-index:3;cursor:move}.text-object-hit:hover{border-color:#668f5088;background:#9ab57b12}

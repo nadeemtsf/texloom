@@ -601,22 +601,32 @@ fn inline_caret_real_engine_workflow() {
         let id = &project.id;
         let baseline = f.backend.compile_document(id, 0, None, None, 1).unwrap();
         assert!(baseline.ok && baseline.verification_eligible, "{engine}: {}", baseline.log);
-        let start = source.rfind(line).unwrap();
+        let start = source.find(line).unwrap();
+        let end = source.rfind(line).unwrap() + line.len();
+        let original = &source[start..end];
+        let draft = format!("{line}\n{line}");
         let mut request: ObjectEditRequest = serde_json::from_value(json!({
             "sources":project.sources, "main":"main.tex", "file":"main.tex",
-            "action":"probe_paragraph", "id":marker, "selection":[start,start+line.len()], "expected":line,
+            "action":"probe_paragraph", "id":marker, "selection":[start,end], "expected":original,
         })).unwrap();
         let planned = visual::plan_object_edit(request.clone()).unwrap();
         let token = f.backend.document_prepare_visual(id, 0, planned.sources, &baseline.build_id, None).unwrap().token;
         let probe = f.backend.compile_document(id, 0, Some(&token), None, 2).unwrap();
         let marked = f.backend.layout_build(&probe.build_id).unwrap();
         let inspected = f.backend.inspect_layout(&marked, Some(&format!("Texloom_{marker}")), &Cancellation::default()).unwrap();
-        let first_y = inspected.view.glyphs.iter().find(|glyph| glyph.text == "C" && !glyph.target).unwrap().bounds.y;
-        let second_y = inspected.view.glyphs.iter().find(|glyph| glyph.text == "C" && glyph.target).unwrap().bounds.y;
-        assert!(second_y > first_y, "{engine} marked the wrong occurrence");
+        let starts: Vec<_> = inspected.view.glyphs.iter().filter(|glyph| glyph.text == "C" && glyph.target).collect();
+        assert_eq!(starts.len(), 2, "{engine} did not mark both paragraphs");
+        assert!(starts[0].bounds.y < starts[1].bounds.y, "{engine} reversed the paragraph order");
+        let points = starts.iter().map(|glyph| SelectionPoint {
+            x: glyph.bounds.x + 15.0, y: glyph.bounds.y + glyph.bounds.height / 2.0,
+        }).collect();
+        let mapped = f.backend.resolve_text_selection(id, 0, &baseline.build_id, 1, points, 0).unwrap();
+        assert_eq!(mapped.kind, "group", "{engine} did not resolve the page text as one run");
+        assert_eq!(mapped.content, original, "{engine} mapped a different source range");
         let request_stops = |page| crate::build_protocol::InlineCaretRequest {
             project_id: id.clone(), revision: 0, build_id: baseline.build_id.clone(),
-            probe_build_id: probe.build_id.clone(), marker: marker.into(), page, text: line.into(),
+            probe_build_id: probe.build_id.clone(), marker: marker.into(), page, text: draft.clone(),
+            line_start: line.len() + 1, line_end: draft.len(),
         };
         let stops = f.backend.inline_caret_stops(request_stops(1)).unwrap_or_else(|error| panic!("{engine}: {error}"));
         assert_eq!(stops.len(), line.len() + 1);
@@ -625,12 +635,13 @@ fn inline_caret_real_engine_workflow() {
         f.backend.document_discard(id, &token).unwrap();
         assert_eq!(f.backend.document_snapshot(id).unwrap().sources, sources(&source));
 
-        request.action = "replace_source".into();
+        request.action = "edit_plain_flow".into();
         request.id = "inline-caret-edit".into();
-        request.content = Some("Change blue text.".into());
+        let joined = format!("{line}{line}");
+        request.content = Some(joined.clone());
         request.plain = true;
         let mut expected = source.clone();
-        expected.replace_range(start..start + line.len(), "Change blue text.");
+        expected.replace_range(start..end, &joined);
         let planned = visual::plan_object_edit(request.clone()).unwrap();
         assert_eq!(planned.sources, sources(&expected));
         let prepared = f.backend.document_prepare_visual(
@@ -641,7 +652,7 @@ fn inline_caret_real_engine_workflow() {
         assert_eq!(committed.sources, sources(&expected));
         assert_eq!(fs::read_to_string(&path).unwrap(), source);
         assert_eq!(f.backend.document_history(id, committed.revision, false).unwrap().sources, sources(&source));
-        println!("{engine}: glyph positions and one edit of the second repeated line, with Undo");
+        println!("{engine}: second-line caret, joined paragraphs in source and PDF, and Undo");
     }
 }
 

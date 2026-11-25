@@ -400,10 +400,10 @@ test('typing directly on a proved PDF line retains newer keystrokes across verif
  assert.equal(verified,1);
  assert.equal(t.native.pending.size,0);
  assert.equal(t.native.history.length,0);
- const shell={getBoundingClientRect:()=>({left:0,top:0,width:550})};
+ const shell={getBoundingClientRect:()=>({left:0,top:0,width:550,height:700})};
  const input=t.run("$('inline-text')");
  input.setSelectionRange=(start,end)=>{input.range=[start,end]};
- t.run('openInlineEdit')({...selected,kind:'source'},line,{number:1,shell},105);
+ t.run('openInlineEdit')({...selected,kind:'source'},{number:1,shell},105);
  assert.deepEqual(input.range,[8,8]);
  assert.equal(input.value,original);
  assert.equal(input.hidden,false);
@@ -412,7 +412,7 @@ test('typing directly on a proved PDF line retains newer keystrokes across verif
 
  let candidateText,holdBuild,completeBuild;
  t.control.plan=async request=>{
-   assert.equal(request.action,'replace_source');
+   assert.equal(request.action,'edit_plain_flow');
    assert.equal(request.plain,true);
    assert.deepEqual(Array.from(request.selection),[0,request.expected.length]);
    candidateText=request.content;
@@ -455,12 +455,27 @@ test('typing directly on a proved PDF line retains newer keystrokes across verif
  assert.equal(input.hidden,true);
 });
 
+test('PDF rows map into one draft across wrapping and paragraph boundaries',async()=>{
+ const {inlineSourceText,inlineRows,caretOffset}=await import('../web/core/inline-text.js');
+ const source='A red word wraps here.\r\n\r\nBlue text follows.';
+ const draft=inlineSourceText(source);
+ const lines=[{text:'A red word'},{text:'wraps here.'},{text:'Blue text follows.'}];
+ const rows=inlineRows(lines,draft);
+ assert.deepEqual(rows.map(row=>[row.start,row.end]),[[0,10],[11,22],[23,41]]);
+ const start=rows[2].start+caretOffset([20,27,33],20);
+ assert.equal(draft[start-1],'\n');
+ assert.equal(draft.slice(0,start-1)+draft.slice(start),'A red word wraps here.Blue text follows.');
+ assert.equal(draft[rows[1].start-1],' ');
+ assert.equal(inlineSourceText('A \\textbf{word}.'),null);
+ assert.equal(inlineRows([{text:'A red wor-'}],draft),null);
+});
+
 test('the inline editor refuses an unproved line and malformed caret stops',async()=>{
  const t=await probeSetup(),resolve=t.run('resolveSourceSelection');
  const line={text:'Original source',runs:[{}]};
  t.control.prove=()=>({lines:[line,{...line}],runs:line.runs});
  const request={buildId:'last-good',page:1,points:[],hits:[line],inline:true};
- await assert.rejects(resolve(request),/one complete PDF line/);
+ await assert.rejects(resolve(request),/plain consecutive PDF text/);
  assert.equal(t.native.pending.size,0);
  t.control.prove=()=>({lines:[line],runs:line.runs});
  t.control.caretStops=()=>Array(16).fill(20);

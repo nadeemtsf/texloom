@@ -106,7 +106,7 @@ export type ResolvedSelection = { schema: number, unit_id: string, build_id: str
 
 export type ResolveSelectionRequest = { projectId: string, revision: number, buildId: string, page: number, points: Array<SelectionPoint>, candidate: number, };
 
-export type InlineCaretRequest = { projectId: string, revision: number, buildId: string, probeBuildId: string, marker: string, page: number, text: string, };
+export type InlineCaretRequest = { projectId: string, revision: number, buildId: string, probeBuildId: string, marker: string, page: number, text: string, lineStart: number, lineEnd: number, };
 
 export type SaveState = "preparing" | "prepared" | "committing" | "complete" | "rolled_back";
 

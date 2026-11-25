@@ -79,7 +79,7 @@ export class CanvasController {
       const mapped=proof.lines;
       const selection={...resolved,x:proof.x,y:proof.y,width:proof.width,height:proof.height,baselineRuns:proof.runs,baselineLines:proof.lines,page,kind:'source',unitKind:resolved.kind};
       if(inline){
-        this.inlineEdit(selection,mapped[0],this.view.pages.find(p=>p.number===page),inlineX);
+        this.inlineEdit(selection,this.view.pages.find(p=>p.number===page),inlineX);
         trace?.finish('selected');return;
       }
       this.hits=mapped;this.selection=selection;

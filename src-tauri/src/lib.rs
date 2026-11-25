@@ -388,9 +388,11 @@ async fn inline_caret_stops(
     marker: String,
     page: usize,
     text: String,
+    line_start: usize,
+    line_end: usize,
 ) -> Result<Vec<f64>, String> {
     let request = build_protocol::InlineCaretRequest {
-        project_id, revision, build_id, probe_build_id, marker, page, text,
+        project_id, revision, build_id, probe_build_id, marker, page, text, line_start, line_end,
     };
     let backend = state.inner().clone();
     background(move || backend.inline_caret_stops(request)).await

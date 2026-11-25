@@ -138,7 +138,7 @@ impl Plan {
                         original_order: plan.original_order, new_order: plan.new_order,
                         before_probe: plan.before_probe, after_probe: plan.after_probe,
                     })
-                } else if matches!(request.action.as_str(), "replace_source" | "append_paragraph" | "move_source") {
+                } else if matches!(request.action.as_str(), "replace_source" | "append_paragraph" | "move_source" | "edit_plain_flow") {
                     let plan = visual::plan_direct_text(&request)?;
                     (plan.sources, Policy::DirectText {
                         marker,
@@ -284,30 +284,29 @@ fn verify_reorder_order(order: impl IntoIterator<Item = (usize, f64, f64)>) -> R
     Ok(())
 }
 
-fn inline_stops(glyphs: &[verification::Glyph], page: usize, text: &str) -> Result<Vec<f64>> {
+fn inline_stops(
+    glyphs: &[verification::Glyph], page: usize, text: &str, line: std::ops::Range<usize>,
+) -> Result<Vec<f64>> {
     const UNSUPPORTED: &str = "This line has no reliable character positions. Edit it in the source editor.";
-    if text.is_empty()
-        || text.len() > 160
-        || text.trim() != text
-        || text.contains("  ")
-        || text.contains("--")
-        || !text.bytes().all(|byte| byte.is_ascii_alphanumeric() || b" .,!?;:-".contains(&byte))
-    {
-        return Err(UNSUPPORTED.into());
-    }
-
-    let characters: Vec<_> = text.char_indices().filter(|(_, character)| *character != ' ').collect();
+    if !visual::plain_flow_text(text) { return Err(UNSUPPORTED.into()); }
+    let line_text = text.get(line.clone()).filter(|value| {
+        !value.is_empty() && !value.contains('\n') && value.trim() == *value
+    }).ok_or(UNSUPPORTED)?;
+    let visible = |character: char| !character.is_ascii_whitespace();
+    let characters: Vec<_> = text.chars().filter(|character| visible(*character)).collect();
     let marked: Vec<_> = glyphs.iter().filter(|glyph| glyph.target).collect();
     if marked.len() != characters.len()
-        || marked.iter().zip(&characters).any(|(glyph, (_, character))| {
+        || marked.iter().zip(&characters).any(|(glyph, character)| {
             glyph.page != page || !glyph.text.starts_with(*character) || glyph.text.len() != 1
                 || glyph.bounds.width <= 0.0 || glyph.bounds.height <= 0.0
         })
     {
         return Err(UNSUPPORTED.into());
     }
-
-    let mut stops = Vec::with_capacity(text.len() + 1);
+    let skip = text[..line.start].chars().filter(|character| visible(*character)).count();
+    let characters: Vec<_> = line_text.char_indices().filter(|(_, character)| visible(*character)).collect();
+    let marked = &marked[skip..skip + characters.len()];
+    let mut stops = Vec::with_capacity(line_text.len() + 1);
     stops.push(marked[0].bounds.x);
     for (pair, offsets) in marked.windows(2).zip(characters.windows(2)) {
         let a = pair[0].bounds;
@@ -428,7 +427,7 @@ impl Backend {
         let marker = format!("Texloom_{}", request.marker);
         let checked = self.inspect_layout(&probe, Some(&marker), &probe.cancel)?;
         let page = request.page.checked_sub(1).ok_or("Invalid PDF page")?;
-        inline_stops(&checked.view.glyphs, page, &request.text)
+        inline_stops(&checked.view.glyphs, page, &request.text, request.line_start..request.line_end)
     }
     fn private_layout_build(
         &self,

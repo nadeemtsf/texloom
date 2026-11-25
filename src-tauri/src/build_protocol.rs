@@ -87,4 +87,6 @@ pub struct InlineCaretRequest {
     pub marker: String,
     pub page: usize,
     pub text: String,
+    pub line_start: usize,
+    pub line_end: usize,
 }

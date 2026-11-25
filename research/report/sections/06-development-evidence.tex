@@ -684,15 +684,13 @@ checked separately.
 
 \paragraph{Character editing in a PDF line.}
 A development mode uses an appearance-preserving selection probe to
-identify one plain source line. The PDFium worker provides the glyph boxes
-for that occurrence. The browser places a caret at the closest supported
-character boundary, including either side of a space. Text appears on the
-PDF line as the author types. A pause sends the draft through candidate
-verification while the input retains focus. The repeated-line regression
-checks that the second occurrence alone
-changes and that Undo restores the source. This slice covers short ASCII
-lines. Native pointer placement, mixed direction and cluster-level caret
-behavior require separate evaluation.
+identify consecutive plain paragraphs on a page. PDFium binds the clicked
+row to its glyphs, while the draft tracks the logical offsets through
+wrapped rows and blank source lines. A pause sends the draft through
+candidate verification while the text area retains focus. The regression
+joins two identical paragraphs at their boundary and checks the exact
+source and Undo. This slice covers bounded ASCII text in the main file.
+Native input and mixed-direction caret behavior require separate evaluation.
 
 \subsection{Verified reorder within a run of source paragraphs}
 The PDF gesture exposes insertion cues above and below text lines. A

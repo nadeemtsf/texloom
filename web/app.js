@@ -26,7 +26,7 @@ import {TypingRecoveryController} from './core/typing-recovery.js';
 import {CloseController} from './core/close-controller.js';
 import draftRecoveryEnabled from './draft-recovery.json';
 import {validateSelectionProbe} from './core/selection-proof.js';
-import {inlineTextSupported,caretOffset,findInlineLine} from './core/inline-text.js';
+import {inlineTextSupported,inlineSourceText,nearbyInlineLines,inlineRows,caretOffset,findInlineFlow} from './core/inline-text.js';
 import {createWorkspaceInvoke} from './core/workspace-protocol.js';
 import {ProjectControls} from './core/project-controls.js';
 import {PDFSearch} from './core/pdf-search.js';
@@ -106,7 +106,7 @@ const pdfSearch=new PDFSearch({document,getView:()=>preliminary?.visible?null:st
 const canvas=new CanvasController({
   diagnostics,
   getSession:()=>state,
-  resolve:args=>resolveSourceSelection(args),
+  resolve:resolveCanvasSelection,
   move:(selection,dx,dy,trace)=>moveText(selection,dx,dy,trace),
   reorder:(selection,destination)=>reorderText(selection,destination),
   edit:selection=>editText(selection),
@@ -174,7 +174,7 @@ function fresh(){return !!state.result&&state.result.verification_eligible!==fal
 function canExport(){return !!state.project&&!!state.client&&!state.busy&&!state.opening&&!state.mutating&&!state.composing&&!state.saving&&!state.client.error}
 function updateControls(){
   typingRecovery?.renderProtection();
-  const inlinePending=!!inlineEditContext&&(!!inlineEditContext.inFlight||$('inline-text').value!==inlineEditContext.selection.content);
+  const inlinePending=!!inlineEditContext&&(!!inlineEditContext.inFlight||$('inline-text').value!==inlineEditContext.draft);
   const ready=fresh()&&!inlinePending,object=ready&&!!state.objectSelection;
   for(const id of ['add-text','show-pdf'])$(id).disabled=!ready;
   for(const id of ['object-apply','object-edit','object-source'])$(id).disabled=!object;
@@ -200,7 +200,7 @@ function updateControls(){
   if(timing.textContent!==label)timing.textContent=label;
   $('pages').classList.toggle('stale',state.revision!==state.compiled||state.busy);
   $('selection-hint').textContent=inlineEditContext?.error||(state.mode==='read'?'Drag over text to highlight and copy it.':
-    state.mode==='inline'?'Click a plain line to place the text cursor.':
+    state.mode==='inline'?'Click in plain text to place the cursor.':
     state.result&&!state.result.objects?.length?
       'Click text to select it. Shift-click or draw a box for a group.':
       'Select text or an object. Drag its frame; double-click to edit.');
@@ -477,7 +477,20 @@ async function discardSaveRecovery(){
   finally{state.saving=false;editorReadOnly();updateControls()}
 }
 const selectionProofs=new WeakMap();
-async function resolveSourceSelection({buildId,page,points,hits,trace=null,inline=false}){
+async function resolveCanvasSelection(args){
+  if(!args.inline)return resolveSourceSelection(args);
+  const [clicked]=args.hits;
+  const page=state.view?.pages.find(item=>item.number===args.page);
+  const lines=nearbyInlineLines(page?.lines||[],clicked);
+  if(lines.length>1){
+    const points=lines.map(line=>({x:line.x+Math.min(line.width/2,15),y:line.baseline-line.height*0.35}));
+    try{return await resolveSourceSelection({...args,hits:lines,points,clicked})}
+    catch(error){if(error instanceof StaleCandidate||error.name==='CompilationCancelled')throw error}
+  }
+  return resolveSourceSelection({...args,clicked});
+}
+
+async function resolveSourceSelection({buildId,page,points,hits,trace=null,inline=false,clicked=hits[0]}){
   if(!fresh()||buildId!==state.result.build_id)throw new StaleCandidate();
   const identity=sessionIdentity(state),baseline=state.view,scale=baseline.scale,dpr=globalThis.devicePixelRatio||1,client=state.client,seen=new Set();
   const assertCurrent=()=>{if(sessionIdentity(state)!==identity||state.view!==baseline||baseline.scale!==scale||(globalThis.devicePixelRatio||1)!==dpr||state.previewZooming)throw new StaleCandidate()};
@@ -499,14 +512,13 @@ async function resolveSourceSelection({buildId,page,points,hits,trace=null,inlin
         const key=JSON.stringify([resolved.file,resolved.start,resolved.end]);if(seen.has(key))continue;seen.add(key);
         attempts++;
         const cached=selectionProofs.get(baseline)?.get(key);
-        if(inline&&(resolved.kind!=='paragraph'||resolved.file!==state.project.main||!inlineTextSupported(resolved.content))){
-          throw new Error('Type in PDF works on short, plain lines in the main file. Use the source editor for this text.');
-        }
-        if(cached&&(!inline||cached.caretStops)&&hits.every(h=>h.runs.every(r=>cached.runs.includes(r)))){
-          await client.verify(buildId);assertCurrent();return {...resolved,proof:cached,caretStops:cached.caretStops};
+        const text=inline&&['paragraph','group'].includes(resolved.kind)&&resolved.file===state.project.main?inlineSourceText(resolved.content):null;
+        if(inline&&text===null)throw new Error('Type in PDF works on plain paragraphs in the main file. Use the source editor for this text.');
+        if(cached&&(!inline||cached.inlineFlow?.caret.line===clicked)&&hits.every(h=>h.runs.every(r=>cached.runs.includes(r)))){
+          await client.verify(buildId);assertCurrent();return {...resolved,proof:cached,inlineFlow:cached.inlineFlow};
         }
         const id='selection-'+crypto.randomUUID().slice(0,8);
-        const action=resolved.kind==='paragraph'?'probe_paragraph':'wrap';
+        const action=inline||resolved.kind==='paragraph'?'probe_paragraph':'wrap';
         const plan=await invoke('plan_text_object',{request:{sources:clone(state.sources),main:state.project.main,file:resolved.file,
           action,id,selection:[resolved.start,resolved.end],expected:resolved.content,dx:0,dy:0}});
         assertCurrent();
@@ -520,16 +532,16 @@ async function resolveSourceSelection({buildId,page,points,hits,trace=null,inlin
         const proof=validateSelectionProbe(baseline,prepared,id,hits,page);
         await client.verify(buildId);assertCurrent();
         if(inline){
-          const [line]=proof.lines;
-          if(proof.lines.length!==1||line!==hits[0]||line.text!==resolved.content||line.runs.some(run=>!proof.runs.includes(run))){
-            throw new Error('This source does not match one complete PDF line. Edit it in the source editor.');
+          const rows=inlineRows(proof.lines,text),caret=rows?.find(row=>row.line===clicked);
+          if(!caret||rows.length!==proof.lines.length||proof.lines.some(line=>line.runs.some(run=>!proof.runs.includes(run)))){
+            throw new Error('This source does not match plain consecutive PDF text. Edit it in the source editor.');
           }
-          proof.caretStops=await client.caretStops(buildId,staged.result.build_id,id,page,resolved.content);
-          assertCurrent();
+          const stops=await client.caretStops(buildId,staged.result.build_id,id,page,text,caret.start,caret.end);
+          assertCurrent();proof.inlineFlow={rows,caret,stops,text};
         }
         let cache=selectionProofs.get(baseline);if(!cache){cache=new Map();selectionProofs.set(baseline,cache)}
         if(cache.size>=64)cache.delete(cache.keys().next().value);cache.set(key,proof);
-        return {...resolved,proof,caretStops:proof.caretStops};
+        return {...resolved,proof,inlineFlow:proof.inlineFlow};
       }catch(error){
         if(error instanceof StaleCandidate||error.name==='CompilationCancelled')throw error;
         assertCurrent();lastError=error;
@@ -691,7 +703,7 @@ async function textOperation(selection,{dx,dy,content,literalEdits,spacingEdits,
   if((literalEdits||spacingEdits)&&!literalEdits?.length&&!spacingEdits?.length){trace?.finish('refused');return true}
   const isEdit=content!==undefined||literalEdits!==undefined||spacingEdits!==undefined;
   const direct=selection.kind==='source';
-  const action=detach?'detach':direct?(isEdit?'replace_source':'move_source'):isEdit?'edit':'move';
+  const action=inlinePolicy?'edit_plain_flow':detach?'detach':direct?(isEdit?'replace_source':'move_source'):isEdit?'edit':'move';
   let accepted=false;
   try{
     const request={sources:clone(state.sources),main:state.project.main,file:selection.file,
@@ -912,27 +924,41 @@ async function undo(redo=false){
 }
 function positionInlineEdit(context){
   const input=$('inline-text'),scroller=surfaceElements.scroller,scale=state.view.scale;
-  const {page,line}=context;
+  const {page,rows}=context,lines=rows.map(row=>row.line),first=lines[0],last=lines.at(-1);
   const rect=page.shell.getBoundingClientRect(),viewport=scroller.getBoundingClientRect();
-  const font=line.runs[0];
+  const font=first.runs[0],left=Math.min(...lines.map(line=>line.x));
+  const wrapped=rows.filter(row=>context.draft[row.end]===' ').map(row=>row.line.x+row.line.width);
+  const right=Math.max(wrapped.length?0:rect.width/scale-left,...wrapped,...lines.map(line=>line.x+line.width));
+  const fontFamily=font.font?JSON.stringify(font.font)+', Georgia, serif':'Georgia, serif';
+  const measure=document.createElement('canvas').getContext?.('2d');
+  let fontSize=font.size*scale;
+  if(measure){
+    measure.font=fontSize+'px '+fontFamily;
+    const width=measure.measureText(last.text).width;
+    if(width>0)fontSize*=Math.max(1,Math.min(1.18,last.width*scale/width));
+  }
+  const lineHeight=lines.length>1?(last.baseline-first.baseline)/(lines.length-1):font.size*1.2;
+  const height=(last.y+Math.max(last.height,lineHeight)-first.y)*scale;
   Object.assign(input.style,{
-    left:rect.left-viewport.left+scroller.scrollLeft+line.x*scale+'px',
-    top:rect.top-viewport.top+scroller.scrollTop+line.y*scale+'px',
-    width:Math.max(1,Math.min(rect.width-line.x*scale,line.width*scale+4))+'px',
-    height:line.height*scale+'px',
-    fontSize:font.size*scale+'px',
-    fontFamily:font.font?JSON.stringify(font.font)+', Georgia, serif':'Georgia, serif'
+    left:rect.left-viewport.left+scroller.scrollLeft+left*scale+'px',
+    top:rect.top-viewport.top+scroller.scrollTop+first.y*scale+'px',
+    width:Math.max(1,(right-left)*scale)+'px',
+    height:height+'px',
+    textIndent:(first.x-left)*scale+'px',
+    fontSize:fontSize+'px',lineHeight:lineHeight*scale+'px',fontFamily
   });
-  input.style.width=Math.max(1,Math.min(rect.width-line.x*scale,Math.max(line.width*scale+4,input.scrollWidth)))+'px';
+  const following=page.lines?.find(line=>line.y>last.y+1);
+  const maxHeight=following?(following.y-first.y)*scale:rect.height-first.y*scale;
+  input.style.height=Math.max(height,Math.min(maxHeight,input.scrollHeight||0))+'px';
 }
 
-function openInlineEdit(selection,line,page,x){
-  const cursor=caretOffset(selection.caretStops,x);
-  if(cursor===null)throw new Error('Click inside the text to place the cursor.');
-  const input=$('inline-text');
-  input.style.width='0px';
-  input.value=selection.content;input.hidden=false;
-  inlineEditContext={selection,line,page,identity:sessionIdentity(state),error:''};
+function openInlineEdit(selection,page,x){
+  const {rows,caret,stops,text}=selection.inlineFlow;
+  const column=caretOffset(stops,x);
+  if(column===null)throw new Error('Click inside the text to place the cursor.');
+  const input=$('inline-text'),cursor=caret.start+column;
+  input.value=text;input.hidden=false;
+  inlineEditContext={selection,rows,page,draft:text,identity:sessionIdentity(state),error:''};
   positionInlineEdit(inlineEditContext);
   input.focus({preventScroll:true});input.setSelectionRange(cursor,cursor);
   editorReadOnly();updateControls();
@@ -958,25 +984,27 @@ function flushInlineEdit(context){
   if(context.inFlight)return context.inFlight;
   clearTimeout(context.timer);
   const text=$('inline-text').value,selection=context.selection;
-  if(text===selection.content)return Promise.resolve(true);
+  if(text===context.draft)return Promise.resolve(true);
   if(!inlineTextSupported(text)||context.identity!==sessionIdentity(state)||!fresh()){
-    context.error='Edit a short plain line, or press Esc to restore the last verified text.';
+    context.error='Edit plain text, or press Esc to restore the last verified text.';
     updateControls();return Promise.resolve(false);
   }
-  const policy={kind:'inline-text',page:context.page.number,line:context.line,text};
+  const policy={kind:'inline-text',page:context.page.number,line:context.rows[0].line,text};
   context.inFlight=(async()=>{
     const ok=await textOperation(selection,{content:text,plain:true,inlinePolicy:policy});
     if(ok){
-      const {page,line}=findInlineLine(state.view,policy);
-      Object.assign(context,{page,line,identity:sessionIdentity(state),selection:{...selection,content:text,
-        end:selection.start+text.length,expected_source:state.sources[selection.file]}});
+      const {page,rows}=findInlineFlow(state.view,policy);
+      const source=state.sources[selection.file];
+      const content=text.replaceAll('\n',source.includes('\r\n')?'\r\n\r\n':'\n\n');
+      Object.assign(context,{page,rows,draft:text,identity:sessionIdentity(state),selection:{...selection,content,
+        end:selection.start+editorText(content).length,expected_source:source}});
       positionInlineEdit(context);
     }else context.error='The PDF could not verify this edit. Keep typing or press Esc.';
     return !!ok;
   })().catch(error=>{context.error=message(error);return false}).finally(()=>{
     context.inFlight=null;updateControls();
     const draft=$('inline-text').value;
-    if(inlineEditContext===context&&draft!==context.selection.content&&(!context.error||draft!==text))queueInlineEdit();
+    if(inlineEditContext===context&&draft!==context.draft&&(!context.error||draft!==text))queueInlineEdit();
   });
   return context.inFlight;
 }
@@ -986,7 +1014,7 @@ async function finishInlineEdit(){
   if(!context)return true;
   do {
     if(!await flushInlineEdit(context))return false;
-  } while(inlineEditContext===context&&$('inline-text').value!==context.selection.content);
+  } while(inlineEditContext===context&&$('inline-text').value!==context.draft);
   closeInlineEdit(context);return true;
 }
 
@@ -1158,7 +1186,7 @@ const closeController=new CloseController({getState:()=>state,isDirty:dirty,conf
   unlock:()=>{state.saving=false;editorReadOnly();updateControls()}});
 getCurrentWindow().onCloseRequested(event=>{
   if(inlineEditContext){
-    if(inlineEditContext.inFlight||$('inline-text').value!==inlineEditContext.selection.content){
+    if(inlineEditContext.inFlight||$('inline-text').value!==inlineEditContext.draft){
       event.preventDefault();void finishInlineEdit();toast('Let the current PDF edit finish before closing.');return;
     }
     closeInlineEdit(inlineEditContext);

@@ -1,4 +1,4 @@
-import {findInlineLine} from './inline-text.js';
+import {findInlineFlow} from './inline-text.js';
 
 /** Geometry is expressed in PDF points with a top-left origin. */
 export function union(rectangles) {
@@ -53,7 +53,7 @@ export function linesForSourceRectangles(lines,rectangles,page) {
 
 export function validateObjectLayout(prepared,policy,previousPageCount) {
   if(!policy)return;
-  if(policy.kind==='inline-text'){findInlineLine(prepared,policy);return}
+  if(policy.kind==='inline-text'){findInlineFlow(prepared,policy);return}
   if(policy.kind==='move'&&prepared.pageCount!==previousPageCount)throw new Error('The move changed the number of pages. The original document was preserved.');
   if(policy.kind==='detach')return;
   const object=prepared.objects.get(policy.id);
