@@ -686,9 +686,10 @@ checked separately.
 A development mode uses an appearance-preserving selection probe to
 identify one plain source line. The PDFium worker provides the glyph boxes
 for that occurrence. The browser places a caret at the closest supported
-character boundary, including either side of a space. The typed draft is
-local until Apply sends a single source edit through candidate verification.
-The repeated-line regression checks that the second occurrence alone
+character boundary, including either side of a space. Text appears on the
+PDF line as the author types. A pause sends the draft through candidate
+verification while the input retains focus. The repeated-line regression
+checks that the second occurrence alone
 changes and that Undo restores the source. This slice covers short ASCII
 lines. Native pointer placement, mixed direction and cluster-level caret
 behavior require separate evaluation.

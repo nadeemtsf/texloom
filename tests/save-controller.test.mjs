@@ -18,7 +18,7 @@ function setup({failure=null,parent='COPY-PARENT',busy=false,drafts=[],confirmed
   const state={project:{id:'project',recoveries:drafts},revision:2,sources:{'main.tex':'LOCAL'},saved:{'main.tex':'DISK'},busy,
     client:{flush:async()=>events.push('flush')}};
   const saved=state.saved;
-  const context={state,clone:structuredClone,editorReadOnly:()=>events.push(['readonly',!!state.saving]),updateControls:()=>{},
+  const context={state,inlineEditContext:null,clone:structuredClone,editorReadOnly:()=>events.push(['readonly',!!state.saving]),updateControls:()=>{},
     status:()=>events.push('status'),toast:text=>events.push(['toast',text]),message:error=>error.message||String(error),
     $:element,document:{createElement:()=>({})},dirty:()=>JSON.stringify(state.saved)!==JSON.stringify(state.sources),
     confirm:async()=>confirmed,compile:async()=>events.push('compile'),

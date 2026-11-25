@@ -3,8 +3,8 @@ import {performanceOutcome} from './performance-diagnostics.js';
 
 /** DOM gestures are isolated from source edits and compilation. */
 export class CanvasController {
-  constructor({getSession,resolve,move,reorder,edit,inlineEdit,selected,notify,eventWindow=globalThis.window,diagnostics=null}) {
-    Object.assign(this,{getSession,resolve,move,reorder,edit,inlineEdit,onSelected:selected,notify,eventWindow,diagnostics});
+  constructor({getSession,resolve,move,reorder,edit,inlineEdit,beforeInlineEdit,selected,notify,eventWindow=globalThis.window,diagnostics=null}) {
+    Object.assign(this,{getSession,resolve,move,reorder,edit,inlineEdit,beforeInlineEdit,onSelected:selected,notify,eventWindow,diagnostics});
     this.view=null;this.selection=null;this.pending=0;this.hits=[];
     this.cancelGesture=null;this.pageHandlers=new Map();
     this.onEscape=e=>{if(e.key==='Escape'){this.cancelGesture?.();this.clear()}};
@@ -52,13 +52,23 @@ export class CanvasController {
   async selectHits(hits,page,edit=false,inlineX=null){
     const mode=this.getSession().mode,inline=inlineX!==null;
     if(mode==='read'||inline!==(mode==='inline'))return;
+    if(inline){
+      const view=this.view;
+      if(!await this.beforeInlineEdit()||this.getSession().mode!==mode)return;
+      if(this.view!==view){
+        const line=hits[0];
+        hits=this.view?.pages.find(p=>p.number===page)?.lines.filter(candidate=>
+          candidate.text===line.text&&Math.abs(candidate.baseline-line.baseline)<1&&Math.abs(candidate.x-line.x)<1)||[];
+        if(hits.length!==1)return this.notify('The PDF changed. Click the line again.');
+      }
+    }
     if(!this.fresh())return this.notify('Compile the current source before selecting layout objects. Read text remains available.');
     const reason=this.view.pages.find(p=>p.number===page)?.selectionReason;if(reason)return this.notify(reason);
     hits=[...new Map(hits.filter(h=>h.page===page).map(h=>[h.id,h])).values()];
     if(!hits.length||hits.length>64)return this.notify('Select between one and 64 adjacent text lines.');
     const serial=++this.pending,session=this.getSession(),buildId=session.result.build_id,revision=session.revision;
     const trace=this.diagnostics?.begin('source-selection');
-    this.notify('Mapping selected text to its source…');
+    if(!inline)this.notify('Mapping selected text to its source…');
     try{
       const resolved=await this.resolve({buildId,page,hits,trace,inline,points:hits.map(h=>({x:h.x+Math.min(h.width/2,15),y:h.baseline-h.height*0.35}))});
       const now=this.getSession();

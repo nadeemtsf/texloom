@@ -375,12 +375,13 @@ async function probeSetup(){
  t.control.prove=()=>({schema:1,build_id:'last-good',page:1,x:20,y:30,width:100,height:12,runs:[],lines:[]});
  return t;
 }
-test('typing on a proved PDF line maps the click, then explicitly commits one source edit',async()=>{
+test('typing directly on a proved PDF line retains newer keystrokes across verification',async()=>{
  const t=await probeSetup();
  const original='Original source';
- const line={text:original,x:20,y:32,width:150,runs:[{size:12}]};
+ const line={text:original,x:20,y:32,width:150,height:12,baseline:42,runs:[{size:12}]};
  const viewport=t.elements.get('preview-scroll');
  viewport.getBoundingClientRect=()=>({top:0,left:0,bottom:600,right:550,width:550});
+ viewport.scrollTop=viewport.scrollLeft=0;
  t.control.prove=(_before,_probe,_id,hits)=>({
    schema:1,build_id:'last-good',page:1,x:20,y:32,width:150,height:12,runs:line.runs,lines:hits
  });
@@ -399,27 +400,59 @@ test('typing on a proved PDF line maps the click, then explicitly commits one so
  assert.equal(verified,1);
  assert.equal(t.native.pending.size,0);
  assert.equal(t.native.history.length,0);
- const dialog=t.elements.get('inline-edit-dialog'),input=t.run("$('inline-text')");
+ const shell={getBoundingClientRect:()=>({left:0,top:0,width:550})};
+ const input=t.run("$('inline-text')");
  input.setSelectionRange=(start,end)=>{input.range=[start,end]};
- t.run('openInlineEdit')({...selected,kind:'source'},line,{shell:{getBoundingClientRect:()=>({left:0,top:0})}},105);
+ t.run('openInlineEdit')({...selected,kind:'source'},line,{number:1,shell},105);
  assert.deepEqual(input.range,[8,8]);
  assert.equal(input.value,original);
- assert.equal(dialog.open,true);
+ assert.equal(input.hidden,false);
+ assert.equal(t.elements.has('inline-edit-dialog'),false);
+ t.run("publishPrepared=(prepared,result)=>{state.pdf=prepared.pdf;state.result=result;state.view=prepared;state.compiled=state.revision}");
 
+ let candidateText,holdBuild,completeBuild;
  t.control.plan=async request=>{
    assert.equal(request.action,'replace_source');
    assert.equal(request.plain,true);
-   assert.deepEqual(Array.from(request.selection),[0,15]);
-   assert.equal(request.content,'Original text');
-   return {sources:{'main.tex':request.content,'custom.sty':'Style source'},file:'main.tex'};
+   assert.deepEqual(Array.from(request.selection),[0,request.expected.length]);
+   candidateText=request.content;
+   return {sources:{'main.tex':candidateText,'custom.sty':'Style source'},file:'main.tex'};
  };
+ t.control.compile=async()=>{
+   if(candidateText==='Original text')await new Promise(resolve=>{completeBuild=resolve;holdBuild()});
+   return {ok:true,build_id:'updated-pdf'};
+ };
+ t.control.prepare=async result=>({
+   result,pdf:{destroy:async()=>{}},scale:1,pageCount:1,pages:[{number:1,shell,lines:[{...line,text:candidateText}]}]
+ });
+ const compiling=new Promise(resolve=>{holdBuild=resolve});
  input.value='Original text';
+ t.run('queueInlineEdit()');
  assert.equal(t.native.sources['main.tex'],original);
- await t.run('applyInlineEdit')({preventDefault(){}});
- assert.equal(dialog.open,false,t.elements.get('toast')?.textContent || t.elements.get('banner')?.textContent);
+ const first=t.run('flushInlineEdit(inlineEditContext)');
+ await compiling;
+ input.value='Original texts';input.setSelectionRange(14,14);
+ t.run('queueInlineEdit()');
+ completeBuild();
+ assert.equal(await first,true);
+ assert.equal(input.value,'Original texts');
+ assert.deepEqual(input.range,[14,14]);
+ assert.equal(input.hidden,false);
  assert.equal(t.native.sources['main.tex'],'Original text');
+
+ assert.equal(await t.run('flushInlineEdit(inlineEditContext)'),true);
+ assert.equal(t.native.sources['main.tex'],'Original texts');
  assert.equal(t.native.sources['custom.sty'],'Style source');
- assert.equal(t.native.history.length,1);
+ assert.equal(input.hidden,false);
+ assert.equal(t.native.history.length,2);
+
+ input.value='This line now wraps';
+ t.control.prepare=async result=>({result,pdf:{destroy:async()=>{}},scale:1,pageCount:1,pages:[{number:1,shell,lines:[line]}]});
+ assert.equal(await t.run('flushInlineEdit(inlineEditContext)'),false);
+ assert.equal(t.native.sources['main.tex'],'Original texts');
+ assert.equal(input.value,'This line now wraps');
+ t.run('closeInlineEdit(inlineEditContext)');
+ assert.equal(input.hidden,true);
 });
 
 test('the inline editor refuses an unproved line and malformed caret stops',async()=>{

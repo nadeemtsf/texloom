@@ -26,7 +26,7 @@ import {TypingRecoveryController} from './core/typing-recovery.js';
 import {CloseController} from './core/close-controller.js';
 import draftRecoveryEnabled from './draft-recovery.json';
 import {validateSelectionProbe} from './core/selection-proof.js';
-import {inlineTextSupported,caretOffset} from './core/inline-text.js';
+import {inlineTextSupported,caretOffset,findInlineLine} from './core/inline-text.js';
 import {createWorkspaceInvoke} from './core/workspace-protocol.js';
 import {ProjectControls} from './core/project-controls.js';
 import {PDFSearch} from './core/pdf-search.js';
@@ -75,8 +75,9 @@ const state={
   canUndo:false,canRedo:false,opening:false,mutating:false,composing:false,
   buildEpoch:0,cancelRequested:false,
   recovery:null,restoredDirty:false,
-  busy:false,pending:false,previewZooming:false,zoom:0,mode:'select',compileTimer:null,renderSerial:0,renderAbort:null,dialog:null,compileApproved:false
+  busy:false,pending:false,previewZooming:false,zoom:0,mode:'inline',compileTimer:null,renderSerial:0,renderAbort:null,dialog:null,compileApproved:false
 };
+let inlineEditContext=null;
 // Dedicated keys follow native history even when setValue clears Monaco's stack.
 const undoContext=editor.createContextKey('texloomCanUndo',false);
 const redoContext=editor.createContextKey('texloomCanRedo',false);
@@ -110,6 +111,7 @@ const canvas=new CanvasController({
   reorder:(selection,destination)=>reorderText(selection,destination),
   edit:selection=>editText(selection),
   inlineEdit:openInlineEdit,
+  beforeInlineEdit:finishInlineEdit,
   selected:selection=>showObjectInspector(selection),
   notify:text=>toast(text)
 });
@@ -139,7 +141,7 @@ function acceptDocument(snapshot){
   state.recovery=snapshot.recovery??state.recovery;
   status();updateControls();
 }
-function editorReadOnly(){editor.updateOptions({readOnly:state.opening||state.mutating||state.saving||!!state.client?.error});}
+function editorReadOnly(){editor.updateOptions({readOnly:state.opening||state.mutating||state.saving||!!state.client?.error||!!inlineEditContext});}
 function syncFailed(error){
   preliminary?.clear();
   editorReadOnly();
@@ -172,7 +174,8 @@ function fresh(){return !!state.result&&state.result.verification_eligible!==fal
 function canExport(){return !!state.project&&!!state.client&&!state.busy&&!state.opening&&!state.mutating&&!state.composing&&!state.saving&&!state.client.error}
 function updateControls(){
   typingRecovery?.renderProtection();
-  const ready=fresh(),object=ready&&!!state.objectSelection;
+  const inlinePending=!!inlineEditContext&&(!!inlineEditContext.inFlight||$('inline-text').value!==inlineEditContext.selection.content);
+  const ready=fresh()&&!inlinePending,object=ready&&!!state.objectSelection;
   for(const id of ['add-text','show-pdf'])$(id).disabled=!ready;
   for(const id of ['object-apply','object-edit','object-source'])$(id).disabled=!object;
   const destinations=object?canvas.reorderDestinations?.(state.objectSelection)||[]:[];
@@ -182,11 +185,11 @@ function updateControls(){
   $('object-reset').disabled=!object||state.objectSelection?.kind!=='object'||(!state.objectSelection.dx&&!state.objectSelection.dy);
   $('compile').disabled=state.busy||!!state.saving||!!state.client?.error;
   $('save').disabled=!!state.saving||state.busy||state.composing||!!state.client?.error;
-  $('export').disabled=!canExport();
+  $('export').disabled=!canExport()||inlinePending;
   $('open').disabled=!!state.saving||state.mutating||state.opening;
-  for(const id of ['projects','layout-controls','import-image'])$(id).disabled=state.busy||state.composing||state.mutating||state.opening||!!state.saving;
-  $('engine').disabled=!!state.saving||state.mutating||!!state.client?.error;
-  $('main-file').disabled=!!state.saving||state.mutating||!!state.client?.error;
+  for(const id of ['projects','layout-controls','import-image'])$(id).disabled=inlinePending||state.busy||state.composing||state.mutating||state.opening||!!state.saving;
+  $('engine').disabled=inlinePending||!!state.saving||state.mutating||!!state.client?.error;
+  $('main-file').disabled=inlinePending||!!state.saving||state.mutating||!!state.client?.error;
   $('cancel-compile').disabled=!state.busy||state.mutating;
   $('undo').disabled=!state.canUndo||state.mutating||state.saving||state.composing||!!state.client?.error;
   $('redo').disabled=!state.canRedo||state.mutating||state.saving||state.composing||!!state.client?.error;
@@ -196,11 +199,11 @@ function updateControls(){
   const label=Number.isFinite(seconds)&&seconds>=0?`Last compile ${seconds.toFixed(2)} s`:'';
   if(timing.textContent!==label)timing.textContent=label;
   $('pages').classList.toggle('stale',state.revision!==state.compiled||state.busy);
-  $('selection-hint').textContent=state.mode==='read'?'Drag over text to highlight and copy it.':
+  $('selection-hint').textContent=inlineEditContext?.error||(state.mode==='read'?'Drag over text to highlight and copy it.':
     state.mode==='inline'?'Click a plain line to place the text cursor.':
     state.result&&!state.result.objects?.length?
       'Click text to select it. Shift-click or draw a box for a group.':
-      'Select text or an object. Drag its frame; double-click to edit.';
+      'Select text or an object. Drag its frame; double-click to edit.');
 }
 function sourceChanged(revision){
   state.revision=revision??state.revision+1;canvas.clear();status();scheduleCompile();updateControls();
@@ -320,6 +323,7 @@ function renderFiles(){
   $('main-file').value=state.project.main;$('engine').value=state.engine;
 }
 async function openProject(path=null,supplied=null,{compileOnOpen=false}={}){
+  if(inlineEditContext&&!await finishInlineEdit())return;
   if(state.opening||(!supplied&&(state.busy||state.saving||state.mutating||state.composing)))return toast('Wait for the current operation before opening another project.');
   state.opening=true;editorReadOnly();updateControls();
   let client=null,project=null;
@@ -379,6 +383,7 @@ async function openProject(path=null,supplied=null,{compileOnOpen=false}={}){
   await compile();
 }
 async function saveProject(){
+  if(inlineEditContext&&!await finishInlineEdit())return;
   if(!state.project||state.saving||state.opening||state.mutating||state.composing)return;
   if(state.busy)return toast('Wait for the current compilation before saving.');
   state.saving=true;editorReadOnly();updateControls();
@@ -542,14 +547,14 @@ async function resolveSourceSelection({buildId,page,points,hits,trace=null,inlin
 function prepareResult(result,workerStartup){
   return preparePDFView(pdfViewLibrary,result,{width:$('preview-scroll').clientWidth,zoom:state.zoom,mode:state.mode,lazy:true,workerStartup});
 }
-function publishPrepared(prepared,result){
+function publishPrepared(prepared,result,{preserveAnchor=false}={}){
   preliminary?.clear();
   const previous=state.pdf;
   state.renderSerial++;state.renderAbort?.abort();
   state.view?.dispose?.();pdfSearch.reset();
   state.pdf=prepared.pdf;state.result={...result,pdf:[]};state.compiled=state.revision;
   prepared.result=state.result;prepared.mode=state.mode;state.view=prepared;state.previewZooming=false;surfaceElements.pages.classList.remove('zooming');
-  publishPDFView(prepared,surfaceElements);canvas.bind(prepared);
+  publishPDFView(prepared,surfaceElements,{preserveAnchor});canvas.bind(prepared);
   $('fit').textContent=state.zoom?Math.round(prepared.scale*100)+'%':'Fit';
   $('log').textContent=result.log;$('banner').classList.add('hidden');
   renderDiagnostics(result.diagnostics||[]);
@@ -563,7 +568,7 @@ function publishPrepared(prepared,result){
 }
 async function compile(reason='manual'){
   if(!state.project)return;clearTimeout(state.compileTimer);
-  if(state.composing||state.saving||state.opening||state.mutating||$('inline-edit-dialog').open)return;
+  if(state.composing||state.saving||state.opening||state.mutating||inlineEditContext)return;
   if(reason==='auto'&&!$('auto').checked)return;
   if(!state.compileApproved&&reason!=='manual')return;
   if(reason==='manual')state.compileApproved=true;
@@ -577,7 +582,7 @@ async function compile(reason='manual'){
   // Flushing yields to project/trust, cancellation, history and save actions.
   // A request made for the old client must never compile the newly opened one.
   if(state.client!==client||state.buildEpoch!==epoch||state.opening||state.saving||state.mutating||state.composing||
-    $('inline-edit-dialog').open||!state.compileApproved||reason==='auto'&&!$('auto').checked){trace?.finish('superseded');return}
+    inlineEditContext||!state.compileApproved||reason==='auto'&&!$('auto').checked){trace?.finish('superseded');return}
   if(state.busy){trace?.finish('superseded');if(reason==='manual'||!state.pending)state.pending=reason;return}
   const identity=sessionIdentity(state),revision=state.revision;state.busy=true;state.cancelRequested=false;updateControls();
   let prepared=null,workerStartup=null;
@@ -633,7 +638,8 @@ async function commitSources(sources,{file=state.file,policy=null,operation=null
     await client.commit(nativeCandidate.token,candidate.result.build_id);
     committed=true;
     trace?.mark('native-committed');
-    state.file=file;state.lastHistory=0;syncEditor();publishPrepared(prepared,candidate.result);prepared=null;
+    state.file=file;state.lastHistory=0;syncEditor();
+    publishPrepared(prepared,candidate.result,{preserveAnchor:policy?.kind==='inline-text'});prepared=null;
     trace?.mark('published');
     return true;
   }catch(error){
@@ -678,7 +684,7 @@ async function commitSources(sources,{file=state.file,policy=null,operation=null
     }
   }
 }
-async function textOperation(selection,{dx,dy,content,literalEdits,spacingEdits,plain=false,detach=false}={},trace=diagnostics.begin('text-edit')){
+async function textOperation(selection,{dx,dy,content,literalEdits,spacingEdits,plain=false,detach=false,inlinePolicy=null}={},trace=diagnostics.begin('text-edit')){
   if(!fresh()){trace?.finish('refused');return toast('Compile the current source before changing the canvas.')}
   if(selection.kind==='source'&&state.sources[selection.file]!==selection.expected_source){trace?.finish('stale');return toast('That source selection changed. Select it again.')}
   const identity=sessionIdentity(state),id=selection.kind==='object'?selection.id:'text-'+crypto.randomUUID().slice(0,8);
@@ -696,7 +702,7 @@ async function textOperation(selection,{dx,dy,content,literalEdits,spacingEdits,
     trace?.mark('planned');
     if(sessionIdentity(state)!==identity){trace?.finish('stale');return toast('The source changed. Select the text again.')}
     const kind=detach?'detach':spacingEdits?.length?'spacing':isEdit?'edit':'move';
-    let policy=null;
+    let policy=inlinePolicy;
     if(!direct){
       policy={id,kind,unchangedRuns:null};
       if(kind==='move'){
@@ -809,7 +815,7 @@ function showSource(selection){
   editor.revealRangeInCenter(new monaco.Range(start.lineNumber,start.column,end.lineNumber,end.column));editor.focus();
 }
 function zoomPDF(scale,origin){
-  const view=state.view;if(!view?.zoomTo||state.busy)return;
+  const view=state.view;if(!view?.zoomTo||state.busy||inlineEditContext)return;
   if(!state.previewZooming){canvas.clear();state.previewZooming=true;surfaceElements.pages.classList.add('zooming')}
   state.zoom=scale;
   // PDF.js stretches its existing canvas synchronously; no compilation or view replacement.
@@ -883,6 +889,7 @@ function showEditor(title,value,plain,locked=false){
   positionTextEditor();
 }
 async function undo(redo=false){
+  if(inlineEditContext&&!await finishInlineEdit())return;
   preliminary?.clear();
   if(!state.client||state.mutating||state.saving||state.composing||state.client.error)return;
   state.mutating=true;editorReadOnly();updateControls();
@@ -903,50 +910,84 @@ async function undo(redo=false){
     }
   }catch(error){syncFailed(error)}finally{state.mutating=false;editorReadOnly();updateControls()}
 }
-let inlineEditContext=null;
-function openInlineEdit(selection,line,page,x){
-  const dialog=$('inline-edit-dialog'),input=$('inline-text'),scale=state.view.scale;
-  const cursor=caretOffset(selection.caretStops,x);
-  if(cursor===null)throw new Error('Click inside the text to place the cursor.');
-  const rect=page.shell.getBoundingClientRect(),viewport=$('preview-scroll').getBoundingClientRect();
-  const width=Math.min(viewport.width-12,Math.max(line.width*scale+8,310));
-  const left=Math.max(viewport.left+6,Math.min(rect.left+line.x*scale-3,viewport.right-width-6));
-  const top=Math.max(viewport.top,Math.min(rect.top+line.y*scale-2,viewport.bottom-68));
-  Object.assign(dialog.style,{top:top+'px',left:left+'px',width:width+'px'});
-  input.style.fontSize=Math.max(12,line.runs[0].size*scale)+'px';
-  input.value=selection.content;
-  inlineEditContext={selection,identity:sessionIdentity(state),view:state.view,applying:false};
-  $('inline-edit-status').textContent='Enter to apply · Esc to cancel';
-  dialog.showModal();
-  input.focus({preventScroll:true});input.setSelectionRange(cursor,cursor);
+function positionInlineEdit(context){
+  const input=$('inline-text'),scroller=surfaceElements.scroller,scale=state.view.scale;
+  const {page,line}=context;
+  const rect=page.shell.getBoundingClientRect(),viewport=scroller.getBoundingClientRect();
+  const font=line.runs[0];
+  Object.assign(input.style,{
+    left:rect.left-viewport.left+scroller.scrollLeft+line.x*scale+'px',
+    top:rect.top-viewport.top+scroller.scrollTop+line.y*scale+'px',
+    width:Math.max(1,Math.min(rect.width-line.x*scale,line.width*scale+4))+'px',
+    height:line.height*scale+'px',
+    fontSize:font.size*scale+'px',
+    fontFamily:font.font?JSON.stringify(font.font)+', Georgia, serif':'Georgia, serif'
+  });
+  input.style.width=Math.max(1,Math.min(rect.width-line.x*scale,Math.max(line.width*scale+4,input.scrollWidth)))+'px';
 }
 
-async function applyInlineEdit(event){
-  event.preventDefault();
+function openInlineEdit(selection,line,page,x){
+  const cursor=caretOffset(selection.caretStops,x);
+  if(cursor===null)throw new Error('Click inside the text to place the cursor.');
+  const input=$('inline-text');
+  input.style.width='0px';
+  input.value=selection.content;input.hidden=false;
+  inlineEditContext={selection,line,page,identity:sessionIdentity(state),error:''};
+  positionInlineEdit(inlineEditContext);
+  input.focus({preventScroll:true});input.setSelectionRange(cursor,cursor);
+  editorReadOnly();updateControls();
+}
+
+function closeInlineEdit(context){
+  if(context!==inlineEditContext)return;
+  clearTimeout(context.timer);inlineEditContext=null;
+  $('inline-text').hidden=true;editorReadOnly();updateControls();
+}
+
+function queueInlineEdit(){
   const context=inlineEditContext;
-  if(!context||context.applying)return;
-  const input=$('inline-text'),status=$('inline-edit-status'),dialog=$('inline-edit-dialog'),text=input.value;
-  if(text===context.selection.content){dialog.close();return}
-  if(!inlineTextSupported(text)){
-    status.textContent='Use a short line of plain letters, numbers and punctuation.';
-    input.focus();return;
+  if(!context)return;
+  context.error='';
+  positionInlineEdit(context);updateControls();
+  clearTimeout(context.timer);
+  context.timer=setTimeout(()=>flushInlineEdit(context),650);
+}
+
+function flushInlineEdit(context){
+  if(context!==inlineEditContext)return Promise.resolve(false);
+  if(context.inFlight)return context.inFlight;
+  clearTimeout(context.timer);
+  const text=$('inline-text').value,selection=context.selection;
+  if(text===selection.content)return Promise.resolve(true);
+  if(!inlineTextSupported(text)||context.identity!==sessionIdentity(state)||!fresh()){
+    context.error='Edit a short plain line, or press Esc to restore the last verified text.';
+    updateControls();return Promise.resolve(false);
   }
-  if(context.identity!==sessionIdentity(state)||context.view!==state.view||!fresh()){
-    status.textContent='The preview changed. Copy your draft, then select the line again.';return;
-  }
-  context.applying=true;
-  input.readOnly=true;$('inline-apply').disabled=true;$('inline-cancel').disabled=true;
-  status.textContent='Checking the edited PDF…';
-  try{
-    if(await textOperation(context.selection,{content:text,plain:true})){
-      dialog.close();return;
-    }
-    status.textContent='The edit could not be applied. Review the text or cancel.';
-  }finally{
-    context.applying=false;
-    input.readOnly=false;$('inline-apply').disabled=false;$('inline-cancel').disabled=false;
-    if(dialog.open)input.focus();
-  }
+  const policy={kind:'inline-text',page:context.page.number,line:context.line,text};
+  context.inFlight=(async()=>{
+    const ok=await textOperation(selection,{content:text,plain:true,inlinePolicy:policy});
+    if(ok){
+      const {page,line}=findInlineLine(state.view,policy);
+      Object.assign(context,{page,line,identity:sessionIdentity(state),selection:{...selection,content:text,
+        end:selection.start+text.length,expected_source:state.sources[selection.file]}});
+      positionInlineEdit(context);
+    }else context.error='The PDF could not verify this edit. Keep typing or press Esc.';
+    return !!ok;
+  })().catch(error=>{context.error=message(error);return false}).finally(()=>{
+    context.inFlight=null;updateControls();
+    const draft=$('inline-text').value;
+    if(inlineEditContext===context&&draft!==context.selection.content&&(!context.error||draft!==text))queueInlineEdit();
+  });
+  return context.inFlight;
+}
+
+async function finishInlineEdit(){
+  const context=inlineEditContext;
+  if(!context)return true;
+  do {
+    if(!await flushInlineEdit(context))return false;
+  } while(inlineEditContext===context&&$('inline-text').value!==context.selection.content);
+  closeInlineEdit(context);return true;
 }
 
 function setMode(value){
@@ -1083,12 +1124,19 @@ $('object-detach').onclick=()=>textOperation(state.objectSelection,{detach:true}
 $('object-reset').onclick=()=>{const selection=state.objectSelection;if(selection?.kind==='object')moveText(selection,-selection.dx,-selection.dy)};
 $('object-apply').onclick=()=>{const selection=state.objectSelection;if(!selection)return;
   moveText(selection,Number($('object-dx').value)*PT_PER_MM-(selection.dx||0),Number($('object-dy').value)*PT_PER_MM-(selection.dy||0))};
-$('select-mode').onclick=()=>setMode('select');$('read-mode').onclick=()=>setMode('read');
-$('inline-mode').onclick=()=>setMode('inline');
-$('inline-edit-form').onsubmit=applyInlineEdit;
-$('inline-cancel').onclick=()=>{if(!inlineEditContext?.applying)$('inline-edit-dialog').close()};
-$('inline-edit-dialog').addEventListener('cancel',event=>{if(inlineEditContext?.applying)event.preventDefault()});
-$('inline-edit-dialog').addEventListener('close',()=>{if(!$('inline-edit-dialog').open)inlineEditContext=null});
+for(const mode of ['select','inline','read']){
+  $(mode+'-mode').onclick=async()=>{if(await finishInlineEdit())setMode(mode)};
+}
+$('inline-text').oninput=event=>{if(!event.isComposing)queueInlineEdit()};
+$('inline-text').addEventListener('compositionend',queueInlineEdit);
+$('inline-text').onblur=()=>{if(inlineEditContext)void finishInlineEdit()};
+$('inline-text').onkeydown=event=>{
+  if(event.isComposing)return;
+  if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='s'){event.preventDefault();void saveProject();return}
+  if(event.key==='Escape'&&inlineEditContext&&!inlineEditContext.inFlight){
+    event.preventDefault();closeInlineEdit(inlineEditContext);
+  }
+};
 $('zoom-in').onclick=()=>{pdfNavigation.cancelZoom();state.zoom=Math.min(2.5,(state.zoom||state.view?.scale||1)+0.1);renderPDF()};
 $('zoom-out').onclick=()=>{pdfNavigation.cancelZoom();state.zoom=Math.max(0.2,(state.zoom||state.view?.scale||1)-0.1);renderPDF()};
 $('fit').onclick=()=>{pdfNavigation.cancelZoom();state.zoom=0;renderPDF()};
@@ -1109,8 +1157,11 @@ const closeController=new CloseController({getState:()=>state,isDirty:dirty,conf
   lock:()=>{state.saving=true;editorReadOnly();updateControls()},
   unlock:()=>{state.saving=false;editorReadOnly();updateControls()}});
 getCurrentWindow().onCloseRequested(event=>{
-  if($('inline-edit-dialog').open){
-    event.preventDefault();$('inline-edit-status').textContent='Apply or cancel the edit before closing.';return;
+  if(inlineEditContext){
+    if(inlineEditContext.inFlight||$('inline-text').value!==inlineEditContext.selection.content){
+      event.preventDefault();void finishInlineEdit();toast('Let the current PDF edit finish before closing.');return;
+    }
+    closeInlineEdit(inlineEditContext);
   }
   return closeController.handle(event);
 });
@@ -1133,5 +1184,5 @@ $('recovery-copy').onclick=saveProjectCopy;
 $('recovery-discard').onclick=discardSaveRecovery;
 $('recovery-close').onclick=()=>{if(!state.saving)$('recovery-dialog').close()};
 $('recovery-dialog').addEventListener('cancel',event=>{if(state.saving)event.preventDefault()});
-setMode('select');
+setMode('inline');
 openProject();
