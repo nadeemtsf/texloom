@@ -56,21 +56,56 @@ async function clickLine(text,fraction=0){
     await send('Input.dispatchMouseEvent',{type,...point,button:'left',clickCount:1});
   assert.equal(await evaluate("document.activeElement?.matches('.pdf-typing')"),true,'Caret focus after clicking '+text);
 }
-async function signatureRaster(){
+async function lineRaster(label='Head of the Example Department',surrounding=true,scroll=true){
   const clip=await evaluate(`(()=>{
-    const line=[...document.querySelectorAll('.line-hit')].find(node=>node.ariaLabel==='Select text: Head of the Example Department');
-    line.scrollIntoView({block:'nearest'});
+    const line=[...document.querySelectorAll('.line-hit')].find(node=>node.ariaLabel===${JSON.stringify('Select text: '+label)});
+    if(!line)return null;
+    if(${scroll})line.scrollIntoView({block:'nearest'});
     const rect=line.getBoundingClientRect(), viewport=document.querySelector('#preview-scroll').getBoundingClientRect();
-    const x=Math.ceil(Math.max(viewport.left,rect.left-5)),y=Math.ceil(Math.max(viewport.top,rect.top-2*rect.height));
+    const x=Math.ceil(Math.max(viewport.left,rect.left-5)),y=Math.ceil(Math.max(viewport.top,rect.top-(${surrounding}?2:0)*rect.height));
     return {x,y,width:Math.min(Math.floor(viewport.right)-x,Math.ceil(rect.width*1.7)),
-      height:Math.min(Math.floor(viewport.bottom)-y,Math.ceil(rect.height*5)),scale:1};
+      height:Math.min(Math.floor(viewport.bottom)-y,Math.floor(rect.height*(${surrounding}?5:1))),scale:1};
   })()`);
+  assert.ok(clip,'Missing PDF line '+label);
   // Exclude the cursor itself, so any change to the text underneath fails.
   await evaluate("document.querySelectorAll('.pdf-typing-selection').forEach(node=>node.style.visibility='hidden')");
   try{
     const {data}=await send('Page.captureScreenshot',{format:'png',clip});
     return data;
   }finally{await evaluate("document.querySelectorAll('.pdf-typing-selection').forEach(node=>node.style.removeProperty('visibility'))")}
+}
+async function checkDraftLine(line,neighbors){
+  const painted="new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))";
+  await evaluate(`[...document.querySelectorAll('.line-hit')].find(node=>node.ariaLabel===${JSON.stringify(
+    'Select text: '+line)}).scrollIntoView({block:'center'})`);
+  await evaluate(painted);
+  const original=await lineRaster(line,false,false),before=[];
+  for(const label of neighbors)before.push(await lineRaster(label,false,false));
+  await clickLine(line,0.42);
+  await type('x');
+  await evaluate(painted);
+  assert.equal(await evaluate("!!document.querySelector('.pdf-typing-line-draft:not([hidden])')"),true,
+    'The character edit uses the original line position');
+  const edited=await lineRaster(line,false,false);
+  if(edited===original)console.error(await evaluate(`(()=>{
+    const draft=document.querySelector('.pdf-typing-line-draft:not([hidden])');
+    const line=[...document.querySelectorAll('.line-hit')].find(node=>node.ariaLabel===${JSON.stringify('Select text: '+line)});
+    return {draft:draft?.getBoundingClientRect().toJSON(),line:line?.getBoundingClientRect().toJSON(),
+      style:draft&&getComputedStyle(draft).display,value:document.activeElement.innerText};
+  })()`));
+  assert.equal(edited===original,false,'The edited letter appears before TeX finishes');
+  for(const [i,label] of neighbors.entries()){
+    const after=await lineRaster(label,false,false);
+    if(after!==before[i]){
+      await writeFile(join(work,'neighbor-before.png'),Buffer.from(before[i],'base64'));
+      await writeFile(join(work,'neighbor-during.png'),Buffer.from(after,'base64'));
+    }
+    assert.equal(after===before[i],true,label+' stays in place while typing');
+  }
+  await key('Backspace',8);
+  await key('Escape',27);
+  await evaluate(painted);
+  assert.equal((await lineRaster(line,false,false))===original,true,'Deleting the provisional letter restores the original pixels');
 }
 async function key(key,virtual,modifiers=0){
   for(const type of ['keyDown','keyUp'])
@@ -134,9 +169,9 @@ try{
   await until("Array.from(document.querySelectorAll('.line-hit')).some(e=>e.ariaLabel==='Select text: Unchanged heading.')",'undo restored the separate first paragraph');
   source=await save(file);assert.match(source,/Unchanged heading\.\r?\n\r?\nAn ordinary/);
   const literal=await setup(sample.replace('\\textbf{\\PersonName}','\\textbf{Dr. Example Research}'),'Literal signature');
-  const before=await signatureRaster();
+  const before=await lineRaster();
   await clickLine('Head of the Example Department',0.42);
-  const after=await signatureRaster();
+  const after=await lineRaster();
   if(before!==after){
     await writeFile(join(work,'signature-before.png'),Buffer.from(before,'base64'));
     await writeFile(join(work,'signature-after.png'),Buffer.from(after,'base64'));
@@ -158,16 +193,38 @@ try{
   await key('Escape',27);
   assert.equal(await evaluate("document.querySelector('.pdf-typing-caret')"),null);
   assert.equal(await readFile(literal,'utf8'),sample.replace('\\textbf{\\PersonName}','\\textbf{Dr. Example Research}'));
+  await checkDraftLine('Head of the Example Department',['Dr. Example Research','Example University']);
+  assert.equal(await lineRaster(),before);
   await clickLine('Dr. Example Research');await key('End',35);await key('Tab',9);await type('A');
   assert.ok((await evaluate('document.activeElement.innerText')).includes('Research\tA'));
   source=await save(literal);
   assert.ok(source.includes('\\textbf{Dr. Example Research\\mbox{\\ \\ \\ \\ }A}'));
   await until("Array.from(document.querySelectorAll('.line-hit'),e=>e.ariaLabel.slice(13)).join(' ').replace(/\\s+/gu,' ').includes('Dr. Example Research A')",'typeset tab and following letter');
+
+  const report=await readFile(join(repo,'research','report','main.tex'),'utf8');
+  const section=await readFile(join(repo,'research','report','sections','01-scope.tex'),'utf8');
+  const documentStart='\\begin{document}';
+  const preamble=report.slice(0,report.indexOf(documentStart)+documentStart.length);
+  const first=section.slice(0,section.indexOf('\\begin{quote}'));
+  const second=section.slice(section.indexOf('Three boundaries must be distinguished.'),
+    section.indexOf('\\subsection{Purpose of this report}'));
+  const excerpt=preamble+'\n'+first+'\n\\clearpage\n'+second+'\n\\end{document}\n';
+  const reportFile=await setup(excerpt,'Technical report excerpt');
+  const wrapping=await evaluate(`(()=>{
+    const rows=[...document.querySelectorAll('[data-page="2"] .line-hit')].map(node=>node.ariaLabel.slice(13));
+    const start=rows.findIndex(text=>text.startsWith('Three boundaries must be distinguished.'));
+    return start<0?[]:rows.slice(start,start+3);
+  })()`);
+  assert.equal(wrapping.length,3,'A wrapped report paragraph is visible on page two');
+  await checkDraftLine(wrapping[1],[wrapping[0],wrapping[2]]);
+  assert.equal(await readFile(reportFile,'utf8'),excerpt);
+
   const timings=await evaluate('window.caretTimes');
   assert.ok(timings.length>=4);
-  const result={executable,fixtures:[basename(dirname(file)),basename(dirname(literal))],
+  const result={executable,fixtures:[basename(dirname(file)),basename(dirname(literal)),basename(dirname(reportFile))],
     tests:['type into macro use','switch passages during verification','join hard line','join paragraphs','Undo and Save',
-      'unchanged Windows raster on signature click','literal bold name and Tab'],
+      'unchanged Windows raster on signature click','unchanged neighboring lines while typing',
+      'literal bold name and Tab','unchanged wrapped report lines on page two'],
     pointerDownToFocusMs:timings};
   await writeFile(join(work,'result.json'),JSON.stringify(result,null,2));
   console.log('Passed Windows typing checks. Results in '+work);

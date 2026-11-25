@@ -26,7 +26,7 @@ import {TypingRecoveryController} from './core/typing-recovery.js';
 import {CloseController} from './core/close-controller.js';
 import draftRecoveryEnabled from './draft-recovery.json';
 import {validateSelectionProbe} from './core/selection-proof.js';
-import {buildInlineIndex,caretOffset} from './core/inline-text.js';
+import {buildInlineIndex} from './core/inline-text.js';
 import {InlineSurface} from './core/inline-surface.js';
 import {createWorkspaceInvoke} from './core/workspace-protocol.js';
 import {ProjectControls} from './core/project-controls.js';
@@ -928,8 +928,7 @@ function openInlineEdit(line,page,x){
   const index=state.view.inlineIndex,mapped=index?.byLine.get(line);
   if(!mapped)return toast(index?.error||'This text has no unique editable source in the current PDF.');
   const {entry,row}=mapped;
-  const column=caretOffset(row.stops,x);
-  if(column===null)return;
+  if(!Number.isFinite(x))return;
   let context=[...inlineSessions].find(c=>c.entry===entry);
   if(!context){
     const template=$('inline-text'),node=template.hidden?template:template.cloneNode(false);
@@ -959,7 +958,9 @@ function openInlineEdit(line,page,x){
     node.onkeydown=event=>inlineKeydown(event,context);
   }
   inlineEditContext=context;
-  context.surface.select(Math.min(row.offsets[column],context.surface.value.length),row);
+  const offset=context.surface.offsetAt(row,x);
+  if(offset===null)return;
+  context.surface.select(Math.min(offset,context.surface.value.length),row);
   context.surface.drawSelection();
   editorReadOnly();updateControls();
 }

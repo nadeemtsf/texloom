@@ -21,6 +21,8 @@ While preparing a PDF, Texloom projects supported source passages into visible t
 
 The bundled signature contains a minipage, optional break lengths and a bold local name macro. Editing that name changes its use site and preserves the original definition. Backspace can remove the break before the department line. A logical passage currently fits on one mapped page. The next steps cover cross-page positions, included-file origins and mixed-direction clusters. [Responsive editing roadmap](architecture/RESPONSIVE-EDITING.md)
 
+Character edits that fit on a mapped line display a draft at the compiled baseline and leave the neighboring PDF lines in place. Edits that change line breaks or need more room use the multiline draft before TeX publishes the verified layout.
+
 Run the packaged Windows pointer, typing, join, Undo and Save regression with Node from the repository root. Supply the path to the executable in a complete portable build. Test documents and results go under `artifacts/native-pdf-typing/`.
 
 ```powershell
