@@ -26,7 +26,7 @@ import {TypingRecoveryController} from './core/typing-recovery.js';
 import {CloseController} from './core/close-controller.js';
 import draftRecoveryEnabled from './draft-recovery.json';
 import {validateSelectionProbe} from './core/selection-proof.js';
-import {inlineTextSupported,inlineSourceText,nearbyInlineLines,inlineRows,caretOffset,findInlineFlow} from './core/inline-text.js';
+import {inlineTextSupported,inlineSourceText,nearbyInlineLines,inlineRows,caretOffset,findInlineFlow,documentBody,measuredCaretStops,inlineSourceReplacement} from './core/inline-text.js';
 import {createWorkspaceInvoke} from './core/workspace-protocol.js';
 import {ProjectControls} from './core/project-controls.js';
 import {PDFSearch} from './core/pdf-search.js';
@@ -479,18 +479,42 @@ async function discardSaveRecovery(){
 const selectionProofs=new WeakMap();
 async function resolveCanvasSelection(args){
   if(!args.inline)return resolveSourceSelection(args);
-  const [clicked]=args.hits;
-  const page=state.view?.pages.find(item=>item.number===args.page);
-  const lines=nearbyInlineLines(page?.lines||[],clicked);
-  if(lines.length>1){
-    const points=lines.map(line=>({x:line.x+Math.min(line.width/2,15),y:line.baseline-line.height*0.35}));
-    try{return await resolveSourceSelection({...args,hits:lines,points,clicked})}
-    catch(error){if(error instanceof StaleCandidate||error.name==='CompilationCancelled')throw error}
+  const [clicked]=args.hits,view=state.view,identity=sessionIdentity(state);
+  const page=view.pages.find(item=>item.number===args.page),file=state.project.main,source=state.sources[file];
+  const bind=resolved=>{
+    const text=resolved.file===file?inlineSourceText(resolved.content):null;
+    if(text===null)return null;
+    // Match against the rendered page. The marked baseline generated during
+    // the edit transaction verifies the exact occurrence before source changes.
+    for(let i=0;i<=page.lines.indexOf(clicked);i++){
+      const rows=inlineRows(page.lines.slice(i),text),caret=rows?.find(row=>row.line===clicked);
+      if(caret){
+        const measure=document.createElement('canvas').getContext?.('2d');
+        return {...resolved,inlineFlow:{text,rows,caret,stops:measuredCaretStops(clicked,measure)}};
+      }
+    }
+    return null;
+  };
+  const body=documentBody(source);
+  if(body){
+    const start=editorText(source.slice(0,body.start)).length;
+    const resolved=bind({file,expected_source:source,content:body.content,start,end:start+editorText(body.content).length});
+    if(resolved)return resolved;
   }
-  return resolveSourceSelection({...args,clicked});
+  const lines=nearbyInlineLines(page.lines,clicked);
+  const group=lines.map(line=>({x:line.x+Math.min(line.width/2,15),y:line.baseline-line.height*0.35}));
+  // SyncTeX reads the existing mapping files. Opening a caret never runs TeX.
+  for(const points of lines.length>1?[group,args.points]:[args.points]){
+    let hint;
+    try{hint=await state.client.resolve(args.buildId,args.page,points)}catch{}
+    if(identity!==sessionIdentity(state)||state.view!==view)throw new StaleCandidate();
+    const resolved=hint&&bind(hint);
+    if(resolved)return resolved;
+  }
+  throw Error('Use the source editor for this part of the document.');
 }
 
-async function resolveSourceSelection({buildId,page,points,hits,trace=null,inline=false,clicked=hits[0]}){
+async function resolveSourceSelection({buildId,page,points,hits,trace=null}){
   if(!fresh()||buildId!==state.result.build_id)throw new StaleCandidate();
   const identity=sessionIdentity(state),baseline=state.view,scale=baseline.scale,dpr=globalThis.devicePixelRatio||1,client=state.client,seen=new Set();
   const assertCurrent=()=>{if(sessionIdentity(state)!==identity||state.view!==baseline||baseline.scale!==scale||(globalThis.devicePixelRatio||1)!==dpr||state.previewZooming)throw new StaleCandidate()};
@@ -512,13 +536,11 @@ async function resolveSourceSelection({buildId,page,points,hits,trace=null,inlin
         const key=JSON.stringify([resolved.file,resolved.start,resolved.end]);if(seen.has(key))continue;seen.add(key);
         attempts++;
         const cached=selectionProofs.get(baseline)?.get(key);
-        const text=inline&&['paragraph','group'].includes(resolved.kind)&&resolved.file===state.project.main?inlineSourceText(resolved.content):null;
-        if(inline&&text===null)throw new Error('Type in PDF works on plain paragraphs in the main file. Use the source editor for this text.');
-        if(cached&&(!inline||cached.inlineFlow?.caret.line===clicked)&&hits.every(h=>h.runs.every(r=>cached.runs.includes(r)))){
-          await client.verify(buildId);assertCurrent();return {...resolved,proof:cached,inlineFlow:cached.inlineFlow};
+        if(cached&&hits.every(h=>h.runs.every(r=>cached.runs.includes(r)))){
+          await client.verify(buildId);assertCurrent();return {...resolved,proof:cached};
         }
         const id='selection-'+crypto.randomUUID().slice(0,8);
-        const action=inline||resolved.kind==='paragraph'?'probe_paragraph':'wrap';
+        const action=resolved.kind==='paragraph'?'probe_paragraph':'wrap';
         const plan=await invoke('plan_text_object',{request:{sources:clone(state.sources),main:state.project.main,file:resolved.file,
           action,id,selection:[resolved.start,resolved.end],expected:resolved.content,dx:0,dy:0}});
         assertCurrent();
@@ -531,17 +553,9 @@ async function resolveSourceSelection({buildId,page,points,hits,trace=null,inlin
         prepared=staged.prepared;
         const proof=validateSelectionProbe(baseline,prepared,id,hits,page);
         await client.verify(buildId);assertCurrent();
-        if(inline){
-          const rows=inlineRows(proof.lines,text),caret=rows?.find(row=>row.line===clicked);
-          if(!caret||rows.length!==proof.lines.length||proof.lines.some(line=>line.runs.some(run=>!proof.runs.includes(run)))){
-            throw new Error('This source does not match plain consecutive PDF text. Edit it in the source editor.');
-          }
-          const stops=await client.caretStops(buildId,staged.result.build_id,id,page,text,caret.start,caret.end);
-          assertCurrent();proof.inlineFlow={rows,caret,stops,text};
-        }
         let cache=selectionProofs.get(baseline);if(!cache){cache=new Map();selectionProofs.set(baseline,cache)}
         if(cache.size>=64)cache.delete(cache.keys().next().value);cache.set(key,proof);
-        return {...resolved,proof,inlineFlow:proof.inlineFlow};
+        return {...resolved,proof};
       }catch(error){
         if(error instanceof StaleCandidate||error.name==='CompilationCancelled')throw error;
         assertCurrent();lastError=error;
@@ -709,6 +723,7 @@ async function textOperation(selection,{dx,dy,content,literalEdits,spacingEdits,
     const request={sources:clone(state.sources),main:state.project.main,file:selection.file,
       action,id,selection:selection.kind==='source'?[selection.start,selection.end]:null,
       expected:selection.content,
+      inline_origin:inlinePolicy?{page:inlinePolicy.page,x:inlinePolicy.line.x,y:inlinePolicy.line.baseline-inlinePolicy.line.height*0.35}:null,
       dx:dx??selection.dx??0,dy:dy??selection.dy??0,content:content??null,literal_edits:literalEdits??null,spacing_edits:spacingEdits??null,plain};
     const plan=await invoke('plan_text_object',{request});
     trace?.mark('planned');
@@ -808,13 +823,12 @@ function showObjectInspector(selection){
   state.objectSelection=selection;
   $('object-selection').classList.toggle('hidden',!selection);
   if(selection){
-    $('no-selection').classList.add('hidden');
     $('object-title').textContent=selection.kind==='source'?'Selected '+selection.unitKind:'Movable text';
     $('object-summary').textContent='Source: '+selection.file+'. Movement keeps its normal layout space.';
     $('object-dx').value=((selection.dx||0)/PT_PER_MM).toFixed(2);
     $('object-dy').value=((selection.dy||0)/PT_PER_MM).toFixed(2);
     $('object-preview').textContent=selection.plain_text??selection.content;
-  }else $('no-selection').classList.remove('hidden');
+  }
   sourceHighlight.update(selection);updateControls();
 }
 function showSource(selection){
@@ -956,7 +970,7 @@ function openInlineEdit(selection,page,x){
   const {rows,caret,stops,text}=selection.inlineFlow;
   const column=caretOffset(stops,x);
   if(column===null)throw new Error('Click inside the text to place the cursor.');
-  const input=$('inline-text'),cursor=caret.start+column;
+  const input=$('inline-text'),cursor=caret.offsets[column];
   input.value=text;input.hidden=false;
   inlineEditContext={selection,rows,page,draft:text,identity:sessionIdentity(state),error:''};
   positionInlineEdit(inlineEditContext);
@@ -995,7 +1009,7 @@ function flushInlineEdit(context){
     if(ok){
       const {page,rows}=findInlineFlow(state.view,policy);
       const source=state.sources[selection.file];
-      const content=text.replaceAll('\n',source.includes('\r\n')?'\r\n\r\n':'\n\n');
+      const content=inlineSourceReplacement(text,source.includes('\r\n')?'\r\n\r\n':'\n\n');
       Object.assign(context,{page,rows,draft:text,identity:sessionIdentity(state),selection:{...selection,content,
         end:selection.start+editorText(content).length,expected_source:source}});
       positionInlineEdit(context);
@@ -1160,6 +1174,14 @@ $('inline-text').addEventListener('compositionend',queueInlineEdit);
 $('inline-text').onblur=()=>{if(inlineEditContext)void finishInlineEdit()};
 $('inline-text').onkeydown=event=>{
   if(event.isComposing)return;
+  if(event.key==='Tab'&&!event.ctrlKey&&!event.metaKey&&!event.altKey){
+    event.preventDefault();
+    const input=$('inline-text');
+    if(!event.shiftKey)input.setRangeText('\t',input.selectionStart,input.selectionEnd,'end');
+    else if(input.selectionStart===input.selectionEnd&&input.value[input.selectionStart-1]==='\t')
+      input.setRangeText('',input.selectionStart-1,input.selectionEnd,'end');
+    queueInlineEdit();return;
+  }
   if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='s'){event.preventDefault();void saveProject();return}
   if(event.key==='Escape'&&inlineEditContext&&!inlineEditContext.inFlight){
     event.preventDefault();closeInlineEdit(inlineEditContext);

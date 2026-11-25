@@ -37,6 +37,8 @@ pub use visual::{
     LiteralRunView, SpacingView,
 };
 pub use visual::{ObjectEditRequest, ObjectPlan, ResolvedSelection, SelectionPoint};
+#[cfg(feature="typegen")]
+pub use visual::InlineOrigin;
 
 const EXAMPLE: &str = include_str!("../../resources/main.tex");
 const OBJECT_STYLE: &str = include_str!("../../resources/texloom-objects.sty");

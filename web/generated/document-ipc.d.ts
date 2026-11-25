@@ -106,8 +106,6 @@ export type ResolvedSelection = { schema: number, unit_id: string, build_id: str
 
 export type ResolveSelectionRequest = { projectId: string, revision: number, buildId: string, page: number, points: Array<SelectionPoint>, candidate: number, };
 
-export type InlineCaretRequest = { projectId: string, revision: number, buildId: string, probeBuildId: string, marker: string, page: number, text: string, lineStart: number, lineEnd: number, };
-
 export type SaveState = "preparing" | "prepared" | "committing" | "complete" | "rolled_back";
 
 export type PendingSave = { id: string, state: SaveState, files: Array<string>, };
@@ -140,7 +138,7 @@ export type AdapterParameter = { key: string, label: string, value: string, reas
 
 export type AdapterPlan = { sources: { [key in string]?: string }, file: string, };
 
-export type ObjectEditRequest = { sources: { [key in string]?: string }, main: string, file: string, action: string, id: string, selection: [number, number] | null, expected: string | null, dx: number | null, dy: number | null, content: string | null, plain: boolean, literal_edits: Array<LiteralEditRequest> | null, spacing_edits: Array<SpacingEditRequest> | null, neighbor: [number, number] | null, before_neighbor: boolean, };
+export type ObjectEditRequest = { sources: { [key in string]?: string }, main: string, file: string, action: string, id: string, selection: [number, number] | null, expected: string | null, dx: number | null, dy: number | null, content: string | null, plain: boolean, literal_edits: Array<LiteralEditRequest> | null, spacing_edits: Array<SpacingEditRequest> | null, neighbor: [number, number] | null, before_neighbor: boolean, inline_origin: InlineOrigin | null, };
 
 export type ObjectPlan = { sources: { [key in string]?: string }, object_id: string, file: string, operation: string, };
 
@@ -155,6 +153,8 @@ export type SpacingView = { id: number, value: number | null, unit: string, sour
 export type TextEditModel = { runs: Array<LiteralRunView>, protected: Array<string>, spacing: Array<SpacingView>, };
 
 export type VisualOperation = { "kind": "adapter", request: AdapterRequest, } | { "kind": "text", request: ObjectEditRequest, };
+
+export type InlineOrigin = { page: number, x: number, y: number, };
 
 export type EmptyRequest = Record<string, never>;
 
@@ -236,7 +236,6 @@ export interface BuildRequests {
   source_from_pdf: InverseMappingRequest;
   pdf_from_source: ForwardMappingRequest;
   resolve_text_selection: ResolveSelectionRequest;
-  inline_caret_stops: InlineCaretRequest;
 }
 
 export interface BuildReplies {
@@ -249,7 +248,6 @@ export interface BuildReplies {
   source_from_pdf: { file: string, line: number, };
   pdf_from_source: { page: number, x: number, y: number, width: number, height: number, };
   resolve_text_selection: { schema: number, unit_id: string, build_id: string, revision: number, file: string, expected_source: string, start: number, end: number, first_line: number, last_line: number, kind: string, content: string, plain_text: string | null, rectangles: Array<SourceRectangle>, };
-  inline_caret_stops: Array<number>;
 }
 
 export interface WorkspaceRequests {

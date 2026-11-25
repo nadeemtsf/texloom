@@ -382,22 +382,12 @@ test('typing directly on a proved PDF line retains newer keystrokes across verif
  const viewport=t.elements.get('preview-scroll');
  viewport.getBoundingClientRect=()=>({top:0,left:0,bottom:600,right:550,width:550});
  viewport.scrollTop=viewport.scrollLeft=0;
- t.control.prove=(_before,_probe,_id,hits)=>({
-   schema:1,build_id:'last-good',page:1,x:20,y:32,width:150,height:12,runs:line.runs,lines:hits
- });
- let verified=0;
- t.control.caretStops=args=>{
-   assert.equal(args.buildId,'last-good');
-   assert.equal(args.probeBuildId,'new-pdf');
-   assert.equal(args.text,original);
-   assert.equal(t.native.pending.size,1);
-   verified++;
-   return Array.from({length:original.length+1},(_,i)=>20+i*10);
- };
- const resolve=t.run('resolveSourceSelection');
+ let compiles=0;
+ t.control.compile=async()=>{compiles++;throw Error('Clicking the PDF must not run TeX')};
+ t.run('state.view').pages=[{number:1,lines:[line]}];
+ const resolve=t.run('resolveCanvasSelection');
  const selected=await resolve({buildId:'last-good',page:1,points:[],hits:[line],inline:true});
- await resolve({buildId:'last-good',page:1,points:[],hits:[line],inline:true});
- assert.equal(verified,1);
+ assert.equal(compiles,0);
  assert.equal(t.native.pending.size,0);
  assert.equal(t.native.history.length,0);
  const shell={getBoundingClientRect:()=>({left:0,top:0,width:550,height:700})};
@@ -414,6 +404,7 @@ test('typing directly on a proved PDF line retains newer keystrokes across verif
  t.control.plan=async request=>{
    assert.equal(request.action,'edit_plain_flow');
    assert.equal(request.plain,true);
+   assert.equal(request.inline_origin.page,1);
    assert.deepEqual(Array.from(request.selection),[0,request.expected.length]);
    candidateText=request.content;
    return {sources:{'main.tex':candidateText,'custom.sty':'Style source'},file:'main.tex'};
@@ -470,16 +461,41 @@ test('PDF rows map into one draft across wrapping and paragraph boundaries',asyn
  assert.equal(inlineRows([{text:'A red wor-'}],draft),null);
 });
 
-test('the inline editor refuses an unproved line and malformed caret stops',async()=>{
- const t=await probeSetup(),resolve=t.run('resolveSourceSelection');
- const line={text:'Original source',runs:[{}]};
- t.control.prove=()=>({lines:[line,{...line}],runs:line.runs});
- const request={buildId:'last-good',page:1,points:[],hits:[line],inline:true};
- await assert.rejects(resolve(request),/plain consecutive PDF text/);
- assert.equal(t.native.pending.size,0);
- t.control.prove=()=>({lines:[line],runs:line.runs});
- t.control.caretStops=()=>Array(16).fill(20);
- await assert.rejects(resolve(request),/Invalid PDF caret positions/);
+test('a plain page can place a caret immediately and consumes Tab inside the text',async()=>{
+ const t=await setup();
+ const original='Above here.\n\nBelow here.';
+ const source='\\begin{document}\n'+original+'\n\\end{document}';
+ const lines=['Above here.','Below here.'].map((text,i)=>({text,x:25,y:40+i*16,width:65,height:12,baseline:50+i*16,runs:[{size:12}]}));
+ const shell={getBoundingClientRect:()=>({left:0,top:0,width:550,height:700})};
+ const page={number:1,lines,shell};
+ const scroller=t.elements.get('preview-scroll');
+ Object.assign(scroller,{scrollTop:0,scrollLeft:0,getBoundingClientRect:()=>({top:0,left:0})});
+ t.run("state.sources['main.tex']="+JSON.stringify(source));
+ t.run('state.view').pages=[page];
+ t.control.compile=async()=>{throw Error('Unexpected compile on click')};
+ t.control.resolve=async()=>{throw Error('Plain page should already map from its source')};
+ const selection=await t.run('resolveCanvasSelection')({buildId:'last-good',page:1,points:[],hits:[lines[1]],inline:true});
+ assert.equal(selection.content,original);
+ const input=t.run("$('inline-text')");
+ input.setSelectionRange=function(start,end){this.selectionStart=start;this.selectionEnd=end};
+ input.setRangeText=function(text,start,end){this.value=this.value.slice(0,start)+text+this.value.slice(end)};
+ t.run('openInlineEdit')({...selection,kind:'source'},page,25);
+ assert.equal(input.selectionStart,'Above here.\n'.length);
+ let prevented=false;
+ input.onkeydown({key:'Tab',preventDefault(){prevented=true}});
+ assert.equal(prevented,true);
+ assert.equal(input.value,'Above here.\n\tBelow here.');
+ t.run('closeInlineEdit(inlineEditContext)');
+ const {inlineSourceReplacement,inlineSourceText}=await import('../web/core/inline-text.js');
+ const spaced='Here.  \tThere.  ';
+ assert.equal(inlineSourceText(inlineSourceReplacement(spaced,'\n\n')),spaced);
+});
+
+test('a rendered line without matching source stays read-only without running TeX',async()=>{
+ const t=await probeSetup(),resolve=t.run('resolveCanvasSelection');
+ const line={text:'Generated text',runs:[{size:12}]};
+ t.run('state.view').pages=[{number:1,lines:[line]}];
+ await assert.rejects(resolve({buildId:'last-good',page:1,points:[],hits:[line],inline:true}),/Use the source editor/);
  assert.equal(t.native.pending.size,0);
  assert.equal(t.native.history.length,0);
 });

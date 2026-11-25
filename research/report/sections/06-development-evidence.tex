@@ -684,13 +684,15 @@ checked separately.
 
 \paragraph{Character editing in a PDF line.}
 A development mode uses an appearance-preserving selection probe to
-identify consecutive plain paragraphs on a page. PDFium binds the clicked
-row to its glyphs, while the draft tracks the logical offsets through
-wrapped rows and blank source lines. A pause sends the draft through
-candidate verification while the text area retains focus. The regression
-joins two identical paragraphs at their boundary and checks the exact
-source and Undo. This slice covers bounded ASCII text in the main file.
-Native input and mixed-direction caret behavior require separate evaluation.
+identify consecutive plain paragraphs on a page during verification.
+Caret placement matches the displayed rows to existing source without
+running TeX. The draft uses logical offsets through wrapped rows and
+paragraph boundaries. Input remains visible while a pause schedules
+a whole-project verification build. A regression joins two identical
+paragraphs, preserves explicit Tab spacing in the source, and restores
+both paragraphs through Undo. This slice covers bounded ASCII text in the
+main file. Native input and mixed-direction caret behavior require
+separate evaluation.
 
 \subsection{Verified reorder within a run of source paragraphs}
 The PDF gesture exposes insertion cues above and below text lines. A

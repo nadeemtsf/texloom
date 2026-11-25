@@ -604,7 +604,6 @@ fn inline_caret_real_engine_workflow() {
         let start = source.find(line).unwrap();
         let end = source.rfind(line).unwrap() + line.len();
         let original = &source[start..end];
-        let draft = format!("{line}\n{line}");
         let mut request: ObjectEditRequest = serde_json::from_value(json!({
             "sources":project.sources, "main":"main.tex", "file":"main.tex",
             "action":"probe_paragraph", "id":marker, "selection":[start,end], "expected":original,
@@ -623,25 +622,20 @@ fn inline_caret_real_engine_workflow() {
         let mapped = f.backend.resolve_text_selection(id, 0, &baseline.build_id, 1, points, 0).unwrap();
         assert_eq!(mapped.kind, "group", "{engine} did not resolve the page text as one run");
         assert_eq!(mapped.content, original, "{engine} mapped a different source range");
-        let request_stops = |page| crate::build_protocol::InlineCaretRequest {
-            project_id: id.clone(), revision: 0, build_id: baseline.build_id.clone(),
-            probe_build_id: probe.build_id.clone(), marker: marker.into(), page, text: draft.clone(),
-            line_start: line.len() + 1, line_end: draft.len(),
-        };
-        let stops = f.backend.inline_caret_stops(request_stops(1)).unwrap_or_else(|error| panic!("{engine}: {error}"));
-        assert_eq!(stops.len(), line.len() + 1);
-        assert!(stops.windows(2).all(|pair| pair[0] < pair[1]));
-        assert!(f.backend.inline_caret_stops(request_stops(2)).is_err());
         f.backend.document_discard(id, &token).unwrap();
         assert_eq!(f.backend.document_snapshot(id).unwrap().sources, sources(&source));
 
         request.action = "edit_plain_flow".into();
+        let bounds = starts[0].bounds;
+        request.inline_origin = Some(visual::InlineOrigin { page: 1, x: bounds.x, y: bounds.y + bounds.height / 2.0 });
+        let wrong_row = visual::InlineOrigin { page: 1, x: bounds.x, y: starts[1].bounds.y };
+        assert!(verify_inline_origin(&inspected.view, &wrong_row).is_err());
         request.id = "inline-caret-edit".into();
-        let joined = format!("{line}{line}");
-        request.content = Some(joined.clone());
+        let joined = format!("{line}\t{line}");
+        request.content = Some(joined);
         request.plain = true;
         let mut expected = source.clone();
-        expected.replace_range(start..end, &joined);
+        expected.replace_range(start..end, &format!(r"{line}\mbox{{\ \ \ \ }}{line}"));
         let planned = visual::plan_object_edit(request.clone()).unwrap();
         assert_eq!(planned.sources, sources(&expected));
         let prepared = f.backend.document_prepare_visual(
@@ -652,7 +646,7 @@ fn inline_caret_real_engine_workflow() {
         assert_eq!(committed.sources, sources(&expected));
         assert_eq!(fs::read_to_string(&path).unwrap(), source);
         assert_eq!(f.backend.document_history(id, committed.revision, false).unwrap().sources, sources(&source));
-        println!("{engine}: second-line caret, joined paragraphs in source and PDF, and Undo");
+        println!("{engine}: source range, origin check, join with Tab spacing, and Undo");
     }
 }
 

@@ -119,6 +119,7 @@ mod tests {
             spacing_edits: None,
             neighbor: None,
             before_neighbor: false,
+            inline_origin: None,
         };
         let plan = plan_object_edit(request).unwrap();
         let result = &plan.sources["main.tex"];
@@ -162,6 +163,16 @@ pub struct ObjectEditRequest {
     pub neighbor: Option<[usize; 2]>,
     #[serde(default)]
     pub before_neighbor: bool,
+    #[serde(default)]
+    pub inline_origin: Option<InlineOrigin>,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+#[cfg_attr(feature="typegen",derive(ts_rs::TS))]
+pub struct InlineOrigin {
+    pub page: usize,
+    pub x: f64,
+    pub y: f64,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -310,12 +321,34 @@ fn mark_text_ranges(
     Ok(sources)
 }
 
+const FLOW_TAB: &str = r"\mbox{\ \ \ \ }";
+
 pub(super) fn plain_flow_text(text: &str) -> bool {
     text.len() <= 4096 && text.split('\n').count() <= 24 && text.split('\n').all(|paragraph| {
-        !paragraph.is_empty() && paragraph.trim() == paragraph && !paragraph.contains("  ")
-            && !paragraph.contains("--")
-            && paragraph.bytes().all(|byte| byte.is_ascii_alphanumeric() || b" .,!?;:-".contains(&byte))
+        !paragraph.trim().is_empty() && !paragraph.contains("--")
+            && paragraph.bytes().all(|byte| byte.is_ascii_alphanumeric() || b" \t.,!?;:-".contains(&byte))
     })
+}
+
+fn decode_flow(source: &str) -> String {
+    source.replace("\r\n", "\n").split("\n\n").map(|paragraph| {
+        paragraph.replace("\n", " ").replace('\t', " ").replace(FLOW_TAB, "\t").replace(r"\ ", " ")
+    }).collect::<Vec<_>>().join("\n")
+}
+
+fn encode_flow(text: &str, separator: &str) -> String {
+    text.split('\n').map(|paragraph| {
+        let mut encoded = String::with_capacity(paragraph.len());
+        let bytes = paragraph.as_bytes();
+        for (index, byte) in bytes.iter().copied().enumerate() {
+            match byte {
+                b'\t' => encoded.push_str(FLOW_TAB),
+                b' ' if index == 0 || index + 1 == bytes.len() || bytes[index - 1] == b' ' => encoded.push_str(r"\ "),
+                _ => encoded.push(byte as char),
+            }
+        }
+        encoded
+    }).collect::<Vec<_>>().join(separator)
 }
 
 pub(super) fn plan_direct_text(request: &ObjectEditRequest) -> Result<DirectTextPlan> {
@@ -350,17 +383,16 @@ pub(super) fn plan_direct_text(request: &ObjectEditRequest) -> Result<DirectText
                 ..projection.source_offset(end).map_err(fail)?;
             let old = request.expected.as_deref().ok_or("Missing selected text")?;
             let draft = request.content.as_deref().ok_or("Enter the edited text")?;
-            let normalized = old.replace("\r\n", "\n");
+            let previous = decode_flow(old);
             if source.get(range.clone()) != Some(old)
-                || !normalized.split("\n\n").all(|paragraph| !paragraph.contains('\n'))
-                || !plain_flow_text(&normalized.replace("\n\n", "\n"))
+                || !plain_flow_text(&previous)
                 || !plain_flow_text(draft)
-                || normalized.replace("\n\n", "\n") == draft
+                || previous == draft
             {
                 return Err("Select a current run of plain paragraphs".into());
             }
             let separator = if source.contains("\r\n") { "\r\n\r\n" } else { "\n\n" };
-            let replacement = draft.replace('\n', separator);
+            let replacement = encode_flow(draft, separator);
             let before = mark_text_ranges(request, source, &[(range.clone(), &request.id)], true)?;
             let new_range = range.start..range.start + replacement.len();
             let mut updated = source.clone();

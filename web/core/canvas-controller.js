@@ -74,14 +74,14 @@ export class CanvasController {
       const now=this.getSession();
       if(serial!==this.pending||revision!==now.revision||now.result?.build_id!==buildId||now.mode!==mode){trace?.finish('stale');return}
       if(now.sources[resolved.file]!==resolved.expected_source)throw new Error('The source changed. Select the text again.');
+      if(inline){
+        this.inlineEdit({...resolved,page,kind:'source'},this.view.pages.find(p=>p.number===page),inlineX);
+        trace?.finish('selected');return;
+      }
       const proof=resolved.proof;
       if(proof?.schema!==1||proof.build_id!==buildId||proof.page!==page)throw new Error('This selection has no current layout proof.');
       const mapped=proof.lines;
       const selection={...resolved,x:proof.x,y:proof.y,width:proof.width,height:proof.height,baselineRuns:proof.runs,baselineLines:proof.lines,page,kind:'source',unitKind:resolved.kind};
-      if(inline){
-        this.inlineEdit(selection,this.view.pages.find(p=>p.number===page),inlineX);
-        trace?.finish('selected');return;
-      }
       this.hits=mapped;this.selection=selection;
       const frame=this.drawFrame();this.onSelected(this.selection);frame?.focus({preventScroll:true});
       trace?.mark('selection-ready');trace?.finish('selected',{paint:true,isCurrent:()=>serial===this.pending&&this.fresh()});

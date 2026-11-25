@@ -1,5 +1,7 @@
+const TAB_SOURCE=String.raw`\mbox{\ \ \ \ }`;
+const horizontal=character=>character===' '||character==='\t';
 function plainParagraph(text){
-  return text.trim()===text&&!text.includes('  ')&&!text.includes('--')&&/^[A-Za-z0-9 .,!?;:-]+$/u.test(text);
+  return !!text.trim()&&!text.includes('--')&&/^[A-Za-z0-9 \t.,!?;:-]+$/u.test(text);
 }
 
 export function inlineTextSupported(text){
@@ -8,9 +10,18 @@ export function inlineTextSupported(text){
 }
 
 export function inlineSourceText(source){
-  const paragraphs=source.split(/\r?\n\r?\n/u);
-  const text=paragraphs.join('\n');
-  return paragraphs.every(plainParagraph)&&inlineTextSupported(text)?text:null;
+  const text=source.replaceAll('\r\n','\n').split(/\n[ \t]*\n/u).map(paragraph=>
+    paragraph.replace(/\n[ \t]*/gu,' ').replaceAll('\t',' ').replaceAll(TAB_SOURCE,'\t').replaceAll('\\ ',' ')
+  ).join('\n');
+  return inlineTextSupported(text)?text:null;
+}
+
+export function inlineSourceReplacement(text,separator){
+  return text.split('\n').map(paragraph=>[...paragraph].map((character,index)=>{
+    if(character==='\t')return TAB_SOURCE;
+    if(character===' '&&(index===0||index+1===paragraph.length||paragraph[index-1]===' '))return '\\ ';
+    return character;
+  }).join('')).join(separator);
 }
 
 export function nearbyInlineLines(lines,clicked){
@@ -26,25 +37,57 @@ export function nearbyInlineLines(lines,clicked){
 }
 
 export function inlineRows(lines,text){
-  let start=0;
+  let index=0;
   const rows=[];
   for(const line of lines){
-    const end=start+line.text.length;
-    if(!plainParagraph(line.text)||!text.startsWith(line.text,start))return null;
-    rows.push({line,start,end});
-    if(end===text.length)return rows;
-    if(![' ','\n'].includes(text[end]))return null;
-    start=end+1;
+    if(!plainParagraph(line.text))return null;
+    while(horizontal(text[index])&&!horizontal(line.text[0]))index++;
+    const start=index,offsets=[start];
+    for(let i=0;i<line.text.length;i++){
+      const character=line.text[i];
+      if(horizontal(character)){
+        if(!horizontal(text[index])&&!horizontal(line.text[i-1]))return null;
+        while(horizontal(text[index]))index++;
+      }else if(text[index++]!==character)return null;
+      offsets.push(index);
+    }
+    rows.push({line,start,end:index,offsets});
+    if(index===text.length)return rows;
+    if(text[index]!=='\n'&&!horizontal(text[index]))return null;
+    while(horizontal(text[index]))index++;
+    if(text[index]==='\n')index++;
+    if(index===text.length)return rows;
   }
   return null;
 }
 
 export function findInlineFlow(view,{page,line,text}){
   const target=view.pages.find(candidate=>candidate.number===page);
-  const start=target?.lines.findIndex(candidate=>Math.abs(candidate.x-line.x)<1&&Math.abs(candidate.baseline-line.baseline)<1)??-1;
+  const start=target?.lines.findIndex(candidate=>Math.abs(candidate.x-line.x)<=line.runs[0].size*3&&Math.abs(candidate.baseline-line.baseline)<1)??-1;
   const rows=start<0?null:inlineRows(target.lines.slice(start),text);
   if(!rows)throw Error('The edited text does not fit in the verified area on this page. Shorten it or use the source editor.');
   return {page:target,rows};
+}
+
+export function measuredCaretStops(line,measure){
+  if(measure){
+    const font=line.runs[0],family=font.font?JSON.stringify(font.font)+', Georgia, serif':'Georgia, serif';
+    measure.font=font.size+'px '+family;
+  }
+  const advance=text=>measure?.measureText(text).width??text.length;
+  const length=advance(line.text)||1;
+  return Array.from({length:line.text.length+1},(_,i)=>line.x+line.width*advance(line.text.slice(0,i))/length);
+}
+
+export function documentBody(source){
+  const start=/^\\begin\{document\}[ \t]*\r?$/mu.exec(source);
+  if(!start)return null;
+  const end=source.indexOf('\\end{document}',start.index+start[0].length);
+  if(end<0)return null;
+  const bodyStart=start.index+start[0].length;
+  const raw=source.slice(bodyStart,end);
+  const content=raw.trim();
+  return {content,start:bodyStart+raw.length-raw.trimStart().length};
 }
 
 export function caretOffset(stops,x){

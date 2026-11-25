@@ -2,7 +2,7 @@
 use super::*;
 use crate::build_protocol::*;
 use crate::workspace_protocol::*;
-use crate::service::{Project,ProjectProfile,RecentProject,ImportedProject,ImportedImage,EncodingIssue,EncodingReview,EncodingChoice,AdapterRequest,AdapterControl,AdapterParameter,AdapterPlan,ObjectEditRequest,ObjectPlan,LiteralEditRequest,LiteralRunView,SpacingEditRequest,SpacingView,TextEditModel,VisualOperation};
+use crate::service::{Project,ProjectProfile,RecentProject,ImportedProject,ImportedImage,EncodingIssue,EncodingReview,EncodingChoice,AdapterRequest,AdapterControl,AdapterParameter,AdapterPlan,ObjectEditRequest,ObjectPlan,LiteralEditRequest,LiteralRunView,SpacingEditRequest,SpacingView,TextEditModel,VisualOperation,InlineOrigin};
 use crate::service::{
     CloseReply, DocumentSnapshot, EditorSelection, PreparedReply, RecoveryReply, RecoveryStatus,
     SelectionReply, SourceEditReply, CompileResult, MappedTextObject,
@@ -57,10 +57,9 @@ pub fn declarations() -> String {
         SelectionPoint,
         ResolvedSelection,
         ResolveSelectionRequest,
-        InlineCaretRequest,
         texloom_build::persistence::SaveState,texloom_build::persistence::PendingSave,texloom_build::recovery::Draft,texloom_build::recovery::Inventory,
         Project,ProjectProfile,RecentProject,ImportedProject,ImportedImage,EncodingIssue,EncodingReview,EncodingChoice,
-        AdapterRequest,AdapterControl,AdapterParameter,AdapterPlan,ObjectEditRequest,ObjectPlan,LiteralEditRequest,LiteralRunView,SpacingEditRequest,SpacingView,TextEditModel,VisualOperation,
+        AdapterRequest,AdapterControl,AdapterParameter,AdapterPlan,ObjectEditRequest,ObjectPlan,LiteralEditRequest,LiteralRunView,SpacingEditRequest,SpacingView,TextEditModel,VisualOperation,InlineOrigin,
         EmptyRequest,OpenProjectRequest,PathRequest,CreateProjectRequest,ProjectRequest,DraftRequest,SourceControlsRequest,AdapterCommandRequest,ObjectCommandRequest,TextModelRequest,TextPreviewRequest,EncodingPreviewRequest,ConvertEncodingRequest,CopyProjectRequest,SaveRecoveryRequest,DiscardSaveRequest,ProjectFileRequest,CloseProjectRequest,PrepareVisualRequest
     );
     text.push_str("export interface DocumentRequests {\n");
@@ -114,7 +113,6 @@ pub fn declarations() -> String {
         source_from_pdf: InverseMappingRequest => SourceLocation,
         pdf_from_source: ForwardMappingRequest => SourceRectangle,
         resolve_text_selection: ResolveSelectionRequest => ResolvedSelection,
-        inline_caret_stops: InlineCaretRequest => Vec<f64>,
     );
     text.push_str("}\n");
     text.push_str("\nexport interface WorkspaceRequests {\n");

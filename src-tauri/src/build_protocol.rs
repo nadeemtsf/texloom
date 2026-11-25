@@ -74,19 +74,3 @@ pub struct ResolveSelectionRequest {
     pub points: Vec<crate::service::SelectionPoint>,
     pub candidate: usize,
 }
-
-#[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
-#[cfg_attr(feature = "typegen", derive(ts_rs::TS))]
-pub struct InlineCaretRequest {
-    pub project_id: String,
-    #[cfg_attr(feature = "typegen", ts(type = "number"))]
-    pub revision: u64,
-    pub build_id: String,
-    pub probe_build_id: String,
-    pub marker: String,
-    pub page: usize,
-    pub text: String,
-    pub line_start: usize,
-    pub line_end: usize,
-}

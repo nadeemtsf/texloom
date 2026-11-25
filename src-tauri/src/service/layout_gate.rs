@@ -52,6 +52,7 @@ enum Policy {
         before_probe: Option<Sources>,
         after_probe: Sources,
         displacement: Option<(f64, f64)>,
+        origin: Option<visual::InlineOrigin>,
     },
 }
 /// Retained only inside the pending native transaction. Artifacts are pinned
@@ -139,12 +140,16 @@ impl Plan {
                         before_probe: plan.before_probe, after_probe: plan.after_probe,
                     })
                 } else if matches!(request.action.as_str(), "replace_source" | "append_paragraph" | "move_source" | "edit_plain_flow") {
+                    let origin = (request.action == "edit_plain_flow").then(|| {
+                        request.inline_origin.clone().ok_or("The edit needs a location in the displayed PDF")
+                    }).transpose()?;
                     let plan = visual::plan_direct_text(&request)?;
                     (plan.sources, Policy::DirectText {
                         marker,
                         before_probe: plan.before_probe,
                         after_probe: plan.after_probe,
                         displacement: plan.displacement,
+                        origin,
                     })
                 } else {
                     let planned = visual::plan_object_edit(request.clone())?;
@@ -214,6 +219,19 @@ fn same_recipe(a: &Build, b: &Build) -> Result<()> {
     }
     Ok(())
 }
+fn verify_inline_origin(view: &Inspection, origin: &visual::InlineOrigin) -> Result<()> {
+    let first = view.glyphs.iter().find(|glyph| glyph.target);
+    if !first.is_some_and(|glyph| {
+        glyph.page.checked_add(1) == Some(origin.page)
+            && (glyph.bounds.x - origin.x).abs() <= 4.0
+            && origin.y >= glyph.bounds.y - 4.0
+            && origin.y <= glyph.bounds.y + glyph.bounds.height + 4.0
+    }) {
+        return Err("The edit did not match the clicked text in the compiled PDF".into());
+    }
+    Ok(())
+}
+
 fn reflow(old: &Inspection, new: &Inspection) -> Result<()> {
     // Reflow may change page/line positions, but must not silently change the
     // content of unrelated text. Membership comes from inspected mark handles.
@@ -284,61 +302,6 @@ fn verify_reorder_order(order: impl IntoIterator<Item = (usize, f64, f64)>) -> R
     Ok(())
 }
 
-fn inline_stops(
-    glyphs: &[verification::Glyph], page: usize, text: &str, line: std::ops::Range<usize>,
-) -> Result<Vec<f64>> {
-    const UNSUPPORTED: &str = "This line has no reliable character positions. Edit it in the source editor.";
-    if !visual::plain_flow_text(text) { return Err(UNSUPPORTED.into()); }
-    let line_text = text.get(line.clone()).filter(|value| {
-        !value.is_empty() && !value.contains('\n') && value.trim() == *value
-    }).ok_or(UNSUPPORTED)?;
-    let visible = |character: char| !character.is_ascii_whitespace();
-    let characters: Vec<_> = text.chars().filter(|character| visible(*character)).collect();
-    let marked: Vec<_> = glyphs.iter().filter(|glyph| glyph.target).collect();
-    if marked.len() != characters.len()
-        || marked.iter().zip(&characters).any(|(glyph, character)| {
-            glyph.page != page || !glyph.text.starts_with(*character) || glyph.text.len() != 1
-                || glyph.bounds.width <= 0.0 || glyph.bounds.height <= 0.0
-        })
-    {
-        return Err(UNSUPPORTED.into());
-    }
-    let skip = text[..line.start].chars().filter(|character| visible(*character)).count();
-    let characters: Vec<_> = line_text.char_indices().filter(|(_, character)| visible(*character)).collect();
-    let marked = &marked[skip..skip + characters.len()];
-    let mut stops = Vec::with_capacity(line_text.len() + 1);
-    stops.push(marked[0].bounds.x);
-    for (pair, offsets) in marked.windows(2).zip(characters.windows(2)) {
-        let a = pair[0].bounds;
-        let b = pair[1].bounds;
-        let right = a.x + a.width;
-        let a_center = a.x + a.width / 2.0;
-        let b_center = b.x + b.width / 2.0;
-        let between = (right + b.x) / 2.0;
-        if b.x + b.width <= right || a_center >= between || between >= b_center {
-            return Err(UNSUPPORTED.into());
-        }
-        // All letters must share roughly the same baseline, even if their
-        // ascent and descent differ. The PDF.js proof also requires one line.
-        if (a.y + a.height - b.y - b.height).abs() > a.height.max(b.height) / 2.0 {
-            return Err(UNSUPPORTED.into());
-        }
-        if offsets[1].0 > offsets[0].0 + 1 {
-            stops.extend([right, b.x]);
-        } else {
-            stops.push(between);
-        }
-    }
-    let last = marked[marked.len() - 1].bounds;
-    stops.push(last.x + last.width);
-    if stops.iter().any(|x| !x.is_finite() || *x < 0.0)
-        || stops.windows(2).any(|pair| pair[0] >= pair[1])
-    {
-        return Err(UNSUPPORTED.into());
-    }
-    Ok(stops)
-}
-
 impl Backend {
     /// Resource directory is obtained from the native Tauri host, never IPC.
     pub fn with_verification_resources(mut self, resources: PathBuf) -> Self {
@@ -406,28 +369,6 @@ impl Backend {
                 marker,
                 cancel,
             )
-    }
-    pub fn inline_caret_stops(&self, request: crate::build_protocol::InlineCaretRequest) -> Result<Vec<f64>> {
-        let current = self.document_snapshot(&request.project_id)?;
-        if current.revision != request.revision
-            || request.marker.len() != 18
-            || !request.marker.strip_prefix("selection-").is_some_and(|suffix| suffix.bytes().all(|byte| byte.is_ascii_hexdigit()))
-        {
-            return Err("Select the text again after compiling the current document".into());
-        }
-        let before = self.layout_build(&request.build_id)?;
-        let probe = self.layout_build(&request.probe_build_id)?;
-        let probe_revision = request.revision.checked_add(1).ok_or("Invalid selection revision")?;
-        self.verify_project_build(&request.project_id, request.revision, &request.build_id, true)?;
-        self.verify_project_build(&request.project_id, probe_revision, &request.probe_build_id, true)?;
-        if probe.purpose != "visual" {
-            return Err("Select the text again to verify its character positions".into());
-        }
-        same_recipe(&before, &probe)?;
-        let marker = format!("Texloom_{}", request.marker);
-        let checked = self.inspect_layout(&probe, Some(&marker), &probe.cancel)?;
-        let page = request.page.checked_sub(1).ok_or("Invalid PDF page")?;
-        inline_stops(&checked.view.glyphs, page, &request.text, request.line_start..request.line_end)
     }
     fn private_layout_build(
         &self,
@@ -518,7 +459,7 @@ impl Backend {
                 verify_reorder_order(new_order.iter().map(|index| bounds[*index].1))?;
                 private_builds.extend([before, after]);
             }
-            Policy::DirectText { marker, before_probe, after_probe, displacement } => {
+            Policy::DirectText { marker, before_probe, after_probe, displacement, origin } => {
                 let baseline = if let Some(sources) = before_probe {
                     let probe = self.equivalent_text_probe(request, sources, &plan.baseline, lease)?;
                     private_builds.push(probe.clone());
@@ -531,6 +472,9 @@ impl Backend {
                     &baseline, before_probe.as_ref().map(|_| marker.as_str()), &lease.cancel,
                 )?;
                 let after = self.inspect_layout(&candidate, Some(marker), &lease.cancel)?;
+                if let Some(origin) = origin {
+                    verify_inline_origin(&before.view, origin)?;
+                }
                 if let Some((dx, dy)) = displacement {
                     let prediction = self.predict_layout(&baseline, marker, *dx, *dy, &lease.cancel)?;
                     verification::compare_prediction(&before.view, &after.view, *dx, *dy, &prediction.view)
