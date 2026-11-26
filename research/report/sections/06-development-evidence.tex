@@ -683,16 +683,20 @@ and the tested engine configurations. Physical pointer interaction is
 checked separately.
 
 \paragraph{Continuous caret input on the typeset page.}
-Texloom prepares caret positions for supported source-backed text before
-displaying each verified page. Clicks and typing use this local map while
-a whole-project build verifies the proposed edit in the background. An
-automated Windows test on the packaged build at \texttt{56108eb} edited
-both the literal and macro versions of the bold example signature, moved
-focus to a second passage during verification, and checked line and
-paragraph joins, Tab, Undo and the saved source. The five pointer-down to
-editor-focus samples ranged from 2.1 to 7.6~ms inside WebView2. These timings
-cover focus in small fixtures. End-to-end presentation, cross-page
-selections, included files and complex text shaping need separate checks.
+Texloom prepares source-backed caret positions before displaying each
+verified page. The active draft accepts input during background verification.
+At \texttt{56108eb}, Windows input tests edited the literal and macro
+signature, switched passages during verification, and checked line and
+paragraph joins, Tab, Undo and Save. Five focus samples ranged from
+2.1 to 7.6~ms inside WebView2.
+
+At \texttt{c2fd684}, the full 47-page report passed edits on pages 2 and 21
+in separate included files. Save changed only the target file, Undo
+restored its bytes, and a clean compile matched the edited page. Four-page
+verification windows preserved the tagged probe checks. The two edits took
+about 127~s each from input to verified publication on this Windows host.
+A control moved a paragraph from page~21 to a new page~22.
+Cross-page selections and complex text shaping need further checks.
 
 \subsection{Verified reorder within a run of source paragraphs}
 The PDF gesture exposes insertion cues above and below text lines. A
