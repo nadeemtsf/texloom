@@ -264,7 +264,8 @@ async function checkLineBoundaries(){
   const joined=await save(file);
   assert.equal(joined.replaceAll('\r\n','\n'),source.replace(first+'\r\n\r\n'+second,first+second).replaceAll('\r\n','\n'));
   await button('undo');
-  await rendered(second);
+  await until(`[...document.querySelectorAll('.line-hit')].some(hit=>hit.ariaLabel===${
+    JSON.stringify('Select text: '+second)})`,'Undo publishes the separate second paragraph');
   assert.equal(await save(file),source,'Undo restores the original source bytes');
 
   const prose='This short text has many plain words that run past the width of the page and wrap into more rows of print.';
