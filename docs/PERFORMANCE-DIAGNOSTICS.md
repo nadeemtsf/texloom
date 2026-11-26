@@ -23,6 +23,36 @@ cargo run --locked --release -p texloom-build --example compile_profile -- (Join
 python research/tools/compare_compile_profiles.py $output.FullName (Join-Path $output.FullName 'summary.json') --pages
 ```
 
+## Independent PDF inspection by window size
+
+The `inspection_profile` example measures the packaged PDFium worker and host receipt checks against a fixed PDF. It alternates four- and eight-page requests and compares page geometry, links, text, graphics and raster bytes in physical page order. It rejects changes in page coverage or evidence. The separately recorded total includes the benchmark's comparison digest.
+
+Three paired runs on the 47-page technical report used packaged PDFium 159.0.8138.0. The PDF SHA-256 was `3cc99ec79b9af64fa97091c6502317e39001c108ce6080ef837c49c96fa209c8`. All six runs returned equivalent checked evidence. The earlier three-pair run had worker medians of 4.84 and 3.69 seconds, respectively.
+
+| Pages per request | Requests | Median worker and host checks (s) | Median including benchmark digest (s) | Largest returned raster payload (MiB) |
+| ---: | ---: | ---: | ---: | ---: |
+| 4 | 12 | 4.08 | 4.66 | 22.97 |
+| 8 | 6 | 3.59 | 4.17 | 45.94 |
+
+This measures one unmarked PDF. A normal nonempty visual edit can inspect the original and candidate PDFs plus their two tagged probes. The benchmark excludes the TeX builds, comparison between tagged and unmarked PDFs, PDF.js and presentation. Production retains the four-page window. A larger window uses more memory and needs coverage on denser pages and larger media before adoption.
+
+Use the verification directory from a trusted packaged Windows build. Run from the repository root and give the benchmark a new scratch directory. The example writes one JSON record per run.
+
+```powershell
+cargo run --locked --release -p texloom-build --example inspection_profile -- $pdf $verificationDirectory artifacts/inspection-profile 3
+```
+
+### Packaged report edit trace
+
+The Windows diagnostic build for runtime source `0ae10ae` (executable SHA-256 `e3e27823a3d557e916d29d399412626035b6a567abf84817d8dd9fd2a03472cf`) ran the native WebView2 regression on a disposable copy of the full report. Both edits saved in their included file, matched a clean compile, and restored the original source on Undo.
+
+| Edited page | Input to verified text hit (s) | Native build and approval reply (s) | PDF.js preparation (s) |
+| ---: | ---: | ---: | ---: |
+| 2 | 46.00 | 43.97 | 0.87 |
+| 21 | 46.55 | 44.31 | 1.04 |
+
+The native interval runs from `native-prepared` to `build-returned` and combines TeX, independent inspection and the reply. PDF.js preparation runs from `build-returned` to `pdf-prepared`. The snapshots include these milestones and publication while the traces are still active. The input-to-hit time includes the harness polling interval and measures WebView text availability. Two samples do not establish a latency distribution or physical display timing.
+
 ## Desktop tracing
 
 Implemented 4 November 2026; native measurements and overhead evaluation are pending. Ordinary builds disable tracing. A separate build with `VITE_TEXLOOM_PERFORMANCE=1` opts in and exposes `window.texloomPerformance.snapshot()`, `.stop()` and `.clear()` for a controlled evaluation harness. Record that build's flag, complete source identity and executable hash. Do not describe it as byte-identical to the ordinary build.
