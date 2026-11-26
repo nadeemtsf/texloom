@@ -1,5 +1,30 @@
 # Optional local timing diagnostics
 
+## Native compile baseline by page count
+
+The `compile_profile` example measures the production build service on disposable 1-, 20- and 100-page projects. Each page has one numbered sentence. Each trial starts with a fresh TeX snapshot. The two conditions alternate order and differ in whether they reuse the compiler identification probe. The initial pair warms the profile and is excluded from the results.
+
+On Windows 11 Pro (build 26300) with an Intel i7-11370H and MiKTeX pdfTeX 4.23, five measured pairs per size gave these medians in seconds.
+
+| Pages | Fresh identification | Reused identification | TeX processes with reuse | Build input checks with reuse |
+| ---: | ---: | ---: | ---: | ---: |
+| 1 | 1.514 | 1.275 | 1.167 | 0.067 |
+| 20 | 1.756 | 1.155 | 1.065 | 0.058 |
+| 100 | 1.756 | 1.444 | 1.342 | 0.068 |
+
+All 15 measured pairs agreed on page count, extracted text, 36 dpi page rasters and the compared build-manifest fields. The build service also checked the recorded dependency receipts and original source. These sparse fixtures measure ordinary compilation through its native return. Package-heavy documents, PDF transport and painting, and independent PDF verification during visual edits need separate measurements. See [timing issue #32](https://github.com/nadeemtsf/texloom/issues/32).
+
+Run from the repository root on Windows with pdfLaTeX and Poppler tools available. The output directory must be new. The comparison expects five measured pairs per size.
+
+```powershell
+$output = New-Item -ItemType Directory artifacts/page-count-baseline
+$compiler = (Get-Command pdflatex.exe).Source
+cargo run --locked --release -p texloom-build --example compile_profile -- (Join-Path $output.FullName 'paired-pdflatex') $compiler 5 --pages > (Join-Path $output.FullName 'paired-pdflatex.jsonl')
+python research/tools/compare_compile_profiles.py $output.FullName (Join-Path $output.FullName 'summary.json') --pages
+```
+
+## Desktop tracing
+
 Implemented 4 November 2026; native measurements and overhead evaluation are pending. Ordinary builds disable tracing. A separate build with `VITE_TEXLOOM_PERFORMANCE=1` opts in and exposes `window.texloomPerformance.snapshot()`, `.stop()` and `.clear()` for a controlled evaluation harness. Record that build's flag, complete source identity and executable hash. Do not describe it as byte-identical to the ordinary build.
 
 5 November source-only continuation adds `committed-ui-failed` and `commit-unknown` outcomes. A later UI error does not erase a native commit or an already recorded publication milestone; an unusable commit response is not proof of refusal. These new categories and their handling are **untested** because the owner paused every test run. Earlier diagnostic build/check receipts apply to the preceding implementation, not these additions. See COMMIT-PRESENTATION.md.

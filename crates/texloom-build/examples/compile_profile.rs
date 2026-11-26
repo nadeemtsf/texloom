@@ -12,11 +12,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let compiler = PathBuf::from(args.next().ok_or("Provide the compiler executable")?);
     let repeats: usize = args.next().ok_or("Provide repeat count")?.to_string_lossy().parse()?;
     let mode = args.next();
+    let scaling = mode.as_deref().is_some_and(|option| option == "--pages");
     let (long, warm, paired) = match mode.as_deref() {
         None => (false, false, false),
         Some(option) if option == "--long" => (true, false, false),
         Some(option) if option == "--warm" => (false, true, false),
-        Some(option) if option == "--paired" => (false, false, true),
+        Some(option) if option == "--paired" || option == "--pages" => (false, false, true),
         Some(option) if option == "--alternating-projects" => (false, false, false),
         _ => return Err("Unknown argument".into()),
     };
@@ -31,21 +32,32 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if mode.as_deref().is_some_and(|option| option == "--alternating-projects") {
         return alternating_projects(&output, &compiler, engine_name, repeats);
     }
-    let fixtures: &[&str] = if long { &["long"] } else { &["plain", "references", "large-project"] };
+    let fixtures: &[&str] = if long {
+        &["long"]
+    } else if scaling {
+        &["pages-1", "pages-20", "pages-100"]
+    } else {
+        &["plain", "references", "large-project"]
+    };
     for &case in fixtures {
         let profiles = CompilerProfiles::default();
         let case_dir = output.join(case);
         let project = case_dir.join("project");
         fs::create_dir_all(&project)?;
-        let body = match case {
-            "long" => r"\makeatletter
+        let pages = case.strip_prefix("pages-").map(str::parse::<usize>).transpose()?;
+        let body = match (pages, case) {
+            (Some(pages), _) => (1..=pages)
+                .map(|page| format!("Page {page:03}. A repeatable compiler workload."))
+                .collect::<Vec<_>>()
+                .join("\n\\newpage\n"),
+            (_, "long") => r"\makeatletter
 \@ifundefined{texloomprofileseen}{\directlua{os.sleep(121)}}{}
 \immediate\write\@auxout{\string\gdef\string\texloomprofileseen{1}}
 \makeatother
-Long compile completed.",
-            "references" => r"\section{Example}\label{sec:example}
-Reference to section \ref{sec:example}.",
-            _ => "A small synthetic compile.",
+Long compile completed.".into(),
+            (_, "references") => r"\section{Example}\label{sec:example}
+Reference to section \ref{sec:example}.".into(),
+            _ => "A small synthetic compile.".into(),
         };
         let source = format!("\\documentclass{{article}}\n\\begin{{document}}\n{body}\n\\end{{document}}\n");
         fs::write(project.join("main.tex"), &source)?;
