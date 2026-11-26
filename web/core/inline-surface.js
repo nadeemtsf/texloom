@@ -19,13 +19,26 @@ export class InlineSurface {
     const node=this.element,selection=node.ownerDocument.getSelection();
     if(!selection?.rangeCount||!node.contains(selection.focusNode)||!node.contains(selection.anchorNode))return null;
     const offset=(child,end)=>{
-      // Count the semantic breaks between contenteditable blocks as well as text.
-      const range=document.createRange();range.selectNodeContents(node);range.setEnd(child,end);
-      const box=document.createElement('div');box.style.cssText='position:fixed;left:-100000px;white-space:pre-wrap';
-      box.append(range.cloneContents());document.body.append(box);
-      try{return box.innerText.length}finally{box.remove()}
+      // A prefix ending at the beginning of a block omits its leading newline
+      // in innerText. Measure with a sentinel at the exact DOM position.
+      const doc=node.ownerDocument,path=[];
+      for(let current=child;current!==node;current=current.parentNode)
+        path.push(Array.prototype.indexOf.call(current.parentNode.childNodes,current));
+      const box=node.cloneNode(true);
+      box.removeAttribute('id');box.removeAttribute('contenteditable');
+      box.style.cssText='position:fixed;left:-100000px;white-space:pre-wrap;opacity:0';
+      let boundary=box;
+      for(const index of path.reverse())boundary=boundary.childNodes[index];
+      let sentinel='\uFFFF';
+      while(box.textContent.includes(sentinel))sentinel+='\uFFFF';
+      const range=doc.createRange();range.setStart(boundary,end);range.collapse(true);
+      range.insertNode(doc.createTextNode(sentinel));
+      doc.body.append(box);
+      try{return box.innerText.indexOf(sentinel)}finally{box.remove()}
     };
-    return {anchor:offset(selection.anchorNode,selection.anchorOffset),head:offset(selection.focusNode,selection.focusOffset)};
+    const head=offset(selection.focusNode,selection.focusOffset);
+    const anchor=selection.isCollapsed?head:offset(selection.anchorNode,selection.anchorOffset);
+    return head>=0&&anchor>=0?{anchor,head}:null;
   }
   select(offset,row) {
     const node=this.element,selection=node.ownerDocument.getSelection();
@@ -98,6 +111,27 @@ export class InlineSurface {
     return column===null?null:mapped.offsets[column];
   }
   clearSelection() { this.markers.replaceChildren(); }
+  rowAt(offset,rows=this.draftRows||this.entry.rows) {
+    const contains=row=>row.start<=offset&&offset<=row.end;
+    return rows.find(row=>row.line===this.preferredRow?.line&&contains(row))||rows.find(contains)
+      ||rows.findLast(row=>row.end<offset)||rows[0];
+  }
+  navigate(key) {
+    if(this.element.classList.contains('pdf-typing-draft'))return false;
+    const selection=this.selection;
+    if(!selection||selection.anchor!==selection.head)return false;
+    const rows=this.draftRows||this.entry.rows,row=this.rowAt(selection.head,rows);
+    if(key==='Home'||key==='End'){
+      this.select(key==='Home'?row.start:row.end,row);
+    }else{
+      const target=rows[rows.indexOf(row)+(key==='ArrowUp'?-1:1)];
+      if(!target)return false;
+      const col=row.offsets.findIndex(offset=>offset>=selection.head);
+      this.select(this.offsetAt(target,col<0?row.stops.at(-1):row.stops[col]),target);
+    }
+    this.drawSelection();
+    return true;
+  }
   drawSelection() {
     const node=this.element;
     if(node.ownerDocument.activeElement!==node||node.classList.contains('pdf-typing-draft')){
@@ -121,8 +155,7 @@ export class InlineSurface {
       fragment.append(marker);
     };
     if(start===end){
-      const contains=row=>row.start<=head&&head<=row.end;
-      const row=rows.find(row=>row.line===this.preferredRow?.line&&contains(row))||rows.find(contains);
+      const row=this.rowAt(head,rows);
       if(row)draw(row,head,head,true);
     }else{
       for(const row of rows){

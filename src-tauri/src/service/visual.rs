@@ -415,7 +415,7 @@ pub(super) fn plan_direct_text(request: &ObjectEditRequest) -> Result<DirectText
                 .filter(|(file,_)|*file==request.file)
                 .find_map(|(_,flow)| {
                     if flow.range==range {Some(flow)}
-                    else {texloom_core::inline_flow::inline_paragraphs(source,&flow).into_iter().find(|part|part.range==range)}
+                    else {texloom_core::inline_flow::inline_paragraph_range(source,&flow,range.clone())}
                 }).ok_or("Select a current inline text flow with a unique project file")?;
             let (updated, new_range) = texloom_core::inline_flow::edit_inline_flow(source, &flow, draft)?;
             let before = mark_text_ranges(request, source, &[(range, &request.id)], true)?;

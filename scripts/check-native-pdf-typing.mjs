@@ -48,7 +48,7 @@ async function clickLine(text,fraction=0){
     const line=Array.from(document.querySelectorAll('.line-hit')).find(node=>node.ariaLabel==='Select text: '+${JSON.stringify(text)});
     if(!line)return null;
     line.scrollIntoView({block:'nearest'});
-    const r=line.getBoundingClientRect();return {x:r.left+Math.max(1,r.width*${fraction}),y:r.top+r.height/2};
+    const r=line.getBoundingClientRect();return {x:r.left+(${fraction}<0?-3:Math.max(1,r.width*${fraction})),y:r.top+r.height/2};
   })()`);
   assert.ok(point,'Missing rendered line '+text);
   await send('Input.dispatchMouseEvent',{type:'mouseMoved',...point});
@@ -238,6 +238,51 @@ async function verifyPageReflow(){
   assert.equal(await save(file),source.replace(line,line+'\\'+added));
   console.log('Verified a paragraph reflowing from page 21 onto a new page 22');
 }
+
+async function checkLineBoundaries(){
+  const first='Delta starts the second page.',second='Echo is the next paragraph.';
+  const source=['\\documentclass[12pt]{article}','\\usepackage[textheight=48pt]{geometry}',
+    '\\pagestyle{empty}','\\begin{document}','Alpha opens the first page.','','Bravo is next.','',
+    'Charlie ends the first page.','',first,'',second,'','Foxtrot ends the document.','\\end{document}',''].join('\r\n');
+  const file=await setup(source,'Backspace after a natural page break');
+  await until(`[...document.querySelectorAll('[data-page="2"] .line-hit')].some(hit=>hit.ariaLabel===${
+    JSON.stringify('Select text: '+second)})`,'second paragraph on page two');
+  const raster=await lineRaster(second,false);
+  await clickLine(second,-1);
+  const caretOn=label=>evaluate(`(()=>{
+    const caret=document.querySelector('.pdf-typing-caret')?.getBoundingClientRect();
+    const hit=[...document.querySelectorAll('.line-hit')].find(node=>node.ariaLabel===${JSON.stringify('Select text: '+label)})
+      ?.getBoundingClientRect();
+    return !!(caret&&hit&&Math.abs(caret.top-hit.top)<1&&Math.abs(caret.left-hit.left)<1);
+  })()`);
+  assert.equal(await caretOn(second),true,'A click just before the first glyph places the caret');
+  assert.equal((await lineRaster(second,false))===raster,true,'The click preserves rendered text');
+  await key('ArrowUp',38);assert.equal(await caretOn(first),true,'Up uses the previous typeset row');
+  await key('ArrowDown',40);assert.equal(await caretOn(second),true,'Down returns to the next row');
+  await key('Backspace',8);
+  await rendered('second page.Echo');
+  const joined=await save(file);
+  assert.equal(joined.replaceAll('\r\n','\n'),source.replace(first+'\r\n\r\n'+second,first+second).replaceAll('\r\n','\n'));
+  await button('undo');
+  await rendered(second);
+  assert.equal(await save(file),source,'Undo restores the original source bytes');
+
+  const prose='This short text has many plain words that run past the width of the page and wrap into more rows of print.';
+  const wrapSource=['\\documentclass[12pt]{article}','\\usepackage[textwidth=175pt]{geometry}',
+    '\\pagestyle{empty}','\\begin{document}',prose,'\\end{document}',''].join('\n');
+  const wrapFile=await setup(wrapSource,'Backspace across a soft wrap');
+  const wrapped=await evaluate("[...document.querySelectorAll('.line-hit[data-inline-source]')][1]?.ariaLabel.slice(13)");
+  assert.ok(wrapped,'The paragraph has an editable second row');
+  await clickLine(wrapped,0.25);
+  await key('Home',36);
+  assert.equal(await caretOn(wrapped),true,'Home uses the typeset start of the wrapped row');
+  const at=prose.indexOf(wrapped);
+  assert.ok(at>0&&prose[at-1]===' ','This soft wrap follows a source space');
+  await key('Backspace',8);
+  const withoutSpace=prose.slice(0,at-1)+prose.slice(at);
+  assert.equal(await save(wrapFile),wrapSource.replace(prose,withoutSpace),'Backspace deletes the source space at a soft wrap');
+  console.log('Passed line-start caret, row navigation, wrapped-line Backspace, paragraph join and Undo.');
+}
 try{
   const target=await waitFor(async()=>{
     if(child.exitCode!==null)throw Error('Texloom exited before the test opened.');
@@ -253,10 +298,13 @@ try{
     if(message.error)call.reject(Error(message.error.message));else call.resolve(message.result);
   });
   await until('document.querySelector(".line-hit")!==null','startup page');
-  if(process.argv.includes('--full-report')){
+  if(process.argv.includes('--line-boundaries')){
+    await checkLineBoundaries();
+  }else if(process.argv.includes('--full-report')){
     await fullReport();
     await verifyPageReflow();
   }else{
+  await checkLineBoundaries();
   const sample=await readFile(join(repo,'resources','main.tex'),'utf8');
   const file=await setup(sample,'Macro signature');
   await evaluate(`window.caretTimes=[];document.addEventListener('pointerdown',()=>{window.pressTime=performance.now()},true);
