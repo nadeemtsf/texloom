@@ -1,4 +1,4 @@
-"""Compare the protocol's one-page outputs and summarize native timing stages."""
+"""Compare profiled build outputs and summarize native timing stages."""
 
 import argparse
 import hashlib
@@ -31,15 +31,23 @@ def read_rows(root, mode, engine):
     return {(r["case"], r["trial"]): r for r in rows if not r["warmup"]}
 
 
-def output_signature(directory):
+def output_signature(directory, pages=1, scaling=False):
     pdf = directory / ".out/preview.pdf"
     info = subprocess.check_output(["pdfinfo", str(pdf)], timeout=20)
-    if not any(line.split() == [b"Pages:", b"1"] for line in info.splitlines()):
-        raise ValueError(f"Expected exactly one page in {pdf}")
+    if not any(line.split() == [b"Pages:", str(pages).encode()] for line in info.splitlines()):
+        raise ValueError(f"Expected exactly {pages} pages in {pdf}")
     text = subprocess.check_output(["pdftotext", "-layout", str(pdf), "-"], timeout=20)
-    raster = subprocess.check_output(["pdftoppm", "-r", "96", "-singlefile", str(pdf)], timeout=20)
+    raster_args = ["-r", "36"] if scaling else ["-r", "96", "-singlefile"]
+    raster = subprocess.check_output(["pdftoppm", *raster_args, str(pdf)], timeout=60)
     if not text.strip() or not raster.startswith(b"P6\n"):
         raise ValueError(f"Missing extracted text or page raster for {pdf}")
+    if scaling:
+        if raster.count(b"P6\n") != pages:
+            raise ValueError(f"Missing rendered pages in {pdf}")
+        page_text = text.split(b"\f")
+        for page in range(1, pages + 1):
+            if f"Page {page:03}.".encode() not in page_text[page - 1]:
+                raise ValueError(f"Unexpected text on page {page} in {pdf}")
     manifest = json.loads((directory / "texloom-build-manifest.json").read_text(encoding="utf-8"))
     return {
         "text_sha256": hashlib.sha256(text).hexdigest(),
@@ -51,16 +59,22 @@ def output_signature(directory):
     }
 
 
-def compare_pairs(root):
+def compare_pairs(root, scaling=False):
     summaries = []
-    for engine in ENGINES:
+    engines = ("pdflatex",) if scaling else ENGINES
+    cases = ("pages-1", "pages-20", "pages-100") if scaling else CASES
+    for engine in engines:
         directory = root / f"paired-{engine}"
         path = root / f"paired-{engine}.jsonl"
         rows = [json.loads(line) for line in path.read_text(encoding="utf-8-sig").splitlines()]
         if len(rows) != 36 or any(row["engine"] != engine for row in rows):
             raise ValueError(f"Unexpected paired samples in {path}")
         samples = {(row["case"], row["trial"], row["profile"]): row for row in rows}
-        for case in CASES:
+        expected = {(case, trial, arm) for case in cases for trial in range(6) for arm in ("fresh", "warm")}
+        if samples.keys() != expected or any(row["warmup"] != (row["trial"] == 0) for row in rows):
+            raise ValueError(f"Missing, duplicated, or mislabeled trials in {path}")
+        for case in cases:
+            pages = int(case.removeprefix("pages-")) if scaling else 1
             differences = []
             first_pass = []
             version = []
@@ -72,8 +86,8 @@ def compare_pairs(root):
                 warm = samples[case, trial, "warm"]
                 if fresh["timings"]["version_reused"] or not warm["timings"]["version_reused"]:
                     raise ValueError(f"Wrong profile result in {prefix}")
-                if output_signature(prefix.with_name(prefix.name + "-fresh")) != output_signature(
-                    prefix.with_name(prefix.name + "-warm")
+                if output_signature(prefix.with_name(prefix.name + "-fresh"), pages, scaling) != output_signature(
+                    prefix.with_name(prefix.name + "-warm"), pages, scaling
                 ):
                     raise ValueError(f"Output or manifest mismatch in {prefix}")
                 differences.append(fresh["seconds"] - warm["seconds"])
@@ -92,6 +106,13 @@ def compare_pairs(root):
                 "median_fresh_probe_seconds": median(version),
                 "individual_paired_saving_seconds": differences,
             })
+            if scaling:
+                summaries[-1]["pages"] = pages
+                summaries[-1]["warm_phase_medians_seconds"] = {
+                    stage: median(samples[case, trial, "warm"]["timings"][stage] for trial in range(1, 6))
+                    for stage in ("snapshot_seconds", "engine_seconds", "verify_seconds",
+                                  "recorder_seconds", "finalize_seconds")
+                }
     return {"matched_pairs": sum(row["count"] for row in summaries), "summaries": summaries}
 
 
@@ -99,11 +120,14 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("runs", type=Path)
     parser.add_argument("output", type=Path)
-    parser.add_argument("--paired", action="store_true")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--paired", action="store_true")
+    mode.add_argument("--pages", action="store_true")
     args = parser.parse_args()
-    if args.paired:
+    if args.paired or args.pages:
+        result = compare_pairs(args.runs, args.pages)
         with args.output.open("x", encoding="utf-8", newline="\n") as output:
-            json.dump(compare_pairs(args.runs), output, indent=2)
+            json.dump(result, output, indent=2)
             output.write("\n")
         return
     summaries = []
