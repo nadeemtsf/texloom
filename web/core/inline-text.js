@@ -4,6 +4,19 @@ const space = character => character === ' ' || character === '\t';
 const whitespace = character => space(character) || character === '\n';
 const ligatures = {'ﬀ':'ff','ﬁ':'fi','ﬂ':'fl','ﬃ':'ffi','ﬄ':'ffl'};
 
+// Native ranges use the editor's normalized offsets. The expected bytes must
+// still match the original source, including a BOM and CRLF line endings.
+function sourceReader(source) {
+  const bom=Number(source.startsWith('\uFEFF'));
+  const breaks=Array.from(source.matchAll(/\r\n/gu),(match,i)=>match.index-bom-i);
+  const raw=offset=>{
+    let lo=0,hi=breaks.length;
+    while(lo<hi){const mid=(lo+hi)>>>1;if(breaks[mid]<offset)lo=mid+1;else hi=mid}
+    return bom+offset+lo;
+  };
+  return (start,end)=>source.slice(raw(start),raw(end));
+}
+
 export function inlineRows(lines, text, first = 0) {
   let index = 0;
   const rows = [];
@@ -56,7 +69,7 @@ export function buildInlineIndex(view, groups, sources, measure=null) {
   const candidates=groups.flatMap(({file,primary,paragraphs})=>{
     const options=match(primary);
     if(options.length)return [{file,flow:primary,options}];
-    return paragraphs.map(flow=>({file,flow,options:match(flow)}));
+    return paragraphs.map(flow=>({file,flow,primary,options:match(flow)}));
   });
   const matches=candidates.map(item=>item.options);
   // Reading order resolves repeated occurrences when the entire sequence has
@@ -73,14 +86,35 @@ export function buildInlineIndex(view, groups, sources, measure=null) {
     latest[i]=last;
     if(last) upper=last.n;
   }
-  for (const [i,{file,flow}] of candidates.entries()) {
+  const slices=new Map();
+  for (const [i,{file,flow,primary}] of candidates.entries()) {
     if (!earliest[i] || earliest[i]!==latest[i]) continue;
     const {rows}=earliest[i];
     const entry={file,kind:'source',start:flow.range[0],end:flow.range[1],content:flow.expected,
       expected_source:sources[file],text:flow.text,rows,page:rows[0].line.page};
+    // A page break can split a source flow, but adjacent paragraphs on either
+    // page still share an editable passage when both mappings are unique.
+    const previous=entries.at(-1);
+    if(primary&&previous&&candidates[i-1]?.primary===primary&&earliest[i-1]?.end===earliest[i].n&&
+        previous.file===file&&previous.page===entry.page){
+      if(!slices.has(file))slices.set(file,sourceReader(sources[file]));
+      const source=slices.get(file),gap=source(previous.end,entry.start);
+      if(/^[\t \r\n]*$/u.test(gap)&&gap.split('\n').length>=3){
+        const shift=previous.text.length+1;
+        previous.text+='\n'+entry.text;
+        previous.end=entry.end;
+        previous.content=source(previous.start,entry.end);
+        previous.rows.push(...rows.map(row=>({...row,start:row.start+shift,end:row.end+shift,
+          offsets:row.offsets.map(offset=>offset+shift)})));
+        continue;
+      }
+    }
+    entries.push(entry);
+  }
+  for(const entry of entries){
+    const {file,rows}=entry;
     if(!bySource.has(file))bySource.set(file,new Map());
     bySource.get(file).set(entry.start,entry);
-    entries.push(entry);
     for(const row of rows) {
       row.stops=measuredCaretStops(row.line,measure);
       byLine.set(row.line,{entry,row});

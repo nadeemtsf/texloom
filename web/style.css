@@ -10,6 +10,7 @@
 .line-hit,.text-object-hit,.text-object-frame{position:absolute;border:1px solid transparent;border-radius:1px;background:transparent;padding:0;min-height:0;touch-action:none}
 .line-hit{cursor:crosshair;z-index:2}.line-hit:hover{border-color:#799d7566;background:#799d7512}
 .inline-mode .line-hit{cursor:text}
+.inline-mode .line-hit[data-inline-source]::before{content:'';position:absolute;inset:0 100% 0 -6px}
 .inline-mode.stale .line-hit{pointer-events:auto;visibility:visible}
 .inline-mode .line-hit:hover,.inline-mode .line-hit:focus-visible{border-color:transparent;background:transparent;outline:none}
 .selection-tools{position:fixed;top:119px;right:18px;width:min(300px,40vw);z-index:14;pointer-events:none}

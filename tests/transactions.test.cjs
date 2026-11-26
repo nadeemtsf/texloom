@@ -488,6 +488,24 @@ test('long pages map separate project files and split a flow that crosses a page
  assert.equal(findInlineFlow(view,{file:'sections/part.tex',start:0,text:lead.text}).page.number,20);
 });
 
+test('adjacent paragraphs on the same physical page keep one editable flow',async()=>{
+ const {buildInlineIndex}=await import('../web/core/inline-text.js');
+ const [lead,first,next]=['Lead.','First.','Second.'].map((text,i)=>({text,page:i?21:20}));
+ const part=(line,start)=>({range:[start,start+line.text.length],text:line.text,expected:line.text});
+ const file='sections/example.tex',source='\uFEFFLead.\r\n\r\nFirst.\r\n\r\nSecond.';
+ const primary={range:[0,source.replace(/^\uFEFF/u,'').replaceAll('\r\n','\n').length],expected:source.slice(1),
+   text:'Lead.\nFirst.\nSecond.'};
+ const groups=[inlineGroup(primary,file,[part(lead,0),part(first,7),part(next,15)])];
+ const view={pages:[{lines:[lead]},{lines:[first,next]}]};
+ const index=buildInlineIndex(view,groups,{[file]:source});
+ const firstEntry=index.byLine.get(first).entry;
+ assert.equal(index.byLine.get(next).entry,firstEntry);
+ assert.equal(firstEntry.content,'First.\r\n\r\nSecond.');
+ assert.equal(firstEntry.text,'First.\nSecond.');
+ assert.equal(index.byLine.get(next).row.offsets[0],7);
+ assert.notEqual(index.byLine.get(lead).entry,firstEntry);
+});
+
 test('a rendered line without matching source starts no mapping or compilation',async()=>{
  const t=await probeSetup();
  const line={text:'Generated text',runs:[{size:12}]},page={number:1,lines:[line]};

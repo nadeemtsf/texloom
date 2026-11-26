@@ -423,6 +423,23 @@ pub fn inline_paragraphs(source: &str, flow: &InlineFlow) -> Vec<InlineFlow> {
     }).collect()
 }
 
+/// Recover a contiguous sequence of complete paragraphs from one parsed flow.
+/// The requested edges must be paragraph edges, never the middle of a token.
+pub fn inline_paragraph_range(source: &str, flow: &InlineFlow, range: Range<usize>) -> Option<InlineFlow> {
+    let paragraphs = inline_paragraphs(source, flow);
+    let first = paragraphs.iter().position(|part| part.range.start == range.start)?;
+    let last = paragraphs.iter().position(|part| part.range.end == range.end)?;
+    let parts = paragraphs.get(first..=last)?;
+    let pieces: Vec<_> = flow.pieces.iter()
+        .filter(|piece| piece.source.start >= range.start && piece.source.end <= range.end)
+        .cloned().collect();
+    let text: String = pieces.iter().map(|piece| piece.text.as_str()).collect();
+    // A skipped or oversized paragraph must not disappear inside a selection.
+    let joined = parts.iter().map(|part| part.text.as_str()).collect::<Vec<_>>().join("\n");
+    (text == joined && text.len() <= 4096 && parts.len() <= 24)
+        .then_some(InlineFlow { range, text, pieces, hard_lines: false })
+}
+
 fn literal_inputs<'a>(source: &str, range: Range<usize>, sources: &'a crate::document::Sources) -> Vec<(usize,&'a str)> {
     let mut inputs=Vec::new();
     let mut cursor=range.start;
@@ -518,6 +535,19 @@ fn project_flows_preserve_source_order_and_refuse_reused_subtrees() {
     *main=main.replace("After.","\\input{sections/chapter}\nAfter.");
     let files:Vec<_>=project_inline_flows(&sources,"main.tex").into_iter().map(|(file,_)|file).collect();
     assert_eq!(files,vec!["main.tex","main.tex"]);
+}
+
+#[test]
+fn adjacent_paragraphs_can_join_in_a_partial_flow() {
+    let source = "\\begin{document}\r\nEarlier.\r\n\r\nFirst.\r\n\r\nSecond.\r\n\r\nLater.\r\n\\end{document}";
+    let flow = &inline_flows(source)[0];
+    let start = source.find("First.").unwrap();
+    let end = source.find("Second.").unwrap() + "Second.".len();
+    assert!(inline_paragraph_range(source, flow, start + 1..end).is_none());
+    let joined = inline_paragraph_range(source, flow, start..end).unwrap();
+    assert_eq!(joined.text, "First.\nSecond.");
+    let (updated, _) = edit_inline_flow(source, &joined, "First.Second.").unwrap();
+    assert_eq!(updated, source.replace("First.\r\n\r\nSecond.", "First.Second."));
 }
 
 fn encode(text: &str, hard_lines: bool, line_ending: &str) -> String {

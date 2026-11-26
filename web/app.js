@@ -986,10 +986,14 @@ function inlineKeydown(event,context){
   if(event.key==='Escape'&&!context.inFlight){
     event.preventDefault();closeInlineEdit(context);return;
   }
+  const plainNavigation=!event.shiftKey&&!event.ctrlKey&&!event.metaKey&&!event.altKey;
+  if(plainNavigation&&['Home','End','ArrowUp','ArrowDown'].includes(event.key)&&context.surface.navigate(event.key)){
+    event.preventDefault();return;
+  }
   // Native arrows and deletion handle all rows in the same logical passage.
   // At its edge arrow navigation can enter the next structural passage.
   const backwards=event.key==='ArrowLeft'||event.key==='ArrowUp',forwards=event.key==='ArrowRight'||event.key==='ArrowDown';
-  if((backwards||forwards)&&!event.shiftKey&&!event.ctrlKey&&!event.metaKey&&!event.altKey){
+  if((backwards||forwards)&&plainNavigation){
     const selection=context.surface.selection;
     if(!selection||selection.anchor!==selection.head||selection.head!==(backwards?0:context.surface.value.length))return;
     const entries=state.view.inlineIndex.entries,i=entries.indexOf(context.entry);
